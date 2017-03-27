@@ -1,0 +1,171 @@
+{
+  "distance_unit": "mm",
+  "force_unit": "N",
+  "nodes": [
+    {
+      "id": 57,
+      "x": -4138.141871212475,
+      "y": 12490.440468226687,
+      "z": -3.905705648267499
+    },
+    {
+      "id": 63,
+      "x": -3422.7626522288842,
+      "y": 12501.076768142759,
+      "z": -22.938642590856826
+    },
+    {
+      "id": 71,
+      "x": -3789.7076610392837,
+      "y": 13116.489960531866,
+      "z": -7.017984456794943
+    },
+    {
+      "id": 84,
+      "x": -3414.006857455116,
+      "y": 12910.318676956553,
+      "z": 565.167310165547
+    },
+    {
+      "id": 90,
+      "x": -4129.95480696833,
+      "y": 12899.897804226786,
+      "z": 583.1507737942601
+    },
+    {
+      "id": 98,
+      "x": -3762.080570101324,
+      "y": 12287.071201730088,
+      "z": 571.986767422838
+    }
+  ],
+  "edges": [
+    {
+      "id": 65,
+      "n1": 57,
+      "n2": 63,
+      "type": "LinkTypes::BOTTLE_LINK"
+    },
+    {
+      "id": 73,
+      "n1": 63,
+      "n2": 71,
+      "type": "LinkTypes::BOTTLE_LINK"
+    },
+    {
+      "id": 81,
+      "n1": 71,
+      "n2": 57,
+      "type": "LinkTypes::BOTTLE_LINK"
+    },
+    {
+      "id": 92,
+      "n1": 84,
+      "n2": 90,
+      "type": "LinkTypes::BOTTLE_LINK"
+    },
+    {
+      "id": 100,
+      "n1": 90,
+      "n2": 98,
+      "type": "LinkTypes::BOTTLE_LINK"
+    },
+    {
+      "id": 108,
+      "n1": 98,
+      "n2": 84,
+      "type": "LinkTypes::BOTTLE_LINK"
+    },
+    {
+      "id": 118,
+      "n1": 90,
+      "n2": 57,
+      "type": "LinkTypes::BOTTLE_LINK"
+    },
+    {
+      "id": 127,
+      "n1": 98,
+      "n2": 57,
+      "type": "LinkTypes::BOTTLE_LINK"
+    },
+    {
+      "id": 137,
+      "n1": 84,
+      "n2": 63,
+      "type": "LinkTypes::BOTTLE_LINK"
+    },
+    {
+      "id": 146,
+      "n1": 98,
+      "n2": 63,
+      "type": "LinkTypes::BOTTLE_LINK"
+    },
+    {
+      "id": 157,
+      "n1": 90,
+      "n2": 71,
+      "type": "LinkTypes::BOTTLE_LINK"
+    },
+    {
+      "id": 167,
+      "n1": 84,
+      "n2": 71,
+      "type": "LinkTypes::BOTTLE_LINK"
+    }
+  ],
+  "support_nodes": null,
+  "forces": [
+    {
+      "node_id": 57,
+      "components": {
+        "x_t": 0.0,
+        "y_t": 0.0,
+        "z_t": 0.0
+      }
+    },
+    {
+      "node_id": 63,
+      "components": {
+        "x_t": 0.0,
+        "y_t": 0.0,
+        "z_t": 0.0
+      }
+    },
+    {
+      "node_id": 71,
+      "components": {
+        "x_t": 0.0,
+        "y_t": 0.0,
+        "z_t": 0.0
+      }
+    },
+    {
+      "node_id": 84,
+      "components": {
+        "x_t": 0.0,
+        "y_t": 0.0,
+        "z_t": 0.0
+      }
+    },
+    {
+      "node_id": 90,
+      "components": {
+        "x_t": 0.0,
+        "y_t": 0.0,
+        "z_t": 0.0
+      }
+    },
+    {
+      "node_id": 98,
+      "components": {
+        "x_t": 0.0,
+        "y_t": 0.0,
+        "z_t": 0.0
+      }
+    }
+  ],
+  "standard_surface": [
+    65,73,81
+  ],
+  "standard_direction": -1
+}
