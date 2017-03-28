@@ -20,7 +20,6 @@ class UserInteraction
     @dialog.show
     @dialog.add_action_callback("document_ready") {register_callbacks}
     @dialog.add_action_callback("button_clicked") { |context, button_id|
-      puts "id #{button_id}"
       Sketchup.active_model.select_tool @tools[button_id]
       @dialog.execute_script "select_tool('#{button_id}')"
     }
