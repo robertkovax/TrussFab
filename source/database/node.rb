@@ -4,14 +4,14 @@ require ProjectHelper.database_directory + '/hub.rb'
 class Node < GraphObject
   attr_reader :position, :partners
 
-  def initialize position
+  def initialize position, id: nil
     @position = position
     @partners = Hash.new
-    super nil
+    super id
   end
 
   private
   def create_thingy id
-    @thingy = Hub.new id, @position
+    @thingy = Hub.new @position, id: id
   end
 end

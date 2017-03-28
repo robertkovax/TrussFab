@@ -2,7 +2,7 @@ require ProjectHelper.database_directory + '/thingy.rb'
 require ProjectHelper.model_directory + '/model_storage.rb'
 
 class Hub < Thingy
-  def initialize id, position
+  def initialize position, id: nil
     @position = position
     @model = ModelStorage.instance.models['ball_hub']
     super id

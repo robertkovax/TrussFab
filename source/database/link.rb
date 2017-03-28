@@ -4,7 +4,8 @@ require ProjectHelper.database_directory + '/link_entities/line.rb'
 require ProjectHelper.database_directory + '/link_entities/bottle_link.rb'
 
 class Link < Thingy
-  def initialize id, first_position, second_position, definition, first_elongation_length, second_elongation_length
+  def initialize first_position, second_position, definition, first_elongation_length, second_elongation_length,
+                 id: nil
     @definition = definition
     @direction = first_position.vector_to second_position
     @first_position = first_position
