@@ -10,7 +10,6 @@ class TetrahedronTool < Tool
   end
 
   def activate
-    puts "hi"
   end
 
   def onMouseMove flags, x, y, view
@@ -20,7 +19,7 @@ class TetrahedronTool < Tool
   def onLButtonDown flags, x, y, view
     surface = nil
     Sketchup.active_model.start_operation "add tetra on ground", true
-    # TODO add json import
+    # TODO add creation by geometry
     JsonImport.import Configuration::TETRAHEDRON, @mouse_input.position
     view.invalidate
     Sketchup.active_model.commit_operation
