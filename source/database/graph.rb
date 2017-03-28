@@ -1,5 +1,6 @@
 require ProjectHelper.database_directory + '/node.rb'
 require ProjectHelper.database_directory + '/edge.rb'
+require ProjectHelper.database_directory + '/graph_surface.rb'
 
 class Graph
   include Singleton
@@ -18,6 +19,11 @@ class Graph
   def create_edge first_node, second_node, link_type, model_name, first_elongation_length, second_elongation_length
     edge = Edge.new first_node, second_node, link_type, model_name, first_elongation_length, second_elongation_length
     @edges[edge.id] = edge
+    edge
+  end
+
+  def create_surface_from_nodes first_node, second_node, third_node
+    GraphSurface.new first_node, second_node, third_node
   end
 
   def get_node_at position

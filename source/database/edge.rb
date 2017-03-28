@@ -3,6 +3,7 @@ require ProjectHelper.database_directory + '/link.rb'
 require ProjectHelper.model_directory + '/model_storage.rb'
 
 class Edge < GraphObject
+  attr_reader :first_node, :second_node
   def initialize first_node, second_node, link_type, model_name, first_elongation_length, second_elongation_length,
                  id: nil
     @first_node = first_node
@@ -11,6 +12,8 @@ class Edge < GraphObject
     @first_elongation_length = first_elongation_length
     @second_elongation_length = second_elongation_length
     super id
+    @first_node.add_partner @second_node, self
+    @second_node.add_partner @first_node, self
   end
 
   private

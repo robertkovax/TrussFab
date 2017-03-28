@@ -6,8 +6,12 @@ class Node < GraphObject
 
   def initialize position, id: nil
     @position = position
-    @partners = Hash.new
+    @partners = Array.new
     super id
+  end
+
+  def add_partner node, edge
+    partners << {node: node, edge: edge}
   end
 
   private

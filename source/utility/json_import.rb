@@ -14,8 +14,23 @@ class JsonImport
     unless json_objects.nil?
       nodes = build_nodes json_objects, position
       edges = build_edges json_objects, nodes
+      create_surfaces edges
     end
     edges
+  end
+
+  # create surfaces from partners
+  # we look at both first_node and second_node, since surfaces with a missing link can occur
+  def self.create_surfaces edges
+    edges.values.each do |edge|
+      [edge.first_node, edge.second_node].each do |edge_node|
+        edge_node.partners.each do |partner|
+          node = partner[:node]
+          next if node == edge.first_node or node == edge.second_node
+          Graph.instance.create_surface_from_nodes edge.first_node, edge.second_node, node
+        end
+      end
+    end
   end
 
   def self.build_nodes json_objects, position

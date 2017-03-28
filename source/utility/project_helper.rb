@@ -40,6 +40,7 @@ class ProjectHelper
     Sketchup.active_model.options["UnitsOptions"]["LengthFormat"] = 0 # print and display lengths as decimal number
     set_style
     create_layers
+    setup_surface_materials
   end
 
   private
