@@ -21,9 +21,8 @@ class Configuration
       :style => UI::HtmlDialog::STYLE_DIALOG
   }
 
-  # Elongation properties
+  # Thingy properties
   DEFAULT_ELONGATION = 30.mm
-
   BALL_HUB_RADIUS = 14.mm
 
   TETRAHEDRON = ProjectHelper.asset_directory + '/primitives/tetrahedron.json'
@@ -61,4 +60,6 @@ class Configuration
   ELONGATION_RADIUS = 11.mm
   CONNECTOR_COLOR = 'blue'
   CONNECTOR_RADIUS = 8.mm
+
+  SNAP_TOLERANCE = 50.mm
 end

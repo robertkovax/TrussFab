@@ -6,7 +6,7 @@ require ProjectHelper.utility_directory + '/json_import.rb'
 class TetrahedronTool < Tool
   def initialize ui = nil
     super ui unless ui.nil?
-    @mouse_input = MouseInput.new
+    @mouse_input = MouseInput.new snap_to_surfaces: true
   end
 
   def activate

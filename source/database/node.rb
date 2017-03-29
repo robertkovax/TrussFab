@@ -10,6 +10,10 @@ class Node < GraphObject
     super id
   end
 
+  def distance point
+    @position.distance point
+  end
+
   def add_partner node, edge
     partners << {node: node, edge: edge}
   end
