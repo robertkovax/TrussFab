@@ -22,11 +22,13 @@ class Configuration
   }
 
   # Thingy properties
+  MINIMUM_ELONGATION = 20.mm
   DEFAULT_ELONGATION = 30.mm
   BALL_HUB_RADIUS = 14.mm
 
   TETRAHEDRON = ProjectHelper.asset_directory + '/primitives/tetrahedron.json'
   OCTAHEDRON = ProjectHelper.asset_directory + '/primitives/octahedron.json'
+  STANDARD_BOTTLES = 'hard'
 
   # Model Settings
   HARD_MODELS = [

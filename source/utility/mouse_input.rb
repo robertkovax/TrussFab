@@ -21,6 +21,7 @@ class MouseInput
 
     @position = input_point.position
     snap_to_closest_thingy
+    @position = @snapped_thingy.position if @snapped_thingy
   end
 
   def snap_to_closest_thingy

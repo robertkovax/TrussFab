@@ -51,7 +51,9 @@ class Edge < GraphObject
   private
   def create_thingy id
     length = @first_node.position.distance @second_node.position
-    model_length = length - @first_elongation_length - @second_elongation_length
+    first_length = @first_elongation_length == 0 ? Configuration::MINIMUM_ELONGATION : @first_elongation_length
+    second_length = @second_elongation_length == 0 ? Configuration::MINIMUM_ELONGATION : @second_elongation_length
+    model_length = length - first_length - second_length
     shortest_model = @model.find_model_shorter_than model_length
     if @first_elongation_length == 0 and @second_elongation_length == 0
       @first_elongation_length = @second_elongation_length = (length - shortest_model.length) / 2

@@ -21,7 +21,7 @@ class JsonImport
 
   # create surfaces from partners
   # we look at both first_node and second_node, since surfaces with a missing link can occur
-  def self. create_surfaces edges
+  def self.create_surfaces edges
     surfaces = Hash.new
     edges.each_value do |edge|
       [edge.first_node, edge.second_node].each do |edge_node|
