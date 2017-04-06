@@ -23,9 +23,9 @@ class JsonImport
   # we look at both first_node and second_node, since surfaces with a missing link can occur
   def self.create_surfaces edges
     surfaces = Hash.new
-    edges.values.each do |edge|
+    edges.each_value do |edge|
       [edge.first_node, edge.second_node].each do |edge_node|
-        edge_node.partners.each do |partner|
+        edge_node.partners.each_value do |partner|
           node = partner[:node]
           next if node == edge.first_node or node == edge.second_node
           next if Graph.instance.duplicated_surface? [edge.first_node, edge.second_node, node]
