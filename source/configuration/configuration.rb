@@ -26,6 +26,7 @@ class Configuration
   BALL_HUB_RADIUS = 14.mm
 
   TETRAHEDRON = ProjectHelper.asset_directory + '/primitives/tetrahedron.json'
+  OCTAHEDRON = ProjectHelper.asset_directory + '/primitives/octahedron.json'
 
   # Model Settings
   HARD_MODELS = [

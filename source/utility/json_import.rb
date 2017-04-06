@@ -63,8 +63,8 @@ class JsonImport
       second_node = nodes[edge['n2']]
       link_type = edge['type']
       model_name = edge['model'].nil? ? 'hard' : edge['model']
-      first_elongation_length = edge['e1'].nil? ? Configuration::DEFAULT_ELONGATION : edge['e1'].to_l
-      second_elongation_length = edge['e2'].nil? ? Configuration::DEFAULT_ELONGATION : edge['e2'].to_l
+      first_elongation_length = edge['e1'].nil? ? 0 : edge['e1'].to_l
+      second_elongation_length = edge['e2'].nil? ? 0 : edge['e2'].to_l
       new_edge = Graph.instance.create_edge_from_points first_node, second_node, link_type, model_name,
                                                     first_elongation_length, second_elongation_length
       edges[edge['id']] = new_edge

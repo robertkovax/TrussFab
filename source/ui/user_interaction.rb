@@ -29,6 +29,7 @@ class UserInteraction
   def register_callbacks
     return if @dialog.nil?
     build_tool TetrahedronTool, 'tetrahedron_tool'
+    build_tool OctahedronTool, 'octahedron_tool'
     build_tool DeleteTool, 'delete_tool'
   end
 

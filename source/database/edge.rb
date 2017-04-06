@@ -53,6 +53,13 @@ class Edge < GraphObject
     length = @first_node.position.distance @second_node.position
     model_length = length - @first_elongation_length - @second_elongation_length
     shortest_model = @model.find_model_shorter_than model_length
+    if @first_elongation_length == 0 and @second_elongation_length == 0
+      @first_elongation_length = @second_elongation_length = (length - shortest_model.length) / 2
+    else
+      puts 2
+      @first_elongation_length = length - shortest_model.length - @second_elongation_length if @first_elongation_length == 0
+      @second_elongation_length = length - shortest_model.length - @first_elongation_length if @second_elongation_length == 0
+    end
     @thingy = Link.new @first_node.position, @second_node.position, shortest_model.definition, @first_elongation_length,
                        @second_elongation_length, id: id
   end
