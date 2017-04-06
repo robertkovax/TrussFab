@@ -35,7 +35,6 @@ class JsonImport
         end
       end
     end
-    puts surfaces.size
     surfaces
   end
 
