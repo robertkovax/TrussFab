@@ -42,7 +42,9 @@ class Link < Thingy
 
   private
   def create_entity
-    @entity = Sketchup.active_model.entities.add_group(entities)
+    # this will group all entities into one
+    # the context menu for elongations and connectors won't work, since the group will always be on the complete link
+    # @entity = Sketchup.active_model.entities.add_group(entities)
   end
 
   def entities
