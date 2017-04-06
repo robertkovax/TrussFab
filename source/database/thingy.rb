@@ -9,8 +9,17 @@ class Thingy
     create_entity
   end
 
+  def delete
+    delete_entity
+  end
+
   private
   def create_entity
     raise "Thingy (#{self.class}) :: create_entity needs to be overwritten"
+  end
+
+  def delete_entity
+    @entity.erase! unless @entity.nil? or @entity.deleted?
+    @entity = nil
   end
 end

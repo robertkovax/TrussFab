@@ -46,7 +46,7 @@ class Graph
   def get_closest_surface position
     min = Float::INFINITY
     closest_surface = nil
-    @surfaces.values.each do |surface|
+    @surfaces.each_value do |surface|
       if surface.distance(position) < min
         min = surface.distance position
         closest_surface = surface
@@ -58,7 +58,7 @@ class Graph
   def get_closest_node position
     min = Float::INFINITY
     closest_node = nil
-    @nodes.values.each do |node|
+    @nodes.each_value do |node|
       if node.distance(position) < min
         min = node.distance position
         closest_node = node
@@ -88,6 +88,14 @@ class Graph
       break if duplicated
     end
     duplicated
+  end
+
+  def delete_object object
+    hash = @nodes if object.is_a? Node
+    hash = @edges if object.is_a? Edge
+    hash = @surfaces if object.is_a? Surface
+    return if hash.nil?
+    hash.delete object.id
   end
 
   private

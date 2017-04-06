@@ -34,6 +34,20 @@ class Edge < GraphObject
     @first_node.position.vector_to @second_node.position
   end
 
+  def delete
+    super
+    @first_node.delete_observer self
+    @second_node.delete_observer self
+    @first_node.delete_partner @second_node
+    @second_node.delete_partner @first_node
+  end
+
+  def update symbol
+    if symbol == :deleted
+      delete
+    end
+  end
+
   private
   def create_thingy id
     length = @first_node.position.distance @second_node.position
@@ -41,5 +55,10 @@ class Edge < GraphObject
     shortest_model = @model.find_model_shorter_than model_length
     @thingy = Link.new @first_node.position, @second_node.position, shortest_model.definition, @first_elongation_length,
                        @second_elongation_length, id: id
+  end
+
+  def register_observers
+    @first_node.add_observer self
+    @second_node.add_observer self
   end
 end

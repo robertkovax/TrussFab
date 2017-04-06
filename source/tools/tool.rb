@@ -8,4 +8,8 @@ class Tool
       Sketchup.active_model.select_tool nil
     end
   end
+
+  def deactivate view
+    @ui.deselect_tool
+  end
 end

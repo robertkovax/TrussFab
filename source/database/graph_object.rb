@@ -8,8 +8,21 @@ class GraphObject
     create_thingy @id
   end
 
+  def delete
+    delete_thingy
+    unstore
+  end
+
   private
   def create_thingy id
     raise "GraphObject (#{self.class}):: create_thingy needs to be overwritten"
+  end
+
+  def unstore
+    Graph.instance.delete_object self
+  end
+
+  def delete_thingy
+    thingy.delete
   end
 end

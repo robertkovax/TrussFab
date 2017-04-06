@@ -9,7 +9,7 @@ class UserInteraction
     puts "hi"
   end
 
-  def tool_deselected
+  def deselect_tool
     @dialog.execute_script "deselect_all_tools()"
   end
 
@@ -28,7 +28,8 @@ class UserInteraction
   private
   def register_callbacks
     return if @dialog.nil?
-      build_tool TetrahedronTool, 'tetrahedron_tool'
+    build_tool TetrahedronTool, 'tetrahedron_tool'
+    build_tool DeleteTool, 'delete_tool'
   end
 
   def build_tool tool_class, tool_id

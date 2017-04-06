@@ -5,7 +5,7 @@ require ProjectHelper.utility_directory + '/json_import.rb'
 
 class TetrahedronTool < Tool
   def initialize ui = nil
-    super ui unless ui.nil?
+    super
     @mouse_input = MouseInput.new snap_to_surfaces: true
   end
 
@@ -20,12 +20,9 @@ class TetrahedronTool < Tool
     surface = nil
     Sketchup.active_model.start_operation "add tetra on ground", true
     # TODO add creation by geometry
+    puts "Add tetrahedron on the ground"
     JsonImport.import Configuration::TETRAHEDRON, @mouse_input.position
     view.invalidate
     Sketchup.active_model.commit_operation
-  end
-
-  def deactivate view
-    @ui.tool_deselected
   end
 end

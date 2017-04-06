@@ -24,11 +24,34 @@ class Link < Thingy
     @first_position.distance @second_position
   end
 
+  def delete
+    @first_elongation.delete
+    @first_elongation = nil
+    @second_elongation.delete
+    @second_elongatio = nil
+    @first_connector.delete
+    @first_connector = nil
+    @second_connector.delete
+    @second_connector = nil
+    @line.delete
+    @line = nil
+    @model.delete
+    @model = nil
+    super
+  end
+
   private
   def create_entity
-    unless @entity
-      @entity = nil
-    end
-    @entity
+    @entity = Sketchup.active_model.entities.add_group(entities)
+  end
+
+  def entities
+    ents = Array.new
+    ents << @first_elongation.entity
+    ents << @first_connector.entity
+    ents << @line.entity
+    ents << @model.entity
+    ents << @second_connector.entity
+    ents << @second_elongation.entity
   end
 end
