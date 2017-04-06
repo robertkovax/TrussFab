@@ -61,5 +61,5 @@ class Configuration
   CONNECTOR_COLOR = 'blue'
   CONNECTOR_RADIUS = 8.mm
 
-  SNAP_TOLERANCE = 50.mm
+  SNAP_TOLERANCE = 100.mm
 end
