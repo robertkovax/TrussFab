@@ -56,7 +56,6 @@ class Edge < GraphObject
     if @first_elongation_length == 0 and @second_elongation_length == 0
       @first_elongation_length = @second_elongation_length = (length - shortest_model.length) / 2
     else
-      puts 2
       @first_elongation_length = length - shortest_model.length - @second_elongation_length if @first_elongation_length == 0
       @second_elongation_length = length - shortest_model.length - @first_elongation_length if @second_elongation_length == 0
     end

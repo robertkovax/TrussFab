@@ -41,6 +41,13 @@ class Node < GraphObject
     partners.empty?
   end
 
+  def partners_include? node_or_partner
+    result = false
+    result = partners_include_node? node_or_partner if node_or_partner.is_a? Node
+    result = partners_include_edge? node_or_partner if node_or_partner.is_a? Edge
+    return result
+  end
+
   private
   def create_thingy id
     @thingy = Hub.new @position, id: id
@@ -55,5 +62,19 @@ class Node < GraphObject
     partners.each_value do |partner|
       partners.delete partner[:edge] unless partner[:edge].nil?
     end
+  end
+
+  def partners_include_node? node
+    @partners.each_value do |partner|
+      return true if partner[:node] == node
+    end
+    return false
+  end
+
+  def partners_include_edge? edge
+    @partners.each_value do |partner|
+      return true if partner[:edge] == edge
+    end
+    return false
   end
 end
