@@ -30,7 +30,7 @@ class JsonImport
           other_edge_node = edge.first_node == edge_node ? edge.second_node : edge.first_node
           next if node == edge.first_node or node == edge.second_node or Graph.instance.duplicated_surface? [edge.first_node, edge.second_node, node]
           next unless other_edge_node.partners_include? node
-          surface = Graph.instance.create_surface_from_nodes edge.first_node, edge.second_node, node
+          surface = Graph.instance.create_surface edge.first_node, edge.second_node, node
           surfaces[surface.id] = surface
         end
       end

@@ -58,7 +58,7 @@ class BottleModel
       model = components[name]
     else
       definition = components.load specification[:PATH]
-      model = Bottle.new name, specification[:WEIGHT], definition
+      model = Bottle.new name, specification[:WEIGHT], definition, specification[:MODEL]
     end
     model
   end

@@ -35,27 +35,32 @@ class Configuration
       {
           NAME: 'Big Big Double Bottle (60cm)',
           WEIGHT: 0.16,
-          PATH: ProjectHelper.component_directory + '/1-big-big-double-bottle(60cm).skp'
+          PATH: ProjectHelper.component_directory + '/1-big-big-double-bottle(60cm).skp',
+          MODEL: 'hard'
       },
       {
           NAME: 'Small Big Double Bottle (53cm)',
           WEIGHT: 0.14,
-          PATH: ProjectHelper.component_directory + '/2-small-big-double-bottle(53cm).skp'
+          PATH: ProjectHelper.component_directory + '/2-small-big-double-bottle(53cm).skp',
+          MODEL: 'hard'
       },
       {
           NAME: 'Small Small Double Bottle (46cm)',
           WEIGHT: 0.11,
-          PATH: ProjectHelper.component_directory + '/3-small-small-double-bottle(46cm).skp'
+          PATH: ProjectHelper.component_directory + '/3-small-small-double-bottle(46cm).skp',
+          MODEL: 'hard'
       },
       {
           NAME: 'Big Single Bottle (30cm)',
           WEIGHT: 0.078,
-          PATH: ProjectHelper.component_directory + '/4-big-single-bottle(30cm).skp'
+          PATH: ProjectHelper.component_directory + '/4-big-single-bottle(30cm).skp',
+          MODEL: 'hard'
       },
       {
           NAME: 'Small Single Bottle (23cm)',
           WEIGHT: 0.048,
-          PATH: ProjectHelper.component_directory + '/5-small-single-bottle(23cm).skp'
+          PATH: ProjectHelper.component_directory + '/5-small-single-bottle(23cm).skp',
+          MODEL: 'hard'
       }
   ]
 

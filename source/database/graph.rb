@@ -20,12 +20,26 @@ class Graph
   end
 
   def create_edge first_node, second_node, link_type, model_name, first_elongation_length, second_elongation_length
-    edge = Edge.new first_node, second_node, link_type, model_name, first_elongation_length, second_elongation_length
+    nodes = [first_node, second_node]
+    edge = duplicated_edge?(nodes) ?
+        duplicated_edge?(nodes) :
+        Edge.new first_node, second_node, link_type, model_name, first_elongation_length, second_elongation_length
     @edges[edge.id] = edge
     edge
   end
 
-  def create_surface_from_nodes first_node, second_node, third_node
+  def create_surface_from_points first_position, second_position, third_position, link_model
+    first_node = create_node first_position
+    second_node = create_node second_position
+    third_node = create_node third_position
+    nodes = [first_node, second_node, third_node]
+    return duplicated_surface?(nodes) if duplicated_surface?(nodes)
+    first_edge = create_edge first_position, second_position, nil, link_model.name, 0, 0
+    second_edge = create_edge second_position, third_position, nil, link_model.name, 0, 0
+    first_edge = create_edge first_position, third_position, nil, link_model.name, 0, 0
+  end
+
+  def create_surface first_node, second_node, third_node
     surface = GraphSurface.new first_node, second_node, third_node
     @surfaces[surface.id] = surface
     surface
@@ -81,10 +95,20 @@ class Graph
   # this expects a 3-node array
   def duplicated_surface? nodes
     duplicated = false
-    @surfaces.values.each do |surface|
-      duplicated = true if nodes.include?(surface.first_node) and
+    @surfaces.each_value do |surface|
+      duplicated = surface if nodes.include?(surface.first_node) and
           nodes.include?(surface.second_node) and
           nodes.include?(surface.third_node)
+      break if duplicated
+    end
+    duplicated
+  end
+
+  def duplicated_edge? nodes
+    duplicated = false
+    @edges.each_value do |edge|
+      duplicated = edge if nodes.include?(edge.first_node) and
+          nodes.include?(edge.second_node)
       break if duplicated
     end
     duplicated
