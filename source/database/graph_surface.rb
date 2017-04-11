@@ -12,6 +12,10 @@ class GraphSurface < GraphObject
     register_observers
   end
 
+  def position
+    center
+  end
+
   def center
     Geometry::triangle_incenter @first_node.position, @second_node.position, @third_node.position
   end

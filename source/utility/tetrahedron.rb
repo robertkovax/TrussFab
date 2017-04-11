@@ -16,6 +16,11 @@ class Tetrahedron
     surface.nodes.each do |node|
       Graph.instance.create_edge_from_points node.position, upper_point, definition.model.name, 0, 0
     end
+    node = Graph.instance.duplicated_node? upper_point
+    return unless node
+    Graph.instance.create_surface surface.first_node, surface.second_node, node
+    Graph.instance.create_surface surface.first_node, surface.third_node, node
+    Graph.instance.create_surface surface.second_node, surface.third_node, node
   end
 
   def self.setup_scaled_axis_vectors definition
