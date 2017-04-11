@@ -1,7 +1,10 @@
 require ProjectHelper.model_directory + '/bottle.rb'
 
 class BottleModel
-  def initialize specifications
+  attr_reader :name, :models
+
+  def initialize name, specifications
+    @name = name
     @models = Hash.new
     specifications.each do |specification|
       @models[specification[:NAME]] = create_model specification
@@ -58,7 +61,7 @@ class BottleModel
       model = components[name]
     else
       definition = components.load specification[:PATH]
-      model = Bottle.new name, specification[:WEIGHT], definition, specification[:MODEL]
+      model = Bottle.new name, specification[:WEIGHT], definition, self
     end
     model
   end

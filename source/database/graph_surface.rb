@@ -24,6 +24,10 @@ class GraphSurface < GraphObject
     delete if symbol == :deleted
   end
 
+  def nodes
+    [first_node, second_node, third_node]
+  end
+
   private
   def create_thingy id
     @thingy = Surface.new @first_node.position, @second_node.position, @third_node.position, id: id

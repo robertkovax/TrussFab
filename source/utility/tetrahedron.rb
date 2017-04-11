@@ -1,13 +1,25 @@
-require ProjectHelper.utility_directory + 'geometry.rb'
+require ProjectHelper.utility_directory + '/geometry.rb'
 
 class Tetrahedron
   def self.build position, definition, surface = nil
     x_vector, y_vector, z_vector = setup_scaled_axis_vectors definition
-    surface = create_ground_surface(position, x_vector) if surface.nil?
+    surface = create_ground_surface(position, x_vector, definition) unless surface
+    upper_point = Geometry::intersect_three_spheres(
+        surface.first_node.position, surface.second_node.position, surface.third_node.position,
+        z_vector.length, z_vector.length, z_vector.length)
+    lower_point = Geometry::intersect_three_spheres(
+        surface.third_node.position, surface.second_node.position, surface.first_node.position,
+        z_vector.length, z_vector.length, z_vector.length)
+    eye = Sketchup.active_model.active_view.camera.eye
+    upper_point = lower_point if eye.distance(lower_point) < eye.distance(upper_point)
+    return if upper_point.nil?
+    surface.nodes.each do |node|
+      Graph.instance.create_edge_from_points node.position, upper_point, definition.model.name, 0, 0
+    end
   end
 
   def self.setup_scaled_axis_vectors definition
-    edge_length = link_model.length + Configuration::DEFAULT_ELONGATION * 2
+    edge_length = definition.length + Configuration::DEFAULT_ELONGATION * 2
 
     x_vector = Geometry::X_AXIS
     y_vector = Geometry::Y_AXIS
@@ -20,10 +32,10 @@ class Tetrahedron
     return x_vector, y_vector, z_vector
   end
 
-  def self.create_ground_surface position, vector
-    rotation = Geom::Transformation.rotation origin, Geometry::Z_AXIS, 2/3*Math::PI # rotate 120 degree in x-y-plane
+  def self.create_ground_surface position, vector, definition
+    rotation = Geom::Transformation.rotation position, Geometry::Z_AXIS, 60.degrees
     second_position = position + vector
-    third_position = second_position + vector.transform(rotation)
+    third_position = position + vector.transform(rotation)
     Graph.instance.create_surface_from_points position, second_position, third_position, definition
   end
 end

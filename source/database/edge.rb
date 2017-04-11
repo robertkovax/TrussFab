@@ -4,8 +4,8 @@ require ProjectHelper.model_directory + '/model_storage.rb'
 
 class Edge < GraphObject
   attr_reader :first_node, :second_node
-  def initialize first_node, second_node, link_type, model_name, first_elongation_length, second_elongation_length,
-                 id: nil
+  def initialize first_node, second_node, model_name, first_elongation_length, second_elongation_length,
+                 id: nil, link_type: "bottle_link"
     @first_node = first_node
     @second_node = second_node
     @model = ModelStorage.instance.models[model_name]

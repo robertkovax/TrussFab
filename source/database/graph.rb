@@ -13,33 +13,34 @@ class Graph
     @surfaces = Hash.new
   end
 
-  def create_edge_from_points first_position, second_position, link_type, model_name, first_elongation_length, second_elongation_length
+  def create_edge_from_points first_position, second_position, model_name, first_elongation_length, second_elongation_length, link_type: "bottle_link"
     first_node = create_node first_position
     second_node = create_node second_position
-    create_edge first_node, second_node, link_type, model_name, first_elongation_length, second_elongation_length
+    create_edge first_node, second_node, model_name, first_elongation_length, second_elongation_length, link_type: link_type
   end
 
-  def create_edge first_node, second_node, link_type, model_name, first_elongation_length, second_elongation_length
+  def create_edge first_node, second_node, model_name, first_elongation_length, second_elongation_length, link_type: "bottle_link"
     nodes = [first_node, second_node]
-    edge = duplicated_edge?(nodes) ?
-        duplicated_edge?(nodes) :
-        Edge.new first_node, second_node, link_type, model_name, first_elongation_length, second_elongation_length
+    return duplicated_edge?(nodes) if duplicated_edge?(nodes)
+    edge = Edge.new first_node, second_node, model_name, first_elongation_length, second_elongation_length,link_type: link_type
     @edges[edge.id] = edge
     edge
   end
 
-  def create_surface_from_points first_position, second_position, third_position, link_model
+  def create_surface_from_points first_position, second_position, third_position, definition
     first_node = create_node first_position
     second_node = create_node second_position
     third_node = create_node third_position
-    nodes = [first_node, second_node, third_node]
-    return duplicated_surface?(nodes) if duplicated_surface?(nodes)
-    first_edge = create_edge first_position, second_position, nil, link_model.name, 0, 0
-    second_edge = create_edge second_position, third_position, nil, link_model.name, 0, 0
-    first_edge = create_edge first_position, third_position, nil, link_model.name, 0, 0
+    model = definition.model
+    create_edge first_node, second_node, model.name, 0, 0
+    create_edge second_node, third_node, model.name, 0, 0
+    create_edge first_node, third_node, model.name, 0, 0
+    create_surface first_node, second_node, third_node
   end
 
   def create_surface first_node, second_node, third_node
+    nodes = [first_node, second_node, third_node]
+    return duplicated_surface?(nodes) if duplicated_surface?(nodes)
     surface = GraphSurface.new first_node, second_node, third_node
     @surfaces[surface.id] = surface
     surface
@@ -81,7 +82,7 @@ class Graph
     closest_node
   end
 
-  def get_node_at position
+  def duplicated_node? position
     node_at_position = nil
     @nodes.values.each do |node|
       if node.position == position
@@ -92,7 +93,7 @@ class Graph
     node_at_position
   end
 
-  # this expects a 3-node array
+  # this function expects a 3-node array
   def duplicated_surface? nodes
     duplicated = false
     @surfaces.each_value do |surface|
@@ -104,6 +105,7 @@ class Graph
     duplicated
   end
 
+  # this function expects a 2-node array
   def duplicated_edge? nodes
     duplicated = false
     @edges.each_value do |edge|
@@ -125,7 +127,7 @@ class Graph
   private
   # nodes should never be created without a corresponding edge, therefore private
   def create_node position
-    node = get_node_at position
+    node = duplicated_node? position
     return node unless node.nil?
     node = Node.new position
     @nodes[node.id] = node

@@ -1,3 +1,5 @@
+require 'set'
+
 class MouseInput
   attr_reader :position, :snapped_thingy
 

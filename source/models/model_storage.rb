@@ -17,6 +17,6 @@ class ModelStorage
     components = Sketchup.active_model.definitions
     @models['ball_hub'] = components['Hub'].nil? ? BallHubModel.new : components['Hub']
     @models['connector'] = components['Connector'].nil? ? ConnectorModel.new : components['Connector']
-    @models['hard'] = BottleModel.new Configuration::HARD_MODELS
+    @models['hard'] = BottleModel.new 'hard', Configuration::HARD_MODELS
   end
 end
