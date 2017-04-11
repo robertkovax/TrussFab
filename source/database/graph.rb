@@ -119,7 +119,7 @@ class Graph
   def delete_object object
     hash = @nodes if object.is_a? Node
     hash = @edges if object.is_a? Edge
-    hash = @surfaces if object.is_a? Surface
+    hash = @surfaces if object.is_a? GraphSurface
     return if hash.nil?
     hash.delete object.id
   end
