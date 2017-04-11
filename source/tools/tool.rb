@@ -9,6 +9,10 @@ class Tool
     end
   end
 
+  def onRButtonDown flags, x, y, view
+    Sketchup.active_model.select_tool nil
+  end
+
   def deactivate view
     @ui.deselect_tool
   end
