@@ -16,9 +16,8 @@ In that plugin directory, create a Ruby file called `truss_fab.rb` with the cont
 $LOAD_PATH << "C:/Downloads/MP"
 require 'trussFab/truss_fab.rb'
 
-UI.start_timer(1, false) {
-	Sketchup.send_action CMD_RUBY_CONSOLE
-	TrussFab.start
+Sketchup.send_action CMD_RUBY_CONSOLE
+TrussFab.start
 }
 ```
 
