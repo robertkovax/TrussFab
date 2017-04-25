@@ -1,10 +1,10 @@
-#Bottle Project
+# Bottle Project
 
 SketchUp plug-in to create large-scale 3D-printed objects by using ready-made objects (e.g. PET bottles).
 
-##Installation
+## Installation
 
-###SketchUp Plugin
+### SketchUp Plugin
 
 Rename this repository directory to `bottleProject` somewhere on your disk, say to `C:\Downloads\MP\bottleProject\`
 
@@ -38,7 +38,7 @@ The plugin directory should now look like this:
 
 Restart SketchUp for the changes to take effect. If it works will you see an extra window in SketchUp with the title 'TrussFab'.
 
-###Force analysis server
+### Force analysis server
 
 * To run the force analysis server, you need Rhino, Grasshopper, Karamba, and Python 2 installed.
 
@@ -53,7 +53,7 @@ Restart SketchUp for the changes to take effect. If it works will you see an ext
 * To kill it if unresponsive, run `sc queryex "Fea Server"` which will print the PID, say 3582, then run `taskkill /F /PID 3582`
 
 
-##Usage
+## Usage
 
 Open SketchUp and in the menu bar select `Extensions`, `Activate BottleProject`. The BottlePrint toolbar should come up:
 
@@ -67,7 +67,7 @@ Another window offers additional functionality:
 
 **DO NOT USE `CTRL + Z`**. This will ruin the internal data structure. Also, do not use the standard Sketchup tools for manipulating the model (move, rotate, ...).
 
-###Drawing Individual Links
+### Drawing Individual Links
 
 Select the draw tool from the BottlePrint toolbar and click on the ground to start drawing a link. Move your mouse and click again to finish placing it. If the bottle layer is active, you should now see a bottle.
 
@@ -75,23 +75,23 @@ Note that once there are links in the model, the draw tool will help you by snap
 
 Activate fixed-angle construction lines in the UI window to guide your drawing.
 
-###Drawing Multiple Links
+### Drawing Multiple Links
 
 Use the Tetrahedron and Octahedron draw tools from the toolbar to place multiple links. Click the ground or the triangle surface of an already-drawn tetrahedron/octahedron to place another.
 
-###Deleting Links
+### Deleting Links
 
 With the select tool from the toolbar, select hubs or links, then press D to delete them. Do **not** press the Delete key.
 
 Deleting hubs will also delete adjacent Links. Hold down shift to select multiple hubs.
 
-###Layers
+### Layers
 
 From the SketchUp menu bar, select `Windows`, `Layer` to show the Layer panel. Use its checkboxes to control what you see.
 
 ![Layers](/readme_images/layers.png?raw=true "Layers")
 
-##Export Hubs for Print
+## Export Hubs for Print
 
 To generate .scad files from Sketchup
 
@@ -105,7 +105,7 @@ To Generate .stl files:
 3. Save and click Render (F6)
 4. Click Export as STL
 
-##Printing
+## Printing
 
 Print Steps:
 
@@ -123,11 +123,11 @@ Print Steps:
 
 
 
-##Development
+## Development
 
 Entry points are bp_toolbar.rb and the tools created there.
 
-###Concerning the SketchUp API
+### Concerning the SketchUp API
 
 * [Sketchup Ruby API](http://www.sketchup.com/intl/en/developer/index), [Tutorials](http://www.sketchup.com/intl/en/developer/docs/tutorial_geometry)
 
@@ -135,18 +135,18 @@ Entry points are bp_toolbar.rb and the tools created there.
 
 * Prevent automated geometry merging: In Sketchup, if two entities (e.g. edges) are exactly on the same position, they are merged. The whole model is simplified constantly. To prevent that, use groups to wrap the entites.
 
-###Debugger
+### Debugger
 
 After downloading the dll from the releases of https://github.com/SketchUp/sketchup-ruby-debugger and copying it to SketchUp Installation folder, starting SketchUp with the argument `SketchUp.exe -rdebug "ide port=1234"` lets you connect a debugger like RubyMine’s. SketchUp will start up and block with a white screen until the debugger is connected.
 
 Also, use SketchUp’s Ruby Console to try for example `Storage.instance.combined_links`.
 
-###Creating new Bottle Models
+### Creating new Bottle Models
 
 The bottle models in `models/initComponents/` were created using the `double_bottle_factory.rb` script, which is not loaded as part of the program.
 Start SketchUp, require the file from the rubyConsole and call its functions. Remember do delete everything else from the model and clean up unused definitions. Then save it as an skp file in the right directory.
 
-#Contact handles
+# Contact handles
 
 robert.kovacs@hpi.de
 anna.seufert@student.hpi.de
