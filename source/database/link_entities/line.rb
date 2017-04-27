@@ -1,7 +1,7 @@
 require ProjectHelper.database_directory + '/link_entities/link_entity.rb'
 
 class Line < LinkEntity
-  def initialize first_position, second_position, id: nil
+  def initialize(first_position, second_position, id: nil)
     super id
     @first_position = first_position
     @second_position = second_position

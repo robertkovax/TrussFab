@@ -32,18 +32,19 @@ class ProjectHelper
   end
 
   def self.require_multiple(path_wildcard)
-    Dir[self.plugin_directory + '/../' + path_wildcard].each {|file| require file}
+    Dir[plugin_directory + '/../' + path_wildcard].each { |file| require file }
   end
 
   def self.setup_sketchup
-    Sketchup.active_model.options["UnitsOptions"]["LengthUnit"] = 2 # print and display lengths in mm
-    Sketchup.active_model.options["UnitsOptions"]["LengthFormat"] = 0 # print and display lengths as decimal number
+    Sketchup.active_model.options['UnitsOptions']['LengthUnit'] = 2 # print and display lengths in mm
+    Sketchup.active_model.options['UnitsOptions']['LengthFormat'] = 0 # print and display lengths as decimal number
     set_style
     create_layers
     setup_surface_materials
   end
 
   private
+
   def self.create_layers
     layers = Sketchup.active_model.layers
 
@@ -69,16 +70,16 @@ class ProjectHelper
   def self.set_style
     styles = Sketchup.active_model.styles
     styles.add_style(plugin_directory + '/Bottle Editor Style1.style', false)
-    styles.selected_style = styles["Bottle Editor Style1"]
+    styles.selected_style = styles['Bottle Editor Style1']
   end
 
   def self.setup_surface_materials
     material = Sketchup.active_model.materials.add('surface_color')
-    material.color = [1,1,1]
+    material.color = [1, 1, 1]
     material.alpha = 0.03
 
     material = Sketchup.active_model.materials.add('surface_highlighted_color')
-    material.color = [1,1,1]
+    material.color = [1, 1, 1]
     material.alpha = 0.5
   end
 end

@@ -4,8 +4,8 @@ require ProjectHelper.model_directory + '/model_storage.rb'
 
 class Edge < GraphObject
   attr_reader :first_node, :second_node
-  def initialize first_node, second_node, model_name, first_elongation_length, second_elongation_length,
-                 id: nil, link_type: "bottle_link"
+  def initialize(first_node, second_node, model_name, first_elongation_length, second_elongation_length,
+                 id: nil, link_type: 'bottle_link')
     @first_node = first_node
     @second_node = second_node
     @model = ModelStorage.instance.models[model_name]
@@ -17,8 +17,8 @@ class Edge < GraphObject
     register_observers
   end
 
-  # TODO adapt distance to take distance from the whole segment and not only the midway point
-  def distance point
+  # TODO: adapt distance to take distance from the whole segment and not only the midway point
+  def distance(point)
     half_direction = direction
     half_direction.length = half_direction.length / 2
 
@@ -42,20 +42,19 @@ class Edge < GraphObject
     @second_node.delete_partner @first_node
   end
 
-  def update symbol
-    if symbol == :deleted
-      delete
-    end
+  def update(symbol)
+    delete if symbol == :deleted
   end
 
   private
-  def create_thingy id
+
+  def create_thingy(id)
     length = @first_node.position.distance @second_node.position
     first_length = @first_elongation_length == 0 ? Configuration::MINIMUM_ELONGATION : @first_elongation_length
     second_length = @second_elongation_length == 0 ? Configuration::MINIMUM_ELONGATION : @second_elongation_length
     model_length = length - first_length - second_length
     shortest_model = @model.find_model_shorter_than model_length
-    if @first_elongation_length == 0 and @second_elongation_length == 0
+    if @first_elongation_length == 0 && @second_elongation_length == 0
       @first_elongation_length = @second_elongation_length = (length - shortest_model.length) / 2
     else
       @first_elongation_length = length - shortest_model.length - @second_elongation_length if @first_elongation_length == 0

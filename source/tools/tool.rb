@@ -1,19 +1,17 @@
 class Tool
-  def initialize ui
+  def initialize(ui)
     @ui = ui
   end
 
-  def onKeyDown key, repeat, flags, view
-    if key == 27 # ESC
-      Sketchup.active_model.select_tool nil
-    end
+  def onKeyDown(key, _repeat, _flags, _view)
+    Sketchup.active_model.select_tool nil if key == 27 # ESC
   end
 
-  def onRButtonDown flags, x, y, view
+  def onRButtonDown(_flags, _x, _y, _view)
     Sketchup.active_model.select_tool nil
   end
 
-  def deactivate view
+  def deactivate(_view)
     @ui.deselect_tool
   end
 end

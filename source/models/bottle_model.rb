@@ -1,17 +1,17 @@
-require ProjectHelper.model_directory + '/bottle.rb'
+require 'source/models/bottle.rb'
 
 class BottleModel
   attr_reader :name, :models
 
-  def initialize name, specifications
+  def initialize(name, specifications)
     @name = name
-    @models = Hash.new
+    @models = {}
     specifications.each do |specification|
       @models[specification[:NAME]] = create_model specification
     end
   end
 
-  def find_model_shorter_than length
+  def find_model_shorter_than(length)
     long_model = shortest_model
     @models.values.each do |model|
       next if model.length > length
@@ -20,7 +20,7 @@ class BottleModel
     long_model
   end
 
-  def find_model_longer_than length
+  def find_model_longer_than(length)
     short_model = longest_model
     @models.values.each do |model|
       next if model.length < length
@@ -54,7 +54,8 @@ class BottleModel
   end
 
   private
-  def create_model specification
+
+  def create_model(specification)
     components = Sketchup.active_model.definitions # Sketchup Component Definitions
     name = specification[:NAME]
     if components[name]

@@ -3,7 +3,7 @@ require 'set'
 class MouseInput
   attr_reader :position, :snapped_thingy
 
-  def initialize snap_to_nodes: false, snap_to_edges: false, snap_to_surfaces: false
+  def initialize(snap_to_nodes: false, snap_to_edges: false, snap_to_surfaces: false)
     @snap_to_nodes = snap_to_nodes
     @snap_to_edges = snap_to_edges
     @snap_to_surfaces = snap_to_surfaces
@@ -15,7 +15,7 @@ class MouseInput
     @snapped_thingy = nil
   end
 
-  def update_positions view, x, y
+  def update_positions(view, x, y)
     soft_reset
 
     input_point = Sketchup::InputPoint.new
@@ -30,15 +30,15 @@ class MouseInput
     thingies = Set.new
     if @snap_to_edges
       edge = Graph.instance.get_closest_edge @position
-      thingies.add edge unless edge.nil? or edge.distance(@position) > Configuration::SNAP_TOLERANCE
+      thingies.add edge unless edge.nil? || edge.distance(@position) > Configuration::SNAP_TOLERANCE
     end
     if @snap_to_nodes
       node = Graph.instance.get_closest_node @position
-      thingies.add node unless node.nil? or node.distance(@position) > Configuration::SNAP_TOLERANCE
+      thingies.add node unless node.nil? || node.distance(@position) > Configuration::SNAP_TOLERANCE
     end
     if @snap_to_surfaces
       surface = Graph.instance.get_closest_surface @position
-      thingies.add surface unless surface.nil? or  surface.distance(@position) > Configuration::SNAP_TOLERANCE
+      thingies.add surface unless surface.nil? ||  surface.distance(@position) > Configuration::SNAP_TOLERANCE
     end
     return nil if thingies.empty?
     closest_thingy = thingies.first

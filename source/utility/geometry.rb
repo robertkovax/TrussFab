@@ -4,39 +4,40 @@ class Geometry
   Z_AXIS = Geom::Vector3d.new 0, 0, 1
   ORIGIN = Geom::Point3d.new 0, 0, 0
 
-  def self.rotation_angle_between first_vector, second_vector
+  def self.rotation_angle_between(first_vector, second_vector)
     first_vector.angle_between second_vector
   end
 
-  def self.perpendicular_rotation_axis first_vector, second_vector
-    if first_vector.parallel? second_vector
-      get_perpendicular_vector first_vector
+  def self.perpendicular_rotation_axis(first_vector, second_vector)
+    if first_vector.parallel?(second_vector)
+      get_perpendicular_vector(first_vector)
     else
-      first_vector.cross second_vector
+      first_vector.cross(second_vector)
     end
   end
 
-  def self.get_perpendicular_vector vector
-    Geom::Vector3d.new  vector.y - vector.z,
-                        vector.z - vector.x,
-                        vector.x - vector.y
+  def self.get_perpendicular_vector(vector)
+    Geom::Vector3d.new(vector.y - vector.z,
+                       vector.z - vector.x,
+                       vector.x - vector.y)
   end
 
-  def self.triangle_incenter first_point, second_point, third_point
-    length_a = first_point.distance second_point
-    length_b = second_point.distance third_point
-    length_c = third_point.distance first_point
+  def self.triangle_incenter(first_point, second_point, third_point)
+    length_a = first_point.distance(second_point)
+    length_b = second_point.distance(third_point)
+    length_c = third_point.distance(first_point)
     total_length = length_a + length_b + length_c
-    Geom::Point3d.new (length_a * first_point.x + length_b * second_point.x + length_c * third_point.x) / total_length,
-                      (length_a * first_point.y + length_b * second_point.y + length_c * third_point.y) / total_length,
-                      (length_a * first_point.z + length_b * second_point.z + length_c * third_point.z) / total_length
+    x = (length_a * first_point.x + length_b * second_point.x + length_c * third_point.x) / total_length
+    y = (length_a * first_point.y + length_b * second_point.y + length_c * third_point.y) / total_length
+    z = (length_a * first_point.z + length_b * second_point.z + length_c * third_point.z) / total_length
+    Geom::Point3d.new(x, y, z)
   end
 
-  def self.intersect_three_spheres first_center, second_center, third_center, first_radius, second_radius, third_radius
+  def self.intersect_three_spheres(first_center, second_center, third_center, first_radius, second_radius, third_radius)
     # https://en.wikipedia.org/wiki/Trilateration#Derivation
     # reverse the order of centers to get the opposite intersection
 
-    d, i, j, ex, ey, ez = transform_to_local_coordiantes first_center, second_center, third_center
+    d, i, j, ex, ey, ez = transform_to_local_coordiantes(first_center, second_center, third_center)
     # ex, ey, ez are local coordinates unit vectors
     # d, i, j are non-zero coordinates of local sphere centers
     # Now our spheres are defined as
@@ -52,29 +53,29 @@ class Geometry
     y = (first_radius * first_radius - third_radius * third_radius + i * i + j * j) / (2 * j) - x * i / j
     z_squared = first_radius * first_radius - x * x - y * y
     return nil if z_squared < 0 # no solution: three spheres don't intersect
-    z = Math.sqrt z_squared
+    z = Math.sqrt(z_squared)
 
     first_center + scale(ex, x) + scale(ey, y) + scale(ez, z)
   end
 
-  def self.transform_to_local_coordiantes first_center, second_center, third_center
+  def self.transform_to_local_coordiantes(first_center, second_center, third_center)
     # https://en.wikipedia.org/wiki/Trilateration#Preliminary_and_final_computations
     # ex, ey, ez to be the local coordinates base unit vectors
     # d,i,j to be the non-zero coordinates of the three spheres
     ex = (second_center - first_center)
     ex.normalize!
     i = ex.dot(third_center - first_center)
-    ey = third_center - first_center - scale(ex,i)
+    ey = third_center - first_center - scale(ex, i)
     ey.normalize!
     ez = ex * ey
     d = (second_center - first_center).length
     j = ey.dot(third_center - first_center)
-    return d, i, j, ex, ey, ez
+    [d, i, j, ex, ey, ez]
   end
 
-  def self.scale vector, scalar
+  def self.scale(vector, scalar)
     cloned_vector = vector.clone
     cloned_vector.length = cloned_vector.length * scalar
-    return cloned_vector
+    cloned_vector
   end
 end

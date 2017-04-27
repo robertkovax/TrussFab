@@ -1,6 +1,6 @@
-require 'trussFab/source/configuration/configuration.rb'
-require 'trussFab/source/utility/project_helper.rb'
-require 'trussFab/source/ui/user_interaction.rb'
+require 'source/configuration/configuration.rb'
+require 'source/utility/project_helper.rb'
+require 'source/ui/user_interaction.rb'
 
 class TrussFab
   def self.start
@@ -21,6 +21,5 @@ class TrussFab
 
     # ProjectHelper.remove_fleeting_entities
     # Storage.instance.build_from_dict
-
   end
 end

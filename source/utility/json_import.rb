@@ -2,14 +2,14 @@ require 'json'
 require ProjectHelper.database_directory + '/graph.rb'
 
 class JsonImport
-  def self.import path, position
+  def self.import(path, position)
     file = File.open path, 'r'
     json_string = file.read
     file.close
     from_string json_string, position
   end
 
-  def self.from_string string, position
+  def self.from_string(string, position)
     json_objects = JSON.parse(string)
     unless json_objects.nil?
       nodes = build_nodes json_objects, position
@@ -21,14 +21,14 @@ class JsonImport
 
   # create surfaces from partners
   # we look at both first_node and second_node, since surfaces with a missing link can occur
-  def self.create_surfaces edges
-    surfaces = Hash.new
+  def self.create_surfaces(edges)
+    surfaces = {}
     edges.each_value do |edge|
       [edge.first_node, edge.second_node].each do |edge_node|
         edge_node.partners.each_value do |partner|
           node = partner[:node]
           other_edge_node = edge.first_node == edge_node ? edge.second_node : edge.first_node
-          next if node == edge.first_node or node == edge.second_node or Graph.instance.duplicated_surface? [edge.first_node, edge.second_node, node]
+          next if node == edge.first_node || node == edge.second_node || Graph.instance.duplicated_surface?([edge.first_node, edge.second_node, node])
           next unless other_edge_node.partners_include? node
           surface = Graph.instance.create_surface edge.first_node, edge.second_node, node
           surfaces[surface.id] = surface
@@ -38,10 +38,10 @@ class JsonImport
     surfaces
   end
 
-  def self.build_nodes json_objects, position
+  def self.build_nodes(json_objects, position)
     first = true
     translation = Geom::Transformation.new
-    nodes = Hash.new
+    nodes = {}
     json_objects['nodes'].each do |node|
       x = node['x'].to_f.mm
       y = node['y'].to_f.mm
@@ -57,8 +57,8 @@ class JsonImport
     nodes
   end
 
-  def self.build_edges json_objects, nodes
-    edges = Hash.new
+  def self.build_edges(json_objects, nodes)
+    edges = {}
     json_objects['edges'].each do |edge|
       first_node = nodes[edge['n1']]
       second_node = nodes[edge['n2']]
@@ -67,7 +67,7 @@ class JsonImport
       first_elongation_length = edge['e1'].nil? ? 0 : edge['e1'].to_l
       second_elongation_length = edge['e2'].nil? ? 0 : edge['e2'].to_l
       new_edge = Graph.instance.create_edge_from_points first_node, second_node, link_type, model_name,
-                                                    first_elongation_length, second_elongation_length
+                                                        first_elongation_length, second_elongation_length
       edges[edge['id']] = new_edge
     end
     edges

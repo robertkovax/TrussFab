@@ -4,8 +4,8 @@ require ProjectHelper.database_directory + '/link_entities/line.rb'
 require ProjectHelper.database_directory + '/link_entities/bottle_link.rb'
 
 class Link < Thingy
-  def initialize first_position, second_position, definition, first_elongation_length, second_elongation_length,
-                 id: nil
+  def initialize(first_position, second_position, definition, first_elongation_length, second_elongation_length,
+                 id: nil)
     @definition = definition
     @direction = first_position.vector_to second_position
     @first_position = first_position
@@ -41,6 +41,7 @@ class Link < Thingy
   end
 
   private
+
   def create_entity
     # this will group all entities into one
     # the context menu for elongations and connectors won't work, since the group will always be on the complete link
@@ -48,7 +49,7 @@ class Link < Thingy
   end
 
   def entities
-    ents = Array.new
+    ents = []
     ents << @first_elongation.entity
     ents << @first_connector.entity
     ents << @line.entity

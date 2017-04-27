@@ -7,23 +7,23 @@ class Node < GraphObject
 
   attr_reader :position, :partners
 
-  def initialize position, id: nil
+  def initialize(position, id: nil)
     @deleting
     @position = position
-    @partners = Hash.new
+    @partners = {}
     @observer = Set.new
     super id
   end
 
-  def distance point
+  def distance(point)
     @position.distance point
   end
 
-  def add_partner node, edge
-    partners[node.id] = {node: node, edge: edge}
+  def add_partner(node, edge)
+    partners[node.id] = { node: node, edge: edge }
   end
 
-  def delete_partner node
+  def delete_partner(node)
     @partners.delete(node.id) unless partners[node.id].nil?
     return true if @deleting # prevent dangling check when deleting node
     delete if dangling?
@@ -41,15 +41,16 @@ class Node < GraphObject
     partners.empty?
   end
 
-  def partners_include? node_or_partner
+  def partners_include?(node_or_partner)
     result = false
     result = partners_include_node? node_or_partner if node_or_partner.is_a? Node
     result = partners_include_edge? node_or_partner if node_or_partner.is_a? Edge
-    return result
+    result
   end
 
   private
-  def create_thingy id
+
+  def create_thingy(id)
     @thingy = Hub.new @position, id: id
   end
 
@@ -64,17 +65,17 @@ class Node < GraphObject
     end
   end
 
-  def partners_include_node? node
+  def partners_include_node?(node)
     @partners.each_value do |partner|
       return true if partner[:node] == node
     end
-    return false
+    false
   end
 
-  def partners_include_edge? edge
+  def partners_include_edge?(edge)
     @partners.each_value do |partner|
       return true if partner[:edge] == edge
     end
-    return false
+    false
   end
 end

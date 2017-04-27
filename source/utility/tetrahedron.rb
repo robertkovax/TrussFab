@@ -1,15 +1,17 @@
 require ProjectHelper.utility_directory + '/geometry.rb'
 
 class Tetrahedron
-  def self.build position, definition, surface = nil
+  def self.build(position, definition, surface = nil)
     x_vector, y_vector, z_vector = setup_scaled_axis_vectors definition
     surface = create_ground_surface(position, x_vector, definition) unless surface
-    upper_point = Geometry::intersect_three_spheres(
-        surface.first_node.position, surface.second_node.position, surface.third_node.position,
-        z_vector.length, z_vector.length, z_vector.length)
-    lower_point = Geometry::intersect_three_spheres(
-        surface.third_node.position, surface.second_node.position, surface.first_node.position,
-        z_vector.length, z_vector.length, z_vector.length)
+    upper_point = Geometry.intersect_three_spheres(
+      surface.first_node.position, surface.second_node.position, surface.third_node.position,
+      z_vector.length, z_vector.length, z_vector.length
+    )
+    lower_point = Geometry.intersect_three_spheres(
+      surface.third_node.position, surface.second_node.position, surface.first_node.position,
+      z_vector.length, z_vector.length, z_vector.length
+    )
     eye = Sketchup.active_model.active_view.camera.eye
     upper_point = lower_point if eye.distance(lower_point) < eye.distance(upper_point)
     return if upper_point.nil?
@@ -23,7 +25,7 @@ class Tetrahedron
     Graph.instance.create_surface surface.second_node, surface.third_node, node
   end
 
-  def self.setup_scaled_axis_vectors definition
+  def self.setup_scaled_axis_vectors(definition)
     edge_length = definition.length + Configuration::DEFAULT_ELONGATION * 2
 
     x_vector = Geometry::X_AXIS
@@ -34,10 +36,10 @@ class Tetrahedron
     y_vector.length = edge_length
     z_vector.length = edge_length
 
-    return x_vector, y_vector, z_vector
+    [x_vector, y_vector, z_vector]
   end
 
-  def self.create_ground_surface position, vector, definition
+  def self.create_ground_surface(position, vector, definition)
     rotation = Geom::Transformation.rotation position, Geometry::Z_AXIS, 60.degrees
     second_position = position + vector
     third_position = position + vector.transform(rotation)

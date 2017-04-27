@@ -2,13 +2,14 @@ require ProjectHelper.database_directory + '/thingy.rb'
 require ProjectHelper.model_directory + '/model_storage.rb'
 
 class Hub < Thingy
-  def initialize position, id: nil
+  def initialize(position, id: nil)
     @position = position
     @model = ModelStorage.instance.models['ball_hub']
     super id
   end
 
   private
+
   def create_entity
     unless @entity
       position = Geom::Transformation.translation @position

@@ -3,7 +3,7 @@ require ProjectHelper.database_directory + '/link_entities/connector.rb'
 class Elongation < LinkEntity
   attr_reader :direction
 
-  def initialize position, direction, length, id: nil
+  def initialize(position, direction, length, id: nil)
     super id
     @position = position
     @direction = direction
@@ -20,13 +20,14 @@ class Elongation < LinkEntity
   end
 
   private
+
   def create_entity
     unless @entity
       scale = Geom::Transformation.scaling @radius, @radius, length
       translation = Geom::Transformation.translation @position
 
-      rotation_angle = Geometry::rotation_angle_between Geometry::Z_AXIS, @direction
-      rotation_axis = Geometry::perpendicular_rotation_axis Geometry::Z_AXIS, @direction
+      rotation_angle = Geometry.rotation_angle_between Geometry::Z_AXIS, @direction
+      rotation_axis = Geometry.perpendicular_rotation_axis Geometry::Z_AXIS, @direction
       rotation = Geom::Transformation.rotation @position, rotation_axis, rotation_angle
 
       transformation = rotation * translation * scale

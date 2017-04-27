@@ -2,15 +2,15 @@ ProjectHelper.require_multiple 'trussFab/source/tools/*.rb'
 
 class UserInteraction
   def initialize
-    puts "hi"
-    @tools = Hash.new
+    puts 'hi'
+    @tools = {}
     open_dialog
     puts @tools
-    puts "hi"
+    puts 'hi'
   end
 
   def deselect_tool
-    @dialog.execute_script "deselect_all_tools()"
+    @dialog.execute_script 'deselect_all_tools()'
   end
 
   def open_dialog
@@ -18,14 +18,15 @@ class UserInteraction
     file = File.join(File.dirname(__FILE__), '/html/user_interaction.html')
     @dialog.set_file file
     @dialog.show
-    @dialog.add_action_callback("document_ready") {register_callbacks}
-    @dialog.add_action_callback("button_clicked") { |context, button_id|
+    @dialog.add_action_callback('document_ready') { register_callbacks }
+    @dialog.add_action_callback('button_clicked') do |_context, button_id|
       Sketchup.active_model.select_tool @tools[button_id]
       @dialog.execute_script "select_tool('#{button_id}')"
-    }
+    end
   end
 
   private
+
   def register_callbacks
     return if @dialog.nil?
     build_tool TetrahedronTool, 'tetrahedron_tool'
@@ -34,7 +35,7 @@ class UserInteraction
     build_tool DeleteTool, 'delete_tool'
   end
 
-  def build_tool tool_class, tool_id
+  def build_tool(tool_class, tool_id)
     @tools[tool_id] = tool_class.new self
   end
 end

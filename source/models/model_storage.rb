@@ -8,11 +8,12 @@ class ModelStorage
   attr_reader :models
 
   def initialize
-    @models = Hash.new
+    @models = {}
     setup_models
   end
 
   private
+
   def setup_models
     components = Sketchup.active_model.definitions
     @models['ball_hub'] = components['Hub'].nil? ? BallHubModel.new : components['Hub']
