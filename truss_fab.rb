@@ -1,6 +1,6 @@
-require 'source/configuration/configuration.rb'
-require 'source/utility/project_helper.rb'
-require 'source/ui/user_interaction.rb'
+require 'src/configuration/configuration.rb'
+require 'src/utility/project_helper.rb'
+require 'src/ui/user_interaction.rb'
 
 class TrussFab
   def self.start
