@@ -14,6 +14,19 @@ class Graph
     @surfaces = {}
   end
 
+  #
+  # Methods to to create one node, edge or surface
+  #
+
+  # nodes should never be created without a corresponding edge, therefore private
+  private def create_node(position)
+    node = duplicated_node(position)
+    return node unless node.nil?
+    node = Node.new(position)
+    @nodes[node.id] = node
+    node
+  end
+
   def create_edge_from_points(first_position, second_position, model_name, first_elongation_length, second_elongation_length, link_type: 'bottle_link')
     first_node = create_node(first_position)
     second_node = create_node(second_position)
@@ -22,7 +35,8 @@ class Graph
 
   def create_edge(first_node, second_node, model_name, first_elongation_length, second_elongation_length, link_type: 'bottle_link')
     nodes = [first_node, second_node]
-    return true if duplicated_edge?(nodes)
+    edge = duplicated_edge(nodes)
+    return edge unless edge.nil?
     edge = Edge.new(first_node, second_node, model_name, first_elongation_length, second_elongation_length, link_type: link_type)
     @edges[edge.id] = edge
     edge
@@ -41,10 +55,19 @@ class Graph
 
   def create_surface(first_node, second_node, third_node)
     nodes = [first_node, second_node, third_node]
-    return true if duplicated_surface?(nodes)
+    surface = duplicated_surface(nodes)
+    return surface unless surface.nil?
     surface = TriangleSurface.new(first_node, second_node, third_node)
     @surfaces[surface.id] = surface
     surface
+  end
+
+  #
+  # Methods to get closest node, edge or surface
+  #
+
+  def closest_node(position)
+    @nodes.values.min_by { |node| node.distance(position) }
   end
 
   def closest_edge(position)
@@ -55,43 +78,32 @@ class Graph
     @surfaces.values.min_by { |surface| surface.distance(position) }
   end
 
-  def closest_node(position)
-    @nodes.values.min_by { |node| node.distance(position) }
-  end
+  #
+  # Methods to check whether a node, edge or surface already exists
+  # and return the duplicate if there is some
+  #
 
-  def duplicated_node?(position)
-    node_at_position = nil
-    @nodes.values.each do |node|
-      if node.position == position
-        node_at_position = node
-        break
-      end
-    end
-    node_at_position
-  end
-
-  # this function expects a 3-node array
-  def duplicated_surface?(nodes)
-    duplicated = false
-    @surfaces.each_value do |surface|
-      duplicated = surface if nodes.include?(surface.first_node) &&
-                              nodes.include?(surface.second_node) &&
-                              nodes.include?(surface.third_node)
-      break if duplicated
-    end
-    duplicated
+  def duplicated_node(position)
+    @nodes.values.detect { |node| node.position == position }
   end
 
   # this function expects a 2-node array
-  def duplicated_edge?(nodes)
-    duplicated = false
-    @edges.each_value do |edge|
-      duplicated = edge if nodes.include?(edge.first_node) &&
-                           nodes.include?(edge.second_node)
-      break if duplicated
+  def duplicated_edge(nodes)
+    @edges.each.detect do |edge|
+      edge.nodes.all? { |node| nodes.include?(node) }
     end
-    duplicated
   end
+
+  # this function expects a 3-node array
+  def duplicated_surface(nodes)
+    @surfaces.values.detect do |surface|
+      surface.nodes.all? { |node| nodes.include?(node) }
+    end
+  end
+
+  #
+  # Method to delete either a node, an edge or a surface
+  #
 
   def delete_object(object)
     hash = @nodes if object.is_a?(Node)
@@ -99,16 +111,5 @@ class Graph
     hash = @surfaces if object.is_a?(TriangleSurface)
     return if hash.nil?
     hash.delete(object.id)
-  end
-
-  private
-
-  # nodes should never be created without a corresponding edge, therefore private
-  def create_node(position)
-    node = duplicated_node?(position)
-    return node unless node.nil?
-    node = Node.new(position)
-    @nodes[node.id] = node
-    node
   end
 end

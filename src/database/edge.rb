@@ -34,6 +34,10 @@ class Edge < GraphObject
     @first_node.position.vector_to(@second_node.position)
   end
 
+  def nodes
+    [first_node, second_node]
+  end
+
   def delete
     super
     @first_node.delete_observer(self)
