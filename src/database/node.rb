@@ -8,7 +8,7 @@ class Node < GraphObject
   attr_reader :position, :partners
 
   def initialize(position, id: nil)
-    @deleting
+    @deleting = false
     @position = position
     @partners = {}
     @observer = Set.new

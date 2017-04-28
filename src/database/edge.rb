@@ -11,7 +11,7 @@ class Edge < GraphObject
     @model = ModelStorage.instance.models[model_name]
     @first_elongation_length = first_elongation_length
     @second_elongation_length = second_elongation_length
-    super id
+    super(id)
     @first_node.add_partner(@second_node, self)
     @second_node.add_partner(@first_node, self)
     register_observers
