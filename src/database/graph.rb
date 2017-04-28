@@ -89,7 +89,7 @@ class Graph
 
   # this function expects a 2-node array
   def duplicated_edge(nodes)
-    @edges.each.detect do |edge|
+    @edges.values.detect do |edge|
       edge.nodes.all? { |node| nodes.include?(node) }
     end
   end
