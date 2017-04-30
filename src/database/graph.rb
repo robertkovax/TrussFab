@@ -20,7 +20,7 @@ class Graph
 
   # nodes should never be created without a corresponding edge, therefore private
   private def create_node(position)
-    node = duplicated_node(position)
+    node = find_node(position)
     return node unless node.nil?
     node = Node.new(position)
     @nodes[node.id] = node
@@ -35,7 +35,7 @@ class Graph
 
   def create_edge(first_node, second_node, model_name, first_elongation_length, second_elongation_length, link_type: 'bottle_link')
     nodes = [first_node, second_node]
-    edge = duplicated_edge(nodes)
+    edge = find_edge(nodes)
     return edge unless edge.nil?
     edge = Edge.new(first_node, second_node, model_name, first_elongation_length, second_elongation_length, link_type: link_type)
     @edges[edge.id] = edge
@@ -55,7 +55,7 @@ class Graph
 
   def create_surface(first_node, second_node, third_node)
     nodes = [first_node, second_node, third_node]
-    surface = duplicated_surface(nodes)
+    surface = find_surface(nodes)
     return surface unless surface.nil?
     surface = TriangleSurface.new(first_node, second_node, third_node)
     @surfaces[surface.id] = surface
@@ -83,19 +83,19 @@ class Graph
   # and return the duplicate if there is some
   #
 
-  def duplicated_node(position)
+  def find_node(position)
     @nodes.values.detect { |node| node.position == position }
   end
 
   # this function expects a 2-node array
-  def duplicated_edge(nodes)
+  def find_edge(nodes)
     @edges.values.detect do |edge|
       edge.nodes.all? { |node| nodes.include?(node) }
     end
   end
 
   # this function expects a 3-node array
-  def duplicated_surface(nodes)
+  def find_surface(nodes)
     @surfaces.values.detect do |surface|
       surface.nodes.all? { |node| nodes.include?(node) }
     end

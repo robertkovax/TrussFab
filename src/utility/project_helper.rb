@@ -1,8 +1,6 @@
 class ProjectHelper
 
   def self.plugin_directory
-    # puts File.expand_path('../../..', __FILE__)
-    # puts Dir[File.expand_path('../../..', __FILE__) + '/' + 'src/tools/*.rb']
     File.expand_path('../..', File.dirname(__FILE__))
   end
 
@@ -15,11 +13,8 @@ class ProjectHelper
   end
 
   def self.require_multiple(path_wildcard)
-    puts 'here'
-    puts Dir.glob(plugin_directory + '/' + path_wildcard)
-    Dir.glob(plugin_directory + '/' + path_wildcard).each { |file|
-      puts file
-      require file }
+    files = Dir.glob(plugin_directory + '/' + path_wildcard)
+    files.each { |file| require file }
   end
 
   def self.setup_sketchup
@@ -30,7 +25,13 @@ class ProjectHelper
     setup_surface_materials
   end
 
-  private
+  private_class_method
+
+  def self.set_style
+    styles = Sketchup.active_model.styles
+    styles.add_style(plugin_directory + '/Bottle Editor Style1.style', false)
+    styles.selected_style = styles['Bottle Editor Style1']
+  end
 
   def self.create_layers
     layers = Sketchup.active_model.layers
@@ -52,12 +53,6 @@ class ProjectHelper
     # layers.add Configuration::FORCE_VIEW
     # force_label_layer = layers.add Configuration::FORCE_LABEL_VIEW
     # force_label_layer.visible = false
-  end
-
-  def self.set_style
-    styles = Sketchup.active_model.styles
-    styles.add_style(plugin_directory + '/Bottle Editor Style1.style', false)
-    styles.selected_style = styles['Bottle Editor Style1']
   end
 
   def self.setup_surface_materials

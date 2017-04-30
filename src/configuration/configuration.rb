@@ -27,8 +27,8 @@ class Configuration
   DEFAULT_ELONGATION = 30.mm.freeze
   BALL_HUB_RADIUS = 14.mm.freeze
 
-  TETRAHEDRON = ProjectHelper.asset_directory + '/primitives/tetrahedron.json'
-  OCTAHEDRON = ProjectHelper.asset_directory + '/primitives/octahedron.json'
+  TETRAHEDRON = (ProjectHelper.asset_directory + '/primitives/tetrahedron.json').freeze
+  OCTAHEDRON = (ProjectHelper.asset_directory + '/primitives/octahedron.json').freeze
   STANDARD_BOTTLES = 'hard'.freeze
 
   # Model Settings

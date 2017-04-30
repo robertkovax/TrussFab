@@ -42,10 +42,13 @@ class Node < GraphObject
   end
 
   def partners_include?(node_or_partner)
-    result = false
-    result = partners_include_node? node_or_partner if node_or_partner.is_a?(Node)
-    result = partners_include_edge? node_or_partner if node_or_partner.is_a?(Edge)
-    result
+    if node_or_partner.is_a?(Node)
+      partners_include_node?(node_or_partner)
+    elsif node_or_partner.is_a?(Edge)
+      partners_include_edge?(node_or_partner)
+    else
+      false
+    end
   end
 
   private
@@ -66,16 +69,10 @@ class Node < GraphObject
   end
 
   def partners_include_node?(node)
-    @partners.each_value do |partner|
-      return true if partner[:node] == node
-    end
-    false
+    @partners.values.any? { |partner| partner[:node] == node }
   end
 
   def partners_include_edge?(edge)
-    @partners.each_value do |partner|
-      return true if partner[:edge] == edge
-    end
-    false
+    @partners.values.any? { |partner| partner[:edge] == edge }
   end
 end
