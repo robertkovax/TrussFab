@@ -1,6 +1,6 @@
 require 'src/utility/geometry.rb'
 
-class Tetrahedron
+module Tetrahedron
   def self.build(position, definition, surface = nil)
     x_vector, y_vector, z_vector = setup_scaled_axis_vectors(definition)
     surface = create_ground_surface(position, x_vector, definition) unless surface

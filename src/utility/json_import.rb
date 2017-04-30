@@ -1,7 +1,7 @@
 require 'json'
 require 'src/database/graph.rb'
 
-class JsonImport
+module JsonImport
   def self.import(path, position)
     file = File.open(path, 'r')
     json_string = file.read

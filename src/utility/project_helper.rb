@@ -1,4 +1,4 @@
-class ProjectHelper
+module ProjectHelper
 
   def self.plugin_directory
     File.expand_path('../..', File.dirname(__FILE__))

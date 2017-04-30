@@ -1,5 +1,6 @@
 require 'src/utility/project_helper.rb'
-class Configuration
+
+module Configuration
 
   # Sketchup Layers
   LINE_VIEW = 'Link lines'.freeze

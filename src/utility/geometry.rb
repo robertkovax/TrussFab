@@ -1,4 +1,4 @@
-class Geometry
+module Geometry
   X_AXIS = Geom::Vector3d.new(1, 0, 0)
   Y_AXIS = Geom::Vector3d.new(0, 1, 0)
   Z_AXIS = Geom::Vector3d.new(0, 0, 1)
