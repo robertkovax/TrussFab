@@ -4,7 +4,6 @@ puts 'UserInteraction'
 class UserInteraction
   def initialize
     @tools = {}
-    open_dialog
   end
 
   def deselect_tool
@@ -21,6 +20,10 @@ class UserInteraction
       Sketchup.active_model.select_tool(@tools[button_id])
       @dialog.execute_script("select_tool('#{button_id}')")
     end
+  end
+
+  def close_dialog
+    @dialog.close
   end
 
   private
