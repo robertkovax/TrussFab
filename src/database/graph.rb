@@ -27,7 +27,7 @@ class Graph
     node
   end
 
-  def create_edge_from_points(first_position, second_position, model_name, first_elongation_length, second_elongation_length, link_type='bottle_link')
+  def create_edge_from_points(first_position, second_position, model_name, first_elongation_length, second_elongation_length, link_type: 'bottle_link')
     first_node = create_node(first_position)
     second_node = create_node(second_position)
     create_edge(first_node, second_node, model_name, first_elongation_length, second_elongation_length, link_type: link_type)
