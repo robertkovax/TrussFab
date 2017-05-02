@@ -9,7 +9,7 @@ class Surface < Thingy
     super(id, color)
   end
 
-  def highlight(color = 'highlight_color')
+  def highlight(color = 'surface_highlighted_color')
     unless @entity.nil?
       @color = @entity.material
       @entity.material = @entity.back_material = color
