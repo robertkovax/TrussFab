@@ -3,15 +3,17 @@ require 'set'
 class MouseInput
   attr_reader :position, :snapped_thingy
 
-  def initialize(snap_to_nodes: false, snap_to_edges: false, snap_to_surfaces: false)
+  def initialize(snap_to_nodes: false, snap_to_edges: false, snap_to_surfaces: false, highlight: true)
     @snap_to_nodes = snap_to_nodes
     @snap_to_edges = snap_to_edges
     @snap_to_surfaces = snap_to_surfaces
+    @highlight = highlight
     soft_reset
   end
 
   def soft_reset
     @position = nil
+    @snapped_thingy.un_highlight if @snapped_thingy
     @snapped_thingy = nil
   end
 
@@ -23,6 +25,7 @@ class MouseInput
 
     @position = input_point.position
     snap_to_closest_thingy
+    @snapped_thingy.highlight if @snapped_thingy
     @position = @snapped_thingy.position if @snapped_thingy
   end
 

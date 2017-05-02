@@ -1,7 +1,7 @@
 require 'src/configuration/configuration.rb'
 require 'src/utility/project_helper.rb'
 require 'src/ui/user_interaction.rb'
-require 'reload'
+require 'reloader'
 
 class TrussFab
   ProjectHelper.setup_sketchup
