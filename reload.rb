@@ -52,13 +52,17 @@ class Reloader
   #
   # @return [Integer] Number of files reloaded.
   def reload
+    changed_files = changed_rb_files
     mute_warnings do
-      files = changed_rb_files.each do |filename|
+      changed_files.each do |filename|
         store_digest(filename)
         load(filename)
       end
-      puts "Reloaded #{files.size} files" if $VERBOSE
-      files.size
     end
+    if $VERBOSE
+      puts "Reloaded #{changed_files.size} files"
+      changed_files.each { |filename| puts(filename) } #unless changed_files.empty?
+    end
+    changed_files.size
   end
 end
