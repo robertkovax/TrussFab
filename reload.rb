@@ -1,5 +1,4 @@
 require 'digest'
-require 'singleton'
 
 class Reloader
   def initialize
@@ -32,7 +31,6 @@ class Reloader
   def rb_files
     src_path = File.join(__dir__, 'src')
     file_pattern = File.join(src_path, '**', '*.rb')
-    puts Dir.glob(file_pattern).length
     Dir.glob(file_pattern)
   end
 
