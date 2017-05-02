@@ -78,4 +78,21 @@ module Geometry
     cloned_vector.length = cloned_vector.length * scalar
     cloned_vector
   end
+
+  # http://geomalgorithms.com/a02-_lines.html
+  def self.dist_point_to_segment(point, segment)
+    s0, s1 = segment
+    v = s1 - s0
+    w = point - s0
+
+    c1 = w.dot(v)
+    return point.distance(s0) if c1 <= 0
+
+    c2 = v.dot(v)
+    return point.distance(s1) if c2 <= c1
+
+    b = c1 / c2
+    pb = s0 + scale(v, b)
+    point.distance(pb)
+  end
 end

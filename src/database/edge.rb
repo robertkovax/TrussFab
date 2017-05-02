@@ -17,13 +17,8 @@ class Edge < GraphObject
     register_observers
   end
 
-  # TODO: adapt distance to take distance from the whole segment and not only the midway point
   def distance(point)
-    half_direction = direction
-    half_direction.length = half_direction.length / 2
-
-    half_point = position + half_direction
-    half_point.distance(point)
+    Geometry.dist_point_to_segment(point, segment)
   end
 
   def position
@@ -36,6 +31,14 @@ class Edge < GraphObject
 
   def nodes
     [first_node, second_node]
+  end
+
+  def segment
+    [first_node.position, second_node.position]
+  end
+
+  def length
+    @first_node.position.distance(@second_node.position)
   end
 
   def delete
@@ -53,7 +56,6 @@ class Edge < GraphObject
   private
 
   def create_thingy(id)
-    length = @first_node.position.distance(@second_node.position)
     first_length = @first_elongation_length.zero? ? Configuration::MINIMUM_ELONGATION : @first_elongation_length
     second_length = @second_elongation_length.zero? ? Configuration::MINIMUM_ELONGATION : @second_elongation_length
     model_length = length - first_length - second_length
