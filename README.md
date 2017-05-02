@@ -6,22 +6,21 @@ SketchUp plug-in to create large-scale 3D-printed objects by using ready-made ob
 
 ### SketchUp Plugin
 
-Rename this repository directory to `bottleProject` somewhere on your disk, say to `C:\Downloads\MP\trussFab\`
+Find your [Sketchup Plugin directory](http://www.sketchup.com/intl/en/developer/docs/loading), it is usually located at:
+- Windows: `C:\Users\me\AppData\Roaming\SketchUp\SketchUp 2017\SketchUp\Plugins`
+- macOS: `/Users/me/Library/Application Support/SketchUp 2017/SketchUp/Plugins`.
 
-Find your [Sketchup Plugin directory](http://www.sketchup.com/intl/en/developer/docs/loading), in Windows usually something like `C:\Users\me\AppData\Roaming\SketchUp\SketchUp 2017\SketchUp\Plugins`.
-
-In that plugin directory, create a Ruby file called `truss_fab.rb` with the content:
+In that plugin directory, create a Ruby file called `ex_truss_fab.rb` with the content:
 
 ```ruby
-$LOAD_PATH << "C:/Downloads/MP"
-require 'trussFab/truss_fab.rb'
+$LOAD_PATH << "PATH_TO_TRUSSFAB"
+require 'truss_fab.rb'
 
-Sketchup.send_action CMD_RUBY_CONSOLE
+Sketchup.send_action(CMD_RUBY_CONSOLE)
 TrussFab.start
-}
 ```
 
-(In the first line, replace the load path with the parent directory of your `trussFab` directory.)
+(In the first line, replace the load path with the directory of your `trussFab` directory.)
 
 Additionally install the following two libraries into the plugin directory by copying the contents of the 'lib' directory into it:
 
