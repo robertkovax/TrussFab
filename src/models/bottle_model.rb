@@ -10,8 +10,8 @@ class BottleModel
       @models[specification[:NAME]] = create_model(specification)
     end
   end
-
-  def find_model_shorter_than(length)
+  
+  def longest_model_shorter_than(length)
     long_model = shortest_model
     @models.values.each do |model|
       next if model.length > length
@@ -20,7 +20,7 @@ class BottleModel
     long_model
   end
 
-  def find_model_longer_than(length)
+  def shortest_model_longer_than(length)
     short_model = longest_model
     @models.values.each do |model|
       next if model.length < length
