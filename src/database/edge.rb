@@ -18,7 +18,7 @@ class Edge < GraphObject
   end
 
   def distance(point)
-    Geometry.dist_point_to_segment(point, positions)
+    Geometry.dist_point_to_segment(point, segment)
   end
 
   def position
@@ -33,7 +33,7 @@ class Edge < GraphObject
     [first_node, second_node]
   end
 
-  def positions
+  def segment
     [first_node.position, second_node.position]
   end
 
