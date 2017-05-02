@@ -26,25 +26,25 @@ class MouseInput
     @position = @snapped_thingy.position if @snapped_thingy
   end
 
+  def out_of_snap_tolerance?(graph_obj)
+    graph_obj.distance(@position) > Configuration::SNAP_TOLERANCE
+  end
+
   def snap_to_closest_thingy
     thingies = Set.new
     if @snap_to_edges
       edge = Graph.instance.closest_edge(@position)
-      thingies.add(edge) unless edge.nil? || edge.distance(@position) > Configuration::SNAP_TOLERANCE
+      thingies.add(edge) unless edge.nil? || out_of_snap_tolerance?(edge)
     end
     if @snap_to_nodes
       node = Graph.instance.closest_node(@position)
-      thingies.add(node) unless node.nil? || node.distance(@position) > Configuration::SNAP_TOLERANCE
+      thingies.add(node) unless node.nil? || out_of_snap_tolerance?(node)
     end
     if @snap_to_surfaces
       surface = Graph.instance.closest_surface(@position)
-      thingies.add(surface) unless surface.nil? ||  surface.distance(@position) > Configuration::SNAP_TOLERANCE
+      thingies.add(surface) unless surface.nil? || out_of_snap_tolerance?(surface)
     end
     return nil if thingies.empty?
-    closest_thingy = thingies.first
-    thingies.each do |thingy|
-      closest_thingy = thingy if thingy.distance(@position) < closest_thingy.distance(@position)
-    end
-    @snapped_thingy = closest_thingy
+    @snapped_thingy = thingies.min_by { |thingy| thingy.distance(@position) }
   end
 end
