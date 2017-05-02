@@ -8,11 +8,11 @@ class TrussFab
   @reloader = Reloader.new
   @ui = UserInteraction.new
 
-  def self.open
+  def self.start
     @ui.open_dialog
   end
 
-  def self.close
+  def self.stop
     @ui.close_dialog
   end
 
