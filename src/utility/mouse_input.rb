@@ -1,7 +1,7 @@
 require 'set'
 
 class MouseInput
-  attr_reader :position, :snapped_thingy
+  attr_reader :position, :snapped_thingy, :snapped_graph_obj
 
   def initialize(snap_to_nodes: false, snap_to_edges: false, snap_to_surfaces: false, highlight: true)
     @snap_to_nodes = snap_to_nodes
@@ -13,8 +13,9 @@ class MouseInput
 
   def soft_reset
     @position = nil
-    @snapped_thingy.un_highlight if @snapped_thingy
+    @snapped_thingy.un_highlight if !@snapped_thingy.nil?
     @snapped_thingy = nil
+    @snapped_graph_obj = nil
   end
 
   def update_positions(view, x, y)
@@ -25,8 +26,8 @@ class MouseInput
 
     @position = input_point.position
     snap_to_closest_thingy
-    @snapped_thingy.highlight if @snapped_thingy
-    @position = @snapped_thingy.position if @snapped_thingy
+    @snapped_thingy.highlight if !@snapped_thingy.nil?
+    @position = @snapped_graph_obj.position if @snapped_graph_obj
   end
 
   def out_of_snap_tolerance?(graph_obj)
@@ -34,20 +35,21 @@ class MouseInput
   end
 
   def snap_to_closest_thingy
-    thingies = Set.new
+    graph_objects = Set.new
     if @snap_to_edges
       edge = Graph.instance.closest_edge(@position)
-      thingies.add(edge) unless edge.nil? || out_of_snap_tolerance?(edge)
+      graph_objects.add(edge) unless edge.nil? || out_of_snap_tolerance?(edge)
     end
     if @snap_to_nodes
       node = Graph.instance.closest_node(@position)
-      thingies.add(node) unless node.nil? || out_of_snap_tolerance?(node)
+      graph_objects.add(node) unless node.nil? || out_of_snap_tolerance?(node)
     end
     if @snap_to_surfaces
       surface = Graph.instance.closest_surface(@position)
-      thingies.add(surface) unless surface.nil? || out_of_snap_tolerance?(surface)
+      graph_objects.add(surface) unless surface.nil? || out_of_snap_tolerance?(surface)
     end
-    return nil if thingies.empty?
-    @snapped_thingy = thingies.min_by { |thingy| thingy.distance(@position) }
+    return nil if graph_objects.empty?
+    @snapped_graph_obj = graph_objects.min_by { |thingy| thingy.distance(@position) }
+    @snapped_thingy = snapped_graph_obj.thingy
   end
 end

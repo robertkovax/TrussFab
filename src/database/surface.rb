@@ -1,13 +1,25 @@
 require 'src/database/thingy.rb'
 
 class Surface < Thingy
-  def initialize(position1, position2, position3, id: nil, color: 'surface_color')
+  def initialize(position1, position2, position3, id = nil, color = 'surface_color')
     @position1 = position1
     @position2 = position2
     @position3 = position3
     @entities = nil
-    @color = color
-    super id
+    super(id, color)
+  end
+
+  def highlight(color = 'highlight_color')
+    unless @entity.nil?
+      @color = @entity.material
+      @entity.material = @entity.back_material = color
+    end
+  end
+
+  def un_highlight
+    unless @entity.nil?
+      @entity.material = @entity.back_material = @color
+    end
   end
 
   def delete

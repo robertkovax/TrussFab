@@ -19,7 +19,7 @@ class DeleteTool < Tool
       distance_moved = Math.sqrt((@initial_click_position[0] - x)**2 + (@initial_click_position[1] - y)**2)
       @deleting = distance_moved > 10
     end
-    delete x, y, view if @deleting
+    delete(x, y, view) if @deleting
   end
 
   def onLButtonUp(_flags, _x, _y, _view)
@@ -30,11 +30,11 @@ class DeleteTool < Tool
   private
 
   def delete(x, y, view)
-    @mouse_input.update_positions view, x, y
-    thingy = @mouse_input.snapped_thingy
-    return if thingy.nil?
-    delete_node thingy if thingy.is_a?(Node)
-    delete_edge thingy if thingy.is_a?(Edge)
+    @mouse_input.update_positions(view, x, y)
+    graph_obj = @mouse_input.snapped_graph_obj
+    return if graph_obj.nil?
+    delete_node(graph_obj) if graph_obj.is_a?(Node)
+    delete_edge(graph_obj) if graph_obj.is_a?(Edge)
     view.invalidate
   end
 

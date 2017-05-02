@@ -11,11 +11,16 @@ class Thingy
   end
 
   def highlight(color = 'highlight_color')
-    @entity.material = @entity.back_material = color
+    unless @entity.nil?
+      @color = @entity.material
+      @entity.material = color
+    end
   end
 
   def un_highlight
-    @entity.material = @entity.back_material = @color
+    unless @entity.nil?
+      @entity.material = @color
+    end
   end
 
   def delete
