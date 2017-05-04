@@ -3,11 +3,10 @@ require 'set'
 class MouseInput
   attr_reader :position, :snapped_thingy, :snapped_graph_obj
 
-  def initialize(snap_to_nodes: false, snap_to_edges: false, snap_to_surfaces: false, highlight: true)
+  def initialize(snap_to_nodes: false, snap_to_edges: false, snap_to_surfaces: false)
     @snap_to_nodes = snap_to_nodes
     @snap_to_edges = snap_to_edges
     @snap_to_surfaces = snap_to_surfaces
-    @highlight = highlight
     soft_reset
   end
 
