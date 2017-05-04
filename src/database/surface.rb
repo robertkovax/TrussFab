@@ -1,44 +1,49 @@
 require 'src/database/thingy.rb'
 
 class Surface < Thingy
-  def initialize(position1, position2, position3, id = nil, color = 'surface_color')
+
+  @highlight_color = 'surface_highlighted_color'
+
+  def initialize(position1, position2, position3, id: nil, color: 'surface_color')
+    super(id)
     @position1 = position1
     @position2 = position2
     @position3 = position3
-    @entities = nil
-    super(id, color)
+    @color = color
+    @entity = create_entity
   end
 
-  def highlight(color = 'surface_highlighted_color')
-    unless @entity.nil?
-      @color = @entity.material
-      @entity.material = @entity.back_material = color
-    end
-  end
-
-  def un_highlight
-    unless @entity.nil?
-      @entity.material = @entity.back_material = @color
-    end
+  def change_color(color)
+    super(color)
+    @entity.back_material = color
   end
 
   def delete
-    super
-    @entities.each do |entity|
-      entity.erase! unless entity.nil? || entity.deleted?
+    @entity.edges.each do |edge|
+      edge.erase! unless edge.nil? || edge.deleted?
     end
+    super
+  end
+
+  def highlight(highlight_color = @highlight_color)
+    change_color(highlight_color)
+  end
+
+  def un_highlight
+    change_color(@color)
   end
 
   private
 
   def create_entity
-    @entity = Sketchup.active_model.entities.add_face(@position1, @position2, @position3)
-    @entity.layer = Configuration::TRIANGLE_SURFACES_VIEW
-    @entity.material = @entity.back_material = @color
-    @entities = @entity.edges
-    @entities.each do |entity|
+    return @entity if @entity
+    entity = Sketchup.active_model.entities.add_face(@position1, @position2, @position3)
+    entity.layer = Configuration::TRIANGLE_SURFACES_VIEW
+    entity.material = entity.back_material = @color
+    entity.edges.each do |edge|
       # hide outline of surfaces, enable line link layer for lines instead of bottles
-      entity.hidden = true
+      edge.hidden = true
     end
+    entity
   end
 end

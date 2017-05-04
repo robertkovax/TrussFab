@@ -1,11 +1,24 @@
-class LinkEntity
+require 'src/database/thingy.rb'
+
+class LinkEntity < Thingy
   attr_reader :id, :entity
 
   def initialize(id = nil)
-    @id = id.nil? ? IdManager.instance.generate_next_id : id
+    super(id)
+    @entity = create_entity
   end
 
-  def delete
-    @entity.erase! unless @entity.nil? || @entity.deleted?
+  def create_entity
+    raise NotImplementedError
+  end
+
+  def highlight(highlight_color = @highlight_color)
+    @last_color = color
+    change_color(highlight_color)
+  end
+
+  def un_highlight
+    return if @last_color.nil?
+    change_color(@last_color)
   end
 end

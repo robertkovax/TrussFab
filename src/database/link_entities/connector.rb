@@ -5,7 +5,6 @@ class Connector < LinkEntity
   attr_reader :direction
 
   def initialize(position, direction, length, id: nil)
-    super id
     @position = position
     @direction = direction
     @direction.length = length
@@ -13,7 +12,7 @@ class Connector < LinkEntity
     @color = Configuration::CONNECTOR_COLOR
     @radius = Configuration::CONNECTOR_RADIUS
     @layer = Configuration::CONNECTOR_MODE_VIEW
-    create_entity
+    super(id)
   end
 
   def length
@@ -33,9 +32,9 @@ class Connector < LinkEntity
 
     transformation = rotation * translation * scale
 
-    @entity = Sketchup.active_model.entities.add_instance(@model.definition, transformation)
-    @entity.material = @color
-    @entity.layer = @layer
-    @entity
+    entity = Sketchup.active_model.entities.add_instance(@model.definition, transformation)
+    entity.material = @color
+    entity.layer = @layer
+    entity
   end
 end
