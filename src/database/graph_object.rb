@@ -5,11 +5,11 @@ class GraphObject
 
   def initialize(id = nil)
     @id = id.nil? ? IdManager.instance.generate_next_id : id
-    create_thingy(@id)
+    @thingy = create_thingy(@id)
   end
 
-  def delete(source)
-    delete_thingy(source)
+  def delete
+    delete_thingy
     unstore
   end
 
@@ -23,7 +23,7 @@ class GraphObject
     Graph.instance.delete_object(self)
   end
 
-  def delete_thingy(source)
-    thingy.delete(source)
+  def delete_thingy
+    @thingy.delete
   end
 end

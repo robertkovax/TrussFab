@@ -18,15 +18,13 @@ class Surface < Thingy
     @entity.back_material = color
   end
 
-  def delete(position)
-    unless @entity.deleted?
-      @entity.edges.each do |edge|
-        if edge.line.include?(position) && !edge.nil? && !edge.deleted?
-          edge.erase!
-        end
+  def delete_edges(position)
+    return if @entity.nil? || @entity.deleted?
+    @entity.edges.each do |edge|
+      if edge.line.include?(position) && !edge.nil? && !edge.deleted?
+        edge.erase!
       end
     end
-    super
   end 
 
   def highlight(highlight_color = @highlight_color)

@@ -27,24 +27,23 @@ class TriangleSurface < GraphObject
   end
 
   def update(symbol, source)
-    delete(source) if symbol == :deleted
+    if symbol == :deleted
+      @thingy.delete_edges(source.position)
+      delete
+    end
   end
 
   def nodes
     [first_node, second_node, third_node]
   end
 
-  def delete_thingy(source)
-    @entity.delete(source.position)    
-  end
-
   private
 
   def create_thingy(id)
-    @thingy = Surface.new(@first_node.position,
-                          @second_node.position,
-                          @third_node.position,
-                          id: id)
+    Surface.new(@first_node.position,
+                @second_node.position,
+                @third_node.position,
+                id: id)
   end
 
   def delete_observers

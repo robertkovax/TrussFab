@@ -17,7 +17,6 @@ class Link < Thingy
     children = [
       Connector.new(first_position, direction, first_elongation_length),
       first_elongation,
-      # Line.new(first_position, second_position),
       BottleLink.new(link_position, direction, definition),
       Elongation.new(second_position, direction.reverse, second_elongation_length),
       Connector.new(second_position, direction.reverse, second_elongation_length)

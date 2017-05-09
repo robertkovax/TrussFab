@@ -41,7 +41,7 @@ class Edge < GraphObject
     @first_node.position.distance(@second_node.position)
   end
 
-  def delete(source)
+  def delete
     super
     @first_node.delete_observer(self)
     @second_node.delete_observer(self)
@@ -70,12 +70,12 @@ class Edge < GraphObject
         @second_elongation_length = length - shortest_model.length - @first_elongation_length
       end
     end
-    @thingy = Link.new(@first_node.position,
-                       @second_node.position,
-                       shortest_model.definition,
-                       @first_elongation_length,
-                       @second_elongation_length,
-                       id: id)
+    Link.new(@first_node.position,
+             @second_node.position,
+             shortest_model.definition,
+             @first_elongation_length,
+             @second_elongation_length,
+             id: id)
   end
 
   def register_observers

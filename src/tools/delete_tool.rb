@@ -40,13 +40,13 @@ class DeleteTool < Tool
 
   def delete_node(node)
     Sketchup.active_model.start_operation('Delete hub and adjacent edges', true)
-    node.delete(node)
+    node.delete
     Sketchup.active_model.commit_operation
   end
 
   def delete_edge(edge)
     Sketchup.active_model.start_operation('Delete edge', true)
-    edge.delete(edge)
+    edge.delete
     Sketchup.active_model.commit_operation
   end
 end

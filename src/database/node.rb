@@ -26,10 +26,10 @@ class Node < GraphObject
   def delete_partner(node)
     @partners.delete(node.id) unless @partners[node.id].nil?
     return true if @deleting # prevent dangling check when deleting node
-    delete(self) if dangling?
+    delete if dangling?
   end
 
-  def delete(source)
+  def delete
     super
     changed
     notify_observers(:deleted, self)
@@ -53,11 +53,11 @@ class Node < GraphObject
   private
 
   def create_thingy(id)
-    @thingy = Hub.new(@position, id: id)
+    Hub.new(@position, id: id)
   end
 
   def delete_thingy
-    @thingy.delete(self)
+    @thingy.delete
     @thingy = nil
   end
 
