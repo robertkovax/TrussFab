@@ -71,5 +71,5 @@ module Configuration
   CONNECTOR_COLOR = 'blue'.freeze
   CONNECTOR_RADIUS = 8.mm.freeze
 
-  SNAP_TOLERANCE = 100.mm.freeze
+  SNAP_TOLERANCE = 200.mm.freeze
 end

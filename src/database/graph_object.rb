@@ -8,8 +8,8 @@ class GraphObject
     create_thingy(@id)
   end
 
-  def delete
-    delete_thingy
+  def delete(source)
+    delete_thingy(source)
     unstore
   end
 
@@ -23,7 +23,7 @@ class GraphObject
     Graph.instance.delete_object(self)
   end
 
-  def delete_thingy
-    thingy.delete
+  def delete_thingy(source)
+    thingy.delete(source)
   end
 end

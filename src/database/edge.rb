@@ -41,7 +41,7 @@ class Edge < GraphObject
     @first_node.position.distance(@second_node.position)
   end
 
-  def delete
+  def delete(source)
     super
     @first_node.delete_observer(self)
     @second_node.delete_observer(self)
@@ -49,7 +49,7 @@ class Edge < GraphObject
     @second_node.delete_partner(@first_node)
   end
 
-  def update(symbol)
+  def update(symbol, _)
     delete if symbol == :deleted
   end
 

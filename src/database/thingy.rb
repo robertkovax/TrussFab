@@ -30,7 +30,7 @@ class Thingy
     @sub_thingies.each(&:un_highlight)
   end
 
-  def delete
+  def delete(source)
     @sub_thingies.clone.each(&:delete)
     @entity.erase! unless @entity.nil? || @entity.deleted?
     @entity = nil

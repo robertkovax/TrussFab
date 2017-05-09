@@ -20,25 +20,24 @@ class Node < GraphObject
   end
 
   def add_partner(node, edge)
-    partners[node.id] = { node: node, edge: edge }
+    @partners[node.id] = { node: node, edge: edge }
   end
 
   def delete_partner(node)
-    @partners.delete(node.id) unless partners[node.id].nil?
+    @partners.delete(node.id) unless @partners[node.id].nil?
     return true if @deleting # prevent dangling check when deleting node
-    delete if dangling?
+    delete(self) if dangling?
   end
 
-  def delete
-    @deleting = true
+  def delete(source)
     super
     changed
-    notify_observers(:deleted)
+    notify_observers(:deleted, self)
     delete_observers
   end
 
   def dangling?
-    partners.empty?
+    @partners.empty?
   end
 
   def partners_include?(node_or_partner)
@@ -58,13 +57,13 @@ class Node < GraphObject
   end
 
   def delete_thingy
-    @thingy.delete
+    @thingy.delete(self)
     @thingy = nil
   end
 
   def delete_partners
-    partners.each_value do |partner|
-      partners.delete(partner[:edge]) unless partner[:edge].nil?
+    @partners.each_value do |partner|
+      @partners.delete(partner[:edge]) unless partner[:edge].nil?
     end
   end
 

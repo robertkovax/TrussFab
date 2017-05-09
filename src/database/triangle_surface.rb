@@ -26,17 +26,16 @@ class TriangleSurface < GraphObject
     center.distance(point)
   end
 
-  def update(symbol)
-    delete if symbol == :deleted
+  def update(symbol, source)
+    delete(source) if symbol == :deleted
   end
 
   def nodes
     [first_node, second_node, third_node]
   end
 
-  def delete
-    delete_observers
-    super
+  def delete_thingy(source)
+    @entity.delete(source.position)    
   end
 
   private
@@ -46,10 +45,6 @@ class TriangleSurface < GraphObject
                           @second_node.position,
                           @third_node.position,
                           id: id)
-  end
-
-  def delete_thingy
-    @thingy.delete
   end
 
   def delete_observers
