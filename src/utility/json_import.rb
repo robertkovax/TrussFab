@@ -20,11 +20,14 @@ module JsonImport
     snap_direction = snap_triangle.normal_towards_user
     json_triangle_center = Geometry.triangle_incenter(*points)
     rotation1 = Geometry.rotation_transformation(standard_direction,
-                                                -snap_direction,
+                                                snap_direction,
                                                 json_triangle_center)
-    translation = snap_center - json_triangle_center
+    translation = Geom::Transformation.new(snap_center - json_triangle_center)
     transformation = translation * rotation1 
-    nodes.map! { |node| node.transform(transformation) }
+    nodes.values.each do |node|
+      puts(node.class)
+      node.transform!(transformation)
+    end
     edges = build_edges(json_objects, nodes)
     surfaces = create_surfaces(edges)
     # rotate around center to align points
@@ -42,7 +45,6 @@ module JsonImport
   def self.json_triangle(json_objects, nodes)  
     standard_direction = json_objects['standard_direction']
     points = json_objects['standard_surface'].map { |id| nodes[id] }
-    puts(points)
     vector1 = points[0].vector_to(points[1])
     vector2 = points[0].vector_to(points[2])
     standard_direction = vector1.cross(vector2)

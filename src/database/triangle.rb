@@ -13,17 +13,17 @@ class Triangle < GraphObject
   end
 
   def normal_towards_user
-    eye = Sketchup.active_model.active_view.camera.eye
-    target = Sketchup.active_model.active_view.camera.target
-    normal = normal
-    target_projected = target.project_to_line(Geom::Point3d.new(0, 0, 0), normal)
-    eye_projected = eye.project_to_line(Geom::Point3d.new(0, 0, 0), normal)
-    target_projected.vector_to(eye_projected)
+    view_direction = Sketchup.active_model.active_view.camera.direction
+    if normal.angle_between(view_direction) > Math::PI/2
+      return normal
+    else
+      return normal.reverse 
+    end
   end
 
   def normal
-    vector1 = @first_node.position.vector_to(@second_node)
-    vector2 = @first_node.position.vector_to(@third_node)
+    vector1 = @first_node.position.vector_to(@second_node.position)
+    vector2 = @first_node.position.vector_to(@third_node.position)
     vector1.cross(vector2)
   end
 
