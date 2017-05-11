@@ -9,6 +9,9 @@ Set shell = WScript.CreateObject("WScript.Shell")
 shell.Run "tskill SketchUp"
 WScript.Sleep 200
 shell.Run """C:\Program Files\SketchUp\SketchUp 2017\SketchUp.exe"""
-shell.AppActivate "Willkommen bei SketchUp"
+shell.AppActivate "Welcome to SketchUp"
 WScript.Sleep 500
+If shell.AppActivate("Welcome to SketchUp") Then
 shell.SendKeys "%{F4}"
+
+End If
