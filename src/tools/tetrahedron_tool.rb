@@ -15,7 +15,7 @@ class TetrahedronTool < Tool
 
   def onLButtonDown(_flags, x, y, view)
     @mouse_input.update_positions(view, x, y)
-    triangle = @mouse_input.snapped_graph_obj
+    triangle = @mouse_input.snapped_graph_object
     Sketchup.active_model.start_operation('create tetra', true)
     puts 'Create tetrahedron'
     # TODO: change model definition to default (settings file)

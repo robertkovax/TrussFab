@@ -4,13 +4,12 @@ class Thingy
   attr_reader :id, :entity
   attr_accessor :parent
 
-  @highlight_color = 'highlight_color'
-
   def initialize(id = nil)
     @id = id.nil? ? IdManager.instance.generate_next_id : id
     @sub_thingies = []
     @entity = nil
     @parent = nil
+    @highlight_color = 'highlight_color'
   end
 
   def change_color(color)

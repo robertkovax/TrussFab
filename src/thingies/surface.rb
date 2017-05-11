@@ -1,7 +1,6 @@
 require 'src/thingies/thingy.rb'
 
 class Surface < Thingy
-  @highlight_color = 'surface_highlighted_color'
 
   def initialize(position1, position2, position3, id: nil, color: 'surface_color')
     super(id)
@@ -10,6 +9,7 @@ class Surface < Thingy
     @position3 = position3
     @color = color
     @entity = create_entity
+    @highlight_color = 'surface_highlighted_color'
   end
 
   def change_color(color)

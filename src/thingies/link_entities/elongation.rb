@@ -1,5 +1,5 @@
-require 'src/database/link_entities/connector.rb'
-require 'src/database/link_entities/link_entity.rb'
+require 'src/thingies/link_entities/connector.rb'
+require 'src/thingies/link_entities/link_entity.rb'
 
 class Elongation < LinkEntity
   attr_reader :direction

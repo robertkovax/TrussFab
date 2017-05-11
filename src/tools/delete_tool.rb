@@ -31,7 +31,7 @@ class DeleteTool < Tool
 
   def delete(x, y, view)
     @mouse_input.update_positions(view, x, y)
-    graph_obj = @mouse_input.snapped_graph_obj
+    graph_obj = @mouse_input.snapped_graph_object
     return if graph_obj.nil?
     delete_node(graph_obj) if graph_obj.is_a?(Node)
     delete_edge(graph_obj) if graph_obj.is_a?(Edge)

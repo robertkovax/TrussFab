@@ -1,4 +1,4 @@
-require 'src/database/link_entities/link_entity.rb'
+require 'src/thingies/link_entities/link_entity.rb'
 require 'src/utility/geometry.rb'
 
 class Connector < LinkEntity

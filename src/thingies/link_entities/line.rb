@@ -1,4 +1,4 @@
-require 'src/database/link_entities/link_entity.rb'
+require 'src/thingies/link_entities/link_entity.rb'
 
 class Line < LinkEntity
   def initialize(first_position, second_position, id: nil)

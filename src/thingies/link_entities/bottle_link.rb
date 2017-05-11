@@ -1,4 +1,4 @@
-require 'src/database/link_entities/link_entity.rb'
+require 'src/thingies/link_entities/link_entity.rb'
 
 class BottleLink < LinkEntity
   def initialize(position, direction, definition, id: nil)
