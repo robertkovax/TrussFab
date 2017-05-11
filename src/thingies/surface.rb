@@ -1,7 +1,6 @@
 require 'src/thingies/thingy.rb'
 
 class Surface < Thingy
-
   @highlight_color = 'surface_highlighted_color'
 
   def initialize(position1, position2, position3, id: nil, color: 'surface_color')
@@ -25,7 +24,7 @@ class Surface < Thingy
         edge.erase!
       end
     end
-  end 
+  end
 
   def highlight(highlight_color = @highlight_color)
     change_color(highlight_color)

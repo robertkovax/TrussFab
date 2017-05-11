@@ -12,7 +12,7 @@ class MouseInput
 
   def soft_reset
     @position = nil
-    @snapped_thingy.un_highlight if !@snapped_thingy.nil?
+    @snapped_thingy.un_highlight unless @snapped_thingy.nil?
     @snapped_thingy = nil
     @snapped_graph_obj = nil
   end
@@ -25,7 +25,7 @@ class MouseInput
 
     @position = input_point.position
     snap_to_closest_thingy
-    @snapped_thingy.highlight if !@snapped_thingy.nil?
+    @snapped_thingy.highlight unless @snapped_thingy.nil?
     @position = @snapped_graph_obj.position if @snapped_graph_obj
   end
 

@@ -1,7 +1,6 @@
 require 'src/utility/project_helper.rb'
 
 module Configuration
-
   # Sketchup Layers
   LINE_VIEW = 'Link lines'.freeze
   COMPONENT_VIEW = 'Bottles'.freeze
