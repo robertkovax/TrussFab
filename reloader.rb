@@ -39,10 +39,10 @@ class Reloader
   end
 
   # Utility method to mute Ruby warnings for whatever is executed by the block.
-  def mute_warnings(&block)
+  def mute_warnings
     old_verbose = $VERBOSE
     $VERBOSE = nil
-    result = block.call
+    result = yield
   ensure
     $VERBOSE = old_verbose
     result

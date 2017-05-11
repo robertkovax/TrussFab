@@ -1,7 +1,7 @@
 require 'set'
 
 class MouseInput
-  attr_reader :position, :snapped_thingy
+  attr_reader :position, :snapped_graph_object
 
   def initialize(snap_to_nodes: false, snap_to_edges: false, snap_to_surfaces: false)
     @snap_to_nodes = snap_to_nodes
@@ -12,7 +12,11 @@ class MouseInput
 
   def soft_reset
     @position = nil
-    @snapped_thingy = nil
+    @position = nil
+    unless @snapped_graph_object.nil?
+      @snapped_graph_object.thingy.un_highlight
+    end
+    @snapped_graph_object = nil
   end
 
   def update_positions(view, x, y)
@@ -22,29 +26,32 @@ class MouseInput
     input_point.pick(view, x, y, Sketchup::InputPoint.new)
 
     @position = input_point.position
-    snap_to_closest_thingy
-    @position = @snapped_thingy.position if @snapped_thingy
+    snap_to_graph_object
+    unless @snapped_graph_object.nil?
+      @snapped_graph_object.thingy.highlight
+    end
+    @position = @snapped_graph_object.position if @snapped_graph_object
   end
 
   def out_of_snap_tolerance?(graph_obj)
     graph_obj.distance(@position) > Configuration::SNAP_TOLERANCE
   end
 
-  def snap_to_closest_thingy
-    thingies = Set.new
+  def snap_to_graph_object
+    graph_objects = Set.new
     if @snap_to_edges
       edge = Graph.instance.closest_edge(@position)
-      thingies.add(edge) unless edge.nil? || out_of_snap_tolerance?(edge)
+      graph_objects.add(edge) unless edge.nil? || out_of_snap_tolerance?(edge)
     end
     if @snap_to_nodes
       node = Graph.instance.closest_node(@position)
-      thingies.add(node) unless node.nil? || out_of_snap_tolerance?(node)
+      graph_objects.add(node) unless node.nil? || out_of_snap_tolerance?(node)
     end
     if @snap_to_surfaces
       surface = Graph.instance.closest_surface(@position)
-      thingies.add(surface) unless surface.nil? || out_of_snap_tolerance?(surface)
+      graph_objects.add(surface) unless surface.nil? || out_of_snap_tolerance?(surface)
     end
-    return nil if thingies.empty?
-    @snapped_thingy = thingies.min_by { |thingy| thingy.distance(@position) }
+    return nil if graph_objects.empty?
+    @snapped_graph_object = graph_objects.min_by { |thingy| thingy.distance(@position) }
   end
 end
