@@ -1,18 +1,18 @@
 require 'src/configuration/configuration.rb'
 require 'src/utility/project_helper.rb'
 require 'src/ui/user_interaction.rb'
-require 'reload'
+require 'reloader'
 
 class TrussFab
   ProjectHelper.setup_sketchup
   @reloader = Reloader.new
   @ui = UserInteraction.new
 
-  def self.open
+  def self.start
     @ui.open_dialog
   end
 
-  def self.close
+  def self.stop
     @ui.close_dialog
   end
 

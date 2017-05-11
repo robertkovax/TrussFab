@@ -1,5 +1,5 @@
 require 'src/database/graph_object.rb'
-require 'src/database/hub.rb'
+require 'src/thingies/hub.rb'
 require 'observer'
 
 class Node < GraphObject
@@ -20,25 +20,24 @@ class Node < GraphObject
   end
 
   def add_partner(node, edge)
-    partners[node.id] = { node: node, edge: edge }
+    @partners[node.id] = { node: node, edge: edge }
   end
 
   def delete_partner(node)
-    @partners.delete(node.id) unless partners[node.id].nil?
+    @partners.delete(node.id) unless @partners[node.id].nil?
     return true if @deleting # prevent dangling check when deleting node
     delete if dangling?
   end
 
   def delete
-    @deleting = true
     super
     changed
-    notify_observers(:deleted)
+    notify_observers(:deleted, self)
     delete_observers
   end
 
   def dangling?
-    partners.empty?
+    @partners.empty?
   end
 
   def partners_include?(node_or_partner)
@@ -54,7 +53,7 @@ class Node < GraphObject
   private
 
   def create_thingy(id)
-    @thingy = Hub.new(@position, id: id)
+    Hub.new(@position, id: id)
   end
 
   def delete_thingy
@@ -63,8 +62,8 @@ class Node < GraphObject
   end
 
   def delete_partners
-    partners.each_value do |partner|
-      partners.delete(partner[:edge]) unless partner[:edge].nil?
+    @partners.each_value do |partner|
+      @partners.delete(partner[:edge]) unless partner[:edge].nil?
     end
   end
 

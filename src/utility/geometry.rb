@@ -8,6 +8,15 @@ module Geometry
     first_vector.angle_between(second_vector)
   end
 
+  def self.rotation_transformation(from_vector, to_vector, position)
+    rotation_angle = Geometry.rotation_angle_between(from_vector,
+                                                     to_vector)
+    rotation_axis = Geometry.perpendicular_rotation_axis(from_vector,
+                                                         to_vector)
+    rotation = Geom::Transformation.rotation(position, rotation_axis,
+                                             rotation_angle)    
+  end
+
   def self.perpendicular_rotation_axis(first_vector, second_vector)
     if first_vector.parallel?(second_vector)
       perpendicular_vector(first_vector)
