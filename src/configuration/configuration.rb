@@ -1,7 +1,6 @@
 require 'src/utility/project_helper.rb'
 
 module Configuration
-
   # Sketchup Layers
   LINE_VIEW = 'Link lines'.freeze
   COMPONENT_VIEW = 'Bottles'.freeze
@@ -71,5 +70,5 @@ module Configuration
   CONNECTOR_COLOR = 'blue'.freeze
   CONNECTOR_RADIUS = 8.mm.freeze
 
-  SNAP_TOLERANCE = 100.mm.freeze
+  SNAP_TOLERANCE = 200.mm.freeze
 end

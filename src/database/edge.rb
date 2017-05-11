@@ -1,5 +1,5 @@
 require 'src/database/graph_object.rb'
-require 'src/database/link.rb'
+require 'src/thingies/link.rb'
 require 'src/models/model_storage.rb'
 
 class Edge < GraphObject
@@ -49,7 +49,7 @@ class Edge < GraphObject
     @second_node.delete_partner(@first_node)
   end
 
-  def update(symbol)
+  def update(symbol, _)
     delete if symbol == :deleted
   end
 
@@ -60,6 +60,7 @@ class Edge < GraphObject
     second_length = @second_elongation_length.zero? ? Configuration::MINIMUM_ELONGATION : @second_elongation_length
     model_length = length - first_length - second_length
     shortest_model = @model.longest_model_shorter_than(model_length)
+
     if @first_elongation_length.zero? && @second_elongation_length.zero?
       @first_elongation_length = @second_elongation_length = (length - shortest_model.length) / 2
     else
@@ -70,12 +71,12 @@ class Edge < GraphObject
         @second_elongation_length = length - shortest_model.length - @first_elongation_length
       end
     end
-    @thingy = Link.new(@first_node.position,
-                       @second_node.position,
-                       shortest_model.definition,
-                       @first_elongation_length,
-                       @second_elongation_length,
-                       id: id)
+    Link.new(@first_node.position,
+             @second_node.position,
+             shortest_model.definition,
+             @first_elongation_length,
+             @second_elongation_length,
+             id: id)
   end
 
   def register_observers

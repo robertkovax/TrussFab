@@ -12,7 +12,6 @@ class OctahedronTool < Tool
 
   def onLButtonDown(_flags, x, y, view)
     @mouse_input.update_positions(view, x, y)
-    surface = @mouse_input.snapped_thingy
     Sketchup.active_model.start_operation('add octa on ground', true)
     # TODO: add creation by geometry
     puts 'Add octahedron on the ground'
