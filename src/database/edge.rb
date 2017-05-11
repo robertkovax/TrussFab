@@ -1,5 +1,5 @@
 require 'src/database/graph_object.rb'
-require 'src/database/link.rb'
+require 'src/thingies/link.rb'
 require 'src/models/model_storage.rb'
 
 class Edge < GraphObject

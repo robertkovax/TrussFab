@@ -1,4 +1,4 @@
-require 'src/database/thingy.rb'
+require 'src/thingies/thingy.rb'
 
 class Surface < Thingy
 

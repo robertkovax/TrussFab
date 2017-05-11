@@ -41,8 +41,10 @@ class Thingy
     @sub_thingies.delete(child)
   end
 
-  def add(child)
-    @sub_thingies << child
-    child.parent = self
+  def add(*children)
+    children.each do |child|
+      @sub_thingies << child
+      child.parent = self
+    end
   end
 end

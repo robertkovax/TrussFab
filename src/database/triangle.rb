@@ -1,7 +1,7 @@
 require 'src/database/graph_object.rb'
-require 'src/database/surface.rb'
+require 'src/thingies/surface.rb'
 
-class TriangleSurface < GraphObject
+class Triangle < GraphObject
   attr_reader :first_node, :second_node, :third_node
 
   def initialize(first_node, second_node, third_node, id: nil)

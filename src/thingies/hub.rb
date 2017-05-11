@@ -1,4 +1,4 @@
-require 'src/database/thingy.rb'
+require 'src/thingies/thingy.rb'
 require 'src/models/model_storage.rb'
 
 class Hub < Thingy

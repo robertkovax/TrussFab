@@ -1,7 +1,7 @@
 require 'singleton'
 require 'src/database/node.rb'
 require 'src/database/edge.rb'
-require 'src/database/triangle_surface.rb'
+require 'src/database/triangle.rb'
 
 class Graph
   include Singleton
@@ -57,7 +57,7 @@ class Graph
     nodes = [first_node, second_node, third_node]
     surface = find_surface(nodes)
     return surface unless surface.nil?
-    surface = TriangleSurface.new(first_node, second_node, third_node)
+    surface = Triangle.new(first_node, second_node, third_node)
     @surfaces[surface.id] = surface
     surface
   end
@@ -108,7 +108,7 @@ class Graph
   def delete_object(object)
     hash = @nodes if object.is_a?(Node)
     hash = @edges if object.is_a?(Edge)
-    hash = @surfaces if object.is_a?(TriangleSurface)
+    hash = @surfaces if object.is_a?(Triangle)
     return if hash.nil?
     hash.delete(object.id)
   end

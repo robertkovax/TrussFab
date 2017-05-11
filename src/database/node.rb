@@ -1,5 +1,5 @@
 require 'src/database/graph_object.rb'
-require 'src/database/hub.rb'
+require 'src/thingies/hub.rb'
 require 'observer'
 
 class Node < GraphObject
