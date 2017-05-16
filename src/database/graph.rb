@@ -101,6 +101,9 @@ class Graph
     end
   end
 
+  def empty?
+    return nodes.empty? 
+  end
   #
   # Method to delete either a node, an edge or a surface
   #

@@ -1,7 +1,7 @@
 require 'src/tools/tool.rb'
 
 class TetrahedronTool < JsonTool
-  def initialize()
+  def initialize(ui)
     super
     @path = Configuration::TETRAHEDRON
   end
