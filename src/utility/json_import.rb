@@ -6,33 +6,76 @@ module JsonImport
   def self.at_position(path, position)
     json_objects = load_json(path)
     return if json_objects.nil?
-    nodes = build_nodes(json_objects, position)
-    edges = build_edges(json_objects, nodes)
+    points = build_points(json_objects, position)
+    edges = build_edges(json_objects, points)
     create_surfaces(edges)
   end
 
   def self.at_triangle(path, snap_triangle)
     json_objects = load_json(path)
     return if json_objects.nil?
-    nodes = build_nodes(json_objects, Geom::Point3d.new(0, 0, 0))
-    standard_direction, points = json_triangle(json_objects, nodes) 
-    snap_center = snap_triangle.center
+
+    # retrieve points from json
+    json_points = build_points(json_objects, Geom::Point3d.new(0, 0, 0))
+
+    # get center and direction of the triangle to snap to from our graph
+    # and the triangle to snap on from json
+
+    # snap on triangle (from our graph)
     snap_direction = snap_triangle.normal_towards_user
-    json_triangle_center = Geometry.triangle_incenter(*points)
-    rotation1 = Geometry.rotation_transformation(standard_direction,
-                                                snap_direction,
-                                                json_triangle_center)
-    translation = Geom::Transformation.new(snap_center - json_triangle_center)
-    transformation = translation * rotation1 
-    nodes.values.each do |node|
-      puts(node.class)
-      node.transform!(transformation)
+    snap_center = snap_triangle.center
+
+
+    # snap to triangle (from json)
+    json_direction, json_triangle_points = json_triangle(json_objects, json_points)
+    json_center = Geometry.triangle_incenter(*json_triangle_points)
+
+
+
+    # move all json points to snap triangle
+    translation = Geom::Transformation.new(snap_center - json_center)
+
+    # rotate json points so that the snap triangle and json triangle are planar
+    rotation1 = Geometry.rotation_transformation(json_direction,
+                                                 snap_direction,
+                                                 json_center)
+
+    transformation = translation * rotation1
+
+    # recompute json triangle points and center after transformation
+    json_triangle_points.map! { |point| point.transform(transformation) }
+    json_center = Geometry.triangle_incenter(*json_triangle_points)
+
+
+    # get two corresponding vectors from snap and json triangle to align them
+    ref_point_snap = snap_triangle.first_node.position
+    ref_point_json = json_triangle_points.min_by { |point| ref_point_snap.distance(point) }
+
+    vector_snap = snap_center.vector_to(ref_point_snap)
+    vector_json = json_center.vector_to(ref_point_json)
+
+    rotation_around_center = Geometry.rotation_transformation(vector_json,
+                                                              vector_snap,
+                                                              json_center)
+
+    transformation = rotation_around_center * transformation
+
+    json_points.values.each do |point|
+      point.transform!(transformation)
     end
-    edges = build_edges(json_objects, nodes)
+
+    json_triangle_ids = json_objects['standard_surface']
+
+    snap_points = snap_triangle.nodes.map(&:position)
+
+    json_triangle_ids.each do |id|
+      # TODO: find corresponding points via construction
+      json_points[id] = snap_points.min_by { |point| point.distance(json_points[id])}
+    end
+
+
+    edges = build_edges(json_objects, json_points)
     surfaces = create_surfaces(edges)
-    # rotate around center to align points
-    # change positions of json triangle to positions of snap triangle
-    # create links
   end
 
   def self.load_json(path)
@@ -42,12 +85,13 @@ module JsonImport
     JSON.parse(json_string)
   end
 
-  def self.json_triangle(json_objects, nodes)  
+
+  def self.json_triangle(json_objects, nodes)
     points = json_objects['standard_surface'].map { |id| nodes[id] }
     vector1 = points[0].vector_to(points[1])
     vector2 = points[0].vector_to(points[2])
     standard_direction = vector1.cross(vector2)
-    return standard_direction, points 
+    [standard_direction, points]
   end
 
   # create surfaces from partners
@@ -65,8 +109,7 @@ module JsonImport
               edge.first_node
             end
           next if node == edge.first_node ||
-                  node == edge.second_node ||
-                  Graph.instance.find_surface([edge.first_node, edge.second_node, node])
+                  node == edge.second_node
           next unless other_edge_node.partners_include?(node)
           surface = Graph.instance.create_surface(edge.first_node, edge.second_node, node)
           surfaces[surface.id] = surface
@@ -76,10 +119,10 @@ module JsonImport
     surfaces
   end
 
-  def self.build_nodes(json_objects, position)
+  def self.build_points(json_objects, position)
     first = true
     translation = Geom::Transformation.new
-    nodes = {}
+    points = {}
     json_objects['nodes'].each do |node|
       x = node['x'].to_f.mm
       y = node['y'].to_f.mm
@@ -90,9 +133,9 @@ module JsonImport
         first = false
       end
       point.transform!(translation)
-      nodes[node['id']] = point
+      points[node['id']] = point
     end
-    nodes
+    points
   end
 
   def self.build_edges(json_objects, nodes)

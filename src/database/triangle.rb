@@ -14,10 +14,10 @@ class Triangle < GraphObject
 
   def normal_towards_user
     view_direction = Sketchup.active_model.active_view.camera.direction
-    if normal.angle_between(view_direction) > Math::PI/2
-      return normal
+    if normal.angle_between(view_direction) > Math::PI / 2
+      normal
     else
-      return normal.reverse 
+      normal.reverse
     end
   end
 
