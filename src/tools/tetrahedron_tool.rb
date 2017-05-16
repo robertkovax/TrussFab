@@ -1,4 +1,4 @@
-require 'src/tools/tool.rb'
+require 'src/tools/json_tool.rb'
 
 class TetrahedronTool < JsonTool
   def initialize(ui)

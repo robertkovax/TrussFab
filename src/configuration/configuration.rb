@@ -29,6 +29,7 @@ module Configuration
 
   TETRAHEDRON = (ProjectHelper.asset_directory + '/primitives/tetrahedron.json').freeze
   OCTAHEDRON = (ProjectHelper.asset_directory + '/primitives/octahedron.json').freeze
+  CHAIR = (ProjectHelper.asset_directory + '/primitives/chair.json').freeze
   STANDARD_BOTTLES = 'hard'.freeze
 
   # Model Settings

@@ -1,8 +1,8 @@
 require 'src/tools/json_tool.rb'
 
-class OctahedronTool < JsonTool
+class ChairTool < JsonTool
   def initialize(ui)
     super
-    @path = Configuration::OCTAHEDRON
+    @path = Configuration::CHAIR
   end
 end

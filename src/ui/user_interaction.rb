@@ -32,6 +32,7 @@ class UserInteraction
     return if @dialog.nil?
     build_tool(TetrahedronTool, 'tetrahedron_tool')
     build_tool(OctahedronTool, 'octahedron_tool')
+    build_tool(ChairTool, 'chair_tool')
     build_tool(BottleLinkTool, 'bottle_link_tool')
     build_tool(DeleteTool, 'delete_tool')
   end
