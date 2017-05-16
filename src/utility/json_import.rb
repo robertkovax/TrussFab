@@ -85,7 +85,6 @@ module JsonImport
     JSON.parse(json_string)
   end
 
-
   def self.json_triangle(json_objects, nodes)
     points = json_objects['standard_surface'].map { |id| nodes[id] }
     vector1 = points[0].vector_to(points[1])
