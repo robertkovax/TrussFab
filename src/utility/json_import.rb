@@ -3,7 +3,7 @@ require 'src/database/graph.rb'
 require 'src/utility/geometry.rb'
 
 module JsonImport
-  def self.import(path, position)
+  def self.at_position(path, position)
     json_objects = load_json(path)
     return if json_objects.nil?
     nodes = build_nodes(json_objects, position)
@@ -11,7 +11,7 @@ module JsonImport
     create_surfaces(edges)
   end
 
-  def self.import_at_triangle(path, snap_triangle)
+  def self.at_triangle(path, snap_triangle)
     json_objects = load_json(path)
     return if json_objects.nil?
     nodes = build_nodes(json_objects, Geom::Point3d.new(0, 0, 0))
@@ -43,7 +43,6 @@ module JsonImport
   end
 
   def self.json_triangle(json_objects, nodes)  
-    standard_direction = json_objects['standard_direction']
     points = json_objects['standard_surface'].map { |id| nodes[id] }
     vector1 = points[0].vector_to(points[1])
     vector2 = points[0].vector_to(points[2])
