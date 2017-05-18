@@ -20,31 +20,30 @@ class JsonTool < Tool
     snapped_graph_object = @mouse_input.snapped_graph_object
     import_from_json(@path, snapped_graph_object, @mouse_input.position)
     view.invalidate
-  end 
+  end
 
   def onKeyDown(key, repeat, flags, view)
-    @new_allowed = true if key == 17
+    @new_allowed = true if key == VK_SHIFT
   end
 
   def onKeyUp(key, repeat, flags, view)
-    @new_allowed = false if key == 17
+    @new_allowed = false if key == VK_SHIFT
   end
 
   def import_from_json(path, graph_object, position=nil)
     Sketchup.active_model.start_operation('import from JSON', true)
     if graph_object.is_a?(Triangle)
       JsonImport.at_triangle(path, graph_object)
-      puts 'Add object on triangle'
     elsif graph_object.nil?
-      if Graph.instance.empty? or @new_allowed
+      if Graph.instance.empty? || @new_allowed
         JsonImport.at_position(path, position)
         puts 'Add object on the ground'
       else
         puts 'We prevent objects from being created at random positions due  
-              to usablity reasons. Press and hold "ctrl" to do it anyways'
+              to usablity reasons. Press and hold "shift" to do it anyways'
       end
     else
-      raise 'not yet implemented'
+      raise NotImplementedError
     end
     Sketchup.active_model.commit_operation
   end

@@ -5,7 +5,6 @@ require 'src/utility/geometry.rb'
 module JsonImport
   def self.at_position(path, position)
     json_objects = load_json(path)
-    return if json_objects.nil?
     points = build_points(json_objects, position)
     edges = build_edges(json_objects, points)
     create_surfaces(edges)
@@ -13,7 +12,6 @@ module JsonImport
 
   def self.at_triangle(path, snap_triangle)
     json_objects = load_json(path)
-    return if json_objects.nil?
 
     # retrieve points from json
     json_points = build_points(json_objects, Geom::Point3d.new(0, 0, 0))
@@ -82,7 +80,9 @@ module JsonImport
     file = File.open(path, 'r')
     json_string = file.read
     file.close
-    JSON.parse(json_string)
+    json_objects = JSON.parse(json_string)
+    raise(ArgumentError, 'Json string invalid') if json_objects.nil?
+    json_objects
   end
 
   def self.json_triangle(json_objects, nodes)
