@@ -1,6 +1,6 @@
-require 'src/tools/json_tool.rb'
+require 'src/tools/import_tool.rb'
 
-class ChairTool < JsonTool
+class ChairTool < ImportTool
   def initialize(ui)
     super
     @path = Configuration::CHAIR

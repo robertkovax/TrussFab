@@ -3,7 +3,7 @@ require 'src/utility/mouse_input.rb'
 require 'src/utility/json_import.rb'
 require 'src/database/graph.rb'
 
-class JsonTool < Tool
+class ImportTool < Tool
   def initialize(ui = nil)
     super
     @mouse_input = MouseInput.new(snap_to_surfaces: true)

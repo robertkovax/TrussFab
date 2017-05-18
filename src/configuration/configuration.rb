@@ -27,6 +27,8 @@ module Configuration
   DEFAULT_ELONGATION = 30.mm.freeze
   BALL_HUB_RADIUS = 14.mm.freeze
 
+  # Paths
+  JSON_PATH = (ProjectHelper.asset_directory + '/exports/').freeze
   TETRAHEDRON = (ProjectHelper.asset_directory + '/primitives/tetrahedron.json').freeze
   OCTAHEDRON = (ProjectHelper.asset_directory + '/primitives/octahedron.json').freeze
   CHAIR = (ProjectHelper.asset_directory + '/primitives/chair.json').freeze

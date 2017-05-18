@@ -35,6 +35,8 @@ class UserInteraction
     build_tool(ChairTool, 'chair_tool')
     build_tool(BottleLinkTool, 'bottle_link_tool')
     build_tool(DeleteTool, 'delete_tool')
+    build_tool(ExportFileTool, 'export_file_tool')
+    build_tool(ImportFileTool, 'import_file_tool')
   end
 
   def build_tool(tool_class, tool_id)

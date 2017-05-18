@@ -1,6 +1,6 @@
-require 'src/tools/json_tool.rb'
+require 'src/tools/import_tool.rb'
 
-class OctahedronTool < JsonTool
+class OctahedronTool < ImportTool
   def initialize(ui)
     super
     @path = Configuration::OCTAHEDRON

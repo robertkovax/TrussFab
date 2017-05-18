@@ -52,6 +52,21 @@ class Triangle < GraphObject
     [first_node, second_node, third_node]
   end
 
+  def nodes_ids    
+    [first_node.id, second_node.id, third_node.id]
+  end
+  
+  def nodes_ids_towards_user
+    # this is ugly! this is made to be able to recreate the surface with the
+    # same direction by aranging the ids in the right order. This should be
+    # done differently at some point
+    if normal_towards_user == normal
+      return [first_node.id, third_node.id, second_node.id]
+    else
+      return nodes_ids
+    end
+  end
+
   private
 
   def create_thingy(id)
