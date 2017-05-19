@@ -21,14 +21,11 @@ module Relaxation
   end
 
   def stretch(edge)
-    # TODO compute new length
-    # edge.next_longer_length
-    change_length(edge, edge.length)
+    change_length(edge, edge.next_longer_length)
   end
 
   def shrink(edge)
-    # TODO compute new length
-    change_length(edge, edge.length)
+    change_length(edge, edge.next_shorter_length)
   end
 
   def change_length(edge, target_length)
@@ -107,19 +104,6 @@ module Relaxation
       else
         @new_direction_vectors[partner_edge_id] = new_node_position - @new_start_positions[partner_edge_id]
       end
-    end
-  end
-
-  def update_edges
-    @edges.each do |edge|
-      edge_id = edge.id
-      edge.desired_stretch_length = nil
-      start_position = @new_start_positions[edge_id]
-      end_position = start_position + @new_direction_vectors[edge_id]
-
-      next if start_position = edge.position && end_position = edge.end_position
-
-
     end
   end
 

@@ -47,7 +47,25 @@ class Edge < GraphObject
   end
 
   def get_connected_edges
+    edges_to_process = [self]
+    seen = [self]
 
+    edge = edges_to_process.pop
+    loop do
+      edge.get_directly_connected_edges.each do |edge|
+        unless seen.include(edge)
+          edges_to_process.push(edge)
+          seen.push(edge)
+        end
+      end
+      break if edges_to_process.empty?
+      edge = edges_to_process.pop
+    end
+  end
+
+  def get_directly_connected_edges
+    first_connected = first_node.partners.map { |partner| partner[:edge] } - [self]
+    second_connected = second_node.partners.map { |partner| partner[:edge] } - [self]
   end
 
   def delete
@@ -60,6 +78,18 @@ class Edge < GraphObject
 
   def update(symbol, _)
     delete if symbol == :deleted
+  end
+
+  def next_longer_length
+    current = @model.longest_model_shorter_than(length).length
+    longer = @model.shortest_model_longer_than(current).length
+    length + (longer - current)
+  end
+
+  def next_shorter_length
+    current = @model.longest_model_shorter_than(length).length
+    shorter = @model.longest_model_shorter_than(current).length
+    length + (shorter - current)
   end
 
   private
