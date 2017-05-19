@@ -4,6 +4,7 @@ require 'src/models/model_storage.rb'
 
 class Edge < GraphObject
   attr_reader :first_node, :second_node
+  attr_accessor :desired_length
   def initialize(first_node, second_node, model_name, first_elongation_length, second_elongation_length,
                  id: nil, link_type: 'bottle_link')
     @first_node = first_node
@@ -25,6 +26,10 @@ class Edge < GraphObject
     @first_node.position
   end
 
+  def end_position
+    position + direction
+  end
+
   def direction
     @first_node.position.vector_to(@second_node.position)
   end
@@ -39,6 +44,10 @@ class Edge < GraphObject
 
   def length
     @first_node.position.distance(@second_node.position)
+  end
+
+  def get_connected_edges
+
   end
 
   def delete

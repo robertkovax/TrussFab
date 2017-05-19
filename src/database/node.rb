@@ -19,6 +19,11 @@ class Node < GraphObject
     @position.distance(point)
   end
 
+  def fixed?
+    # TODO check if pod on node or fixed/frozen manually
+    false
+  end
+
   def add_partner(node, edge)
     @partners[node.id] = { node: node, edge: edge }
   end
