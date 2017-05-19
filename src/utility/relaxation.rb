@@ -22,10 +22,12 @@ module Relaxation
 
   def stretch(edge)
     change_length(edge, edge.next_longer_length)
+    self
   end
 
   def shrink(edge)
     change_length(edge, edge.next_shorter_length)
+    self
   end
 
   def change_length(edge, target_length)
@@ -44,6 +46,7 @@ module Relaxation
     @new_hub_positions[node.id] = position
     add_clinks(node.partners.map { |partner| partner[:edge] })
     update_neighbor_links(node)
+    self
   end
 
   def relax
@@ -58,8 +61,11 @@ module Relaxation
       count += 1
     end
     update_edges
+    self
   end
 
+  private
+  
   # delta is dampened to prevent undesired behavior like length jumping between two extreme cases
   # it will adapt to the desired length over a larger number of iterations
   def adapt_edges(edge, delta)
