@@ -34,6 +34,7 @@ class UserInteraction
     build_tool(OctahedronTool, 'octahedron_tool')
     build_tool(BottleLinkTool, 'bottle_link_tool')
     build_tool(DeleteTool, 'delete_tool')
+    build_tool(GrowTool, 'grow_tool')
   end
 
   def build_tool(tool_class, tool_id)
