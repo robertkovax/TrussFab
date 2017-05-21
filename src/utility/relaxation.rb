@@ -43,8 +43,8 @@ class Relaxation
   def move_node(node)
     return if node.nil?
     constrain_node(node)
-    @new_hub_positions[node.id] = position
-    add_clinks(node.partners.map { |partner| partner[:edge] })
+    @new_node_positions[node.id] = position
+    add_edges(node.partners.map { |partner| partner[:edge] })
     update_neighbor_links(node)
     self
   end
@@ -92,7 +92,7 @@ class Relaxation
       else
         new_start_position = @new_start_positions[edge_id] = @new_start_positions[edge_id] - Geometry::scale(stretch_vector, 0.5)
         @new_node_positions[first_node_id] = new_start_position
-        @new_node_position[second_node_id] = new_start_position + new_direction
+        @new_node_positions[second_node_id] = new_start_position + new_direction
         update_neighbor_links(edge.first_node)
         update_neighbor_links(edge.second_node)
       end
