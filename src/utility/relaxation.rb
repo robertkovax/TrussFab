@@ -1,6 +1,6 @@
-module Relaxation
+class Relaxation
 
-  DEFAULT_MAX_ITERATIONS = 20000
+  DEFAULT_MAX_ITERATIONS = 20_000
   CONVERGENCE_DEVIATION = 1.mm
   DAMPENING_FACTOR = 0.9
 
@@ -56,7 +56,7 @@ module Relaxation
     (1..@max_iterations).each do
       edge = pick_random_edge
       next if deviation(edge) < CONVERGENCE_DEVIATION
-      add_edges(edge.get_directly_connected_edges) unless @clinks.length == number_connected_edges
+      add_edges(edge.directly_connected_edges) unless @clinks.length == number_connected_edges
       adapt_edge(edge, deviation(edge) * @dampening_factor)
       count += 1
     end
@@ -65,7 +65,7 @@ module Relaxation
   end
 
   private
-  
+
   # delta is dampened to prevent undesired behavior like length jumping between two extreme cases
   # it will adapt to the desired length over a larger number of iterations
   def adapt_edges(edge, delta)
@@ -114,12 +114,16 @@ module Relaxation
   end
 
   def deviation(edge)
-    edge.desired_stretch_length - @new_direction_vectors[edge.id].length
+    if @new_direction_vectors[edge.id]
+      edge.desired_length - @new_direction_vectors[edge.id].length
+    else
+      0
+    end
   end
 
   def connected_edges
     all_edges = Set.new
-    @edges.each { |edge| all_edges.merge(edge.get_connected_edges) }
+    @edges.each { |edge| all_edges.merge(edge.connected_edges) }
     all_edges.length
   end
 
@@ -128,19 +132,22 @@ module Relaxation
   end
 
   def constrain_node(node)
-    @fixed_nodes[node.id] = hub unless node.nil?
+    @fixed_nodes[node.id] = node unless node.nil?
     self
   end
 
   def is_fixed(node)
     node_id = node.id
+    # TODO: should that be true if all partners are fixed?
     partners_fixed = false
-    node.partners.each { |partner| partners_fixed = true if partner[:node].fixed}
-    @ignore_node_fixation[hub_id].nil? && (@fixed_nodes[node_id] || node.fixed? || partners_fixed)
+    node.partners.each_value { |partner| partners_fixed = true if partner[:node].fixed? }
+    @ignore_node_fixation[node_id].nil? && (@fixed_nodes[node_id] || node.fixed? || partners_fixed)
   end
 
   def compute_fixed_nodes
-    Graph.instance.nodes.each_value { |node| @fixed_nodes[node.id] = is_fixed(node) }
+    Graph.instance.nodes.each_value do |node|
+      @fixed_nodes[node.id] = is_fixed(node)
+    end
   end
 
   def add_edges(edges)
@@ -158,7 +165,7 @@ module Relaxation
     first_node_id = edge.first_node.id
     @new_node_positions[first_node_id] = edge.first_node.position unless @new_node_positions[first_node_id]
     second_node_id = edge.second_node.id
-    @new_node_positions[secnod_node_id] = edge.second_node.position unless @new_node_positions[second_node_id]
+    @new_node_positions[second_node_id] = edge.second_node.position unless @new_node_positions[second_node_id]
 
     @new_direction_vectors[edge_id] = edge.direction unless @new_direction_vectors[edge_id]
     @new_start_positions[edge_id] = edge.first_node.position

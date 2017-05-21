@@ -1,3 +1,4 @@
+require 'set'
 require 'src/database/graph_object.rb'
 require 'src/thingies/link.rb'
 require 'src/models/model_storage.rb'
@@ -46,26 +47,26 @@ class Edge < GraphObject
     @first_node.position.distance(@second_node.position)
   end
 
-  def get_connected_edges
+  def connected_edges
     edges_to_process = [self]
-    seen = [self]
+    seen = Set.new([self])
 
-    edge = edges_to_process.pop
-    loop do
-      edge.get_directly_connected_edges.each do |edge|
-        unless seen.include(edge)
-          edges_to_process.push(edge)
-          seen.push(edge)
+    until edges_to_process.empty?
+      edge = edges_to_process.pop
+      edge.directly_connected_edges.each do |other_edge|
+        unless seen.include?(other_edge)
+          edges_to_process.push(other_edge)
+          seen.add(other_edge)
         end
       end
-      break if edges_to_process.empty?
-      edge = edges_to_process.pop
     end
+    seen
   end
 
-  def get_directly_connected_edges
-    first_connected = first_node.partners.map { |partner| partner[:edge] } - [self]
-    second_connected = second_node.partners.map { |partner| partner[:edge] } - [self]
+  def directly_connected_edges
+    first_connected = first_node.partners.values.map { |partner| partner[:edge] } - [self]
+    second_connected = second_node.partners.values.map { |partner| partner[:edge] } - [self]
+    first_connected + second_connected
   end
 
   def delete
