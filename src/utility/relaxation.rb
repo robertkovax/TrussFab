@@ -60,7 +60,6 @@ class Relaxation
       adapt_edge(edge, deviation(edge) * @dampening_factor)
       count += 1
     end
-    update_edges
     self
   end
 
