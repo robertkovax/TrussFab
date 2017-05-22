@@ -3,13 +3,9 @@ require 'src/utility/relaxation.rb'
 
 class GrowTool < Tool
   def initialize(ui)
-    puts 'super'
     super(ui)
-    puts 'mouse'
     @mouse_input = MouseInput.new(snap_to_edges: true)
-    puts 'relax'
     @relaxation = Relaxation.new
-    puts 'finished'
   end
 
   def onMouseMove(_flags, x, y, view)
