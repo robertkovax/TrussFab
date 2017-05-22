@@ -24,6 +24,11 @@ class Node < GraphObject
     false
   end
 
+  def frozen?
+    # TODO check if node is frozen by context menu, manually saving this node and connected edges from being changed
+    false
+  end
+
   def add_partner(node, edge)
     @partners[node.id] = { node: node, edge: edge }
   end

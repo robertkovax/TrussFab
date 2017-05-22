@@ -138,10 +138,9 @@ class Relaxation
 
   def is_fixed(node)
     node_id = node.id
-    # TODO: should that be true if all partners are fixed?
-    partners_fixed = false
-    node.partners.each_value { |partner| partners_fixed = true if partner[:node].fixed? }
-    @ignore_node_fixation[node_id].nil? && (@fixed_nodes[node_id] || node.fixed? || partners_fixed)
+    partners_frozen = false
+    node.partners.each_value { |partner| partners_frozen = true if partner[:node].frozen? }
+    @ignore_node_fixation[node_id].nil? && (@fixed_nodes[node_id] || node.fixed? || partners_frozen)
   end
 
   def compute_fixed_nodes
