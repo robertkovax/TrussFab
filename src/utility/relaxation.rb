@@ -60,6 +60,7 @@ class Relaxation
       adapt_edges(edge, deviation(edge) * @dampening_factor)
       count += 1
     end
+    update_nodes
     self
   end
 
@@ -67,7 +68,19 @@ class Relaxation
 
   # delta is dampened to prevent undesired behavior like length jumping between two extreme cases
   # it will adapt to the desired length over a larger number of iterations
-  def adapt_edges(edge, delta)
+  def update_nodes
+    nodes = Set.new
+    @edges.each do |edge|
+      nodes.add(edge.first_node)
+      nodes.add(edge.second_node)
+    end
+    nodes.each do |node|
+      next if @new_node_positions[node.id] == node.position
+      node.move(@new_node_positions[node.id])
+    end
+  end
+
+  def adapt_edge(edge, delta)
     edge_id = edge.id
     first_node_id = edge.first_node.id
     first_node_fixed = @fixed_nodes[first_node_id]

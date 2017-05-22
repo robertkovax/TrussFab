@@ -15,6 +15,13 @@ class Node < GraphObject
     super(id)
   end
 
+  def move(position)
+    @position = position
+    # TODO update thingy
+    changed
+    notify_observers(:moved, self)
+  end
+
   def distance(point)
     @position.distance(point)
   end
