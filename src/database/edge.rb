@@ -78,7 +78,11 @@ class Edge < GraphObject
   end
 
   def update(symbol, _)
-    delete if symbol == :deleted
+    if symbol == :deleted
+      delete
+    elsif symbol == :moved
+      # TODO
+    end
   end
 
   def next_longer_length
