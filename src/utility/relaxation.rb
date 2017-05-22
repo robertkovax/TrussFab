@@ -57,7 +57,7 @@ class Relaxation
       edge = pick_random_edge
       next if deviation(edge) < CONVERGENCE_DEVIATION
       add_edges(edge.directly_connected_edges) unless @clinks.length == number_connected_edges
-      adapt_edge(edge, deviation(edge) * @dampening_factor)
+      adapt_edges(edge, deviation(edge) * @dampening_factor)
       count += 1
     end
     self
@@ -137,9 +137,10 @@ class Relaxation
 
   def is_fixed(node)
     node_id = node.id
-    partners_frozen = false
-    node.partners.each_value { |partner| partners_frozen = true if partner[:node].frozen? }
-    @ignore_node_fixation[node_id].nil? && (@fixed_nodes[node_id] || node.fixed? || partners_frozen)
+    partners_frozen = node.partners.values.values.map { |partner| partner[:node].frozen? }.any?
+    @ignore_node_fixation[node_id].nil? && (@fixed_nodes[node_id] ||
+                                            node.fixed? ||
+                                            partners_frozen)
   end
 
   def compute_fixed_nodes
