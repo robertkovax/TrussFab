@@ -146,7 +146,8 @@ module JsonImport
       model_name = edge['model'].nil? ? 'hard' : edge['model']
       first_elongation_length = edge['e1'].nil? ? 0 : edge['e1'].to_l
       second_elongation_length = edge['e2'].nil? ? 0 : edge['e2'].to_l
-      new_edge = Graph.instance.create_edge_from_points(first_node, second_node,
+      new_edge = Graph.instance.create_edge_from_points(first_node, 
+                                                        second_node,
                                                         model_name,
                                                         first_elongation_length,
                                                         second_elongation_length,

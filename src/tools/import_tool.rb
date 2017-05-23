@@ -2,6 +2,8 @@ require 'src/tools/tool.rb'
 require 'src/utility/mouse_input.rb'
 require 'src/utility/json_import.rb'
 require 'src/database/graph.rb'
+require 'src/configuration/configuration.rb'
+
 
 class ImportTool < Tool
   def initialize(ui = nil)
@@ -30,21 +32,51 @@ class ImportTool < Tool
     @new_allowed = false if key == VK_SHIFT
   end
 
-  def import_from_json(path, graph_object, position=nil)
+  def import_from_json(path, graph_object, position)
     Sketchup.active_model.start_operation('import from JSON', true)
     if graph_object.is_a?(Triangle)
       JsonImport.at_triangle(path, graph_object)
     elsif graph_object.nil?
-      if Graph.instance.empty? || @new_allowed
-        JsonImport.at_position(path, position)
-        puts 'Add object on the ground'
-      else
-        puts 'We prevent objects from being created at random positions due  
-              to usablity reasons. Press and hold "shift" to do it anyways'
+      return if !Graph.instance.find_node(position).nil?
+      old_triangles = Graph.instance.surfaces.values
+      new_triangles = JsonImport.at_position(path, position).values
+      if intersecting?(old_triangles, new_triangles)
+        delete_triangles(new_triangles)
       end
     else
       raise NotImplementedError
     end
     Sketchup.active_model.commit_operation
+  end
+
+  def intersecting?(old_triangles, new_triangles)
+    old_triangles.each do |old_triangle|
+      new_bounds = Geom::BoundingBox.new
+      new_triangles.each do |new_triangle|
+        new_bounds.add(new_triangle.thingy.entity.bounds)
+      end
+      # expand the bounding box along the diagonal of the already existing one
+      left_front_bottom = new_bounds.corner(0)
+      right_back_top = new_bounds.corner(7)
+      diagonal = Geom::Vector3d.new(left_front_bottom, right_back_top)
+      new_bounds.add(right_back_top.offset(
+                                          diagonal,
+                                          Configuration::INTERSECTION_OFFSET))
+      new_bounds.add(left_front_bottom.offset(
+                                          diagonal.reverse,
+                                          Configuration::INTERSECTION_OFFSET))
+      old_bounds = old_triangle.thingy.entity.bounds
+      intersection = old_bounds.intersect(new_bounds)
+      return true if intersection.valid?
+    end
+    puts('Add object on the ground')
+    false
+  end
+
+  def delete_triangles(triangles)
+    triangles.each do |triangle|
+      triangle.delete
+    end
+    puts('New object intersects with old')
   end
 end

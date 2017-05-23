@@ -7,7 +7,6 @@ class MouseInput
     @snap_to_nodes = snap_to_nodes
     @snap_to_edges = snap_to_edges
     @snap_to_surfaces = snap_to_surfaces
-    @snapped_graph_object = nil
     soft_reset
   end
 

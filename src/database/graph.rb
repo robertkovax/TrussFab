@@ -9,9 +9,9 @@ class Graph
   attr_reader :edges, :nodes, :surfaces
 
   def initialize
-    @edges = {}
-    @nodes = {}
-    @surfaces = {}
+    @edges = {}       # {(id => edge)}
+    @nodes = {}       # {(id => node)}
+    @surfaces = {}    # {(id => surface)}
   end
 
   #

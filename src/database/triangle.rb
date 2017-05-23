@@ -8,6 +8,7 @@ class Triangle < GraphObject
     @first_node = first_node
     @second_node = second_node
     @third_node = third_node
+    @deleted = false
     super(id)
     register_observers
   end
@@ -42,7 +43,7 @@ class Triangle < GraphObject
   end
 
   def update(symbol, source)
-    if symbol == :deleted
+    if symbol == :deleted && !@deleted
       @thingy.delete_edges(source.position)
       delete
     end
@@ -67,6 +68,14 @@ class Triangle < GraphObject
     end
   end
 
+  def delete
+    @deleted = true
+    super
+    nodes.each do |node|
+      node.delete if !node.nil?
+    end
+  end
+
   private
 
   def create_thingy(id)
@@ -87,4 +96,5 @@ class Triangle < GraphObject
     @second_node.add_observer(self)
     @third_node.add_observer(self)
   end
+
 end

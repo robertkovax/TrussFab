@@ -26,13 +26,12 @@ module Configuration
   MINIMUM_ELONGATION = 20.mm.freeze
   DEFAULT_ELONGATION = 30.mm.freeze
   BALL_HUB_RADIUS = 14.mm.freeze
+  STANDARD_BOTTLES = 'hard'.freeze
 
   # Paths
   JSON_PATH = (ProjectHelper.asset_directory + '/exports/').freeze
-  TETRAHEDRON = (ProjectHelper.asset_directory + '/primitives/tetrahedron.json').freeze
-  OCTAHEDRON = (ProjectHelper.asset_directory + '/primitives/octahedron.json').freeze
-  CHAIR = (ProjectHelper.asset_directory + '/primitives/chair.json').freeze
-  STANDARD_BOTTLES = 'hard'.freeze
+  TETRAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/tetrahedron.json').freeze
+  OCTAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/octahedron.json').freeze
 
   # Model Settings
   HARD_MODELS = [
@@ -73,5 +72,7 @@ module Configuration
   CONNECTOR_COLOR = 'blue'.freeze
   CONNECTOR_RADIUS = 8.mm.freeze
 
+  # Behavioural constants
   SNAP_TOLERANCE = 200.mm.freeze
+  INTERSECTION_OFFSET = 500.mm.freeze
 end
