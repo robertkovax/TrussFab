@@ -29,11 +29,19 @@ class Thingy
     @sub_thingies.each(&:un_highlight)
   end
 
-  def delete
-    @sub_thingies.clone.each(&:delete)
+  def delete_entity
     @entity.erase! unless @entity.nil? || @entity.deleted?
     @entity = nil
+  end
+
+  def delete
+    delete_sub_thingies
+    delete_entity
     @parent.remove(self) unless @parent.nil?
+  end
+
+  def delete_sub_thingies
+    @sub_thingies.clone.each(&:delete)
   end
 
   def remove(child)

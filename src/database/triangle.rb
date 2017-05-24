@@ -30,6 +30,10 @@ class Triangle < GraphObject
     if symbol == :deleted
       @thingy.delete_edges(source.position)
       delete
+    elsif symbol == :moved
+      @thingy.update_positions(@first_node.position,
+                               @second_node.position,
+                               @third_node.position)
     end
   end
 

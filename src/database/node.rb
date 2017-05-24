@@ -17,7 +17,7 @@ class Node < GraphObject
 
   def move(position)
     @position = position
-    # TODO update thingy
+    @thingy.update_position(position)
     changed
     notify_observers(:moved, self)
   end

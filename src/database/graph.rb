@@ -8,6 +8,8 @@ class Graph
 
   attr_reader :edges, :nodes, :surfaces
 
+  CLOSE_NODE_DIST = 50.mm
+
   def initialize
     @edges = {}
     @nodes = {}
@@ -20,36 +22,35 @@ class Graph
 
   # nodes should never be created without a corresponding edge, therefore private
   private def create_node(position)
-    node = find_node(position)
+    node = find_close_node(position)
     return node unless node.nil?
     node = Node.new(position)
     @nodes[node.id] = node
     node
   end
 
-  def create_edge_from_points(first_position, second_position, model_name, first_elongation_length, second_elongation_length, link_type: 'bottle_link')
+  def create_edge_from_points(first_position, second_position, model_name: 'hard', link_type: 'bottle_link')
     first_node = create_node(first_position)
     second_node = create_node(second_position)
-    create_edge(first_node, second_node, model_name, first_elongation_length, second_elongation_length, link_type: link_type)
+    create_edge(first_node, second_node, model_name: model_name, link_type: link_type)
   end
 
-  def create_edge(first_node, second_node, model_name, first_elongation_length, second_elongation_length, link_type: 'bottle_link')
+  def create_edge(first_node, second_node, model_name: 'hard', link_type: 'bottle_link')
     nodes = [first_node, second_node]
     edge = find_edge(nodes)
     return edge unless edge.nil?
-    edge = Edge.new(first_node, second_node, model_name, first_elongation_length, second_elongation_length, link_type: link_type)
+    edge = Edge.new(first_node, second_node, model_name: model_name, link_type: link_type)
     @edges[edge.id] = edge
     edge
   end
 
-  def create_surface_from_points(first_position, second_position, third_position, definition)
+  def create_surface_from_points(first_position, second_position, third_position, model_name: 'hard', link_type: 'bottle_link')
     first_node = create_node(first_position)
     second_node = create_node(second_position)
     third_node = create_node(third_position)
-    model = definition.model
-    create_edge(first_node, second_node, model.name, 0, 0)
-    create_edge(second_node, third_node, model.name, 0, 0)
-    create_edge(first_node, third_node, model.name, 0, 0)
+    create_edge(first_node, second_node, model_name: model_name, link_type: link_type)
+    create_edge(second_node, third_node, model_name: model_name, link_type: link_type)
+    create_edge(first_node, third_node, model_name: model_name, link_type: link_type)
     create_surface(first_node, second_node, third_node)
   end
 
@@ -82,6 +83,12 @@ class Graph
   # Methods to check whether a node, edge or surface already exists
   # and return the duplicate if there is some
   #
+
+  def find_close_node(position, dist_delta: CLOSE_NODE_DIST)
+    @nodes.values.detect do |node|
+      node.position.distance(position) <= dist_delta
+    end
+  end
 
   def find_node(position)
     @nodes.values.detect { |node| node.position == position }
