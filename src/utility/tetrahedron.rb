@@ -20,7 +20,9 @@ module Tetrahedron
     upper_point = lower_point if eye.distance(lower_point) < eye.distance(upper_point)
     return if upper_point.nil?
     surface.nodes.each do |node|
-      Graph.instance.create_edge_from_points(node.position, upper_point, definition.model.name, 0, 0)
+      Graph.instance.create_edge_from_points(node.position,
+                                             upper_point,
+                                             model_name: definition.model.name)
     end
     node = Graph.instance.find_node(upper_point)
     return unless node
@@ -47,6 +49,9 @@ module Tetrahedron
     rotation = Geom::Transformation.rotation(position, Geometry::Z_AXIS, 60.degrees)
     second_position = position + vector
     third_position = position + vector.transform(rotation)
-    Graph.instance.create_surface_from_points(position, second_position, third_position, definition)
+    Graph.instance.create_surface_from_points(position,
+                                              second_position,
+                                              third_position,
+                                              model_name: definition.model.name)
   end
 end

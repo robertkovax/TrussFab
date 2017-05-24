@@ -1,10 +1,9 @@
 class Relaxation
-
-  DEFAULT_MAX_ITERATIONS = 20_000
+  DEFAULT_MAX_ITERATIONS = 50
   CONVERGENCE_DEVIATION = 1.mm
   DAMPENING_FACTOR = 0.9
 
-  attr_reader :new_hub_positions, :new_direction_vectors, :new_start_positions, :max_iterations
+  attr_reader :new_node_positions, :new_direction_vectors, :new_start_positions, :max_iterations
 
   def initialize(max_iterations: DEFAULT_MAX_ITERATIONS)
     @dampening_factor = DAMPENING_FACTOR
@@ -33,7 +32,7 @@ class Relaxation
   def change_length(edge, target_length)
     add_edge(edge)
     edge.desired_length = target_length
-    if is_fixed(edge.first_node) && is_fixed(edge.second_node)
+    if fixed?(edge.first_node) && fixed?(edge.second_node)
       @ignore_node_fixation[edge.first_node.id] = edge.first_node
       @ignore_node_fixation[edge.second_node.id] = edge.second_node
     end
@@ -44,7 +43,7 @@ class Relaxation
     return if node.nil?
     constrain_node(node)
     @new_node_positions[node.id] = position
-    add_edges(node.partners.map { |partner| partner[:edge] })
+    add_edges(node.partners.values.map { |partner| partner[:edge] })
     update_neighbor_links(node)
     self
   end
@@ -55,9 +54,9 @@ class Relaxation
     count = 0
     (1..@max_iterations).each do
       edge = pick_random_edge
-      next if deviation(edge) < CONVERGENCE_DEVIATION
-      add_edges(edge.directly_connected_edges) unless @clinks.length == number_connected_edges
-      adapt_edges(edge, deviation(edge) * @dampening_factor)
+      next if deviation(edge).abs < CONVERGENCE_DEVIATION
+      add_edges(edge.directly_connected_edges) unless @edges.length == number_connected_edges
+      adapt_edge(edge, deviation(edge) * @dampening_factor)
       count += 1
     end
     update_nodes
@@ -66,8 +65,6 @@ class Relaxation
 
   private
 
-  # delta is dampened to prevent undesired behavior like length jumping between two extreme cases
-  # it will adapt to the desired length over a larger number of iterations
   def update_nodes
     nodes = Set.new
     @edges.each do |edge|
@@ -80,6 +77,8 @@ class Relaxation
     end
   end
 
+  # delta is dampened to prevent undesired behavior like length jumping between two extreme cases
+  # it will adapt to the desired length over a larger number of iterations
   def adapt_edge(edge, delta)
     edge_id = edge.id
     first_node_id = edge.first_node.id
@@ -89,7 +88,7 @@ class Relaxation
     new_direction = @new_direction_vectors[edge_id]
 
     if first_node_fixed && second_node_fixed
-      clink.desired_stretch_length = new_direction.length
+      edge.desired_length = new_direction.length
     else
       stretch_vector = new_direction.clone # clone vector to preserve old vector
       stretch_vector.length = delta
@@ -112,13 +111,13 @@ class Relaxation
   end
 
   def update_neighbor_links(node)
-    node.partners.each do |partner|
+    node.partners.values.each do |partner|
       partner_edge = partner[:edge]
       partner_edge_id = partner_edge.id
       new_node_position = @new_node_positions[node.id]
-      if parnter_edge.first_node == node
+      if partner_edge.first_node == node
         @new_start_positions[partner_edge_id] = new_node_position
-        @new_direction_vectors[partner_edge_id] = @new_hub_positions[partner_edge.second_node.id] - new_node_position
+        @new_direction_vectors[partner_edge_id] = @new_node_positions[partner_edge.second_node.id] - new_node_position
       else
         @new_direction_vectors[partner_edge_id] = new_node_position - @new_start_positions[partner_edge_id]
       end
@@ -148,9 +147,9 @@ class Relaxation
     self
   end
 
-  def is_fixed(node)
+  def fixed?(node)
     node_id = node.id
-    partners_frozen = node.partners.values.values.map { |partner| partner[:node].frozen? }.any?
+    partners_frozen = node.partners.values.map { |partner| partner[:node].frozen? }.any?
     @ignore_node_fixation[node_id].nil? && (@fixed_nodes[node_id] ||
                                             node.fixed? ||
                                             partners_frozen)
@@ -158,7 +157,7 @@ class Relaxation
 
   def compute_fixed_nodes
     Graph.instance.nodes.each_value do |node|
-      @fixed_nodes[node.id] = is_fixed(node)
+      @fixed_nodes[node.id] = fixed?(node)
     end
   end
 

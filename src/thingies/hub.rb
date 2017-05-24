@@ -18,6 +18,11 @@ class Hub < Thingy
     change_color(@color)
   end
 
+  def update_position(position)
+    @position = position
+    @entity.move!(Geom::Transformation.new(position))
+  end
+
   private
 
   def create_entity

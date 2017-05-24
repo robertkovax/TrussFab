@@ -6,13 +6,10 @@ require 'src/models/model_storage.rb'
 class Edge < GraphObject
   attr_reader :first_node, :second_node
   attr_accessor :desired_length
-  def initialize(first_node, second_node, model_name, first_elongation_length, second_elongation_length,
-                 id: nil, link_type: 'bottle_link')
+  def initialize(first_node, second_node, model_name: 'hard', id: nil, link_type: 'bottle_link')
     @first_node = first_node
     @second_node = second_node
-    @model = ModelStorage.instance.models[model_name]
-    @first_elongation_length = first_elongation_length
-    @second_elongation_length = second_elongation_length
+    @model_name = model_name
     super(id)
     @first_node.add_partner(@second_node, self)
     @second_node.add_partner(@first_node, self)
@@ -77,49 +74,32 @@ class Edge < GraphObject
     @second_node.delete_partner(@first_node)
   end
 
+  def move
+    @thingy.update_positions(@first_node.position, @second_node.position)
+  end
+
   def update(symbol, _)
     if symbol == :deleted
       delete
     elsif symbol == :moved
-      # TODO
+      move
     end
   end
 
   def next_longer_length
-    current = @model.longest_model_shorter_than(length).length
-    longer = @model.shortest_model_longer_than(current).length
-    length + (longer - current)
+    length * 1.1
   end
 
   def next_shorter_length
-    current = @model.longest_model_shorter_than(length).length
-    shorter = @model.longest_model_shorter_than(current).length
-    length + (shorter - current)
+    length * 0.9
   end
 
   private
 
   def create_thingy(id)
-    first_length = @first_elongation_length.zero? ? Configuration::MINIMUM_ELONGATION : @first_elongation_length
-    second_length = @second_elongation_length.zero? ? Configuration::MINIMUM_ELONGATION : @second_elongation_length
-    model_length = length - first_length - second_length
-    shortest_model = @model.longest_model_shorter_than(model_length)
-
-    if @first_elongation_length.zero? && @second_elongation_length.zero?
-      @first_elongation_length = @second_elongation_length = (length - shortest_model.length) / 2
-    else
-      if @first_elongation_length.zero?
-        @first_elongation_length = length - shortest_model.length - @second_elongation_length
-      end
-      if @second_elongation_length.zero?
-        @second_elongation_length = length - shortest_model.length - @first_elongation_length
-      end
-    end
     Link.new(@first_node.position,
              @second_node.position,
-             shortest_model.definition,
-             @first_elongation_length,
-             @second_elongation_length,
+             @model_name,
              id: id)
   end
 

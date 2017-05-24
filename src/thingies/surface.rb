@@ -34,10 +34,17 @@ class Surface < Thingy
     change_color(@color)
   end
 
+  def update_positions(position1, position2, position3)
+    @position1 = position1
+    @position2 = position2
+    @position3 = position3
+    delete_entity
+    @entity = create_entity
+  end
+
   private
 
   def create_entity
-    return @entity if @entity
     entity = Sketchup.active_model.entities.add_face(@position1, @position2, @position3)
     entity.layer = Configuration::TRIANGLE_SURFACES_VIEW
     entity.material = entity.back_material = @color
