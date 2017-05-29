@@ -93,14 +93,14 @@ module JsonImport
     [standard_direction, points]
   end
 
-  # create surfaces from partners
+  # create surfaces from incidents
   # we look at both first_node and second_node, since surfaces with a missing link can occur
   def self.create_surfaces(edges)
     surfaces = {}
     edges.each_value do |edge|
       [edge.first_node, edge.second_node].each do |edge_node|
-        edge_node.partners.each_value do |partner|
-          node = partner[:node]
+        edge_node.incidents.each_value do |incident|
+          node = incident[:node]
           other_edge_node =
             if edge.first_node == edge_node
               edge.second_node
@@ -108,8 +108,9 @@ module JsonImport
               edge.first_node
             end
           next if node == edge.first_node ||
-                  node == edge.second_node
-          next unless other_edge_node.partners_include?(node)
+                  node == edge.second_node ||
+                  Graph.instance.find_surface([edge.first_node, edge.second_node, node])
+          next unless other_edge_node.is_adjacent(node)
           surface = Graph.instance.create_surface(edge.first_node, edge.second_node, node)
           surfaces[surface.id] = surface
         end
