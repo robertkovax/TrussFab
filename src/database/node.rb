@@ -56,11 +56,6 @@ class Node < GraphObject
     Hub.new(@position, id: id)
   end
 
-  def delete_thingy
-    @thingy.delete
-    @thingy = nil
-  end
-
   def delete_partners
     @partners.each_value do |partner|
       @partners.delete(partner[:edge]) unless partner[:edge].nil?
