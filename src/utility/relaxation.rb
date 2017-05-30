@@ -43,7 +43,7 @@ class Relaxation
     return if node.nil?
     constrain_node(node)
     @new_node_positions[node.id] = position
-    add_edges(node.partners.values.map { |partner| partner[:edge] })
+    add_edges(node.incidents)
     update_neighbor_links(node)
     self
   end
@@ -55,7 +55,7 @@ class Relaxation
     (1..@max_iterations).each do
       edge = pick_random_edge
       next if deviation(edge).abs < CONVERGENCE_DEVIATION
-      add_edges(edge.directly_connected_edges) unless @edges.length == number_connected_edges
+      add_edges(edge.incidents) unless @edges.length == number_connected_edges
       adapt_edge(edge, deviation(edge) * @dampening_factor)
       count += 1
     end
@@ -111,15 +111,14 @@ class Relaxation
   end
 
   def update_neighbor_links(node)
-    node.partners.values.each do |partner|
-      partner_edge = partner[:edge]
-      partner_edge_id = partner_edge.id
+    node.incidents.each do |incident|
+      incident_id = incident.id
       new_node_position = @new_node_positions[node.id]
-      if partner_edge.first_node == node
-        @new_start_positions[partner_edge_id] = new_node_position
-        @new_direction_vectors[partner_edge_id] = @new_node_positions[partner_edge.second_node.id] - new_node_position
+      if incident.first_node == node
+        @new_start_positions[incident_id] = new_node_position
+        @new_direction_vectors[incident_id] = @new_node_positions[incident.second_node.id] - new_node_position
       else
-        @new_direction_vectors[partner_edge_id] = new_node_position - @new_start_positions[partner_edge_id]
+        @new_direction_vectors[incident_id] = new_node_position - @new_start_positions[incident_id]
       end
     end
   end
@@ -134,7 +133,7 @@ class Relaxation
 
   def connected_edges
     all_edges = Set.new
-    @edges.each { |edge| all_edges.merge(edge.connected_edges) }
+    @edges.each { |edge| all_edges.merge(edge.connected_component) }
     all_edges.length
   end
 
@@ -149,10 +148,10 @@ class Relaxation
 
   def fixed?(node)
     node_id = node.id
-    partners_frozen = node.partners.values.map { |partner| partner[:node].frozen? }.any?
+    incidetns_frozen = node.incidents.map { |incident| incident.opposite(node).frozen? }.any?
     @ignore_node_fixation[node_id].nil? && (@fixed_nodes[node_id] ||
                                             node.fixed? ||
-                                            partners_frozen)
+                                            incidetns_frozen)
   end
 
   def compute_fixed_nodes

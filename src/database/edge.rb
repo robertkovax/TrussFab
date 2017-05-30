@@ -6,14 +6,14 @@ require 'src/models/model_storage.rb'
 class Edge < GraphObject
   attr_reader :first_node, :second_node
   attr_accessor :desired_length
+
   def initialize(first_node, second_node, model_name: 'hard', id: nil, link_type: 'bottle_link')
     @first_node = first_node
     @second_node = second_node
+    @first_node.add_incident(self)
+    @second_node.add_incident(self)
     @model_name = model_name
     super(id)
-    @first_node.add_partner(@second_node, self)
-    @second_node.add_partner(@first_node, self)
-    register_observers
   end
 
   def distance(point)
@@ -44,13 +44,19 @@ class Edge < GraphObject
     @first_node.position.distance(@second_node.position)
   end
 
-  def connected_edges
+  def opposite(node)
+    return @second_node if node == @first_node
+    return @first_node if node == @second_node
+    nil
+  end
+
+  def connected_component
     edges_to_process = [self]
     seen = Set.new([self])
 
     until edges_to_process.empty?
       edge = edges_to_process.pop
-      edge.directly_connected_edges.each do |other_edge|
+      edge.incidents.each do |other_edge|
         unless seen.include?(other_edge)
           edges_to_process.push(other_edge)
           seen.add(other_edge)
@@ -60,30 +66,20 @@ class Edge < GraphObject
     seen
   end
 
-  def directly_connected_edges
-    first_connected = first_node.partners.values.map { |partner| partner[:edge] } - [self]
-    second_connected = second_node.partners.values.map { |partner| partner[:edge] } - [self]
+  def incidents
+    first_connected = first_node.incidents - [self]
+    second_connected = second_node.incidents - [self]
     first_connected + second_connected
   end
 
   def delete
     super
-    @first_node.delete_observer(self)
-    @second_node.delete_observer(self)
-    @first_node.delete_partner(@second_node)
-    @second_node.delete_partner(@first_node)
+    @first_node.delete_incident(self)
+    @second_node.delete_incident(self)
   end
 
   def move
     @thingy.update_positions(@first_node.position, @second_node.position)
-  end
-
-  def update(symbol, _)
-    if symbol == :deleted
-      delete
-    elsif symbol == :moved
-      move
-    end
   end
 
   def next_longer_length
@@ -101,10 +97,5 @@ class Edge < GraphObject
              @second_node.position,
              @model_name,
              id: id)
-  end
-
-  def register_observers
-    @first_node.add_observer(self)
-    @second_node.add_observer(self)
   end
 end
