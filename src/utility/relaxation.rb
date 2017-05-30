@@ -39,7 +39,7 @@ class Relaxation
     self
   end
 
-  def move_node(node)
+  def move_node(node, position)
     return if node.nil?
     constrain_node(node)
     @new_node_positions[node.id] = position
