@@ -18,9 +18,9 @@ class ImportTool < Tool
   end
 
   def onLButtonDown(_flags, x, y, view)
-    @mouse_input.update_positions(view, x, y)
     snapped_graph_object = @mouse_input.snapped_graph_object
     import_from_json(@path, snapped_graph_object, @mouse_input.position)
+    @mouse_input.update_positions(view, x, y)
     view.invalidate
   end
 
@@ -37,11 +37,11 @@ class ImportTool < Tool
     if graph_object.is_a?(Triangle)
       JsonImport.at_triangle(path, graph_object)
     elsif graph_object.nil?
-      return if !Graph.instance.find_node(position).nil?
+      return if !Graph.instance.find_close_node(position).nil?
       old_triangles = Graph.instance.surfaces.values
-      new_triangles = JsonImport.at_position(path, position).values
+      new_triangles, new_edges = JsonImport.at_position(path, position)
       if intersecting?(old_triangles, new_triangles)
-        delete_triangles(new_triangles)
+        delete_edges(new_edges)
       end
     else
       raise NotImplementedError
@@ -73,9 +73,9 @@ class ImportTool < Tool
     false
   end
 
-  def delete_triangles(triangles)
-    triangles.each do |triangle|
-      triangle.delete
+  def delete_edges(edges)
+    edges.each do |edge|
+      edge.delete
     end
     puts('New object intersects with old')
   end
