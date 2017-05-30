@@ -2,7 +2,7 @@ require 'src/database/graph_object.rb'
 require 'src/thingies/surface.rb'
 
 class Triangle < GraphObject
-  attr_reader :first_node, :second_node, :third_node
+  attr_reader :first_node, :second_node, :third_node, :deleted
 
   def initialize(first_node, second_node, third_node, id: nil)
     @first_node = first_node
@@ -11,6 +11,7 @@ class Triangle < GraphObject
     first_node.add_adjacent_triangle(self)
     second_node.add_adjacent_triangle(self)
     third_node.add_adjacent_triangle(self)
+    @deleted = false
     super(id)
   end
 
@@ -70,8 +71,9 @@ class Triangle < GraphObject
 
   def delete
     super
+    @deleted = true
     nodes.each do |node|
-      node.delete unless node.nil?
+      node.delete_adjacent_triangle(self) unless node.nil?
     end
   end
 

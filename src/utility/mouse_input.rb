@@ -12,7 +12,9 @@ class MouseInput
 
   def soft_reset
     @position = nil
-    @snapped_graph_object.thingy.un_highlight unless @snapped_graph_object.nil?
+    unless @snapped_graph_object.nil? || @snapped_graph_object.thingy.nil?
+      @snapped_graph_object.thingy.un_highlight
+    end
     @snapped_graph_object = nil
   end
 
