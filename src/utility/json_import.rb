@@ -23,9 +23,9 @@ module JsonImport
   # we look at both first_node and second_node, since surfaces with a missing link can occur
   def self.create_surfaces(edges)
     surfaces = {}
-    edges.each_value do |edge|
+    edges.each do |edge|
       [edge.first_node, edge.second_node].each do |edge_node|
-        edge_node.incidents.each_value do |incident|
+        edge_node.incidents.each do |incident|
           node = incident[:node]
           other_edge_node =
             if edge.first_node == edge_node

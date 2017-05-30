@@ -1,5 +1,5 @@
 class Relaxation
-  DEFAULT_MAX_ITERATIONS = 50
+  DEFAULT_MAX_ITERATIONS = 20_000
   CONVERGENCE_DEVIATION = 1.mm
   DAMPENING_FACTOR = 0.9
 
@@ -59,6 +59,7 @@ class Relaxation
       adapt_edge(edge, deviation(edge) * @dampening_factor)
       count += 1
     end
+    puts "Relaxation iterations: #{count}"
     update_nodes
     self
   end

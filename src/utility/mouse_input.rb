@@ -7,11 +7,11 @@ class MouseInput
     @snap_to_nodes = snap_to_nodes
     @snap_to_edges = snap_to_edges
     @snap_to_surfaces = snap_to_surfaces
+    @position = nil
     soft_reset
   end
 
   def soft_reset
-    @position = nil
     @position = nil
     unless @snapped_graph_object.nil?
       @snapped_graph_object.thingy.un_highlight
@@ -27,9 +27,8 @@ class MouseInput
 
     @position = input_point.position
     snap_to_graph_object
-    unless @snapped_graph_object.nil?
-      @snapped_graph_object.thingy.highlight
-    end
+
+    @snapped_graph_object.thingy.highlight unless @snapped_graph_object.nil?
     @position = @snapped_graph_object.position if @snapped_graph_object
   end
 
@@ -49,9 +48,13 @@ class MouseInput
     end
     if @snap_to_surfaces
       surface = Graph.instance.closest_surface(@position)
-      graph_objects.add(surface) unless surface.nil? || out_of_snap_tolerance?(surface)
+      unless surface.nil? || out_of_snap_tolerance?(surface)
+        graph_objects.add(surface)
+      end
     end
     return nil if graph_objects.empty?
-    @snapped_graph_object = graph_objects.min_by { |thingy| thingy.distance(@position) }
+    @snapped_graph_object = graph_objects.min_by do |thingy|
+      thingy.distance(@position)
+    end
   end
 end
