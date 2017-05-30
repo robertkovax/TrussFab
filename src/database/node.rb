@@ -48,26 +48,29 @@ class Node < GraphObject
     delete if dangling?
   end
 
+  def delete_adjacent_triangle(triangle)
+    @adjcacent_triangles.delete(triangle)
+  end
+
   def dangling?
     @incidents.empty?
   end
 
   def is_adjacent(node)
-    @incidents.each do |incident|
-      return true if @incidents.include[node]
-    end
-    false
+    @incidents.any? { |edge| edge.include?(node) }
   end
 
   def is_incident(edge)
-    return true if @incidents.include[node]
-    false
+    @incidents.include?(edge)
   end
 
   def delete
     super
-    @incidents.each { |incident| incident.delete }
-    @adjcacent_triangles.each { |triangle| triangle.delete }
+    @incidents.each(&:delete)
+    @adjcacent_triangles.clone.each do |triangle|
+      triangle.delete unless triangle.deleted
+    end
+    false
   end
 
   private
@@ -77,7 +80,7 @@ class Node < GraphObject
   end
 
   def delete_thingy
-    @thingy.delete
+    @thingy.delete unless @thingy.nil?
     @thingy = nil
   end
 end

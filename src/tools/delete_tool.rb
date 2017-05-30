@@ -14,6 +14,7 @@ class DeleteTool < Tool
   end
 
   def onMouseMove(_flags, x, y, view)
+    @mouse_input.update_positions(view, x, y)
     return unless @clicking
     unless @deleting
       distance_moved = Math.sqrt((@initial_click_position[0] - x)**2 + (@initial_click_position[1] - y)**2)
@@ -33,20 +34,7 @@ class DeleteTool < Tool
     @mouse_input.update_positions(view, x, y)
     graph_obj = @mouse_input.snapped_graph_object
     return if graph_obj.nil?
-    delete_node(graph_obj) if graph_obj.is_a?(Node)
-    delete_edge(graph_obj) if graph_obj.is_a?(Edge)
+    graph_obj.delete
     view.invalidate
-  end
-
-  def delete_node(node)
-    Sketchup.active_model.start_operation('Delete hub and adjacent edges', true)
-    node.delete
-    Sketchup.active_model.commit_operation
-  end
-
-  def delete_edge(edge)
-    Sketchup.active_model.start_operation('Delete edge', true)
-    edge.delete
-    Sketchup.active_model.commit_operation
   end
 end

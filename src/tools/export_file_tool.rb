@@ -1,0 +1,40 @@
+require 'src/tools/tool.rb'
+require 'src/utility/mouse_input.rb'
+require 'src/utility/json_export.rb'
+require 'src/configuration/configuration.rb'
+
+class ExportFileTool < Tool
+  def initialize(ui)
+    super
+    @mouse_input = MouseInput.new(snap_to_surfaces: true)
+  end
+
+  def activate
+    UI.messagebox('Please select a surface to become the standard surface'\
+                  ' that gets attached when added to other objects',
+                  type = MB_OK)
+  end
+
+  def onMouseMove(_flags, x, y, view)
+    @mouse_input.update_positions(view, x, y)
+  end
+
+  def onLButtonDown(_flags, x, y, view)
+    @mouse_input.update_positions(view, x, y)
+    snapped_graph_object = @mouse_input.snapped_graph_object
+    if snapped_graph_object.is_a?(Triangle)
+      export_with_file_dialog(snapped_graph_object)
+      deactivate(view)
+    end
+    view.invalidate
+  end
+
+  def export_with_file_dialog(triangle=nil)
+    path = UI.savepanel('Export JSON',
+                        Configuration::JSON_PATH,
+                        'JSON File|*.json;||')
+    unless path.nil?
+      JsonExport.export(path, triangle)
+    end
+  end
+end

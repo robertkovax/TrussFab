@@ -11,9 +11,9 @@ class Graph
   CLOSE_NODE_DIST = 50.mm
 
   def initialize
-    @edges = {}
-    @nodes = {}
-    @surfaces = {}
+    @edges = {}       # {(id => edge)}
+    @nodes = {}       # {(id => node)}
+    @surfaces = {}    # {(id => surface)}
   end
 
   #
@@ -108,6 +108,9 @@ class Graph
     end
   end
 
+  def empty?
+    return nodes.empty? 
+  end
   #
   # Method to delete either a node, an edge or a surface
   #
