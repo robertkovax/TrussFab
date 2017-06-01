@@ -25,6 +25,7 @@ module Configuration
   # Thingy properties
   MINIMUM_ELONGATION = 20.mm.freeze
   DEFAULT_ELONGATION = 30.mm.freeze
+  MAXIMUM_ELONGATION = 100.mm.freeze
   BALL_HUB_RADIUS = 14.mm.freeze
   STANDARD_BOTTLES = 'hard'.freeze
 
