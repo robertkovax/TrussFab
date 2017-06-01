@@ -7,7 +7,8 @@ module JsonImport
     json_objects = load_json(path)
     points = build_points(json_objects, position)
     edges = build_edges(json_objects, points)
-    create_surfaces(edges)
+    triangles = create_triangles(edges)
+    return triangles.values, edges.values
   end
 
   def self.at_triangle(path, snap_triangle)
@@ -73,7 +74,7 @@ module JsonImport
 
 
     edges = build_edges(json_objects, json_points)
-    surfaces = create_surfaces(edges)
+    triangles = create_triangles(edges)
   end
 
   def self.load_json(path)
@@ -93,29 +94,24 @@ module JsonImport
     [standard_direction, points]
   end
 
-  # create surfaces from partners
-  # we look at both first_node and second_node, since surfaces with a missing link can occur
-  def self.create_surfaces(edges)
-    surfaces = {}
-    edges.each_value do |edge|
-      [edge.first_node, edge.second_node].each do |edge_node|
-        edge_node.partners.each_value do |partner|
-          node = partner[:node]
-          other_edge_node =
-            if edge.first_node == edge_node
-              edge.second_node
-            else
-              edge.first_node
-            end
-          next if node == edge.first_node ||
-                  node == edge.second_node
-          next unless other_edge_node.partners_include?(node)
-          surface = Graph.instance.create_surface(edge.first_node, edge.second_node, node)
-          surfaces[surface.id] = surface
+  # create triangles from incidents
+  # we look at both first_node and second_node, since triangles with a missing link can occur
+  def self.create_triangles(edges)
+    triangles = {}
+    edges.values.each do |edge|
+      edge.first_node.incidents.each do |first_incident|
+        edge.second_node.incidents.each do |second_incident|
+          next if first_incident == second_incident
+          if first_incident.opposite(edge.first_node) == second_incident.opposite(edge.second_node)
+            triangle = Graph.instance.create_surface(edge.first_node,
+                                                    edge.second_node,
+                                                    first_incident.opposite(edge.first_node))
+            triangles[triangle.id] = triangle
+          end
         end
       end
     end
-    surfaces
+    triangles
   end
 
   def self.build_points(json_objects, position)
@@ -144,13 +140,9 @@ module JsonImport
       second_node = nodes[edge['n2']]
       link_type = edge['type']
       model_name = edge['model'].nil? ? 'hard' : edge['model']
-      first_elongation_length = edge['e1'].nil? ? 0 : edge['e1'].to_l
-      second_elongation_length = edge['e2'].nil? ? 0 : edge['e2'].to_l
-      new_edge = Graph.instance.create_edge_from_points(first_node, 
-                                                        second_node,
-                                                        model_name,
-                                                        first_elongation_length,
-                                                        second_elongation_length,
+      new_edge = Graph.instance.create_edge_from_points(first_node,
+                                                        second_node, 
+                                                        model_name: model_name, 
                                                         link_type: link_type)
       edges[edge['id']] = new_edge
     end
