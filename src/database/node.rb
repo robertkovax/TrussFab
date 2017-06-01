@@ -10,6 +10,7 @@ class Node < GraphObject
     @position = position
     @incidents = []             # connected edges
     @adjcacent_triangles = []   # connceted triangles
+    @pod_directions = []
     super(id)
   end
 
@@ -44,7 +45,6 @@ class Node < GraphObject
 
   def delete_incident(edge)
     @incidents.delete(edge)
-    return true if @deleting # prevent dangling check when deleting node
     delete if dangling?
   end
 
@@ -70,17 +70,15 @@ class Node < GraphObject
     @adjcacent_triangles.clone.each do |triangle|
       triangle.delete unless triangle.deleted
     end
-    false
+  end
+
+  def fix(direction = nil, type: pod)
+
   end
 
   private
 
   def create_thingy(id)
     Hub.new(@position, id: id)
-  end
-
-  def delete_thingy
-    @thingy.delete unless @thingy.nil?
-    @thingy = nil
   end
 end
