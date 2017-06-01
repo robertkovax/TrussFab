@@ -18,6 +18,7 @@ class ImportTool < Tool
   end
 
   def onLButtonDown(_flags, x, y, view)
+    @mouse_input.update_positions(view, x, y)
     snapped_graph_object = @mouse_input.snapped_graph_object
     import_from_json(@path, snapped_graph_object, @mouse_input.position)
     @mouse_input.update_positions(view, x, y)
