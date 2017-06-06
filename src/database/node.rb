@@ -1,53 +1,76 @@
 require 'src/database/graph_object.rb'
 require 'src/thingies/hub.rb'
-require 'observer'
 
 class Node < GraphObject
-  include Observable
 
-  attr_reader :position, :partners
+  attr_reader :position, :incidents
 
   def initialize(position, id: nil)
     @deleting = false
     @position = position
-    @partners = {}
-    @observer = Set.new
+    @incidents = []             # connected edges
+    @adjcacent_triangles = []   # connceted triangles
     super(id)
+  end
+
+  def move(position)
+    @position = position
+    @thingy.update_position(position)
+    @incidents.each {|incident| incident.move}
+    @adjcacent_triangles.each {|triangle| triangle.move}
   end
 
   def distance(point)
     @position.distance(point)
   end
 
-  def add_partner(node, edge)
-    @partners[node.id] = { node: node, edge: edge }
+  def fixed?
+    # TODO check if pod on node or fixed/frozen manually
+    false
   end
 
-  def delete_partner(node)
-    @partners.delete(node.id) unless @partners[node.id].nil?
+  def frozen?
+    # TODO check if node is frozen by context menu, manually saving this node and connected edges from being changed
+    false
+  end
+
+  def add_incident(edge)
+    @incidents << edge
+  end
+
+  def add_adjacent_triangle(triangle)
+    @adjcacent_triangles << triangle
+  end
+
+  def delete_incident(edge)
+    @incidents.delete(edge)
     return true if @deleting # prevent dangling check when deleting node
     delete if dangling?
   end
 
-  def delete
-    super
-    changed
-    notify_observers(:deleted, self)
-    delete_observers
+  def delete_adjacent_triangle(triangle)
+    @adjcacent_triangles.delete(triangle)
   end
 
   def dangling?
-    @partners.empty?
+    @incidents.empty?
   end
 
-  def partners_include?(node_or_partner)
-    if node_or_partner.is_a?(Node)
-      partners_include_node?(node_or_partner)
-    elsif node_or_partner.is_a?(Edge)
-      partners_include_edge?(node_or_partner)
-    else
-      false
+  def is_adjacent(node)
+    @incidents.any? { |edge| edge.include?(node) }
+  end
+
+  def is_incident(edge)
+    @incidents.include?(edge)
+  end
+
+  def delete
+    super
+    @incidents.each(&:delete)
+    @adjcacent_triangles.clone.each do |triangle|
+      triangle.delete unless triangle.deleted
     end
+    false
   end
 
   private
@@ -57,21 +80,7 @@ class Node < GraphObject
   end
 
   def delete_thingy
-    @thingy.delete
+    @thingy.delete unless @thingy.nil?
     @thingy = nil
-  end
-
-  def delete_partners
-    @partners.each_value do |partner|
-      @partners.delete(partner[:edge]) unless partner[:edge].nil?
-    end
-  end
-
-  def partners_include_node?(node)
-    @partners.values.any? { |partner| partner[:node] == node }
-  end
-
-  def partners_include_edge?(edge)
-    @partners.values.any? { |partner| partner[:edge] == edge }
   end
 end

@@ -1,0 +1,124 @@
+{
+  "distance_unit": "mm",
+  "force_unit": "N",
+  "nodes": [
+    {
+      "id": 1,
+      "x": 1313.9085526522538,
+      "y": 4522.2375850606795,
+      "z": 12.081394335194434
+    },
+    {
+      "id": 7,
+      "x": 1972.7788371267247,
+      "y": 4538.000163133128,
+      "z": 3.5642459256678314
+    },
+    {
+      "id": 15,
+      "x": 1629.4680498009038,
+      "y": 5133.003909070738,
+      "z": 21.975994905324995
+    },
+    {
+      "id": 33,
+      "x": 1646.366052699626,
+      "y": 4729.344751292316,
+      "z": 543.2918958302317
+    }
+  ],
+  "edges": [
+    {
+      "id": 9,
+      "n1": 1,
+      "n2": 7,
+      "type": "LinkTypes::BOTTLE_LINK",
+      "model_type": "hard",
+      "e1": "~ 29,43mm",
+      "e2": "~ 29,70mm"
+    },
+    {
+      "id": 17,
+      "n1": 7,
+      "n2": 15,
+      "type": "LinkTypes::BOTTLE_LINK",
+      "model_type": "hard",
+      "e1": "57,31mm",
+      "e2": "~ 29,90mm"
+    },
+    {
+      "id": 25,
+      "n1": 15,
+      "n2": 1,
+      "type": "LinkTypes::BOTTLE_LINK",
+      "model_type": "hard",
+      "e1": "~ 30,03mm",
+      "e2": "~ 57,53mm"
+    },
+    {
+      "id": 35,
+      "n1": 1,
+      "n2": 33,
+      "type": "LinkTypes::BOTTLE_LINK",
+      "model_type": "hard",
+      "e1": "~ 30,05mm",
+      "e2": "~ 29,97mm"
+    },
+    {
+      "id": 43,
+      "n1": 7,
+      "n2": 33,
+      "type": "LinkTypes::BOTTLE_LINK",
+      "model_type": "hard",
+      "e1": "~ 29,63mm",
+      "e2": "~ 29,53mm"
+    },
+    {
+      "id": 53,
+      "n1": 15,
+      "n2": 33,
+      "type": "LinkTypes::BOTTLE_LINK",
+      "model_type": "hard",
+      "e1": "~ 29,68mm",
+      "e2": "~ 29,88mm"
+    }
+  ],
+  "support_nodes": null,
+  "forces": [
+    {
+      "node_id": 1,
+      "components": {
+        "x_t": 0.0,
+        "y_t": 0.0,
+        "z_t": 0.0
+      }
+    },
+    {
+      "node_id": 7,
+      "components": {
+        "x_t": 0.0,
+        "y_t": 0.0,
+        "z_t": 0.0
+      }
+    },
+    {
+      "node_id": 15,
+      "components": {
+        "x_t": 0.0,
+        "y_t": 0.0,
+        "z_t": 0.0
+      }
+    },
+    {
+      "node_id": 33,
+      "components": {
+        "x_t": 0.0,
+        "y_t": 0.0,
+        "z_t": 0.0
+      }
+    }
+  ],
+  "standard_surface": [
+    1, 7, 15
+  ]
+}

@@ -35,18 +35,18 @@ module ProjectHelper
   def self.create_layers
     layers = Sketchup.active_model.layers
 
-    model_layer = layers.add Configuration::LINE_VIEW
+    model_layer = layers.add(Configuration::LINE_VIEW)
     model_layer.visible = false
 
-    layers.add Configuration::COMPONENT_VIEW
-    layers.add Configuration::HUB_VIEW
-    layers.add Configuration::DRAW_TOOLTIPS_VIEW
-    layers.add Configuration::TRIANGLE_SURFACES_VIEW
+    layers.add(Configuration::COMPONENT_VIEW)
+    layers.add(Configuration::HUB_VIEW)
+    layers.add(Configuration::DRAW_TOOLTIPS_VIEW)
+    layers.add(Configuration::TRIANGLE_SURFACES_VIEW)
 
-    connector_mode_layer = layers.add Configuration::CONNECTOR_MODE_VIEW
+    connector_mode_layer = layers.add(Configuration::CONNECTOR_MODE_VIEW)
     connector_mode_layer.visible = false
 
-    hub_id_layer = layers.add Configuration::HUB_ID_VIEW
+    hub_id_layer = layers.add(Configuration::HUB_ID_VIEW)
     hub_id_layer.visible = false
 
     # layers.add Configuration::FORCE_VIEW

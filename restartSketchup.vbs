@@ -10,7 +10,8 @@ shell.Run "tskill SketchUp"
 WScript.Sleep 200
 shell.Run """C:\Program Files\SketchUp\SketchUp 2017\SketchUp.exe"""
 shell.AppActivate "Welcome to SketchUp"
-WScript.Sleep 500
+Do Until shell.AppActivate("Welcome to SketchUp")
+Loop
 If shell.AppActivate("Welcome to SketchUp") Then
 shell.SendKeys "%{F4}"
 
