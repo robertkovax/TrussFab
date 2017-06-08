@@ -1,5 +1,6 @@
 require 'src/database/graph_object.rb'
 require 'src/thingies/hub.rb'
+require 'src/thingies/hub_entities/pod.rb'
 
 class Node < GraphObject
 
@@ -10,7 +11,7 @@ class Node < GraphObject
     @position = position
     @incidents = []             # connected edges
     @adjcacent_triangles = []   # connceted triangles
-    @pod_directions = []
+    @pod_directions = {}
     super(id)
   end
 
@@ -64,16 +65,31 @@ class Node < GraphObject
     @incidents.include?(edge)
   end
 
+  def add_pod(direction = nil)
+    id = IdManager.instance.generate_next_id
+    @pod_directions[id] = direction.nil? ? Geom::Vector3d.new(0,0,-1) : direction
+    @thingy.add_pod(id, @pod_directions[id])
+  end
+
+  def delete_pod(id)
+    @pod_directions.delete(id)
+    @thingy.delete_pod(id)
+  end
+
+  def pod_distance(pod_id, position)
+    second_point = position + @pod_directions[pod_id]
+    Geometry.dist_point_to_segment(position, [position, second_point])
+  end
+
   def delete
     super
     @incidents.each(&:delete)
+    @pod_directions.each do |pod_direction|
+      @thingy.delete[pod_direction[:pod_id]]
+    end
     @adjcacent_triangles.clone.each do |triangle|
       triangle.delete unless triangle.deleted
     end
-  end
-
-  def fix(direction = nil, type: pod)
-
   end
 
   private

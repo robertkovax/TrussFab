@@ -1,12 +1,13 @@
 require 'set'
 
 class MouseInput
-  attr_reader :position, :snapped_graph_object
+  attr_reader :position, :snapped_graph_object, :snapped_node_pod_id
 
-  def initialize(snap_to_nodes: false, snap_to_edges: false, snap_to_surfaces: false)
+  def initialize(snap_to_nodes: false, snap_to_edges: false, snap_to_surfaces: false, snap_to_pods: false)
     @snap_to_nodes = snap_to_nodes
     @snap_to_edges = snap_to_edges
     @snap_to_surfaces = snap_to_surfaces
+    @snap_to_pods = snap_to_pods
     @position = nil
     soft_reset
   end
@@ -16,7 +17,11 @@ class MouseInput
     unless @snapped_graph_object.nil? || @snapped_graph_object.thingy.nil?
       @snapped_graph_object.thingy.un_highlight
     end
+    unless @snapped_node_pod_id.nil?
+      @snapped_node_pod_id[:node].thingy.un_highlight_pod(@snapped_node_pod_id[:pod_id])
+    end
     @snapped_graph_object = nil
+    @snapped_node_pod_id = nil
   end
 
   def update_positions(view, x, y)
@@ -29,11 +34,16 @@ class MouseInput
     snap_to_graph_object
 
     @snapped_graph_object.thingy.highlight unless @snapped_graph_object.nil?
+    @snapped_node_pod_id[:node].thingy.highlight_pod(@snapped_node_pod_id[:pod_id]) unless @snapped_node_pod_id.nil?
     @position = @snapped_graph_object.position if @snapped_graph_object
   end
 
-  def out_of_snap_tolerance?(graph_obj)
-    graph_obj.distance(@position) > Configuration::SNAP_TOLERANCE
+  def out_of_snap_tolerance?(object)
+    if object.is_a?(GraphObject)
+      object.distance(@position) > Configuration::SNAP_TOLERANCE
+    elsif object.is_a?(Hash)
+      object[:node].pod_distance(object[:pod_id], @position)
+    end
   end
 
   def snap_to_graph_object
@@ -53,8 +63,19 @@ class MouseInput
       end
     end
     return nil if graph_objects.empty?
-    @snapped_graph_object = graph_objects.min_by do |thingy|
-      thingy.distance(@position)
+    @snapped_graph_object = graph_objects.min_by do |graph_object|
+      graph_object.distance(@position)
+    end
+  end
+
+  def snap_to_pod
+    if @snap_to_pods
+      pod_hash = Graph.instance.closest_pod(@position)
+      unless pod_hash[:node].nil? || pod_hash[:pod_id].nil? || out_of_snap_tolerance?(pod_hash)
+        if @snapped_graph_object.distance(@position) > pod_hash[:node].pod_distance(pod_hash[:pod_id], @position)
+          @snapped_node_pod_id = pod_hash
+        end
+      end
     end
   end
 end

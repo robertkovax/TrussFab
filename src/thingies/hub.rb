@@ -8,6 +8,7 @@ class Hub < Thingy
     @model = ModelStorage.instance.models['ball_hub']
     @color = color unless color.nil?
     @entity = create_entity
+    @pods = {}
   end
 
   def highlight(highlight_color = @highlight_color)
@@ -21,6 +22,21 @@ class Hub < Thingy
   def update_position(position)
     @position = position
     @entity.move!(Geom::Transformation.new(position))
+  end
+
+  def add_pod(id = nil, direction = nil)
+    direction = Geometry::Z_AXIS.reverse if direction.nil?
+    pod = Pod.new(@position, direction, id: id)
+    id = pod.id
+    pod.parent = self
+    @pods[id] = pod
+  end
+
+  def delete_pod(id)
+    pod = @pods[id]
+    remove(pod)
+    pods.delete(id)
+    pod.delete
   end
 
   private

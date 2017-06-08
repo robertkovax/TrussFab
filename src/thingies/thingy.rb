@@ -1,7 +1,7 @@
 require 'src/database/id_manager.rb'
 
 class Thingy
-  attr_reader :id, :entity
+  attr_reader :id, :entity, :sub_thingies
   attr_accessor :parent
 
   def initialize(id = nil)
@@ -14,7 +14,8 @@ class Thingy
 
   def change_color(color)
     @entity.material = color unless @entity.nil?
-    @sub_thingies.each { |thingy| thingy.change_color(color) }
+    @sub_thingies.each { |thingy|
+      thingy.change_color(color) }
   end
 
   def color

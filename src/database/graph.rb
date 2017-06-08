@@ -79,6 +79,10 @@ class Graph
     @surfaces.values.min_by { |surface| surface.distance(position) }
   end
 
+  def closest_pod(position)
+    #TODO return pod hash
+  end
+
   #
   # Methods to check whether a node, edge or surface already exists
   # and return the duplicate if there is some
