@@ -21,5 +21,6 @@ class Pod < Thingy
 
     entity = Sketchup.active_model.active_entities.add_instance(@model.definition, transformation)
     entity.material = @color
+    entity
   end
 end

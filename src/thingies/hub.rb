@@ -34,9 +34,20 @@ class Hub < Thingy
 
   def delete_pod(id)
     pod = @pods[id]
-    remove(pod)
     pods.delete(id)
     pod.delete
+  end
+
+  def delete
+    delete_pods
+    super
+  end
+
+  def delete_pods
+    @pods.each do |id, pod|
+      @pods.delete(id)
+      pod.delete
+    end
   end
 
   private

@@ -84,9 +84,6 @@ class Node < GraphObject
   def delete
     super
     @incidents.each(&:delete)
-    @pod_directions.each do |pod_direction|
-      @thingy.delete[pod_direction[:pod_id]]
-    end
     @adjcacent_triangles.clone.each do |triangle|
       triangle.delete unless triangle.deleted
     end
