@@ -1,11 +1,9 @@
+var timeline;
+
 // Create a DataSet (allows two way data-binding)
 var items = new vis.DataSet([
     {id: 1, content: 'Grow', start: 0, end: 1000, editable: true, group: 1},
     {id: 2, content: 'Shrink', start: 1000, end: 3000, editable: true, group: 1},
-    {id: 3, content: 'Grow', start: 0, end: 1000, editable: true, group: 2},
-    {id: 4, content: 'Shrink', start: 1000, end: 3000, editable: true, group: 2},
-    {id: 5, content: 'Grow', start: 0, end: 1000, editable: true, group: 3},
-    {id: 6, content: 'Shrink', start: 1000, end: 3000, editable: true, group: 3}
 ]);
 
 var groups = [
@@ -32,6 +30,13 @@ $(document).ready(function() {
 
     // Configuration for the Timeline
     var options = {
+        start: 0,
+        end: 10000,
+        min: 0,
+        max: 70000,
+        zoomMin: 1000,
+        showCurrentTime: false,
+        editable: true,
         format: {
             minorLabels: {
                 millisecond: 'SSS',
@@ -59,5 +64,13 @@ $(document).ready(function() {
     };
 
     // Create a Timeline
-    var timeline = new vis.Timeline(container, items, groups, options);
+    timeline = new vis.Timeline(container, items, options);
 });
+
+
+var id = 3;
+
+function add_box() {
+    items.add({id: id, content: 'Grow', start: 0, end: 1000, editable: true, group: 1});
+    id++;
+}
