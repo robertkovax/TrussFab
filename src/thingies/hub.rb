@@ -24,8 +24,7 @@ class Hub < Thingy
     @entity.move!(Geom::Transformation.new(position))
   end
 
-  def add_pod(id = nil, direction = nil)
-    direction = Geometry::Z_AXIS.reverse if direction.nil?
+  def add_pod(direction, id: nil)
     pod = Pod.new(@position, direction, id: id)
     id = pod.id
     pod.parent = self

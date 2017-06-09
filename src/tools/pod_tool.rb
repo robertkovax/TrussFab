@@ -8,7 +8,7 @@ class PodTool < Tool
     @mouse_input.update_positions(view, x, y)
     snapped_node = @mouse_input.snapped_graph_object
     return if snapped_node.nil?
-    snapped_node.add_pod
+    snapped_node.add_pod(Geometry::Z_AXIS.reverse)
   end
 
   def onMouseMove(_flags, x, y, view)

@@ -4,7 +4,7 @@ require 'src/thingies/hub_entities/pod.rb'
 
 class Node < GraphObject
 
-  attr_reader :position, :incidents
+  attr_reader :position, :incidents, :pod_directions
 
   def initialize(position, id: nil)
     @deleting = false
@@ -67,18 +67,13 @@ class Node < GraphObject
 
   def add_pod(direction = nil)
     id = IdManager.instance.generate_next_id
-    @pod_directions[id] = direction.nil? ? Geom::Vector3d.new(0,0,-1) : direction
-    @thingy.add_pod(id, @pod_directions[id])
+    @pod_directions[id] = direction.nil? ? Geometry::Z_AXIS.reverse : direction
+    @thingy.add_pod(@pod_directions[id], id: id)
   end
 
   def delete_pod(id)
     @pod_directions.delete(id)
     @thingy.delete_pod(id)
-  end
-
-  def pod_distance(pod_id, position)
-    second_point = position + @pod_directions[pod_id]
-    Geometry.dist_point_to_segment(position, [position, second_point])
   end
 
   def delete

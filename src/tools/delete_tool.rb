@@ -33,8 +33,10 @@ class DeleteTool < Tool
   def delete(x, y, view)
     @mouse_input.update_positions(view, x, y)
     graph_obj = @mouse_input.snapped_graph_object
-    return if graph_obj.nil?
-    graph_obj.delete
+    pod = @mouse_input.snapped_pod
+    return if graph_obj.nil? && pod.nil?
+    graph_obj.delete unless graph_obj.nil?
+    pod.delete unless pod.nil?
     view.invalidate
   end
 end

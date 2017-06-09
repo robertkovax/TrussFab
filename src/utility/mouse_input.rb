@@ -1,7 +1,7 @@
 require 'set'
 
 class MouseInput
-  attr_reader :position, :snapped_graph_object, :snapped_node_pod_id
+  attr_reader :position, :snapped_graph_object, :snapped_pod
 
   def initialize(snap_to_nodes: false, snap_to_edges: false, snap_to_surfaces: false, snap_to_pods: false)
     @snap_to_nodes = snap_to_nodes
@@ -17,11 +17,11 @@ class MouseInput
     unless @snapped_graph_object.nil? || @snapped_graph_object.thingy.nil?
       @snapped_graph_object.thingy.un_highlight
     end
-    unless @snapped_node_pod_id.nil?
-      @snapped_node_pod_id[:node].thingy.un_highlight_pod(@snapped_node_pod_id[:pod_id])
+    unless @snapped_pod.nil?
+      @snapped_pod.un_highlight
     end
     @snapped_graph_object = nil
-    @snapped_node_pod_id = nil
+    @snapped_pod = nil
   end
 
   def update_positions(view, x, y)
@@ -32,9 +32,10 @@ class MouseInput
 
     @position = input_point.position
     snap_to_graph_object
+    snap_to_pod
 
     @snapped_graph_object.thingy.highlight unless @snapped_graph_object.nil?
-    @snapped_node_pod_id[:node].thingy.highlight_pod(@snapped_node_pod_id[:pod_id]) unless @snapped_node_pod_id.nil?
+    @snapped_pod.highlight unless @snapped_pod.nil?
     @position = @snapped_graph_object.position if @snapped_graph_object
   end
 
@@ -70,10 +71,11 @@ class MouseInput
 
   def snap_to_pod
     if @snap_to_pods
-      pod_hash = Graph.instance.closest_pod(@position)
-      unless pod_hash[:node].nil? || pod_hash[:pod_id].nil? || out_of_snap_tolerance?(pod_hash)
-        if @snapped_graph_object.distance(@position) > pod_hash[:node].pod_distance(pod_hash[:pod_id], @position)
-          @snapped_node_pod_id = pod_hash
+      pod = Graph.instance.closest_pod(@position)
+      unless pod.nil? || out_of_snap_tolerance?(pod_hash)
+        if @snapped_graph_object.distance(@position) > pod.distance(@position)
+          @snapped_pod = pod
+          @snapped_graph_object = nil
         end
       end
     end

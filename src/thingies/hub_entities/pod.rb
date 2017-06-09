@@ -3,9 +3,24 @@ class Pod < Thingy
     super(id)
     @position = position
     @direction = direction
-    @color = Sketchup.active_model.materials['elongation_color']
+    @color = Configuration::ELONGATION_COLOR
     @model = ModelStorage.instance.models['pod']
     @entity = create_entity
+  end
+
+  def distance(point)
+    # offset first point to factor in the visible hub radius
+    first_point = @position.offset(@direction, Configuration::BALL_HUB_RADIUS/2)
+    second_point = @position + @pod_directions[pod_id]
+    Geometry.dist_point_to_segment(point, [first_point, second_point])
+  end
+
+  def highlight
+    change_color(@highlight_color)
+  end
+
+  def un_highlight
+    change_color(@color)
   end
 
   private

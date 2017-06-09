@@ -14,8 +14,7 @@ class Thingy
 
   def change_color(color)
     @entity.material = color unless @entity.nil?
-    @sub_thingies.each { |thingy|
-      thingy.change_color(color) }
+    @sub_thingies.each { |thingy| thingy.change_color(color) }
   end
 
   def color
