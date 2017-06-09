@@ -80,13 +80,13 @@ class Graph
   end
 
   def closest_pod(point)
-    all_pods.min_by { |pod| pod.distance(point)}
+    pods.min_by { |pod| pod.distance(point)}
   end
 
   def pods
     pods = []
     @nodes.each_value do |node|
-      pods += node.pod_directions.values
+      pods += node.pods
     end
     pods
   end

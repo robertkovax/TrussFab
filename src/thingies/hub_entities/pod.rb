@@ -11,8 +11,8 @@ class Pod < Thingy
   def distance(point)
     # offset first point to factor in the visible hub radius
     first_point = @position.offset(@direction, Configuration::BALL_HUB_RADIUS/2)
-    second_point = @position + @pod_directions[pod_id]
-    Geometry.dist_point_to_segment(point, [first_point, second_point])
+    second_point = @position + @direction
+    Geometry.dist_point_to_segment(point, [@position, second_point])
   end
 
   def highlight

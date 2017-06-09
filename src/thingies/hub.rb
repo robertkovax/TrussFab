@@ -11,6 +11,10 @@ class Hub < Thingy
     @pods = {}
   end
 
+  def pods
+    @pods.values
+  end
+
   def highlight(highlight_color = @highlight_color)
     change_color(highlight_color)
   end

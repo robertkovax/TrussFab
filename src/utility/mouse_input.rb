@@ -40,11 +40,7 @@ class MouseInput
   end
 
   def out_of_snap_tolerance?(object)
-    if object.is_a?(GraphObject)
-      object.distance(@position) > Configuration::SNAP_TOLERANCE
-    elsif object.is_a?(Hash)
-      object[:node].pod_distance(object[:pod_id], @position)
-    end
+    object.distance(@position) > Configuration::SNAP_TOLERANCE
   end
 
   def snap_to_graph_object
@@ -72,7 +68,7 @@ class MouseInput
   def snap_to_pod
     if @snap_to_pods
       pod = Graph.instance.closest_pod(@position)
-      unless pod.nil? || out_of_snap_tolerance?(pod_hash)
+      unless pod.nil? || out_of_snap_tolerance?(pod)
         if @snapped_graph_object.distance(@position) > pod.distance(@position)
           @snapped_pod = pod
           @snapped_graph_object = nil

@@ -26,9 +26,12 @@ class Node < GraphObject
     @position.distance(point)
   end
 
+  def pods
+    @thingy.pods
+  end
+
   def fixed?
-    # TODO check if pod on node or fixed/frozen manually
-    false
+    not @pod_directions.empty?
   end
 
   def frozen?
