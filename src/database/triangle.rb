@@ -50,6 +50,10 @@ class Triangle < GraphObject
                               @third_node.position)
   end
 
+  def add_pods
+    nodes.each { |node| node.add_pod(normal_towards_user)}
+  end
+
   def nodes
     [first_node, second_node, third_node]
   end
