@@ -80,14 +80,12 @@ class Graph
   end
 
   def closest_pod(point)
-    pods.min_by { |pod| pod.distance(point)}
+    pods.min_by { |pod| pod.distance(point) }
   end
 
   def pods
     pods = []
-    @nodes.each_value do |node|
-      pods += node.pods
-    end
+    @nodes.values.flat_map(&:pods)
     pods
   end
 

@@ -51,7 +51,7 @@ class Triangle < GraphObject
   end
 
   def add_pods
-    nodes.each { |node| node.add_pod(normal_towards_user)}
+    nodes.each { |node| node.add_pod(normal_towards_user) }
   end
 
   def nodes
