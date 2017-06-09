@@ -79,3 +79,11 @@ button.tool.active:hover {
 button.dummy {
     visibility: hidden;
 }
+
+button:disabled, button:disabled:hover {
+    border: none;
+    box-shadow: none;
+    cursor: not-allowed;
+    filter: none;
+    background: darkgrey;
+}
