@@ -34,6 +34,10 @@ class Node < GraphObject
     false
   end
 
+  def adjacent_nodes
+    @incidents.map { |edge| edge.other_node(self) }
+  end
+
   def add_incident(edge)
     @incidents << edge
   end

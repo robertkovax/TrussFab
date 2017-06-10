@@ -4,12 +4,15 @@ require 'src/thingies/link_entities/line.rb'
 require 'src/thingies/link_entities/bottle_link.rb'
 
 class Link < Thingy
+  attr_accessor :line
+
   def initialize(first_position, second_position, model_name, id: nil)
     super(id)
 
     @first_position = first_position
     @second_position = second_position
     @model = ModelStorage.instance.models[model_name]
+    @line = nil
 
     create_sub_thingies
   end
@@ -41,9 +44,12 @@ class Link < Thingy
                                       first_elong_length)
     link_position = @first_position.offset(first_elongation.direction)
 
+    @line = Line.new(@first_position, @second_position)
+
     add(Connector.new(@first_position, direction, first_elong_length),
         first_elongation,
         BottleLink.new(link_position, direction, shortest_model.definition),
+        @line,
         Elongation.new(@second_position,
                        direction.reverse,
                        second_elong_length),

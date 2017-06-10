@@ -20,6 +20,16 @@ class Edge < GraphObject
     Geometry.dist_point_to_segment(point, segment)
   end
 
+  def other_node(node)
+    if node == @first_node
+      @second_node
+    elsif node == @second_node
+      @first_node
+    else
+      raise 'Node not part of this Edge'
+    end
+  end
+
   def position
     @first_node.position
   end
