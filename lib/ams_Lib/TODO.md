@@ -1,0 +1,5 @@
+- Add media recorders. Consider using DirectShow and AVIFile API.
+- Add viewport drawing utility.
+- Add more functions to AMS::Menu, including functions to create menus.
+- Add more functions to AMS::Window, including functions to create windows.
+- Add a feature to communicate between SU windows from different computers.

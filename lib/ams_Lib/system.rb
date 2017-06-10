@@ -1,13 +1,24 @@
-# System namespace contains functions associated with the operating system.
+# System namespace contains functions that are associated with operating system.
 # @since 2.0.0
 module AMS::System
   class << self
 
-    # Get version of the Windows operating system.
-    # @return [Numeric]
-    # @note Windows only!
-    # @see https://en.wikipedia.org/wiki/List_of_Microsoft_Windows_versions
-    def get_windows_version
+    # Determine whether operating system is Windows.
+    # @return [Boolean]
+    def is_windows?
+      AMS::IS_PLATFORM_WINDOWS
+    end
+
+    # Determine whether operating system is Macintosh.
+    # @return [Boolean]
+    def is_mac?
+      AMS::IS_PLATFORM_OSX
+    end
+
+    # Determine whether operating system is Linux.
+    # @return [Boolean]
+    def is_linux?
+      AMS::IS_PLATFORM_LINUX
     end
 
   end # class << self

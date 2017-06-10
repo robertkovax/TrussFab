@@ -1,117 +1,152 @@
-# MultiLineText is a SketchUp text wrapped with custom methods for logging
-# information.
-# @note Many of the functions that make a change influence the undo stack. Wrap
-#   them with a start/commit operation when/if desired.
-# @note Since 3.5.0, when/if a MultiLineText object is garbage collected, the
-#   associated text entity is erased.
-# @note Since 3.5.0, cloning a MultiLineText object now creates a new text
-#   entity, rather than linking to the original one.
+# MultiLineText is a simple SketchUp text wrapped with custom methods that
+# make it easy for the user to log information on screen.
 # @since 2.0.0
 class AMS::MultiLineText
 
   # Create a new MultiLineText object.
-  # @param [Fixnum] x The horizontal position in pixels from the upper-left
-  #   corner of the viewport.
-  # @param [Fixnum] y The vertical position in pixels from the upper-left
-  #   corner of the viewport.
-  def initialize(x,y)
+  # @param [Integer] x X position.
+  # @param [Integer] y Y position.
+  def initialize(x = 10, y = 10)
+    @text = []
+    @entity = nil
+    @limit = 20
+    @count = 0
+    @pos = [x,y]
+    @intro = ''
+    @hl = '-' * 80
+    @show_line_numbers = true
   end
 
-  # Get entity associated with the text.
-  # @return [Sketchup::Text, nil]
-  # @since 3.5.0
-  def get_entity
+  # @!attribute [r] count
+  #   Get line count.
+  #   @return [Fixnum]
+
+  # @!attribute [r] entity
+  #   Get text entity.
+  #   @return [Sketchup::Text]
+
+
+  attr_reader :count, :entity
+
+  private
+
+  def add_text(text = '')
+    model = Sketchup.active_model
+    view = model.active_view
+    w = view.vpwidth
+    h = view.vpheight
+    hr = @pos[0]/w.to_f
+    vr = @pos[1]/h.to_f
+    @entity = model.add_note(text, hr, vr)
   end
 
-  # Set entity associated with the text.
-  # @param [Sketchup::Text] entity
-  # @return [nil]
-  # @since 3.5.0
-  def set_entity(entity)
+  def update
+    add_text if is_deleted?
+    if @text.size > @limit
+      @text[0, (@text.size - @limit)] = nil
+      @text.compact!
+    end
+    size = @text.size
+    t = ""
+    for i in 0...size
+      t += sprintf("[%03i]    ", @count-size+i+1) if @show_line_numbers
+      t += @text[i].to_s + "\n"
+    end
+    if @intro.empty?
+      @entity.text = t
+    else
+      @entity.text = "#{@hl}\n\n#{@intro}\n\n#{@hl}\n\n#{t}"
+    end
+    nil
   end
 
-  # Get screen position of the associated text entity.
-  # @note If the associated text entity is moved, the position remains unchanged
-  #   until {set_position} is called.
-  # @return [Array<(Fixnum, Fixnum)>] +[x,y]+ The text position from the
-  #   upper-left corner of the viewport.
-  # @since 3.5.0
-  def get_position
+  def is_deleted?
+    @entity.nil? or @entity.deleted?
   end
 
-  # Set screen position of the associated text entity.
-  # @note If the associated text entity is not locked to screen, this function
-  #   stores the positions but does not move the entity.
-  # @note Since moving Sketchup::Text requires some workarounds, this function
-  #   closes the activate entity path, for a proper operation.
-  # @note Wrap this function with a start/commit operation block.
-  # @param [Fixnum] x The horizontal position in pixels from the upper-left
-  #   corner of the viewport.
-  # @param [Fixnum] y The vertical position in pixels from the upper-left
-  #   corner of the viewport.
-  # @return [nil]
-  # @since 3.5.0
-  def set_position(x,y)
-  end
+  public
 
   # Get line limit.
   # @return [Fixnum]
   def get_limit
+    @limit
   end
 
   # Set line limit.
-  # @param [Fixnum] limit A value between 1 and 1000.
-  # @return [nil]
-  def set_limit(limit)
+  # @param [Fixnum] value
+  # @return [void]
+  def set_limit(value)
+    @limit = value.to_i
+    @limit = 1 if value < 1
+    @limit = 200 if value > 200
+    update
   end
 
   # Get text title/top description.
   # @return [String]
   def get_intro
+    @intro.dup
   end
 
   # Set text title/top description.
-  # @param [String] intro
-  # @return [nil]
-  def set_intro(intro)
+  # @param [String] str
+  # @return [void]
+  def set_intro(str = "")
+    @intro = text.to_s
+    update
   end
 
-  # Show/hide line numbers.
+  # Show/Hide line numbers.
   # @param [Boolean] state
-  # @return [nil]
+  # @return [void]
   def show_line_numbers(state)
+    @show_line_numbers = (state == true)
+    update
   end
 
   # Determine whether line numbers are visible.
   # @return [Boolean]
   def line_numbers_visible?
+    @show_line_numbers
   end
 
   # Add text to the current line.
   # @param [String] str
-  # @return [nil]
+  # @return [void]
   def print(str)
+    @text.last.push(str.to_s)
+    update
   end
 
   # Add text to the new line.
   # @param [String] str
-  # @return [nil]
+  # @return [void]
   def puts(str)
+    @count += 1
+    @text.push(str.to_s)
+    update
   end
 
   # Clear all data.
-  # @return [nil]
+  # @return [void]
   def clear
+    @text.clear
+    @count = 0
+    update
+    nil
   end
 
-  # Remove text object and reset all data.
-  # @return [nil]
+  # Remove text object and clear all data.
+  # @return [void]
   def remove
-  end
-
-  # Get number of lines logged to screen.
-  # @return [Fixnum]
-  def count
+    if @entity.valid?
+      @entity.material = nil
+      @entity.erase!
+    end
+    @entity = nil
+    @text.clear
+    @count = 0
+    nil
   end
 
 end # class AMS::MultiLineText
