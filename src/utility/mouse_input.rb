@@ -14,11 +14,8 @@ class MouseInput
 
   def soft_reset
     @position = nil
-    unless @snapped_object.nil? || @snapped_object.thingy.nil?
-      @snapped_object.thingy.un_highlight
-    end
-    unless @snapped_pod.nil?
-      @snapped_pod.un_highlight
+    unless @snapped_object.nil?
+      @snapped_object.un_highlight
     end
     @snapped_object = nil
   end
@@ -32,7 +29,7 @@ class MouseInput
     @position = input_point.position
     snap_to_object
 
-    @snapped_object.thingy.highlight unless @snapped_object.nil?
+    @snapped_object.highlight unless @snapped_object.nil?
     @position = @snapped_object.position if @snapped_object
   end
 

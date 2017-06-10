@@ -7,9 +7,10 @@ class PodTool < Tool
   def onLButtonDown(_flags, x, y, view)
     @mouse_input.update_positions(view, x, y)
     snapped_object = @mouse_input.snapped_object
-    return if snapped_object.nil?
-    snapped_object.add_pod(Geometry::Z_AXIS.reverse) if snapped_object.is_a?(Node)
-    snapped_object.add_pods if snapped_object.is_a?(Triangle)
+    case snapped_object
+      when Node then snapped_object.add_pod(Geometry::Z_AXIS.reverse)
+      when Triangle then snapped_object.add_pods
+    end
   end
 
   def onMouseMove(_flags, x, y, view)

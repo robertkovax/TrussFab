@@ -84,9 +84,7 @@ class Graph
   end
 
   def pods
-    pods = []
     @nodes.values.flat_map(&:pods)
-    pods
   end
 
   #

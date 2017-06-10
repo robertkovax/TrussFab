@@ -1,7 +1,7 @@
 require 'src/database/id_manager.rb'
 
 class Thingy
-  attr_reader :id, :entity, :sub_thingies
+  attr_reader :id, :entity, :sub_thingies, :position
   attr_accessor :parent
 
   def initialize(id = nil)
