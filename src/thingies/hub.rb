@@ -39,7 +39,7 @@ class Hub < Thingy
   end
 
   def update_id_label
-    label_position = (@position)
+    label_position = @position
     if @id_label.nil?
       @id_label = Sketchup.active_model.entities.add_text("    #{@id} ", label_position)
       @id_label.layer = Sketchup.active_model.layers[Configuration::HUB_ID_VIEW]
