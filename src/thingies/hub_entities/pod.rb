@@ -23,6 +23,12 @@ class Pod < Thingy
     change_color(@color)
   end
 
+  def update_position(position)
+    @position = position
+    delete_entity
+    @entity = create_entity
+  end
+
   private
 
   def create_entity

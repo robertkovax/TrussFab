@@ -26,6 +26,8 @@ class Hub < Thingy
   def update_position(position)
     @position = position
     @entity.move!(Geom::Transformation.new(position))
+    @sub_thingies.each { |entity| entity.update_position(position) }
+    @pods.each_value { |pod| pod.update_position(position)}
   end
 
   def add_pod(direction, id: nil)
