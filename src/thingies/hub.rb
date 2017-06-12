@@ -9,7 +9,7 @@ class Hub < Thingy
     @color = color unless color.nil?
     @entity = create_entity
     @id_label = nil
-    show_hub_id
+    update_id_label
   end
 
   def highlight(highlight_color = @highlight_color)
@@ -38,12 +38,11 @@ class Hub < Thingy
     entity
   end
 
-  def show_hub_id
-    label_position = Geom::Point3d.new(@position)
+  def update_id_label
+    label_position = (@position)
     if @id_label.nil?
-      @id_label = Sketchup.active_model.entities.add_text("    #{id} ", label_position)
+      @id_label = Sketchup.active_model.entities.add_text("    #{@id} ", label_position)
       @id_label.layer = Sketchup.active_model.layers[Configuration::HUB_ID_VIEW]
-      puts @id_label.layer
     else
       @id_label.point = label_position
     end
