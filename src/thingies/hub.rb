@@ -9,6 +9,8 @@ class Hub < Thingy
     @color = color unless color.nil?
     @entity = create_entity
     @pods = {}
+    @id_label = nil
+    update_id_label
   end
 
   def pods
@@ -66,5 +68,15 @@ class Hub < Thingy
     entity.layer = Configuration::HUB_VIEW
     entity.material = @color
     entity
+  end
+
+  def update_id_label
+    label_position = @position
+    if @id_label.nil?
+      @id_label = Sketchup.active_model.entities.add_text("    #{@id} ", label_position)
+      @id_label.layer = Sketchup.active_model.layers[Configuration::HUB_ID_VIEW]
+    else
+      @id_label.point = label_position
+    end
   end
 end
