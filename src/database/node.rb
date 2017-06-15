@@ -76,7 +76,7 @@ class Node < GraphObject
 
   def delete_pod(id)
     @pod_directions.delete(id)
-    @thingy.delete_pod(id)
+    @thingy.delete_sub_thingy(id)
   end
 
   def delete

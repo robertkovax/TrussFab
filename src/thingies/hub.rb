@@ -8,13 +8,12 @@ class Hub < Thingy
     @model = ModelStorage.instance.models['ball_hub']
     @color = color unless color.nil?
     @entity = create_entity
-    @pods = {}
     @id_label = nil
     update_id_label
   end
 
   def pods
-    @pods.values
+    @sub_thingies.select { |sub_thingy| sub_thingy.is_a?(Pod) }
   end
 
   def highlight(highlight_color = @highlight_color)
@@ -28,32 +27,21 @@ class Hub < Thingy
   def update_position(position)
     @position = position
     @entity.move!(Geom::Transformation.new(position))
-    @sub_thingies.each { |entity| entity.update_position(position) }
-    @pods.each_value { |pod| pod.update_position(position)}
+    @sub_thingies.each { |sub_thingy| sub_thingy.update_position(position) }
   end
 
   def add_pod(direction, id: nil)
     pod = Pod.new(@position, direction, id: id)
     id = pod.id
     pod.parent = self
-    @pods[id] = pod
+    add(pod)
   end
 
-  def delete_pod(id)
-    pod = @pods[id]
-    pods.delete(id)
-    pod.delete
-  end
-
-  def delete
-    delete_pods
-    super
-  end
-
-  def delete_pods
-    @pods.each do |id, pod|
-      @pods.delete(id)
-      pod.delete
+  def delete_sub_thingy(id)
+    @sub_thingies.each do |sub_thingy|
+      next unless sub_thingy.id == id
+      sub_thingy.delete
+      remove(sub_thingy)
     end
   end
 
