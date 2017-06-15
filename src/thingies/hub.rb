@@ -12,6 +12,10 @@ class Hub < Thingy
     update_id_label
   end
 
+  def pods
+    @sub_thingies.select { |sub_thingy| sub_thingy.is_a?(Pod) }
+  end
+
   def highlight(highlight_color = @highlight_color)
     change_color(highlight_color)
   end
@@ -23,6 +27,22 @@ class Hub < Thingy
   def update_position(position)
     @position = position
     @entity.move!(Geom::Transformation.new(position))
+    @sub_thingies.each { |sub_thingy| sub_thingy.update_position(position) }
+  end
+
+  def add_pod(direction, id: nil)
+    pod = Pod.new(@position, direction, id: id)
+    id = pod.id
+    pod.parent = self
+    add(pod)
+  end
+
+  def delete_sub_thingy(id)
+    @sub_thingies.each do |sub_thingy|
+      next unless sub_thingy.id == id
+      sub_thingy.delete
+      remove(sub_thingy)
+    end
   end
 
   private

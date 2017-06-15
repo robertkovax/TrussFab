@@ -13,6 +13,14 @@ class GraphObject
     unstore
   end
 
+  def highlight
+    @thingy.highlight unless thingy.nil?
+  end
+
+  def un_highlight
+    @thingy.un_highlight unless @thingy.nil?
+  end
+
   private
 
   def create_thingy(_id)
