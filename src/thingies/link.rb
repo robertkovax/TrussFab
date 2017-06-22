@@ -4,6 +4,9 @@ require 'src/thingies/link_entities/line.rb'
 require 'src/thingies/link_entities/bottle_link.rb'
 
 class Link < Thingy
+
+  attr_reader :first_elongation_length, :second_elongation_length
+
   def initialize(first_position, second_position, model_name, id: nil)
     super(id)
 
@@ -27,28 +30,29 @@ class Link < Thingy
 
   def create_sub_thingies
 
-    first_elong_length = second_elong_length = Configuration::MINIMUM_ELONGATION
+    @first_elongation_length = @second_elongation_length = Configuration::MINIMUM_ELONGATION
 
-    model_length = length - first_elong_length - second_elong_length
+    model_length = length - @first_elongation_length - @second_elongation_length
     shortest_model = @model.longest_model_shorter_than(model_length)
 
-    first_elong_length = second_elong_length = (length - shortest_model.length) / 2
+
+    @first_elongation_length = @second_elongation_length = (length - shortest_model.length) / 2
 
 
     direction = @position.vector_to(@second_position)
     first_elongation = Elongation.new(@position,
                                       direction,
-                                      first_elong_length)
+                                      @first_elongation_length)
     link_position = @position.offset(first_elongation.direction)
 
-    add(Connector.new(@position, direction, first_elong_length),
+    add(Connector.new(@position, direction, @first_elongation_length),
         first_elongation,
         BottleLink.new(link_position, direction, shortest_model.definition),
         Elongation.new(@second_position,
                        direction.reverse,
-                       second_elong_length),
+                       @second_elongation_length),
         Connector.new(@second_position,
                       direction.reverse,
-                      second_elong_length))
+                      @second_elongation_length))
   end
 end

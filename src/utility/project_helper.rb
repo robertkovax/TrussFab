@@ -7,6 +7,10 @@ module ProjectHelper
     plugin_directory + '/assets'
   end
 
+  def self.library_directory
+    plugin_directory + '/lib'
+  end
+
   def self.component_directory
     asset_directory + '/sketchup_components'
   end
