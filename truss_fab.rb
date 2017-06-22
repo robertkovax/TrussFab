@@ -3,6 +3,8 @@ require 'src/utility/project_helper.rb'
 require 'src/ui/user_interaction.rb'
 require 'reloader'
 
+load 'test.rb'
+
 class TrussFab
   ProjectHelper.setup_sketchup
   @reloader = Reloader.new

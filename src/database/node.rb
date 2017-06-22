@@ -3,21 +3,31 @@ require 'src/thingies/hub.rb'
 
 class Node < GraphObject
 
-  attr_reader :position, :incidents
+  attr_accessor :position
+  attr_reader :incidents, :adjacent_triangles
 
   def initialize(position, id: nil)
     @deleting = false
     @position = position
-    @incidents = []             # connected edges
-    @adjcacent_triangles = []   # connceted triangles
+    @incidents = []            # connected edges
+    @adjacent_triangles = []   # connceted triangles
     super(id)
   end
 
   def move(position)
     @position = position
     @thingy.update_position(position)
-    @incidents.each {|incident| incident.move}
-    @adjcacent_triangles.each {|triangle| triangle.move}
+    @incidents.each(&:move)
+    @adjacent_triangles.each(&:move)
+  end
+
+  def transformation=(transformation)
+
+  end
+
+  def transform(transformation)
+    @position = transformation * @position
+    @thingy.transform(transformation)
   end
 
   def distance(point)
@@ -38,12 +48,16 @@ class Node < GraphObject
     @incidents.map { |edge| edge.other_node(self) }
   end
 
+  def edge_to(node)
+    @incidents.find { |edge| edge.other_node(self) == node }
+  end
+
   def add_incident(edge)
     @incidents << edge
   end
 
   def add_adjacent_triangle(triangle)
-    @adjcacent_triangles << triangle
+    @adjacent_triangles << triangle
   end
 
   def delete_incident(edge)
@@ -53,7 +67,7 @@ class Node < GraphObject
   end
 
   def delete_adjacent_triangle(triangle)
-    @adjcacent_triangles.delete(triangle)
+    @adjacent_triangles.delete(triangle)
   end
 
   def dangling?
@@ -71,7 +85,7 @@ class Node < GraphObject
   def delete
     super
     @incidents.each(&:delete)
-    @adjcacent_triangles.clone.each do |triangle|
+    @adjacent_triangles.clone.each do |triangle|
       triangle.delete unless triangle.deleted
     end
     false

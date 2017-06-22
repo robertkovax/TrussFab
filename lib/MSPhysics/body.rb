@@ -277,6 +277,13 @@ module MSPhysics
       MSPhysics::Newton::Body.get_normal_matrix(@address)
     end
 
+    # Test whether body matrix has changed
+    # @return [Boolean] Returns +true+ if the transformation matrix
+    # of this body has changed
+    def matrix_changed?
+      MSPhysics::Newton::Body.matrix_changed?(@address)
+    end
+
     # Get body transformation matrix.
     # @return [Geom::Transformation]
     def get_matrix

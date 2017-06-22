@@ -2,13 +2,15 @@ require 'src/thingies/thingy.rb'
 require 'src/models/model_storage.rb'
 
 class Hub < Thingy
+  attr_accessor :position
+
   def initialize(position, id: nil, color: nil)
     super(id)
-    @position = position
     @model = ModelStorage.instance.models['ball_hub']
     @color = color unless color.nil?
-    @entity = create_entity
+    @entity = create_entity(position)
   end
+
 
   def highlight(highlight_color = @highlight_color)
     change_color(highlight_color)
@@ -25,9 +27,9 @@ class Hub < Thingy
 
   private
 
-  def create_entity
+  def create_entity(position)
     return @entity if @entity
-    position = Geom::Transformation.translation(@position)
+    position = Geom::Transformation.translation(position)
     transformation = position * @model.scaling
     entity = Sketchup.active_model.entities.add_instance(@model.definition,
                                                          transformation)

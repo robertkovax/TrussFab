@@ -28,6 +28,11 @@ class Link < Thingy
     @first_position.distance(@second_position)
   end
 
+  def group
+    entities = @sub_thingies.flat_map(&:all_entities)
+    Sketchup.active_model.entities.add_group(entities)
+  end
+
   def create_sub_thingies
 
     first_elong_length = second_elong_length = Configuration::MINIMUM_ELONGATION

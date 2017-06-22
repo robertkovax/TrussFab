@@ -1,7 +1,7 @@
 require 'src/database/id_manager.rb'
 
 class Thingy
-  attr_reader :id, :entity
+  attr_reader :id, :entity, :sub_thingies
   attr_accessor :parent
 
   def initialize(id = nil)
@@ -10,6 +10,20 @@ class Thingy
     @entity = nil
     @parent = nil
     @highlight_color = 'highlight_color'
+  end
+
+  def all_entities
+    entities = []
+    entities.push(@entity) unless @entity.nil?
+    @sub_thingies.each do |thingy|
+      entities.concat(thingy.all_entities)
+    end
+    entities
+  end
+
+  def transform(transformation)
+    @entity.transform!(transformation) unless @entity.nil?
+    @sub_thingies.each { |thingy| thingy.transform(transformation) }
   end
 
   def change_color(color)

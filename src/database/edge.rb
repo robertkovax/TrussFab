@@ -26,7 +26,7 @@ class Edge < GraphObject
     elsif node == @second_node
       @first_node
     else
-      raise 'Node not part of this Edge'
+      raise "Node not part of this Edge: #{node}"
     end
   end
 
