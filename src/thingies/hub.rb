@@ -35,6 +35,7 @@ class Hub < Thingy
     id = pod.id
     pod.parent = self
     add(pod)
+    pod
   end
 
   def delete_sub_thingy(id)

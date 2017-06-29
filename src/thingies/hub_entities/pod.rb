@@ -3,9 +3,10 @@ class Pod < Thingy
     super(id)
     @position = position
     @direction = direction
-    @color = Configuration::ELONGATION_COLOR
     @model = ModelStorage.instance.models['pod']
     @entity = create_entity
+    @direction.length = @model.length
+    @color = Configuration::ELONGATION_COLOR
   end
 
   def distance(point)

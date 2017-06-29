@@ -28,6 +28,7 @@ module Configuration
   MAXIMUM_ELONGATION = 100.mm.freeze
   BALL_HUB_RADIUS = 14.mm.freeze
   STANDARD_BOTTLES = 'hard'.freeze
+  COVER_THICKNESS = 20.mm.freeze
 
   # Paths
   JSON_PATH = (ProjectHelper.asset_directory + '/exports/').freeze

@@ -1,12 +1,12 @@
 require 'src/thingies/thingy.rb'
+require 'src/thingies/surface_entities/cover.rb'
 
 class Surface < Thingy
-
-  def initialize(position1, position2, position3, id: nil, color: 'surface_color')
+  def initialize(first_position, second_position, third_position, id: nil, color: 'surface_color')
     super(id)
-    @position1 = position1
-    @position2 = position2
-    @position3 = position3
+    @first_position = first_position
+    @second_position = second_position
+    @third_position = third_position
     @color = color
     @entity = create_entity
     @highlight_color = 'surface_highlighted_color'
@@ -26,6 +26,10 @@ class Surface < Thingy
     end
   end
 
+  def positions
+    [@first_position, @second_position, @third_position]
+  end
+
   def highlight(highlight_color = @highlight_color)
     change_color(highlight_color)
   end
@@ -34,18 +38,28 @@ class Surface < Thingy
     change_color(@color)
   end
 
-  def update_positions(position1, position2, position3)
-    @position1 = position1
-    @position2 = position2
-    @position3 = position3
+  def update_positions(first_position, second_position, third_position)
+    @first_position = first_position
+    @second_position = second_position
+    @third_position = third_position
     delete_entity
     @entity = create_entity
+  end
+
+  def add_cover(direction)
+    pod_length = ModelStorage.instance.models['pod'].length
+    offset_vector = direction.clone
+    offset_vector.length = pod_length
+    first_position = positions[0] + offset_vector
+    second_position = positions[1] + offset_vector
+    third_position = positions[2] + offset_vector
+    add(Cover.new(first_position, second_position, third_position, direction))
   end
 
   private
 
   def create_entity
-    entity = Sketchup.active_model.entities.add_face(@position1, @position2, @position3)
+    entity = Sketchup.active_model.entities.add_face(@first_position, @second_position, @third_position)
     entity.layer = Configuration::TRIANGLE_SURFACES_VIEW
     entity.material = entity.back_material = @color
     entity.edges.each do |edge|

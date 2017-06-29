@@ -74,5 +74,9 @@ module ProjectHelper
     material = Sketchup.active_model.materials.add('elongation_color')
     material.color = Configuration::ELONGATION_COLOR
     material.alpha = 1
+
+    material = Sketchup.active_model.materials.add('wooden_cover')
+    material.texture = asset_directory + '/textures/plywood.jpg'
+    material.alpha = 1
   end
 end
