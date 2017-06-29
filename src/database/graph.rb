@@ -16,6 +16,10 @@ class Graph
     @surfaces = {}    # {(id => surface)}
   end
 
+  def nodes_and_edges
+    [@edges.values, @nodes.values].flatten
+  end
+
   #
   # Methods to to create one node, edge or surface
   #
@@ -109,8 +113,9 @@ class Graph
   end
 
   def empty?
-    return nodes.empty? 
+    nodes.empty?
   end
+
   #
   # Method to delete either a node, an edge or a surface
   #

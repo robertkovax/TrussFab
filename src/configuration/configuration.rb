@@ -32,6 +32,7 @@ module Configuration
   JSON_PATH = (ProjectHelper.asset_directory + '/exports/').freeze
   TETRAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/tetrahedron.json').freeze
   OCTAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/octahedron.json').freeze
+  DYMAMIC_TETRAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/dynamic_tetrahedron.json').freeze
 
   # Model Settings
   HARD_MODELS = [

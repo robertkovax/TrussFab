@@ -21,10 +21,6 @@ class Node < GraphObject
     @adjacent_triangles.each(&:move)
   end
 
-  def transformation=(transformation)
-
-  end
-
   def transform(transformation)
     @position = transformation * @position
     @thingy.transform(transformation)
@@ -32,6 +28,10 @@ class Node < GraphObject
 
   def distance(point)
     @position.distance(point)
+  end
+
+  def vector_to(other_node)
+    @position.vector_to(other_node.position)
   end
 
   def fixed?

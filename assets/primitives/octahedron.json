@@ -43,74 +43,62 @@
     {
       "id": 65,
       "n1": 57,
-      "n2": 63,
-      "type": "LinkTypes::BOTTLE_LINK"
+      "n2": 63
     },
     {
       "id": 73,
       "n1": 63,
-      "n2": 71,
-      "type": "LinkTypes::BOTTLE_LINK"
+      "n2": 71
     },
     {
       "id": 81,
       "n1": 71,
-      "n2": 57,
-      "type": "LinkTypes::BOTTLE_LINK"
+      "n2": 57
     },
     {
       "id": 92,
       "n1": 84,
-      "n2": 90,
-      "type": "LinkTypes::BOTTLE_LINK"
+      "n2": 90
     },
     {
       "id": 100,
       "n1": 90,
-      "n2": 98,
-      "type": "LinkTypes::BOTTLE_LINK"
+      "n2": 98
     },
     {
       "id": 108,
       "n1": 98,
-      "n2": 84,
-      "type": "LinkTypes::BOTTLE_LINK"
+      "n2": 84
     },
     {
       "id": 118,
       "n1": 90,
-      "n2": 57,
-      "type": "LinkTypes::BOTTLE_LINK"
+      "n2": 57
     },
     {
       "id": 127,
       "n1": 98,
-      "n2": 57,
-      "type": "LinkTypes::BOTTLE_LINK"
+      "n2": 57
     },
     {
       "id": 137,
       "n1": 84,
-      "n2": 63,
-      "type": "LinkTypes::BOTTLE_LINK"
+      "n2": 63
     },
     {
       "id": 146,
       "n1": 98,
-      "n2": 63,
-      "type": "LinkTypes::BOTTLE_LINK"
+      "n2": 63
     },
     {
       "id": 157,
       "n1": 90,
-      "n2": 71,
-      "type": "LinkTypes::BOTTLE_LINK"
+      "n2": 71
     },
     {
       "id": 167,
       "n1": 84,
-      "n2": 71,
-      "type": "LinkTypes::BOTTLE_LINK"
+      "n2": 71
     }
   ],
   "support_nodes": null,

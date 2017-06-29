@@ -1,11 +1,13 @@
 require 'set'
 require 'src/database/graph_object.rb'
 require 'src/thingies/link.rb'
+require 'src/thingies/actuator_link.rb'
 require 'src/models/model_storage.rb'
+require 'src/simulation/joints'
 
 class Edge < GraphObject
-  attr_reader :first_node, :second_node
-  attr_accessor :desired_length
+  attr_reader :first_node, :second_node, :link_type
+  attr_accessor :desired_length, :first_joint, :second_joint
 
   def initialize(first_node, second_node, model_name: 'hard', id: nil, link_type: 'bottle_link')
     @first_node = first_node
@@ -13,7 +15,10 @@ class Edge < GraphObject
     @first_node.add_incident(self)
     @second_node.add_incident(self)
     @model_name = model_name
+    @link_type = link_type
     super(id)
+    @thingy.first_joint = ThingyJoint.new(@first_node, self)
+    @thingy.second_joint = ThingyJoint.new(@second_node, self)
   end
 
   def distance(point)
@@ -28,6 +33,10 @@ class Edge < GraphObject
     else
       raise "Node not part of this Edge: #{node}"
     end
+  end
+
+  def create_joints(world)
+    @thingy.create_joints(world)
   end
 
   def position
@@ -103,9 +112,18 @@ class Edge < GraphObject
   private
 
   def create_thingy(id)
-    Link.new(@first_node.position,
-             @second_node.position,
-             @model_name,
-             id: id)
+    case @link_type
+      when 'bottle_link'
+        Link.new(@first_node.position,
+                 @second_node.position,
+                 @model_name,
+                 id: id)
+      when 'actuator'
+        ActuatorLink.new(@first_node.position,
+                         @second_node.position,
+                         id: id)
+      else
+        raise "Unkown link type: #{@link_type}"
+    end
   end
 end

@@ -1,6 +1,7 @@
 require 'src/models/ball_hub_model.rb'
 require 'src/models/connector_model.rb'
 require 'src/models/bottle_model.rb'
+require 'src/models/actuator_model.rb'
 
 class ModelStorage
   include Singleton
@@ -19,5 +20,6 @@ class ModelStorage
     @models['ball_hub'] = components['Hub'].nil? ? BallHubModel.new : components['Hub']
     @models['connector'] = components['Connector'].nil? ? ConnectorModel.new : components['Connector']
     @models['hard'] = BottleModel.new('hard', Configuration::HARD_MODELS)
+    @models['actuator'] = ActuatorModel.new
   end
 end
