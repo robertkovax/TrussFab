@@ -55,7 +55,7 @@ class Link < PhysicsThingy
     ext_2_body = SimulationHelper.body_for(world, c2, e2)
 
     @body.mass = SimulationHelper::LINK_MASS
-    @body.collidable = false
+    @body.collidable = true
     [ext_1_body, ext_2_body].each do |body|
       body.mass = SimulationHelper::ELONGATION_MASS
       body.collidable = false
