@@ -70,5 +70,9 @@ module ProjectHelper
     material = Sketchup.active_model.materials.add('standard_color')
     material.color = [0.5, 0.2, 0.3]
     material.alpha = 1
+
+    material = Sketchup.active_model.materials.add('elongation_color')
+    material.color = Configuration::ELONGATION_COLOR
+    material.alpha = 1
   end
 end

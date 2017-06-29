@@ -22,6 +22,10 @@ class Edge < GraphObject
   end
 
   def distance(point)
+    # offset to take ball_hub_radius into accoutn
+    first_point = position.offset(direction, Configuration::BALL_HUB_RADIUS / 2)
+    second_point = end_position.offset(direction.reverse, Configuration::BALL_HUB_RADIUS / 2)
+    segment = [first_point, second_point]
     Geometry.dist_point_to_segment(point, segment)
   end
 
@@ -56,7 +60,7 @@ class Edge < GraphObject
   end
 
   def segment
-    [first_node.position, second_node.position]
+    [position, end_position]
   end
 
   def length

@@ -17,7 +17,7 @@ class GrowShrinkTool < Tool
 
   def onLButtonDown(_flags, x, y, view)
     @mouse_input.update_positions(view, x, y)
-    edge = @mouse_input.snapped_graph_object
+    edge = @mouse_input.snapped_object
     return if edge.nil?
     Sketchup.active_model.start_operation('grow/shrink edge and relax', true)
     relaxation = Relaxation.new

@@ -1,16 +1,18 @@
 require 'src/database/graph_object.rb'
 require 'src/thingies/hub.rb'
+require 'src/thingies/hub_entities/pod.rb'
 
 class Node < GraphObject
 
   attr_accessor :position
-  attr_reader :incidents, :adjacent_triangles
+  attr_reader :position, :incidents, :adjacent_triangles, :pod_directions
 
   def initialize(position, id: nil)
     @deleting = false
     @position = position
     @incidents = []            # connected edges
     @adjacent_triangles = []   # connceted triangles
+    @pod_directions = {}
     super(id)
   end
 
@@ -34,9 +36,12 @@ class Node < GraphObject
     @position.vector_to(other_node.position)
   end
 
+  def pods
+    @thingy.pods
+  end
+
   def fixed?
-    # TODO check if pod on node or fixed/frozen manually
-    false
+    not @pod_directions.empty?
   end
 
   def frozen?
@@ -62,7 +67,6 @@ class Node < GraphObject
 
   def delete_incident(edge)
     @incidents.delete(edge)
-    return true if @deleting # prevent dangling check when deleting node
     delete if dangling?
   end
 
@@ -82,23 +86,28 @@ class Node < GraphObject
     @incidents.include?(edge)
   end
 
+  def add_pod(direction = nil)
+    id = IdManager.instance.generate_next_id
+    @pod_directions[id] = direction.nil? ? Geometry::Z_AXIS.reverse : direction
+    @thingy.add_pod(@pod_directions[id], id: id)
+  end
+
+  def delete_pod(id)
+    @pod_directions.delete(id)
+    @thingy.delete_sub_thingy(id)
+  end
+
   def delete
     super
     @incidents.each(&:delete)
     @adjacent_triangles.clone.each do |triangle|
       triangle.delete unless triangle.deleted
     end
-    false
   end
 
   private
 
   def create_thingy(id)
     Hub.new(@position, id: id)
-  end
-
-  def delete_thingy
-    @thingy.delete unless @thingy.nil?
-    @thingy = nil
   end
 end

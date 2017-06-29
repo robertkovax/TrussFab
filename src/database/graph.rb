@@ -71,16 +71,24 @@ class Graph
   # Methods to get closest node, edge or surface
   #
 
-  def closest_node(position)
-    @nodes.values.min_by { |node| node.distance(position) }
+  def closest_node(point)
+    @nodes.values.min_by { |node| node.distance(point) }
   end
 
-  def closest_edge(position)
-    @edges.values.min_by { |edge| edge.distance(position) }
+  def closest_edge(point)
+    @edges.values.min_by { |edge| edge.distance(point) }
   end
 
-  def closest_surface(position)
-    @surfaces.values.min_by { |surface| surface.distance(position) }
+  def closest_surface(point)
+    @surfaces.values.min_by { |surface| surface.distance(point) }
+  end
+
+  def closest_pod(point)
+    pods.min_by { |pod| pod.distance(point) }
+  end
+
+  def pods
+    @nodes.values.flat_map(&:pods)
   end
 
   #

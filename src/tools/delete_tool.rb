@@ -4,7 +4,7 @@ require 'src/utility/mouse_input.rb'
 class DeleteTool < Tool
   def initialize(ui)
     super
-    @mouse_input = MouseInput.new(snap_to_nodes: true, snap_to_edges: true)
+    @mouse_input = MouseInput.new(snap_to_nodes: true, snap_to_edges: true, snap_to_pods: true)
   end
 
   def onLButtonDown(_flags, x, y, view)
@@ -32,9 +32,9 @@ class DeleteTool < Tool
 
   def delete(x, y, view)
     @mouse_input.update_positions(view, x, y)
-    graph_obj = @mouse_input.snapped_graph_object
-    return if graph_obj.nil?
-    graph_obj.delete
+    object = @mouse_input.snapped_object
+    return if object.nil?
+    object.delete
     view.invalidate
   end
 end

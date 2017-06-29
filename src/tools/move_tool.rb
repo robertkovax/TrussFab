@@ -50,7 +50,7 @@ class MoveTool < Tool
 
   def onLButtonDown(_flags, x, y, view)
     update(view, x, y)
-    node = @mouse_input.snapped_graph_object
+    node = @mouse_input.snapped_object
     @moving = true
     return if node.nil?
     @start_node = node

@@ -21,9 +21,9 @@ class ExportFileTool < Tool
 
   def onLButtonDown(_flags, x, y, view)
     @mouse_input.update_positions(view, x, y)
-    snapped_graph_object = @mouse_input.snapped_graph_object
-    if snapped_graph_object.is_a?(Triangle)
-      export_with_file_dialog(snapped_graph_object)
+    snapped_object = @mouse_input.snapped_object
+    if snapped_object.is_a?(Triangle)
+      export_with_file_dialog(snapped_object)
       deactivate(view)
     end
     view.invalidate
