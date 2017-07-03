@@ -1,21 +1,13 @@
 class Cover < Thingy
-  def initialize(first_position, second_position, third_position, normal_vector, id: nil, material: 'wooden_cover')
-    super(id)
+  def initialize(first_position, second_position, third_position, normal_vector,
+                 id: nil, material: 'wooden_cover')
+    super(id, material: material)
     @first_position = first_position
     @second_position = second_position
     @third_position = third_position
     @normal = normal_vector.clone
     @normal.length = Configuration::COVER_THICKNESS
-    @material = material
     @entity = create_entity
-  end
-
-  def highlight
-    # do nothing
-  end
-
-  def un_highlight
-    # do nothing
   end
 
   private

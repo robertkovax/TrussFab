@@ -2,19 +2,28 @@ require 'src/thingies/thingy.rb'
 require 'src/thingies/surface_entities/cover.rb'
 
 class Surface < Thingy
-  def initialize(first_position, second_position, third_position, id: nil, color: 'surface_color')
-    super(id)
+  def initialize(first_position, second_position, third_position,
+                 id: nil, material: 'surface_material', highlight_color: Configuration::SURFACE_HIGHLIGHT_COLOR)
+    super(id, material: material, highlight_color: highlight_color)
     @first_position = first_position
     @second_position = second_position
     @third_position = third_position
-    @color = color
     @entity = create_entity
-    @highlight_color = 'surface_highlighted_color'
   end
 
-  def change_color(color)
+  def color=(color)
     super(color)
-    @entity.back_material = color
+    @entity.back_material.color = color
+  end
+
+  def highlight(highlight_color = @highlight_color)
+    super(highlight_color)
+    material.alpha = 1
+  end
+
+  def un_highlight
+    super
+    material.alpha = 0.03
   end
 
   def delete_edges(position)
@@ -28,14 +37,6 @@ class Surface < Thingy
 
   def positions
     [@first_position, @second_position, @third_position]
-  end
-
-  def highlight(highlight_color = @highlight_color)
-    change_color(highlight_color)
-  end
-
-  def un_highlight
-    change_color(@color)
   end
 
   def update_positions(first_position, second_position, third_position)
@@ -61,7 +62,7 @@ class Surface < Thingy
   def create_entity
     entity = Sketchup.active_model.entities.add_face(@first_position, @second_position, @third_position)
     entity.layer = Configuration::TRIANGLE_SURFACES_VIEW
-    entity.material = entity.back_material = @color
+    entity.material = entity.back_material = @material
     entity.edges.each do |edge|
       # hide outline of surfaces, enable line link layer for lines instead of bottles
       edge.hidden = true

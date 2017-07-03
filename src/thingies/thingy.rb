@@ -4,28 +4,42 @@ class Thingy
   attr_reader :id, :entity, :sub_thingies, :position
   attr_accessor :parent
 
-  def initialize(id = nil)
+  def initialize(id = nil, material: 'standard_material', highlight_color: Configuration::HIGHLIGHT_COLOR)
     @id = id.nil? ? IdManager.instance.generate_next_id : id
     @sub_thingies = []
     @entity = nil
     @parent = nil
-    @highlight_color = 'highlight_color'
+    @material = material
+    @highlight_color = highlight_color
   end
 
-  def change_color(color)
-    @entity.material = color unless @entity.nil?
-    @sub_thingies.each { |thingy| thingy.change_color(color) }
+  def color=(color)
+    material.color = color unless material.nil?
+    @sub_thingies.each { |thingy| thingy.color = color }
+  end
+
+  def material=(material)
+    @entity.material = material
+    @sub_thingies.each { |thingy| thingy.material = material }
   end
 
   def color
+    material.color unless material.nil?
+  end
+
+  def material
     @entity.material unless @entity.nil?
   end
 
   def highlight(highlight_color = @highlight_color)
+    @last_color = color
+    self.color = highlight_color
     @sub_thingies.each { |thingy| thingy.highlight(highlight_color) }
   end
 
   def un_highlight
+    self.color = @last_color unless @last_color.nil?
+    @last_color = nil
     @sub_thingies.each(&:un_highlight)
   end
 
@@ -53,5 +67,9 @@ class Thingy
       @sub_thingies << child
       child.parent = self
     end
+  end
+
+  def create_entity
+    raise NotImplementedError
   end
 end

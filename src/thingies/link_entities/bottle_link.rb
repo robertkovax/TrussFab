@@ -1,11 +1,11 @@
-require 'src/thingies/link_entities/link_entity.rb'
-
-class BottleLink < LinkEntity
-  def initialize(position, direction, definition, id: nil)
+class BottleLink < Thingy
+  def initialize(position, direction, definition,
+                 id: nil)
+    super(id)
     @position = position
     @direction = direction
     @definition = definition
-    super(id)
+    @entity = create_entity
   end
 
   private

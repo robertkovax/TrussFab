@@ -69,10 +69,12 @@ module Configuration
     }
   ].freeze
 
+  HIGHLIGHT_COLOR = [1, 1, 1].freeze
+  SURFACE_COLOR = [1, 1, 1].freeze
+  SURFACE_HIGHLIGHT_COLOR = [0.5, 0.5, 0.5].freeze
+  STANDARD_COLOR = [0.5, 0.2, 0.3].freeze
   ELONGATION_COLOR = [0.69, 0.75, 0.81].freeze
   ELONGATION_RADIUS = 11.mm.freeze
-  CONNECTOR_COLOR = 'blue'.freeze
-  CONNECTOR_RADIUS = 8.mm.freeze
 
   # Behavioural constants
   SNAP_TOLERANCE = 200.mm.freeze
