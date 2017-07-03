@@ -57,6 +57,17 @@ class Surface < Thingy
     add(Cover.new(first_position, second_position, third_position, direction))
   end
 
+  def has_cover?
+    not cover.nil?
+  end
+
+  def cover
+    @sub_thingies.each do |thingy|
+      return thingy if thingy.is_a?(Cover)
+    end
+    nil
+  end
+
   private
 
   def create_entity

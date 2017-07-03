@@ -66,6 +66,14 @@ class Triangle < GraphObject
     nodes.each { |node| node.add_pod(normal_towards_user, constraint: false) }
     @thingy.add_cover(normal_towards_user)
   end
+
+  def cover
+    @thingy.cover
+  end
+
+  def has_cover?
+    @thingy.has_cover?
+  end
   
   def nodes_ids_towards_user
     # this is ugly! this is made to be able to recreate the surface with the

@@ -3,11 +3,12 @@ require 'set'
 class MouseInput
   attr_reader :position, :snapped_object
 
-  def initialize(snap_to_nodes: false, snap_to_edges: false, snap_to_surfaces: false, snap_to_pods: false)
+  def initialize(snap_to_nodes: false, snap_to_edges: false, snap_to_surfaces: false, snap_to_pods: false, snap_to_covers: false)
     @snap_to_nodes = snap_to_nodes
     @snap_to_edges = snap_to_edges
     @snap_to_surfaces = snap_to_surfaces
     @snap_to_pods = snap_to_pods
+    @snap_to_covers = snap_to_covers
     @position = nil
     soft_reset
   end
@@ -57,6 +58,12 @@ class MouseInput
       pod = Graph.instance.closest_pod(@position)
       unless pod.nil? || out_of_snap_tolerance?(pod)
         objects.add(pod)
+      end
+    end
+    if @snap_to_covers
+      surface = Graph.instance.closest_surface(@position)
+      unless surface.nil? || out_of_snap_tolerance?(surface) || surface.has_cover?
+        objects.add(surface.cover)
       end
     end
     return nil if objects.empty?
