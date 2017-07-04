@@ -1,10 +1,15 @@
+require 'src/simulation/simulation_helper.rb'
+
 class Pod < Thingy
+  attr_reader :position, :direction
+
   def initialize(position, direction, id: nil)
     super(id)
     @position = position
     @direction = direction
     @color = Configuration::ELONGATION_COLOR
     @model = ModelStorage.instance.models['pod']
+    @body = nil
     @entity = create_entity
   end
 
@@ -12,7 +17,7 @@ class Pod < Thingy
     # offset first point to factor in the visible hub radius
     first_point = @position.offset(@direction, Configuration::BALL_HUB_RADIUS/2)
     second_point = @position + @direction
-    Geometry.dist_point_to_segment(point, [@position, second_point])
+    Geometry.dist_point_to_segment(point, [first_point, second_point])
   end
 
   def highlight
@@ -27,6 +32,14 @@ class Pod < Thingy
     @position = position
     delete_entity
     @entity = create_entity
+  end
+
+  def create_body(world)
+    @body = MSPhysics::Body.new(world, @entity, :convex_hull)
+    @body.collidable = false
+    @body.mass = SimulationHelper::POD_MASS
+    @body.static = true
+    @body
   end
 
   private

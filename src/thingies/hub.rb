@@ -19,6 +19,10 @@ class Hub < PhysicsThingy
     @sub_thingies.select { |sub_thingy| sub_thingy.is_a?(Pod) }
   end
 
+  def pods?
+    !pods.empty?
+  end
+
   def highlight(highlight_color = @highlight_color)
     change_color(highlight_color)
   end
@@ -46,8 +50,14 @@ class Hub < PhysicsThingy
 
   def create_body(world)
     @body = MSPhysics::Body.new(world, @entity, :sphere)
-    @body.collidable = true
+    @body.collidable = false
     @body.mass = SimulationHelper::HUB_MASS
+    @body.static = pods?
+    # pods.each do |pod|
+    #   pod_body = pod.create_body(world)
+    #   joint_to(world, MSPhysics::Fixed, pod_body, pod.direction)
+    # end
+
     @body
   end
 

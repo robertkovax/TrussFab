@@ -59,7 +59,7 @@ class Link < PhysicsThingy
     [ext_1_body, ext_2_body].each do |body|
       body.mass = SimulationHelper::ELONGATION_MASS
       body.collidable = false
-      body.gravity_enabled = false
+      body.gravity_enabled = true
     end
 
     joint_to(world, MSPhysics::Fixed, ext_1_body, mid_point.vector_to(@position))

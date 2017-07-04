@@ -6,6 +6,8 @@ class Animation
 
   attr_accessor :group, :nodes, :edges, :value, :piston, :upper
 
+  LINE_STIPPLE = '_'.freeze
+
   def initialize
     @counter = 0
     @frame = 0
@@ -32,7 +34,6 @@ class Animation
     # @group_body = create_body(@group)
 
     setup
-    piston_dialog
 
     # connect_tetra2(@nodes)
 
@@ -57,7 +58,11 @@ class Animation
       edge.create_joints(@world)
     end
 
-    # @piston = Graph.instance.edges.values.find { |edge| edge.link_type == 'actuator' }.thingy.piston
+    actuator = Graph.instance.edges.values.find { |edge| edge.link_type == 'actuator' }
+    unless actuator.nil?
+      @piston = actuator.thingy.piston
+      piston_dialog
+    end
   end
 
   def add_ground
@@ -459,6 +464,15 @@ class Animation
     @piston.controller = value
   end
 
+  def show_force(body, view)
+    force = Geom::Vector3d.new(*body.get_force)
+    position = body.get_position(1)
+    second_position = position + force
+    view.line_stipple = LINE_STIPPLE
+    view.drawing_color = 'black'
+    view.draw_lines(position, second_position)
+  end
+
   def nextFrame(view)
     # force on whole body
     # @group_body.set_force([0, 0, 1000])
@@ -477,6 +491,7 @@ class Animation
     # log_time('update group position') {
     MSPhysics::Body.all_bodies.each do |body|
       body.group.move!(body.get_matrix) if body.matrix_changed?
+      show_force(body, view)
     end
     # }
     @frame += 1

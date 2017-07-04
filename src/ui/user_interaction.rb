@@ -1,5 +1,4 @@
-                                                                             ProjectHelper.require_multiple('src/tools/*.rb')
-puts 'UserInteraction'
+ProjectHelper.require_multiple('src/tools/*.rb')
 
 class UserInteraction
   def initialize
@@ -33,6 +32,7 @@ class UserInteraction
     build_tool(TetrahedronTool, 'tetrahedron_tool')
     build_tool(DynamicTetrahedronTool, 'dynamic_tetrahedron_tool')
     build_tool(OctahedronTool, 'octahedron_tool')
+    build_tool(DynamicOctahedronTool, 'dynamic_octahedron_tool')
     build_tool(BottleLinkTool, 'bottle_link_tool')
     build_tool(DeleteTool, 'delete_tool')
     build_tool(GrowTool, 'grow_tool')
