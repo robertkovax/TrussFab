@@ -1,5 +1,6 @@
 module SimulationHelper
 
+  # masses in kg
   ELONGATION_MASS = 0.1
   LINK_MASS = 0.5
   PISTON_MASS = 0.7
@@ -8,9 +9,9 @@ module SimulationHelper
 
   DEFAULT_STIFFNESS = 1.0
   DEFAULT_FRICTION = 1.0
-  DEFAULT_BREAKING_FORCE = 1000
+  DEFAULT_BREAKING_FORCE = 1_000_000
 
-  PISTON_RATE = 0.1
+  PISTON_RATE = 0.2
 
   class << self
     def body_for(world, *thingies)

@@ -12,12 +12,17 @@ class PhysicsThingy < Thingy
     raise NotImplementedError
   end
 
-  def create_body(world)
+  def create_body(_world)
     raise NotImplementedError
   end
 
-  def joint_to(world, klass, other_body, direction, group = nil)
-    matrix = Geom::Transformation.new(joint_position, direction)
-    SimulationHelper.joint_between(world, klass, body, other_body, matrix, group)
+  def joint_to(world, klass, other_body, pin_direction, group = nil)
+    matrix = Geom::Transformation.new(joint_position, pin_direction)
+    SimulationHelper.joint_between(world,
+                                   klass,
+                                   body,
+                                   other_body,
+                                   matrix,
+                                   group)
   end
 end

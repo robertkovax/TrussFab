@@ -159,63 +159,81 @@
   "standard_direction": -1,
   "joints": [
     {
-      "node": 1,
+      "node_id": 1,
       "edge_id": 16,
       "rotation_axis_id": 12,
       "type": "hinge"
     },
     {
-      "node": 1,
+      "node_id": 1,
       "edge_id": 17,
       "rotation_axis_id": 10,
       "type": "hinge"
     },
     {
-      "node": 3,
+      "node_id": 3,
       "edge_id": 20,
       "rotation_axis_id": 12,
       "type": "hinge"
     },
     {
-      "node": 3,
+      "node_id": 3,
       "edge_id": 18,
       "rotation_axis_id": 11,
       "type": "hinge"
     },
     {
-      "node": 2,
+      "node_id": 2,
       "edge_id": 19,
       "rotation_axis_id": 10,
       "type": "hinge"
     },
     {
-      "node": 2,
+      "node_id": 2,
       "edge_id": 21,
       "rotation_axis_id": 11,
       "type": "hinge"
     },
     {
-      "node": 5,
+      "node_id": 5,
       "edge_id": 13,
       "rotation_axis_id": 20,
       "type": "hinge"
     },
     {
-      "node": 6,
+      "node_id": 6,
       "edge_id": 15,
       "rotation_axis_id": 19,
       "type": "hinge"
     },
     {
-      "node": 4,
+      "node_id": 4,
       "edge_id": 13,
       "rotation_axis_id": 21,
       "type": "hinge"
     },
     {
-      "node": 4,
+      "node_id": 4,
       "edge_id": 15,
       "rotation_axis_id": 18,
+      "type": "hinge"
+    },
+    {
+      "node_id": 4,
+      "edge_id": 15,
+      "rotation_axis_id": 18,
+      "type": "hinge"
+    },
+    {
+      "node_id": 5,
+      "edge_id": 14,
+      "rotation_plane_ids": [5, 6 ,2, 3],
+      "type": "hinge"
+    },
+    {
+      "node_id": 6,
+      "edge_id": 14,
+      "rotation_plane_ids": [5, 6 ,2, 3],
       "type": "hinge"
     }
   ]

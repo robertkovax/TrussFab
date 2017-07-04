@@ -2,6 +2,7 @@ require 'json'
 require 'src/database/graph.rb'
 require 'src/utility/geometry.rb'
 require 'src/simulation/joints.rb'
+require 'src/simulation/thingy_rotation.rb'
 
 module JsonImport
   class << self
@@ -9,9 +10,9 @@ module JsonImport
     def at_position(path, position)
       json_objects = load_json(path)
       points = build_points(json_objects, position)
-      edges = build_edges(json_objects, points)
+      edges, nodes = build_edges(json_objects, points)
       triangles = create_triangles(edges)
-      add_joints(json_objects, edges) unless json_objects['joints'].nil?
+      add_joints(json_objects, edges, nodes) unless json_objects['joints'].nil?
       [triangles.values, edges.values]
     end
 
@@ -77,9 +78,9 @@ module JsonImport
       end
 
 
-      edges = build_edges(json_objects, json_points)
+      edges, nodes = build_edges(json_objects, json_points)
       triangles = create_triangles(edges)
-      add_joints(json_objects, edges) unless json_objects['joints'].nil?
+      add_joints(json_objects, edges, nodes) unless json_objects['joints'].nil?
       [triangles.values, edges.values]
     end
 
@@ -139,42 +140,49 @@ module JsonImport
       points
     end
 
-    def build_edges(json_objects, nodes)
+    def build_edges(json_objects, positions)
       edges = {}
-      json_objects['edges'].each do |edge|
-        first_node = nodes[edge['n1']]
-        second_node = nodes[edge['n2']]
-        link_type = edge['type'].nil? ? 'bottle_link' : edge['type']
-        model_name = edge['model'].nil? ? 'hard' : edge['model']
-        new_edge = Graph.instance.create_edge_from_points(first_node,
-                                                          second_node,
-                                                          model_name: model_name,
-                                                          link_type: link_type)
+      nodes = {}
+      json_objects['edges'].each do |edge_json|
+        first_position = positions[edge_json['n1']]
+        second_position = positions[edge_json['n2']]
+        link_type = edge_json['type'].nil? ? 'bottle_link' : edge_json['type']
+        model_name = edge_json['model'].nil? ? 'hard' : edge_json['model']
+        edge = Graph.instance.create_edge_from_points(first_position,
+                                                      second_position,
+                                                      model_name: model_name,
+                                                      link_type: link_type)
 
-        edges[edge['id']] = new_edge
+        edges[edge_json['id']] = edge
+        nodes[edge_json['n1']] = edge.first_node
+        nodes[edge_json['n2']] = edge.second_node
       end
-      edges
+      [edges, nodes]
     end
 
-    def add_joints(json_objects, edges)
+    def add_joints(json_objects, edges, nodes)
       json_objects['joints'].each do |joint_json|
         edge = edges[joint_json['edge_id']]
-        edge_json = json_objects['edges'].find { |json| json['id'] == joint_json['edge_id'] }
-        node = if joint_json['node_id'] == edge_json['n1']
-                 edge.first_node
-               else
-                 edge.second_node
-               end
+        node = nodes[joint_json['node_id']]
 
-        rotation_edge = edges[joint_json['rotation_axis_id']]
+        rotation = if !joint_json['rotation_axis_id'].nil?
+                     EdgeRotation.new(edges[joint_json['rotation_axis_id']])
+                   elsif !joint_json['rotation_plane_ids'].nil?
+                     plane_nodes = joint_json['rotation_plane_ids'].map { |id| nodes[id] }
+                     PlaneRotation.new(plane_nodes)
+                   else
+                     raise ArgumentError('No rotation vector given')
+                   end
 
         joint = case joint_json['type']
                 when 'hinge'
-                  ThingyHinge.new(node, edge, rotation_edge)
+                  ThingyHinge.new(node, rotation)
+                when 'ball'
+                  ThingyBallJoint.new(node, rotation)
                 else
                   raise "Unsupported joint type: #{joint_json['type']}"
                 end
-        if joint_json['node_id'] == edge_json['n1']
+        if node == edge.first_node
           edge.thingy.first_joint = joint
         else
           edge.thingy.second_joint = joint

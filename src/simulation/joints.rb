@@ -1,30 +1,46 @@
 class ThingyJoint
-  def initialize(node, edge)
+  def initialize(node)
     @node = node
-    @edge = edge
-    @joint_class = MSPhysics::Fixed
+    @joint_class = nil
     @joint = nil
   end
 
   def pin_direction
-    @node.vector_to(@edge.other_node(@node))
+    raise NotImplementedError
   end
 
   def create(world, other_body)
     @joint = @node.thingy.joint_to(world, @joint_class, other_body, pin_direction)
   end
-
 end
 
-class ThingyHinge < ThingyJoint
-
-  def initialize(node, edge, rotation_edge)
-    super(node, edge)
-    @joint_class = MSPhysics::Hinge
-    @rotation_edge = rotation_edge
+class ThingyFixedJoint < ThingyJoint
+  def initialize(node, edge)
+    super(node)
+    @edge = edge
+    @joint_class = MSPhysics::Fixed
   end
 
   def pin_direction
-    @rotation_edge.direction
+    @node.vector_to(@edge.other_node(@node))
+  end
+end
+
+class ThingyHinge < ThingyJoint
+  def initialize(node, thingy_rotation)
+    super(node)
+    @rotation = thingy_rotation
+    @joint_class = MSPhysics::Hinge
+  end
+
+  def pin_direction
+    @rotation.vector
+  end
+end
+
+class ThingyBallJoint < ThingyHinge
+  def initialize(node, thingy_rotation)
+    super(node, thingy_rotation)
+    @joint_class = MSPhysics::BallAndSocket
   end
 end

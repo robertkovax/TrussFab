@@ -4,6 +4,7 @@ require 'src/thingies/link.rb'
 require 'src/thingies/actuator_link.rb'
 require 'src/models/model_storage.rb'
 require 'src/simulation/joints'
+require 'src/simulation/thingy_rotation.rb'
 
 class Edge < GraphObject
   attr_reader :first_node, :second_node, :link_type
@@ -17,8 +18,8 @@ class Edge < GraphObject
     @model_name = model_name
     @link_type = link_type
     super(id)
-    @thingy.first_joint = ThingyJoint.new(@first_node, self)
-    @thingy.second_joint = ThingyJoint.new(@second_node, self)
+    @thingy.first_joint = ThingyFixedJoint.new(@first_node, self)
+    @thingy.second_joint = ThingyFixedJoint.new(@second_node, self)
   end
 
   def distance(point)

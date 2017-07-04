@@ -17,7 +17,7 @@ class Animation
 
 
     @world = MSPhysics::World.new
-    # @world.set_gravity(0, 0, 0)
+    @world.set_gravity(0, 0, 0)
     @bodies = {}
 
     @ground_body = add_ground
@@ -466,9 +466,11 @@ class Animation
 
   def show_force(body, view)
     force = Geom::Vector3d.new(*body.get_force)
+    return if force.length.zero?
     position = body.get_position(1)
-    second_position = position + force
-    view.line_stipple = LINE_STIPPLE
+    force.length = force.length * 100
+    second_position = position.offset(force)
+    # view.line_stipple = LINE_STIPPLE
     view.drawing_color = 'black'
     view.draw_lines(position, second_position)
   end
@@ -491,7 +493,9 @@ class Animation
     # log_time('update group position') {
     MSPhysics::Body.all_bodies.each do |body|
       body.group.move!(body.get_matrix) if body.matrix_changed?
-      show_force(body, view)
+      if @frame % 20 == 0
+        show_force(body, view)
+      end
     end
     # }
     @frame += 1

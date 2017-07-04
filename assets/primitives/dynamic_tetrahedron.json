@@ -125,7 +125,7 @@
   ],
   "joints": [
     {
-      "node": 1,
+      "node_id": 1,
       "edge_id": 39,
       "rotation_axis_id": 25,
       "type": "hinge"
