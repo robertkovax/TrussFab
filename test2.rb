@@ -102,6 +102,7 @@ class Animation
 
 	def show_force(body, view)
 		force = Geom::Vector3d.new(*body.get_force)
+		force = Geometry.scale(force, 10)
 		position = body.get_position(1)
 		second_position = position + force
 		view.line_stipple = LINE_STIPPLE

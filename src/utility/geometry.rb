@@ -84,7 +84,9 @@ module Geometry
 
   def self.scale(vector, scalar)
     cloned_vector = vector.clone
-    cloned_vector.length = cloned_vector.length * scalar
+    if cloned_vector.length > 0 
+      cloned_vector.length = cloned_vector.length * scalar
+    end
     cloned_vector
   end
 
