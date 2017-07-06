@@ -19,6 +19,7 @@ class Animation
 
 
 		@world = MSPhysics::World.new
+		@world.solver_model = 0
 		# @world.set_gravity(0, 0, 0)
 		@bodies = {}
 
@@ -62,8 +63,24 @@ class Animation
 			body.collidable = true
 			body.mass = 0.1
 			body.static = false
-			puts body.linear_damping
-			body.linear_damping=(1.0)
+
+
+			# has the biggest effect so far!
+			body.softness = 0.01
+
+			# has little effect i guess. lokks a bit better
+			body.static_friction = 2
+			body.kinetic_friction = 2
+			body.friction_enabled = true
+
+			
+			# this is fun :p
+			body.elasticity = 1.05
+			body.set_velocity([0,3,5])
+
+			# doesn't really have effects
+			# body.linear_damping=(1.0)
+			# body.continuous_collision_check_enabled = false
 
 		# create joints
 		# edge.create_joints(@world)
