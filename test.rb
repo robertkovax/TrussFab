@@ -1,10 +1,11 @@
 require 'lib/MSPhysics/main.rb'
 require 'set'
-require 'src/simulation/simulation_helper.rb'
+require 'erb'
+require 'src/simulation/simulation.rb'
 
 class Animation
-
-  attr_accessor :group, :nodes, :edges, :value, :piston, :upper
+  include ERB::Util
+  attr_accessor :group, :nodes, :edges, :value, :piston, :upper, :pistons
 
   LINE_STIPPLE = '_'.freeze
 
@@ -20,29 +21,12 @@ class Animation
     @world.set_gravity(0, 0, 0)
     @bodies = {}
 
-    @ground_body = add_ground
-    # @node_body = create_body_for(@node)
-    # @edge_body = create_body_for(@edge)
-
-    # @nodes_bodies = create_bodies(Graph.instance.nodes.values)
-    # @node_body = @nodes_bodies.values[0]
-    # connect_all_fixed(Graph.instance.nodes.values)
-
-    # @transformation = Geom::Transformation.new
-    # connected_nodes = connected_component(@node)
-    # @group = create_group(connected_nodes)
-    # @group_body = create_body(@group)
-
+    # @ground_body = add_ground
     setup
-
-    # connect_tetra2(@nodes)
 
 
     @value = nil
     @running = true
-
-    # @last_transformation = @initial_transformation = @group.transformation
-
 
     @last_frame_time = Time.now
   end
@@ -58,11 +42,10 @@ class Animation
       edge.create_joints(@world)
     end
 
-    actuator = Graph.instance.edges.values.find { |edge| edge.link_type == 'actuator' }
-    unless actuator.nil?
-      @piston = actuator.thingy.piston
-      piston_dialog
-    end
+    actuators = Graph.instance.edges.values.select { |edge| edge.link_type == 'actuator' }
+    @pistons = actuators.map(&:thingy).map { |thingy| [thingy.id, thingy.piston] }.to_h
+
+    piston_dialog unless @pistons.empty?
   end
 
   def add_ground
@@ -287,7 +270,7 @@ class Animation
 
   def create_piston_body(cylinder)
     body = MSPhysics::Body.new(@world, cylinder, :cylinder)
-    body.mass = SimulationHelper::PISTON_MASS
+    body.mass = Simulation::PISTON_MASS
     body.collidable = false
     body
   end
@@ -412,12 +395,14 @@ class Animation
 
   def piston_dialog
     @dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
-    file = File.join(File.dirname(__FILE__), 'src/ui/html/piston_slider.html')
-    @dialog.set_file(file)
+    file_content = File.read(File.join(File.dirname(__FILE__), 'src/ui/html/piston_slider.erb'))
+    template = ERB.new(file_content)
+    @dialog.set_html(template.result(binding))
     @dialog.show
-    @dialog.add_action_callback('change_piston') do |_context, value|
+    @dialog.add_action_callback('change_piston') do |_context, id, value|
       value = value.to_f
-      @piston.controller = value
+      id = id.to_i
+      @pistons[id].controller = value
     end
   end
 

@@ -1,4 +1,4 @@
-require 'src/simulation/simulation_helper.rb'
+require 'src/simulation/simulation.rb'
 
 class Pod < Thingy
   attr_reader :position, :direction
@@ -37,7 +37,7 @@ class Pod < Thingy
   def create_body(world)
     @body = MSPhysics::Body.new(world, @entity, :convex_hull)
     @body.collidable = false
-    @body.mass = SimulationHelper::POD_MASS
+    @body.mass = Simulation::POD_MASS
     @body.static = true
     @body
   end

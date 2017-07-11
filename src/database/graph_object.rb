@@ -13,6 +13,11 @@ class GraphObject
     unstore
   end
 
+  def redraw
+    delete_thingy
+    @thingy = create_thingy(@id)
+  end
+
   def highlight
     @thingy.highlight unless thingy.nil?
   end

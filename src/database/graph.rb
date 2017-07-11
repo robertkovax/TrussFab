@@ -20,6 +20,10 @@ class Graph
     [@edges.values, @nodes.values].flatten
   end
 
+  def all_graph_objects
+    [@edges.values, @nodes.values, @surfaces.values].flatten
+  end
+
   #
   # Methods to to create one node, edge or surface
   #
@@ -122,6 +126,21 @@ class Graph
 
   def empty?
     nodes.empty?
+  end
+
+  #
+  # Methods to clear graph or redraw/reset all graph objects
+  #
+
+  def clear!
+    @edges = {}       # {(id => edge)}
+    @nodes = {}       # {(id => node)}
+    @surfaces = {}    # {(id => surface)}
+    Sketchup.active_model.entities.clear!
+  end
+
+  def redraw
+    all_graph_objects.each(&:redraw)
   end
 
   #

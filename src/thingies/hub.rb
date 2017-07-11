@@ -1,6 +1,6 @@
 require 'src/thingies/physics_thingy.rb'
 require 'src/models/model_storage.rb'
-require 'src/simulation/simulation_helper.rb'
+require 'src/simulation/simulation.rb'
 
 class Hub < PhysicsThingy
   attr_accessor :position, :body
@@ -51,7 +51,7 @@ class Hub < PhysicsThingy
   def create_body(world)
     @body = MSPhysics::Body.new(world, @entity, :sphere)
     @body.collidable = false
-    @body.mass = SimulationHelper::HUB_MASS
+    @body.mass = Simulation::HUB_MASS
     @body.static = pods?
     # pods.each do |pod|
     #   pod_body = pod.create_body(world)

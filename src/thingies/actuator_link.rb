@@ -1,6 +1,6 @@
 require 'src/thingies/link.rb'
 require 'src/thingies/link_entities/cylinder.rb'
-require 'src/simulation/simulation_helper.rb'
+require 'src/simulation/simulation.rb'
 
 class ActuatorLink < Link
 
@@ -19,10 +19,10 @@ class ActuatorLink < Link
 
     direction_up = @position.vector_to(@second_position)
     piston_matrix = Geom::Transformation.new(@position, direction_up)
-    @piston = SimulationHelper.create_piston(world,
-                                             first_cylinder_body,
-                                             second_cylinder_body,
-                                             piston_matrix)
+    @piston = Simulation.create_piston(world,
+                                       first_cylinder_body,
+                                       second_cylinder_body,
+                                       piston_matrix)
 
     [first_cylinder_body, second_cylinder_body]
   end

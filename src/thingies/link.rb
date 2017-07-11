@@ -2,7 +2,7 @@ require 'src/thingies/link_entities/connector.rb'
 require 'src/thingies/link_entities/elongation.rb'
 require 'src/thingies/link_entities/line.rb'
 require 'src/thingies/link_entities/bottle_link.rb'
-require 'src/simulation/simulation_helper.rb'
+require 'src/simulation/simulation.rb'
 require 'src/thingies/physics_thingy.rb'
 
 class Link < PhysicsThingy
@@ -51,13 +51,13 @@ class Link < PhysicsThingy
   def create_body(world)
     c1, e1, bottles, _, e2, c2 = @sub_thingies
     @body = MSPhysics::Body.new(world, bottles.entity, :convex_hull)
-    ext_1_body = SimulationHelper.body_for(world, c1, e1)
-    ext_2_body = SimulationHelper.body_for(world, c2, e2)
+    ext_1_body = Simulation.body_for(world, c1, e1)
+    ext_2_body = Simulation.body_for(world, c2, e2)
 
-    @body.mass = SimulationHelper::LINK_MASS
+    @body.mass = Simulation::LINK_MASS
     @body.collidable = true
     [ext_1_body, ext_2_body].each do |body|
-      body.mass = SimulationHelper::ELONGATION_MASS
+      body.mass = Simulation::ELONGATION_MASS
       body.collidable = false
       body.gravity_enabled = true
     end

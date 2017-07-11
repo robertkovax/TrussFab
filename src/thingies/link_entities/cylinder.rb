@@ -14,7 +14,7 @@ class Cylinder < LinkEntity
 
   def create_body(world)
     @body = MSPhysics::Body.new(world, @entity, :convex_hull)
-    @body.mass = SimulationHelper::PISTON_MASS
+    @body.mass = Simulation::PISTON_MASS
     @body.collidable = false
     @body
   end

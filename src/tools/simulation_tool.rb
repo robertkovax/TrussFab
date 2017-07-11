@@ -1,20 +1,21 @@
-require 'test2.rb'
 require 'src/tools/tool.rb'
 require 'src/utility/mouse_input.rb'
+require 'src/simulation/simulation.rb'
 
-
-class AnimationTool < Tool
+class SimulationTool < Tool
   def initialize(ui)
     super
-    @animation = Animation.instance
+    @simulation = Simulation.new
   end
 
   def activate
-    @animation.setup
-    Sketchup.active_model.active_view.animation = @animation
+    @simulation.setup
+    @simulation.start
+    Sketchup.active_model.active_view.animation = @simulation
   end
 
   def deactivate(view)
+    Sketchup.active_model.active_view.animation = nil
     super
   end
 
@@ -25,8 +26,9 @@ class AnimationTool < Tool
   end
 
   def draw(view)
-    @animation.draw_forces(view)
+    @simulation.show_forces(view)
   end
+
   private
 
   def reset

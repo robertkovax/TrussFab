@@ -1,10 +1,10 @@
 require 'lib/MSPhysics/main.rb'
 require 'set'
 require 'src/thingies/link_entities/bottle_link.rb'
-require 'src/simulation/simulation_helper.rb'
+require 'src/simulation/simulation.rb'
 
 class Animation
-	include Singleton
+  include Singleton
 
 	attr_accessor :group, :nodes, :edges, :value, :piston, :upper
 
@@ -53,10 +53,6 @@ class Animation
 		# create entities
 	    model = ModelStorage.instance.models['hard']
 	    model = model.longest_model
-		entity1 = BottleLink.new([0,0,0], Geom::Vector3d.new([1,1,1]), model.definition).entity
-		entity2 = BottleLink.new([0,0,0], Geom::Vector3d.new([1,2,2]), model.definition).entity
-		entity3 = BottleLink.new([0,0,0], Geom::Vector3d.new([1,3,3]), model.definition).entity
-
 		# create all bodies
 		[entity1, entity2, entity3].each do |entity|
 			body = MSPhysics::Body.new(@world, entity, :convex_hull)
@@ -135,6 +131,7 @@ class Animation
 			show_force(body, view)
 		end
 	end
+
 	def nextFrame(view)
 		# force on whole body
 		# @group_body.set_force([0, 0, 1000])
