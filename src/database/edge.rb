@@ -40,6 +40,12 @@ class Edge < GraphObject
     end
   end
 
+  def shared_node(other_edge)
+    intersection = nodes & other_edge.nodes
+    return false if intersection.empty?
+    intersection[0]
+  end
+
   def create_joints(world)
     @thingy.create_joints(world)
   end
@@ -62,6 +68,10 @@ class Edge < GraphObject
 
   def segment
     [position, end_position]
+  end
+
+  def adjacent_triangles
+    @fist_node.adjacent_triangles & @second_node.adjacent_triangles
   end
 
   def length

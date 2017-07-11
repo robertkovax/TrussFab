@@ -58,8 +58,28 @@ class Triangle < GraphObject
     [first_node, second_node, third_node]
   end
 
-  def nodes_ids    
+  def edges
+    [first_node.edge_to(second_node),
+     first_node.edge_to(third_node),
+     second_node.edge_to(third_node)]
+  end
+
+  def nodes_ids
     [first_node.id, second_node.id, third_node.id]
+  end
+
+  def adjacent_triangles
+    edges.reduce([]) { |arr, edge| arr | edge.adjacent_triangles } - [self]
+  end
+
+  def create_joints(world)
+    adjacent_triangles.each do |triangle|
+      rotation_edge = triangle.edges & edges
+      other_edges = triangle.edges - edges
+      other_edges.each do |other_edge|
+        
+      end
+    end
   end
   
   def nodes_ids_towards_user
