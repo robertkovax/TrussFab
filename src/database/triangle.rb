@@ -68,6 +68,10 @@ class Triangle < GraphObject
     [first_node.id, second_node.id, third_node.id]
   end
 
+  def angle_between(other_triangle)
+    normal.angle_between(other_triangle.normal)
+  end
+
   def adjacent_triangles
     edges.reduce([]) { |arr, edge| arr | edge.adjacent_triangles } - [self]
   end
@@ -77,7 +81,7 @@ class Triangle < GraphObject
       rotation_edge = triangle.edges & edges
       other_edges = triangle.edges - edges
       other_edges.each do |other_edge|
-        
+
       end
     end
   end

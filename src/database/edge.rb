@@ -22,6 +22,13 @@ class Edge < GraphObject
     @thingy.second_joint = ThingyFixedJoint.new(@second_node, self)
   end
 
+  def link_type=(type)
+    if type != @link_type
+      @link_type = type
+      recreate_thingy
+    end
+  end
+
   def distance(point)
     # offset to take ball_hub_radius into accoutn
     first_point = position.offset(direction, Configuration::BALL_HUB_RADIUS / 2)
@@ -48,6 +55,10 @@ class Edge < GraphObject
 
   def create_joints(world)
     @thingy.create_joints(world)
+  end
+
+  def create_ball_joints(world)
+    @thingy.create_ball_joints(world, first_node, second_node)
   end
 
   def position
@@ -122,6 +133,11 @@ class Edge < GraphObject
 
   def next_shorter_length
     length * 0.9
+  end
+
+  def recreate_thingy
+    @thingy.delete
+    @thingy = create_thingy(@id)
   end
 
   private

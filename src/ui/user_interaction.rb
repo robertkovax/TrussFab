@@ -42,6 +42,7 @@ class UserInteraction
     build_tool(ImportFileTool, 'import_file_tool')
     build_tool(PodTool, 'pod_tool')
     build_tool(SimulationTool, 'simulation_tool')
+    build_tool(ActuatorTool, 'actuator_tool')
   end
 
   def build_tool(tool_class, tool_id)

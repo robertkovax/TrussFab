@@ -1,11 +1,12 @@
 require 'src/tools/tool.rb'
 require 'src/utility/mouse_input.rb'
 require 'src/simulation/simulation.rb'
+require 'src/simulation/ball_joint_simulation.rb'
 
 class SimulationTool < Tool
   def initialize(ui)
     super
-    @simulation = Simulation.new
+    @simulation = BallJointSimulation.new
   end
 
   def activate
@@ -26,7 +27,7 @@ class SimulationTool < Tool
   end
 
   def draw(view)
-    @simulation.show_forces(view)
+    # @simulation.show_forces(view)
   end
 
   private

@@ -24,6 +24,12 @@ class Graph
     [@edges.values, @nodes.values, @surfaces.values].flatten
   end
 
+  def triangle_pairs
+    @edges.flat_map do |edge|
+      edge.adjacent_triangles.combinations(2)
+    end
+  end
+
   #
   # Methods to to create one node, edge or surface
   #

@@ -38,9 +38,14 @@ class ThingyHinge < ThingyJoint
   end
 end
 
-class ThingyBallJoint < ThingyHinge
-  def initialize(node, thingy_rotation)
-    super(node, thingy_rotation)
+class ThingyBallJoint < ThingyJoint
+  def initialize(node, direction)
+    super(node)
+    @direction = direction
     @joint_class = MSPhysics::BallAndSocket
+  end
+
+  def pin_direction
+    @direction
   end
 end

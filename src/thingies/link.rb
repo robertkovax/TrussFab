@@ -74,6 +74,18 @@ class Link < PhysicsThingy
     end
   end
 
+  def create_ball_joints(world, first_node, second_node)
+    first_direction = mid_point.vector_to(first_node.position)
+    second_direction = mid_point.vector_to(second_node.position)
+
+    first_ball_joint = ThingyBallJoint.new(first_node, first_direction)
+    second_ball_joint = ThingyBallJoint.new(second_node, second_direction)
+
+    [first_ball_joint, second_ball_joint].each do |joint|
+      joint.create(world, @body)
+    end
+  end
+
   def create_sub_thingies
 
     first_elong_length = second_elong_length = Configuration::MINIMUM_ELONGATION

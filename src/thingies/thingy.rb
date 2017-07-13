@@ -31,6 +31,16 @@ class Thingy
     @sub_thingies.each { |thingy| thingy.change_color(color) }
   end
 
+  def hide
+    @entity.hidden = true unless @entity.nil?
+    @sub_thingies.each(&:hide)
+  end
+
+  def show
+    @entity.hidden = false unless @entity.nil?
+    @sub_thingies.each(&:hide)
+  end
+
   def color
     @entity.material unless @entity.nil?
   end
