@@ -71,6 +71,22 @@ module ProjectHelper
     material.color = [0.5, 0.2, 0.3]
     material.alpha = 1
 
+    material = Sketchup.active_model.materials.add('piston_a')
+    material.color = [0.1, 0.7, 1]
+    material.alpha = 1
+
+    material = Sketchup.active_model.materials.add('piston_b')
+    material.color = [0.3, 1, 0.1]
+    material.alpha = 1
+
+    material = Sketchup.active_model.materials.add('piston_c')
+    material.color = [0.7, 0.1, 0.3]
+    material.alpha = 1
+
+    material = Sketchup.active_model.materials.add('piston_d')
+    material.color = [1, 0.3, 0.7]
+    material.alpha = 1
+
     material = Sketchup.active_model.materials.add('elongation_color')
     material.color = Configuration::ELONGATION_COLOR
     material.alpha = 1

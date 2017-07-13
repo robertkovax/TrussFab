@@ -7,7 +7,7 @@ require 'src/thingies/physics_thingy.rb'
 
 class Link < PhysicsThingy
   attr_accessor :line, :first_joint, :second_joint
-  attr_reader :body
+  attr_reader :body, :piston_group
 
   def initialize(first_position, second_position, model_name, id: nil)
     super(id)
@@ -20,7 +20,7 @@ class Link < PhysicsThingy
 
     @model = ModelStorage.instance.models[model_name]
     @line = nil
-
+    @piston_group = nil
     create_sub_thingies
   end
 
@@ -58,10 +58,10 @@ class Link < PhysicsThingy
     @body.mass = Simulation::LINK_MASS
     @body.collidable = false
     @body.softness = 0.01
-    @body.static_friction = 2
-    @body.kinetic_friction = 2
-    @body.friction_enabled = true
-    @body.linear_damping = 1.0
+    # @body.static_friction = 2
+    # @body.kinetic_friction = 2
+    # @body.friction_enabled = true
+    # @body.linear_damping = 1.0
     
     # [ext_1_body, ext_2_body].each do |body|
     #   body.mass = Simulation::ELONGATION_MASS

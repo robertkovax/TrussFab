@@ -152,7 +152,10 @@ module JsonImport
                                                       second_position,
                                                       model_name: model_name,
                                                       link_type: link_type)
-
+        unless edge_json['piston_group'].nil?
+          edge.link_type = 'actuator'
+          edge.thingy.change_piston_group(edge_json['piston_group'])
+        end
         edges[edge_json['id']] = edge
         nodes[edge_json['n1']] = edge.first_node
         nodes[edge_json['n2']] = edge.second_node

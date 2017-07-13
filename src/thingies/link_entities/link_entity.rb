@@ -2,9 +2,10 @@ require 'src/thingies/thingy.rb'
 
 class LinkEntity < Thingy
   attr_reader :id, :entity
-
-  def initialize(id = nil)
+  attr_accessor :color
+  def initialize(id = nil, color: 'piston_a')
     super(id)
+    @color = color
     @entity = create_entity
   end
 
@@ -13,12 +14,10 @@ class LinkEntity < Thingy
   end
 
   def highlight(highlight_color = @highlight_color)
-    @last_color = color
     change_color(highlight_color)
   end
 
   def un_highlight
-    return if @last_color.nil?
-    change_color(@last_color)
+    change_color(@color)
   end
 end

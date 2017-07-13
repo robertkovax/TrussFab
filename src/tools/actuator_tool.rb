@@ -22,10 +22,14 @@ class ActuatorTool < Tool
     @mouse_input.update_positions(view, x, y)
     edge = @mouse_input.snapped_object
     return if edge.nil?
-    Sketchup.active_model.start_operation('toggle edge to actuator', true)
-    create_actuator(edge)
-    view.invalidate
-    Sketchup.active_model.commit_operation
+    if edge.link_type == 'actuator'
+      edge.thingy.change_piston_group
+    else
+      Sketchup.active_model.start_operation('toggle edge to actuator', true)
+      create_actuator(edge)
+      view.invalidate
+      Sketchup.active_model.commit_operation
+    end
     # start_simulation(edge)
     # highlight_triangle_pairs
   end

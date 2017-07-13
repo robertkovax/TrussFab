@@ -4,9 +4,9 @@ class Simulation
 
   # masses in kg
   ELONGATION_MASS = 0.1
-  LINK_MASS = 0.5
-  PISTON_MASS = 0.7
-  HUB_MASS = 0.2
+  LINK_MASS = 0.2
+  PISTON_MASS = 0.2
+  HUB_MASS = 0.1
   POD_MASS = 0.1
 
   DEFAULT_STIFFNESS = 10000
@@ -14,7 +14,7 @@ class Simulation
   DEFAULT_BREAKING_FORCE = 0
 
   # velocity in change of length in m/s
-  PISTON_RATE = 0.2
+  PISTON_RATE = 10
 
   class << self
     def body_for(world, *thingies)
@@ -25,9 +25,9 @@ class Simulation
 
     def joint_between(world, klass, parent_body, child_body, matrix, group = nil)
       joint = klass.new(world, parent_body, matrix, group)
-      joint.stiffness = DEFAULT_STIFFNESS
+      # joint.stiffness = DEFAULT_STIFFNESS
       joint.breaking_force = DEFAULT_BREAKING_FORCE
-      joint.friction = DEFAULT_FRICTION if klass == MSPhysics::BallAndSocket
+      # joint.friction = DEFAULT_FRICTION if klass == MSPhysics::BallAndSocket
       joint.connect(child_body)
       joint.bodies_collidable = false
       joint
@@ -36,7 +36,7 @@ class Simulation
     def create_piston(world, parent_body, child_body, matrix)
       piston = joint_between(world, MSPhysics::Piston, parent_body, child_body, matrix)
       piston.rate = PISTON_RATE
-      piston.power = 10000
+      piston.power = 1600
       piston
     end
   end
@@ -93,10 +93,11 @@ class Simulation
     end
 
     # get all pistons from actuator edges
-    actuators = Graph.instance.edges.values.select { |edge| edge.link_type == 'actuator' }
-    @pistons = actuators.map(&:thingy).map { |thingy| [thingy.id, thingy.piston] }.to_h
+    @actuators = Graph.instance.edges.values.select { |edge| edge.link_type == 'actuator' }
+    @pistons = @actuators.map(&:thingy).map { |thingy| [thingy.id, thingy.piston] }.to_h
     piston_dialog unless @pistons.empty?
   end
+
 
   def add_ground
     group = Sketchup.active_model.entities.add_group
@@ -176,7 +177,7 @@ class Simulation
     now = Time.now
     @delta = now - @last_frame_time
     @last_frame_time = now
-    @world.update(0.01)
+    @world.update(0.02)
   end
 
   def nextFrame(view)

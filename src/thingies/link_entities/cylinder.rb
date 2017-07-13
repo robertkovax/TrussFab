@@ -16,6 +16,7 @@ class Cylinder < LinkEntity
     @body = MSPhysics::Body.new(world, @entity, :convex_hull)
     @body.mass = Simulation::PISTON_MASS
     @body.collidable = false
+    @body.softness = 0.01
     @body
   end
 
