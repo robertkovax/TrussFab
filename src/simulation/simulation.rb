@@ -9,9 +9,9 @@ class Simulation
   HUB_MASS = 0.2
   POD_MASS = 0.1
 
-  DEFAULT_STIFFNESS = 1.0
-  DEFAULT_FRICTION = 1.0
-  DEFAULT_BREAKING_FORCE = 1_000_000
+  DEFAULT_STIFFNESS = 10000
+  DEFAULT_FRICTION = 100000
+  DEFAULT_BREAKING_FORCE = 0
 
   # velocity in change of length in m/s
   PISTON_RATE = 0.2
@@ -27,14 +27,16 @@ class Simulation
       joint = klass.new(world, parent_body, matrix, group)
       joint.stiffness = DEFAULT_STIFFNESS
       joint.breaking_force = DEFAULT_BREAKING_FORCE
-      joint.friction = DEFAULT_FRICTION if klass == MSPhysics::Hinge
+      joint.friction = DEFAULT_FRICTION if klass == MSPhysics::BallAndSocket
       joint.connect(child_body)
+      joint.bodies_collidable = false
       joint
     end
 
     def create_piston(world, parent_body, child_body, matrix)
       piston = joint_between(world, MSPhysics::Piston, parent_body, child_body, matrix)
       piston.rate = PISTON_RATE
+      piston.power = 10000
       piston
     end
   end
@@ -76,7 +78,7 @@ class Simulation
   def setup
     @world = MSPhysics::World.new
     @world.set_gravity(0, 0, 0)
-
+    @world.solver_model = 0
     # create bodies for nodes and edges
     Graph.instance.nodes_and_edges.each do |obj|
       obj.thingy.create_body(@world)
@@ -174,7 +176,7 @@ class Simulation
     now = Time.now
     @delta = now - @last_frame_time
     @last_frame_time = now
-    @world.update(@delta)
+    @world.update(0.01)
   end
 
   def nextFrame(view)
@@ -188,7 +190,7 @@ class Simulation
     if @frame % 20 == 0
       set_status_text
     end
-
+    show_forces(view)
     view.show_frame
     @running
   end

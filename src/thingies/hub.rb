@@ -49,10 +49,15 @@ class Hub < PhysicsThingy
   end
 
   def create_body(world)
-    @body = MSPhysics::Body.new(world, @entity, :sphere)
-    @body.collidable = false
+    @body = MSPhysics::Body.new(world, @entity, :box)
+    @body.collidable = true
     @body.mass = Simulation::HUB_MASS
     @body.static = pods?
+    @body.softness = 0.01
+    @body.static_friction = 2
+    @body.kinetic_friction = 2
+    @body.friction_enabled = true
+    @body.linear_damping = 1.0
     # pods.each do |pod|
     #   pod_body = pod.create_body(world)
     #   joint_to(world, MSPhysics::Fixed, pod_body, pod.direction)

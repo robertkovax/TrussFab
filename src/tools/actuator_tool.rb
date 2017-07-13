@@ -26,7 +26,7 @@ class ActuatorTool < Tool
     create_actuator(edge)
     view.invalidate
     Sketchup.active_model.commit_operation
-    start_simulation(edge)
+    # start_simulation(edge)
     # highlight_triangle_pairs
   end
 
