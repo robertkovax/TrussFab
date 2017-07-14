@@ -16,6 +16,8 @@ class Simulation
   # velocity in change of length in m/s
   PISTON_RATE = 0.2
 
+  MSPHYSICS_TIME_STEP = 1.0 / 100
+
   class << self
     def body_for(world, *thingies)
       entities = thingies.flat_map(&:all_entities)
@@ -76,6 +78,7 @@ class Simulation
   def setup
     @world = MSPhysics::World.new
     @world.set_gravity(0, 0, 0)
+    @world.solver_model = 0
 
     # create bodies for nodes and edges
     Graph.instance.nodes_and_edges.each do |obj|
@@ -170,19 +173,30 @@ class Simulation
     @saved_transformations.clear
   end
 
+  def update_world_by(time_step)
+    @world.update(time_step)
+    # (time_step.to_f / MSPHYSICS_TIME_STEP).to_i.times do
+    #   @world.update(MSPHYSICS_TIME_STEP)
+    # end
+  end
+
   def update_world
     now = Time.now
     @delta = now - @last_frame_time
     @last_frame_time = now
-    @world.update(@delta)
+    update_world_by(@delta)
+  end
+
+  def update_entities
+    MSPhysics::Body.all_bodies.each do |body|
+      body.group.move!(body.get_matrix) if body.matrix_changed?
+    end
   end
 
   def nextFrame(view)
     return @running unless @running
     update_world
-    MSPhysics::Body.all_bodies.each do |body|
-      body.group.move!(body.get_matrix) if body.matrix_changed?
-    end
+    update_entities
 
     @frame += 1
     if @frame % 20 == 0

@@ -27,7 +27,7 @@ class BallJointSimulation < Simulation
     end
 
     @piston = @edge.thingy.piston
-    @piston.controller = Random.rand(0.8) - 0.4
+    @piston.controller = 0.4
   end
 
   def move_piston
@@ -45,10 +45,5 @@ class BallJointSimulation < Simulation
     Graph.instance.nodes.each_value do |node|
       node.thingy.body.add_force(random_force)
     end
-  end
-
-  def nextFrame(view)
-    # move_piston
-    super(view)
   end
 end

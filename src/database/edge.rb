@@ -82,7 +82,11 @@ class Edge < GraphObject
   end
 
   def adjacent_triangles
-    @fist_node.adjacent_triangles & @second_node.adjacent_triangles
+    @first_node.adjacent_triangles & @second_node.adjacent_triangles
+  end
+
+  def adjacent_triangle_pairs
+    adjacent_triangles.combination(2)
   end
 
   def length

@@ -64,6 +64,14 @@ class Triangle < GraphObject
      second_node.edge_to(third_node)]
   end
 
+  def contains_actuator?
+    edges.any? { |e| e.link_type == 'actuator' }
+  end
+
+  def complete?
+    edges.all? { |e| !e.nil? }
+  end
+
   def nodes_ids
     [first_node.id, second_node.id, third_node.id]
   end

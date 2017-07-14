@@ -25,9 +25,7 @@ class Graph
   end
 
   def triangle_pairs
-    @edges.flat_map do |edge|
-      edge.adjacent_triangles.combinations(2)
-    end
+    @edges.values.flat_map(&:adjacent_triangle_pairs)
   end
 
   #
