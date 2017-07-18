@@ -14,7 +14,7 @@ class Simulation
   DEFAULT_BREAKING_FORCE = 0
 
   # velocity in change of length in m/s
-  PISTON_RATE = 10
+  PISTON_RATE = 100
 
   class << self
     def body_for(world, *thingies)
@@ -25,7 +25,7 @@ class Simulation
 
     def joint_between(world, klass, parent_body, child_body, matrix, group = nil)
       joint = klass.new(world, parent_body, matrix, group)
-      # joint.stiffness = DEFAULT_STIFFNESS
+      joint.stiffness = DEFAULT_STIFFNESS
       joint.breaking_force = DEFAULT_BREAKING_FORCE
       # joint.friction = DEFAULT_FRICTION if klass == MSPhysics::BallAndSocket
       joint.connect(child_body)
@@ -177,7 +177,7 @@ class Simulation
     now = Time.now
     @delta = now - @last_frame_time
     @last_frame_time = now
-    @world.update(0.02)
+    @world.update(0.005)
   end
 
   def nextFrame(view)
