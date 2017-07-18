@@ -50,9 +50,10 @@ class Link < PhysicsThingy
 
   def create_body(world)
     c1, e1, bottles, _, e2, c2 = @sub_thingies
-    @body = MSPhysics::Body.new(world, bottles.entity, :convex_hull)
-    ext_1_body = Simulation.body_for(world, c1, e1)
-    ext_2_body = Simulation.body_for(world, c2, e2)
+    @body = Simulation.create_body(world, bottles.entity)
+    ext_1_body = Simulation.body_for(world, true, c1, e1)
+    ext_2_body = Simulation.body_for(world, true, c2, e2)
+
 
     @body.mass = Simulation::LINK_MASS
     @body.collidable = true
@@ -62,9 +63,8 @@ class Link < PhysicsThingy
       body.gravity_enabled = true
     end
 
-    joint_to(world, MSPhysics::Fixed, ext_1_body, mid_point.vector_to(@position))
-    joint_to(world, MSPhysics::Fixed, ext_2_body, mid_point.vector_to(@second_position))
-
+    @body.attach(ext_1_body)
+    @body.attach(ext_2_body)
     @body
   end
 

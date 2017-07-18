@@ -1,4 +1,5 @@
-require 'src/thingies/link_entities/link_entity'
+require 'src/thingies/link_entities/link_entity.rb'
+require 'src/simulation/simulation.rb'
 
 class Cylinder < LinkEntity
 
@@ -13,7 +14,7 @@ class Cylinder < LinkEntity
   end
 
   def create_body(world)
-    @body = MSPhysics::Body.new(world, @entity, :convex_hull)
+    @body = Simulation.create_body(world, @entity, collision_type: :cylinder)
     @body.mass = Simulation::PISTON_MASS
     @body.collidable = false
     @body

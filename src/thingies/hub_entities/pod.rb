@@ -35,7 +35,7 @@ class Pod < Thingy
   end
 
   def create_body(world)
-    @body = MSPhysics::Body.new(world, @entity, :convex_hull)
+    @body = Simulation.create_body(world, @entity)
     @body.collidable = false
     @body.mass = Simulation::POD_MASS
     @body.static = true

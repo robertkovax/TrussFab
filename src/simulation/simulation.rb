@@ -1,4 +1,5 @@
 require 'lib/MSPhysics/main.rb'
+require 'erb'
 
 class Simulation
 
@@ -18,11 +19,36 @@ class Simulation
 
   MSPHYSICS_TIME_STEP = 1.0 / 100
 
+  COLLISION_TYPE_TO_COLLISION_ID = {
+    null: 0,
+    box: 1,
+    sphere: 2,
+    cone: 3,
+    cylinder: 4,
+    chamfer_cylinder: 5,
+    capsule: 6,
+    convex_hull: 7,
+    compound: 8,
+    static_mesh: 9
+  }.freeze
+
   class << self
-    def body_for(world, *thingies)
+
+
+    def create_body(world, entity, collision_type: :convex_hull, dynamic: true)
+      # initialize(world, entity, shape_id, offset_tra, type_id)
+      # collision_id: 7 - convex hull, 2 - sphere
+      # offset_tra nil: no offset transformation
+      # type_id Body type: 0 -> dynamic; 1 -> kinematic.
+      collision_id = COLLISION_TYPE_TO_COLLISION_ID[collision_type]
+      type_id = dynamic ? 0 : 1
+      MSPhysics::Body.new(world, entity, collision_id, nil, type_id)
+    end
+
+    def body_for(world, dynamic, *thingies)
       entities = thingies.flat_map(&:all_entities)
       group = Sketchup.active_model.entities.add_group(entities)
-      MSPhysics::Body.new(world, group, :convex_hull)
+      create_body(world, group, dynamic: dynamic)
     end
 
     def joint_between(world, klass, parent_body, child_body, matrix, group = nil)

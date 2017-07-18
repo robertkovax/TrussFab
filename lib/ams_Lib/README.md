@@ -22,16 +22,6 @@ this library comes with many Windows API utilities that allow developer to tweak
 his/her webdialogs to a new level. In many ways, this library is written to
 achieve things that cannot be done with a standard SketchUp API.
 
-This library includes Win32-API extension by Daniel Berger as part of the
-utility. The gem was recompiled under my own name-space for compatibility with
-other extensions. I do not take ownership of such gem, nor I claim any credit
-for it. I just happen to rely on it so much that it was essential to include it
-in my library.
-
-[Win32-API at Github](https://github.com/djberg96/win32-api)
-
-[Win32-API Documentation](http://www.rubydoc.info/gems/win32-api)
-
 
 ## Synopsis
     require 'ams_Lib/main'
@@ -42,8 +32,8 @@ in my library.
     # Setting SketchUp full screen on the monitor SU window is associated to.
     AMS::Sketchup.switch_full_screen(true)
 
-	# Setting SketchUp full screen on all monitors.
-	AMS::Sketchup.switch_full_screen(true, 2, 2)
+    # Setting SketchUp full screen on all monitors.
+    AMS::Sketchup.switch_full_screen(true, 2, 2)
 
     # Monitoring and processing SketchUp window events.
     class MySketchupObserver
@@ -79,22 +69,21 @@ in my library.
 
 ## Version
 
-3.4.1
+3.5.1
 
 
 ## Release Date
 
-December 17, 2016
+July 17, 2017
 
 
 ## Licence
 
-[MIT](http://opensource.org/licenses/MIT)
+[MIT](https://opensource.org/licenses/MIT)
 
 
 ## Credits
 
-* Daniel J. Berger and Park Heesob for Win32::API 1.5.3.
 * Mr.K, Dan Rathbun, ThomThom, Chris Fullmer, Aerilius, and many other SketchUcation
   members for improving my scripting level.
 * Aleksey Synytsia (My dad) for helping out with MSFT Windows API.
@@ -102,10 +91,10 @@ December 17, 2016
 
 ## Copyright
 
-© 2013-2016 Anton Synytsia.
+© 2013-2017 Anton Synytsia.
 All Rights Reserved.
 
 
 ## Author
 
-Anton Synytsia ( mailto:anton.synytsia@gmail.com )
+Anton Synytsia {mailto:anton.synytsia@gmail.com}

@@ -49,7 +49,7 @@ class Hub < PhysicsThingy
   end
 
   def create_body(world)
-    @body = MSPhysics::Body.new(world, @entity, :sphere)
+    @body = Simulation.create_body(world, @entity, collision_type: :sphere)
     @body.collidable = false
     @body.mass = Simulation::HUB_MASS
     @body.static = pods?
