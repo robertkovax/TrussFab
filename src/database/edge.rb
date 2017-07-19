@@ -18,8 +18,6 @@ class Edge < GraphObject
     @model_name = model_name
     @link_type = link_type
     super(id)
-    @thingy.first_joint = ThingyFixedJoint.new(@first_node, self)
-    @thingy.second_joint = ThingyFixedJoint.new(@second_node, self)
   end
 
   def link_type=(type)
@@ -30,7 +28,7 @@ class Edge < GraphObject
   end
 
   def distance(point)
-    # offset to take ball_hub_radius into accoutn
+    # offset to take ball_hub_radius into account
     first_point = position.offset(direction, Configuration::BALL_HUB_RADIUS / 2)
     second_point = end_position.offset(direction.reverse, Configuration::BALL_HUB_RADIUS / 2)
     segment = [first_point, second_point]
@@ -149,13 +147,13 @@ class Edge < GraphObject
   def create_thingy(id)
     case @link_type
       when 'bottle_link'
-        Link.new(@first_node.position,
-                 @second_node.position,
+        Link.new(@first_node,
+                 @second_node,
                  @model_name,
                  id: id)
       when 'actuator'
-        ActuatorLink.new(@first_node.position,
-                         @second_node.position,
+        ActuatorLink.new(@first_node,
+                         @second_node,
                          id: id)
       else
         raise "Unkown link type: #{@link_type}"

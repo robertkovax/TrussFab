@@ -50,13 +50,12 @@ class Hub < PhysicsThingy
 
   def create_body(world)
     @body = Simulation.create_body(world, @entity, collision_type: :sphere)
-    @body.collidable = false
+    @body.collidable = true
     @body.mass = Simulation::HUB_MASS
-    @body.static = pods?
-    # pods.each do |pod|
-    #   pod_body = pod.create_body(world)
-    #   joint_to(world, MSPhysics::Fixed, pod_body, pod.direction)
-    # end
+    pods.each do |pod|
+      pod_body = pod.create_body(world)
+      joint_to(world, MSPhysics::Fixed, pod_body, pod.direction, solver_model: 1)
+    end
 
     @body
   end

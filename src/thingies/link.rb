@@ -9,14 +9,14 @@ class Link < PhysicsThingy
   attr_accessor :line, :first_joint, :second_joint
   attr_reader :body
 
-  def initialize(first_position, second_position, model_name, id: nil)
+  def initialize(first_node, second_node, model_name, id: nil)
     super(id)
 
-    @position = first_position
-    @second_position = second_position
+    @position = first_node.position
+    @second_position = second_node.position
 
-    @first_joint = nil
-    @second_joint = nil
+    @first_joint = ThingyFixedJoint.new(first_node)
+    @second_joint = ThingyFixedJoint.new(second_node)
 
     @model = ModelStorage.instance.models[model_name]
     @line = nil
@@ -51,20 +51,19 @@ class Link < PhysicsThingy
   def create_body(world)
     c1, e1, bottles, _, e2, c2 = @sub_thingies
     @body = Simulation.create_body(world, bottles.entity)
-    ext_1_body = Simulation.body_for(world, true, c1, e1)
-    ext_2_body = Simulation.body_for(world, true, c2, e2)
+    ext_1_body = Simulation.body_for(world, true, :null, c1, e1)
+    ext_2_body = Simulation.body_for(world, true, :null, c2, e2)
 
 
     @body.mass = Simulation::LINK_MASS
-    @body.collidable = true
+    @body.collidable = false
     [ext_1_body, ext_2_body].each do |body|
       body.mass = Simulation::ELONGATION_MASS
       body.collidable = false
-      body.gravity_enabled = true
     end
 
-    @body.attach(ext_1_body)
-    @body.attach(ext_2_body)
+    joint_to(world, MSPhysics::Fixed, ext_1_body, Geometry::Z_AXIS, solver_model: 1)
+    joint_to(world, MSPhysics::Fixed, ext_2_body, Geometry::Z_AXIS, solver_model: 1)
     @body
   end
 

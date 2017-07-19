@@ -1,12 +1,13 @@
 require 'src/thingies/link.rb'
 require 'src/thingies/link_entities/cylinder.rb'
 require 'src/simulation/simulation.rb'
+require 'src/simulation/joints'
 
 class ActuatorLink < Link
 
   attr_reader :piston, :first_cylinder_body, :second_cylinder_body
 
-  def initialize(first_position, second_position, id: nil)
+  def initialize(first_node, second_node, id: nil)
     @first_cylinder = nil
     @second_cylinder = nil
 
@@ -14,7 +15,10 @@ class ActuatorLink < Link
     @second_cylinder_body = nil
 
     @piston = nil
-    super(first_position, second_position, 'actuator', id: id)
+    super(first_node, second_node, 'actuator', id: id)
+
+    @first_joint = ThingyBallJoint.new(first_node, mid_point.vector_to(@position))
+    @second_joint = ThingyBallJoint.new(second_node, mid_point.vector_to(@second_position))
   end
 
   def create_body(world)

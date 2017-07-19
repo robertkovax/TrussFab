@@ -19,7 +19,9 @@ class ActuatorTool < Tool
   #
 
   def deactivate(view)
-    Sketchup.active_model.active_view.animation = nil
+    Sketchup.active_model.start_operation('reset positions', true)
+    @simulation.reset_positions
+    Sketchup.active_model.commit_operation
     super
   end
 
@@ -63,10 +65,11 @@ class ActuatorTool < Tool
   end
 
   def start_simulation(edge)
-    @simulation.edge = edge
     @simulation.setup
+    piston = edge.thingy.piston
+    piston.controller = 0.4
     @simulation.start
-    @simulation.update_world_by(1)
+    @simulation.update_world_by(2)
     @simulation.update_entities
   end
 

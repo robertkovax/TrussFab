@@ -6,18 +6,18 @@ class Simulation
   # masses in kg
   ELONGATION_MASS = 0.1
   LINK_MASS = 0.5
-  PISTON_MASS = 0.7
-  HUB_MASS = 0.2
+  PISTON_MASS = 1
+  HUB_MASS = 0.1
   POD_MASS = 0.1
 
-  DEFAULT_STIFFNESS = 1.0
+  DEFAULT_STIFFNESS = 0.999
   DEFAULT_FRICTION = 1.0
   DEFAULT_BREAKING_FORCE = 1_000_000
 
   # velocity in change of length in m/s
-  PISTON_RATE = 0.2
+  PISTON_RATE = 0.4
 
-  MSPHYSICS_TIME_STEP = 1.0 / 100
+  MSPHYSICS_TIME_STEP = 1.0 / 500
 
   COLLISION_TYPE_TO_COLLISION_ID = {
     null: 0,
@@ -35,7 +35,7 @@ class Simulation
   class << self
 
 
-    def create_body(world, entity, collision_type: :convex_hull, dynamic: true)
+    def create_body(world, entity, collision_type: :box, dynamic: true)
       # initialize(world, entity, shape_id, offset_tra, type_id)
       # collision_id: 7 - convex hull, 2 - sphere
       # offset_tra nil: no offset transformation
@@ -45,17 +45,20 @@ class Simulation
       MSPhysics::Body.new(world, entity, collision_id, nil, type_id)
     end
 
-    def body_for(world, dynamic, *thingies)
+    def body_for(world, dynamic, collision_type, *thingies)
       entities = thingies.flat_map(&:all_entities)
       group = Sketchup.active_model.entities.add_group(entities)
-      create_body(world, group, dynamic: dynamic)
+      create_body(world, group, collision_type: collision_type, dynamic: dynamic)
     end
 
-    def joint_between(world, klass, parent_body, child_body, matrix, group = nil)
+    def joint_between(world, klass, parent_body, child_body, matrix, solver_model = 2, group = nil)
       joint = klass.new(world, parent_body, matrix, group)
       joint.stiffness = DEFAULT_STIFFNESS
       joint.breaking_force = DEFAULT_BREAKING_FORCE
-      joint.friction = DEFAULT_FRICTION if klass == MSPhysics::Hinge
+      if joint.respond_to? :friction=
+        joint.friction = DEFAULT_FRICTION
+      end
+      joint.solver_model = solver_model
       joint.connect(child_body)
       joint
     end
@@ -103,8 +106,8 @@ class Simulation
 
   def setup
     @world = MSPhysics::World.new
-    @world.set_gravity(0, 0, 0)
-    @world.solver_model = 0
+    # @world.set_gravity(0, 0, 0)
+    @world.solver_model = 100
 
     # create bodies for nodes and edges
     Graph.instance.nodes_and_edges.each do |obj|
@@ -118,11 +121,6 @@ class Simulation
     Graph.instance.edges.values.each do |edge|
       edge.create_joints(@world)
     end
-
-    # get all pistons from actuator edges
-    actuators = Graph.instance.edges.values.select { |edge| edge.link_type == 'actuator' }
-    @pistons = actuators.map(&:thingy).map { |thingy| [thingy.id, thingy.piston] }.to_h
-    piston_dialog unless @pistons.empty?
   end
 
   def add_ground
@@ -144,6 +142,12 @@ class Simulation
   end
 
   def piston_dialog
+
+    # get all pistons from actuator edges
+    actuators = Graph.instance.edges.values.select { |edge| edge.link_type == 'actuator' }
+    @pistons = actuators.map(&:thingy).map { |thingy| [thingy.id, thingy.piston] }.to_h
+    return if @pistons.empty?
+
     @dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
     file_content = File.read(File.join(File.dirname(__FILE__), '../ui/html/piston_slider.erb'))
     template = ERB.new(file_content)
@@ -200,10 +204,10 @@ class Simulation
   end
 
   def update_world_by(time_step)
-    @world.update(time_step)
-    # (time_step.to_f / MSPHYSICS_TIME_STEP).to_i.times do
-    #   @world.update(MSPHYSICS_TIME_STEP)
-    # end
+    steps = (time_step.to_f / MSPHYSICS_TIME_STEP).to_i
+    steps.times do
+      @world.update(MSPHYSICS_TIME_STEP)
+    end
   end
 
   def update_world

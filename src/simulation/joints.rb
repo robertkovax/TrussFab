@@ -15,14 +15,12 @@ class ThingyJoint
 end
 
 class ThingyFixedJoint < ThingyJoint
-  def initialize(node, edge)
+  def initialize(node)
     super(node)
-    @edge = edge
-    @joint_class = MSPhysics::Fixed
   end
 
-  def pin_direction
-    @node.vector_to(@edge.other_node(@node))
+  def create(_world, other_body)
+    @node.thingy.body.attach(other_body)
   end
 end
 

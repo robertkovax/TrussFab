@@ -223,18 +223,6 @@
       "edge_id": 15,
       "rotation_axis_id": 18,
       "type": "hinge"
-    },
-    {
-      "node_id": 5,
-      "edge_id": 14,
-      "rotation_plane_ids": [5, 6 ,2, 3],
-      "type": "hinge"
-    },
-    {
-      "node_id": 6,
-      "edge_id": 14,
-      "rotation_plane_ids": [5, 6 ,2, 3],
-      "type": "hinge"
     }
   ]
 }

@@ -135,18 +135,6 @@
       "edge_id": 57,
       "rotation_axis_id": 25,
       "type": "hinge"
-    },
-    {
-      "node_id": 7,
-      "edge_id": 47,
-      "rotation_axis_id": 25,
-      "type": "hinge"
-    },
-    {
-      "node_id": 37,
-      "edge_id": 47,
-      "rotation_axis_id": 25,
-      "type": "hinge"
     }
   ]
 }
