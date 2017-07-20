@@ -46,8 +46,8 @@ class Triangle < GraphObject
 
   def move
     @thingy.update_positions(@first_node.position,
-                              @second_node.position,
-                              @third_node.position)
+                             @second_node.position,
+                             @third_node.position)
   end
 
   def add_pods
@@ -84,16 +84,6 @@ class Triangle < GraphObject
     edges.reduce([]) { |arr, edge| arr | edge.adjacent_triangles } - [self]
   end
 
-  def create_joints(world)
-    adjacent_triangles.each do |triangle|
-      rotation_edge = triangle.edges & edges
-      other_edges = triangle.edges - edges
-      other_edges.each do |other_edge|
-
-      end
-    end
-  end
-  
   def nodes_ids_towards_user
     # this is ugly! this is made to be able to recreate the surface with the
     # same direction by aranging the ids in the right order. This should be

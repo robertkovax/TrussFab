@@ -2,6 +2,8 @@ require 'src/tools/tool.rb'
 require 'src/utility/mouse_input.rb'
 require 'src/simulation/ball_joint_simulation.rb'
 require 'src/algorithms/rigidity_tester.rb'
+require 'src/simulation/joints'
+require 'src/simulation/thingy_rotation'
 
 class ActuatorTool < Tool
 
@@ -9,9 +11,7 @@ class ActuatorTool < Tool
 
   def initialize(ui)
     super
-    @simulation = BallJointSimulation.new
     @mouse_input = MouseInput.new(snap_to_edges: true)
-    @angles = []
   end
 
   #
@@ -20,7 +20,8 @@ class ActuatorTool < Tool
 
   def deactivate(view)
     Sketchup.active_model.start_operation('reset positions', true)
-    @simulation.reset_positions
+    @simulation.stop
+    @simulation = nil
     Sketchup.active_model.commit_operation
     super
   end
@@ -36,49 +37,49 @@ class ActuatorTool < Tool
       return
     end
 
-    Sketchup.active_model.start_operation('toggle edge to actuator', true)
-    create_actuator(edge)
-    view.invalidate
-    Sketchup.active_model.commit_operation
-    @edges = Graph.instance.edges.values.to_a.select {|e| e.link_type != 'actuator' }
-    @angles = triangle_pair_angles
-    Sketchup.active_model.start_operation('simulate structure', true)
+    create_actuator(edge, view)
+
+    edges = edges_without_selected.reject { |e| e.link_type == 'actuator' }
+    original_angles = triangle_pair_angles(edges)
     start_simulation(edge)
-    Sketchup.active_model.commit_operation
     view.show_frame
-    find_hinge_positions
+    simulation_angles = simulation_triangle_pair_angles(edges)
+
+    rotation_axes = find_rotation_axes(edges, original_angles, simulation_angles)
+    highlight_rotation_axes(rotation_axes)
+    add_hinges(rotation_axes)
   end
 
   def onMouseMove(_flags, x, y, view)
     @mouse_input.update_positions(view, x, y)
   end
 
-  def draw(_view) end
-
   #
   # Tool logic
   #
 
-  def find_hinge_positions
-    rotation_axes = find_rotation_axes
-    highlight_rotation_axes(rotation_axes)
-  end
-
   def start_simulation(edge)
+    @simulation = BallJointSimulation.new
     @simulation.setup
+    @simulation.disable_gravity
     piston = edge.thingy.piston
     piston.controller = 0.4
     @simulation.start
     @simulation.update_world_by(2)
+    Sketchup.active_model.start_operation('simulate structure', true)
     @simulation.update_entities
+    Sketchup.active_model.commit_operation
   end
 
-  def create_actuator(edge)
+  def create_actuator(edge, view)
+    Sketchup.active_model.start_operation('toggle edge to actuator', true)
     edge.link_type = 'actuator'
+    view.invalidate
+    Sketchup.active_model.commit_operation
   end
 
-  def triangle_pair_angles
-    @edges.map do |edge|
+  def triangle_pair_angles(edges)
+    edges.map do |edge|
       valid_pairs = edge.adjacent_triangle_pairs.select do |pair|
         pair.all? { |t| t.complete? && !t.contains_actuator? }
       end
@@ -97,8 +98,8 @@ class ActuatorTool < Tool
     vector1.cross(vector2)
   end
 
-  def simulation_triangle_pair_angles
-    @edges.map do |edge|
+  def simulation_triangle_pair_angles(edges)
+    edges.map do |edge|
       valid_pairs = edge.adjacent_triangle_pairs.select do |pair|
         pair.all? { |t| t.complete? && !t.contains_actuator? }
       end
@@ -114,9 +115,9 @@ class ActuatorTool < Tool
     (angle - other_angle).abs > MIN_ANGLE_DEVIATION
   end
 
-  def find_rotation_axes
-    simulation_angles = simulation_triangle_pair_angles
-    @edges.zip(@angles, simulation_angles).flat_map do |edge, angles1, angles2|
+  def find_rotation_axes(edges, original_angles, simulation_angles)
+    triples = edges.zip(original_angles, simulation_angles)
+    triples.flat_map do |edge, angles1, angles2|
       has_changed = angles1.zip(angles2).any? { |a1, a2| angle_changed?(a1, a2) }
       if has_changed
         [edge]
@@ -128,5 +129,22 @@ class ActuatorTool < Tool
 
   def highlight_rotation_axes(edges)
     edges.each(&:highlight)
+  end
+
+  def add_hinges(edges)
+    edges.each do |rotation_axis|
+      rotation_axis.adjacent_triangles.each do |triangle|
+        (triangle.edges - [rotation_axis]).each do |rotating_edge|
+          rotation = EdgeRotation.new(rotation_axis)
+          node = rotating_edge.shared_node(rotation_axis)
+          hinge = ThingyHinge.new(node, rotation)
+          if rotating_edge.first_node?(node)
+            rotating_edge.thingy.first_joint = hinge
+          else
+            rotating_edge.thingy.second_joint = hinge
+          end
+        end
+      end
+    end
   end
 end

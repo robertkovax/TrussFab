@@ -1,4 +1,6 @@
 class ThingyJoint
+  attr_accessor :joint
+
   def initialize(node)
     @node = node
     @joint_class = nil

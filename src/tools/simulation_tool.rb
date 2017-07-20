@@ -6,18 +6,24 @@ require 'src/simulation/ball_joint_simulation'
 class SimulationTool < Tool
   def initialize(ui)
     super
-    @simulation = BallJointSimulation.new
+  end
+
+  def create_simulation
+    Simulation.new
   end
 
   def activate
+    @simulation = create_simulation
     @simulation.setup
     @simulation.start
+    @simulation.add_ground
     @simulation.piston_dialog
     Sketchup.active_model.active_view.animation = @simulation
   end
 
   def deactivate(view)
     Sketchup.active_model.active_view.animation = nil
+    @simulation = nil
     super
   end
 
@@ -30,9 +36,10 @@ class SimulationTool < Tool
   def draw(view)
     # @simulation.show_forces(view)
   end
+end
 
-  private
-
-  def reset
+class BallJointSimulationTool < SimulationTool
+  def create_simulation
+    BallJointSimulation.new
   end
 end

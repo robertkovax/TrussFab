@@ -26,4 +26,8 @@ class PhysicsThingy < Thingy
                              solver_model,
                              group)
   end
+
+  def reset_physics
+    @body = nil
+  end
 end

@@ -3,7 +3,7 @@ require 'src/simulation/simulation.rb'
 
 class Cylinder < LinkEntity
 
-  attr_reader :body
+  attr_accessor :body
 
   def initialize(center, vector, definition, id = nil)
     @center = center

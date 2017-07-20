@@ -51,6 +51,10 @@ class Edge < GraphObject
     intersection[0]
   end
 
+  def first_node?(node)
+    node == @first_node
+  end
+
   def create_joints(world)
     @thingy.create_joints(world)
   end

@@ -80,6 +80,7 @@ class Simulation
     @reset_positions_on_end = true
     @saved_transformations = {}
     @stopped = false
+    @triangles_hidden = false
   end
 
   #
@@ -95,7 +96,7 @@ class Simulation
   end
 
   #
-  # Setup of the world
+  # Setup and resetting of the world
   #
 
   def save_transformations
@@ -104,10 +105,18 @@ class Simulation
     end
   end
 
+  def enable_gravity
+    return if @world.nil?
+    @world.set_gravity([0.0, 0.0, -9.800000190734863])
+  end
+
+  def disable_gravity
+    return if @world.nil?
+    @world.set_gravity([0.0, 0.0, 0.0])
+  end
+
   def setup
     @world = MSPhysics::World.new
-    # @world.set_gravity(0, 0, 0)
-    @world.solver_model = 100
 
     # create bodies for nodes and edges
     Graph.instance.nodes_and_edges.each do |obj|
@@ -118,9 +127,27 @@ class Simulation
     save_transformations
 
     # create joints for each edge
+    create_joints
+  end
+
+  def create_joints
     Graph.instance.edges.values.each do |edge|
       edge.create_joints(@world)
     end
+  end
+
+  def reset_bodies_and_joints
+    Graph.instance.nodes_and_edges.each do |obj|
+      obj.thingy.reset_physics
+    end
+  end
+
+  def destroy_world
+    return if @world.nil?
+    @world.destroy_all_bodies
+    reset_bodies_and_joints
+    @world.destroy
+    @world = nil
   end
 
   def add_ground
@@ -135,14 +162,13 @@ class Simulation
     face = group.entities.add_face(pts)
     face.pushpull(-1)
     face.visible = false
-    body = create_body(group)
+    body = Simulation.create_body(@world, group)
     body.static = true
     body.collidable = true
     body
   end
 
   def piston_dialog
-
     # get all pistons from actuator edges
     actuators = Graph.instance.edges.values.select { |edge| edge.link_type == 'actuator' }
     @pistons = actuators.map(&:thingy).map { |thingy| [thingy.id, thingy.piston] }.to_h
@@ -164,12 +190,14 @@ class Simulation
     Graph.instance.surfaces.each do |_, surface|
       surface.thingy.entity.hidden = true unless surface.thingy.entity.deleted?
     end
+    @triangles_hidden = true
   end
 
   def show_triangle_surfaces
     Graph.instance.surfaces.each do |_, surface|
       surface.thingy.entity.hidden = false unless surface.thingy.entity.deleted?
     end
+    @triangles_hidden = false
   end
 
   #
@@ -191,9 +219,8 @@ class Simulation
     @stopped = true
     halt
     reset_positions if reset_positions_on_end?
-    show_triangle_surfaces
-    @world.destroy_all_bodies
-    @world = nil
+    show_triangle_surfaces if @triangles_hidden
+    destroy_world
   end
 
   def reset_positions
@@ -219,7 +246,9 @@ class Simulation
 
   def update_entities
     MSPhysics::Body.all_bodies.each do |body|
-      body.group.move!(body.get_matrix) if body.matrix_changed?
+      if body.matrix_changed? && body.group.valid?
+        body.group.move!(body.get_matrix)
+      end
     end
   end
 
@@ -248,7 +277,7 @@ class Simulation
   end
 
   def show_forces(view)
-    MSPhysics::Body.all_bodies.each do |body|
+    @world.bodies.each do |body|
       show_force(body, view)
     end
   end

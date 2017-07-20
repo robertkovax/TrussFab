@@ -1,6 +1,7 @@
 require 'src/simulation/simulation.rb'
 
 class Pod < Thingy
+  attr_accessor :body
   attr_reader :position, :direction
 
   def initialize(position, direction, id: nil)

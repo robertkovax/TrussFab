@@ -64,6 +64,13 @@ class Hub < PhysicsThingy
     @position
   end
 
+  def reset_physics
+    super
+    pods.each do |pod|
+      pod.body = nil
+    end
+  end
+
   private
 
   def create_entity

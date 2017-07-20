@@ -49,10 +49,10 @@ class Link < PhysicsThingy
   end
 
   def create_body(world)
-    c1, e1, bottles, _, e2, c2 = @sub_thingies
+    _c1, e1, bottles, _, e2, _c2 = @sub_thingies
     @body = Simulation.create_body(world, bottles.entity)
-    ext_1_body = Simulation.body_for(world, true, :null, c1, e1)
-    ext_2_body = Simulation.body_for(world, true, :null, c2, e2)
+    ext_1_body = Simulation.create_body(world, e1.entity)
+    ext_2_body = Simulation.create_body(world, e2.entity)
 
 
     @body.mass = Simulation::LINK_MASS
@@ -82,6 +82,13 @@ class Link < PhysicsThingy
 
     [first_ball_joint, second_ball_joint].each do |joint|
       joint.create(world, @body)
+    end
+  end
+
+  def reset_physics
+    super
+    [@first_joint, @second_joint].each do |joint|
+      joint.joint = nil
     end
   end
 

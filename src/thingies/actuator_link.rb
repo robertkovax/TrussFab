@@ -17,8 +17,10 @@ class ActuatorLink < Link
     @piston = nil
     super(first_node, second_node, 'actuator', id: id)
 
-    @first_joint = ThingyBallJoint.new(first_node, mid_point.vector_to(@position))
-    @second_joint = ThingyBallJoint.new(second_node, mid_point.vector_to(@second_position))
+    @first_joint = ThingyBallJoint.new(first_node,
+                                       mid_point.vector_to(@position))
+    @second_joint = ThingyBallJoint.new(second_node,
+                                        mid_point.vector_to(@second_position))
   end
 
   def create_body(world)
@@ -49,6 +51,16 @@ class ActuatorLink < Link
 
     first_ball_joint.create(world, @first_cylinder.body)
     second_ball_joint.create(world, @second_cylinder.body)
+  end
+
+  def reset_physics
+    super
+    @piston = nil
+    @first_cylinder_body = nil
+    @second_cylinder_body = nil
+    [@first_cylinder, @second_cylinder].each do |cylinder|
+      cylinder.body = nil
+    end
   end
 
   def create_sub_thingies
