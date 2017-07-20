@@ -1,3 +1,5 @@
+require 'src/utility/geometry'
+
 class ThingyJoint
   attr_accessor :joint
 
@@ -19,10 +21,11 @@ end
 class ThingyFixedJoint < ThingyJoint
   def initialize(node)
     super(node)
+    @joint_class = MSPhysics::Fixed
   end
 
-  def create(_world, other_body)
-    @node.thingy.body.attach(other_body)
+  def pin_direction
+    Geometry::Z_AXIS
   end
 end
 
