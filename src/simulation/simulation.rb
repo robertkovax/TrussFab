@@ -10,14 +10,15 @@ class Simulation
   HUB_MASS = 0.1
   POD_MASS = 0.1
 
-  DEFAULT_STIFFNESS = 0.999
+  DEFAULT_STIFFNESS = 0.99
   DEFAULT_FRICTION = 1.0
   DEFAULT_BREAKING_FORCE = 1_000_000
 
   # velocity in change of length in m/s
   PISTON_RATE = 0.4
 
-  MSPHYSICS_TIME_STEP = 1.0 / 500
+  MSPHYSICS_TIME_STEP = 1.0 / 250
+  MSPHYSICS_N_STEPS = ((1.0 / 60) / MSPHYSICS_TIME_STEP).to_i
 
   COLLISION_TYPE_TO_COLLISION_ID = {
     null: 0,
@@ -81,6 +82,7 @@ class Simulation
     @saved_transformations = {}
     @stopped = false
     @triangles_hidden = false
+    @ground_group = nil
   end
 
   #
@@ -146,12 +148,13 @@ class Simulation
     return if @world.nil?
     @world.destroy_all_bodies
     reset_bodies_and_joints
+    @ground_group.erase! unless @ground_group.nil?
     @world.destroy
     @world = nil
   end
 
   def add_ground
-    group = Sketchup.active_model.entities.add_group
+    @ground_group = Sketchup.active_model.entities.add_group
     x = y = 10_000
     z = -1
     pts = []
@@ -159,10 +162,10 @@ class Simulation
     pts[1] = [x, -y, z]
     pts[2] = [x, y, z]
     pts[3] = [-x, y, z]
-    face = group.entities.add_face(pts)
+    face = @ground_group.entities.add_face(pts)
     face.pushpull(-1)
     face.visible = false
-    body = Simulation.create_body(@world, group)
+    body = Simulation.create_body(@world, @ground_group)
     body.static = true
     body.collidable = true
     body
@@ -241,11 +244,13 @@ class Simulation
     now = Time.now
     @delta = now - @last_frame_time
     @last_frame_time = now
-    update_world_by(@delta)
+    MSPHYSICS_N_STEPS.times do
+      @world.update(MSPHYSICS_TIME_STEP)
+    end
   end
 
   def update_entities
-    MSPhysics::Body.all_bodies.each do |body|
+    @world.bodies.each do |body|
       if body.matrix_changed? && body.group.valid?
         body.group.move!(body.get_matrix)
       end
