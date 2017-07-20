@@ -40,7 +40,7 @@ class TimelineTool < Tool
       schedule_changed(json_string)
     end
 
-    @timeline_dialog.add_action_callback('run') { run_simulation}
+    @timeline_dialog.add_action_callback('run') { run_simulation }
     @timeline_dialog.add_action_callback('pause') { pause_simulation }
     @timeline_dialog.add_action_callback('stop') { stop_simulation }
   end
