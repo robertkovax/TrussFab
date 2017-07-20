@@ -8,8 +8,8 @@ class ImportFileTool < ImportTool
 
   def activate
     @path = UI.openpanel('Open JSON',
-                        Configuration::JSON_PATH,
-                        'JSON File|*.json;||')
+                         Configuration::JSON_PATH,
+                         'JSON File|*.json;||')
   end
 
   def onLButtonUp(_flags, _x, _y, _view)

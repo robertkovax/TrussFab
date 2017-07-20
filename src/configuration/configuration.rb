@@ -11,7 +11,7 @@ module Configuration
   DRAW_TOOLTIPS_VIEW = 'Drawing Tooltips'.freeze
 
   # UI Dialog Properties
-  HTML_DIALOG = {
+  MAIN_HTML_DIALOG = {
     dialog_title: 'TrussFab',
     scrollable: true,
     resizable: true,
@@ -19,6 +19,17 @@ module Configuration
     height: 900,
     left: 10,
     top: 100,
+    style: UI::HtmlDialog::STYLE_DIALOG
+  }.freeze
+
+  TIMELINE_HTML_DIALOG = {
+    dialog_title: 'TrussFab - Timeline',
+    scrollable: true,
+    resizable: true,
+    width: 1500,
+    height: 300,
+    left: 400,
+    bottom: 50,
     style: UI::HtmlDialog::STYLE_DIALOG
   }.freeze
 
