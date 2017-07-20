@@ -67,8 +67,8 @@ class ActuatorLink < Link
     direction_up = @position.vector_to(@second_position)
     direction_down = @second_position.vector_to(@position)
 
-    @first_cylinder = Cylinder.new(@position, direction_up, @model.outer_piston)
-    @second_cylinder = Cylinder.new(@second_position, direction_down, @model.inner_piston)
+    @first_cylinder = Cylinder.new(@position, direction_up, @model.outer_cylinder)
+    @second_cylinder = Cylinder.new(@second_position, direction_down, @model.inner_cylinder)
 
     add(@first_cylinder, @second_cylinder)
   end

@@ -15,7 +15,7 @@ class Cylinder < LinkEntity
 
   def create_body(world)
     @body = Simulation.create_body(world, @entity, collision_type: :cylinder)
-    @body.mass = Simulation::PISTON_MASS
+    @body.mass = Simulation::PISTON_MASS / 2.0
     @body.collidable = false
     @body
   end

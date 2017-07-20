@@ -91,8 +91,8 @@ class Simulation
     @reset_positions_on_end
   end
 
-  def reset_positions_on_end=(value)
-    @reset_positions_on_end = value
+  def reset_positions_on_end=(state)
+    @reset_positions_on_end = state
   end
 
   #
