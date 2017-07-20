@@ -34,16 +34,16 @@ class BallJointSimulation < Simulation
 
     @piston_expansion = 0
     @max_expansion = 0.15
-    @schedule_a = ['a', [ 1,  1,  1, -1, -1, -1, -1]]
-    @schedule_b = ['b', [ 1,  1, -1, -1, -1,  1,  1]]
+    @schedule_a = ['a', [ 1,  1, -1, -1, ]]
+    @schedule_b = ['b', [ 1, -1, -1,  1, ]]
 
-    @schedule_c = ['c', [-1, -1, -1, -1,  1,  1,  1]]
-    @schedule_d = ['d', [-1,  1,  1,  1,  1, -1, -1]]
-    # @schedule_a = ['a', [ 1,  1,  1,  1, -1, -1, -1, -1, -1]]
-    # @schedule_b = ['b', [ 1,  1,  1, -1, -1, -1,  1,  1,  1]]
+    @schedule_c = ['c', [-1, -1,  1,  1, ]]
+    @schedule_d = ['d', [-1,  1,  1, -1, ]]
+    # @schedule_a = ['a', [ 1,  1,  1, -1, -1, -1, -1]]
+    # @schedule_b = ['b', [ 1,  1, -1, -1, -1,  1,  1]]
 
-    # @schedule_c = ['c', [-1, -1, -1, -1, -1,  1,  1,  1,  1]]
-    # @schedule_d = ['d', [-1, -1,  1,  1,  1,  1,  1, -1, -1]]
+    # @schedule_c = ['c', [-1, -1, -1, -1,  1,  1,  1]]
+    # @schedule_d = ['d', [-1,  1,  1,  1,  1, -1, -1]]
     @piston_step = 100
     # @piston = @edge.thingy.piston0
     # @piston.controller = Random.rand(0.8) - 0.4

@@ -14,7 +14,7 @@ class Simulation
   DEFAULT_BREAKING_FORCE = 0
 
   # velocity in change of length in m/s
-  PISTON_RATE = 100
+  PISTON_RATE = 1
 
   class << self
     def body_for(world, *thingies)
@@ -177,7 +177,11 @@ class Simulation
     now = Time.now
     @delta = now - @last_frame_time
     @last_frame_time = now
-    @world.update(0.005)
+    @world.update(0.1)
+    # @world.update(@delta)
+    (@delta.to_f / 0.005).to_i.times do
+      @world.update(0.005)
+    end
   end
 
   def nextFrame(view)
