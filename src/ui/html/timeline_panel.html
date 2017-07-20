@@ -11,13 +11,30 @@
     <title>TrussFab</title>
   </head>
   <body>
-    <h1>Hello World!</h1>
+    <h1>Piston Scheduler</h1>
     <button onclick="reload()">reload</button>
     <button onclick="add_box()">Add</button>
+
+    <button onclick="run()">start</button>
+    <button onclick="pause()">pause</button>
+    <button onclick="stop()">stop</button>
+
     <div id="visualization"></div>
     <script type="text/javascript">
       function reload() {
           location.reload()
+      }
+
+      function run() {
+          sketchup.run();
+      }
+
+      function pause() {
+          sketchup.pause();
+      }
+
+      function stop() {
+          sketchup.stop();
       }
     </script>
   </body>

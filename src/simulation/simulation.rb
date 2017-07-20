@@ -3,6 +3,8 @@ require 'erb'
 
 class Simulation
 
+  attr_accessor :pistons
+
   # masses in kg
   ELONGATION_MASS = 0.1
   LINK_MASS = 0.5
@@ -34,8 +36,6 @@ class Simulation
   }.freeze
 
   class << self
-
-
     def create_body(world, entity, collision_type: :box, dynamic: true)
       # initialize(world, entity, shape_id, offset_tra, type_id)
       # collision_id: 7 - convex hull, 2 - sphere
@@ -81,8 +81,10 @@ class Simulation
     @reset_positions_on_end = true
     @saved_transformations = {}
     @stopped = false
+    @paused = false
     @triangles_hidden = false
     @ground_group = nil
+    @pistons = {}
   end
 
   #
@@ -95,6 +97,10 @@ class Simulation
 
   def reset_positions_on_end=(state)
     @reset_positions_on_end = state
+  end
+
+  def paused?
+    @paused
   end
 
   #
@@ -130,6 +136,10 @@ class Simulation
 
     # create joints for each edge
     create_joints
+
+    # get all pistons from actuator edges
+    actuators = Graph.instance.edges.values.select { |edge| edge.link_type == 'actuator' }
+    @pistons = actuators.map(&:thingy).map { |thingy| [thingy.id, thingy.piston] }.to_h
   end
 
   def create_joints
@@ -172,9 +182,6 @@ class Simulation
   end
 
   def piston_dialog
-    # get all pistons from actuator edges
-    actuators = Graph.instance.edges.values.select { |edge| edge.link_type == 'actuator' }
-    @pistons = actuators.map(&:thingy).map { |thingy| [thingy.id, thingy.piston] }.to_h
     return if @pistons.empty?
 
     @dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
@@ -210,17 +217,23 @@ class Simulation
   def start
     hide_triangle_surfaces
     @running = true
+    @paused = false
     @last_frame_time = Time.now
   end
 
-  def halt
-    @running = false
+  def pause
+    @paused = true
+  end
+
+  def resume
+    @paused = false
   end
 
   def stop
     return if @stopped
     @stopped = true
-    halt
+    @paused = false
+    pause
     reset_positions if reset_positions_on_end?
     show_triangle_surfaces if @triangles_hidden
     destroy_world
@@ -258,7 +271,8 @@ class Simulation
   end
 
   def nextFrame(view)
-    return @running unless @running
+    return false unless @running
+    return @running if @paused
     update_world
     update_entities
 

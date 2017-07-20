@@ -4,7 +4,6 @@ class UserInteraction
   def initialize
     @tools = {}
     @main_dialog = nil
-    @timeline_dialog = nil
   end
 
   def deselect_tool
@@ -17,7 +16,6 @@ class UserInteraction
     @main_dialog.set_file(file)
     @main_dialog.show
     @main_dialog.add_action_callback('document_ready') { register_callbacks }
-    @main_dialog.add_action_callback('open_timeline_panel') { open_timeline_dialog }
     @main_dialog.add_action_callback('button_clicked') do |_context, button_id|
       Sketchup.active_model.select_tool(@tools[button_id])
       @main_dialog.execute_script("select_tool('#{button_id}')")
@@ -27,18 +25,6 @@ class UserInteraction
   def close_main_dialog
     @main_dialog.close
     @main_dialog = nil
-  end
-
-  def open_timeline_dialog
-    @timeline_dialog = UI::HtmlDialog.new(Configuration::TIMELINE_HTML_DIALOG)
-    file = File.join(File.dirname(__FILE__), '/html/timeline_panel.html')
-    @timeline_dialog.set_file(file)
-    @timeline_dialog.show
-  end
-
-  def close_timeline_dialog
-    @timeline_dialog.close
-    @timeline_dialog = nil
   end
 
   private
@@ -60,6 +46,7 @@ class UserInteraction
     build_tool(SimulationTool, 'simulation_tool')
     build_tool(BallJointSimulationTool, 'ball_joint_simulation_tool')
     build_tool(ActuatorTool, 'actuator_tool')
+    build_tool(TimelineTool, 'timeline_tool')
   end
 
   def build_tool(tool_class, tool_id)
