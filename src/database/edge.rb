@@ -83,12 +83,34 @@ class Edge < GraphObject
     [position, end_position]
   end
 
+  def mid_point
+    p1 = @first_node.position
+    p2 = @first_node.position
+    Geom::Point3d.linear_combination(0.5, p1, 0.5, p2)
+  end
+
   def adjacent_triangles
     @first_node.adjacent_triangles & @second_node.adjacent_triangles
   end
 
   def adjacent_triangle_pairs
     adjacent_triangles.combination(2)
+  end
+
+  def sorted_adjacent_triangle_pairs
+    sorted_triangles = sorted_adjacent_triangles
+    sorted_triangles << sorted_triangles.first
+    sorted_triangles.each_cons(2)
+  end
+
+  def sorted_adjacent_triangles
+    triangles = adjacent_triangles
+    ref_vector = mid_point.vector_to(triangles[0].node_for(self).position)
+    normal = direction.normalize
+    triangles.sort_by do |t|
+      v = mid_point.vector_to(t.node_for(self).position)
+      Geometry.angle_around_normal(ref_vector, v, normal)
+    end
   end
 
   def length

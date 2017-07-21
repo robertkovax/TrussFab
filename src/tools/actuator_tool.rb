@@ -40,14 +40,17 @@ class ActuatorTool < Tool
     create_actuator(edge, view)
 
     edges = edges_without_selected.reject { |e| e.link_type == 'actuator' }
-    original_angles = triangle_pair_angles(edges)
+    triangle_pairs = edges.flat_map { |e| valid_triangle_pairs(e) }
+    original_angles = triangle_pair_angles(triangle_pairs)
     start_simulation(edge)
     view.show_frame
-    simulation_angles = simulation_triangle_pair_angles(edges)
+    simulation_angles = triangle_pair_angles(triangle_pairs, true)
 
-    rotation_axes = find_rotation_axes(edges, original_angles, simulation_angles)
+    changed_triangle_pairs = get_changed_triangle_pairs(triangle_pairs, original_angles, simulation_angles)
+
+    rotation_axes = find_rotation_axes(changed_triangle_pairs)
     highlight_rotation_axes(rotation_axes)
-    add_hinges(rotation_axes)
+    add_hinges(changed_triangle_pairs)
   end
 
   def onMouseMove(_flags, x, y, view)
@@ -78,14 +81,9 @@ class ActuatorTool < Tool
     Sketchup.active_model.commit_operation
   end
 
-  def triangle_pair_angles(edges)
-    edges.map do |edge|
-      valid_pairs = edge.adjacent_triangle_pairs.select do |pair|
-        pair.all? { |t| t.complete? && !t.contains_actuator? }
-      end
-      valid_pairs.map do |t1, t2|
-        t1.angle_between(t2)
-      end
+  def valid_triangle_pairs(edge)
+    edge.sorted_adjacent_triangle_pairs.select do |pair|
+      pair.all? { |t| t.complete? && !t.contains_actuator? }
     end
   end
 
@@ -98,15 +96,14 @@ class ActuatorTool < Tool
     vector1.cross(vector2)
   end
 
-  def simulation_triangle_pair_angles(edges)
-    edges.map do |edge|
-      valid_pairs = edge.adjacent_triangle_pairs.select do |pair|
-        pair.all? { |t| t.complete? && !t.contains_actuator? }
-      end
-      valid_pairs.map do |t1, t2|
+  def triangle_pair_angles(triangle_pairs, simulation = false)
+    triangle_pairs.map do |t1, t2|
+      if simulation
         n1 = simulation_triangle_normal(t1)
         n2 = simulation_triangle_normal(t2)
         n1.angle_between(n2)
+      else
+        t1.angle_between(t2)
       end
     end
   end
@@ -115,25 +112,29 @@ class ActuatorTool < Tool
     (angle - other_angle).abs > MIN_ANGLE_DEVIATION
   end
 
-  def find_rotation_axes(edges, original_angles, simulation_angles)
-    triples = edges.zip(original_angles, simulation_angles)
-    triples.flat_map do |edge, angles1, angles2|
-      has_changed = angles1.zip(angles2).any? { |a1, a2| angle_changed?(a1, a2) }
-      if has_changed
-        [edge]
+  def get_changed_triangle_pairs(triangle_pairs, original_angles, simulation_angles)
+    triangle_pairs.zip(original_angles, simulation_angles).flat_map do |p, oa, sa|
+      if angle_changed?(oa, sa)
+        [p]
       else
         []
       end
     end
   end
 
+  def find_rotation_axes(triangle_pairs)
+    edges = triangle_pairs.map { |t1, t2| t1.shared_edge(t2) }
+    edges.uniq
+  end
+
   def highlight_rotation_axes(edges)
     edges.each(&:highlight)
   end
 
-  def add_hinges(edges)
-    edges.each do |rotation_axis|
-      rotation_axis.adjacent_triangles.each do |triangle|
+  def add_hinges(triangle_pairs)
+    triangle_pairs.each do |t1, t2|
+      rotation_axis = t1.shared_edge(t2)
+      [t1, t2].each do |triangle|
         (triangle.edges - [rotation_axis]).each do |rotating_edge|
           rotation = EdgeRotation.new(rotation_axis)
           node = rotating_edge.shared_node(rotation_axis)

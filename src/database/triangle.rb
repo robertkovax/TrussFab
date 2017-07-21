@@ -1,5 +1,6 @@
 require 'src/database/graph_object.rb'
 require 'src/thingies/surface.rb'
+require 'src/utility/geometry'
 
 class Triangle < GraphObject
   attr_reader :first_node, :second_node, :third_node, :deleted
@@ -64,6 +65,23 @@ class Triangle < GraphObject
      second_node.edge_to(third_node)]
   end
 
+  def node_for(edge)
+    intersection = (nodes - edge.nodes)
+    if intersection.size != 1
+      raise ArgumentError('edge is not part of triangle')
+    end
+    intersection[0]
+  end
+
+  def shared_edge(other_triangle)
+    intersection = edges & other_triangle.edges
+    if intersection.empty?
+      nil
+    else
+      intersection[0]
+    end
+  end
+
   def contains_actuator?
     edges.any? { |e| e.link_type == 'actuator' }
   end
@@ -78,6 +96,10 @@ class Triangle < GraphObject
 
   def angle_between(other_triangle)
     normal.angle_between(other_triangle.normal)
+  end
+
+  def full_angle_between(other_triangle, rotation_vector)
+    Geometry.angle_around_normal(normal, other_triangle.normal, rotation_vector)
   end
 
   def adjacent_triangles
