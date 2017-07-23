@@ -6,8 +6,11 @@
     <title>PistonSlider</title>
 </head>
 <body>
-<% for piston_id in @pistons.keys %>
-    <input id="<%= piston_id %>" type="range" min="-0.4" max="0.4" value="0" step="0.01" onchange="onChange(this.id, this.value)">
+<% for group_id, (color, schedule, expansion) in @scheduler.groups %>
+	<% schedule.each_with_index do |state, idx| %>
+	    <input id="<%= group_id %><%= idx %>" group_id = "<%= group_id %>" idx="<%= idx%>" type="range" orient="vertical" min="-0.4" max="0.4" value="0" step="0.01" onchange="onChange(this.group_id, this.idx, this.value)">
+	<% end %>
+	<hr>
 <% end %>
 <script type="text/javascript">
     function onChange(id, newValue) {

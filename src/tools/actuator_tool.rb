@@ -20,7 +20,7 @@ class ActuatorTool < Tool
 
   def deactivate(view)
     Sketchup.active_model.start_operation('reset positions', true)
-    @simulation.stop
+    @simulation.stop unless @simulation.nil?
     @simulation = nil
     Sketchup.active_model.commit_operation
     super
@@ -50,6 +50,8 @@ class ActuatorTool < Tool
       rotation_axes = find_rotation_axes(edges, original_angles, simulation_angles)
       highlight_rotation_axes(rotation_axes)
       add_hinges(rotation_axes)
+      @simulation.stop
+
     end
   end
 

@@ -1,35 +1,53 @@
-class Scheduler
-  include Singelton
+require 'singleton'
 
-  DEFAULT_SCHEDULE = [0,0,0,0]
+class Scheduler
+  include Singleton
+
+  DEFAULT_SCHEDULE = [0, 1, 0, -1]
   MAX_EXPANSION = 0.15
   STEPS_PER_INTERVAL = 100
 
+  attr_reader :groups
+
+
   def initialize
-    @groups = {}   # group_id => (color, schedule, expansion)
+    # group_id => (color, schedule, expansion)
+    @groups = {}   
     @new_group_id = 0
+    # new_group(DEFAULT_SCHEDULE)
+    new_group([ -1,  0,  1,  0])
+    new_group([  0,  1,  0, -1])
+    new_group([  1,  0, -1,  0])
+    new_group([  0, -1,  0,  1])
   end
 
   ### group management
-  def self.next_group(group_id)
+  def next_group(group_id)
     next_group_id = ( group_id + 1 ) % @groups.size
     color, _, _ = @groups[next_group_id]
+    puts "is now group #{next_group_id}"
     return next_group_id, color
   end
 
-  def self.previous_group(group_id)
+  def previous_group(group_id)
     next_group_id = ( group_id - 1 ) % @groups.size
     color, _, _ = @groups[next_group_id]
     return next_group_id, color
   end
 
-  def self.new_group
-    # creates a new group with a new random color
-    # and standart schedule
+  def new_group(schedule=nil)
+    schedule = DEFAULT_SCHEDULE if schedule.nil?
     color = new_color(@new_group_id)
-    @groups[ @new_group_id ] = [color, DEFAULT_SCHEDULE, 0]
+    initial_expansion = schedule.size > 0 ? schedule[0] * MAX_EXPANSION : 0
+    @groups[ @new_group_id ] = [color, schedule, initial_expansion]
     @new_group_id += 1
     color
+  end
+
+  def alter(group_id, idx, new_value)
+    return unless @groups.keys.include?(group_id)
+    return unless idx < @groups[group_id][1].size
+    @groups[group_id][1][idx] = new_value
   end
 
   def color_for(group_id)
@@ -38,14 +56,14 @@ class Scheduler
   end
 
   def schedule_groups(timestep)
-    calculate_expansions
+    calculate_expansions(timestep)
     set_piston_controllers
   end
 
   private
 
-  def calculate_expansions
-    @groups.each do |group_id, color, schedule, expansion|
+  def calculate_expansions(timestep)
+    @groups.each do |group_id, (color, schedule, expansion)|
       block_progress = ((timestep % STEPS_PER_INTERVAL ) / ( 1.0 * STEPS_PER_INTERVAL))
       size = schedule.size
       current_block_idx = (timestep / STEPS_PER_INTERVAL) % size 
@@ -53,22 +71,24 @@ class Scheduler
       total_change = schedule[current_block_idx] - schedule[next_block_idx]
       relative_expansion = schedule[current_block_idx] - total_change * block_progress
       # puts("#{current_idx}>>>>> a: #{a}, b: #{b}")
-      @groups[group_id][2] = relative_expansion * @max_expansion
+      @groups[group_id][2] = relative_expansion * MAX_EXPANSION
     end
   end
 
   def set_piston_controllers
-    actuators = Graph.instance.edges.values.select { |edge| edge.link_type == 'actuator' }
-    unless actuators.nil?
-      actuators.each do |actuator|
-        _, _, expansion = @groups[actuator.group] 
-        actuator.thingy.piston.controller = expansion
+    actuator_edges = Graph.instance.edges.values.select { |edge| edge.link_type == 'actuator' }
+    unless actuator_edges.nil?
+      actuator_edges.each do |edge|
+        actuator = edge.thingy
+        _, _, expansion = @groups[actuator.piston_group] 
+        actuator.piston.controller = expansion
+      end
     end
   end
 
   def new_color(group_id)
     material = Sketchup.active_model.materials.add(group_id.to_s)
-    material.color = [1, 1, 1]
+    material.color = [rand, rand, rand]
     material.alpha = 1
     material
   end

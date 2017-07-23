@@ -2,10 +2,11 @@ require 'src/thingies/link.rb'
 require 'src/thingies/link_entities/cylinder.rb'
 require 'src/simulation/simulation.rb'
 require 'src/simulation/joints'
+require 'src/utility/scheduler'
 
 class ActuatorLink < Link
 
-  attr_reader :piston, :first_cylinder_body, :second_cylinder_body
+  attr_reader :piston, :first_cylinder_body, :second_cylinder_body, :piston_group
 
   def initialize(first_node, second_node, id: nil)
     @first_cylinder = nil
@@ -57,12 +58,17 @@ class ActuatorLink < Link
 
   def change_piston_group(group=nil)
     if group.nil?
-      @piston_group, color = Scheduler.next_group(@piston_group)
+      @piston_group, color = Scheduler.instance.next_group(@piston_group)
     else
       @piston_group = group
-      color = Scheduler.color_for(@piston_group)
+      color = Scheduler.instance.color_for(@piston_group)
+    end
     change_color(color)
-    sub_thingies.each { |sub_thingy| sub_thingy.color = color }
+  end
+
+  def un_highlight
+    color = Scheduler.instance.color_for(@piston_group)
+    change_color(color)
   end
 
   def reset_physics

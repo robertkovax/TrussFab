@@ -1,4 +1,5 @@
 require 'lib/MSPhysics/main.rb'
+require 'src/utility/scheduler'
 require 'erb'
 
 class Simulation
@@ -181,21 +182,6 @@ class Simulation
     body
   end
 
-  def piston_dialog
-    return if @pistons.empty?
-
-    @dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
-    file_content = File.read(File.join(File.dirname(__FILE__), '../ui/html/piston_slider.erb'))
-    template = ERB.new(file_content)
-    @dialog.set_html(template.result(binding))
-    @dialog.show
-    @dialog.add_action_callback('change_piston') do |_context, id, value|
-      value = value.to_f
-      id = id.to_i
-      @pistons[id].controller = value
-    end
-  end
-
   def hide_triangle_surfaces
     Graph.instance.surfaces.each do |_, surface|
       surface.thingy.entity.hidden = true unless surface.thingy.entity.deleted?
@@ -273,9 +259,9 @@ class Simulation
   def nextFrame(view)
     return false unless @running
     return @running if @paused
+    Scheduler.instance.schedule_groups(@frame)
     update_world
     update_entities
-
     @frame += 1
     if @frame % 20 == 0
       set_status_text

@@ -3,6 +3,7 @@ require 'src/database/graph.rb'
 require 'src/utility/geometry.rb'
 require 'src/simulation/joints.rb'
 require 'src/simulation/thingy_rotation.rb'
+require 'src/utility/scheduler'
 
 module JsonImport
   class << self
@@ -143,6 +144,7 @@ module JsonImport
     def build_edges(json_objects, positions)
       edges = {}
       nodes = {}
+      schedule_ids = []
       json_objects['edges'].each do |edge_json|
         first_position = positions[edge_json['n1']]
         second_position = positions[edge_json['n2']]
@@ -152,7 +154,15 @@ module JsonImport
                                                       second_position,
                                                       model_name: model_name,
                                                       link_type: link_type)
-
+        unless edge_json['piston_group'].nil?
+          edge.link_type = 'actuator'
+          unless schedule_ids.include?( edge_json['piston_group'] )
+            schedule = json_objects['schedules'][edge_json['piston_group']]
+            Scheduler.instance.new_group(schedule)
+            schedule_ids << edge_json['piston_group']
+          end
+          edge.thingy.change_piston_group(edge_json['piston_group'])
+        end
         edges[edge_json['id']] = edge
         nodes[edge_json['n1']] = edge.first_node
         nodes[edge_json['n2']] = edge.second_node

@@ -1,16 +1,17 @@
 require 'json'
 require 'src/tools/tool'
 require 'src/simulation/simulation'
-require 'src/simulation/piston_scheduler'
+require 'src/utility/scheduler'
 
 class TimelineTool < Tool
   def initialize(ui)
     super
     @timeline_dialog = nil
     @simulation = nil
-    @piston_scheduler = PistonScheduler.new
+    @scheduler = Scheduler.instance
     @mouse_input = MouseInput.new(snap_to_edges: true)
-    create_timeline_dialog
+    slider_dialog
+    # create_timeline_dialog
   end
 
   def activate
@@ -45,6 +46,21 @@ class TimelineTool < Tool
     @timeline_dialog.add_action_callback('stop') { stop_simulation }
   end
 
+  def slider_dialog
+    return if @scheduler.groups.empty?
+    @dialog = UI::HtmlDialog.new(Configuration::TIMELINE_HTML_DIALOG)
+    file_content = File.read(File.join(File.dirname(__FILE__), '../ui/html/piston_slider.erb'))
+    template = ERB.new(file_content)
+    @dialog.set_html(template.result(binding))
+    @dialog.add_action_callback('change_piston') do |_context, group_id, idx, value|
+      value = value.to_f
+      group_id = group_id.to_i
+      idx = idx.to_i
+      @scheduler.alter(group_id, idx, value)
+    end
+  end
+
+
   def run_simulation
     @simulation = Simulation.new if @simulation.nil?
     if @simulation.paused?
@@ -69,11 +85,14 @@ class TimelineTool < Tool
   end
 
   def open_timeline_dialog
-    @timeline_dialog.show
+    # @timeline_dialog.show
+    @dialog.show
+
   end
 
   def close_timeline_dialog
-    @timeline_dialog.close
+    @dialog.close
+    # @timeline_dialog.close
   end
 
   def schedule_changed(json_string)
@@ -84,6 +103,7 @@ class TimelineTool < Tool
     #  'c': [...]
     # }
     schedule = JSON.parse(json_string)
+    puts schedule
     @piston_scheduler.update_schedule(schedule)
   end
 end

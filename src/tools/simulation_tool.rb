@@ -15,7 +15,6 @@ class SimulationTool < Tool
   def activate
     @simulation = create_simulation
     @simulation.setup
-    @simulation.piston_dialog
     @simulation.add_ground
     @simulation.start
     Sketchup.active_model.active_view.animation = @simulation
