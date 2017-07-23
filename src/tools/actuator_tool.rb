@@ -30,24 +30,27 @@ class ActuatorTool < Tool
     @mouse_input.update_positions(view, x, y)
     edge = @mouse_input.snapped_object
     return if edge.nil?
+    if edge.link_type == 'actuator'
+      edge.thingy.change_piston_group
+    else
+      edges_without_selected = Graph.instance.edges.values.reject { |e| e == edge }
+      if RigidityTester.rigid?(edges_without_selected)
+        puts 'still rigid!'
+        return
+      end
 
-    edges_without_selected = Graph.instance.edges.values.reject { |e| e == edge }
-    if RigidityTester.rigid?(edges_without_selected)
-      puts 'still rigid!'
-      return
+      create_actuator(edge, view)
+
+      edges = edges_without_selected.reject { |e| e.link_type == 'actuator' }
+      original_angles = triangle_pair_angles(edges)
+      start_simulation(edge)
+      view.show_frame
+      simulation_angles = simulation_triangle_pair_angles(edges)
+
+      rotation_axes = find_rotation_axes(edges, original_angles, simulation_angles)
+      highlight_rotation_axes(rotation_axes)
+      add_hinges(rotation_axes)
     end
-
-    create_actuator(edge, view)
-
-    edges = edges_without_selected.reject { |e| e.link_type == 'actuator' }
-    original_angles = triangle_pair_angles(edges)
-    start_simulation(edge)
-    view.show_frame
-    simulation_angles = simulation_triangle_pair_angles(edges)
-
-    rotation_axes = find_rotation_axes(edges, original_angles, simulation_angles)
-    highlight_rotation_axes(rotation_axes)
-    add_hinges(rotation_axes)
   end
 
   def onMouseMove(_flags, x, y, view)

@@ -21,6 +21,8 @@ class ActuatorLink < Link
                                        mid_point.vector_to(@position))
     @second_joint = ThingyBallJoint.new(second_node,
                                         mid_point.vector_to(@second_position))
+
+    @piston_group = 0
   end
 
   def create_body(world)
@@ -51,6 +53,16 @@ class ActuatorLink < Link
 
     first_ball_joint.create(world, @first_cylinder.body)
     second_ball_joint.create(world, @second_cylinder.body)
+  end
+
+  def change_piston_group(group=nil)
+    if group.nil?
+      @piston_group, color = Scheduler.next_group(@piston_group)
+    else
+      @piston_group = group
+      color = Scheduler.color_for(@piston_group)
+    change_color(color)
+    sub_thingies.each { |sub_thingy| sub_thingy.color = color }
   end
 
   def reset_physics
