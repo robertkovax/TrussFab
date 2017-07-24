@@ -23,11 +23,11 @@ module Configuration
   }.freeze
 
   TIMELINE_HTML_DIALOG = {
-    dialog_title: 'TrussFab - Timeline',
+    dialog_title: 'TrussFab - Scheduler',
     scrollable: true,
     resizable: true,
-    width: 1500,
-    height: 300,
+    width: 400,
+    height: 400,
     left: 400,
     bottom: 50,
     style: UI::HtmlDialog::STYLE_DIALOG

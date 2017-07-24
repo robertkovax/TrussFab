@@ -6,16 +6,34 @@
     <title>PistonSlider</title>
 </head>
 <body>
-<% for group_id, (color, schedule, expansion) in @scheduler.groups %>
-	<% schedule.each_with_index do |state, idx| %>
-	    <input id="<%= group_id %><%= idx %>" group_id = "<%= group_id %>" idx="<%= idx%>" type="range" orient="vertical" min="-0.4" max="0.4" value="0" step="0.01" onchange="onChange(this.group_id, this.idx, this.value)">
-	<% end %>
-	<hr>
+<p>TIME>>>>>>>>>>>>>>></p>
+<p>____t0____t1____t2____t3____t4____t5____t6____t7</p>
+<% @scheduler.groups.each do |group_id, (color, schedule, expansion)| %>
+	<% c = color.color.to_a %>
+	<% color_string = "rgba(#{c[0]},#{c[1]},#{c[2]},#{c[3]})" %>
+	<div class="row" style="background-color: <%= color_string%>">
+		<% schedule.each_with_index do |state, idx| %>
+		    <input id="<%= group_id %><%= idx %>" group_id = "<%= group_id %>" idx="<%= idx%>" type="range" class="verticalSlider" orient="vertical" min="-1" max="1" value="<%= state%>" step="0.01" onchange="onChange(<%= group_id %>, <%= idx %>, this.value)">
+		<% end %>
+	</div>
 <% end %>
 <script type="text/javascript">
-    function onChange(id, newValue) {
-        sketchup.change_piston(id, newValue);
+    function onChange(group_id, idx, newValue) {
+        sketchup.change_piston(group_id, idx, newValue);
     }
 </script>
 </body>
+<style type="text/css">
+	.verticalSlider {
+	    transform: rotate(270deg);
+	    border-width: 3px;
+	    border-right: thick solid #ff0000;
+	    height: 70px;
+	    margin-right: -25px;
+	    width: 60px;
+	}
+	.row {
+		background-color: red;
+	}
+</style>
 </html>

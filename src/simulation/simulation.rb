@@ -4,7 +4,7 @@ require 'erb'
 
 class Simulation
 
-  attr_accessor :pistons
+  attr_accessor :pistons, :static_schedule_state
 
   # masses in kg
   ELONGATION_MASS = 0.1
@@ -79,6 +79,7 @@ class Simulation
     @last_time = 0
     @running = false
     @frame = 0
+    @static_schedule_state = nil
     @reset_positions_on_end = true
     @saved_transformations = {}
     @stopped = false
@@ -167,15 +168,15 @@ class Simulation
   def add_ground
     @ground_group = Sketchup.active_model.entities.add_group
     x = y = 10_000
-    z = -1
+    z = -10
     pts = []
     pts[0] = [-x, -y, z]
     pts[1] = [x, -y, z]
     pts[2] = [x, y, z]
     pts[3] = [-x, y, z]
     face = @ground_group.entities.add_face(pts)
-    face.pushpull(-1)
-    face.visible = false
+    face.pushpull(-100)
+    # face.visible = false
     body = Simulation.create_body(@world, @ground_group)
     body.static = true
     body.collidable = true
@@ -259,7 +260,7 @@ class Simulation
   def nextFrame(view)
     return false unless @running
     return @running if @paused
-    Scheduler.instance.schedule_groups(@frame)
+    Scheduler.instance.schedule_groups(@frame, @static_schedule_state)
     update_world
     update_entities
     @frame += 1

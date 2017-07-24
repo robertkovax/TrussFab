@@ -11,21 +11,20 @@ class Scheduler
 
 
   def initialize
+    srand 234
     # group_id => (color, schedule, expansion)
     @groups = {}   
     @new_group_id = 0
-    # new_group(DEFAULT_SCHEDULE)
-    new_group([ -1,  0,  1,  0])
-    new_group([  0,  1,  0, -1])
-    new_group([  1,  0, -1,  0])
-    new_group([  0, -1,  0,  1])
+    new_group([ -1,  0,  1,  0, -1,  0,  1,  0])
+    new_group([  0,  1,  0, -1,  0,  1,  0, -1])
+    new_group([  1,  0, -1,  0,  1,  0, -1,  0])
+    new_group([  0, -1,  0,  1,  0, -1,  0,  1])
   end
 
   ### group management
   def next_group(group_id)
     next_group_id = ( group_id + 1 ) % @groups.size
     color, _, _ = @groups[next_group_id]
-    puts "is now group #{next_group_id}"
     return next_group_id, color
   end
 
@@ -46,8 +45,9 @@ class Scheduler
 
   def alter(group_id, idx, new_value)
     return unless @groups.keys.include?(group_id)
-    return unless idx < @groups[group_id][1].size
-    @groups[group_id][1][idx] = new_value
+    schedule = @groups[group_id][1]
+    return unless idx < schedule.size
+    schedule[idx] = new_value
   end
 
   def color_for(group_id)
@@ -55,7 +55,10 @@ class Scheduler
     color
   end
 
-  def schedule_groups(timestep)
+  def schedule_groups(timestep, static_state=nil)
+    unless static_state.nil?
+      timestep = static_state * STEPS_PER_INTERVAL
+    end
     calculate_expansions(timestep)
     set_piston_controllers
   end
@@ -70,7 +73,6 @@ class Scheduler
       next_block_idx = (current_block_idx + 1) % size
       total_change = schedule[current_block_idx] - schedule[next_block_idx]
       relative_expansion = schedule[current_block_idx] - total_change * block_progress
-      # puts("#{current_idx}>>>>> a: #{a}, b: #{b}")
       @groups[group_id][2] = relative_expansion * MAX_EXPANSION
     end
   end
