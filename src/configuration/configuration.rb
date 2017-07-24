@@ -15,10 +15,10 @@ module Configuration
     dialog_title: 'TrussFab',
     scrollable: true,
     resizable: true,
-    width: 380,
-    height: 900,
-    left: 10,
-    top: 100,
+    width: 330,
+    height: 600,
+    left: 0,
+    top: 0,
     style: UI::HtmlDialog::STYLE_DIALOG
   }.freeze
 
@@ -28,7 +28,7 @@ module Configuration
     resizable: true,
     width: 400,
     height: 400,
-    left: 400,
+    left: 0,
     bottom: 50,
     style: UI::HtmlDialog::STYLE_DIALOG
   }.freeze

@@ -36,6 +36,8 @@ class ActuatorTool < Tool
       edges_without_selected = Graph.instance.edges.values.reject { |e| e == edge }
       if RigidityTester.rigid?(edges_without_selected)
         puts 'still rigid!'
+        create_actuator(edge, view)
+        
         return
       end
 

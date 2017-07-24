@@ -19,6 +19,9 @@ class Scheduler
     new_group([  0,  1,  0, -1,  0,  1,  0, -1])
     new_group([  1,  0, -1,  0,  1,  0, -1,  0])
     new_group([  0, -1,  0,  1,  0, -1,  0,  1])
+    new_group([  0, -1,  0,  1,  0, -1,  0,  1])
+    new_group([  0, -1,  0,  1,  0, -1,  0,  1])
+    new_group([  0, -1,  0,  1,  0, -1,  0,  1])
   end
 
   ### group management
