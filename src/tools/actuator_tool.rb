@@ -19,10 +19,6 @@ class ActuatorTool < Tool
   #
 
   def deactivate(view)
-    Sketchup.active_model.start_operation('reset positions', true)
-    @simulation.stop
-    @simulation = nil
-    Sketchup.active_model.commit_operation
     super
   end
 
@@ -31,9 +27,10 @@ class ActuatorTool < Tool
     edge = @mouse_input.snapped_object
     return if edge.nil?
 
-    edges_without_selected = Graph.instance.edges.values.reject { |e| e == edge }
+    edges_without_selected = edge.connected_component.reject { |e| e == edge }
     if RigidityTester.rigid?(edges_without_selected)
-      puts 'still rigid!'
+      UI.messagebox('The structure is still rigid and would break with this actuator. Please remove more edges to enable this structure to move',
+                    type = MB_OK)
       return
     end
 
@@ -51,6 +48,7 @@ class ActuatorTool < Tool
     rotation_axes = find_rotation_axes(changed_triangle_pairs)
     highlight_rotation_axes(rotation_axes)
     add_hinges(changed_triangle_pairs)
+    reset_simulation
   end
 
   def onMouseMove(_flags, x, y, view)
@@ -69,9 +67,11 @@ class ActuatorTool < Tool
     piston.controller = 0.4
     @simulation.start
     @simulation.update_world_by(2)
-    Sketchup.active_model.start_operation('simulate structure', true)
-    @simulation.update_entities
-    Sketchup.active_model.commit_operation
+  end
+
+  def reset_simulation
+    @simulation.stop
+    @simulation = nil
   end
 
   def create_actuator(edge, view)
