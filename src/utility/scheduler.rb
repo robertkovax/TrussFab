@@ -15,16 +15,17 @@ class Scheduler
     # group_id => (color, schedule, expansion)
     @groups = {}
     @new_group_id = 0
-    new_group([ -1, -1, -1, -1, -1,  1,  1,  1,  1,  1])
-    new_group([  1, -1, -1, -1, -1, -1,  1,  1,  1,  1])
-    new_group([  1,  1, -1, -1, -1, -1, -1,  1,  1,  1])
-    new_group([  1,  1,  1, -1, -1, -1, -1, -1,  1,  1])
-    new_group([  1,  1,  1,  1, -1, -1, -1, -1, -1,  1])
-    new_group([  1,  1,  1,  1,  1, -1, -1, -1, -1, -1])
-    new_group([ -1,  1,  1,  1,  1,  1, -1, -1, -1, -1])
-    new_group([ -1, -1,  1,  1,  1,  1,  1, -1, -1, -1])
-    new_group([ -1, -1, -1,  1,  1,  1,  1,  1, -1, -1])
-    new_group([ -1, -1, -1, -1,  1,  1,  1,  1,  1, -1])
+    var = 0.2
+    new_group([-1, -1, -1, -1, -1, var, var, var, var, var])
+    new_group([  var, -1, -1, -1, -1, -1,  var,  var,  var,  var])
+    new_group([  var,  var, -1, -1, -1, -1, -1,  var,  var,  var])
+    new_group([  var,  var,  var, -1, -1, -1, -1, -1,  var,  var])
+    new_group([  var,  var,  var,  var, -1, -1, -1, -1, -1,  var])
+    new_group([  var,  var,  var,  var,  var, -1, -1, -1, -1, -1])
+    new_group([ -1,  var,  var,  var,  var,  var, -1, -1, -1, -1])
+    new_group([ -1, -1,  var,  var,  var,  var,  var, -1, -1, -1])
+    new_group([ -1, -1, -1,  var,  var,  var,  var,  var, -1, -1])
+    new_group([ -1, -1, -1, -1,  var,  var,  var,  var,  var, -1])
   end
 
   ### group management
