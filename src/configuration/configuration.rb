@@ -34,7 +34,16 @@ module Configuration
   TETRAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/tetrahedron.json').freeze
   OCTAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/octahedron.json').freeze
 
-  # Model Settings
+  # General Model Settings, in inch
+  NECK_RADIUS = 0.27534.freeze
+  NECK_LENGTH = 0.68901.freeze
+  FRONT_CONE_LENGTH = 2.3422.freeze
+  CYLINDER_LENGTH = 4,61384.freeze
+  CYLINDER_RADIUS = 1.12994.freeze
+  BACK_CONE_LENGTH = 0.55237.freeze
+  BOTTOM_RADIUS = 0.73885.freeze
+
+  # Custom hard PET Model Settings
   HARD_MODELS = [
     {
       NAME: 'Big Big Double Bottle (60cm)',
@@ -53,18 +62,6 @@ module Configuration
       WEIGHT: 0.11,
       PATH: ProjectHelper.component_directory + '/3-small-small-double-bottle(46cm).skp',
       MODEL: 'hard'
-    },
-    {
-      NAME: 'Big Single Bottle (30cm)',
-      WEIGHT: 0.078,
-      PATH: ProjectHelper.component_directory + '/4-big-single-bottle(30cm).skp',
-      MODEL: 'hard'
-    },
-    {
-      NAME: 'Small Single Bottle (23cm)',
-      WEIGHT: 0.048,
-      PATH: ProjectHelper.component_directory + '/5-small-single-bottle(23cm).skp',
-      MODEL: 'hard'
     }
   ].freeze
 
@@ -72,6 +69,8 @@ module Configuration
   ELONGATION_RADIUS = 11.mm.freeze
   CONNECTOR_COLOR = 'blue'.freeze
   CONNECTOR_RADIUS = 8.mm.freeze
+
+  BOTTLE_SEGMENTS = 10.freeze
 
   # Behavioural constants
   SNAP_TOLERANCE = 200.mm.freeze

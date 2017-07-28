@@ -20,6 +20,6 @@ class ModelStorage
     @models['ball_hub'] = components['Hub'].nil? ? BallHubModel.new : components['Hub']
     @models['connector'] = components['Connector'].nil? ? ConnectorModel.new : components['Connector']
     @models['pod'] = components['Pod'].nil? ? PodModel.new : components['Pod']
-    @models['hard'] = BottleModel.new('hard', Configuration::HARD_MODELS)
+    # @models['hard'] = BottleModel.new('hard', Configuration::HARD_MODELS)
   end
 end

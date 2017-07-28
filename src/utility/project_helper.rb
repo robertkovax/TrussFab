@@ -74,5 +74,9 @@ module ProjectHelper
     material = Sketchup.active_model.materials.add('elongation_color')
     material.color = Configuration::ELONGATION_COLOR
     material.alpha = 1
+
+    material = Sketchup.active_model.materials.add('bottle_green')
+    material.color = [0.45, 0.72, 0.39]
+    material.alpha = 0.65
   end
 end
