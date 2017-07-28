@@ -61,7 +61,7 @@ Select the delete tool from the toolbar. Click on links, hubs, pods or covers to
 
 From the SketchUp menu bar, select `Windows`, `Layer` to show the Layer panel. Use its checkboxes to control what you see.
 
-![Layers](/readme_images/layers.png?raw=true "Layers")
+[TBD add Layer image]
 
 ### Additional tools
 
