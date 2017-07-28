@@ -94,6 +94,14 @@ class Edge < GraphObject
     length * 0.9
   end
 
+  def first_elongation_length
+    @thingy.first_elongation_length
+  end
+
+  def second_elongation_length
+    @thingy.second_elongation_length
+  end
+
   private
 
   def create_thingy(id)

@@ -2,6 +2,7 @@ require 'singleton'
 require 'src/database/node.rb'
 require 'src/database/edge.rb'
 require 'src/database/triangle.rb'
+require 'src/utility/scad_export.rb'
 
 class Graph
   include Singleton
@@ -14,6 +15,10 @@ class Graph
     @edges = {}       # {(id => edge)}
     @nodes = {}       # {(id => node)}
     @surfaces = {}    # {(id => surface)}
+  end
+
+  def export_to_scad(path)
+    ScadExport.export_to_scad(path, @nodes.values)
   end
 
   #
