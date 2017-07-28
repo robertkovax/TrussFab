@@ -41,6 +41,7 @@ class UserInteraction
     build_tool(ImportFileTool, 'import_file_tool')
     build_tool(PodTool, 'pod_tool')
     build_tool(CoverTool, 'cover_tool')
+    build_tool(FabricateTool, 'fabricate_tool')
   end
 
   def build_tool(tool_class, tool_id)
