@@ -39,15 +39,7 @@ Restart SketchUp for the changes to take effect. If it works will you see an ext
 
 ## Usage
 
-Open SketchUp and in the menu bar select `Extensions`, `Activate BottleProject`. The BottlePrint toolbar should come up:
-
-![Toolbar](/readme_images/toolbar.png?raw=true "Toolbar")
-
-(If it doesn’t show, it might be hidden. Try right-clicking in the toolbar area and pick `Bottle Project`.)
-
-Another window offers additional functionality:
-
-![Additional Functionalities](/readme_images/ui.png?raw=true "GUI")
+[TBD: Add toolbar image]
 
 **DO NOT USE `CTRL + Z`**. This will ruin the internal data structure. Also, do not use the standard Sketchup tools for manipulating the model (move, rotate, ...).
 
@@ -70,6 +62,10 @@ Select the delete tool from the toolbar. Click on links, hubs, pods or covers to
 From the SketchUp menu bar, select `Windows`, `Layer` to show the Layer panel. Use its checkboxes to control what you see.
 
 ![Layers](/readme_images/layers.png?raw=true "Layers")
+
+### Additional tools
+
+[TBD]
 
 ## Export Hubs for Print
 
