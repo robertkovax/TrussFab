@@ -4,19 +4,14 @@ class Thingy
   attr_reader :id, :entity, :sub_thingies, :position
   attr_accessor :parent
 
-  def initialize(id = nil, material: 'standard_material', highlight_color: Configuration::HIGHLIGHT_COLOR)
+  def initialize(id = nil, material: 'standard_material', highlight_material: 'highlight_material')
     @id = id.nil? ? IdManager.instance.generate_next_id : id
     @sub_thingies = []
     @entity = nil
     @parent = nil
     @material = Sketchup.active_model.materials[material]
-    @highlight_color = highlight_color
-  end
-
-  def color=(color)
-    @material.color = color unless material.nil?
-    @entity.material = @material unless @enitty.nil?
-    @sub_thingies.each { |thingy| thingy.color = color }
+    @highlight_material = Sketchup.active_model.materials[highlight_material]
+    @deleted = false
   end
 
   def material=(material)
@@ -25,23 +20,19 @@ class Thingy
     @sub_thingies.each { |thingy| thingy.material = material }
   end
 
-  def color
-    @material.color unless @material.nil?
-  end
-
   def material
     @material unless @material.nil?
   end
 
-  def highlight(highlight_color = @highlight_color)
-    @last_color = color
-    self.color = highlight_color
-    @sub_thingies.each { |thingy| thingy.highlight(highlight_color) }
+  def highlight(highlight_material = @highlight_material)
+    @last_material = material
+    self.material = highlight_material
+    @sub_thingies.each { |thingy| thingy.highlight(@highlight_material) }
   end
 
   def un_highlight
-    self.color = @last_color unless @last_color.nil?
-    @last_color = nil
+    self.material = @last_material unless @last_material.nil?
+    @last_material = nil
     @sub_thingies.each(&:un_highlight)
   end
 
@@ -54,6 +45,11 @@ class Thingy
     delete_sub_thingies
     delete_entity
     @parent.remove(self) unless @parent.nil?
+    @deleted = true
+  end
+
+  def deleted?
+    @deleted
   end
 
   def delete_sub_thingies

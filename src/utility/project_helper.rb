@@ -59,6 +59,14 @@ module ProjectHelper
     material.color = Configuration::SURFACE_COLOR
     material.alpha = 0.03
 
+    material = Sketchup.active_model.materials.add('surface_highlight_material')
+    material.color = Configuration::SURFACE_HIGHLIGHT_COLOR
+    material.alpha = 1
+
+    material = Sketchup.active_model.materials.add('highlight_material')
+    material.color = Configuration::HIGHLIGHT_COLOR
+    material_alpha = 1
+
     material = Sketchup.active_model.materials.add('standard_material')
     material.color = Configuration::STANDARD_COLOR
     material.alpha = 1

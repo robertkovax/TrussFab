@@ -3,27 +3,22 @@ require 'src/thingies/surface_entities/cover.rb'
 
 class Surface < Thingy
   def initialize(first_position, second_position, third_position,
-                 id: nil, material: 'surface_material', highlight_color: Configuration::SURFACE_HIGHLIGHT_COLOR)
-    super(id, material: material, highlight_color: highlight_color)
+                 id: nil, material: 'surface_material', highlight_material:'surface_highlight_material')
+    super(id, material: material, highlight_material: highlight_material)
     @first_position = first_position
     @second_position = second_position
     @third_position = third_position
     @entity = create_entity
   end
 
-  def color=(color)
-    super(color)
-    @entity.back_material.color = color
-  end
-
-  def highlight(highlight_color = @highlight_color)
-    super(highlight_color)
-    @material.alpha = 1
+  def highlight(highlight_material = @highlight_material)
+    super(highlight_material)
+    @entity.back_material = highlight_material
   end
 
   def un_highlight
+    @entity.back_material = @last_material
     super
-    @material.alpha = 0.03
   end
 
   def delete_edges(position)

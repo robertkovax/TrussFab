@@ -6,11 +6,17 @@ class GraphObject
   def initialize(id = nil)
     @id = id.nil? ? IdManager.instance.generate_next_id : id
     @thingy = create_thingy(@id)
+    @deleted = false
   end
 
   def delete
     delete_thingy
     unstore
+    @deleted = true
+  end
+
+  def deleted?
+    @deleted
   end
 
   def highlight

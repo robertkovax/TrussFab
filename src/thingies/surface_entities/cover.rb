@@ -22,7 +22,7 @@ class Cover < Thingy
   end
 
   def delete
-    @pods.each {|pod| pod.delete}
+    @pods.each { |pod| pod.delete }
     super
   end
 
