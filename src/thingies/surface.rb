@@ -18,12 +18,12 @@ class Surface < Thingy
 
   def highlight(highlight_color = @highlight_color)
     super(highlight_color)
-    material.alpha = 1
+    @material.alpha = 1
   end
 
   def un_highlight
     super
-    material.alpha = 0.03
+    @material.alpha = 0.03
   end
 
   def delete_edges(position)
@@ -47,14 +47,14 @@ class Surface < Thingy
     @entity = create_entity
   end
 
-  def add_cover(direction)
+  def add_cover(direction, pods)
     pod_length = ModelStorage.instance.models['pod'].length
     offset_vector = direction.clone
     offset_vector.length = pod_length
     first_position = positions[0] + offset_vector
     second_position = positions[1] + offset_vector
     third_position = positions[2] + offset_vector
-    add(Cover.new(first_position, second_position, third_position, direction))
+    add(Cover.new(first_position, second_position, third_position, direction, pods))
   end
 
   def has_cover?
@@ -62,10 +62,11 @@ class Surface < Thingy
   end
 
   def cover
+    cover = nil
     @sub_thingies.each do |thingy|
-      return thingy if thingy.is_a?(Cover)
+      cover = thingy if thingy.is_a?(Cover)
     end
-    nil
+    cover
   end
 
   private

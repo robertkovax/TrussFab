@@ -1,13 +1,29 @@
 class Cover < Thingy
-  def initialize(first_position, second_position, third_position, normal_vector,
+  def initialize(first_position, second_position, third_position, normal_vector, pods,
                  id: nil, material: 'wooden_cover')
     super(id, material: material)
     @first_position = first_position
     @second_position = second_position
     @third_position = third_position
+    @pods = pods
     @normal = normal_vector.clone
     @normal.length = Configuration::COVER_THICKNESS
     @entity = create_entity
+  end
+
+  def center
+    Geometry.triangle_incenter(@first_position,
+                               @second_position,
+                               @third_position)
+  end
+
+  def distance(point)
+    center.distance(point)
+  end
+
+  def delete
+    @pods.each {|pod| pod.delete}
+    super
   end
 
   private

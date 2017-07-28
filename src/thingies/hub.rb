@@ -3,7 +3,7 @@ require 'src/models/model_storage.rb'
 
 class Hub < Thingy
   def initialize(position,
-                 id: nil, material: nil)
+                 id: nil, material: 'standard_material')
     super(id, material: material)
     @position = position
     @model = ModelStorage.instance.models['ball_hub']

@@ -63,8 +63,9 @@ class Triangle < GraphObject
   end
 
   def add_cover
-    nodes.each { |node| node.add_pod(normal_towards_user, constraint: false) }
-    @thingy.add_cover(normal_towards_user)
+    cover_pods = []
+    nodes.each { |node| cover_pods << node.add_pod(normal_towards_user, constraint: false) }
+    @thingy.add_cover(normal_towards_user, cover_pods)
   end
 
   def cover

@@ -9,26 +9,28 @@ class Thingy
     @sub_thingies = []
     @entity = nil
     @parent = nil
-    @material = material
+    @material = Sketchup.active_model.materials[material]
     @highlight_color = highlight_color
   end
 
   def color=(color)
-    material.color = color unless material.nil?
+    @material.color = color unless material.nil?
+    @entity.material = @material unless @enitty.nil?
     @sub_thingies.each { |thingy| thingy.color = color }
   end
 
   def material=(material)
-    @entity.material = material
+    @material = material
+    @entity.material = @material
     @sub_thingies.each { |thingy| thingy.material = material }
   end
 
   def color
-    material.color unless material.nil?
+    @material.color unless @material.nil?
   end
 
   def material
-    @entity.material unless @entity.nil?
+    @material unless @material.nil?
   end
 
   def highlight(highlight_color = @highlight_color)
