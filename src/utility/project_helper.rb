@@ -59,24 +59,28 @@ module ProjectHelper
   end
 
   def self.setup_surface_materials
-    material = Sketchup.active_model.materials.add('surface_color')
-    material.color = [1, 1, 1]
+    material = Sketchup.active_model.materials.add('surface_material')
+    material.color = Configuration::SURFACE_COLOR
     material.alpha = 0.03
 
-    material = Sketchup.active_model.materials.add('surface_highlighted_color')
-    material.color = [0.5, 0.5, 0.5]
+    material = Sketchup.active_model.materials.add('surface_highlight_material')
+    material.color = Configuration::SURFACE_HIGHLIGHT_COLOR
     material.alpha = 1
 
-    material = Sketchup.active_model.materials.add('highlight_color')
-    material.color = [1, 1, 1]
-    material.alpha = 0.8
+    material = Sketchup.active_model.materials.add('highlight_material')
+    material.color = Configuration::HIGHLIGHT_COLOR
+    material_alpha = 1
 
-    material = Sketchup.active_model.materials.add('standard_color')
-    material.color = [0.5, 0.2, 0.3]
+    material = Sketchup.active_model.materials.add('standard_material')
+    material.color = Configuration::STANDARD_COLOR
     material.alpha = 1
 
-    material = Sketchup.active_model.materials.add('elongation_color')
+    material = Sketchup.active_model.materials.add('elongation_material')
     material.color = Configuration::ELONGATION_COLOR
+    material.alpha = 1
+
+    material = Sketchup.active_model.materials.add('wooden_cover')
+    material.texture = asset_directory + '/textures/plywood.jpg'
     material.alpha = 1
   end
 end

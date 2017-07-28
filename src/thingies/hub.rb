@@ -2,11 +2,11 @@ require 'src/thingies/thingy.rb'
 require 'src/models/model_storage.rb'
 
 class Hub < Thingy
-  def initialize(position, id: nil, color: nil)
-    super(id)
+  def initialize(position,
+                 id: nil, material: 'standard_material')
+    super(id, material: material)
     @position = position
     @model = ModelStorage.instance.models['ball_hub']
-    @color = color unless color.nil?
     @entity = create_entity
     @id_label = nil
     update_id_label
@@ -14,14 +14,6 @@ class Hub < Thingy
 
   def pods
     @sub_thingies.select { |sub_thingy| sub_thingy.is_a?(Pod) }
-  end
-
-  def highlight(highlight_color = @highlight_color)
-    change_color(highlight_color)
-  end
-
-  def un_highlight
-    change_color(@color)
   end
 
   def update_position(position)
@@ -35,6 +27,7 @@ class Hub < Thingy
     id = pod.id
     pod.parent = self
     add(pod)
+    pod
   end
 
   def delete_sub_thingy(id)
@@ -54,7 +47,7 @@ class Hub < Thingy
     entity = Sketchup.active_model.entities.add_instance(@model.definition,
                                                          transformation)
     entity.layer = Configuration::HUB_VIEW
-    entity.material = @color
+    entity.material = @material
     entity
   end
 

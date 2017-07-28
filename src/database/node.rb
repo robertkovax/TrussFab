@@ -4,7 +4,7 @@ require 'src/thingies/hub_entities/pod.rb'
 
 class Node < GraphObject
 
-  attr_reader :position, :incidents, :pod_directions
+  attr_reader :position, :incidents, :pod_directions, :pod_constraints
 
   def initialize(position, id: nil)
     @deleting = false
@@ -12,6 +12,7 @@ class Node < GraphObject
     @incidents = []             # connected edges
     @adjcacent_triangles = []   # connceted triangles
     @pod_directions = {}
+    @pod_constraints = {}
     super(id)
   end
 
@@ -31,7 +32,7 @@ class Node < GraphObject
   end
 
   def fixed?
-    not @pod_directions.empty?
+    @pod_constraints.has_value?(true)
   end
 
   def frozen?
@@ -68,14 +69,17 @@ class Node < GraphObject
     @incidents.include?(edge)
   end
 
-  def add_pod(direction = nil)
+  def add_pod(direction = nil, constraint: true)
     id = IdManager.instance.generate_next_id
+    direction = direction.normalize
     @pod_directions[id] = direction.nil? ? Geometry::Z_AXIS.reverse : direction
+    @pod_constraints[id] = constraint
     @thingy.add_pod(@pod_directions[id], id: id)
   end
 
   def delete_pod(id)
     @pod_directions.delete(id)
+    @pod_constraints.delete(id)
     @thingy.delete_sub_thingy(id)
   end
 

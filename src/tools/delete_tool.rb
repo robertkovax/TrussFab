@@ -4,7 +4,7 @@ require 'src/utility/mouse_input.rb'
 class DeleteTool < Tool
   def initialize(ui)
     super
-    @mouse_input = MouseInput.new(snap_to_nodes: true, snap_to_edges: true, snap_to_pods: true)
+    @mouse_input = MouseInput.new(snap_to_nodes: true, snap_to_edges: true, snap_to_pods: true, snap_to_covers: true)
   end
 
   def onLButtonDown(_flags, x, y, view)

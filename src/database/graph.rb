@@ -132,7 +132,9 @@ class Graph
     hash = @nodes if object.is_a?(Node)
     hash = @edges if object.is_a?(Edge)
     hash = @surfaces if object.is_a?(Triangle)
+    puts "Edges: #{edges.size}"
     return if hash.nil?
     hash.delete(object.id)
+    puts "Edges: #{edges.size}"
   end
 end

@@ -28,6 +28,7 @@ module Configuration
   MAXIMUM_ELONGATION = 100.mm.freeze
   BALL_HUB_RADIUS = 14.mm.freeze
   STANDARD_BOTTLES = 'hard'.freeze
+  COVER_THICKNESS = 20.mm.freeze
 
   # Paths
   JSON_PATH = (ProjectHelper.asset_directory + '/exports/').freeze
@@ -68,10 +69,12 @@ module Configuration
     }
   ].freeze
 
+  HIGHLIGHT_COLOR = [1, 1, 1].freeze
+  SURFACE_COLOR = [1, 1, 1].freeze
+  SURFACE_HIGHLIGHT_COLOR = [0.5, 0.5, 0.5].freeze
+  STANDARD_COLOR = [0.5, 0.2, 0.3].freeze
   ELONGATION_COLOR = [0.69, 0.75, 0.81].freeze
   ELONGATION_RADIUS = 11.mm.freeze
-  CONNECTOR_COLOR = 'blue'.freeze
-  CONNECTOR_RADIUS = 8.mm.freeze
 
   # Behavioural constants
   SNAP_TOLERANCE = 200.mm.freeze

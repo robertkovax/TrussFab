@@ -1,10 +1,11 @@
 class Pod < Thingy
-  def initialize(position, direction, id: nil)
-    super(id)
+  def initialize(position, direction,
+                 id: nil, material: 'elongation_material')
+    super(id, material: material)
     @position = position
     @direction = direction
-    @color = Configuration::ELONGATION_COLOR
     @model = ModelStorage.instance.models['pod']
+    @direction.length = @model.length
     @entity = create_entity
   end
 
@@ -13,14 +14,6 @@ class Pod < Thingy
     first_point = @position.offset(@direction, Configuration::BALL_HUB_RADIUS/2)
     second_point = @position + @direction
     Geometry.dist_point_to_segment(point, [@position, second_point])
-  end
-
-  def highlight
-    change_color(@highlight_color)
-  end
-
-  def un_highlight
-    change_color(@color)
   end
 
   def update_position(position)
@@ -41,7 +34,7 @@ class Pod < Thingy
     transformation = rotation * translation
 
     entity = Sketchup.active_model.active_entities.add_instance(@model.definition, transformation)
-    entity.material = @color
+    entity.material = @material
     entity
   end
 end

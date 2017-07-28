@@ -40,6 +40,7 @@ class UserInteraction
     build_tool(ExportFileTool, 'export_file_tool')
     build_tool(ImportFileTool, 'import_file_tool')
     build_tool(PodTool, 'pod_tool')
+    build_tool(CoverTool, 'cover_tool')
     build_tool(FabricateTool, 'fabricate_tool')
   end
 
