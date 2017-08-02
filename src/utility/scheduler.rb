@@ -4,7 +4,7 @@ class Scheduler
   include Singleton
 
   DEFAULT_SCHEDULE = [0, 1, 0, -1]
-  MAX_EXPANSION = 0.25
+  MAX_EXPANSION = 0.5
   STEPS_PER_INTERVAL = 100
 
   attr_reader :groups
@@ -15,7 +15,7 @@ class Scheduler
     # group_id => (color, schedule, expansion)
     @groups = {}
     @new_group_id = 0
-    var = 0.2
+    var = 0
     new_group([-1, -1, -1, -1, -1, var, var, var, var, var])
     new_group([  var, -1, -1, -1, -1, -1,  var,  var,  var,  var])
     new_group([  var,  var, -1, -1, -1, -1, -1,  var,  var,  var])
