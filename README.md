@@ -147,5 +147,4 @@ Start SketchUp, require the file from the rubyConsole and call its functions. Re
 # Contact handles
 
 robert.kovacs@hpi.de
-anna.seufert@student.hpi.de
-ludwig.wall@student.hpi.de
+
