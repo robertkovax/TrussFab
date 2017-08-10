@@ -38,9 +38,7 @@ class Link < Thingy
     model_length = length - @first_elongation_length - @second_elongation_length
     shortest_model = @model.longest_model_shorter_than(model_length)
 
-
     @first_elongation_length = @second_elongation_length = (length - shortest_model.length) / 2
-
 
     direction = @position.vector_to(@second_position)
     first_elongation = Elongation.new(@position,
@@ -52,6 +50,6 @@ class Link < Thingy
         BottleLink.new(link_position, direction, shortest_model.definition),
         Elongation.new(@second_position,
                        direction.reverse,
-                       second_elong_length))
+                       @second_elongation_length))
   end
 end
