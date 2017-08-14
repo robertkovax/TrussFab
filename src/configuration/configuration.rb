@@ -69,10 +69,11 @@ module Configuration
     }
   ].freeze
 
+  STANDARD_COLOR = [0.5, 0.5, 0.5].freeze
   HIGHLIGHT_COLOR = [1, 1, 1].freeze
   SURFACE_COLOR = [1, 1, 1].freeze
   SURFACE_HIGHLIGHT_COLOR = [0.5, 0.5, 0.5].freeze
-  STANDARD_COLOR = [0.5, 0.2, 0.3].freeze
+  HUB_COLOR = [0.69, 0.75, 0.81].freeze
   ELONGATION_COLOR = [0.69, 0.75, 0.81].freeze
   ELONGATION_RADIUS = 11.mm.freeze
 

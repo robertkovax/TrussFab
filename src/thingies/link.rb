@@ -19,14 +19,6 @@ class Link < Thingy
     create_sub_thingies
   end
 
-  def highlight(highlight_color = @highlight_color)
-    @sub_thingies.each { |thingy| thingy.highlight(highlight_color) }
-  end
-
-  def un_highlight
-    @sub_thingies.each(&:un_highlight)
-  end
-
   def length
     @position.distance(@second_position)
   end

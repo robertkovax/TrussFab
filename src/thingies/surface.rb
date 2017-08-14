@@ -17,7 +17,7 @@ class Surface < Thingy
   end
 
   def un_highlight
-    @entity.back_material = @last_material
+    @entity.back_material = @material
     super
   end
 
@@ -52,16 +52,12 @@ class Surface < Thingy
     add(Cover.new(first_position, second_position, third_position, direction, pods))
   end
 
-  def has_cover?
-    not cover.nil?
+  def cover?
+    !cover.nil?
   end
 
   def cover
-    cover = nil
-    @sub_thingies.each do |thingy|
-      cover = thingy if thingy.is_a?(Cover)
-    end
-    cover
+    @sub_thingies.find { |thingy| thingy.is_a?(Cover) }
   end
 
   private

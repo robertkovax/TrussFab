@@ -58,7 +58,7 @@ class Triangle < GraphObject
     [first_node, second_node, third_node]
   end
 
-  def nodes_ids    
+  def nodes_ids
     [first_node.id, second_node.id, third_node.id]
   end
 
@@ -72,8 +72,8 @@ class Triangle < GraphObject
     @thingy.cover
   end
 
-  def has_cover?
-    @thingy.has_cover?
+  def cover?
+    @thingy.cover?
   end
   
   def nodes_ids_towards_user

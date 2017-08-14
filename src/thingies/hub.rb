@@ -3,7 +3,7 @@ require 'src/models/model_storage.rb'
 
 class Hub < Thingy
   def initialize(position,
-                 id: nil, material: 'standard_material')
+                 id: nil, material: 'hub_material')
     super(id, material: material)
     @position = position
     @model = ModelStorage.instance.models['ball_hub']
@@ -24,8 +24,6 @@ class Hub < Thingy
 
   def add_pod(direction, id: nil)
     pod = Pod.new(@position, direction, id: id)
-    id = pod.id
-    pod.parent = self
     add(pod)
     pod
   end

@@ -16,23 +16,17 @@ class Thingy
 
   def material=(material)
     @material = material
-    @entity.material = @material
+    @entity.material = material
     @sub_thingies.each { |thingy| thingy.material = material }
   end
 
-  def material
-    @material unless @material.nil?
-  end
-
   def highlight(highlight_material = @highlight_material)
-    @last_material = material
-    self.material = highlight_material
-    @sub_thingies.each { |thingy| thingy.highlight(@highlight_material) }
+    @entity.material = highlight_material unless @entity.nil?
+    @sub_thingies.each { |thingy| thingy.highlight(highlight_material) }
   end
 
   def un_highlight
-    self.material = @last_material unless @last_material.nil?
-    @last_material = nil
+    @entity.material = @material unless @entity.nil?
     @sub_thingies.each(&:un_highlight)
   end
 

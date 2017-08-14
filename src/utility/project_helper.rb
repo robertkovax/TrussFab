@@ -59,6 +59,11 @@ module ProjectHelper
   end
 
   def self.setup_surface_materials
+
+    material = Sketchup.active_model.materials.add('standard_material')
+    material.color = Configuration::STANDARD_COLOR
+    material.alpha = 1
+
     material = Sketchup.active_model.materials.add('surface_material')
     material.color = Configuration::SURFACE_COLOR
     material.alpha = 0.03
@@ -69,10 +74,10 @@ module ProjectHelper
 
     material = Sketchup.active_model.materials.add('highlight_material')
     material.color = Configuration::HIGHLIGHT_COLOR
-    material_alpha = 1
+    material.alpha = 1
 
-    material = Sketchup.active_model.materials.add('standard_material')
-    material.color = Configuration::STANDARD_COLOR
+    material = Sketchup.active_model.materials.add('hub_material')
+    material.color = Configuration::HUB_COLOR
     material.alpha = 1
 
     material = Sketchup.active_model.materials.add('elongation_material')

@@ -122,8 +122,9 @@ class Graph
   end
 
   def empty?
-    return nodes.empty? 
+    nodes.empty?
   end
+
   #
   # Method to delete either a node, an edge or a surface
   #
@@ -132,9 +133,7 @@ class Graph
     hash = @nodes if object.is_a?(Node)
     hash = @edges if object.is_a?(Edge)
     hash = @surfaces if object.is_a?(Triangle)
-    puts "Edges: #{edges.size}"
     return if hash.nil?
     hash.delete(object.id)
-    puts "Edges: #{edges.size}"
   end
 end

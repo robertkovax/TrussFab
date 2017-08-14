@@ -66,7 +66,7 @@ class MouseInput
     end
     if @snap_to_covers
       surface = Graph.instance.closest_surface(@position)
-      unless surface.nil? || out_of_snap_tolerance?(surface) || (not surface.has_cover?)
+      unless surface.nil? || out_of_snap_tolerance?(surface) || (not surface.cover?)
         objects.add(surface.cover)
       end
     end
