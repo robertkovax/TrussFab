@@ -4,7 +4,7 @@ class Scheduler
   include Singleton
 
   DEFAULT_SCHEDULE = [0, 1, 0, -1]
-  MAX_EXPANSION = 0.15
+  MAX_EXPANSION = 0.5
   STEPS_PER_INTERVAL = 100
 
   attr_reader :groups
@@ -13,15 +13,19 @@ class Scheduler
   def initialize
     srand 234
     # group_id => (color, schedule, expansion)
-    @groups = {}   
+    @groups = {}
     @new_group_id = 0
-    new_group([ -1,  0,  1,  0, -1,  0,  1,  0])
-    new_group([  0,  1,  0, -1,  0,  1,  0, -1])
-    new_group([  1,  0, -1,  0,  1,  0, -1,  0])
-    new_group([  0, -1,  0,  1,  0, -1,  0,  1])
-    new_group([  0, -1,  0,  1,  0, -1,  0,  1])
-    new_group([  0, -1,  0,  1,  0, -1,  0,  1])
-    new_group([  0, -1,  0,  1,  0, -1,  0,  1])
+    var = 0
+    new_group([-1, -1, -1, -1, -1, var, var, var, var, var])
+    new_group([  var, -1, -1, -1, -1, -1,  var,  var,  var,  var])
+    new_group([  var,  var, -1, -1, -1, -1, -1,  var,  var,  var])
+    new_group([  var,  var,  var, -1, -1, -1, -1, -1,  var,  var])
+    new_group([  var,  var,  var,  var, -1, -1, -1, -1, -1,  var])
+    new_group([  var,  var,  var,  var,  var, -1, -1, -1, -1, -1])
+    new_group([ -1,  var,  var,  var,  var,  var, -1, -1, -1, -1])
+    new_group([ -1, -1,  var,  var,  var,  var,  var, -1, -1, -1])
+    new_group([ -1, -1, -1,  var,  var,  var,  var,  var, -1, -1])
+    new_group([ -1, -1, -1, -1,  var,  var,  var,  var,  var, -1])
   end
 
   ### group management
