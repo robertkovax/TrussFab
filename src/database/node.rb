@@ -31,7 +31,7 @@ class Node < GraphObject
   end
 
   def fixed?
-    @pod_constraints.value?(true)
+    @pod_constraints.values.any?
   end
 
   def frozen?
@@ -66,6 +66,10 @@ class Node < GraphObject
 
   def is_incident(edge)
     @incidents.include?(edge)
+  end
+
+  def adjacent_nodes
+    @incidents.map { |edge| edge.opposite(self) }
   end
 
   def add_pod(direction = nil, constraint: true)
