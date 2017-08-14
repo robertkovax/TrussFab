@@ -23,6 +23,8 @@ class Simulation
   MSPHYSICS_TIME_STEP = 1.0 / 200
   MSPHYSICS_N_STEPS = ((1.0 / 60) / MSPHYSICS_TIME_STEP).to_i
 
+  DEFAULT_SOLVER_MODEL = 2
+
   COLLISION_TYPE_TO_COLLISION_ID = {
     null: 0,
     box: 1,
@@ -53,7 +55,7 @@ class Simulation
       create_body(world, group, collision_type: collision_type, dynamic: dynamic)
     end
 
-    def joint_between(world, klass, parent_body, child_body, matrix, solver_model = 2, group = nil)
+    def joint_between(world, klass, parent_body, child_body, matrix, solver_model = DEFAULT_SOLVER_MODEL, group = nil)
       joint = klass.new(world, parent_body, matrix, group)
       joint.stiffness = DEFAULT_STIFFNESS
       joint.breaking_force = DEFAULT_BREAKING_FORCE
