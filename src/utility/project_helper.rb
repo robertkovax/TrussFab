@@ -59,7 +59,6 @@ module ProjectHelper
   end
 
   def self.setup_surface_materials
-
     material = Sketchup.active_model.materials.add('standard_material')
     material.color = Configuration::STANDARD_COLOR
     material.alpha = 1

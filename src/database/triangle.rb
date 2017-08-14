@@ -46,8 +46,8 @@ class Triangle < GraphObject
 
   def move
     @thingy.update_positions(@first_node.position,
-                              @second_node.position,
-                              @third_node.position)
+                             @second_node.position,
+                             @third_node.position)
   end
 
   def add_pods
@@ -75,7 +75,7 @@ class Triangle < GraphObject
   def cover?
     @thingy.cover?
   end
-  
+
   def nodes_ids_towards_user
     # this is ugly! this is made to be able to recreate the surface with the
     # same direction by aranging the ids in the right order. This should be

@@ -42,15 +42,11 @@ class MouseInput
     objects = Set.new
     if @snap_to_edges
       edge = Graph.instance.closest_edge(@position)
-      unless edge.nil? || out_of_snap_tolerance?(edge)
-        objects.add(edge)
-      end
+      objects.add(edge) unless edge.nil? || out_of_snap_tolerance?(edge)
     end
     if @snap_to_nodes
       node = Graph.instance.closest_node(@position)
-      unless node.nil? || out_of_snap_tolerance?(node)
-        objects.add(node)
-      end
+      objects.add(node) unless node.nil? || out_of_snap_tolerance?(node)
     end
     if @snap_to_surfaces
       surface = Graph.instance.closest_surface(@position)
@@ -60,13 +56,11 @@ class MouseInput
     end
     if @snap_to_pods
       pod = Graph.instance.closest_pod(@position)
-      unless pod.nil? || out_of_snap_tolerance?(pod)
-        objects.add(pod)
-      end
+      objects.add(pod) unless pod.nil? || out_of_snap_tolerance?(pod)
     end
     if @snap_to_covers
       surface = Graph.instance.closest_surface(@position)
-      unless surface.nil? || out_of_snap_tolerance?(surface) || (not surface.cover?)
+      unless surface.nil? || out_of_snap_tolerance?(surface) || !surface.cover?
         objects.add(surface.cover)
       end
     end

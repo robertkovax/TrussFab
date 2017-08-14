@@ -24,7 +24,6 @@ class Link < Thingy
   end
 
   def create_sub_thingies
-
     @first_elongation_length = @second_elongation_length = Configuration::MINIMUM_ELONGATION
 
     model_length = length - @first_elongation_length - @second_elongation_length

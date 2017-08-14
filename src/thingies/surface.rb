@@ -3,7 +3,7 @@ require 'src/thingies/surface_entities/cover.rb'
 
 class Surface < Thingy
   def initialize(first_position, second_position, third_position,
-                 id: nil, material: 'surface_material', highlight_material:'surface_highlight_material')
+                 id: nil, material: 'surface_material', highlight_material: 'surface_highlight_material')
     super(id, material: material, highlight_material: highlight_material)
     @first_position = first_position
     @second_position = second_position

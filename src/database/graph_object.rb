@@ -38,7 +38,7 @@ class GraphObject
   end
 
   def delete_thingy
-    @thingy.delete if !@thingy.nil?
-    @thingy = nil 
+    @thingy.delete unless @thingy.nil?
+    @thingy = nil
   end
 end

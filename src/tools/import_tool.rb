@@ -4,7 +4,6 @@ require 'src/utility/json_import.rb'
 require 'src/database/graph.rb'
 require 'src/configuration/configuration.rb'
 
-
 class ImportTool < Tool
   def initialize(ui = nil)
     super
@@ -53,11 +52,13 @@ class ImportTool < Tool
       right_back_top = new_bounds.corner(7)
       diagonal = Geom::Vector3d.new(left_front_bottom, right_back_top)
       new_bounds.add(right_back_top.offset(
-                                          diagonal,
-                                          Configuration::INTERSECTION_OFFSET))
+                       diagonal,
+                       Configuration::INTERSECTION_OFFSET
+      ))
       new_bounds.add(left_front_bottom.offset(
-                                          diagonal.reverse,
-                                          Configuration::INTERSECTION_OFFSET))
+                       diagonal.reverse,
+                       Configuration::INTERSECTION_OFFSET
+      ))
       old_bounds = old_triangle.thingy.entity.bounds
       intersection = old_bounds.intersect(new_bounds)
       return true if intersection.valid?

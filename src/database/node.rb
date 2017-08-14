@@ -3,7 +3,6 @@ require 'src/thingies/hub.rb'
 require 'src/thingies/hub_entities/pod.rb'
 
 class Node < GraphObject
-
   attr_reader :position, :incidents, :pod_directions, :pod_constraints
 
   def initialize(position, id: nil)
@@ -19,8 +18,8 @@ class Node < GraphObject
   def move(position)
     @position = position
     @thingy.update_position(position)
-    @incidents.each {|incident| incident.move}
-    @adjcacent_triangles.each {|triangle| triangle.move}
+    @incidents.each(&:move)
+    @adjcacent_triangles.each(&:move)
   end
 
   def distance(point)
@@ -32,11 +31,11 @@ class Node < GraphObject
   end
 
   def fixed?
-    @pod_constraints.has_value?(true)
+    @pod_constraints.value?(true)
   end
 
   def frozen?
-    # TODO check if node is frozen by context menu, manually saving this node and connected edges from being changed
+    # TODO: check if node is frozen by context menu, manually saving this node and connected edges from being changed
     false
   end
 

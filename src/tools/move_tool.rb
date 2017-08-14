@@ -63,8 +63,8 @@ class MoveTool < Tool
     return unless @moving
     Sketchup.active_model.start_operation('move node and relax', true)
     Relaxation.new
-      .move_node(@start_node, @end_position)
-      .relax
+              .move_node(@start_node, @end_position)
+              .relax
     reset
     view.invalidate
     @moving = false

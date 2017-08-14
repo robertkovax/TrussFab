@@ -29,12 +29,10 @@ class ExportFileTool < Tool
     view.invalidate
   end
 
-  def export_with_file_dialog(triangle=nil)
+  def export_with_file_dialog(triangle = nil)
     path = UI.savepanel('Export JSON',
                         Configuration::JSON_PATH,
                         'JSON File|*.json;||')
-    unless path.nil?
-      JsonExport.export(path, triangle)
-    end
+    JsonExport.export(path, triangle) unless path.nil?
   end
 end
