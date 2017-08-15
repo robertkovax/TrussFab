@@ -5,7 +5,6 @@ require 'src/models/model_storage.rb'
 
 class Edge < GraphObject
   attr_reader :first_node, :second_node
-  attr_accessor :desired_length
 
   def initialize(first_node, second_node, model_name: 'hard', id: nil, link_type: 'bottle_link')
     @first_node = first_node
