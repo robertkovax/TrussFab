@@ -12,7 +12,7 @@ class ExportFileTool < Tool
   def activate
     UI.messagebox('Please select a surface to become the standard surface'\
                   ' that gets attached when added to other objects',
-                  type = MB_OK)
+                  MB_OK)
   end
 
   def onMouseMove(_flags, x, y, view)
