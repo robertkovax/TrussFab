@@ -3,6 +3,7 @@ require 'src/database/node.rb'
 require 'src/database/edge.rb'
 require 'src/database/triangle.rb'
 require 'src/utility/scad_export.rb'
+require 'src/utility/bottle_counter.rb'
 
 class Graph
   include Singleton
@@ -47,6 +48,7 @@ class Graph
     edge = Edge.new(first_node, second_node, model_name: model_name, link_type: link_type)
     create_possible_surfaces(edge)
     @edges[edge.id] = edge
+    BottleCounter.update_status_text
     edge
   end
 
@@ -145,5 +147,6 @@ class Graph
     hash = @surfaces if object.is_a?(Triangle)
     return if hash.nil?
     hash.delete(object.id)
+    BottleCounter.update_status_text
   end
 end

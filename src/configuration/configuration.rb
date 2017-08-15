@@ -35,34 +35,40 @@ module Configuration
   TETRAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/tetrahedron.json').freeze
   OCTAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/octahedron.json').freeze
 
+  BIG_BIG_BOTTLE_NAME = 'Big Big Double Bottle (60cm)'.freeze
+  SMALL_BIG_BOTTLE_NAME = 'Small Big Double Bottle (53cm)'.freeze
+  SMALL_SMALL_BOTTLE_NAME = 'Small Small Double Bottle (46cm))'.freeze
+  BIG_BOTTLE_NAME = 'Big Single Bottle (30cm)'.freeze
+  SMALL_BOTTLE_NAME = 'Small Single Bottle (30cm)'.freeze
+
   # Model Settings
   HARD_MODELS = [
     {
-      NAME: 'Big Big Double Bottle (60cm)',
+      NAME: BIG_BIG_BOTTLE_NAME,
       WEIGHT: 0.16,
       PATH: ProjectHelper.component_directory + '/1-big-big-double-bottle(60cm).skp',
       MODEL: 'hard'
     },
     {
-      NAME: 'Small Big Double Bottle (53cm)',
+      NAME: SMALL_BIG_BOTTLE_NAME,
       WEIGHT: 0.14,
       PATH: ProjectHelper.component_directory + '/2-small-big-double-bottle(53cm).skp',
       MODEL: 'hard'
     },
     {
-      NAME: 'Small Small Double Bottle (46cm)',
+      NAME: SMALL_SMALL_BOTTLE_NAME,
       WEIGHT: 0.11,
       PATH: ProjectHelper.component_directory + '/3-small-small-double-bottle(46cm).skp',
       MODEL: 'hard'
     },
     {
-      NAME: 'Big Single Bottle (30cm)',
+      NAME: BIG_BOTTLE_NAME,
       WEIGHT: 0.078,
       PATH: ProjectHelper.component_directory + '/4-big-single-bottle(30cm).skp',
       MODEL: 'hard'
     },
     {
-      NAME: 'Small Single Bottle (23cm)',
+      NAME: SMALL_BOTTLE_NAME,
       WEIGHT: 0.048,
       PATH: ProjectHelper.component_directory + '/5-small-single-bottle(23cm).skp',
       MODEL: 'hard'

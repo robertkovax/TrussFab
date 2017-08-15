@@ -23,6 +23,10 @@ class Link < Thingy
     @position.distance(@second_position)
   end
 
+  def bottle_link
+    @sub_thingies.find { |thingy| thingy.is_a?(BottleLink) }
+  end
+
   def create_sub_thingies
     @first_elongation_length = @second_elongation_length = Configuration::MINIMUM_ELONGATION
 
@@ -38,7 +42,7 @@ class Link < Thingy
     link_position = @position.offset(first_elongation.direction)
 
     add(first_elongation,
-        BottleLink.new(link_position, direction, shortest_model.definition),
+        BottleLink.new(link_position, direction, shortest_model),
         Elongation.new(@second_position,
                        direction.reverse,
                        @second_elongation_length))
