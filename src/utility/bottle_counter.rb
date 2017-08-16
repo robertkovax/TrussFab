@@ -15,6 +15,10 @@ class BottleCounter
       Graph.instance.edges.length
     end
 
+    def number_triangles
+      Graph.instance.surfaces.length
+    end
+
     def bottle_counts
       counts = {}
       Configuration::HARD_MODELS.each do |model|

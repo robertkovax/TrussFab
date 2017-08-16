@@ -40,6 +40,16 @@ class Edge < GraphObject
     [first_node, second_node]
   end
 
+  def exchange_node(current_node, new_node)
+    if current_node == @first_node
+      @first_node = new_node
+    elsif current_node == @second_node
+      @second_node = new_node
+    else
+      raise "#{current_node} not in nodes"
+    end
+  end
+
   def segment
     [position, end_position]
   end

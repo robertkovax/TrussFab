@@ -46,6 +46,14 @@ class Thingy
     @deleted
   end
 
+  def delete_sub_thingy(id)
+    @sub_thingies.each do |sub_thingy|
+      next unless sub_thingy.id == id
+      sub_thingy.delete
+      remove(sub_thingy)
+    end
+  end
+
   def delete_sub_thingies
     @sub_thingies.clone.each(&:delete)
   end

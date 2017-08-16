@@ -19,21 +19,19 @@ class Hub < Thingy
   def update_position(position)
     @position = position
     @entity.move!(Geom::Transformation.new(position))
+    @id_label.point = position
     @sub_thingies.each { |sub_thingy| sub_thingy.update_position(position) }
   end
 
-  def add_pod(direction, id: nil)
-    pod = Pod.new(@position, direction, id: id)
+  def add_pod(node, direction, id: nil)
+    pod = Pod.new(node, @position, direction, id: id)
     add(pod)
     pod
   end
 
-  def delete_sub_thingy(id)
-    @sub_thingies.each do |sub_thingy|
-      next unless sub_thingy.id == id
-      sub_thingy.delete
-      remove(sub_thingy)
-    end
+  def delete
+    @id_label.erase!
+    super
   end
 
   private

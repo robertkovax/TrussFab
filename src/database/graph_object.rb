@@ -11,7 +11,7 @@ class GraphObject
 
   def delete
     delete_thingy
-    unstore
+    Graph.instance.delete_object(self)
     @deleted = true
   end
 
@@ -31,10 +31,6 @@ class GraphObject
 
   def create_thingy(_id)
     raise "GraphObject (#{self.class}):: create_thingy needs to be overwritten"
-  end
-
-  def unstore
-    Graph.instance.delete_object(self)
   end
 
   def delete_thingy

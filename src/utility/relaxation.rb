@@ -64,6 +64,11 @@ class Relaxation
     self
   end
 
+  def constrain_node(node)
+    @fixed_nodes[node.id] = node unless node.nil?
+    self
+  end
+
   private
 
   def update_nodes
@@ -140,11 +145,6 @@ class Relaxation
 
   def pick_random_edge
     @edges[rand(@edges.length)]
-  end
-
-  def constrain_node(node)
-    @fixed_nodes[node.id] = node unless node.nil?
-    self
   end
 
   def fixed?(node)
