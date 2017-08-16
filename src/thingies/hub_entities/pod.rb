@@ -1,4 +1,6 @@
 class Pod < Thingy
+  attr_reader :node
+
   def initialize(node, position, direction,
                  id: nil, material: 'elongation_material')
     super(id, material: material)

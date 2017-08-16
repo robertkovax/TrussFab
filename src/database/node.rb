@@ -3,7 +3,9 @@ require 'src/thingies/hub.rb'
 require 'src/thingies/hub_entities/pod.rb'
 
 class Node < GraphObject
-  attr_reader :position, :incidents, :pod_directions, :pod_constraints
+  attr_reader :position, :incidents, :pod_directions, :pod_constraints, :adjacent_triangles
+
+  POD_ANGLE_THRESHOLD = 0.2
 
   def initialize(position, id: nil)
     @deleting = false
@@ -110,10 +112,22 @@ class Node < GraphObject
     delete
   end
 
+  def find_pod(direction)
+    id, = @pod_directions.find do |_id, other_direction|
+      direction.angle_between(other_direction) <= POD_ANGLE_THRESHOLD
+    end
+    @thingy.pods.find { |pod| pod.id == id }
+  end
+
   def add_pod(direction = nil, constraint: true, id: nil)
     id = IdManager.instance.generate_next_id if id.nil?
-    direction = direction.normalize
-    @pod_directions[id] = direction.nil? ? Geometry::Z_AXIS.reverse : direction
+    direction = direction.nil? ? Geometry::Z_AXIS.reverse : direction.normalize
+    existing_pod = find_pod(direction)
+    unless existing_pod.nil?
+      @pod_constraints[existing_pod.id] |= constraint
+      return existing_pod
+    end
+    @pod_directions[id] = direction
     @pod_constraints[id] = constraint
     @thingy.add_pod(self, @pod_directions[id], id: id)
   end

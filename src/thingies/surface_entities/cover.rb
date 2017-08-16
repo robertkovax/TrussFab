@@ -36,8 +36,13 @@ class Cover < Thingy
   end
 
   def delete
-    @pods.each(&:delete)
     super
+    adjacent_cover_pods = @pods.flat_map do |p|
+      p.node.adjacent_triangles.map(&:cover)
+    end.compact.flat_map(&:pods)
+
+    (@pods - adjacent_cover_pods).each(&:delete)
+    @pods = []
   end
 
   private
