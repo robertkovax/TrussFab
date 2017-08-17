@@ -3,8 +3,12 @@ require 'src/simulation/simulation.rb'
 
 class PhysicsThingy < Thingy
 
-  def initialize(id)
-    super(id)
+  def initialize(id, material: nil)
+    if material.nil?
+      super(id)
+    else
+      super(id, material: material)
+    end
     @body = nil
   end
 

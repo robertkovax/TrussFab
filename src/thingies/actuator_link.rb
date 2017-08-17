@@ -23,6 +23,10 @@ class ActuatorLink < Link
                                         mid_point.vector_to(@second_position))
   end
 
+  #
+  # Physics methods
+  #
+
   def create_body(world)
     @first_cylinder_body = @first_cylinder.create_body(world)
     @second_cylinder_body = @second_cylinder.create_body(world)
@@ -62,6 +66,10 @@ class ActuatorLink < Link
       cylinder.body = nil
     end
   end
+
+  #
+  # Subthingy methods
+  #
 
   def create_sub_thingies
     direction_up = @position.vector_to(@second_position)

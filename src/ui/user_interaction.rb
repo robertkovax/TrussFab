@@ -44,6 +44,9 @@ class UserInteraction
     build_tool(SimulationTool, 'simulation_tool')
     build_tool(BallJointSimulationTool, 'ball_joint_simulation_tool')
     build_tool(ActuatorTool, 'actuator_tool')
+    build_tool(CoverTool, 'cover_tool')
+    build_tool(FabricateTool, 'fabricate_tool')
+    build_tool(BottleCountTool, 'bottle_count_tool')
   end
 
   def build_tool(tool_class, tool_id)

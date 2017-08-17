@@ -3,18 +3,19 @@ require 'set'
 class MouseInput
   attr_reader :position, :snapped_object
 
-  def initialize(snap_to_nodes: false, snap_to_edges: false, snap_to_surfaces: false, snap_to_pods: false)
+  def initialize(snap_to_nodes: false, snap_to_edges: false, snap_to_surfaces: false, snap_to_pods: false, snap_to_covers: false)
     @snap_to_nodes = snap_to_nodes
     @snap_to_edges = snap_to_edges
     @snap_to_surfaces = snap_to_surfaces
     @snap_to_pods = snap_to_pods
+    @snap_to_covers = snap_to_covers
     @position = nil
     soft_reset
   end
 
   def soft_reset
     @position = nil
-    unless @snapped_object.nil?
+    unless @snapped_object.nil? || @snapped_object.deleted?
       @snapped_object.un_highlight
     end
     @snapped_object = nil
@@ -38,30 +39,36 @@ class MouseInput
   end
 
   def snap_to_object
-    objects = Set.new
+    objects = []
     if @snap_to_edges
       edge = Graph.instance.closest_edge(@position)
-      objects.add(edge) unless edge.nil? || out_of_snap_tolerance?(edge)
+      objects.push(edge) unless edge.nil? || out_of_snap_tolerance?(edge)
     end
     if @snap_to_nodes
       node = Graph.instance.closest_node(@position)
-      objects.add(node) unless node.nil? || out_of_snap_tolerance?(node)
+      objects.push(node) unless node.nil? || out_of_snap_tolerance?(node)
     end
     if @snap_to_surfaces
       surface = Graph.instance.closest_surface(@position)
       unless surface.nil? || out_of_snap_tolerance?(surface)
-        objects.add(surface)
+        objects.push(surface)
       end
     end
     if @snap_to_pods
       pod = Graph.instance.closest_pod(@position)
       unless pod.nil? || out_of_snap_tolerance?(pod)
-        objects.add(pod)
+        objects.push(pod)
       end
     end
-    return nil if objects.empty?
-    @snapped_object = objects.min_by do |graph_object|
-      graph_object.distance(@position)
+    if @snap_to_covers
+      surface = Graph.instance.closest_surface(@position)
+      if !surface.nil? && surface.cover? && !out_of_snap_tolerance?(surface)
+        objects.push(surface.cover)
+      end
+    end
+    return if objects.empty?
+    @snapped_object = objects.min_by do |object|
+      object.distance(@position)
     end
   end
 end

@@ -29,7 +29,6 @@ module JsonImport
       snap_direction = snap_triangle.normal_towards_user
       snap_center = snap_triangle.center
 
-
       # snap to triangle (from json)
       json_direction, json_triangle_points = json_triangle(json_objects, json_points)
       json_center = Geometry.triangle_incenter(*json_triangle_points)
@@ -49,7 +48,6 @@ module JsonImport
       # recompute json triangle points and center after transformation
       json_triangle_points.map! { |point| point.transform(transformation) }
       json_center = Geometry.triangle_incenter(*json_triangle_points)
-
 
       # get two corresponding vectors from snap and json triangle to align them
       ref_point_snap = snap_triangle.first_node.position
@@ -111,8 +109,8 @@ module JsonImport
             next if first_incident == second_incident
             if first_incident.opposite(edge.first_node) == second_incident.opposite(edge.second_node)
               triangle = Graph.instance.create_surface(edge.first_node,
-                                                      edge.second_node,
-                                                      first_incident.opposite(edge.first_node))
+                                                       edge.second_node,
+                                                       first_incident.opposite(edge.first_node))
               triangles[triangle.id] = triangle
             end
           end

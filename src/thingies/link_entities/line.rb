@@ -1,9 +1,10 @@
-require 'src/thingies/link_entities/link_entity.rb'
+require 'src/thingies/thingy.rb'
 
-class Line < LinkEntity
+class Line < Thingy
   def initialize(first_position, second_position, id: nil)
     @first_position = first_position
     @second_position = second_position
+    @entity = create_entity
     super(id)
   end
 

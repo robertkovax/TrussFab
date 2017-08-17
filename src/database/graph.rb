@@ -2,6 +2,8 @@ require 'singleton'
 require 'src/database/node.rb'
 require 'src/database/edge.rb'
 require 'src/database/triangle.rb'
+require 'src/utility/scad_export.rb'
+require 'src/utility/bottle_counter.rb'
 
 class Graph
   include Singleton
@@ -24,8 +26,8 @@ class Graph
     [@edges.values, @nodes.values, @surfaces.values].flatten
   end
 
-  def triangle_pairs
-    @edges.values.flat_map(&:adjacent_triangle_pairs)
+  def export_to_scad(path)
+    ScadExport.export_to_scad(path, @nodes.values)
   end
 
   #
@@ -52,7 +54,9 @@ class Graph
     edge = find_edge(nodes)
     return edge unless edge.nil?
     edge = Edge.new(first_node, second_node, model_name: model_name, link_type: link_type)
+    create_possible_surfaces(edge)
     @edges[edge.id] = edge
+    BottleCounter.update_status_text
     edge
   end
 
@@ -63,7 +67,6 @@ class Graph
     create_edge(first_node, second_node, model_name: model_name, link_type: link_type)
     create_edge(second_node, third_node, model_name: model_name, link_type: link_type)
     create_edge(first_node, third_node, model_name: model_name, link_type: link_type)
-    create_surface(first_node, second_node, third_node)
   end
 
   def create_surface(first_node, second_node, third_node)
@@ -73,6 +76,16 @@ class Graph
     surface = Triangle.new(first_node, second_node, third_node)
     @surfaces[surface.id] = surface
     surface
+  end
+
+  def create_possible_surfaces(edge)
+    first_node = edge.first_node
+    second_node = edge.second_node
+    first_other_nodes = first_node.adjacent_nodes
+    second_other_nodes = second_node.adjacent_nodes
+    (first_other_nodes & second_other_nodes).each do |node|
+      create_surface(first_node, second_node, node)
+    end
   end
 
   #
@@ -157,5 +170,6 @@ class Graph
     hash = @surfaces if object.is_a?(Triangle)
     return if hash.nil?
     hash.delete(object.id)
+    BottleCounter.update_status_text
   end
 end

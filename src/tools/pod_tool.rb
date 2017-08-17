@@ -8,8 +8,8 @@ class PodTool < Tool
     @mouse_input.update_positions(view, x, y)
     snapped_object = @mouse_input.snapped_object
     case snapped_object
-      when Node then snapped_object.add_pod(Geometry::Z_AXIS.reverse)
-      when Triangle then snapped_object.add_pods
+    when Node then snapped_object.add_pod(Geometry::Z_AXIS.reverse)
+    when Triangle then snapped_object.add_pods
     end
   end
 

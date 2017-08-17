@@ -79,6 +79,16 @@ class Edge < GraphObject
     [first_node, second_node]
   end
 
+  def exchange_node(current_node, new_node)
+    if current_node == @first_node
+      @first_node = new_node
+    elsif current_node == @second_node
+      @second_node = new_node
+    else
+      raise "#{current_node} not in nodes"
+    end
+  end
+
   def segment
     [position, end_position]
   end
@@ -93,10 +103,6 @@ class Edge < GraphObject
     @first_node.adjacent_triangles & @second_node.adjacent_triangles
   end
 
-  def adjacent_triangle_pairs
-    adjacent_triangles.combination(2)
-  end
-
   def sorted_adjacent_triangle_pairs
     sorted_triangles = sorted_adjacent_triangles
     sorted_triangles << sorted_triangles.first
@@ -105,10 +111,10 @@ class Edge < GraphObject
 
   def sorted_adjacent_triangles
     triangles = adjacent_triangles
-    ref_vector = mid_point.vector_to(triangles[0].node_for(self).position)
+    ref_vector = mid_point.vector_to(triangles[0].other_node_for(self).position)
     normal = direction.normalize
     triangles.sort_by do |t|
-      v = mid_point.vector_to(t.node_for(self).position)
+      v = mid_point.vector_to(t.other_node_for(self).position)
       Geometry.angle_around_normal(ref_vector, v, normal)
     end
   end
@@ -163,9 +169,12 @@ class Edge < GraphObject
     length * 0.9
   end
 
-  def recreate_thingy
-    @thingy.delete
-    @thingy = create_thingy(@id)
+  def first_elongation_length
+    @thingy.first_elongation_length
+  end
+
+  def second_elongation_length
+    @thingy.second_elongation_length
   end
 
   private

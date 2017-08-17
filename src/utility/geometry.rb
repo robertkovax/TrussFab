@@ -36,8 +36,9 @@ module Geometry
                                                      to_vector)
     rotation_axis = Geometry.perpendicular_rotation_axis(from_vector,
                                                          to_vector)
-    rotation = Geom::Transformation.rotation(position, rotation_axis,
-                                             rotation_angle)
+    Geom::Transformation.rotation(position,
+                                  rotation_axis,
+                                  rotation_angle)
   end
 
   def self.perpendicular_rotation_axis(first_vector, second_vector)

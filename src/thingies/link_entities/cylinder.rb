@@ -1,7 +1,7 @@
-require 'src/thingies/link_entities/link_entity.rb'
+require 'src/thingies/thingy.rb'
 require 'src/simulation/simulation.rb'
 
-class Cylinder < LinkEntity
+class Cylinder < Thingy
 
   attr_accessor :body
 
@@ -10,6 +10,7 @@ class Cylinder < LinkEntity
     @vector = vector
     @definition = definition
     @body = nil
+    @entity = create_entity
     super(id)
   end
 
