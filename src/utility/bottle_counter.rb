@@ -19,14 +19,19 @@ class BottleCounter
       Graph.instance.surfaces.length
     end
 
+    def number_actuators
+      Graph.instance.edges.values.count { |edge| edge.link_type == 'actuator' }
+    end
+
     def bottle_counts
       counts = {}
       Configuration::HARD_MODELS.each do |model|
         counts[model[:NAME]] = 0
       end
       Graph.instance.edges.values.each do |edge|
-        # TODO: check link_type
-        counts[edge.thingy.bottle_link.model.name] += 1
+        if edge.link_type == 'bottle_link'
+          counts[edge.thingy.bottle_link.model.name] += 1
+        end
       end
       counts
     end

@@ -2,10 +2,10 @@ require 'src/thingies/thingy.rb'
 
 class Line < Thingy
   def initialize(first_position, second_position, id: nil)
+    super(id)
     @first_position = first_position
     @second_position = second_position
     @entity = create_entity
-    super(id)
   end
 
   def create_entity

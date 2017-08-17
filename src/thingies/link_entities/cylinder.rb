@@ -6,12 +6,12 @@ class Cylinder < Thingy
   attr_accessor :body
 
   def initialize(center, vector, definition, id = nil)
+    super(id)
     @center = center
     @vector = vector
     @definition = definition
     @body = nil
     @entity = create_entity
-    super(id)
   end
 
   def create_body(world)
