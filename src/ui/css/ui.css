@@ -72,6 +72,11 @@ button.fabricate {
     margin-right: -2px;
 }
 
+button.fabricate img {
+    height: auto;
+    width: auto;
+}
+
 button.tool.active {
     background: linear-gradient(#ccc, #eee);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#bbbbbb', endColorstr='#dddddd');
