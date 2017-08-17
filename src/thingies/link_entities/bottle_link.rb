@@ -1,10 +1,12 @@
 class BottleLink < Thingy
-  def initialize(position, direction, definition,
+  attr_reader :model
+
+  def initialize(position, direction, model,
                  id: nil)
     super(id)
     @position = position
     @direction = direction
-    @definition = definition
+    @model = model
     @entity = create_entity
   end
 
@@ -20,7 +22,7 @@ class BottleLink < Thingy
 
     transformation = rotation * translation
 
-    entity = Sketchup.active_model.active_entities.add_instance(@definition, transformation)
+    entity = Sketchup.active_model.active_entities.add_instance(@model.definition, transformation)
     entity.layer = Configuration::COMPONENT_VIEW
     entity
   end

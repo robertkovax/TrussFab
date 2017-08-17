@@ -3,6 +3,7 @@ require 'src/database/node.rb'
 require 'src/database/edge.rb'
 require 'src/database/triangle.rb'
 require 'src/utility/scad_export.rb'
+require 'src/utility/bottle_counter.rb'
 
 class Graph
   include Singleton
@@ -15,6 +16,14 @@ class Graph
     @edges = {}       # {(id => edge)}
     @nodes = {}       # {(id => node)}
     @surfaces = {}    # {(id => surface)}
+  end
+
+  def nodes_and_edges
+    [@edges.values, @nodes.values].flatten
+  end
+
+  def all_graph_objects
+    [@edges.values, @nodes.values, @surfaces.values].flatten
   end
 
   def export_to_scad(path)
@@ -47,6 +56,7 @@ class Graph
     edge = Edge.new(first_node, second_node, model_name: model_name, link_type: link_type)
     create_possible_surfaces(edge)
     @edges[edge.id] = edge
+    BottleCounter.update_status_text
     edge
   end
 
@@ -136,6 +146,21 @@ class Graph
   end
 
   #
+  # Methods to clear graph or redraw/reset all graph objects
+  #
+
+  def clear!
+    @edges = {}       # {(id => edge)}
+    @nodes = {}       # {(id => node)}
+    @surfaces = {}    # {(id => surface)}
+    Sketchup.active_model.entities.clear!
+  end
+
+  def redraw
+    all_graph_objects.each(&:redraw)
+  end
+
+  #
   # Method to delete either a node, an edge or a surface
   #
 
@@ -145,5 +170,6 @@ class Graph
     hash = @surfaces if object.is_a?(Triangle)
     return if hash.nil?
     hash.delete(object.id)
+    BottleCounter.update_status_text
   end
 end

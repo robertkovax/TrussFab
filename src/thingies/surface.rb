@@ -40,24 +40,21 @@ class Surface < Thingy
     @third_position = third_position
     delete_entity
     @entity = create_entity
+    @sub_thingies.each do |sub_thingy|
+      sub_thingy.update_positions(first_position, second_position, third_position)
+    end
   end
 
   def add_cover(direction, pods)
-    pod_length = ModelStorage.instance.models['pod'].length
-    offset_vector = direction.clone
-    offset_vector.length = pod_length
-    first_position = positions[0] + offset_vector
-    second_position = positions[1] + offset_vector
-    third_position = positions[2] + offset_vector
-    add(Cover.new(first_position, second_position, third_position, direction, pods))
+    add(Cover.new(@first_position, @second_position, @third_position, direction, pods))
   end
 
   def cover?
-    !cover.nil?
+    @sub_thingies.any? { |thingy| thingy.is_a?(Cover) }
   end
 
   def cover
-    @sub_thingies.find { |thingy| thingy.is_a?(Cover) }
+    @sub_thingies.detect { |thingy| thingy.is_a?(Cover) }
   end
 
   private

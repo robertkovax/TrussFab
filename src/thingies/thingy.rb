@@ -14,8 +14,40 @@ class Thingy
     @deleted = false
   end
 
+  def all_entities
+    entities = []
+    entities.push(@entity) unless @entity.nil?
+    @sub_thingies.each do |thingy|
+      entities.concat(thingy.all_entities)
+    end
+    entities
+  end
+
+  def transform(transformation)
+    @entity.transform!(transformation) unless @entity.nil?
+    @sub_thingies.each { |thingy| thingy.transform(transformation) }
+  end
+
+  def change_color(color)
+    @entity.material = color unless @entity.nil?
+    @sub_thingies.each { |thingy| thingy.change_color(color) }
+  end
+
+  def hide
+    @entity.hidden = true unless @entity.nil?
+    @sub_thingies.each(&:hide)
+  end
+
+  def show
+    @entity.hidden = false unless @entity.nil?
+    @sub_thingies.each(&:hide)
+  end
+
+  def color
+    @entity.material unless @entity.nil?
+  end
+
   def material=(material)
-    @material = material
     @entity.material = material
     @sub_thingies.each { |thingy| thingy.material = material }
   end
@@ -44,6 +76,13 @@ class Thingy
 
   def deleted?
     @deleted
+  end
+
+  def delete_sub_thingy(id)
+    @sub_thingies.each do |sub_thingy|
+      next unless sub_thingy.id == id
+      sub_thingy.delete
+    end
   end
 
   def delete_sub_thingies

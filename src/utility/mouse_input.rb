@@ -39,29 +39,29 @@ class MouseInput
   end
 
   def snap_to_object
-    objects = Set.new
+    objects = []
     if @snap_to_edges
       edge = Graph.instance.closest_edge(@position)
-      objects.add(edge) unless edge.nil? || out_of_snap_tolerance?(edge)
+      objects.push(edge) unless edge.nil? || out_of_snap_tolerance?(edge)
     end
     if @snap_to_nodes
       node = Graph.instance.closest_node(@position)
-      objects.add(node) unless node.nil? || out_of_snap_tolerance?(node)
+      objects.push(node) unless node.nil? || out_of_snap_tolerance?(node)
     end
     if @snap_to_surfaces
       surface = Graph.instance.closest_surface(@position)
       unless surface.nil? || out_of_snap_tolerance?(surface)
-        objects.add(surface)
+        objects.push(surface)
       end
     end
     if @snap_to_pods
       pod = Graph.instance.closest_pod(@position)
-      objects.add(pod) unless pod.nil? || out_of_snap_tolerance?(pod)
+      objects.push(pod) unless pod.nil? || out_of_snap_tolerance?(pod)
     end
     if @snap_to_covers
       surface = Graph.instance.closest_surface(@position)
-      unless surface.nil? || out_of_snap_tolerance?(surface) || !surface.cover?
-        objects.add(surface.cover)
+      if !surface.nil? && surface.cover? && !out_of_snap_tolerance?(surface)
+        objects.push(surface.cover)
       end
     end
     return if objects.empty?

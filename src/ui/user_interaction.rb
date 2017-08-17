@@ -1,5 +1,4 @@
 ProjectHelper.require_multiple('src/tools/*.rb')
-puts 'UserInteraction'
 
 class UserInteraction
   def initialize
@@ -31,7 +30,9 @@ class UserInteraction
   def register_callbacks
     return if @dialog.nil?
     build_tool(TetrahedronTool, 'tetrahedron_tool')
+    build_tool(DynamicTetrahedronTool, 'dynamic_tetrahedron_tool')
     build_tool(OctahedronTool, 'octahedron_tool')
+    build_tool(DynamicOctahedronTool, 'dynamic_octahedron_tool')
     build_tool(BottleLinkTool, 'bottle_link_tool')
     build_tool(DeleteTool, 'delete_tool')
     build_tool(GrowTool, 'grow_tool')
@@ -40,8 +41,13 @@ class UserInteraction
     build_tool(ExportFileTool, 'export_file_tool')
     build_tool(ImportFileTool, 'import_file_tool')
     build_tool(PodTool, 'pod_tool')
+    build_tool(SimulationTool, 'simulation_tool')
+    build_tool(BallJointSimulationTool, 'ball_joint_simulation_tool')
+    build_tool(ActuatorTool, 'actuator_tool')
     build_tool(CoverTool, 'cover_tool')
     build_tool(FabricateTool, 'fabricate_tool')
+    build_tool(BottleCountTool, 'bottle_count_tool')
+    build_tool(RigidityTestTool, 'rigidity_test_tool')
   end
 
   def build_tool(tool_class, tool_id)

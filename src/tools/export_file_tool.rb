@@ -12,7 +12,7 @@ class ExportFileTool < Tool
   def activate
     UI.messagebox('Please select a surface to become the standard surface'\
                   ' that gets attached when added to other objects',
-                  type = MB_OK)
+                  MB_OK)
   end
 
   def onMouseMove(_flags, x, y, view)
@@ -30,9 +30,7 @@ class ExportFileTool < Tool
   end
 
   def export_with_file_dialog(triangle = nil)
-    path = UI.savepanel('Export JSON',
-                        Configuration::JSON_PATH,
-                        'JSON File|*.json;||')
+    path = UI.savepanel('Export JSON', Configuration::JSON_PATH, '')
     JsonExport.export(path, triangle) unless path.nil?
   end
 end

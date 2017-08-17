@@ -67,6 +67,11 @@ class Relaxation
     self
   end
 
+  def constrain_node(node)
+    @fixed_nodes[node.id] = node unless node.nil?
+    self
+  end
+
   private
 
   def compute_fixed_nodes
@@ -176,16 +181,10 @@ class Relaxation
     end
   end
 
-  def constrain_node(node)
-    @fixed_nodes[node.id] = node unless node.nil?
-    self
-  end
-
   def fixed?(node)
     node_id = node.id
-    incidents_frozen = node.incidents.map { |incident| incident.opposite(node).frozen? }.any?
-    @ignore_node_fixation[node_id].nil? && (@fixed_nodes[node_id] ||
-    node.fixed? ||
-    incidents_frozen)
+    incidents_frozen = node.incidents.any? { |incident| incident.opposite(node).frozen? }
+    @ignore_node_fixation[node_id].nil? &&
+      (@fixed_nodes[node_id] || node.fixed? || incidents_frozen)
   end
 end

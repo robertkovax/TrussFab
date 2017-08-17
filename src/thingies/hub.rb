@@ -1,38 +1,69 @@
-require 'src/thingies/thingy.rb'
+require 'src/thingies/physics_thingy.rb'
 require 'src/models/model_storage.rb'
+require 'src/simulation/simulation.rb'
 
-class Hub < Thingy
-  def initialize(position,
-                 id: nil, material: 'hub_material')
+class Hub < PhysicsThingy
+  attr_accessor :position, :body
+
+  def initialize(position, id: nil, material: 'hub_material')
     super(id, material: material)
-    @position = position
     @model = ModelStorage.instance.models['ball_hub']
+    @color = color unless color.nil?
+    @position = position
     @entity = create_entity
     @id_label = nil
     update_id_label
+  end
+
+  def add_pod(node, direction, id: nil)
+    pod = Pod.new(node, @position, direction, id: id)
+    add(pod)
+    pod
   end
 
   def pods
     @sub_thingies.select { |sub_thingy| sub_thingy.is_a?(Pod) }
   end
 
+  def pods?
+    !pods.empty?
+  end
+
+  def delete
+    @id_label.erase!
+    super
+  end
+
   def update_position(position)
     @position = position
     @entity.move!(Geom::Transformation.new(position))
+    @id_label.point = position
     @sub_thingies.each { |sub_thingy| sub_thingy.update_position(position) }
   end
 
-  def add_pod(direction, id: nil)
-    pod = Pod.new(@position, direction, id: id)
-    add(pod)
-    pod
+  #
+  # Physics methods
+  #
+
+  def create_body(world)
+    @body = Simulation.create_body(world, @entity, collision_type: :sphere)
+    @body.collidable = true
+    @body.mass = Simulation::HUB_MASS
+    pods.each do |pod|
+      pod_body = pod.create_body(world)
+      joint_to(world, MSPhysics::Fixed, pod_body, pod.direction, solver_model: 1)
+    end
+    @body
   end
 
-  def delete_sub_thingy(id)
-    @sub_thingies.each do |sub_thingy|
-      next unless sub_thingy.id == id
-      sub_thingy.delete
-      remove(sub_thingy)
+  def joint_position
+    @position
+  end
+
+  def reset_physics
+    super
+    pods.each do |pod|
+      pod.body = nil
     end
   end
 

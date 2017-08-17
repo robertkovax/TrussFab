@@ -1,5 +1,6 @@
 require 'src/database/graph_object.rb'
 require 'src/thingies/surface.rb'
+require 'src/utility/geometry'
 
 class Triangle < GraphObject
   attr_reader :first_node, :second_node, :third_node, :deleted
@@ -58,27 +59,89 @@ class Triangle < GraphObject
     [first_node, second_node, third_node]
   end
 
+  def edges
+    [first_node.edge_to(second_node),
+     first_node.edge_to(third_node),
+     second_node.edge_to(third_node)]
+  end
+
+  def other_node_for(edge)
+    intersection = (nodes - edge.nodes)
+    if intersection.size != 1
+      raise ArgumentError('edge is not part of triangle')
+    end
+    intersection[0]
+  end
+
+  def shared_edge(other_triangle)
+    intersection = edges & other_triangle.edges
+    if intersection.empty?
+      nil
+    else
+      intersection[0]
+    end
+  end
+
+  def contains_actuator?
+    edges.any? { |e| e.link_type == 'actuator' }
+  end
+
+  def complete?
+    edges.all? { |e| !e.nil? }
+  end
+
+  def exchange_node(current_node, new_node)
+    if current_node == @first_node
+      @first_node = new_node
+    elsif current_node == @second_node
+      @second_node = new_node
+    elsif current_node == @third_node
+      @third_node = new_node
+    else
+      raise "#{current_node} not in nodes"
+    end
+  end
+
   def nodes_ids
     [first_node.id, second_node.id, third_node.id]
   end
 
+  def connected_component
+    nodes[0].connected_component
+  end
+
+  def angle_between(other_triangle)
+    normal.angle_between(other_triangle.normal)
+  end
+
+  def full_angle_between(other_triangle, rotation_vector)
+    Geometry.angle_around_normal(normal, other_triangle.normal, rotation_vector)
+  end
+
+  def adjacent_triangles
+    edges.reduce([]) { |arr, edge| arr | edge.adjacent_triangles } - [self]
+  end
+
   def add_cover
     cover_pods = []
-    nodes.each { |node| cover_pods << node.add_pod(normal_towards_user, constraint: false) }
+    nodes.each do |node|
+      cover_pods << node.add_pod(normal_towards_user, constraint: false)
+    end
     @thingy.add_cover(normal_towards_user, cover_pods)
   end
 
   def cover
+    return nil if @thingy.nil?
     @thingy.cover
   end
 
   def cover?
-    @thingy.cover?
+    !@thingy.nil? && @thingy.cover?
   end
 
   def nodes_ids_towards_user
     # this is ugly! this is made to be able to recreate the surface with the
-    # same direction by aranging the ids in the right order. This should be
+    # same direction by arranging the ids in the right order. This should be
     # done differently at some point
     if normal_towards_user == normal
       [first_node.id, third_node.id, second_node.id]
