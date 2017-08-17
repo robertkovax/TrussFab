@@ -56,9 +56,7 @@ class MouseInput
     end
     if @snap_to_pods
       pod = Graph.instance.closest_pod(@position)
-      unless pod.nil? || out_of_snap_tolerance?(pod)
-        objects.push(pod)
-      end
+      objects.push(pod) unless pod.nil? || out_of_snap_tolerance?(pod)
     end
     if @snap_to_covers
       surface = Graph.instance.closest_surface(@position)
