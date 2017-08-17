@@ -26,6 +26,11 @@ button {
     margin: 0px 2px 8px 2px;
 }
 
+button img {
+    width: 50px;
+    height: 50px;
+}
+
 button:hover {
     border-color: #bbbbbb;
     box-shadow: 0 0 3px rgba(0,0,0,0.5);

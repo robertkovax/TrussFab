@@ -24,8 +24,17 @@ class Node < GraphObject
     @adjacent_triangles.each(&:move)
   end
 
+  def transform(transformation)
+    @position = transformation * @position
+    @thingy.transform(transformation)
+  end
+
   def distance(point)
     @position.distance(point)
+  end
+
+  def vector_to(other_node)
+    @position.vector_to(other_node.position)
   end
 
   def pods
@@ -58,31 +67,35 @@ class Node < GraphObject
     @adjacent_triangles.delete(triangle)
   end
 
-  def dangling?
-    @incidents.empty?
+  def is_incident(edge)
+    @incidents.include?(edge)
   end
 
   def is_adjacent(node)
     @incidents.any? { |edge| edge.include?(node) }
   end
 
-  def is_incident(edge)
-    @incidents.include?(edge)
-  end
-
   def adjacent_nodes
     @incidents.map { |edge| edge.opposite(self) }
   end
 
-  def has_edge_to?(other_node)
+  def edge_to(node)
+    @incidents.find { |edge| edge.opposite(self) == node }
+  end
+
+  def edge_to?(other_node)
     adjacent_nodes.include?(other_node)
+  end
+
+  def dangling?
+    @incidents.empty?
   end
 
   def merge_into(other_node)
     merged_incidents = []
     @incidents.each do |edge|
       edge_opposite_node = edge.opposite(self)
-      next if other_node.has_edge_to?(edge_opposite_node)
+      next if other_node.edge_to?(edge_opposite_node)
       edge.exchange_node(self, other_node)
       other_node.add_incident(edge)
       merged_incidents << edge

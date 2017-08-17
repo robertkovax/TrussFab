@@ -1,5 +1,6 @@
 require 'src/database/graph_object.rb'
 require 'src/thingies/surface.rb'
+require 'src/utility/geometry'
 
 class Triangle < GraphObject
   attr_reader :first_node, :second_node, :third_node, :deleted
@@ -58,6 +59,37 @@ class Triangle < GraphObject
     [first_node, second_node, third_node]
   end
 
+  def edges
+    [first_node.edge_to(second_node),
+     first_node.edge_to(third_node),
+     second_node.edge_to(third_node)]
+  end
+
+  def other_node_for(edge)
+    intersection = (nodes - edge.nodes)
+    if intersection.size != 1
+      raise ArgumentError('edge is not part of triangle')
+    end
+    intersection[0]
+  end
+
+  def shared_edge(other_triangle)
+    intersection = edges & other_triangle.edges
+    if intersection.empty?
+      nil
+    else
+      intersection[0]
+    end
+  end
+
+  def contains_actuator?
+    edges.any? { |e| e.link_type == 'actuator' }
+  end
+
+  def complete?
+    edges.all? { |e| !e.nil? }
+  end
+
   def exchange_node(current_node, new_node)
     if current_node == @first_node
       @first_node = new_node
@@ -72,6 +104,18 @@ class Triangle < GraphObject
 
   def nodes_ids
     [first_node.id, second_node.id, third_node.id]
+  end
+
+  def angle_between(other_triangle)
+    normal.angle_between(other_triangle.normal)
+  end
+
+  def full_angle_between(other_triangle, rotation_vector)
+    Geometry.angle_around_normal(normal, other_triangle.normal, rotation_vector)
+  end
+
+  def adjacent_triangles
+    edges.reduce([]) { |arr, edge| arr | edge.adjacent_triangles } - [self]
   end
 
   def add_cover
