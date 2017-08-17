@@ -106,6 +106,10 @@ class Triangle < GraphObject
     [first_node.id, second_node.id, third_node.id]
   end
 
+  def connected_component
+    nodes[0].connected_component
+  end
+
   def angle_between(other_triangle)
     normal.angle_between(other_triangle.normal)
   end

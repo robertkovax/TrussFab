@@ -91,6 +91,12 @@ class Node < GraphObject
     @incidents.empty?
   end
 
+  def connected_component
+    unless @incidents.empty?
+      @incidents[0].connected_component
+    end
+  end
+
   def merge_into(other_node)
     merged_incidents = []
     @incidents.each do |edge|

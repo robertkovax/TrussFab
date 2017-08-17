@@ -86,5 +86,5 @@ module Configuration
 
   # Behavioural constants
   SNAP_TOLERANCE = 200.mm.freeze
-  INTERSECTION_OFFSET = 500.mm.freeze
+  INTERSECTION_OFFSET = 200.mm.freeze
 end
