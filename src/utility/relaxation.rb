@@ -56,7 +56,6 @@ class Relaxation
     count = 0
     (1..@max_iterations).each do
       edge = pick_random_edge
-      puts deviation(edge).abs
       next if deviation(edge).abs < CONVERGENCE_DEVIATION
       add_edges(edge.incidents) unless @edges.length == number_connected_edges
       adapt_edge(edge, deviation(edge) * @dampening_factor)
