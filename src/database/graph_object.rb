@@ -19,6 +19,11 @@ class GraphObject
     @deleted
   end
 
+  def redraw
+    delete_thingy
+    @thingy = create_thingy(@id)
+  end
+
   def highlight
     @thingy.highlight unless thingy.nil?
   end
@@ -31,6 +36,11 @@ class GraphObject
 
   def create_thingy(_id)
     raise "GraphObject (#{self.class}):: create_thingy needs to be overwritten"
+  end
+
+  def recreate_thingy
+    @thingy.delete
+    @thingy = create_thingy(@id)
   end
 
   def delete_thingy

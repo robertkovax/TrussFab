@@ -33,6 +33,8 @@ module Configuration
   JSON_PATH = (ProjectHelper.asset_directory + '/exports/').freeze
   TETRAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/tetrahedron.json').freeze
   OCTAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/octahedron.json').freeze
+  DYNAMIC_TETRAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/dynamic_tetrahedron.json').freeze
+  DYNAMIC_OCTAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/dynamic_octahedron.json').freeze
 
   BIG_BIG_BOTTLE_NAME = 'Big Big Double Bottle (60cm)'.freeze
   SMALL_BIG_BOTTLE_NAME = 'Small Big Double Bottle (53cm)'.freeze

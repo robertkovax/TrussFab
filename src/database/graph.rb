@@ -18,6 +18,14 @@ class Graph
     @surfaces = {}    # {(id => surface)}
   end
 
+  def nodes_and_edges
+    [@edges.values, @nodes.values].flatten
+  end
+
+  def all_graph_objects
+    [@edges.values, @nodes.values, @surfaces.values].flatten
+  end
+
   def export_to_scad(path)
     ScadExport.export_to_scad(path, @nodes.values)
   end
@@ -135,6 +143,21 @@ class Graph
 
   def empty?
     nodes.empty?
+  end
+
+  #
+  # Methods to clear graph or redraw/reset all graph objects
+  #
+
+  def clear!
+    @edges = {}       # {(id => edge)}
+    @nodes = {}       # {(id => node)}
+    @surfaces = {}    # {(id => surface)}
+    Sketchup.active_model.entities.clear!
+  end
+
+  def redraw
+    all_graph_objects.each(&:redraw)
   end
 
   #

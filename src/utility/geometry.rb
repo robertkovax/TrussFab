@@ -8,6 +8,29 @@ module Geometry
     first_vector.angle_between(second_vector)
   end
 
+  def self.sign(x)
+    if x > 0
+      1
+    elsif x < 0
+      -1
+    else
+      0
+    end
+  end
+
+  def self.clamp(x, min, max)
+    return min if x < min
+    return max if x > max
+    x
+  end
+
+  def self.angle_around_normal(first_vector, second_vector, normal)
+    dot_prod = clamp(first_vector.normalize.dot(second_vector.normalize), -1.0, 1.0)
+    angle = Math.acos(dot_prod)
+    angle = 2 * Math::PI - angle if normal.dot(first_vector.cross(second_vector)) < 0
+    angle
+  end
+
   def self.rotation_transformation(from_vector, to_vector, position)
     rotation_angle = Geometry.rotation_angle_between(from_vector,
                                                      to_vector)
@@ -85,7 +108,9 @@ module Geometry
 
   def self.scale(vector, scalar)
     cloned_vector = vector.clone
-    cloned_vector.length = cloned_vector.length * scalar
+    if cloned_vector.length > 0 
+      cloned_vector.length = cloned_vector.length * scalar
+    end
     cloned_vector
   end
 

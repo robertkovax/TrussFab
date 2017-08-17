@@ -62,6 +62,7 @@ class MoveTool < Tool
     update(view, x, y)
     return unless @moving
     snapped_node = @move_mouse_input.snapped_object
+    return if snapped_node == @start_node
     Sketchup.active_model.start_operation('move node and relax', true)
 
     relaxation = Relaxation.new
