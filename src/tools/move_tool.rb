@@ -17,11 +17,16 @@ class MoveTool < Tool
     @moving = false
   end
 
+  def deactivate(view)
+    super(view)
+    reset
+  end
+
   def reset
-    @move_mouse_input = nil
     @start_node = nil
     @start_position = nil
     @end_position = nil
+    @moving = false
   end
 
   def draw(view)
@@ -33,14 +38,12 @@ class MoveTool < Tool
   end
 
   def update(view, x, y)
+    @mouse_input.update_positions(view, x, y)
     if @moving
-      @move_mouse_input.update_positions(view, x, y)
-      if @move_mouse_input.position != @end_position
-        @end_position = @move_mouse_input.position
+      if @mouse_input.position != @end_position
+        @end_position = @mouse_input.position
         view.invalidate
       end
-    else
-      @mouse_input.update_positions(view, x, y)
     end
   end
 
@@ -55,16 +58,15 @@ class MoveTool < Tool
     return if node.nil?
     @start_node = node
     @start_position = @end_position = node.position
-    @move_mouse_input = MouseInput.new(snap_to_nodes: true)
   end
 
   def onLButtonUp(_flags, x, y, view)
     update(view, x, y)
     return unless @moving
-    snapped_node = @move_mouse_input.snapped_object
-    return if snapped_node == @start_node
-    Sketchup.active_model.start_operation('move node and relax', true)
+    snapped_node = @mouse_input.snapped_object
+    snapped_node = nil if snapped_node == @start_node
 
+    Sketchup.active_model.start_operation('move node and relax', true)
     relaxation = Relaxation.new
     if snapped_node.nil?
       relaxation.move_node(@start_node, @end_position)
@@ -72,12 +74,12 @@ class MoveTool < Tool
       relaxation
         .constrain_node(snapped_node)
         .move_node(@start_node, snapped_node.position)
+      @start_node.merge_into(snapped_node) unless snapped_node.nil?
     end
     relaxation.relax
-    @start_node.merge_into(snapped_node)
     view.invalidate
     Sketchup.active_model.commit_operation
+
     reset
-    @moving = false
   end
 end
