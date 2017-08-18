@@ -1,0 +1,1658 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="x-ua-compatible" content="IE=edge,chrome=1">
+    <meta name="author" content="Anton Synytsia">
+    <title>MSPhysics UI</title>
+    <link href="../css/chosen.css" rel="stylesheet" type="text/css">
+    <link href="../css/tabs.css" rel="stylesheet" type="text/css">
+    <link href="../css/dialog.css" rel="stylesheet" type="text/css">
+    <link href="../css/expander.css" rel="stylesheet" type="text/css">
+    <link href="../css/dhtmlxslider_skyblue.css" rel="stylesheet" type="text/css">
+    <link href="../css/dhtmlxslider_terrace.css" rel="stylesheet" type="text/css">
+    <link href="../css/dhtmlxslider_web.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="../js/jquery.js"></script>
+    <script type="text/javascript" src="../js/chosen.js"></script>
+    <script type="text/javascript" src="../js/ace/ace.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../js/ace/ext-statusbar.js"></script>
+    <script type="text/javascript" src="../js/ace/ext-language_tools.js"></script>
+    <script type="text/javascript" src="../js/dialog.js"></script>
+    <script type="text/javascript" src="../js/expander.js"></script>
+    <script type="text/javascript" src="../js/dhtmlxslider.js"></script>
+  </head>
+  <body>
+    <div id="main-wrap">
+    <div class="tabs">
+      <ul class="tab-links">
+        <li class="active"><a href="#tab1">Simulation</a></li>
+        <li><a href="#tab2">Properties</a></li>
+        <li><a href="#tab3">Script</a></li>
+        <li><a href="#tab4">Joint</a></li>
+        <li><a href="#tab5">Sound</a></li>
+      </ul>
+      <div class="tab-content">
+        <div id="tab1" class="tab active">
+          <div class="center"><img src="../images/msphysics-logo.png" alt="MSPhysics Logo"></div>
+          <table class="struct_table">
+            <colgroup>
+              <col style="width:50%;">
+              <col style="width:50%;">
+            </colgroup>
+            <tr>
+              <td><table class="struct_table">
+                <colgroup><col style="width:100%;"></colgroup>
+                <tr><td><p class="heading">Dialog Settings</p></td></tr>
+                <tr><td><table class="struct_table">
+                  <colgroup>
+                    <col style="width:40%;">
+                    <col style="width:60%;">
+                  </colgroup>
+                  <tr title="Adjusts the DPI scale of this UI dialog. (Windows only!)">
+                    <td><label class="description spacing_tab" for="dialog-scale">Scale</label></td>
+                    <td><select id="dialog-scale" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                      <option value="0.5">0.5</option>
+                      <option value="0.6">0.6</option>
+                      <option value="0.7">0.7</option>
+                      <option value="0.8">0.8</option>
+                      <option value="0.9">0.9</option>
+                      <option value="1.0">1.0</option>
+                      <option value="1.1">1.1</option>
+                      <option value="1.2">1.2</option>
+                      <option value="1.3">1.3</option>
+                      <option value="1.4">1.4</option>
+                      <option value="1.5">1.5</option>
+                      <option value="1.6">1.6</option>
+                      <option value="1.7">1.7</option>
+                      <option value="1.8">1.8</option>
+                      <option value="1.9">1.9</option>
+                      <option value="2.0">2.0</option>
+                      <option value="2.1">2.1</option>
+                      <option value="2.2">2.2</option>
+                      <option value="2.3">2.3</option>
+                      <option value="2.4">2.4</option>
+                      <option value="2.5">2.5</option>
+                      <option value="2.6">2.6</option>
+                      <option value="2.7">2.7</option>
+                      <option value="2.8">2.8</option>
+                      <option value="2.9">2.9</option>
+                      <option value="3.0">3.0</option>
+                    </select></td>
+                  </tr>
+                  <tr title="Displays the help-box within this UI dialog.">
+                    <td><label class="description spacing_tab" for="dialog-help_box">Help Box</label></td>
+                    <td><input id="dialog-help_box" type="checkbox"></td>
+                  </tr>
+                </table></td></tr>
+                <tr title="Allows the automatic transitioning of scene pages."><td><p class="heading">Scenes Animation</p></td></tr>
+                <tr><td><table class="struct_table">
+                  <colgroup>
+                    <col style="width:40%;">
+                    <col style="width:60%;">
+                  </colgroup>
+                  <tr><td colspan="2"><select id="simulation-animate_scenes_state" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                    <option value="0">Off</option>
+                    <option value="1">One Way</option>
+                    <option value="2">Repeat Forth and Back</option>
+                    <option value="3">Loop Around</option>
+                  </select></td></tr>
+                  <tr title="Whether to play the scenes animation backwards.">
+                    <td><label class="description spacing_tab" for="simulation-animate_scenes_reversed">Reverse</label></td>
+                    <td><input id="simulation-animate_scenes_reversed" type="checkbox"></td>
+                  </tr>
+                  <tr title="The time to wait, in seconds, before starting the scenes animation.">
+                    <td><label class="description spacing_tab" for="simulation-animate_scenes_delay">Delay</label></td>
+                    <td><input id="simulation-animate_scenes_delay" class="custom-text numeric-input" type="text"></td>
+                  </tr>
+                </table></td></tr>
+                <tr title="Allows orbiting and panning of camera using keyboard. Use WSADQE keys to move and arrow keys to look around. Use CTRL in combination with the horizontal arrow keys to roll. Unlike the standard pan/orbit, this does not suspend the simulation, which allows the recording of camera in a really smooth manner."><td><p class="heading">Keyboard Navigation</p></td></tr>
+                <tr><td><table class="opts_table">
+                  <colgroup>
+                    <col style="width:25%;">
+                    <col style="width:15%;">
+                    <col style="width:60%;">
+                  </colgroup>
+                  <tr><td colspan="3"><select id="simulation-key_nav_state" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                    <option value="0">Off</option>
+                    <option value="1">Normal</option>
+                    <option value="2">Upright</option>
+                  </select></td></tr>
+                  <tr>
+                    <td><label title="The velocity of the keyboard navigation in m/s. Use WSADQE keys for motion." class="description spacing_tab" for="simulation-key_nav_velocity">Velocity</label></td>
+                    <td><input id="simulation-key_nav_velocity" class="custom-text slider-input" type="text"></td>
+                    <td><div id="simulation-key_nav_velocity-slider"></div></td>
+                  </tr>
+                  <tr>
+                    <td><label title="The omega of the keyboard navigation in rad/s. Use arrow keys to look around. Use CTRL in combination with the horizontal arrow keys to roll." class="description spacing_tab" for="simulation-key_nav_omega">Omega</label></td>
+                    <td><input id="simulation-key_nav_omega" class="custom-text slider-input" type="text"></td>
+                    <td><div id="simulation-key_nav_omega-slider"></div></td>
+                  </tr>
+                  <tr>
+                    <td><label title="The time to accelerate, in seconds, from zero to the desired velocity or omega." class="description spacing_tab" for="simulation-key_nav_atime">aTime</label></td>
+                    <td><input id="simulation-key_nav_atime" class="custom-text slider-input" type="text"></td>
+                    <td><div id="simulation-key_nav_atime-slider"></div></td>
+                  </tr>
+                </table></td></tr>
+                <tr><td><p class="heading">Debug Draw</p></td></tr>
+                <tr><td><table class="struct_table">
+                  <colgroup>
+                    <col style="width:90%;">
+                    <col style="width:10%;">
+                  </colgroup>
+                  <tr title="Whether to draw the collision wireframe of all bodies.">
+                    <td><label class="description spacing_tab" for="simulation-collision_wireframe">Collision Wireframe</label></td>
+                    <td><input id="simulation-collision_wireframe" type="checkbox"></td>
+                  </tr>
+                  <tr title="Whether to draw the centre of mass axes of all bodies.">
+                    <td><label class="description spacing_tab" for="simulation-axes">Centre of Mass</label></td>
+                    <td><input id="simulation-axes" type="checkbox"></td>
+                  </tr>
+                  <tr title="Whether to draw the world axes aligned bounding box (AABB) of all bodies.">
+                    <td><label class="description spacing_tab" for="simulation-aabb">Bounding Box</label></td>
+                    <td><input id="simulation-aabb" type="checkbox"></td>
+                  </tr>
+                  <tr title="Whether to draw the contact points between all bodies.">
+                    <td><label class="description spacing_tab" for="simulation-contact_points">Contact Points</label></td>
+                    <td><input id="simulation-contact_points" type="checkbox"></td>
+                  </tr>
+                  <tr title="Whether to draw the contact forces between all bodies.">
+                    <td><label class="description spacing_tab" for="simulation-contact_forces">Contact Forces</label></td>
+                    <td><input id="simulation-contact_forces" type="checkbox"></td>
+                  </tr>
+                  <tr title="Whether to show/hide groups and component instances associated with the bodies.">
+                    <td><label class="description spacing_tab" for="simulation-bodies">Bodies</label></td>
+                    <td><input id="simulation-bodies" type="checkbox"></td>
+                  </tr>
+                </table></td></tr>
+              </table></td>
+              <td><table class="struct_table">
+                <colgroup><col style="width:100%;"></colgroup>
+                <tr><td title="The smaller the update timestep is the more accurate the simulation is; 1/1200 is the smallest; 1/30 is the highest."><p class="heading">Update Timestep</p></td></tr>
+                <tr><td><table class="struct_table">
+                  <colgroup><col style="width:100%;"></colgroup>
+                  <tr><td><select id="simulation-update_timestep" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                    <option value="30">Double (1/30)</option>
+                    <option value="60">Normal (1/60)</option>
+                    <option value="120">x 1/2 (1/120)</option>
+                    <option value="180">x 1/3 (1/180)</option>
+                    <option value="240">x 1/4 (1/240)</option>
+                    <option value="300">x 1/5 (1/300)</option>
+                    <option value="360">x 1/6 (1/360)</option>
+                    <option value="420">x 1/7 (1/420)</option>
+                    <option value="480">x 1/8 (1/480)</option>
+                    <option value="540">x 1/9 (1/540)</option>
+                    <option value="600">x 1/10 (1/600)</option>
+                    <option value="720">x 1/12 (1/720)</option>
+                    <option value="840">x 1/14 (1/840)</option>
+                    <option value="960">x 1/16 (1/960)</option>
+                    <option value="1080">x 1/18 (1/1080)</option>
+                    <option value="1200">x 1/20 (1/1200)</option>
+                  </select></td></tr>
+                </table></td></tr>
+                <tr><td title="The more iterations there are the more accurate the simulation is."><p class="heading">Solver Model</p></td></tr>
+                <tr><td><table class="struct_table">
+                  <colgroup><col style="width:100%;"></colgroup>
+                  <tr><td><select id="simulation-solver_model" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                    <option value="1">Iterative 1 Pass</option>
+                    <option value="2">Iterative 2 Passes</option>
+                    <option value="3">Iterative 3 Passes</option>
+                    <option value="4">Iterative 4 Passes</option>
+                    <option value="5">Iterative 5 Passes</option>
+                    <option value="6">Iterative 6 Passes</option>
+                    <option value="7">Iterative 7 Passes</option>
+                    <option value="8">Iterative 8 Passes</option>
+                    <option value="9">Iterative 9 Passes</option>
+                    <option value="10">Iterative 10 Passes</option>
+                    <option value="12">Iterative 12 Passes</option>
+                    <option value="16">Iterative 16 Passes</option>
+                    <option value="24">Iterative 24 Passes</option>
+                    <option value="32">Iterative 32 Passes</option>
+                    <option value="48">Iterative 48 Passes</option>
+                    <option value="64">Iterative 64 Passes</option>
+                  </select></td></tr>
+                </table></td></tr>
+                <tr><td><p title="Accurate solver allows joints to be explicitly strong. Fast solver allows joints to be a little flexible; however, still maintain their integrity. Be cautious when using the accurate solver as it is prone to crashes under certain conditions. This option must be set prior to starting the simulation; changing it during simulation will not yield an effect." class="heading">Joint Algorithm</p></td></tr>
+                <tr><td><table class="struct_table">
+                  <colgroup><col style="width:100%;"></colgroup>
+                  <tr><td><select id="simulation-joint_algorithm" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                    <option value="0">Accurate</option>
+                    <option value="2">Fast</option>
+                  </select></td></tr>
+                </table></td></tr>
+                <tr><td><p class="heading">Settings</p></td></tr>
+                <tr><td><table class="struct_table">
+                  <colgroup>
+                    <col style="width:90%;">
+                    <col style="width:10%;">
+                  </colgroup>
+                  <tr title="Whether to enable/disable the continuous collision check for all bodies, which prevents bodies from penetrating/passing through each other at high velocities.">
+                    <td><label class="description spacing_tab" for="simulation-continuous_collision">Continuous Collision</label></td>
+                    <td><input id="simulation-continuous_collision" type="checkbox"></td>
+                  </tr>
+                  <tr title="Whether to switches view to fullscreen when simulation starts. Use ESC key to end simulation. (Windows Only!)">
+                    <td><label class="description spacing_tab" for="simulation-full_screen_mode">Fullscreen Mode</label></td>
+                    <td><input id="simulation-full_screen_mode" type="checkbox"></td>
+                  </tr>
+                  <tr title="Whether to disable pick and drag tool and the zoom in/out shortcut associated with the mouse wheel. This option reserves all mouse operations for other use, such as for when creating FPS-related games, where the mouse buttons could be used for shooting and the mouse wheel for switching weapons. (Windows Only!)">
+                    <td><label class="description spacing_tab" for="simulation-game_mode">Game Mode</label></td>
+                    <td><input id="simulation-game_mode" type="checkbox"></td>
+                  </tr>
+                  <tr title="Whether to hide 'MSPhysics Joints' layer when simulation starts. The 'MSPhysics Joints' layer is automatically unhidden when simulation ends, in case it was initially visible.">
+                    <td><label class="description spacing_tab" for="simulation-hide_joint_layer">Hide Joint Layer</label></td>
+                    <td><input id="simulation-hide_joint_layer" type="checkbox"></td>
+                  </tr>
+                  <tr title="Whether to trigger an undo command after simulation resets. This undoes all model changes that occur during simulation. By itself, MSPhysics does a well job undoing all the changes it makes during simulation. Enabling this option is not necessary. This option may be useful, however, if there is a third party script making changes to the model during simulation and neglects to undo the changes afterwards.">
+                    <td><label class="description spacing_tab" for="simulation-undo_on_end">Undo on End</label></td>
+                    <td><input id="simulation-undo_on_end" type="checkbox"></td>
+                  </tr>
+                  <tr title="Whether to ignore top level groups/component instances that are hidden or belong to a hidden layer(s). This does not affect sub-instances or joints. This option is very useful for beginners. This option must be set prior to starting the simulation; changing it during simulation will not yield an effect.">
+                    <td><label class="description spacing_tab" for="simulation-ignore_hidden_instances">Ignore Hidden Instances</label></td>
+                    <td><input id="simulation-ignore_hidden_instances" type="checkbox"></td>
+                  </tr>
+                </table></td></tr>
+                <tr><td><p class="heading">Properties</p></td></tr>
+                <tr><td><table class="struct_table">
+                  <colgroup>
+                    <col style="width:50%;">
+                    <col style="width:50%;">
+                  </colgroup>
+                  <tr title="The gravitational acceleration along Z-axis in meters per second squared (m/s²).">
+                    <td><label class="description spacing_tab" for="simulation-gravity">Gravity</label></td>
+                    <td><input id="simulation-gravity" class="custom-text numeric-input" type="text"></td>
+                  </tr>
+                  <tr title="The material thickness ratio, a value between 0.00 and 1.00. Actual material thickness is, ratio * 1/32 meters.">
+                    <td><label class="description spacing_tab" for="simulation-material_thickness">Mat. Thickness</label></td>
+                    <td><input id="simulation-material_thickness" class="custom-text numeric-input" type="text"></td>
+                  </tr>
+                  <tr title="The number of times to update newton world per frame, a values between 1 and 100. An update rate of 3, for instance, will update the world 3 times per single frame, increasing simulation speed by a factor of 3 but also affecting performance.">
+                    <td><label class="description spacing_tab" for="simulation-update_rate">Update Rate</label></td>
+                    <td><input id="simulation-update_rate" class="custom-text fixnum-input" type="text"></td>
+                  </tr>
+                  <tr title="The world scale factor, a value between 0.1 and 100. When dealing with small objects, for instance, with objects of volume less than 10 cm³, the objects will behave better if the world scale is increased, for instance, to 10. This option must be set prior to starting the simulation; changing it during simulation will not yield an effect.">
+                    <td><label class="description spacing_tab" for="simulation-world_scale">World Scale</label></td>
+                    <td><input id="simulation-world_scale" class="custom-text numeric-input" type="text"></td>
+                  </tr>
+                </table></td></tr>
+              </table></td>
+            </tr>
+          </table>
+          <div class="credit">Powered by <a href="http://newtondynamics.com/forum/newton.php" target="_blank">Newton Dynamics</a></div>
+          <textarea class="help_box" wrap="hard" readonly="readonly" rows="1" cols="1"></textarea>
+        </div>
+        <div id="tab2" class="tab">
+          <div id="tab2-none">
+            <p class="description">Select a group/component instance of a body type to edit body properties.</p>
+            <p class="description">Body properties cannot be edited while simulation is running.</p>
+          </div>
+          <div id="tab2-content1" style="display: none;">
+            <table class="struct_table">
+              <colgroup>
+                <col style="width:48%;">
+                <col style="width:52%;">
+              </colgroup>
+              <tr>
+                <td><table class="struct_table">
+                  <colgroup><col style="width:100%;"></colgroup>
+                  <tr><td><p class="heading">Entity Info</p></td></tr>
+                  <tr><td><table class="struct_table">
+                    <colgroup>
+                      <col style="width:30%;">
+                      <col style="width:70%;">
+                    </colgroup>
+                    <tr title="The name of the selected group/component instance.">
+                      <td><label class="description spacing_tab" for="body-name">Name</label></td>
+                      <td><input id="body-name" class="custom-text text-input" type="text" style="width:100%;"></td>
+                    </tr>
+                  </table></td></tr>
+                  <tr><td><p class="heading">Collision Properties</p></td></tr>
+                  <tr><td><table class="struct_table">
+                    <colgroup>
+                      <col style="width:30%;">
+                      <col style="width:70%;">
+                    </colgroup>
+                    <tr title="The collision shape to generate for this entity.">
+                      <td><label class="description spacing_tab" for="body-shape">Shape</label></td>
+                      <td><select id="body-shape" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                        <option value="0">Null</option>
+                        <option value="1">Box</option>
+                        <option value="2">Sphere</option>
+                        <option value="3">Cone</option>
+                        <option value="4">Cylinder</option>
+                        <option value="5">Chamfer Cylinder</option>
+                        <option value="6">Capsule</option>
+                        <option value="7">Convex Hull</option>
+                        <option value="8">Compound</option>
+                        <option value="9">Static Mesh</option>
+                      </select></td>
+                    </tr>
+                    <tr title="The local up direction of specific collision shapes, like cylinder and cone.">
+                      <td><label class="description spacing_tab" for="body-shape_dir">Shape Dir</label></td>
+                      <td><select id="body-shape_dir" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                        <option value="0">X-axis</option>
+                        <option value="1">Y-axis</option>
+                        <option value="2">Z-axis</option>
+                      </select></td>
+                    </tr>
+                  </table></td></tr>
+                  <tr><td><p class="heading">State</p></td></tr>
+                  <tr><td><table class="struct_table">
+                    <colgroup>
+                      <col style="width:90%;">
+                      <col style="width:10%;">
+                    </colgroup>
+                    <tr title="Prevents this group/component instance from being part of simulation.">
+                      <td><label class="description spacing_tab" for="body-ignore">Ignore</label></td>
+                      <td><input id="body-ignore" type="checkbox"></td>
+                    </tr>
+                    <tr title="Allows this body to be collidable with other bodies. Disabling this option will prevent this body from generating contacts with other bodies.">
+                      <td><label class="description spacing_tab" for="body-collidable">Collidable</label></td>
+                      <td><input id="body-collidable" type="checkbox"></td>
+                    </tr>
+                    <tr title="Whether to have this body act a stationary, non-movable object.">
+                      <td><label class="description spacing_tab" for="body-static">Static</label></td>
+                      <td><input id="body-static" type="checkbox"></td>
+                    </tr>
+                    <tr title="Whether to have this body act as a stationary object until it is touched.">
+                      <td><label class="description spacing_tab" for="body-frozen">Frozen</label></td>
+                      <td><input id="body-frozen" type="checkbox"></td>
+                    </tr>
+                    <tr title="Auto sleep temporarily disables the processing of the body when it reaches equilibrium.">
+                      <td><label class="description spacing_tab" for="body-auto_sleep">Auto Sleep</label></td>
+                      <td><input id="body-auto_sleep" type="checkbox"></td>
+                    </tr>
+                    <tr title="Continuous collision check prevents this body from penetrating/passing through other bodies at high velocities.">
+                      <td><label class="description spacing_tab" for="body-continuous_collision">Continuous Collision</label></td>
+                      <td><input id="body-continuous_collision" type="checkbox"></td>
+                    </tr>
+                    <tr title="Enable/disable the gravitational pull on the body.">
+                      <td><label class="description spacing_tab" for="body-enable_gravity">Gravity</label></td>
+                      <td><input id="body-enable_gravity" type="checkbox"></td>
+                    </tr>
+                  </table></td></tr>
+                  <tr><td><p class="heading">General</p></td></tr>
+                  <tr><td><table class="struct_table">
+                    <colgroup><col style="width:100%;"></colgroup>
+                    <tr><td><a href="#" class="button" style="width:100%;" id="body-assign_props_to_all" title="Assign identical states, collision properties, body properties, thruster, and emitter to all groups and component instances with the same name (case sensitive).">Assign Options to All with Name</a></td></tr>
+                    <tr><td><a href="#" class="button" style="width:100%;" id="body-assign_script_to_all" title="Assign identical scripts to all groups and component instances with the same name (case sensitive). ">Assign Script to All with Name</a></td></tr>
+                  </table></td></tr>
+                </table></td>
+                <td><table class="struct_table">
+                  <colgroup><col style="width:100%;"></colgroup>
+                  <tr><td><p class="heading">Body Properties</p></td></tr>
+                  <tr><td><table class="struct_table">
+                    <colgroup>
+                      <col style="width:45%;">
+                      <col style="width:55%;">
+                    </colgroup>
+                    <tr title="The type of body to associate to this entity. Dynamic type portrays a normal physics body that is affected by forces. Kinematic type portrays a kinematic body, that acts as a platform and can be affected by contact forces if not static.">
+                      <td><label class="description spacing_tab" for="body-type">Type</label></td>
+                      <td><select id="body-type" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                        <option value="0">Dynamic</option>
+                        <option value="1">Kinematic</option>
+                      </select></td>
+                    </tr>
+                    <tr title="The material to associate to the entity. This presets the density, the static/kinetic friction coefficients, and the elasticity/softness coefficients.">
+                      <td><label class="description spacing_tab" for="body-material">Material</label></td>
+                      <td><select id="body-material" data-placeholder="Unknown" class="chosen-select-custom drop-down"></select></td>
+                    </tr>
+                    <tr><td colspan="2" class="vertical_spacing"></td></tr>
+                    <tr title="Whether to control body mass by density & volume or by a particular mass value.">
+                      <td><label class="description spacing_tab" for="body-mass_control">Mass Control</label></td>
+                      <td><select id="body-mass_control" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                        <option value="1">by Density</option>
+                        <option value="2">by Mass</option>
+                      </select></td>
+                    </tr>
+                    <tr id="body-control_by_density" title="Body density in kilograms per cubic meter (kg/m³). The mass will be computed by multiplying volume with the preset density value. The volume is calculated automatically, with exception to Null and Static Mesh shapes. If the shape is Null, volume is assumed to be 1.0 m³. If the shape is Static Mesh, volume is assumed to be 0.0 m³, thus the mass will always be zero.">
+                      <td><label class="description spacing_tab" for="body-density">Density</label></td>
+                      <td><input id="body-density" class="custom-text numeric-input" type="text"></td>
+                    </tr>
+                    <tr id="body-control_by_mass" style="display: none;" title="Body mass in kilograms (kg). Regardless of the volume, the mass will be the preset mass value, unless the shape is Static Mesh, which always has a zero mass.">
+                      <td><label class="description spacing_tab" for="body-mass">Mass</label></td>
+                      <td><input id="body-mass" class="custom-text numeric-input" type="text"></td>
+                    </tr>
+                    <tr><td colspan="2" class="vertical_spacing"></td></tr>
+                    <tr title="Body static friction coefficient, a value between 0.01 and 2.00.">
+                      <td><label class="description spacing_tab" for="body-static_friction">Static Friction</label></td>
+                      <td><input id="body-static_friction" class="custom-text numeric-input" type="text"></td>
+                    </tr>
+                    <tr title="Body kinetic friction coefficient, a value between 0.01 and 2.00. This value cannot be higher than the static friction coefficient.">
+                      <td><label class="description spacing_tab" for="body-kinetic_friction">Kinetic Friction</label></td>
+                      <td><input id="body-kinetic_friction" class="custom-text numeric-input" type="text"></td>
+                    </tr>
+                    <tr title="Body friction state. Check/uncheck to enable/disable friction with the contacting bodies.">
+                      <td><label class="description spacing_tab" for="body-enable_friction">Friction</label></td>
+                      <td><input id="body-enable_friction" type="checkbox"></td>
+                    </tr>
+                    <tr><td colspan="2" class="vertical_spacing"></td></tr>
+                    <tr title="Body bounciness coefficient, a value between 0.01 and 2.00.">
+                      <td><label class="description spacing_tab" for="body-elasticity">Elasticity</label></td>
+                      <td><input id="body-elasticity" class="custom-text numeric-input" type="text"></td>
+                    </tr>
+                    <tr title="Body softness coefficient, a value between 0.01 and 1.00. The softness option denotes how resistant the collision is to penetration. Decreasing softness yields adaptable collision. Increasing softness yields resistible collision.">
+                      <td><label class="description spacing_tab" for="body-softness">Softness</label></td>
+                      <td><input id="body-softness" class="custom-text numeric-input" type="text"></td>
+                    </tr>
+                    <tr><td colspan="2" class="vertical_spacing"></td></tr>
+                    <tr title="Body magnet mode, a mode for controlling the way this magnet should work. In mode 1, actual_magnet_force = f * (d - r)² / r²; where f is the maximum magnet force (in Newtons), d is the distance between the centre of masses of this magnet and a magnetic body (in meters), and r is the maximum magnet range (in meters). In mode 2, actual_magnet_force = s / d²; where s is the magnet strength and d is the distance between the centre of masses of this magnet and a magnetic body (in meters).">
+                      <td><label class="description spacing_tab" for="body-magnet_mode">Magnet Mode</label></td>
+                      <td><select id="body-magnet_mode" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                        <option value="1">Mode 1</option>
+                        <option value="2">Mode 2</option>
+                      </select></td>
+                    </tr>
+                    <tr id="body-magnet_mode1a" title="Body magnet force, the maximum force, in Newtons, to be applied on the surrounding magnetic bodies.">
+                      <td><label class="description spacing_tab" for="body-magnet_force">Magnet Force</label></td>
+                      <td><input id="body-magnet_force" class="custom-text numeric-input" type="text"></td>
+                    </tr>
+                    <tr id="body-magnet_mode1b" title="Body magnet range, the maximum range, in meters, over which the magnet remains in force. Magnetic bodies within the magnet range are influenced by the magnet force. Consequently, magnetic bodies outside the magnet range, are not influenced by the magnet force. For a magnetic body within the magnet range, the force applied on it is within the domain [0, maximum magnet force), depending on the distance from the magnet, and is dissipated quadratically over the magnet range.">
+                      <td><label class="description spacing_tab" for="body-magnet_range">Magnet Range</label></td>
+                      <td><input id="body-magnet_range" class="custom-text numeric-input" type="text"></td>
+                    </tr>
+                    <tr id="body-magnet_mode2" style="display: none;" title="The magnet force magnitude. A positive value will have this magnet attracting the surrounding magnetic bodies. A negative value will have this magnet repelling the surrounding magnetic bodies.">
+                      <td><label class="description spacing_tab" for="body-magnet_strength">Magnet Strength</label></td>
+                      <td><input id="body-magnet_strength" class="custom-text numeric-input" type="text"></td>
+                    </tr>
+                    <tr title="Body magnetic state. Check/uncheck to enable/disable being influenced by magnets. Magnetic bodies are affected by the bodies with a magnet force/strength.">
+                      <td><label class="description spacing_tab" for="body-magnetic">Magnetic</label></td>
+                      <td><input id="body-magnetic" type="checkbox"></td>
+                    </tr>
+                    <tr><td colspan="2" class="vertical_spacing"></td></tr>
+                    <tr title="Body linear damping coefficient, a value between 0.00 and 1.00.">
+                      <td><label class="description spacing_tab" for="body-linear_damping">Linear Damp</label></td>
+                      <td><input id="body-linear_damping" class="custom-text numeric-input" type="text"></td>
+                    </tr>
+                    <tr title="Body angular damping coefficient, a value between 0.00 and 1.00.">
+                      <td><label class="description spacing_tab" for="body-angular_damping">Angular Damp</label></td>
+                      <td><input id="body-angular_damping" class="custom-text numeric-input" type="text"></td>
+                    </tr>
+                  </table></td></tr>
+                </table></td>
+              </tr>
+            </table>
+            <table class="struct_table">
+              <colgroup><col style="width:100%"></colgroup>
+              <tr><td><p class="heading">Thruster</p></td></tr>
+              <tr><td><table class="struct_table">
+                <colgroup>
+                  <col style="width:20%">
+                  <col style="width:80%">
+                </colgroup>
+                <tr title="A numeric or directional force in Newtons. Passing a numeric value will apply force along Z-axis. Passing a Vector3d or an Array object will apply force along the direction of the vector.">
+                  <td><a class="description spacing_tab" for="body-thruster_controller" href="http://mspdoc/controller" target="_blank">Controller</a></td>
+                  <td><input id="body-thruster_controller" class="custom-text controller-input" type="text"></td>
+                </tr>
+              </table></td></tr>
+              <tr><td><table class="struct_table">
+                <colgroup>
+                  <col style="width:40%">
+                  <col style="width:10%">
+                  <col style="width:40%">
+                  <col style="width:10%">
+                </colgroup>
+                <tr>
+                  <td><label class="description spacing_tab" for="body-enable_thruster" title="Enable/disable the thruster of the body.">Turned On</label></td>
+                  <td><input id="body-enable_thruster" type="checkbox"></td>
+                  <td><label class="description spacing_tab" for="body-thruster_lock_axes" title="Whether to assume force with respect to body axis; if the body rotates, the force vector will rotate with it.">Lock to Body Axes</label></td>
+                  <td><input id="body-thruster_lock_axes" type="checkbox"></td>
+                </tr>
+              </table></td></tr>
+              <tr><td><p class="heading">Emitter</p></td></tr>
+              <tr><td><table class="struct_table">
+                <colgroup>
+                  <col style="width:20%">
+                  <col style="width:80%">
+                </colgroup>
+                <tr title="A numeric or directional impulse in Newton-seconds. Passing a numeric value will apply impulse along Z-axis. Passing a Vector3d or an Array object will apply impulse along the direction of the vector. A value of zero or a vector with a magnitude of zero will cease emitting the body.">
+                  <td><a class="description spacing_tab" for="body-emitter_controller" href="http://mspdoc/controller" target="_blank">Controller</a></td>
+                  <td><input id="body-emitter_controller" class="custom-text controller-input" type="text"></td>
+                </tr>
+              </table></td></tr>
+              <tr><td><table class="struct_table">
+                <colgroup>
+                  <col style="width:10%">
+                  <col style="width:23%">
+                  <col style="width:10%">
+                  <col style="width:23%">
+                  <col style="width:10%">
+                  <col style="width:24%">
+                </colgroup>
+                <tr>
+                  <td><label class="description spacing_tab" for="body-emitter_rate" title="The emission rate in seconds. If the emitter is on, this body will be emitted every [rate] seconds.">Rate</label></td>
+                  <td><input id="body-emitter_rate" class="custom-text numeric-input" type="text"></td>
+                  <td><label class="description spacing_tab" for="body-emitter_delay" title="The time to wait, in seconds, before starting the emission.">Delay</label></td>
+                  <td><input id="body-emitter_delay" class="custom-text numeric-input" type="text"></td>
+                  <td><label class="description spacing_tab" for="body-emitter_lifetime" title="The lifetime in seconds, a time-span over which the emitted bodies should exist. Pass 0 to have the emitted bodies live through the entire simulation.">Life</label></td>
+                  <td><input id="body-emitter_lifetime" class="custom-text numeric-input" type="text"></td>
+                </tr>
+              </table></td></tr>
+              <tr><td><table class="struct_table">
+                <colgroup>
+                  <col style="width:28%">
+                  <col style="width:5%">
+                  <col style="width:28%">
+                  <col style="width:5%">
+                  <col style="width:28%">
+                  <col style="width:6%">
+                </colgroup>
+                <tr>
+                  <td><label class="description spacing_tab" for="body-enable_emitter" title="Enable/disable the emitter of the body.">Turned On</label></td>
+                  <td><input id="body-enable_emitter" type="checkbox"></td>
+                  <td><label class="description spacing_tab" for="body-emitter_lock_axes" title="Whether to assume impulse with respect to body axis; if the body rotates, the force vector will rotate with it.">Lock to Body Axes</label></td>
+                  <td><input id="body-emitter_lock_axes" type="checkbox"></td>
+                  <td><label class="description spacing_tab" for="body-emitter_recoil" title="Whether to apply an opposite impulse to this body.">Recoil</label></td>
+                  <td><input id="body-emitter_recoil" type="checkbox"></td>
+                </tr>
+              </table></td></tr>
+            </table>
+            <div id="body-internal_joints_div" style="display: none;">
+              <p class="description"><span class="style7">Internal Joints</span></p>
+              <div class="spacing_tab">
+                <table class="struct_table" id="body-internal_joints_table">
+                </table>
+              </div>
+            </div>
+            <div id="body-connected_joints_div" style="display: none;">
+              <p class="description"><span class="style7">Connected Joints</span></p>
+              <div class="spacing_tab">
+                <table class="struct_table" id="body-connected_joints_table"></table>
+              </div>
+            </div>
+          </div>
+          <div id="tab2-content2" style="display: none;">
+            <table class="struct_table">
+              <colgroup>
+                <col style="width:50%">
+                <col style="width:50%">
+              </colgroup>
+              <tr><td><p class="heading">State</p></td></tr>
+              <tr>
+                <td><table class="struct_table">
+                  <colgroup>
+                    <col style="width:90%">
+                    <col style="width:10%">
+                  </colgroup>
+                  <tr title="Prevents this sub group/component instance from being considered part of the top-level body's collision.">
+                    <td><label class="description spacing_tab" for="internal_body-ignore">Ignore</label></td>
+                    <td><input id="internal_body-ignore" type="checkbox"></td>
+                  </tr>
+                </table></td>
+                <td></td>
+              </tr>
+            </table>
+            <div class="vertical_spacing"></div>
+            <p class="description">Internal groups and component instances are limited to a few options.</p>
+          </div>
+          <textarea class="help_box" wrap="hard" readonly="readonly" rows="1" cols="1"></textarea>
+        </div>
+        <div id="tab3" class="tab">
+          <div id="tab3-none">
+            <p class="description">Select a top level group/component of a body type to edit body script.</p>
+            <p class="description">Body script cannot be edited while simulation is running.</p>
+          </div>
+          <div id="tab3-content" style="display: none;">
+            <div>
+              <table class="opts_table">
+                <colgroup>
+                  <col style="width:10%">
+                  <col style="width:50%">
+                  <col style="width:15%">
+                  <col style="width:10%">
+                  <col style="width:10%">
+                  <col style="width:5%">
+                </colgroup>
+                <tr>
+                  <td><label class="expander description"><span class="style5">Options</span></label></td>
+                  <td><pre class="reference center"><a href="http://mspdoc/index" target="_blank">MSPhysics</a> | <a href="http://amsdoc/index" target="_blank">AMS Library</a> | <a href="http://ruby.sketchup.com/" target="_blank">SketchUp API</a> | <a href="http://rubydoc/index" target="_blank">Ruby Core</a></pre></td>
+                  <td><pre><label class="description">Entity ID: </label><input id="body-entity_id" class="labeled-text" type="text" unselectable="on" onselectstart="return false;" onmousedown="return false;" readonly="readonly"></pre></td>
+                  <td><pre><label class="description">Index: </label><input id="body-entity_index" class="labeled-text" type="text" unselectable="on" onselectstart="return false;" onmousedown="return false;" readonly="readonly"></pre></td>
+                  <td><label title="Enable/disable script evaluation for the body. Ignored or invalid bodies don't have their script executed, regardless of this state." class="description" for="body-enable_script">Turned On</label></td>
+                  <td><input id="body-enable_script" type="checkbox"></td>
+                </tr>
+              </table>
+              <div class="content spacing_tab">
+                <table class="opts_table">
+                  <colgroup>
+                    <col style="width:8%">
+                    <col style="width:24%">
+                    <col style="width:1%">
+                    <col style="width:10%">
+                    <col style="width:8%">
+                    <col style="width:1%">
+                    <col style="width:10%">
+                    <col style="width:8%">
+                    <col style="width:1%">
+                    <col style="width:10%">
+                    <col style="width:4%">
+                    <col style="width:1%">
+                    <col style="width:10%">
+                    <col style="width:4%">
+                  </colgroup>
+                  <tr>
+                    <td><p class="description">Theme</p></td>
+                    <td><select id="editor-theme" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                      <optgroup label="Light">
+                        <option value="chrome">Chrome</option>
+                        <option value="clouds">Clouds</option>
+                        <option value="crimson_editor">Crimson Editor</option>
+                        <option value="dawn">Dawn</option>
+                        <option value="dreamweaver">Dreamweaver</option>
+                        <option value="eclipse">Eclipse</option>
+                        <option value="github">Github</option>
+                        <option value="iplastic">iPlastic</option>
+                        <option value="katzenmilch">KatzenMilch</option>
+                        <option value="kuroir">Kuroir</option>
+                        <option value="msphysics_light">MSPhysics Light</option>
+                        <option value="solarized_light">Solarized Light</option>
+                        <option value="sqlserver">SQL Server</option>
+                        <option value="textmate">Textmate</option>
+                        <option value="tomorrow">Tomorrow</option>
+                        <option value="xcode">Xcode</option>
+                      </optgroup>
+                      <optgroup label="Dark">
+                        <option value="ambiance">Ambiance</option>
+                        <option value="chaos">Chaos</option>
+                        <option value="clouds_midnight">Clouds Midnight</option>
+                        <option value="cobalt">Cobalt</option>
+                        <option value="idle_fingers">Idle Fingers</option>
+                        <option value="kr_theme">KR Theme</option>
+                        <option value="merbivore">Merbivore</option>
+                        <option value="merbivore_soft">Merbivore Soft</option>
+                        <option value="mono_industrial">Mono Industrial</option>
+                        <option value="monokai">Monokai</option>
+                        <option value="msphysics_dark">MSPhysics Dark</option>
+                        <option value="pastel_on_dark">Pastel on Dark</option>
+                        <option value="solarized_dark">Solarized Dark</option>
+                        <option value="terminal">Terminal</option>
+                        <option value="tomorrow_night">Tomorrow Night</option>
+                        <option value="tomorrow_night_blue">Tomorrow Night Blue</option>
+                        <option value="tomorrow_night_bright">Tomorrow Night Bright</option>
+                        <option value="tomorrow_night_eighties">Tomorrow Night 80s</option>
+                        <option value="twilight">Twilight</option>
+                        <option value="vibrant_ink">Vibrant Ink</option>
+                      </optgroup>
+                    </select></td>
+                    <td></td>
+                    <td><p class="description">Soft Wrap</p></td>
+                    <td><select id="editor-wrap" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                      <option value="off">Off</option>
+                      <option value="40">40</option>
+                      <option value="80">80</option>
+                      <option value="120">120</option>
+                      <option value="free">Free</option>
+                    </select></td>
+                    <td></td>
+                    <td><p class="description">Font Size</p></td>
+                    <td><select id="editor-font" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                      <option value="6">6</option>
+                      <option value="7">7</option>
+                      <option value="8">8</option>
+                      <option value="9">9</option>
+                      <option value="10">10</option>
+                      <option value="11">11</option>
+                      <option value="12">12</option>
+                      <option value="13">13</option>
+                      <option value="14">14</option>
+                      <option value="16">16</option>
+                      <option value="18">18</option>
+                      <option value="20">20</option>
+                      <option value="22">22</option>
+                      <option value="24">24</option>
+                      <option value="26">26</option>
+                      <option value="28">28</option>
+                      <option value="36">36</option>
+                      <option value="48">48</option>
+                      <option value="72">72</option>
+                    </select></td>
+                    <td></td>
+                    <td><label class="description" for="editor-print_margin">Print Margin</label></td>
+                    <td><input id="editor-print_margin" type="checkbox"></td>
+                    <td></td>
+                    <td><label style="padding-left: 5px;" class="description" for="editor-read_only">Read Only</label></td>
+                    <td><input id="editor-read_only" type="checkbox"></td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+            <textarea id="temp_script_area" wrap="soft" rows="1" cols="1" style="display: none;" readonly="readonly"></textarea>
+            <div id="editor"></div>
+            <div><pre id="status-bar">Powered by <a href="http://ace.c9.io/#nav=about" target="_blank">Ace</a>    Display Shortcuts: Ctrl+Alt+H    Toggle Fullscreen: F11</pre></div>
+          </div>
+        </div>
+        <div id="tab4" class="tab">
+          <div id="tab4-none">
+            <p class="description">Select a component instance of a joint type to edit joint properties.</p>
+            <p class="description">Joint properties cannot be edited while simulation is running.</p>
+          </div>
+          <div id="tab4-general">
+            <label class="expander expanded title">General Properties</label>
+            <div class="content spacing_tab">
+              <table class="struct_table">
+                <colgroup>
+                  <col style="width:40%">
+                  <col style="width:60%">
+                </colgroup>
+                <tr title="Joint name. By default joint name is joint ID. Joint name is inherited from group name.">
+                  <td><label class="description" for="joint-name">Name</label></td>
+                  <td><input id="joint-name" class="custom-text text-input" type="text"></td>
+                </tr>
+                <tr title="Joint stiffness, a value between 0.00 and 1.00. Low stiffness makes joint loose. High stiffness makes joint strong.">
+                  <td><label class="description" for="joint-stiffness">Stiffness</label></td>
+                  <td><input id="joint-stiffness" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Joint breaking force in Newtons; the maximum force this joint can sustain. Pass zero to disable breaking force.">
+                  <td><label class="description" for="joint-breaking_force">Breaking Force</label></td>
+                  <td><input id="joint-breaking_force" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Joint connected collide state. Check/uncheck to enable/disable collision between the connected bodies.">
+                  <td><label class="description" for="joint-bodies_collidable">Connected Collide</label></td>
+                  <td><input id="joint-bodies_collidable" type="checkbox"></td>
+                </tr>
+                <tr><td colspan="2"><a href="#" class="button" id="joint-assign_to_all" title="Assign identical attributes to all joints with the same name and type.">Assign to All with Name and Type</a></td></tr>
+              </table>
+              <div>
+                <label class="expander description"><span class="style5">Notes</span></label>
+                <div class="content spacing_tab">
+                  <ul style="padding-left:1em;" type="circle">
+                    <li><p class="description">Joints work best with the world solver model set to iterative, 64 passes.</p></li>
+                    <li><p class="description">Two functions, <span class="style1">simulation.find_joint_by_name(name)</span> and <span class="style1">simulation.find_joints_by_name(name)</span>, may be used to acquire Joint instances by their names in the script context of a body.</p></li>
+                    <li><p class="description">Other functions, like <span class="style1">this.connected_joints</span>, <span class="style1">this.contained_joints</span> and <span class="style1">this.connected_bodies</span>, may be used to acquire all related joints and bodies in the script context of a body.</p></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="tab4-fixed">
+            <label class="expander expanded title">Fixed</label>
+            <div class="content spacing_tab">
+              <table class="struct_table">
+                <colgroup>
+                  <col style="width:40%">
+                  <col style="width:60%">
+                </colgroup>
+                <tr title="Shift pin matrix toward the center of the connected body.">
+                  <td><label class="description" for="fixed-adjust_to-child">Adjust Pin to Child</label></td>
+                  <td><input id="fixed-adjust_to-child" type="radio" name="fixed-adjust_to" value="child" style="float:right;"></td>
+                </tr>
+                <tr title="Shift pin matrix toward the center of the parent body (if there is a parent body).">
+                  <td><label class="description" for="fixed-adjust_to-parent">Adjust Pin to Parent</label></td>
+                  <td><input id="fixed-adjust_to-parent" type="radio" name="fixed-adjust_to" value="parent" style="float:right;"></td>
+                </tr>
+                <tr title="Leave pin matrix at joint origin.">
+                  <td><label class="description" for="fixed-adjust_to-none">Don't Readjust Pin</label></td>
+                  <td><input id="fixed-adjust_to-none" type="radio" name="fixed-adjust_to" value="none" style="float:right;"></td>
+                </tr>
+              </table>
+              <div id="fixed-geared_joints_field"></div>
+              <div>
+                <label class="expander description"><span class="style5">Notes</span></label>
+                <div class="content spacing_tab">
+                  <ul style="padding-left:1em;" type="circle">
+                    <li class="description">Currently, the fixed joint is limited in properties. Use the options within <b>General Properties</b> section, for instance, to adjust the breaking force, which can be applied to any joint.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="tab4-hinge">
+            <label class="expander expanded title">Hinge</label>
+            <div class="content spacing_tab">
+              <table class="struct_table">
+                <colgroup>
+                  <col style="width:40%">
+                  <col style="width:60%">
+                </colgroup>
+                <tr>
+                  <td><label class="description" for="hinge-angle_units">Angle Units</label></td>
+                  <td><select id="hinge-angle_units" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                    <option value="rad">Radians</option>
+                    <option value="deg">Degrees</option>
+                  </select></td>
+                </tr>
+                <tr title="The minimum angle in desired units with respect to the starting angle.">
+                  <td><label class="description" for="hinge-min">Min</label></td>
+                  <td><input id="hinge-min" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="The maximum angle in desired units with respect to the starting angle.">
+                  <td><label class="description" for="hinge-max">Max</label></td>
+                  <td><input id="hinge-max" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Check/uncheck to have minimum and maximum angle limits.">
+                  <td><label class="description" for="hinge-enable_limits">Limits</label></td>
+                  <td><input id="hinge-enable_limits" type="checkbox"></td>
+                </tr>
+                <tr title="Whether to apply angular friction or a type of angular spring.">
+                  <td><label class="description" for="hinge-mode">Mode</label></td>
+                  <td><select id="hinge-mode" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                    <option value="0">Angular Friction</option>
+                    <option value="1">Angular Spring - Normal</option>
+                    <option value="2">Angular Spring - Hooke's</option>
+                  </select></td>
+                </tr>
+                <tr class="hinge-mode_s0" title="The angular friction, a value greater than or equal to zero.">
+                  <td><label class="description" for="hinge-friction">Angular Friction</label></td>
+                  <td><input id="hinge-friction" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr class="hinge-mode_s1" title="The acceleration factor of the angular spring, a value greater than or equal to zero.">
+                  <td><label class="description" for="hinge-accel">Accel</label></td>
+                  <td><input id="hinge-accel" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr class="hinge-mode_s1" title="The damping coefficient of the angular spring, a value between 0.0 and 1.0.">
+                  <td><label class="description" for="hinge-damp">Damp</label></td>
+                  <td><input id="hinge-damp" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr class="hinge-mode_s1" title="The strength coefficient of the angular spring, a value between 0.0 and 1.0.">
+                  <td><label class="description" for="hinge-strength">Strength</label></td>
+                  <td><input id="hinge-strength" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr class="hinge-mode_s2" title="The Hooke's angular spring constant in kg/s², a value greater than or equal to zero.">
+                  <td><label class="description" for="hinge-spring_constant">Spring Constant</label></td>
+                  <td><input id="hinge-spring_constant" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr class="hinge-mode_s2" title="The Hooke's angular spring drag coefficient in kg/s, a value greater than or equal to zero.">
+                  <td><label class="description" for="hinge-spring_drag">Spring Drag</label></td>
+                  <td><input id="hinge-spring_drag" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr class="hinge-mode_s12" title="The starting angle of the spring in preset units. Note: The actual starting angle is start_angle • controller.">
+                  <td><label class="description" for="hinge-start_angle">Start Angle</label></td>
+                  <td><input id="hinge-start_angle" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Control the magnitude of the rotation friction or the magnitude and direction of the starting angle, depending on the mode.">
+                  <td><a class="description" for="hinge-controller" href="http://mspdoc/controller" target="_blank">Controller</a></td>
+                  <td><input id="hinge-controller" class="custom-text controller-input" type="text"></td>
+                </tr>
+              </table>
+              <div id="hinge-geared_joints_field"></div>
+              <div>
+                <label class="expander description"><span class="style5">Notes</span></label>
+                <div class="content spacing_tab">
+                  <p class="description">A hinge joint has three resemblance modes:</p>
+                  <ol class="description" style="padding-left:2em;" type="1">
+                    <li style="padding-left:0em;">
+                      <p class="description">Angular Friction - a hinge with rotational friction.</p>
+                      <ul style="padding-left:1em;" type="circle">
+                        <li class="description">The <span class="style2">Friction</span> argument controls rotational friction.</li>
+                        <li class="description">The <span class="style2">Controller</span> argument may be used to control the magnitude of the angular frictional.</li>
+                        <li class="description">The actual angular friction is, <span class="style1">friction • controller</span>.</li>
+                      </ul>
+                    </li>
+                    <li style="padding-left:0em;">
+                      <p class="description">Normal Spring - a hinge with angular spring that rotates connected bodies back to their starting angle.</p>
+                      <ul style="padding-left:1em;" type="circle">
+                        <li class="description">The <span class="style2">Accel</span>, <span class="style2">Damp</span>, and <span class="style2">Strength</span> arguments control acceleration and damping of the angular spring.</li>
+                        <li class="description">The <span class="style2">Start Angle</span> argument controls the desired starting angle in preset angle units.</li>
+                        <li class="description">The <span class="style2">Controller</span> argument may be used to control the magnitude and direction of the starting angle.</li>
+                        <li class="description">The actual starting angle, in preset angle units, is, <span class="style1">start_angle • controller</span>.</li>
+                      </ul>
+                    </li>
+                    <li style="padding-left:0em;">
+                      <p class="description">Hooke's Spring - similar to the normal mode but uses Hooke's parameters for controlling the acceleration and drag of the spring.</p>
+                    </li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="tab4-motor">
+            <label class="expander expanded title">Motor</label>
+            <div class="content spacing_tab">
+              <table class="struct_table">
+                <colgroup>
+                  <col style="width:40%">
+                  <col style="width:60%">
+                </colgroup>
+                <tr title="The angular acceleration in radians per second per second, a numeric value greater than or equal to zero. Note: Actual acceleration is accel • controller.">
+                  <td><label class="description" for="motor-accel">Accel</label></td>
+                  <td><input id="motor-accel" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="The angular damper, a numeric value greater than or equal to zero. Higher damper makes rotation stronger.">
+                  <td><label class="description" for="motor-damp">Damp</label></td>
+                  <td><input id="motor-damp" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Check/uncheck to have free rotation. Free rotation disables angular deceleration when acceleration or magnitude of angular acceleration is set to zero, that is when accel • controller is zero.">
+                  <td><label class="description" for="motor-enable_free_rotate">Free Rotate</label></td>
+                  <td><input id="motor-enable_free_rotate" type="checkbox"></td>
+                </tr>
+                <tr title="Control the magnitude and direction of the desired acceleration. Note: Actual acceleration is accel • controller.">
+                  <td><a class="description" for="motor-controller" href="http://mspdoc/controller" target="_blank">Controller</a></td>
+                  <td><input id="motor-controller" class="custom-text controller-input" type="text"></td>
+                </tr>
+                <tr>
+                  <td colspan="2"><a href="#" class="button" id="motor-generate_slider" title="Generate slider controller based on the current parameters.">Generate Slider Controller</a></td>
+                </tr>
+              </table>
+              <div id="motor-geared_joints_field"></div>
+              <div>
+                <label class="expander description"><span class="style5">Notes</span></label>
+                <div class="content spacing_tab">
+                  <ul style="padding-left:1em;" type="circle">
+                    <li class="description">The <span class="style2">Controller</span> argument may be used to control the magnitude and direction of the rotation.</li>
+                    <li class="description">The maximum angular rate, in radians per second, is, <span class="style1">accel • controller / damp</span>.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="tab4-servo">
+            <label class="expander expanded title">Servo</label>
+            <div class="content spacing_tab">
+              <table class="struct_table">
+                <colgroup>
+                  <col style="width:40%">
+                  <col style="width:60%">
+                </colgroup>
+                <tr>
+                  <td><label class="description" for="servo-angle_units">Angle Units</label></td>
+                  <td><select id="servo-angle_units" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                    <option value="rad">Radians</option>
+                    <option value="deg">Degrees</option>
+                  </select></td>
+                </tr>
+                <tr title="The minimum angle in preset angle units.">
+                  <td><label class="description" for="servo-min">Min</label></td>
+                  <td><input id="servo-min" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="The maximum angle in preset angle units.">
+                  <td><label class="description" for="servo-max">Max</label></td>
+                  <td><input id="servo-max" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Enable/disable minimum and maximum angle limits.">
+                  <td><label class="description" for="servo-enable_limits">Limits</label></td>
+                  <td><input id="servo-enable_limits" type="checkbox"></td>
+                </tr>
+                <tr title="The angular rate in preset units per second, a numeric value greater than or equal to zero.">
+                  <td><label class="description" for="servo-rate">Angular Rate</label></td>
+                  <td><input id="servo-rate" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="The rotational power in Watts. Pass 0.0 to use maximum power.">
+                  <td><label class="description" for="servo-power">Power</label></td>
+                  <td><input id="servo-power" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="The angular reduction ratio, a numeric value between 0.0 and 1.0. This feature reduces angular rate when current angle nears the desired angle, for the purpose of achieving a smooth stop. A value of 0.0 disables angular reduction. A value greater than zero enables angular reduction and acts accordingly based on the ratio. A typical reduction ratio is 0.1.">
+                  <td><label class="description" for="servo-reduction_ratio">Reduction Ratio</label></td>
+                  <td><input id="servo-reduction_ratio" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Control the desired angle in preset angle units. Pass nil to turn off the servo.">
+                  <td><a class="description" for="servo-controller" href="http://mspdoc/controller" target="_blank">Controller</a></td>
+                  <td><input id="servo-controller" class="custom-text controller-input" type="text"></td>
+                </tr>
+                <tr>
+                  <td colspan="2"><a href="#" class="button" id="servo-generate_slider" title="Generate slider controller based on the current parameters.">Generate Slider Controller</a></td>
+                </tr>
+              </table>
+              <div id="servo-geared_joints_field"></div>
+              <div>
+                <label class="expander description"><span class="style5">Notes</span></label>
+                <div class="content spacing_tab">
+                  <ul style="padding-left:1em;" type="circle">
+                    <li class="description">The <span class="style2">Controller</span> argument assumes input as the desired angle in preset angle units.</li>
+                    <li class="description">The <span class="style2">Controller</span> argument also accepts <span class="style1">nil</span> as the parameter, which turns off the joint.</li>
+                    <li class="description">The desired angle is clamped between min and max limits if the limits are enabled.</li>
+                    <li class="description">The <span class="style2">Reduction Ratio</span> may be used to decelerate angular rate when servo nears its desired angle.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="tab4-slider">
+            <label class="expander expanded title">Slider</label>
+            <div class="content spacing_tab">
+              <table class="struct_table">
+                <colgroup>
+                  <col style="width:40%">
+                  <col style="width:60%">
+                </colgroup>
+                <tr>
+                  <td><label class="description" for="slider-position_units">Position Units</label></td>
+                  <td><select id="slider-position_units" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                    <option value="mm">Millimeters</option>
+                    <option value="cm">Centimeters</option>
+                    <option value="dm">Decimeters</option>
+                    <option value="m">Meters</option>
+                    <option value="in">Inches</option>
+                    <option value="ft">Feet</option>
+                    <option value="yd">Yards</option>
+                  </select></td>
+                </tr>
+                <tr title="The minimum position in preset units.">
+                  <td><label class="description" for="slider-min">Min</label></td>
+                  <td><input id="slider-min" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="The maximum position in preset units.">
+                  <td><label class="description" for="slider-max">Max</label></td>
+                  <td><input id="slider-max" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Enable/disable minimum and maximum position limits.">
+                  <td><label class="description" for="slider-enable_limits">Limits</label></td>
+                  <td><input id="slider-enable_limits" type="checkbox"></td>
+                </tr>
+                <tr title="The linear friction, a value greater than or equal to zero. Note: The actual friction is friction • magnitude.">
+                  <td><label class="description" for="slider-friction">Linear Friction</label></td>
+                  <td><input id="slider-friction" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Control magnitude of the linear friction.">
+                  <td><a class="description" for="slider-controller" href="http://mspdoc/controller" target="_blank">Controller</a></td>
+                  <td><input id="slider-controller" class="custom-text controller-input" type="text"></td>
+                </tr>
+              </table>
+              <div id="slider-geared_joints_field"></div>
+              <div>
+                <label class="expander description"><span class="style5">Notes</span></label>
+                <div class="content spacing_tab">
+                  <ul style="padding-left:1em;" type="circle">
+                    <li class="description">The <span class="style2">Controller</span> argument may be used to control the magnitude of the linear friction.</li>
+                    <li class="description">The actual linear friction is, <span class="style1">friction • controller</span>.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="tab4-piston">
+            <label class="expander expanded title">Piston</label>
+            <div class="content spacing_tab">
+              <table class="struct_table">
+                <colgroup>
+                  <col style="width:40%">
+                  <col style="width:60%">
+                </colgroup>
+                <tr>
+                  <td><label class="description" for="piston-position_units">Position Units</label></td>
+                  <td><select id="piston-position_units" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                    <option value="mm">Millimeters</option>
+                    <option value="cm">Centimeters</option>
+                    <option value="dm">Decimeters</option>
+                    <option value="m">Meters</option>
+                    <option value="in">Inches</option>
+                    <option value="ft">Feet</option>
+                    <option value="yd">Yards</option>
+                  </select></td>
+                </tr>
+                <tr title="The minimum position in preset units.">
+                  <td><label class="description" for="piston-min">Min</label></td>
+                  <td><input id="piston-min" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="The maximum position in preset units.">
+                  <td><label class="description" for="piston-max">Max</label></td>
+                  <td><input id="piston-max" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Enable/disable minimum and maximum position limits.">
+                  <td><label class="description" for="piston-enable_limits">Limits</label></td>
+                  <td><input id="piston-enable_limits" type="checkbox"></td>
+                </tr>
+                <tr title="The linear rate in preset units per second, a numeric value greater than or equal to zero.">
+                  <td><label class="description" for="piston-rate">Linear Rate</label></td>
+                  <td><input id="piston-rate" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="The movement power in Watts. Pass 0.0 to use maximum power.">
+                  <td><label class="description" for="piston-power">Power</label></td>
+                  <td><input id="piston-power" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="The linear reduction ratio, a numeric value between 0.0 and 1.0. This feature reduces linear rate when current position nears the desired position, for the purpose of achieving a smooth stop. A value of 0.0 disables linear reduction. A value greater than zero enables linear reduction and acts accordingly based on the ratio. A typical reduction ratio is 0.1.">
+                  <td><label class="description" for="piston-reduction_ratio">Reduction Ratio</label></td>
+                  <td><input id="piston-reduction_ratio" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr>
+                  <td><label class="description" for="piston-controller_mode">Controller Mode</label></td>
+                  <td><select id="piston-controller_mode" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                    <option value="0">Control by Position</option>
+                    <option value="1">Control by Speed - Strict</option>
+                    <option value="2">Control by Speed - Adaptive</option>
+                  </select></td>
+                </tr>
+                <tr title="Control desired position in preset units or magnitude and direction of the linear rate, depending on the controller mode. Pass nil to 'turn off' the piston.">
+                  <td><a class="description" for="piston-controller" href="http://mspdoc/controller" target="_blank">Controller</a></td>
+                  <td><input id="piston-controller" class="custom-text controller-input" type="text"></td>
+                </tr>
+                <tr>
+                  <td colspan="2"><a href="#" class="button" id="piston-generate_slider" title="Generate slider controller based on the current parameters.">Generate Slider Controller</a></td>
+                </tr>
+              </table>
+              <div id="piston-geared_joints_field"></div>
+              <div>
+                <label class="expander description"><span class="style5">Notes</span></label>
+                <div class="content spacing_tab">
+                  <ul style="padding-left:1em;" type="circle">
+                    <li class="description">The <span class="style2">Controller</span> argument assumes input as the desired linear position in preset units or the magnitude and direction of linear rate, depending on the <span class="style2">Controller Mode</span>.</li>
+                    <li class="description">The <span class="style2">Controller</span> argument also accepts <span class="style1">nil</span> as the parameter, which turns off the joint.</li>
+                    <li class="description">The desired position is clamped between min and max limits if the limits are enabled.</li>
+                    <li class="description">The <span class="style2">Reduction Ratio</span> may be used to decelerate linear rate when piston nears its desired position.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="tab4-spring">
+            <label class="expander expanded title">Spring</label>
+            <div class="content spacing_tab">
+              <table class="struct_table">
+                <colgroup>
+                  <col style="width:40%">
+                  <col style="width:60%">
+                </colgroup>
+                <tr>
+                  <td><label class="description" for="spring-position_units">Position Units</label></td>
+                  <td><select id="spring-position_units" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                    <option value="mm">Millimeters</option>
+                    <option value="cm">Centimeters</option>
+                    <option value="dm">Decimeters</option>
+                    <option value="m">Meters</option>
+                    <option value="in">Inches</option>
+                    <option value="ft">Feet</option>
+                    <option value="yd">Yards</option>
+                  </select></td>
+                </tr>
+                <tr title="The minimum position in preset units with respect to the starting position.">
+                  <td><label class="description" for="spring-min">Min</label></td>
+                  <td><input id="spring-min" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="The maximum position in preset units with respect to the starting position.">
+                  <td><label class="description" for="spring-max">Max</label></td>
+                  <td><input id="spring-max" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Enable/disable minimum and maximum position limits.">
+                  <td><label class="description" for="spring-enable_limits">Limits</label></td>
+                  <td><input id="spring-enable_limits" type="checkbox"></td>
+                </tr>
+                <tr title="Enable/disable rotation along the joint's Z-axis.">
+                  <td><label class="description" for="spring-enable_rotation">Rotation Along Z-Axis</label></td>
+                  <td><input id="spring-enable_rotation" type="checkbox"></td>
+                </tr>
+                <tr title="A type of spring to use.">
+                  <td><label class="description" for="spring-mode">Mode</label></td>
+                  <td><select id="spring-mode" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                    <option value="0">Spring - Normal</option>
+                    <option value="1">Spring - Hooke's</option>
+                  </select></td>
+                </tr>
+                <tr class="spring-mode_s0" title="The acceleration factor of the spring, a value greater than or equal to zero.">
+                  <td><label class="description" for="spring-accel">Accel</label></td>
+                  <td><input id="spring-accel" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr class="spring-mode_s0" title="The damping coefficient of the spring, a value between 0.0 and 1.0.">
+                  <td><label class="description" for="spring-damp">Damp</label></td>
+                  <td><input id="spring-damp" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr class="spring-mode_s0" title="The strength coefficient of the spring, a value between 0.0 and 1.0.">
+                  <td><label class="description" for="spring-strength">Strength</label></td>
+                  <td><input id="spring-strength" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr class="spring-mode_s1" title="The Hooke's spring constant in kg/s², a value greater than or equal to zero.">
+                  <td><label class="description" for="spring-spring_constant">Spring Constant</label></td>
+                  <td><input id="spring-spring_constant" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr class="spring-mode_s1" title="The Hooke's spring drag coefficient in kg/s, a value greater than or equal to zero.">
+                  <td><label class="description" for="spring-spring_drag">Spring Drag</label></td>
+                  <td><input id="spring-spring_drag" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="The starting position along joint Z-axis in preset units. Note: The actual starting position is start_position • controller.">
+                  <td><label class="description" for="spring-start_position">Start Position</label></td>
+                  <td><input id="spring-start_position" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Control the magnitude and direction of the starting position.">
+                  <td><a class="description" for="spring-controller" href="http://mspdoc/controller" target="_blank">Controller</a></td>
+                  <td><input id="spring-controller" class="custom-text controller-input" type="text"></td>
+                </tr>
+              </table>
+              <div id="spring-geared_joints_field"></div>
+              <div>
+                <label class="expander description"><span class="style5">Notes</span></label>
+                <div class="content spacing_tab">
+                  <ul style="padding-left:1em;" type="circle">
+                    <li class="description">The <span class="style2">Controller</span> argument may be used to modify the starting position.</li>
+                    <li class="description">The actual starting position, in preset units, is, <span class="style1">start_position • controller</span>.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="tab4-up_vector">
+            <label class="expander expanded title">Up Vector</label>
+            <div class="content spacing_tab">
+              <table class="struct_table">
+                <colgroup>
+                  <col style="width:40%">
+                  <col style="width:60%">
+                </colgroup>
+                <tr title="The angular acceleration, a value greater than or equal to zero. Higher acceleration makes rotation faster.">
+                  <td><label class="description" for="up_vector-accel">Accel</label></td>
+                  <td><input id="up_vector-accel" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="The angular damper, a value greater than or equal to zero. Higher damper makes rotation stronger.">
+                  <td><label class="description" for="up_vector-damp">Damp</label></td>
+                  <td><input id="up_vector-damp" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="The strength coefficient of the acceleration and damper, a numeric value between 0.0 and 1.0.">
+                  <td><label class="description" for="up_vector-strength">Strength</label></td>
+                  <td><input id="up_vector-strength" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Control vector direction with respect to joint orientation. Pass an Array or a Geom::Vector3d object.">
+                  <td><a class="description" for="up_vector-controller" href="http://mspdoc/controller" target="_blank">Controller</a></td>
+                  <td><input id="up_vector-controller" class="custom-text controller-input" type="text"></td>
+                </tr>
+              </table>
+              <div id="up_vector-geared_joints_field"></div>
+              <div>
+                <label class="expander description"><span class="style5">Notes</span></label>
+                <div class="content spacing_tab">
+                  <ul style="padding-left:1em;" type="circle">
+                    <li class="description">The <span class="style2">Controller</span> argument assumes input the desired direction with respect the joint orientation. For example, passing <span class="style1">[1,0,0]</span> into the controller will rotate the connected body so that it points the same direction as the joint's x-axis is.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="tab4-corkscrew">
+            <label class="expander expanded title">Corkscrew</label>
+            <div class="content spacing_tab">
+              <table class="struct_table">
+                <colgroup>
+                  <col style="width:40%">
+                  <col style="width:60%">
+                </colgroup>
+                <tr>
+                  <td><label class="description" for="corkscrew-position_units">Position Units</label></td>
+                  <td><select id="corkscrew-position_units" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                    <option value="mm">Millimeters</option>
+                    <option value="cm">Centimeters</option>
+                    <option value="dm">Decimeters</option>
+                    <option value="m">Meters</option>
+                    <option value="in">Inches</option>
+                    <option value="ft">Feet</option>
+                    <option value="yd">Yards</option>
+                  </select></td>
+                </tr>
+                <tr title="The minimum position in preset units.">
+                  <td><label class="description" for="corkscrew-min_position">Min Position</label></td>
+                  <td><input id="corkscrew-min_position" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="The maximum position in preset units.">
+                  <td><label class="description" for="corkscrew-max_position">Max Position</label></td>
+                  <td><input id="corkscrew-max_position" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Enable/disable minimum and maximum position limits.">
+                  <td><label class="description" for="corkscrew-enable_linear_limits">Position Limits</label></td>
+                  <td><input id="corkscrew-enable_linear_limits" type="checkbox"></td>
+                </tr>
+                <tr title="The linear friction, a value greater than or equal to zero.">
+                  <td><label class="description" for="corkscrew-linear_friction">Linear Friction</label></td>
+                  <td><input id="corkscrew-linear_friction" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr>
+                  <td><label class="description" for="corkscrew-angle_units">Angle Units</label></td>
+                  <td><select id="corkscrew-angle_units" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                    <option value="rad">Radians</option>
+                    <option value="deg">Degrees</option>
+                  </select></td>
+                </tr>
+                <tr title="The minimum angle in preset units.">
+                  <td><label class="description" for="corkscrew-min_angle">Min Angle</label></td>
+                  <td><input id="corkscrew-min_angle" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="The maximum angle in preset units.">
+                  <td><label class="description" for="corkscrew-max_angle">Max Angle</label></td>
+                  <td><input id="corkscrew-max_angle" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Enable/disable minimum and maximum angle limits.">
+                  <td><label class="description" for="corkscrew-enable_angular_limits">Angle Limits</label></td>
+                  <td><input id="corkscrew-enable_angular_limits" type="checkbox"></td>
+                </tr>
+                <tr title="The angular friction, a value greater than or equal to zero.">
+                  <td><label class="description" for="corkscrew-angular_friction">Angular Friction</label></td>
+                  <td><input id="corkscrew-angular_friction" class="custom-text numeric-input" type="text"></td>
+                </tr>
+              </table>
+              <div id="corkscrew-geared_joints_field"></div>
+              <div>
+                <label class="expander description"><span class="style5">Notes</span></label>
+                <div class="content spacing_tab">
+                  <ul style="padding-left:1em;" type="circle">
+                    <li class="description">The corkscrew joint works like a slider and a hinge combined, however without a controller.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="tab4-ball_and_socket">
+            <label class="expander expanded title">BallAndSocket</label>
+            <div class="content spacing_tab">
+              <table class="struct_table">
+                <colgroup>
+                  <col style="width:40%">
+                  <col style="width:60%">
+                </colgroup>
+                <tr>
+                  <td><label class="description" for="ball_and_socket-angle_units">Angle Units</label></td>
+                  <td><select id="ball_and_socket-angle_units" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                    <option value="rad">Radians</option>
+                    <option value="deg">Degrees</option>
+                  </select></td>
+                </tr>
+                <tr title="The maximum cone angle in preset units.">
+                  <td><label class="description" for="ball_and_socket-max_cone_angle">Max Cone Angle</label></td>
+                  <td><input id="ball_and_socket-max_cone_angle" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Enable/disable maximum cone angle limit.">
+                  <td><label class="description" for="ball_and_socket-enable_cone_limits">Cone Limits</label></td>
+                  <td><input id="ball_and_socket-enable_cone_limits" type="checkbox"></td>
+                </tr>
+                <tr title="The minimum twist angle in preset units.">
+                  <td><label class="description" for="ball_and_socket-min_twist_angle">Min Twist Angle</label></td>
+                  <td><input id="ball_and_socket-min_twist_angle" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="The maximum twist angle in preset units.">
+                  <td><label class="description" for="ball_and_socket-max_twist_angle">Max Twist Angle</label></td>
+                  <td><input id="ball_and_socket-max_twist_angle" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Enable/disable minimum and maximum twist limits.">
+                  <td><label class="description" for="ball_and_socket-enable_twist_limits">Twist Limits</label></td>
+                  <td><input id="ball_and_socket-enable_twist_limits" type="checkbox"></td>
+                </tr>
+                <tr title="The angular friction, a value greater than or equal to zero.">
+                  <td><label class="description" for="ball_and_socket-friction">Angular Friction</label></td>
+                  <td><input id="ball_and_socket-friction" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Control magnitude of the angular friction.">
+                  <td><a class="description" for="ball_and_socket-controller" href="http://mspdoc/controller" target="_blank">Controller</a></td>
+                  <td><input id="ball_and_socket-controller" class="custom-text controller-input" type="text"></td>
+                </tr>
+              </table>
+              <div id="ball_and_socket-geared_joints_field"></div>
+              <div>
+                <label class="expander description"><span class="style5">Notes</span></label>
+                <div class="content spacing_tab">
+                  <ul style="padding-left:1em;" type="circle">
+                    <li class="description">The <span class="style2">Controller</span> argument may be used to control the magnitude of the angular friction.</li>
+                    <li class="description">The actual angular friction is, <span class="style1">friction • controller</span>.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="tab4-universal">
+            <label class="expander expanded title">Universal</label>
+            <div class="content spacing_tab">
+              <table class="struct_table">
+                <colgroup>
+                  <col style="width:40%">
+                  <col style="width:60%">
+                </colgroup>
+                <tr>
+                  <td><label class="description" for="universal-angle_units">Angle Units</label></td>
+                  <td><select id="universal-angle_units" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                    <option value="rad">Radians</option>
+                    <option value="deg">Degrees</option>
+                  </select></td>
+                </tr>
+                <tr title="The minimum angle along joint Z-axis in preset units.">
+                  <td><label class="description" for="universal-min1">Min 1</label></td>
+                  <td><input id="universal-min1" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="The maximum angle along joint Z-axis in preset units.">
+                  <td><label class="description" for="universal-max1">Max 1</label></td>
+                  <td><input id="universal-max1" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Enable/disable minimum and maximum angle limits along joint Z-axis.">
+                  <td><label class="description" for="universal-enable_limits1">Limits 1</label></td>
+                  <td><input id="universal-enable_limits1" type="checkbox"></td>
+                </tr>
+                <tr title="The minimum angle along joint X-axis in preset units.">
+                  <td><label class="description" for="universal-min2">Min 2</label></td>
+                  <td><input id="universal-min2" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="The maximum angle along joint X-axis in preset units.">
+                  <td><label class="description" for="universal-max2">Max 2</label></td>
+                  <td><input id="universal-max2" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Enable/disable minimum and maximum angle limits along joint X-axis.">
+                  <td><label class="description" for="universal-enable_limits2">Limits 2</label></td>
+                  <td><input id="universal-enable_limits2" type="checkbox"></td>
+                </tr>
+                <tr title="The angular friction, a value greater than or equal to zero.">
+                  <td><label class="description" for="universal-friction">Angular Friction</label></td>
+                  <td><input id="universal-friction" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Control magnitude of the angular friction.">
+                  <td><a class="description" for="universal-controller" href="http://mspdoc/controller" target="_blank">Controller</a></td>
+                  <td><input id="universal-controller" class="custom-text controller-input" type="text"></td>
+                </tr>
+              </table>
+              <div id="universal-geared_joints_field"></div>
+              <div>
+                <label class="expander description"><span class="style5">Notes</span></label>
+                <div class="content spacing_tab">
+                  <ul style="padding-left:1em;" type="circle">
+                    <li class="description">The <span class="style2">Controller</span> argument may be used to control the magnitude of the angular friction.</li>
+                    <li class="description">The actual angular friction is, <span class="style1">friction • controller</span>.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="tab4-curvy_slider">
+            <label class="expander expanded title">CurvySlider</label>
+            <div class="content spacing_tab">
+              <table class="struct_table">
+                <colgroup>
+                  <col style="width:40%">
+                  <col style="width:60%">
+                </colgroup>
+                <tr title="Control linear friction along the curve, a value greater than or equal to zero.">
+                  <td><label class="description" for="curvy_slider-linear_friction">Linear Friction</label></td>
+                  <td><input id="curvy_slider-linear_friction" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Control angular friction along the curve, a value greater than or equal to zero. Note: This option has no effect if rotation is disabled.">
+                  <td><label class="description" for="curvy_slider-angular_friction">Angular Friction</label></td>
+                  <td><input id="curvy_slider-angular_friction" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="The alignment power. Pass 0.0 to use maximum power. This option has an effect only if alignment is enabled.">
+                  <td><label class="description" for="curvy_slider-alignment_power">Alignment Power</label></td>
+                  <td><input id="curvy_slider-alignment_power" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Enable/disable rotation along the current point on curve.">
+                  <td><label class="description" for="curvy_slider-enable_rotation">Rotation</label></td>
+                  <td><input id="curvy_slider-enable_rotation" type="checkbox"></td>
+                </tr>
+                <tr title="Enable/disable alignment along the current direction on curve.">
+                  <td><label class="description" for="curvy_slider-enable_alignment">Alignment</label></td>
+                  <td><input id="curvy_slider-enable_alignment" type="checkbox"></td>
+                </tr>
+                <tr title="Enable/disable looping.">
+                  <td><label class="description" for="curvy_slider-enable_loop">Loop</label></td>
+                  <td><input id="curvy_slider-enable_loop" type="checkbox"></td>
+                </tr>
+                <tr title="Control magnitude of the linear and angular friction.">
+                  <td><a class="description" for="curvy_slider-controller" href="http://mspdoc/controller" target="_blank">Controller</a></td>
+                  <td><input id="curvy_slider-controller" class="custom-text controller-input" type="text"></td>
+                </tr>
+              </table>
+              <div id="curvy_slider-geared_joints_field"></div>
+              <div>
+                <label class="expander description"><span class="style5">Notes</span></label>
+                <div class="content spacing_tab">
+                  <ul style="padding-left:1em;" type="circle">
+                    <li class="description">The idea behind a curvy joint is that the connected body travels along the user-drawn curve.</li>
+                    <li class="description">The curve can be modified by adding a connected set of edges/curves within the joint. The edge closest to the origin of the joint is considered as the starting edge.</li>
+                    <li class="description">The curve joint works best when the angle between any two connected edges is less than 45 degrees.</li>
+                    <li class="description">The magnitude of the linear and angular friction can be controlled with the controller.</li>
+                    <li class="description">The actual linear friction is, <span class="style1">linear_friction • controller</span>.</li>
+                    <li class="description">The actual angular friction is, <span class="style1">angular_friction • controller</span>.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="tab4-curvy_piston">
+            <label class="expander expanded title">CurvyPiston</label>
+            <div class="content spacing_tab">
+              <table class="struct_table">
+                <colgroup>
+                  <col style="width:40%">
+                  <col style="width:60%">
+                </colgroup>
+                <tr>
+                  <td><label class="description" for="curvy_piston-position_units">Position Units</label></td>
+                  <td><select id="curvy_piston-position_units" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                    <option value="mm">Millimeters</option>
+                    <option value="cm">Centimeters</option>
+                    <option value="dm">Decimeters</option>
+                    <option value="m">Meters</option>
+                    <option value="in">Inches</option>
+                    <option value="ft">Feet</option>
+                    <option value="yd">Yards</option>
+                  </select></td>
+                </tr>
+                <tr title="The linear rate in preset units per second, a numeric value greater than or equal to zero.">
+                  <td><label class="description" for="curvy_piston-rate">Linear Rate</label></td>
+                  <td><input id="curvy_piston-rate" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="The movement power in Watts. Pass 0.0 to use maximum power.">
+                  <td><label class="description" for="curvy_piston-power">Power</label></td>
+                  <td><input id="curvy_piston-power" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="The alignment power. Pass 0.0 to use maximum power. This option has an effect only if alignment is enabled.">
+                  <td><label class="description" for="curvy_piston-alignment_power">Alignment Power</label></td>
+                  <td><input id="curvy_piston-alignment_power" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="The linear reduction ratio, a numeric value between 0.0 and 1.0. This feature reduces linear rate when current position nears the desired position, for the purpose of achieving a smooth stop. A value of 0.0 disables linear reduction. A value greater than zero enables linear reduction and acts accordingly based on the ratio. A typical reduction ratio is 0.1.">
+                  <td><label class="description" for="curvy_piston-reduction_ratio">Reduction Ratio</label></td>
+                  <td><input id="curvy_piston-reduction_ratio" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Control angular friction along the curve, a value greater than or equal to zero. Note: This option has no effect if rotation is disabled.">
+                  <td><label class="description" for="curvy_piston-angular_friction">Angular Friction</label></td>
+                  <td><input id="curvy_piston-angular_friction" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Enable/disable rotation along the current point on curve.">
+                  <td><label class="description" for="curvy_piston-enable_rotation">Rotation</label></td>
+                  <td><input id="curvy_piston-enable_rotation" type="checkbox"></td>
+                </tr>
+                <tr title="Enable/disable alignment along the current direction on curve.">
+                  <td><label class="description" for="curvy_piston-enable_alignment">Alignment</label></td>
+                  <td><input id="curvy_piston-enable_alignment" type="checkbox"></td>
+                </tr>
+                <tr title="Enable/disable looping.">
+                  <td><label class="description" for="curvy_piston-enable_loop">Loop</label></td>
+                  <td><input id="curvy_piston-enable_loop" type="checkbox"></td>
+                </tr>
+                <tr>
+                  <td><label class="description" for="curvy_piston-controller_mode">Controller Mode</label></td>
+                  <td><select id="curvy_piston-controller_mode" data-placeholder="Unknown" class="chosen-select-custom drop-down">
+                    <option value="0">Control by Position</option>
+                    <option value="1">Control by Speed - Strict</option>
+                    <option value="2">Control by Speed - Adaptive</option>
+                  </select></td>
+                </tr>
+                <tr title="Control desired position in preset units or magnitude and direction of the linear rate, depending on the controller mode. Pass nil to 'turn off' the piston.">
+                  <td><a class="description" for="curvy_piston-controller" href="http://mspdoc/controller" target="_blank">Controller</a></td>
+                  <td><input id="curvy_piston-controller" class="custom-text controller-input" type="text"></td>
+                </tr>
+                <tr>
+                  <td colspan="2"><a href="#" class="button" id="curvy_piston-generate_slider" title="Generate slider controller based on the current parameters and curve length.">Generate Slider Controller</a></td>
+                </tr>
+              </table>
+              <div id="curvy_piston-geared_joints_field"></div>
+              <div>
+                <label class="expander description"><span class="style5">Notes</span></label>
+                <div class="content spacing_tab">
+                  <ul style="padding-left:1em;" type="circle">
+                    <li class="description">The idea behind the curvy joint is that the connected body travels along a user-drawn curve.</li>
+                    <li class="description">The curve can be modified by adding a connected set of edges/curves within the joint. The edge closest to the origin of the joint is considered as the starting edge.</li>
+                    <li class="description">The curve joint works best when the angle between any two connected edges is less than 45 degrees.</li>
+                    <li class="description">The <span class="style2">Controller</span> argument assumes input as the desired linear position in preset units or the magnitude and direction of linear rate, depending on the <span class="style2">Controller Mode</span>.</li>
+                    <li class="description">The <span class="style2">Controller</span> argument also accepts <span class="style1">nil</span> as the parameter, which turns off the joint.</li>
+                    <li class="description">The desired position is clamped between min and max limits if the limits are enabled.</li>
+                    <li class="description">The <span class="style2">Reduction Ratio</span> may be used to decelerate linear rate when piston nears its desired position.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="tab4-plane">
+            <label class="expander expanded title">Plane</label>
+            <div class="content spacing_tab">
+              <table class="struct_table">
+                <colgroup>
+                  <col style="width:40%">
+                  <col style="width:60%">
+                </colgroup>
+                <tr title="The movement friction, a value greater than or equal to zero.">
+                  <td><label class="description" for="plane-linear_friction">Linear Friction</label></td>
+                  <td><input id="plane-linear_friction" class="custom-text numeric-input" type="text"></td>
+                </tr>
+                <tr title="Enable/disable rotation along planes' z-axis and the connected body's centre of mass.">
+                  <td><label class="description" for="plane-enable_rotation">Enable Rotation</label></td>
+                  <td><input id="plane-enable_rotation" type="checkbox"></td>
+                </tr>
+                <tr title="The rotation friction, a value greater than or equal to zero.">
+                  <td><label class="description spacing_tab" for="plane-angular_friction">Angular Friction</label></td>
+                  <td><input id="plane-angular_friction" class="custom-text numeric-input" type="text"></td>
+                </tr>
+              </table>
+              <div>
+                <label class="expander description"><span class="style5">Notes</span></label>
+                <div class="content spacing_tab">
+                  <ul style="padding-left:1em;" type="circle">
+                    <li class="description">Plane joint limits the motion of the connected bodies to its local X and Y axes and restricts motion along the Z-axis.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <textarea class="help_box" wrap="hard" readonly="readonly" rows="1" cols="1"></textarea>
+        </div>
+        <div id="tab5" class="tab">
+          <table class="struct_table center">
+            <tr><td><p class="title">Embedded Sounds List</p></td></tr>
+            <tr><td><select id="sound-list" class="sound-list" size="12"></select></td></tr>
+            <tr>
+              <td>
+                <a href="#" class="button" id="sound-add" title="Add sound.">Add</a>
+                <a href="#" class="button" id="sound-remove" title="Remove selected sound.">Remove</a>
+                <a href="#" class="button" id="sound-remove_all" title="Remove all sounds.">Remove All</a>
+                <a href="#" class="button" id="sound-play" title="Test-play selected sound.">Play</a>
+                <a href="#" class="button" id="sound-toggle_pause" title="Pause/Resume sound.">Pause/Resume</a>
+                <a href="#" class="button" id="sound-stop" title="Stop playing sound.">Stop</a>
+              </td>
+            </tr>
+          </table>
+          <div class="vertical_spacing"></div>
+          <p class="title center">Commands</p>
+          <table class="struct_table">
+            <colgroup>
+              <col style="width:40%">
+              <col style="width:60%">
+            </colgroup>
+            <tr>
+              <td><label class="description">Playing Music:</label></td>
+              <td><input id="sound-command_music" class="custom-text command-input" type="text" readonly="readonly"></td>
+            </tr>
+            <tr>
+              <td><label class="description">Playing Sound:</label></td>
+              <td><input id="sound-command_sound" class="custom-text command-input" type="text" readonly="readonly"></td>
+            </tr>
+          </table>
+          <label class="expander description"><span class="style5">Notes</span></label>
+          <div class="content spacing_tab">
+            <ul style="padding-left:1em;">
+              <li><p class="description"><span class="style1">Frequency: 22050 KHz, 16 bit samples</span></p></li>
+              <li>
+                <label class="description"><b>Supported music formats:</b></label>
+                <p class="description spacing_tab">Microsoft WAVE (.wav), RIFF (.riff), AIFF (.aiff), Ogg Vorbis (.ogg), Creative Labs VOC (.voc), MikMod (.mod .xm .s3m .it .669 .med), FLAC (.flac), MP3, and MIDI (.mid).</p>
+              </li>
+              <li>
+                <label class="description"><b>Supported sound formats:</b></label>
+                <p class="description spacing_tab">Microsoft WAVE (.wav), RIFF (.riff), AIFF (.aiff), Ogg Vorbis (.ogg), Creative Labs VOC (.voc), and MP3.</p>
+              </li>
+              <li><p class="description">Only one music can be played at a time.</p></li>
+              <li><p class="description">Up to 20 sounds can be played simultaneously.</p></li>
+              <li><p class="description">Music may be used as background and sounds may be used as effects.</p></li>
+            </ul>
+          </div>
+          <div class="credit">Powered by <a href="https://www.libsdl.org/" target="_blank">SDL</a></div>
+          <textarea class="help_box" wrap="hard" readonly="readonly" rows="1" cols="1"></textarea>
+        </div>
+      </div>
+    </div>
+    </div>
+  </body>
+</html>

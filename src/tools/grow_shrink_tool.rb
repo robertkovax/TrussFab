@@ -11,7 +11,7 @@ class GrowShrinkTool < Tool
     @mouse_input.update_positions(view, x, y)
   end
 
-  def alter_edge(edge, relaxation)
+  def alter_edge(_edge, _relaxation)
     raise NotImplementedError
   end
 
@@ -27,7 +27,6 @@ class GrowShrinkTool < Tool
     Sketchup.active_model.commit_operation
   end
 end
-
 
 class GrowTool < GrowShrinkTool
   def alter_edge(edge, relaxation)

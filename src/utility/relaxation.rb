@@ -40,7 +40,6 @@ class Relaxation
   end
 
   def move_node(node, position)
-
     return if node.nil?
     constrain_node(node)
     @new_node_positions[node.id] = position
@@ -62,6 +61,11 @@ class Relaxation
     end
     puts "Relaxation iterations: #{count}"
     update_nodes
+    self
+  end
+
+  def constrain_node(node)
+    @fixed_nodes[node.id] = node unless node.nil?
     self
   end
 
@@ -103,7 +107,7 @@ class Relaxation
         @new_node_positions[first_node_id] = new_start_position
         update_neighbor_links(edge.second_node)
       else
-        new_start_position = @new_start_positions[edge_id] = @new_start_positions[edge_id] - Geometry::scale(stretch_vector, 0.5)
+        new_start_position = @new_start_positions[edge_id] = @new_start_positions[edge_id] - Geometry.scale(stretch_vector, 0.5)
         @new_node_positions[first_node_id] = new_start_position
         @new_node_positions[second_node_id] = new_start_position + new_direction
         update_neighbor_links(edge.first_node)
@@ -141,11 +145,6 @@ class Relaxation
 
   def pick_random_edge
     @edges[rand(@edges.length)]
-  end
-
-  def constrain_node(node)
-    @fixed_nodes[node.id] = node unless node.nil?
-    self
   end
 
   def fixed?(node)

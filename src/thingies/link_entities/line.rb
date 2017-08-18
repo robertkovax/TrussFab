@@ -1,17 +1,19 @@
-require 'src/thingies/link_entities/link_entity.rb'
+require 'src/thingies/thingy.rb'
 
-class Line < LinkEntity
+class Line < Thingy
   def initialize(first_position, second_position, id: nil)
+    super(id)
     @first_position = first_position
     @second_position = second_position
-    super(id)
+    @entity = create_entity
   end
 
   def create_entity
     return @entity if @entity
-    entity = Sketchup.active_model.entities.add_line(@first_position, @second_position)
-    entity.smooth = true
-    entity.layer = Configuration::LINE_VIEW
-    entity
+    group = Sketchup.active_model.entities.add_group
+    line = group.entities.add_line(@first_position, @second_position)
+    line.smooth = true
+    line.layer = Configuration::LINE_VIEW
+    group
   end
 end

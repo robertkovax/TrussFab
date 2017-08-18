@@ -6,7 +6,6 @@ module Configuration
   COMPONENT_VIEW = 'Bottles'.freeze
   HUB_VIEW = 'Hubs'.freeze
   HUB_ID_VIEW = 'Hub IDs'.freeze
-  CONNECTOR_MODE_VIEW = 'Connectors'.freeze
   TRIANGLE_SURFACES_VIEW = 'Triangle Surfaces'.freeze
   DRAW_TOOLTIPS_VIEW = 'Drawing Tooltips'.freeze
 
@@ -28,11 +27,18 @@ module Configuration
   MAXIMUM_ELONGATION = 100.mm.freeze
   BALL_HUB_RADIUS = 14.mm.freeze
   STANDARD_BOTTLES = 'hard'.freeze
+  COVER_THICKNESS = 20.mm.freeze
 
   # Paths
   JSON_PATH = (ProjectHelper.asset_directory + '/exports/').freeze
   TETRAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/tetrahedron.json').freeze
   OCTAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/octahedron.json').freeze
+  DYNAMIC_TETRAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/dynamic_tetrahedron.json').freeze
+  DYNAMIC_OCTAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/dynamic_octahedron.json').freeze
+
+  BIG_BIG_BOTTLE_NAME = 'Big Big Double Bottle (60cm)'.freeze
+  SMALL_BIG_BOTTLE_NAME = 'Small Big Double Bottle (53cm)'.freeze
+  SMALL_SMALL_BOTTLE_NAME = 'Small Small Double Bottle (46cm))'.freeze
 
   # General Model Settings, in inch
   NECK_RADIUS = 0.27534.freeze
@@ -46,33 +52,36 @@ module Configuration
   # Custom hard PET Model Settings
   HARD_MODELS = [
     {
-      NAME: 'Big Big Double Bottle (60cm)',
+      NAME: BIG_BIG_BOTTLE_NAME,
       WEIGHT: 0.16,
       PATH: ProjectHelper.component_directory + '/1-big-big-double-bottle(60cm).skp',
       MODEL: 'hard'
     },
     {
-      NAME: 'Small Big Double Bottle (53cm)',
+      NAME: SMALL_BIG_BOTTLE_NAME,
       WEIGHT: 0.14,
       PATH: ProjectHelper.component_directory + '/2-small-big-double-bottle(53cm).skp',
       MODEL: 'hard'
     },
     {
-      NAME: 'Small Small Double Bottle (46cm)',
+      NAME: SMALL_SMALL_BOTTLE_NAME,
       WEIGHT: 0.11,
       PATH: ProjectHelper.component_directory + '/3-small-small-double-bottle(46cm).skp',
       MODEL: 'hard'
     }
   ].freeze
 
+  STANDARD_COLOR = [0.5, 0.5, 0.5].freeze
+  HIGHLIGHT_COLOR = [1, 1, 1].freeze
+  SURFACE_COLOR = [1, 1, 1].freeze
+  SURFACE_HIGHLIGHT_COLOR = [0.5, 0.5, 0.5].freeze
+  HUB_COLOR = [0.69, 0.75, 0.81].freeze
   ELONGATION_COLOR = [0.69, 0.75, 0.81].freeze
   ELONGATION_RADIUS = 11.mm.freeze
-  CONNECTOR_COLOR = 'blue'.freeze
-  CONNECTOR_RADIUS = 8.mm.freeze
 
   BOTTLE_SEGMENTS = 10.freeze
 
   # Behavioural constants
   SNAP_TOLERANCE = 200.mm.freeze
-  INTERSECTION_OFFSET = 500.mm.freeze
+  INTERSECTION_OFFSET = 200.mm.freeze
 end

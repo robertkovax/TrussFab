@@ -1,0 +1,79 @@
+.tabs {
+  margin: 0;
+  padding: 0;
+  display: relative;
+}
+
+.tab-links {
+  margin: 0;
+  padding: 0;
+}
+
+.tab-links:after {
+  display: block;
+  clear: both;
+  content: '';
+}
+
+.tab-links li {
+  margin: 0 4px;
+  padding: 0;
+  float: left;
+  list-style: none;
+}
+
+.tab-links a {
+  display: inline-block;
+  margin: 0;
+  padding: 0.5em 1.0em;
+  border: 1px solid #4D4D4D;
+  border-radius: 5px 5px 0px 0px;
+  font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+  font-size: 12px;
+  transition: all 0.25s ease-in-out;
+  -webkit-transition: all 0.25s ease-in-out;
+  -moz-transition: all 0.25s ease-in-out;
+  text-decoration: none;
+  background: #4D4D4D;
+  color: #E0E0E0;
+  box-shadow: 0px 0px 16px rgba(255, 255, 255, 0.4);
+  -webkit-box-shadow: 0px 0px 16px rgba(255, 255, 255, 0.4);
+  -moz-box-shadow: 0px 0px 16px rgba(255, 255, 255, 0.4);
+}
+
+.tab-links a:hover {
+  border: 1px solid #5D5D5D;
+  background: #5D5D5D;
+  color: #F8F8F8;
+  box-shadow: 0px 0px 16px rgba(255, 255, 255, 0.5);
+  -webkit-box-shadow: 0px 0px 16px rgba(255, 255, 255, 0.5);
+  -moz-box-shadow: 0px 0px 16px rgba(255, 255, 255, 0.5);
+}
+
+.tab-links li.active a, .tab-links li.active a:hover {
+  border: 1px solid #9D3FCC;
+  background: #9D3FCC;
+  color: #F8F8F8;
+  box-shadow: 0px 0px 16px rgba(255, 255, 255, 0.5);
+  -webkit-box-shadow: 0px 0px 16px rgba(255, 255, 255, 0.5);
+  -moz-box-shadow: 0px 0px 16px rgba(255, 255, 255, 0.5);
+}
+
+.tab-content {
+  margin: 0;
+  padding: 5px;
+  border: 1px solid #F8F8F8;
+  border-radius: 5px;
+  background: #F8F8F8;
+  color: #000;
+}
+
+.tab {
+  margin: 0;
+  padding: 0;
+  display: none;
+}
+
+.tab.active {
+  display: block;
+}
