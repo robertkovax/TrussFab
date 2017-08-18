@@ -102,9 +102,9 @@ class Link < PhysicsThingy
     @first_elongation_length = @second_elongation_length = Configuration::MINIMUM_ELONGATION
 
     model_length = length - @first_elongation_length - @second_elongation_length
-    shortest_model = @model.longest_model_shorter_than(model_length)
+    fitting_model = @model.longest_fitting_model(model_length)
 
-    @first_elongation_length = @second_elongation_length = (length - shortest_model.length) / 2
+    @first_elongation_length = @second_elongation_length = (length - fitting_model.length) / 2
 
     direction = @position.vector_to(@second_position)
 
@@ -119,7 +119,7 @@ class Link < PhysicsThingy
     link_position = @position.offset(first_elongation.direction)
 
     add(first_elongation,
-        BottleLink.new(link_position, direction, shortest_model),
+        BottleLink.new(link_position, direction, fitting_model),
         Line.new(@position, @second_position),
         second_elongation)
   end

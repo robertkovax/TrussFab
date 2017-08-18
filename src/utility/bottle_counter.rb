@@ -24,10 +24,7 @@ class BottleCounter
     end
 
     def bottle_counts
-      counts = {}
-      Configuration::HARD_MODELS.each do |model|
-        counts[model[:NAME]] = 0
-      end
+      counts = Hash.new(0)
       Graph.instance.edges.values.each do |edge|
         if edge.link_type == 'bottle_link'
           counts[edge.thingy.bottle_link.model.name] += 1

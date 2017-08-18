@@ -80,9 +80,13 @@ module ProjectHelper
     material.color = Configuration::ELONGATION_COLOR
     material.alpha = 1
 
-    material = Sketchup.active_model.materials.add('bottle_green')
+    material = Sketchup.active_model.materials.add('big_bottle_green')
     material.color = [0.45, 0.72, 0.39]
-    material.alpha = 0.65
+    material.alpha = 0.95
+
+    material = Sketchup.active_model.materials.add('small_bottle_green')
+    material.color = [0.000, 0.392, 0.000]
+    material.alpha = 0.95
 
     material = Sketchup.active_model.materials.add('wooden_cover')
     material.texture = asset_directory + '/textures/plywood.jpg'
