@@ -25,13 +25,29 @@ class BottleModelFactory
     BottleModel.new(definition, length1 + length2)
   end
 
+  def connect_bottles(lower_bottle, upper_bottle)
+    upper_bottle.group.transform!(Geom::Transformation.scaling(upper_bottle.group.bounds.center, 1, 1, -1))
+    upper_bottle.group.transform!(Geom::Transformation.translation(Geom::Vector3d.new(0, 0, lower_bottle.length)))
+  end
+
   def longest_fitting_model(length)
     @models.select { |m| m.length <= length }.max_by(&:length)
   end
 
-  def connect_bottles(lower_bottle, upper_bottle)
-    upper_bottle.group.transform!(Geom::Transformation.scaling(upper_bottle.group.bounds.center, 1, 1, -1))
-    upper_bottle.group.transform!(Geom::Transformation.translation(Geom::Vector3d.new(0, 0, lower_bottle.length)))
+  def clamp(x, a, b)
+    [a, x, b].sort[1]
+  end
+
+  def next_longer_model(current_model)
+    current_idx = @models.index(current_model)
+    longer_idx = current_idx + 1
+    @models[clamp(longer_idx, 0, @models.length - 1)]
+  end
+
+  def next_shorter_model(current_model)
+    current_idx = @models.index(current_model)
+    shorter_idx = current_idx - 1
+    @models[clamp(shorter_idx, 0, @models.length - 1)]
   end
 end
 
