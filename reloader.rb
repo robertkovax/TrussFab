@@ -61,7 +61,7 @@ class Reloader
     end
     if $VERBOSE
       puts "Reloaded #{changed_files.size} files"
-      changed_files.each { |filename| puts(filename) } #unless changed_files.empty?
+      changed_files.each { |filename| puts(filename) }
     end
     changed_files.size
   end

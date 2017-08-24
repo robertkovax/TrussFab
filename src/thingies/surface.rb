@@ -1,20 +1,24 @@
 require 'src/thingies/thingy.rb'
+require 'src/thingies/surface_entities/cover.rb'
 
 class Surface < Thingy
-
-  def initialize(position1, position2, position3, id: nil, color: 'surface_color')
-    super(id)
-    @position1 = position1
-    @position2 = position2
-    @position3 = position3
-    @color = color
+  def initialize(first_position, second_position, third_position,
+                 id: nil, material: 'surface_material', highlight_material: 'surface_highlight_material')
+    super(id, material: material, highlight_material: highlight_material)
+    @first_position = first_position
+    @second_position = second_position
+    @third_position = third_position
     @entity = create_entity
-    @highlight_color = 'surface_highlighted_color'
   end
 
-  def change_color(color)
-    super(color)
-    @entity.back_material = color
+  def highlight(highlight_material = @highlight_material)
+    super(highlight_material)
+    @entity.back_material = highlight_material
+  end
+
+  def un_highlight
+    @entity.back_material = @material
+    super
   end
 
   def delete_edges(position)
@@ -26,28 +30,39 @@ class Surface < Thingy
     end
   end
 
-  def highlight(highlight_color = @highlight_color)
-    change_color(highlight_color)
+  def positions
+    [@first_position, @second_position, @third_position]
   end
 
-  def un_highlight
-    change_color(@color)
-  end
-
-  def update_positions(position1, position2, position3)
-    @position1 = position1
-    @position2 = position2
-    @position3 = position3
+  def update_positions(first_position, second_position, third_position)
+    @first_position = first_position
+    @second_position = second_position
+    @third_position = third_position
     delete_entity
     @entity = create_entity
+    @sub_thingies.each do |sub_thingy|
+      sub_thingy.update_positions(first_position, second_position, third_position)
+    end
+  end
+
+  def add_cover(direction, pods)
+    add(Cover.new(@first_position, @second_position, @third_position, direction, pods))
+  end
+
+  def cover?
+    @sub_thingies.any? { |thingy| thingy.is_a?(Cover) }
+  end
+
+  def cover
+    @sub_thingies.detect { |thingy| thingy.is_a?(Cover) }
   end
 
   private
 
   def create_entity
-    entity = Sketchup.active_model.entities.add_face(@position1, @position2, @position3)
+    entity = Sketchup.active_model.entities.add_face(@first_position, @second_position, @third_position)
     entity.layer = Configuration::TRIANGLE_SURFACES_VIEW
-    entity.material = entity.back_material = @color
+    entity.material = entity.back_material = @material
     entity.edges.each do |edge|
       # hide outline of surfaces, enable line link layer for lines instead of bottles
       edge.hidden = true

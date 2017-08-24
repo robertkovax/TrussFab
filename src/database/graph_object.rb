@@ -6,11 +6,22 @@ class GraphObject
   def initialize(id = nil)
     @id = id.nil? ? IdManager.instance.generate_next_id : id
     @thingy = create_thingy(@id)
+    @deleted = false
   end
 
   def delete
     delete_thingy
-    unstore
+    Graph.instance.delete_object(self)
+    @deleted = true
+  end
+
+  def deleted?
+    @deleted
+  end
+
+  def redraw
+    delete_thingy
+    @thingy = create_thingy(@id)
   end
 
   def highlight
@@ -27,12 +38,13 @@ class GraphObject
     raise "GraphObject (#{self.class}):: create_thingy needs to be overwritten"
   end
 
-  def unstore
-    Graph.instance.delete_object(self)
+  def recreate_thingy
+    @thingy.delete
+    @thingy = create_thingy(@id)
   end
 
   def delete_thingy
-    @thingy.delete if !@thingy.nil?
-    @thingy = nil 
+    @thingy.delete unless @thingy.nil?
+    @thingy = nil
   end
 end

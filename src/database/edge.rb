@@ -1,11 +1,14 @@
 require 'set'
 require 'src/database/graph_object.rb'
 require 'src/thingies/link.rb'
+require 'src/thingies/actuator_link.rb'
 require 'src/models/model_storage.rb'
+require 'src/simulation/joints'
+require 'src/simulation/thingy_rotation.rb'
 
 class Edge < GraphObject
-  attr_reader :first_node, :second_node
-  attr_accessor :desired_length
+  attr_reader :first_node, :second_node, :link_type
+  attr_accessor :desired_length, :first_joint, :second_joint
 
   def initialize(first_node, second_node, model_name: 'hard', id: nil, link_type: 'bottle_link')
     @first_node = first_node
@@ -13,15 +16,51 @@ class Edge < GraphObject
     @first_node.add_incident(self)
     @second_node.add_incident(self)
     @model_name = model_name
+    @link_type = link_type
     super(id)
   end
 
+  def link_type=(type)
+    if type != @link_type
+      @link_type = type
+      recreate_thingy
+    end
+  end
+
   def distance(point)
-    # offset to take ball_hub_radius into accoutn
+    # offset to take ball_hub_radius into account
     first_point = position.offset(direction, Configuration::BALL_HUB_RADIUS / 2)
     second_point = end_position.offset(direction.reverse, Configuration::BALL_HUB_RADIUS / 2)
     segment = [first_point, second_point]
     Geometry.dist_point_to_segment(point, segment)
+  end
+
+  def other_node(node)
+    if node == @first_node
+      @second_node
+    elsif node == @second_node
+      @first_node
+    else
+      raise "Node not part of this Edge: #{node}"
+    end
+  end
+
+  def shared_node(other_edge)
+    intersection = nodes & other_edge.nodes
+    return false if intersection.empty?
+    intersection[0]
+  end
+
+  def first_node?(node)
+    node == @first_node
+  end
+
+  def create_joints(world)
+    @thingy.create_joints(world)
+  end
+
+  def create_ball_joints(world)
+    @thingy.create_ball_joints(world, first_node, second_node)
   end
 
   def position
@@ -40,8 +79,44 @@ class Edge < GraphObject
     [first_node, second_node]
   end
 
+  def exchange_node(current_node, new_node)
+    if current_node == @first_node
+      @first_node = new_node
+    elsif current_node == @second_node
+      @second_node = new_node
+    else
+      raise "#{current_node} not in nodes"
+    end
+  end
+
   def segment
     [position, end_position]
+  end
+
+  def mid_point
+    p1 = @first_node.position
+    p2 = @first_node.position
+    Geom::Point3d.linear_combination(0.5, p1, 0.5, p2)
+  end
+
+  def adjacent_triangles
+    @first_node.adjacent_triangles & @second_node.adjacent_triangles
+  end
+
+  def sorted_adjacent_triangle_pairs
+    sorted_triangles = sorted_adjacent_triangles
+    sorted_triangles << sorted_triangles.first
+    sorted_triangles.each_cons(2)
+  end
+
+  def sorted_adjacent_triangles
+    triangles = adjacent_triangles
+    ref_vector = mid_point.vector_to(triangles[0].other_node_for(self).position)
+    normal = direction.normalize
+    triangles.sort_by do |t|
+      v = mid_point.vector_to(t.other_node_for(self).position)
+      Geometry.angle_around_normal(ref_vector, v, normal)
+    end
   end
 
   def length
@@ -86,20 +161,37 @@ class Edge < GraphObject
     @thingy.update_positions(@first_node.position, @second_node.position)
   end
 
-  def next_longer_length
-    length * 1.1
+  def next_shorter_length
+    @thingy.next_shorter_length
   end
 
-  def next_shorter_length
-    length * 0.9
+  def next_longer_length
+    @thingy.next_longer_length
+  end
+
+  def first_elongation_length
+    @thingy.first_elongation_length
+  end
+
+  def second_elongation_length
+    @thingy.second_elongation_length
   end
 
   private
 
   def create_thingy(id)
-    Link.new(@first_node.position,
-             @second_node.position,
-             @model_name,
-             id: id)
+    case @link_type
+      when 'bottle_link'
+        Link.new(@first_node,
+                 @second_node,
+                 @model_name,
+                 id: id)
+      when 'actuator'
+        ActuatorLink.new(@first_node,
+                         @second_node,
+                         id: id)
+      else
+        raise "Unkown link type: #{@link_type}"
+    end
   end
 end

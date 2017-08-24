@@ -1,11 +1,12 @@
-require 'src/thingies/link_entities/link_entity.rb'
+class BottleLink < Thingy
+  attr_reader :model
 
-class BottleLink < LinkEntity
-  def initialize(position, direction, definition, id: nil)
+  def initialize(position, direction, model, id: nil)
+    super(id)
     @position = position
     @direction = direction
-    @definition = definition
-    super(id)
+    @model = model
+    @entity = create_entity
   end
 
   private
@@ -20,7 +21,7 @@ class BottleLink < LinkEntity
 
     transformation = rotation * translation
 
-    entity = Sketchup.active_model.active_entities.add_instance(@definition, transformation)
+    entity = Sketchup.active_model.active_entities.add_instance(@model.definition, transformation)
     entity.layer = Configuration::COMPONENT_VIEW
     entity
   end

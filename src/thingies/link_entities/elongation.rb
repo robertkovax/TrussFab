@@ -1,18 +1,16 @@
-require 'src/thingies/link_entities/connector.rb'
-require 'src/thingies/link_entities/link_entity.rb'
-
-class Elongation < LinkEntity
+class Elongation < Thingy
   attr_reader :direction
 
-  def initialize(position, direction, length, id: nil)
+  def initialize(position, direction, length,
+                 id: nil, material: 'elongation_material')
+    super(id, material: material)
     @position = position
     @direction = direction
     @direction.length = length
     @model = ModelStorage.instance.models['connector']
-    @color = Configuration::ELONGATION_COLOR
     @radius = Configuration::ELONGATION_RADIUS
     @layer = Configuration::HUB_VIEW
-    super(id)
+    @entity = create_entity
   end
 
   def length
@@ -33,7 +31,7 @@ class Elongation < LinkEntity
     transformation = rotation * translation * scale
 
     entity = Sketchup.active_model.entities.add_instance(@model.definition, transformation)
-    entity.material = @color
+    entity.material = @material
     entity.layer = @layer
     entity
   end

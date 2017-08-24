@@ -12,6 +12,7 @@ class Tool
   end
 
   def deactivate(_view)
+    @mouse_input.soft_reset unless @mouse_input.nil?
     @ui.deselect_tool
   end
 end
