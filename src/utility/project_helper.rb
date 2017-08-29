@@ -50,8 +50,8 @@ module ProjectHelper
     hub_id_layer = layers.add(Configuration::HUB_ID_VIEW)
     hub_id_layer.visible = false
 
-    # layers.add Configuration::FORCE_VIEW
-    # force_label_layer = layers.add Configuration::FORCE_LABEL_VIEW
+    layers.add Configuration::FORCE_VIEW
+    force_label_layer = layers.add Configuration::FORCE_LABEL_VIEW
     # force_label_layer.visible = false
   end
 

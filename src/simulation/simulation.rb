@@ -83,6 +83,8 @@ class Simulation
     @stopped = false
     @triangles_hidden = false
     @ground_group = nil
+    @force_labels = {}
+    @edges = []
   end
 
   #
@@ -223,6 +225,7 @@ class Simulation
     halt
     reset_positions if reset_positions_on_end?
     show_triangle_surfaces if @triangles_hidden
+    reset_force_labels
     destroy_world
   end
 
@@ -288,13 +291,32 @@ class Simulation
   end
 
   def show_force(body, view)
+    if @edges.empty?
+      @edges = Graph.instance.edges.values
+    end
     force = Geom::Vector3d.new(*body.get_force)
     return if force.length.zero?
     position = body.get_position(1)
-    force.length = force.length * 100
-    second_position = position.offset(force)
-    view.drawing_color = 'black'
-    view.draw_lines(position, second_position)
+    update_force_label(body, force.length)
+  end
+
+  def update_force_label(body, force)
+    if @force_labels[body].nil?
+      @edges.each do |edge|
+        if edge.thingy.body == body
+          force_label = Sketchup.active_model.entities.add_text("    #{force} ", body.get_position(1))
+          force_label.layer = Sketchup.active_model.layers[Configuration::FORCE_LABEL_VIEW]
+          @force_labels[body] = force_label
+        end
+      end
+    else
+      @force_labels[body].text = "    #{force} "
+      @force_labels[body].point = body.get_position(1)
+    end
+  end
+
+  def reset_force_labels()
+    @force_labels.each {|body, label| label.text = "" }
   end
 end
 
