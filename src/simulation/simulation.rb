@@ -300,47 +300,10 @@ class Simulation
     update_force_label(body, force.length.mm)
   end
 
-  def hue_2_rgb(t, u, v)
-    if v < 0; v += 1 end
-    if v > 1; v -= 1 end
-    if v < 1/6; return t + (u - t) * 6 * v end
-    if v < 1/2; return u end
-    if v < 2/3; return t + (u - t) * (2/3 - u) * 6 end
-    return t
-  end
-
-  def hsl_to_rgb(h, s, l)
-     r = 0
-     g = 0
-     b = 0
-
-    if s == 0
-        r = g = b = l;
-    else
-        t = 2 * l - s
-        u = l < 0.5 ? l * (1 + s) : l + s - l * s
-        r = hue_2_rgb(t, u, h + 1/3)
-        g = hue_2_rgb(t, u, h)
-        b = hue_2_rgb(t, u, h - 1/3)
-    end
-
-    [r, g, b];
-  end
-
-  def get_color_for_force(force)
-    g = force / 9.80
-    value = (g + 5) / 10 # [-5g, 5g] => [0, 1]
-    h = (1 - value) * 360
-    s = 1
-    l = value * 0.5
-
-    hsl_to_rgb(h, s, l)
-  end
-
   def update_force_label(body, force)
     if @force_labels[body].nil?
       @edges.each do |edge|
-        edge.thingy.change_color(get_color_for_force(force))
+        edge.thingy.change_color(ColorConverter.get_color_for_force(force))
         if edge.thingy.body == body
           force_label = Sketchup.active_model.entities.add_text("    #{force} ", body.get_position(1))
           force_label.layer = Sketchup.active_model.layers[Configuration::FORCE_LABEL_VIEW]
