@@ -128,7 +128,7 @@ class Link < PhysicsThingy
     bottle_link.model.definition.entities.each do |ent|
       if ent.material != color
         ent.material = color
-        ent.material.alpha = 0.3
+        ent.material.alpha = 0.65
       end
     end
   end

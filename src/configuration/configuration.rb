@@ -79,6 +79,7 @@ module Configuration
   ].freeze
 
   STANDARD_COLOR = [0.5, 0.5, 0.5].freeze
+  BOTTLE_COLOR = [0.5, 0.8, 0.44].freeze
   HIGHLIGHT_COLOR = [1, 1, 1].freeze
   SURFACE_COLOR = [1, 1, 1].freeze
   SURFACE_HIGHLIGHT_COLOR = [0.5, 0.5, 0.5].freeze
