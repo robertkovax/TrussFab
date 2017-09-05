@@ -79,9 +79,10 @@ module Configuration
   ].freeze
 
   STANDARD_COLOR = [0.5, 0.5, 0.5].freeze
-  BOTTLE_COLOR = [0.5, 0.8, 0.44].freeze
-  HIGHLIGHT_COLOR = [1, 1, 1].freeze
-  SURFACE_COLOR = [1, 1, 1].freeze
+  BOTTLE_COLOR = [114, 183,  99].freeze
+  ACTUATOR_COLOR = [1.0, 1.0, 1.0].freeze
+  HIGHLIGHT_COLOR = [1.0, 1.0, 1.0].freeze
+  SURFACE_COLOR = [1.0, 1.0, 1.0].freeze
   SURFACE_HIGHLIGHT_COLOR = [0.5, 0.5, 0.5].freeze
   HUB_COLOR = [0.69, 0.75, 0.81].freeze
   ELONGATION_COLOR = [0.69, 0.75, 0.81].freeze

@@ -64,6 +64,10 @@ module ProjectHelper
     material.color = Configuration::BOTTLE_COLOR
     material.alpha = 0.65
 
+    material = Sketchup.active_model.materials.add('actuator_material')
+    material.color = Configuration::ACTUATOR_COLOR
+    material.alpha = 1
+
     material = Sketchup.active_model.materials.add('surface_material')
     material.color = Configuration::SURFACE_COLOR
     material.alpha = 0.03

@@ -123,13 +123,4 @@ class Link < PhysicsThingy
         Line.new(@position, @second_position),
         second_elongation)
   end
-
-  def change_color(color)
-    bottle_link.model.definition.entities.each do |ent|
-      if ent.material != color
-        ent.material = color
-        ent.material.alpha = 0.65
-      end
-    end
-  end
 end

@@ -2,12 +2,29 @@ class BottleLink < Thingy
   attr_reader :model
 
   def initialize(position, direction, model,
-                 id: nil)
-    super(id)
+                 id: nil, material: 'bottle_material')
+    super(id, material: material)
     @position = position
     @direction = direction
     @model = model
     @entity = create_entity
+  end
+
+  def change_color(color)
+    @entity.definition.entities.each do |ent|
+      if ent.material != color
+        ent.material = color
+        ent.material.alpha = 0.65
+      end
+    end
+  end
+
+  def highlight(highlight_material = @highlight_material)
+    change_color(highlight_material)
+  end
+
+  def un_highlight
+    change_color(@model.model.material.color)
   end
 
   private
@@ -24,6 +41,6 @@ class BottleLink < Thingy
 
     entity = Sketchup.active_model.active_entities.add_instance(@model.definition, transformation)
     entity.layer = Configuration::COMPONENT_VIEW
-    entity
+    entity.make_unique
   end
 end
