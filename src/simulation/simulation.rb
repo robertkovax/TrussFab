@@ -1,4 +1,6 @@
 require 'lib/MSPhysics/main.rb'
+
+require 'src/utility/force_to_color_converter.rb'
 require 'erb'
 
 class Simulation
@@ -270,6 +272,7 @@ class Simulation
       set_status_text
     end
 
+    show_forces(view)
     view.show_frame
     @running
   end
@@ -285,34 +288,31 @@ class Simulation
   end
 
   def show_forces(view)
-    @world.bodies.each do |body|
-      show_force(body, view)
+    Graph.instance.edges.values.each do |edge|
+      show_force(edge.thingy, view)
     end
   end
 
-  def show_force(body, view)
-    if @edges.empty?
-      @edges = Graph.instance.edges.values
-    end
-    force = Geom::Vector3d.new(*body.get_force)
+  def show_force(thingy, view)
+    return if thingy.body.nil?
+
+    force = Geom::Vector3d.new(*thingy.body.get_force)
     return if force.length.zero?
-    position = body.get_position(1)
-    update_force_label(body, force.length.mm)
+
+    position = thingy.body.get_position(1)
+    update_force_label(thingy, force.length, position)
   end
 
-  def update_force_label(body, force)
-    if @force_labels[body].nil?
-      @edges.each do |edge|
-        edge.thingy.change_color(ColorConverter.get_color_for_force(force))
-        if edge.thingy.body == body
-          force_label = Sketchup.active_model.entities.add_text("    #{force} ", body.get_position(1))
-          force_label.layer = Sketchup.active_model.layers[Configuration::FORCE_LABEL_VIEW]
-          @force_labels[body] = force_label
-        end
-      end
+  def update_force_label(thingy, force, position)
+    if @force_labels[thingy.body].nil?
+      thingy.change_color(ColorConverter.get_color_for_force(force.mm))
+      force_label = Sketchup.active_model.entities.add_text("    #{force.mm} ", position)
+      force_label.layer = Sketchup.active_model.layers[Configuration::FORCE_LABEL_VIEW]
+      @force_labels[thingy.body] = force_label
     else
-      @force_labels[body].text = "    #{force} "
-      @force_labels[body].point = body.get_position(1)
+      thingy.change_color(ColorConverter.get_color_for_force(force))
+      @force_labels[thingy.body].text = "    #{force.mm} "
+      @force_labels[thingy.body].point = position
     end
   end
 
