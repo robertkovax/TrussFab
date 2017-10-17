@@ -284,13 +284,6 @@ module MSPhysics
       MSPhysics::Newton::Body.get_matrix(@address)
     end
 
-    # Test whether body matrix has changed
-    # @return [Boolean] Returns +true+ if the transformation matrix
-    # of this body has changed
-    def matrix_changed?
-      MSPhysics::Newton::Body.matrix_changed?(@address)
-    end
-
     # Set body transformation matrix.
     # @param [Geom::Transformation, Array<Numeric>] matrix
     # @return [nil]
@@ -299,6 +292,13 @@ module MSPhysics
     # @raise [TypeError] if some or all matrix axis have a scale of zero.
     def set_matrix(matrix)
       MSPhysics::Newton::Body.set_matrix(@address, matrix)
+    end
+
+    # Test whether body matrix has changed
+    # @return [Boolean] Returns +true+ if the transformation matrix
+    # of this body has changed
+    def matrix_changed?
+      MSPhysics::Newton::Body.matrix_changed?(@address)
     end
 
     # Get body position.
@@ -937,6 +937,7 @@ module MSPhysics
 
     # Get the net force, in Newtons, applied on the body after the last world
     # update.
+    # @note This does not include contact and joint reaction forces.
     # @return [Geom::Vector3d]
     def get_force
       MSPhysics::Newton::Body.get_force(@address)
@@ -986,6 +987,7 @@ module MSPhysics
 
     # Get the net torque, in Newton-meters, applied on the body after the last
     # world update.
+    # @note This does not include contact and joint reaction torques.
     # @return [Geom::Vector3d]
     def get_torque
       MSPhysics::Newton::Body.get_torque(@address)
@@ -1035,6 +1037,22 @@ module MSPhysics
 
     # @!endgroup
     # @!group Contact Related Functions
+
+    # Get total linear tension, in Newtons, applied by contained and connected
+    # joints.
+    # @return [Geom::Vector3d]
+    # @since 1.0.3
+    def net_joint_force
+      MSPhysics::Newton::Body.get_net_joint_tension1(@address)
+    end
+
+    # Get total angular tension, in Newton-meters, applied by contained and
+    # connected joints.
+    # @return [Geom::Vector3d]
+    # @since 1.0.3
+    def net_joint_torque
+      MSPhysics::Newton::Body.get_net_joint_tension2(@address)
+    end
 
     # Get total force generated from contacts on the body.
     # @return [Geom::Vector3d] Magnitude of the net force is retrieved in
