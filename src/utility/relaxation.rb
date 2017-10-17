@@ -9,14 +9,24 @@ class Relaxation
     @dampening_factor = DAMPENING_FACTOR
     @max_iterations = max_iterations
 
+    # We first calculate over several iterations the new positions and
+    # only update the final position in the end for performance reasons.
     @new_direction_vectors = []
     @new_node_positions = []
     @new_start_positions = []
     @fixed_nodes = []
     @ignore_node_fixation = []
 
+    # Contains edges that were `touched`. We choose randomly out of
+    # this array for the iterations.
+    # (Not quite sure if I undertand this remark from the author correctly
+    # - Johannes)
     @edges = []
+
     @edge_ids = Array.new(IdManager.instance.last_id)
+
+    # All edges want to preserve their original length. In this map,
+    # we save the values which never get changed.
     @desired_lengths = {}
   end
 
