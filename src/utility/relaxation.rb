@@ -126,29 +126,30 @@ class Relaxation
 
     first_node_id = edge.first_node.id
     first_node_fixed = @fixed_nodes[first_node_id]
-
     second_node_id = edge.second_node.id
     second_node_fixed = @fixed_nodes[second_node_id]
 
-    new_direction = @new_direction_vectors[edge_id]
+    new_direction_vector = @new_direction_vectors[edge_id]
 
     if first_node_fixed && second_node_fixed
-      @desired_lengths[edge] = new_direction.length
+      @desired_lengths[edge] = new_direction_vector.length
     else
-      stretch_vector = new_direction.clone # clone vector to preserve old vector
-      Geometry.scale(stretch_vector, delta)
-      new_direction = @new_direction_vectors[edge_id] = new_direction + stretch_vector
+      stretch_vector = new_direction_vector.clone
+      stretch_vector.length = delta
       if first_node_fixed
-        @new_node_positions[second_node_id] = @new_start_positions[edge_id] + new_direction
-        update_incident_edges(edge.first_node)
+        new_direction_vector = @new_direction_vectors[edge_id] = new_direction_vector + stretch_vector
+        @new_node_positions[second_node_id] = @new_start_positions[edge_id] + new_direction_vector
+        update_incident_edges(edge.second_node)
       elsif second_node_fixed
         new_start_position = @new_start_positions[edge_id] = @new_start_positions[edge_id] - stretch_vector
+        @new_direction_vectors[edge_id] = new_direction_vector + stretch_vector
         @new_node_positions[first_node_id] = new_start_position
-        update_incident_edges(edge.second_node)
+        update_incident_edges(edge.first_node)
       else
         new_start_position = @new_start_positions[edge_id] = @new_start_positions[edge_id] - Geometry.scale(stretch_vector, 0.5)
+        new_direction_vector = @new_direction_vectors[edge_id] = new_direction_vector + stretch_vector
         @new_node_positions[first_node_id] = new_start_position
-        @new_node_positions[second_node_id] = new_start_position + new_direction
+        @new_node_positions[second_node_id] = new_start_position + new_direction_vector
         update_incident_edges(edge.first_node)
         update_incident_edges(edge.second_node)
       end
