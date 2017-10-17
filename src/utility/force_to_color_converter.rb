@@ -19,20 +19,21 @@ class ColorConverter
           r = g = b = l;
       else
           c = (1 - (2 * l -1).abs) * s
-          h1 = h/60
+          h1 = h/60.0
           x = c * (1 - ((h1 % 2) - 1).abs)
           rgb1 = hue_2_rgb(c, x, h1)
           m = l - 0.5 * c
-          rgb = [(rgb1[0] + m) * 255, (rgb1[1] + m) * 255, (rgb1[2] + m) * 255]
+          rgb = [(rgb1[0] + 1/3), (rgb1[1]), (rgb1[2] - 1/3)]
       end
 
-      rgb;
+      rgb
     end
 
     def get_color_for_force(force)
-      g = force / 9.80
-      value = (g + 5) / 10 # [-5g, 5g] => [0, 1]
-      h = (1 - value) * 360
+      value = (force + 8.0) / 16.0 # [-2N, 2N] => [0, 1]
+      value = 1 if value > 1
+      value = 0 if value < 0
+      h = (1.0 - value) * 360.0
       s = 1
       l = value * 0.5
 

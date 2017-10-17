@@ -273,6 +273,7 @@ class Simulation
     end
 
     show_forces(view)
+
     view.show_frame
     @running
   end
@@ -289,31 +290,32 @@ class Simulation
 
   def show_forces(view)
     Graph.instance.edges.values.each do |edge|
+      Sketchup.active_model.start_operation('TrussFab - Show Forces', true)
       show_force(edge.thingy, view)
+      Sketchup.active_model.commit_operation
     end
   end
 
   def show_force(thingy, view)
     return if thingy.body.nil?
 
-    force = Geom::Vector3d.new(*thingy.body.get_force)
-    return if force.length.zero?
+    force = thingy.body.net_joint_force.length#z.round(3)
 
-    position = thingy.body.get_position(1)
-    update_force_label(thingy, force.length, position)
+    # position = thingy.body.get_position(1)
+    update_force_label(thingy, force)
   end
 
-  def update_force_label(thingy, force, position)
-    if @force_labels[thingy.body].nil?
-      thingy.change_color(ColorConverter.get_color_for_force(force.mm))
-      force_label = Sketchup.active_model.entities.add_text("    #{force.mm} ", position)
-      force_label.layer = Sketchup.active_model.layers[Configuration::FORCE_LABEL_VIEW]
-      @force_labels[thingy.body] = force_label
-    else
-      thingy.change_color(ColorConverter.get_color_for_force(force))
-      @force_labels[thingy.body].text = "    #{force.mm} "
-      @force_labels[thingy.body].point = position
-    end
+  def update_force_label(thingy, force)
+    color = ColorConverter.get_color_for_force(force)
+    thingy.change_color(color)
+    # if @force_labels[thingy.body].nil?
+    #   force_label = Sketchup.active_model.entities.add_text("    #{force} ", position)
+    #   force_label.layer = Sketchup.active_model.layers[Configuration::FORCE_LABEL_VIEW]
+    #   @force_labels[thingy.body] = force_label
+    # else
+    #   @force_labels[thingy.body].text = "    #{force} "
+    #   @force_labels[thingy.body].point = position
+    # end
   end
 
   def reset_force_labels()

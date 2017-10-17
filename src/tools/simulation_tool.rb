@@ -34,7 +34,7 @@ class SimulationTool < Tool
   end
 
   def draw(view)
-    @simulation.show_forces(view)
+    # @simulation.show_forces(view)
   end
 end
 
