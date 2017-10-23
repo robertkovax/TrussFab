@@ -299,7 +299,7 @@ class Simulation
   def show_force(thingy, view)
     return if thingy.body.nil?
 
-    force = thingy.body.net_joint_force.length#z.round(3)
+    force = thingy.body.net_joint_force.z.round(3)
 
     # position = thingy.body.get_position(1)
     update_force_label(thingy, force)
