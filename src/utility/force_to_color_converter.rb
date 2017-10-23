@@ -1,14 +1,5 @@
 class ColorConverter
   class << self
-    def hue_2_rgb(c, x, h)
-      if h >= 0 && h <= 1; return [c, x, 0] end
-      if h >= 1 && h <= 2; return [x, c, 0] end
-      if h >= 2 && h <= 3; return [0, c, x] end
-      if h >= 3 && h <= 4; return [0, x, c] end
-      if h >= 4 && h <= 5; return [x, 0, c] end
-      if h >= 5 && h <= 6; return [c, 0, x] end
-      return [0, 0, 0]
-    end
 
     def convert_temp_color(t_color, t_1, t_2)
       color = 0
@@ -53,10 +44,7 @@ class ColorConverter
           r = convert_temp_color(t_r, t_1, t_2)
           g = convert_temp_color(t_g, t_1, t_2)
           b = convert_temp_color(t_b, t_1, t_2)
-          # c = (1 - (2 * l -1).abs) * s
-          # x = c * (1 - ((h1 % 2) - 1).abs)
-          # rgb1 = hue_2_rgb(c, x, h1)
-          # m = l - 0.5 * c
+
           rgb = [r, g, b]
       end
 
@@ -65,11 +53,12 @@ class ColorConverter
 
     def get_color_for_force(force)
       value = force.abs / 100.0 # [0N, 100N] => [0, 0.5]
-      value = 1 if value > 1
+      value = 1 if value > 0.5
       value = 0 if value < 0
       # strong negative force will be blue (stretching), strong positive force
       # will be red (compression)
-      h = force <= 0 ? 200.0 : 360.0 #(1.0 - value) * 360.0
+      # In HSL, a hue value of 200 degrees is a light blue color, 360 degrees is red
+      h = force <= 0 ? 200.0 : 360.0
       s = 1
       l = 1 - value
 
