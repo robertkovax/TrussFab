@@ -59,7 +59,7 @@ class Simulation
       joint.stiffness = DEFAULT_STIFFNESS
       joint.breaking_force = DEFAULT_BREAKING_FORCE
       if joint.respond_to? :friction=
-        joint.friction = DEFAULT_FRICTION
+          joint.friction = DEFAULT_FRICTION
       end
       joint.solver_model = solver_model
       joint.connect(child_body)
@@ -322,4 +322,3 @@ class Simulation
     @force_labels.each {|body, label| label.text = "" }
   end
 end
-

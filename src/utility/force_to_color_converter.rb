@@ -1,6 +1,6 @@
+# Convert a force in Newton to a color
 class ColorConverter
   class << self
-
     def convert_temp_color(t_color, t_1, t_2)
       color = 0
       if 6 * t_color < 1
@@ -13,47 +13,57 @@ class ColorConverter
         color = t_2
       end
 
-      color
+      return color
     end
 
     def hsl_to_rgb(h, s, l)
-       r = 0
-       g = 0
-       b = 0
+      r = 0
+      g = 0
+      b = 0
 
       # https://www.niwa.nu/2013/05/math-behind-colorspace-conversions-rgb-hsl/
       if s == 0
-          r = g = b = l;
+        r = g = b = l;
       else
-          t_1 = 0
-          if l < 0.5
-            t_1 = l * (1.0 + s)
-          else
-            t_1 = l + s - l * s
-          end
+        t_1 = l < 0.5 ? (l * (1.0 + s)) : (l + s - l * s)
+        t_2 = 2 * l - t_1
 
-          t_2 = 2 * l - t_1
-          h1 = h/360.0
+        h1 = h/360.0
 
-          t_r = h1 + 0.333
-          if t_r > 1
-            t_r = t_r - 1
-          end
-          t_g = h1
-          t_b = h1 - 0.333
-          r = convert_temp_color(t_r, t_1, t_2)
-          g = convert_temp_color(t_g, t_1, t_2)
-          b = convert_temp_color(t_b, t_1, t_2)
+        t_r = h1 + 0.333
+        if t_r > 1
+          t_r -= 1
+        elsif t_r < 1
+          t_r += 1
+        end
 
-          rgb = [r, g, b]
+        t_g = h1
+
+        t_b = h1 - 0.333
+        if t_b > 1
+          t_b -= 1
+        elsif t_b < 1
+          t_b += 1
+        end
+
+        r = convert_temp_color(t_r, t_1, t_2)
+        g = convert_temp_color(t_g, t_1, t_2)
+        b = convert_temp_color(t_b, t_1, t_2)
+
+        rgb = [r, g, b]
       end
 
-      rgb
+      return rgb
     end
 
     def get_color_for_force(force)
-      value = force.abs / 100.0 # [0N, 100N] => [0, 0.5]
-      value = 1 if value > 0.5
+      # scale the force to a scale of [0, 0.5] for 0 - ± maxForce
+      # capped at 0.5, because at half lightness, the selected color looks
+      # the "most vibrant" in HSL
+      # no force will have a value of 0, which gives us a lightness value of 1,
+      # which is always white
+      value = force.abs / 100.0
+      value = 0.5 if value > 0.5
       value = 0 if value < 0
       # strong negative force will be blue (stretching), strong positive force
       # will be red (compression)
@@ -62,7 +72,7 @@ class ColorConverter
       s = 1
       l = 1 - value
 
-      hsl_to_rgb(h, s, l)
+      return hsl_to_rgb(h, s, l)
     end
   end
 end
