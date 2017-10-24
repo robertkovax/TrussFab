@@ -29,8 +29,17 @@ class Thingy
   end
 
   def change_color(color)
-    @entity.material = color unless @entity.nil?
-    @sub_thingies.each { |thingy| thingy.change_color(color) }
+    unless @entity.nil?
+      if Sketchup.active_model.materials[color].nil?
+        mat = Sketchup.active_model.materials.add(color)
+        mat.color = color
+        mat.alpha = 1.0
+        @entity.material = mat
+      else
+        @entity.material = Sketchup.active_model.materials[color]
+      end
+    end
+    @sub_thingies.each {|thingy| thingy.change_color(color)}
   end
 
   def hide

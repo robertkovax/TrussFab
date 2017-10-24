@@ -13,7 +13,7 @@ class Simulation
   POD_MASS = 0.1
 
   DEFAULT_STIFFNESS = 0.999
-  DEFAULT_FRICTION = 1.0
+  DEFAULT_FRICTION = 2.0
   DEFAULT_BREAKING_FORCE = 1_000_000
 
   # velocity in change of length in m/s
@@ -272,7 +272,10 @@ class Simulation
       set_status_text
     end
 
-    show_forces(view)
+    if @frame % 4 == 0
+      show_forces(view)
+    end
+
 
     view.show_frame
     @running
@@ -289,11 +292,11 @@ class Simulation
   end
 
   def show_forces(view)
+    Sketchup.active_model.start_operation('Change Materials', true)
     Graph.instance.edges.values.each do |edge|
-      Sketchup.active_model.start_operation('TrussFab - Show Forces', true)
       show_force(edge.thingy, view)
-      Sketchup.active_model.commit_operation
     end
+    Sketchup.active_model.commit_operation
   end
 
   def show_force(thingy, view)
