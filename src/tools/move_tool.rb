@@ -1,5 +1,6 @@
 require 'src/tools/tool.rb'
 require 'src/utility/relaxation.rb'
+require 'src/utility/mouse_input.rb'
 
 class MoveTool < Tool
   LINE_STIPPLE = '_'.freeze
@@ -38,7 +39,7 @@ class MoveTool < Tool
   end
 
   def update(view, x, y)
-    @mouse_input.update_positions(view, x, y)
+    @mouse_input.update_positions(view, x, y, point_on_plane_from_camera_normale: @start_position || nil)
     if @moving
       if @mouse_input.position != @end_position
         @end_position = @mouse_input.position
