@@ -1,5 +1,6 @@
 require 'set'
 
+# Used to handle mouse pointer related issue, can snap to objects, maps input points to useful ones.
 class MouseInput
   attr_reader :position, :snapped_object
 
@@ -21,17 +22,30 @@ class MouseInput
     @snapped_object = nil
   end
 
-  def update_positions(view, x, y)
+  # NB: In the old version, there was given a reference point to the InputPoint
+  # but it was not clear why.
+  def update_positions(view, x, y, point_on_plane_from_camera_normale: nil)
     soft_reset
 
     input_point = Sketchup::InputPoint.new
     input_point.pick(view, x, y, Sketchup::InputPoint.new)
-
     @position = input_point.position
-    snap_to_object
 
+    snap_to_object
     @snapped_object.highlight unless @snapped_object.nil?
     @position = @snapped_object.position if @snapped_object
+
+    # For some reason, we don't have go find the intersection on the plane if
+    # it finds objects to snap on.
+    if !point_on_plane_from_camera_normale.nil? && !@snapped_object
+      # pick a point on the plance of the camera normale
+      normal = view.camera.direction
+      plane = [point_on_plane_from_camera_normale, normal]
+      pickray = view.pickray x, y
+      @position = Geom.intersect_line_plane(pickray, plane)
+    end
+
+    @position
   end
 
   def out_of_snap_tolerance?(object)
