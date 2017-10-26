@@ -58,7 +58,7 @@ class Relaxation
     number_connected_edges = connected_edges.length
     count = 0
     (1..@max_iterations).each do
-      edge = pick_random_edge
+      edge = @edges.sample
       next if deviation(edge).abs < CONVERGENCE_DEVIATION
       add_edges(edge.incidents) unless @edges.length == number_connected_edges
       adapt_edge(edge, deviation(edge) * @dampening_factor)
@@ -91,10 +91,6 @@ class Relaxation
     all_edges = Set.new
     @edges.each { |edge| all_edges.merge(edge.connected_component) }
     all_edges
-  end
-
-  def pick_random_edge
-    @edges[rand(@edges.length)]
   end
 
   def deviation(edge)
