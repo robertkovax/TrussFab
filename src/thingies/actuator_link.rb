@@ -11,9 +11,6 @@ class ActuatorLink < Link
     @first_cylinder = nil
     @second_cylinder = nil
 
-    @first_elongation = nil
-    @second_elongation = nil
-
     @first_cylinder_body = nil
     @second_cylinder_body = nil
 
@@ -49,18 +46,8 @@ class ActuatorLink < Link
       body.collidable = false
     end
 
-    joint_elongation = ->(parent, child, position) {
-      Simulation.joint_between(world,
-                               MSPhysics::Fixed,
-                               parent,
-                               child,
-                               Geom::Transformation.new(position, Geometry::Z_AXIS),
-                               1,
-                               nil)
-    }
-
-    joint_elongation.call(@first_cylinder_body, ext_1_body, @position)
-    joint_elongation.call(@second_cylinder_body, ext_2_body, @second_position)
+    joint_from_to(world, MSPhysics::Fixed, @first_cylinder_body, ext_1_body, Geometry::Z_AXIS)
+    joint_from_to(world, MSPhysics::Fixed, @second_cylinder_body, ext_2_body, Geometry::Z_AXIS)
 
     [@first_cylinder_body, @second_cylinder_body]
   end
