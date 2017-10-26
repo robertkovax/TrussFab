@@ -14,24 +14,18 @@ class Relaxation
 
     # We first calculate over several iterations the new positions and
     # only update the final position in the end for performance reasons.
-    @new_direction_vectors = []
-    @new_node_positions = []
-    @new_start_positions = []
+    @new_direction_vectors = {}
+    @new_node_positions = {}
+    @new_start_positions = {}
 
     @fixed_nodes = Set.new
     @ignore_node_fixation = Set.new
 
-    # Contains edges that were `touched`. We choose randomly out of
-    # this array for the iterations.
-    # (Not quite sure if I understand this remark from the author correctly
-    # - Johannes)
-    @edges = []
+    # Contains edges that were already adapted.
+    @edges = Set.new
 
-    @edge_ids = Array.new(IdManager.instance.last_id)
-
-    # All edges want to preserve their original length. In this map,
-    # we save the values which never get changed.
-    @original_lengths = {}
+    # All edges want to preserve their original length in the optimal case.
+    @optimal_length = {}
   end
 
   def stretch(edge)
@@ -60,15 +54,19 @@ class Relaxation
 
   def relax
     # Abort if there is nothing to do
-    return if @edges.length == 0
+    return if @edges.empty?
     fix_nodes
     number_connected_edges = connected_edges.length
     count = 0
     (1..@max_iterations).each do
-      edge = @edges.sample
-      next if deviation(edge).abs < CONVERGENCE_DEVIATION
+      # pick a random edge
+      edge = @edges.to_a.sample
+      # only adapt edge if we have still stuff to do
+      deviation = deviation_to_optiomal_length(edge)
+      next if deviation.abs < CONVERGENCE_DEVIATION
+      # add neighbors if we have still edges left to add
       add_edges(edge.incidents) unless @edges.length == number_connected_edges
-      adapt_edge(edge, deviation(edge) * @dampening_factor)
+      adapt_edge(edge, deviation * @dampening_factor)
       count += 1
     end
     puts "Relaxation iterations: #{count}"
@@ -80,7 +78,7 @@ class Relaxation
 
   def change_length(edge, target_length)
     add_edge(edge)
-    @original_lengths[edge] = target_length
+    @optimal_length[edge] = target_length
     if fixed?(edge.first_node) && fixed?(edge.second_node)
       @ignore_node_fixation << edge.first_node
       @ignore_node_fixation << edge.second_node
@@ -100,9 +98,9 @@ class Relaxation
     all_edges
   end
 
-  def deviation(edge)
+  def deviation_to_optiomal_length(edge)
     if @new_direction_vectors[edge.id]
-      @original_lengths[edge] - @new_direction_vectors[edge.id].length
+      @optimal_length[edge] - @new_direction_vectors[edge.id].length
     else
       0.0
     end
@@ -113,25 +111,21 @@ class Relaxation
   end
 
   def add_edge(edge)
-    edge_id = edge.id
-    return if @edge_ids[edge_id]
+    return if @edges.add?(edge).nil? # abort when already in set
 
-    @edge_ids[edge_id] = true
-    @edges << edge
-    @original_lengths[edge] = edge.length
+    @optimal_length[edge] = edge.length
 
     first_node_id = edge.first_node.id
-
     unless @new_node_positions[first_node_id]
       @new_node_positions[first_node_id] = edge.first_node.position
     end
 
     second_node_id = edge.second_node.id
-
     unless @new_node_positions[second_node_id]
       @new_node_positions[second_node_id] = edge.second_node.position
     end
 
+    edge_id = edge.id
     unless @new_direction_vectors[edge_id]
       @new_direction_vectors[edge_id] = edge.direction
     end
@@ -144,17 +138,16 @@ class Relaxation
   # of iterations
   def adapt_edge(edge, delta)
     edge_id = edge.id
-
     first_node_id = edge.first_node.id
-    is_first_node_fixed = @fixed_nodes.include?(edge.first_node)
-
     second_node_id = edge.second_node.id
+
+    is_first_node_fixed = @fixed_nodes.include?(edge.first_node)
     is_second_node_fixed = @fixed_nodes.include?(edge.second_node)
 
     new_direction_vector = @new_direction_vectors[edge_id]
 
     if is_first_node_fixed && is_second_node_fixed
-      @original_lengths[edge] = new_direction_vector.length
+      @optimal_length[edge] = new_direction_vector.length
     else
       stretch_vector = new_direction_vector.clone
       stretch_vector.length = delta
@@ -215,7 +208,6 @@ class Relaxation
   end
 
   def fixed?(node)
-    node_id = node.id
     incidents_frozen = node.incidents.any? do |incident|
       incident.opposite(node).frozen?
     end

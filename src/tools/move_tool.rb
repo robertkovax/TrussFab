@@ -69,6 +69,8 @@ class MoveTool < Tool
 
     end_move_position = @end_position
     unless snapped_node.nil?
+      # TODO: This is not working. For me, it is not even clear
+      # what should be done in this case
       relaxation.fix_node(snapped_node)
       @start_node.merge_into(snapped_node)
       end_move_position = snapped_node.position
