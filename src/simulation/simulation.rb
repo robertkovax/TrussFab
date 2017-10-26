@@ -299,26 +299,60 @@ class Simulation
     Sketchup.active_model.commit_operation
   end
 
+  def sign(number)
+    if number > 0
+      return 1
+    elsif number < 0
+      return -1
+    else
+      return 0
+    end
+  end
+
+  def get_body_orientation_vector(body)
+    angles = body.get_euler_angles
+    pitch = angles[0]
+    yaw = angles[1]
+    roll = angles[2]
+    x = Math.cos(yaw)*Math.cos(pitch)
+    y = Math.sin(yaw)*Math.cos(pitch)
+    z = Math.sin(pitch)
+    Geom::Vector3d.new(x, y, z)
+  end
+
   def show_force(thingy, view)
     return if thingy.body.nil?
 
-    force = thingy.body.net_joint_force.z.round(3)
+    joint_force = thingy.body.net_joint_force
+    body_orientation = get_body_orientation_vector(thingy.body)
 
-    # position = thingy.body.get_position(1)
-    update_force_label(thingy, force)
+    x = joint_force.x
+    y = joint_force.y
+    z = joint_force.z
+
+    p thingy.first_joint.to_s
+    # angle_to_body = joint_force.dot(thingy.first_joint.position - thingy.second_joint.position)
+
+    force = joint_force.length# * (angle_to_body > 0 ? 1 : -1)
+    force = force.round(3)
+
+    position = thingy.body.get_position(1)
+    update_force_label(thingy, force, position)
   end
 
-  def update_force_label(thingy, force)
+  def update_force_label(thingy, force, position)
     color = ColorConverter.get_color_for_force(force)
     thingy.change_color(color)
-    # if @force_labels[thingy.body].nil?
-    #   force_label = Sketchup.active_model.entities.add_text("    #{force} ", position)
-    #   force_label.layer = Sketchup.active_model.layers[Configuration::FORCE_LABEL_VIEW]
-    #   @force_labels[thingy.body] = force_label
-    # else
-    #   @force_labels[thingy.body].text = "    #{force} "
-    #   @force_labels[thingy.body].point = position
-    # end
+    if @force_labels[thingy.body].nil?
+      force_label =
+        Sketchup.active_model.entities.add_text("    #{force} ", position)
+      force_label.layer =
+        Sketchup.active_model.layers[Configuration::FORCE_LABEL_VIEW]
+      @force_labels[thingy.body] = force_label
+    else
+      @force_labels[thingy.body].text = "    #{force} "
+      @force_labels[thingy.body].point = position
+    end
   end
 
   def reset_force_labels()

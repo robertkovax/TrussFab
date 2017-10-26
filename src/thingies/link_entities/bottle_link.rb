@@ -14,7 +14,7 @@ class BottleLink < Thingy
     @entity.definition.entities.each do |ent|
       if ent.material != color
         ent.material = color
-        ent.material.alpha = 0.65
+        ent.material.alpha = 0.8
       end
     end
   end

@@ -52,7 +52,7 @@ class Hub < PhysicsThingy
 
   def create_body(world)
     @body = Simulation.create_body(world, @entity, collision_type: :sphere)
-    @body.collidable = true
+    @body.collidable = false
     @body.mass = @mass == 0 ? Simulation::HUB_MASS : @mass
     pods.each do |pod|
       pod_body = pod.create_body(world)
