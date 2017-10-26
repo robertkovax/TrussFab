@@ -19,7 +19,7 @@ class Relaxation
 
     # Contains edges that were `touched`. We choose randomly out of
     # this array for the iterations.
-    # (Not quite sure if I undertand this remark from the author correctly
+    # (Not quite sure if I understand this remark from the author correctly
     # - Johannes)
     @edges = []
 
@@ -62,7 +62,6 @@ class Relaxation
   def relax
     compute_fixed_nodes
     number_connected_edges = connected_edges.length
-    puts "num connected #{number_connected_edges}"
     count = 0
     (1..@max_iterations).each do
       edge = pick_random_edge

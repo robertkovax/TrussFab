@@ -39,7 +39,7 @@ class MoveTool < Tool
   end
 
   def update(view, x, y)
-    @mouse_input.update_positions(view, x, y, point_on_plane_from_camera_normale: @start_position || nil)
+    @mouse_input.update_positions(view, x, y, point_on_plane_from_camera_normal: @start_position || nil)
     if @moving
       if @mouse_input.position != @end_position
         @end_position = @mouse_input.position

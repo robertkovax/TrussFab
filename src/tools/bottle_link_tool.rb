@@ -21,7 +21,7 @@ class BottleLinkTool < Tool
     if @first_position.nil?
       @first_position = @mouse_input.update_positions(view, x, y)
     else
-      second_position = @mouse_input.update_positions(view, x, y, point_on_plane_from_camera_normale: @first_position)
+      second_position = @mouse_input.update_positions(view, x, y, point_on_plane_from_camera_normal: @first_position)
 
       puts 'Create single bottle link'
       Sketchup.active_model.start_operation('Create bottle link', true)
