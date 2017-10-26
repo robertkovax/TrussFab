@@ -12,9 +12,7 @@ class MoveTool < Tool
 
     @start_node = nil
     @start_position = nil
-
     @end_position = nil
-
     @moving = false
   end
 
@@ -31,21 +29,20 @@ class MoveTool < Tool
   end
 
   def draw(view)
-    if @moving
-      view.line_stipple = LINE_STIPPLE
-      view.drawing_color = 'black'
-      view.draw_lines(@start_position, @end_position)
-    end
+    return unless @moving
+    view.line_stipple = LINE_STIPPLE
+    view.drawing_color = 'black'
+    view.draw_lines(@start_position, @end_position)
   end
 
   def update(view, x, y)
-    @mouse_input.update_positions(view, x, y, point_on_plane_from_camera_normal: @start_position || nil)
-    if @moving
-      if @mouse_input.position != @end_position
-        @end_position = @mouse_input.position
-        view.invalidate
-      end
-    end
+    @mouse_input.update_positions(
+      view, x, y, point_on_plane_from_camera_normal: @start_position || nil
+    )
+
+    return unless @moving && @mouse_input.position != @end_position
+    @end_position = @mouse_input.position
+    view.invalidate
   end
 
   def onMouseMove(_flags, x, y, view)
@@ -72,9 +69,10 @@ class MoveTool < Tool
     if snapped_node.nil?
       relaxation.move_node(@start_node, @end_position)
     else
-      relaxation
-        .constrain_node(snapped_node)
-        .move_node(@start_node, snapped_node.position)
+      relaxation.
+        constrain_node(snapped_node).
+        move_node(@start_node, snapped_node.position)
+
       @start_node.merge_into(snapped_node) unless snapped_node.nil?
     end
     relaxation.relax

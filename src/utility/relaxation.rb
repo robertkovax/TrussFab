@@ -3,7 +3,8 @@ class Relaxation
   CONVERGENCE_DEVIATION = 1.mm
   DAMPENING_FACTOR = 0.9
 
-  attr_reader :new_node_positions, :new_direction_vectors, :new_start_positions, :max_iterations
+  attr_reader :new_node_positions, :new_direction_vectors, :new_start_positions,
+    :max_iterations
 
   def initialize(max_iterations: DEFAULT_MAX_ITERATIONS)
     @dampening_factor = DAMPENING_FACTOR
@@ -27,7 +28,7 @@ class Relaxation
 
     # All edges want to preserve their original length. In this map,
     # we save the values which never get changed.
-    @desired_lengths = {}
+    @original_lengths = {}
   end
 
   def stretch(edge)
@@ -40,19 +41,9 @@ class Relaxation
     self
   end
 
-  def change_length(edge, target_length)
-    add_edge(edge)
-    @desired_lengths[edge] = target_length
-    if fixed?(edge.first_node) && fixed?(edge.second_node)
-      @ignore_node_fixation[edge.first_node.id] = edge.first_node
-      @ignore_node_fixation[edge.second_node.id] = edge.second_node
-    end
-    self
-  end
-
   def move_node(node, position)
     return if node.nil?
-    constrain_node(node)
+    fix_node(node)
     @new_node_positions[node.id] = position
     add_edges(node.incidents)
     update_incident_edges(node)
@@ -75,12 +66,22 @@ class Relaxation
     self
   end
 
-  def constrain_node(node)
-    @fixed_nodes[node.id] = node unless node.nil?
+  private
+
+  def change_length(edge, target_length)
+    add_edge(edge)
+    @original_lengths[edge] = target_length
+    if fixed?(edge.first_node) && fixed?(edge.second_node)
+      @ignore_node_fixation[edge.first_node.id] = edge.first_node
+      @ignore_node_fixation[edge.second_node.id] = edge.second_node
+    end
     self
   end
 
-  private
+  def fix_node(node)
+    @fixed_nodes[node.id] = node unless node.nil?
+    self
+  end
 
   def compute_fixed_nodes
     Graph.instance.nodes.each_value do |node|
@@ -100,7 +101,7 @@ class Relaxation
 
   def deviation(edge)
     if @new_direction_vectors[edge.id]
-      @desired_lengths[edge] - @new_direction_vectors[edge.id].length
+      @original_lengths[edge] - @new_direction_vectors[edge.id].length
     else
       0.0
     end
@@ -116,14 +117,24 @@ class Relaxation
 
     @edge_ids[edge_id] = true
     @edges << edge
-    @desired_lengths[edge] = edge.length
+    @original_lengths[edge] = edge.length
 
     first_node_id = edge.first_node.id
-    @new_node_positions[first_node_id] = edge.first_node.position unless @new_node_positions[first_node_id]
-    second_node_id = edge.second_node.id
-    @new_node_positions[second_node_id] = edge.second_node.position unless @new_node_positions[second_node_id]
 
-    @new_direction_vectors[edge_id] = edge.direction unless @new_direction_vectors[edge_id]
+    unless @new_node_positions[first_node_id]
+      @new_node_positions[first_node_id] = edge.first_node.position
+    end
+
+    second_node_id = edge.second_node.id
+
+    unless @new_node_positions[second_node_id]
+      @new_node_positions[second_node_id] = edge.second_node.position
+    end
+
+    unless @new_direction_vectors[edge_id]
+      @new_direction_vectors[edge_id] = edge.direction
+    end
+
     @new_start_positions[edge_id] = edge.first_node.position
   end
 
@@ -141,24 +152,34 @@ class Relaxation
     new_direction_vector = @new_direction_vectors[edge_id]
 
     if first_node_fixed && second_node_fixed
-      @desired_lengths[edge] = new_direction_vector.length
+      @original_lengths[edge] = new_direction_vector.length
     else
       stretch_vector = new_direction_vector.clone
       stretch_vector.length = delta
       if first_node_fixed
         new_direction_vector = @new_direction_vectors[edge_id] = new_direction_vector + stretch_vector
-        @new_node_positions[second_node_id] = @new_start_positions[edge_id] + new_direction_vector
+
+        @new_node_positions[second_node_id] =
+          @new_start_positions[edge_id] + new_direction_vector
+
         update_incident_edges(edge.second_node)
       elsif second_node_fixed
         new_start_position = @new_start_positions[edge_id] = @new_start_positions[edge_id] - stretch_vector
         @new_direction_vectors[edge_id] = new_direction_vector + stretch_vector
         @new_node_positions[first_node_id] = new_start_position
+
         update_incident_edges(edge.first_node)
       else
         new_start_position = @new_start_positions[edge_id] = @new_start_positions[edge_id] - Geometry.scale(stretch_vector, 0.5)
-        new_direction_vector = @new_direction_vectors[edge_id] = new_direction_vector + stretch_vector
+
+        new_direction_vector = @new_direction_vectors[edge_id] =
+          new_direction_vector + stretch_vector
+
         @new_node_positions[first_node_id] = new_start_position
-        @new_node_positions[second_node_id] = new_start_position + new_direction_vector
+
+        @new_node_positions[second_node_id] =
+          new_start_position + new_direction_vector
+
         update_incident_edges(edge.first_node)
         update_incident_edges(edge.second_node)
       end
@@ -183,16 +204,21 @@ class Relaxation
       new_node_position = @new_node_positions[node.id]
       if incident.first_node == node
         @new_start_positions[incident_id] = new_node_position
-        @new_direction_vectors[incident_id] = @new_node_positions[incident.second_node.id] - new_node_position
+        @new_direction_vectors[incident_id] =
+          @new_node_positions[incident.second_node.id] - new_node_position
       else
-        @new_direction_vectors[incident_id] = new_node_position - @new_start_positions[incident_id]
+        @new_direction_vectors[incident_id] =
+          new_node_position - @new_start_positions[incident_id]
       end
     end
   end
 
   def fixed?(node)
     node_id = node.id
-    incidents_frozen = node.incidents.any? { |incident| incident.opposite(node).frozen? }
+    incidents_frozen = node.incidents.any? do |incident|
+      incident.opposite(node).frozen?
+    end
+
     @ignore_node_fixation[node_id].nil? &&
       (@fixed_nodes[node_id] || node.fixed? || incidents_frozen)
   end
