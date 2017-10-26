@@ -65,7 +65,7 @@ class Relaxation
       count += 1
     end
     puts "Relaxation iterations: #{count}"
-    update_nodes
+    move_nodes_to_new_position
     self
   end
 
@@ -181,15 +181,12 @@ class Relaxation
     end
   end
 
-  def update_nodes
-    nodes = Set.new
+  def move_nodes_to_new_position
     @edges.each do |edge|
-      nodes.add(edge.first_node)
-      nodes.add(edge.second_node)
-    end
-    nodes.each do |node|
-      next if @new_node_positions[node.id] == node.position
-      node.move(@new_node_positions[node.id])
+      [edge.first_node, edge.second_node].each do |node|
+        new_position = @new_node_positions[node.id]
+        node.move(new_position) unless new_position == node.position
+      end
     end
   end
 
