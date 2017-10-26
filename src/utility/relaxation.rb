@@ -44,16 +44,23 @@ class Relaxation
     self
   end
 
-  def move_node(node, position)
+  def move_and_fix_node(node, position)
     return if node.nil?
-    @fixed_nodes << node
+    fix_node(node)
     @new_node_positions[node.id] = position
     add_edges(node.incidents)
     update_incident_edges(node)
     self
   end
 
+  def fix_node(node)
+    @fixed_nodes << node
+    self
+  end
+
   def relax
+    # Abort if there is nothing to do
+    return if @edges.length == 0
     fix_nodes
     number_connected_edges = connected_edges.length
     count = 0
@@ -185,7 +192,9 @@ class Relaxation
     @edges.each do |edge|
       [edge.first_node, edge.second_node].each do |node|
         new_position = @new_node_positions[node.id]
-        node.move(new_position) unless new_position == node.position
+        unless new_position.nil? || new_position == node.position
+          node.move(new_position)
+        end
       end
     end
   end

@@ -66,15 +66,15 @@ class MoveTool < Tool
 
     Sketchup.active_model.start_operation('move node and relax', true)
     relaxation = Relaxation.new
-    if snapped_node.nil?
-      relaxation.move_node(@start_node, @end_position)
-    else
-      relaxation.
-        constrain_node(snapped_node).
-        move_node(@start_node, snapped_node.position)
 
-      @start_node.merge_into(snapped_node) unless snapped_node.nil?
+    end_move_position = @end_position
+    unless snapped_node.nil?
+      relaxation.fix_node(snapped_node)
+      @start_node.merge_into(snapped_node)
+      end_move_position = snapped_node.position
     end
+
+    relaxation.move_and_fix_node(@start_node, end_move_position)
     relaxation.relax
     view.invalidate
     Sketchup.active_model.commit_operation
