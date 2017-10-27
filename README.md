@@ -136,7 +136,3 @@ Also, use SketchUp’s Ruby Console to try for example `Graph.instance.empty?`.
 # Contact handles
 
 robert.kovacs@hpi.de
-
-anna.seufert@student.hpi.de
-
-ludwig.wall@student.hpi.de

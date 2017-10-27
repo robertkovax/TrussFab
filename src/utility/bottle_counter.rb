@@ -3,7 +3,6 @@ require 'src/configuration/configuration.rb'
 class BottleCounter
   class << self
     def update_status_text
-      # It should tell the number of small-small, small-big, big-big, and hubs.
       Sketchup.status_text = "Hubs: #{number_nodes} | Bottles: #{number_edges} (small-small: #{number_small_small}  small-big: #{number_small_big}  big-big: #{number_big_big})"
     end
 
@@ -24,10 +23,7 @@ class BottleCounter
     end
 
     def bottle_counts
-      counts = {}
-      Configuration::HARD_MODELS.each do |model|
-        counts[model[:NAME]] = 0
-      end
+      counts = Hash.new(0)
       Graph.instance.edges.values.each do |edge|
         if edge.link_type == 'bottle_link'
           counts[edge.thingy.bottle_link.model.name] += 1

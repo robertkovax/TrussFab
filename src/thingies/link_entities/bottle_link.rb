@@ -1,8 +1,7 @@
 class BottleLink < Thingy
   attr_reader :model
 
-  def initialize(position, direction, model,
-                 id: nil)
+  def initialize(position, direction, model, id: nil)
     super(id)
     @position = position
     @direction = direction

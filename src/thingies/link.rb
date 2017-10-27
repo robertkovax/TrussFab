@@ -98,13 +98,47 @@ class Link < PhysicsThingy
     @sub_thingies.find { |thingy| thingy.is_a?(BottleLink) }
   end
 
+  def large_elongation?
+    large_elongation = Configuration::MAXIMUM_ELONGATION.to_l - 5.mm
+    @first_elongation_length.to_l >= large_elongation ||
+      @second_elongation_length.to_l >= large_elongation
+  end
+
+  def small_elongation?
+    small_elongation = Configuration::MINIMUM_ELONGATION.to_l + 5.mm
+    @first_elongation_length.to_l <= small_elongation ||
+      @second_elongation_length.to_l <= small_elongation
+  end
+
+  def next_shorter_length
+    if large_elongation?
+      return bottle_link.model.length + 2 * Configuration::DEFAULT_ELONGATION
+    end
+    new_model = @model.next_shorter_model(bottle_link.model)
+    if new_model == bottle_link.model
+      new_model.length + 2 * Configuration::MINIMUM_ELONGATION
+    else
+      new_model.length + 2 * Configuration::DEFAULT_ELONGATION
+    end
+  end
+
+  def next_longer_length
+    if small_elongation?
+      return bottle_link.model.length + 2 * Configuration::DEFAULT_ELONGATION
+    end
+    new_model = @model.next_longer_model(bottle_link.model)
+    if new_model == bottle_link.model
+      new_model.length + 2 * Configuration::MAXIMUM_ELONGATION
+    else
+      new_model.length + 2 * Configuration::DEFAULT_ELONGATION
+    end
+  end
+
   def create_sub_thingies
-    @first_elongation_length = @second_elongation_length = Configuration::MINIMUM_ELONGATION
+    model_length = length - 2 * Configuration::MINIMUM_ELONGATION
+    fitting_model = @model.longest_fitting_model(model_length)
 
-    model_length = length - @first_elongation_length - @second_elongation_length
-    shortest_model = @model.longest_model_shorter_than(model_length)
-
-    @first_elongation_length = @second_elongation_length = (length - shortest_model.length) / 2
+    @first_elongation_length = @second_elongation_length = (length - fitting_model.length) / 2
 
     direction = @position.vector_to(@second_position)
 
@@ -119,7 +153,7 @@ class Link < PhysicsThingy
     link_position = @position.offset(first_elongation.direction)
 
     add(first_elongation,
-        BottleLink.new(link_position, direction, shortest_model),
+        BottleLink.new(link_position, direction, fitting_model),
         Line.new(@position, @second_position),
         second_elongation)
   end

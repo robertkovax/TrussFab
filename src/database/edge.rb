@@ -161,12 +161,12 @@ class Edge < GraphObject
     @thingy.update_positions(@first_node.position, @second_node.position)
   end
 
-  def next_longer_length
-    length * 1.1
+  def next_shorter_length
+    @thingy.next_shorter_length
   end
 
-  def next_shorter_length
-    length * 0.9
+  def next_longer_length
+    @thingy.next_longer_length
   end
 
   def first_elongation_length
