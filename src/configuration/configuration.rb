@@ -8,6 +8,7 @@ module Configuration
   HUB_ID_VIEW = 'Hub IDs'.freeze
   TRIANGLE_SURFACES_VIEW = 'Triangle Surfaces'.freeze
   DRAW_TOOLTIPS_VIEW = 'Drawing Tooltips'.freeze
+  HINGE_VIEW = 'Hinge lines'.freeze
 
   # UI Dialog Properties
   HTML_DIALOG = {
