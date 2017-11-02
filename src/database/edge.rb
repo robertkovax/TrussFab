@@ -177,6 +177,10 @@ class Edge < GraphObject
     @thingy.second_elongation_length
   end
 
+  def inspect
+    "Edge " + @id.to_s
+  end
+
   private
 
   def create_thingy(id)
