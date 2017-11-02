@@ -1,5 +1,8 @@
 require 'set'
 
+# The class is a c & p from the relaxion algorithm and adapted to our needs.
+# Instead of moving the nodes, it finds the shortest edge in the optimized model and transform it into an actuator.
+# There is still a lot of work left to do in only works in some basic cases.
 class AutomaticActuators
   DEFAULT_MAX_ITERATIONS = 20_000
   CONVERGENCE_DEVIATION = 1.mm
@@ -72,8 +75,7 @@ class AutomaticActuators
       count += 1
     end
     puts "Relaxation iterations: #{count}"
-    move_nodes_to_new_position
-    self
+    find_edge_minimum_length # returns omitted edge
   end
 
   private
@@ -183,23 +185,11 @@ class AutomaticActuators
     end
   end
 
-  def move_nodes_to_new_position
-    minimum_edge = @edges.map(&:length).each_with_index.min
+  def find_edge_minimum_length
+    edges_array = @edges.to_a
+    minimum_edge = edges_array.map(&:length).each_with_index.min
     puts "Omit Minimum Edge #{minimum_edge}"
-
-    @edges.each_with_index do |edge, index|
-      if index == minimum_edge[1]
-        edge.delete
-        next
-      end
-
-      [edge.first_node, edge.second_node].each do |node|
-        new_position = @new_node_positions[node.id]
-        unless new_position.nil? || new_position == node.position
-          node.move(new_position)
-        end
-      end
-    end
+    edges_array[minimum_edge[1]]
   end
 
   def update_incident_edges(node)

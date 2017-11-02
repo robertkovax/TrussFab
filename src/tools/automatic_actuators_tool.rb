@@ -1,6 +1,7 @@
 require 'src/tools/tool.rb'
 require 'src/algorithms/automatic_actuators.rb'
 require 'src/utility/mouse_input.rb'
+require 'src/tools/actuator_tool.rb'
 
 class AutomaticActuatorsTool < Tool
   LINE_STIPPLE = '_'.freeze
@@ -64,8 +65,6 @@ class AutomaticActuatorsTool < Tool
     snapped_node = @mouse_input.snapped_object
     snapped_node = nil if snapped_node == @start_node
 
-    puts 'Lets to some auto actu'
-
     Sketchup.active_model.start_operation('move node and relax', true)
     automatic_actuators = AutomaticActuators.new
 
@@ -79,7 +78,11 @@ class AutomaticActuatorsTool < Tool
     end
 
     automatic_actuators.move_and_fix_node(@start_node, end_move_position)
-    automatic_actuators.relax
+    omitted_edge = automatic_actuators.relax
+
+    a_tool = ActuatorTool.new @ui
+    a_tool.change_edge_to_actuator(omitted_edge, view)
+
     view.invalidate
     Sketchup.active_model.commit_operation
 
