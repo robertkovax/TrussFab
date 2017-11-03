@@ -6,14 +6,14 @@ require 'erb'
 class Simulation
 
   # masses in kg
-  ELONGATION_MASS = 0.1
-  LINK_MASS = 0.5
+  ELONGATION_MASS = 0.01
+  LINK_MASS = 1
   PISTON_MASS = 1
-  HUB_MASS = 0.1
+  HUB_MASS = 1
   POD_MASS = 0.1
 
   DEFAULT_STIFFNESS = 0.999
-  DEFAULT_FRICTION = 2.0
+  DEFAULT_FRICTION = 1.0
   DEFAULT_BREAKING_FORCE = 1_000_000
 
   # velocity in change of length in m/s
@@ -292,6 +292,9 @@ class Simulation
   end
 
   def show_forces(view)
+    Graph.instance.nodes.values.each do |node|
+      node.thingy.body.add_force(0, 0, -node.thingy.mass*10)
+    end
     Sketchup.active_model.start_operation('Change Materials', true)
     Graph.instance.edges.values.each do |edge|
       show_force(edge.thingy, view)
@@ -330,11 +333,15 @@ class Simulation
     y = joint_force.y
     z = joint_force.z
 
-    p thingy.first_joint.to_s
+    joints = thingy.body.contained_joints
+    body_vector = thingy.second_joint.node.position - thingy.first_joint.node.position
+    joint1_force_angle = joints[0].get_tension1.angle_between(body_vector) * 180 / Math::PI
+    joint1_sign = (joint1_force_angle < 90) ? -1 : 1
+
     # angle_to_body = joint_force.dot(thingy.first_joint.position - thingy.second_joint.position)
 
     force = joint_force.length# * (angle_to_body > 0 ? 1 : -1)
-    force = force.round(3)
+    force = force.round(3) * joint1_sign
 
     position = thingy.body.get_position(1)
     update_force_label(thingy, force, position)
@@ -343,16 +350,16 @@ class Simulation
   def update_force_label(thingy, force, position)
     color = ColorConverter.get_color_for_force(force)
     thingy.change_color(color)
-    if @force_labels[thingy.body].nil?
-      force_label =
-        Sketchup.active_model.entities.add_text("    #{force} ", position)
-      force_label.layer =
-        Sketchup.active_model.layers[Configuration::FORCE_LABEL_VIEW]
-      @force_labels[thingy.body] = force_label
-    else
-      @force_labels[thingy.body].text = "    #{force} "
-      @force_labels[thingy.body].point = position
-    end
+    # if @force_labels[thingy.body].nil?
+    #   force_label =
+    #     Sketchup.active_model.entities.add_text("    #{force} ", position)
+    #   force_label.layer =
+    #     Sketchup.active_model.layers[Configuration::FORCE_LABEL_VIEW]
+    #   @force_labels[thingy.body] = force_label
+    # else
+    #   @force_labels[thingy.body].text = "    #{force} "
+    #   @force_labels[thingy.body].point = position
+    # end
   end
 
   def reset_force_labels()

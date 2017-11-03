@@ -7,13 +7,16 @@ require 'src/thingies/physics_thingy.rb'
 
 class Link < PhysicsThingy
   attr_accessor :first_joint, :second_joint
-  attr_reader :body, :first_elongation_length, :second_elongation_length
+  attr_reader :body, :first_elongation_length, :second_elongation_length, :position, :second_position
 
   def initialize(first_node, second_node, model_name, id: nil)
     super(id)
 
     @position = first_node.position
     @second_position = second_node.position
+
+    @first_node = first_node
+    @second_node = second_node
 
     @first_joint = ThingyFixedJoint.new(first_node)
     @second_joint = ThingyFixedJoint.new(second_node)
@@ -49,7 +52,7 @@ class Link < PhysicsThingy
 
   def create_body(world)
     e1, bottles, _, e2 = @sub_thingies
-    @body = Simulation.create_body(world, bottles.entity)
+    @body = Simulation.create_body(world, bottles.entity, collision_type: :convex_hull)
     ext_1_body = Simulation.create_body(world, e1.entity)
     ext_2_body = Simulation.create_body(world, e2.entity)
 

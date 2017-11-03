@@ -20,7 +20,7 @@ class AddWeightTool < Tool
   end
 
   def addWeightToNode(node)
-    node.thingy.add_mass(10)
+    node.thingy.add_mass(20)
   end
 
   def addWeightToSurface(surface)

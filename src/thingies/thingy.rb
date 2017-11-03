@@ -33,7 +33,6 @@ class Thingy
       if Sketchup.active_model.materials[color].nil?
         mat = Sketchup.active_model.materials.add(color)
         mat.color = color
-        mat.alpha = 1.0
         @entity.material = mat
       else
         @entity.material = Sketchup.active_model.materials[color]

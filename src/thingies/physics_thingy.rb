@@ -24,7 +24,7 @@ class PhysicsThingy < Thingy
     matrix = Geom::Transformation.new(joint_position, pin_direction)
     Simulation.joint_between(world,
                              klass,
-                             body,
+                             @body,
                              other_body,
                              matrix,
                              solver_model,
