@@ -80,6 +80,7 @@ class AutomaticActuatorsTool < Tool
     automatic_actuators.move_and_fix_node(@start_node, end_move_position)
     omitted_edge = automatic_actuators.relax
 
+    # TODO: This is quite hacky. Fix it by properly refactoring the actuator tool.
     a_tool = ActuatorTool.new @ui
     a_tool.change_edge_to_actuator(omitted_edge, view)
 
