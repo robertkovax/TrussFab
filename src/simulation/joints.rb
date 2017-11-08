@@ -39,6 +39,10 @@ class ThingyHinge < ThingyJoint
   def pin_direction
     @rotation.vector
   end
+
+  def rotates_around?(edge)
+    @rotation.edge == edge
+  end
 end
 
 class ThingyBallJoint < ThingyJoint

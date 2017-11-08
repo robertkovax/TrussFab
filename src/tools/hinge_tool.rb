@@ -51,8 +51,6 @@ class HingeTool < Tool
         end
       end
 
-      p static_groups
-
       # One group can be static since all others already rotate
       static_groups.sort! { |a,b| a.length <=> b.length }
       static_groups.pop
@@ -62,28 +60,54 @@ class HingeTool < Tool
       static_groups.each do |group|
         triangle = group.first
         (triangle.edges - [rotation_axis]).each do |rotating_edge|
-          rotation = EdgeRotation.new(rotation_axis)
-          node = rotating_edge.shared_node(rotation_axis)
-          hinge = ThingyHinge.new(node, rotation)
-          if rotating_edge.first_node?(node)
-            rotating_edge.thingy.first_joint = hinge
-          else
-            rotating_edge.thingy.second_joint = hinge
-          end
-
-          # Draw hinge visualization
-          help_point = Geom::Point3d.linear_combination(0.7, node.position, 0.3, rotation_axis.mid_point)
-          starting_point = Geom::Point3d.linear_combination(0.7, node.position, 0.3, rotating_edge.mid_point)
-          mid_point = Geom::Point3d.linear_combination(0.3, starting_point, 0.7, help_point)
-          end_point = Geom::Point3d.linear_combination(0.7, mid_point, 0.3, rotation_axis.mid_point)
-
-          line1 = Line.new(starting_point, mid_point, HINGE_LINE)
-          line2 = Line.new(mid_point, end_point, HINGE_LINE)
-
-          rotating_edge.thingy.add(line1, line2)
+          add_hinge(rotation_axis, rotating_edge)
         end
       end
     end
+  end
+
+  def add_hinge(rotation_axis, rotating_edge)
+    rotation = EdgeRotation.new(rotation_axis)
+    node = rotating_edge.shared_node(rotation_axis)
+    hinge = ThingyHinge.new(node, rotation)
+    if rotating_edge.first_node?(node)
+      if rotating_edge.thingy.first_joint.is_a? ThingyHinge
+        p "Overwriting hinge by another hinge."
+        return
+      end
+      rotating_edge.thingy.first_joint = hinge
+    else
+      if rotating_edge.thingy.second_joint.is_a? ThingyHinge
+        p "Overwriting hinge by another hinge."
+        return
+      end
+      rotating_edge.thingy.second_joint = hinge
+    end
+
+    if rotation_axis.first_node?(node)
+      joint = rotation_axis.thingy.first_joint
+      if joint.is_a? ThingyHinge and joint.rotates_around?(rotating_edge)
+        p "Rotation against each other."
+        return
+      end
+    else
+      joint = rotation_axis.thingy.second_joint
+      if joint.is_a? ThingyHinge and joint.rotates_around?(rotating_edge)
+        p "Rotation against each other."
+        return
+      end
+    end
+
+    # Draw hinge visualization
+    help_point = Geom::Point3d.linear_combination(0.7, node.position, 0.3, rotation_axis.mid_point)
+    starting_point = Geom::Point3d.linear_combination(0.7, node.position, 0.3, rotating_edge.mid_point)
+    mid_point = Geom::Point3d.linear_combination(0.3, starting_point, 0.7, help_point)
+    end_point = Geom::Point3d.linear_combination(0.7, mid_point, 0.3, rotation_axis.mid_point)
+
+    line1 = Line.new(starting_point, mid_point, HINGE_LINE)
+    line2 = Line.new(mid_point, end_point, HINGE_LINE)
+
+    rotating_edge.thingy.add(line1, line2)
   end
 
   def start_simulation(edge)
