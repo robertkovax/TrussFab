@@ -31,41 +31,116 @@ class HingeTool < Tool
       reset_simulation
     end
 
-    rotation_axis_to_tris.each do |rotation_axis, triangles|
-      static_groups = []
+    static_groups = find_rigid_substructures(edges.reject { |e| e.link_type == 'actuator' }, rotation_partners)
+    static_groups.each do |group|
+      color_group(group)
+    end
 
-      # Split triangles into groups that do not rotate with each other
-      triangles.each do |triangle|
-        found_group = false
+    rotation_axis_to_group = Hash.new { |h,k| h[k] = Set.new }
 
-        static_groups.each do |group|
-          unless rotation_partners[triangle].include?(group[0])
-            group.push(triangle)
-            found_group = true
-            break
-          end
-        end
+    group_combinations = static_groups.combination(2)
+    group_combinations.each do |pair|
+      group1_edges = Set.new pair[0].flat_map { |tri| tri.edges }
+      group2_edges = Set.new pair[1].flat_map { |tri| tri.edges }
 
-        unless found_group
-          static_groups.push([triangle])
-        end
+      common_edges = group1_edges & group2_edges
+      if common_edges.size > 1
+        p "Logic error: More than one common edge."
       end
 
-      # One group can be static since all others already rotate
-      static_groups.sort! { |a,b| a.length <=> b.length }
-      static_groups.pop
-
-      static_groups.each do |group|
-        triangle = group.first
-        #group.each do |triangle|
-          (triangle.edges - [rotation_axis]).each do |rotating_edge|
-            unless add_hinge(rotation_axis, rotating_edge, false)
-              p "Logic error: Hinge could not be placed."
-            end
-          end
-        #end
+      if common_edges.size > 0
+        rotation_axis_to_group[common_edges.to_a[0]].add(pair[0])
+        rotation_axis_to_group[common_edges.to_a[0]].add(pair[1])
       end
     end
+
+    rotation_axis_to_group.each do |axis, groups|
+      groups.each do |group|
+        adjacent_tris = group.select { |tri| tri.edges.include?(axis) }
+
+        hinge_possible = false
+
+        adjacent_tris.each do |tri|
+          if can_add_hinge?(axis, tri)
+            (tri.edges - [axis]).each do |edge|
+              unless add_hinge(axis, edge, false)
+                p "Logic error: hinge placed despite can_add_hinge? true"
+              end
+            end
+            hinge_possible = true
+          end
+        end
+
+        if not hinge_possible
+          "Logic Error: hinge could not be placed."
+        end
+      end
+    end
+  end
+
+  def find_rigid_substructures(edges, rotation_partners)
+    visited_tris = Set.new
+    groups = []
+
+    tris = Set.new edges.flat_map { |e| e.adjacent_triangles }
+    tris = tris.reject! { |t| t.contains_actuator? }
+
+    loop do
+      unvisited_tris = tris - visited_tris
+
+      if unvisited_tris.empty?
+        break
+      end
+
+      tri = unvisited_tris.to_a.sample
+      new_group = Set.new
+
+      recursive_find_substructure(tri, new_group, visited_tris, rotation_partners)
+
+      groups.push(new_group)
+    end
+
+    groups
+  end
+
+  def recursive_find_substructure(tri, group, visited_tris, rotation_partners)
+    visited_tris.add(tri)
+    group.add(tri)
+
+    tri.adjacent_triangles.reject { |t| t.contains_actuator? }.each do |other_tri|
+      is_visited = visited_tris.include?(other_tri)
+      is_rotating = rotation_partners[tri].include?(other_tri)
+      if not is_visited and not is_rotating
+        recursive_found_substructure(other_tri, group, visited_tris, rotation_partners)
+      end
+    end
+  end
+
+  def color_group(group)
+    if group.length == 1
+      return
+    end
+
+    group_color = "%06x" % (rand * 0xffffff)
+
+    group.each do |triangle|
+      triangle.edges.each do |edge|
+        edge.thingy.change_color(group_color)
+      end
+    end
+  end
+
+  def can_add_hinge?(rotation_axis, triangle)
+    (triangle.edges - [rotation_axis]).each do |edge|
+      node = rotation_axis.shared_node(edge)
+
+      joint = edge.first_node?(node) ? edge.thingy.first_joint : edge.thingy.second_joint
+      if joint.is_a? ThingyHinge
+        return false
+      end
+    end
+
+    true
   end
 
   def add_hinge(rotation_axis, rotating_edge, recursive)
@@ -73,9 +148,8 @@ class HingeTool < Tool
     node = rotating_edge.shared_node(rotation_axis)
     hinge = ThingyHinge.new(node, rotation)
 
-    other_joint = rotation_axis.first_node?(node) ? rotation_axis.thingy.first_joint : rotation_axis.thingy.first_joint
+    other_joint = rotation_axis.first_node?(node) ? rotation_axis.thingy.first_joint : rotation_axis.thingy.second_joint
     if other_joint.is_a? ThingyHinge and other_joint.rotates_around?(rotating_edge)
-      p "Rotation against each other."
       return true
     end
 

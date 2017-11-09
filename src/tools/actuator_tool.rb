@@ -36,19 +36,19 @@ class ActuatorTool < Tool
 
     create_actuator(edge, view)
 
-    edges = edges_without_selected.reject { |e| e.link_type == 'actuator' }
-    triangle_pairs = edges.flat_map { |e| valid_triangle_pairs(e) }
-    original_angles = triangle_pair_angles(triangle_pairs)
-    start_simulation(edge)
-    view.show_frame
-    simulation_angles = triangle_pair_angles(triangle_pairs, true)
+    #edges = edges_without_selected.reject { |e| e.link_type == 'actuator' }
+    #triangle_pairs = edges.flat_map { |e| valid_triangle_pairs(e) }
+    #original_angles = triangle_pair_angles(triangle_pairs)
+    #start_simulation(edge)
+    #view.show_frame
+    #simulation_angles = triangle_pair_angles(triangle_pairs, true)
 
-    changed_triangle_pairs = get_changed_triangle_pairs(triangle_pairs, original_angles, simulation_angles)
+    #changed_triangle_pairs = get_changed_triangle_pairs(triangle_pairs, original_angles, simulation_angles)
 
-    rotation_axes = find_rotation_axes(changed_triangle_pairs)
-    highlight_rotation_axes(rotation_axes)
-    add_hinges(changed_triangle_pairs)
-    reset_simulation
+    #rotation_axes = find_rotation_axes(changed_triangle_pairs)
+    #highlight_rotation_axes(rotation_axes)
+    #add_hinges(changed_triangle_pairs)
+    #reset_simulation
   end
 
   def onMouseMove(_flags, x, y, view)
