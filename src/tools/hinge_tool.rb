@@ -18,7 +18,7 @@ class HingeTool < Tool
     # Maps from a triangle to all triangles rotating with it around a common axis
     rotation_partners = Hash.new { |h,k| h[k] = Set.new }
 
-    actuators.each do | actuator |
+    actuators.each do |actuator|
       edges_without_actuator = actuator.connected_component.reject { |e| e == actuator }
       triangle_pairs = edges_without_actuator.flat_map { |e| valid_triangle_pairs(e, actuator) }
 
@@ -55,47 +55,46 @@ class HingeTool < Tool
       static_groups.sort! { |a,b| a.length <=> b.length }
       static_groups.pop
 
-      p static_groups
-
       static_groups.each do |group|
         triangle = group.first
-        (triangle.edges - [rotation_axis]).each do |rotating_edge|
-          add_hinge(rotation_axis, rotating_edge)
-        end
+        #group.each do |triangle|
+          (triangle.edges - [rotation_axis]).each do |rotating_edge|
+            unless add_hinge(rotation_axis, rotating_edge, false)
+              p "Logic error: Hinge could not be placed."
+            end
+          end
+        #end
       end
     end
   end
 
-  def add_hinge(rotation_axis, rotating_edge)
+  def add_hinge(rotation_axis, rotating_edge, recursive)
     rotation = EdgeRotation.new(rotation_axis)
     node = rotating_edge.shared_node(rotation_axis)
     hinge = ThingyHinge.new(node, rotation)
+
+    other_joint = rotation_axis.first_node?(node) ? rotation_axis.thingy.first_joint : rotation_axis.thingy.first_joint
+    if other_joint.is_a? ThingyHinge and other_joint.rotates_around?(rotating_edge)
+      p "Rotation against each other."
+      return true
+    end
+
     if rotating_edge.first_node?(node)
       if rotating_edge.thingy.first_joint.is_a? ThingyHinge
-        p "Overwriting hinge by another hinge."
-        return
+        if recursive
+          return false
+        end
+        return add_hinge(rotating_edge, rotation_axis, true)
       end
       rotating_edge.thingy.first_joint = hinge
     else
       if rotating_edge.thingy.second_joint.is_a? ThingyHinge
-        p "Overwriting hinge by another hinge."
-        return
+        if recursive
+          return false
+        end
+        return add_hinge(rotating_edge, rotation_axis, true)
       end
       rotating_edge.thingy.second_joint = hinge
-    end
-
-    if rotation_axis.first_node?(node)
-      joint = rotation_axis.thingy.first_joint
-      if joint.is_a? ThingyHinge and joint.rotates_around?(rotating_edge)
-        p "Rotation against each other."
-        return
-      end
-    else
-      joint = rotation_axis.thingy.second_joint
-      if joint.is_a? ThingyHinge and joint.rotates_around?(rotating_edge)
-        p "Rotation against each other."
-        return
-      end
     end
 
     # Draw hinge visualization
@@ -108,6 +107,8 @@ class HingeTool < Tool
     line2 = Line.new(mid_point, end_point, HINGE_LINE)
 
     rotating_edge.thingy.add(line1, line2)
+
+    true
   end
 
   def start_simulation(edge)

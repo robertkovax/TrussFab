@@ -105,8 +105,7 @@ class Edge < GraphObject
 
   def sorted_adjacent_triangle_pairs
     sorted_triangles = sorted_adjacent_triangles
-    sorted_triangles << sorted_triangles.first
-    sorted_triangles.each_cons(2)
+    sorted_triangles.product(sorted_triangles)
   end
 
   def sorted_adjacent_triangles
