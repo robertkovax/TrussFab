@@ -55,7 +55,11 @@ class HingeTool < Tool
     end
 
     rotation_axis_to_group.each do |axis, groups|
-      groups.each do |group|
+      sorted_groups = groups.sort { |a,b| a.size <=> b.size }
+      # Removes the biggest group rotating around the axis, this can be considered the static group around the axis
+      #sorted_groups.pop
+
+      sorted_groups.each do |group|
         adjacent_tris = group.select { |tri| tri.edges.include?(axis) }
 
         hinge_possible = false
@@ -63,11 +67,12 @@ class HingeTool < Tool
         adjacent_tris.each do |tri|
           if can_add_hinge?(axis, tri)
             (tri.edges - [axis]).each do |edge|
-              unless add_hinge(axis, edge, false)
+              unless add_hinge(axis, edge)
                 p "Logic error: hinge placed despite can_add_hinge? true"
               end
             end
             hinge_possible = true
+            break
           end
         end
 
@@ -143,7 +148,7 @@ class HingeTool < Tool
     true
   end
 
-  def add_hinge(rotation_axis, rotating_edge, recursive)
+  def add_hinge(rotation_axis, rotating_edge)
     rotation = EdgeRotation.new(rotation_axis)
     node = rotating_edge.shared_node(rotation_axis)
     hinge = ThingyHinge.new(node, rotation)
@@ -155,18 +160,12 @@ class HingeTool < Tool
 
     if rotating_edge.first_node?(node)
       if rotating_edge.thingy.first_joint.is_a? ThingyHinge
-        if recursive
-          return false
-        end
-        return add_hinge(rotating_edge, rotation_axis, true)
+        return false
       end
       rotating_edge.thingy.first_joint = hinge
     else
       if rotating_edge.thingy.second_joint.is_a? ThingyHinge
-        if recursive
-          return false
-        end
-        return add_hinge(rotating_edge, rotation_axis, true)
+        return false
       end
       rotating_edge.thingy.second_joint = hinge
     end
