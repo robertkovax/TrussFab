@@ -1,5 +1,5 @@
 require 'src/tools/tool.rb'
-require 'src/utility/relaxation.rb'
+require 'src/algorithms/relaxation.rb'
 
 class GrowShrinkTool < Tool
   def initialize(ui)

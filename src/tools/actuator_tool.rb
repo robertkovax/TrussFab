@@ -22,10 +22,8 @@ class ActuatorTool < Tool
     super
   end
 
-  def onLButtonDown(_flags, x, y, view)
-    @mouse_input.update_positions(view, x, y)
-    edge = @mouse_input.snapped_object
-    return if edge.nil?
+  def change_edge_to_actuator(edge, view)
+
 
     edges_without_selected = edge.connected_component.reject { |e| e == edge }
     if RigidityTester.rigid?(edges_without_selected)
@@ -34,8 +32,8 @@ class ActuatorTool < Tool
       return
     end
 
-    create_actuator(edge, view)
 
+    create_actuator(edge, view)
     edges = edges_without_selected.reject { |e| e.link_type == 'actuator' }
     triangle_pairs = edges.flat_map { |e| valid_triangle_pairs(e) }
     original_angles = triangle_pair_angles(triangle_pairs)
@@ -49,6 +47,14 @@ class ActuatorTool < Tool
     highlight_rotation_axes(rotation_axes)
     add_hinges(changed_triangle_pairs)
     reset_simulation
+
+  end
+
+  def onLButtonDown(_flags, x, y, view)
+    @mouse_input.update_positions(view, x, y)
+    edge = @mouse_input.snapped_object
+    return if edge.nil?
+    change_edge_to_actuator(edge, view)
   end
 
   def onMouseMove(_flags, x, y, view)
