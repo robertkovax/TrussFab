@@ -54,7 +54,7 @@ class ColorConverter
       # the "most vibrant" in HSL
       # no force will have a value of 0, which gives us a lightness value of 1,
       # which is always white
-      value = force.abs / 100.0
+      value = force.abs / 500.0
       value = 0.5 if value > 0.5
       value = 0 if value < 0
 

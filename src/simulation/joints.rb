@@ -3,9 +3,9 @@ require 'src/utility/geometry'
 class ThingyJoint
   attr_accessor :joint, :node
 
-  def initialize(node)
+  def initialize(node, joint_class = nil)
     @node = node
-    @joint_class = nil
+    @joint_class = joint_class
     @joint = nil
   end
 

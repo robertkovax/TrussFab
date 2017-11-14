@@ -7,13 +7,17 @@ require 'src/thingies/physics_thingy.rb'
 
 class Link < PhysicsThingy
   attr_accessor :first_joint, :second_joint
-  attr_reader :body, :first_elongation_length, :second_elongation_length, :position, :second_position
+  attr_reader :body, :first_elongation_length, :second_elongation_length, :position, :second_position, :loc_up_vec
 
   def initialize(first_node, second_node, model_name, id: nil)
     super(id)
 
     @position = first_node.position
     @second_position = second_node.position
+    # the vector pointing along the length of the bottle
+    @loc_up_vec = Geom::Vector3d.new(0, 0, -1)
+
+    @mass = 0
 
     @first_node = first_node
     @second_node = second_node
@@ -50,6 +54,10 @@ class Link < PhysicsThingy
     mid_point
   end
 
+  def add_mass(mass)
+    @mass += mass
+  end
+
   def create_body(world)
     e1, bottles, _, e2 = @sub_thingies
     @body = Simulation.create_body(world, bottles.entity, collision_type: :convex_hull)
@@ -65,23 +73,57 @@ class Link < PhysicsThingy
 
     joint_to(world, MSPhysics::Fixed, ext_1_body, Geometry::Z_AXIS, solver_model: 1)
     joint_to(world, MSPhysics::Fixed, ext_2_body, Geometry::Z_AXIS, solver_model: 1)
+    update_up_vector
     @body
   end
 
+  def update_up_vector
+    body_tra = @body.get_matrix
+    glob_up_vec = @loc_up_vec.transform(body_tra)
+    if (second_position - position).dot(glob_up_vec) > 0.0
+      @loc_up_vec.reverse!
+    end
+  end
+
+  def create_bottle_joints(world, joint_type = ThingyFixedJoint)
+    adjacent_edges = []
+    @first_node.incidents.map{|edge| adjacent_edges << edge unless edge.thingy == self}
+    @second_node.incidents.map{|edge| adjacent_edges << edge unless edge.thingy == self}
+    # adjacent_edges << @first_joint
+    # adjacent_edges << @second_joint
+    adjacent_edges.each do |edge|
+      unless edge.nil?
+        if joint_type == ThingyBallJoint
+          joint_type.new(edge, mid_point.vector_to(edge.position)).create(world, @body)
+        else
+          joint_type.new(edge).create(world, @body)
+        end
+      end
+    end
+  end
+
   def create_joints(world)
+    create_bottle_joints(world, ThingyBallJoint)
+
     [@first_joint, @second_joint].each do |joint|
       joint.create(world, @body)
     end
   end
 
+  def update_force
+    @body.set_force(0, 0, -@mass)
+  end
+
   def create_ball_joints(world, first_node, second_node)
+    create_bottle_joints(world, ThingyBallJoint)
+
     first_direction = mid_point.vector_to(first_node.position)
     second_direction = mid_point.vector_to(second_node.position)
 
-    first_ball_joint = ThingyBallJoint.new(first_node, first_direction)
-    second_ball_joint = ThingyBallJoint.new(second_node, second_direction)
+    @first_joint = ThingyBallJoint.new(first_node, first_direction)
+    @second_joint = ThingyBallJoint.new(second_node, second_direction)
 
-    [first_ball_joint, second_ball_joint].each do |joint|
+    [@first_joint, @second_joint].each do |joint|
       joint.create(world, @body)
     end
   end

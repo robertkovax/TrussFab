@@ -29,15 +29,20 @@ class Thingy
   end
 
   def change_color(color)
-    unless @entity.nil?
-      if Sketchup.active_model.materials[color].nil?
-        mat = Sketchup.active_model.materials.add(color)
-        mat.color = color
-        @entity.material = mat
-      else
-        @entity.material = Sketchup.active_model.materials[color]
-      end
-    end
+    # unless @entity.nil?
+    #   if Sketchup.active_model.materials[id.to_s].nil?
+    #     mat = Sketchup.active_model.materials.add(id.to_s)
+    #     mat.color = color
+    #     mat.alpha = 1.0
+    #     @entity.material = mat
+    #     p "boop"
+    #     p Sketchup.active_model.materials.length
+    #     p "/boop"
+    #   else
+    #     @entity.material.color = color
+    #     p Sketchup.active_model.materials.length
+    #   end
+    # end
     @sub_thingies.each {|thingy| thingy.change_color(color)}
   end
 

@@ -272,9 +272,9 @@ class Simulation
       set_status_text
     end
 
-    if @frame % 4 == 0
-      show_forces(view)
-    end
+    # if @frame % 4 == 0
+    show_forces(view)
+    # end
 
 
     view.show_frame
@@ -292,9 +292,6 @@ class Simulation
   end
 
   def show_forces(view)
-    Graph.instance.nodes.values.each do |node|
-      node.thingy.body.add_force(0, 0, -node.thingy.mass*10)
-    end
     Sketchup.active_model.start_operation('Change Materials', true)
     Graph.instance.edges.values.each do |edge|
       show_force(edge.thingy, view)
@@ -302,64 +299,33 @@ class Simulation
     Sketchup.active_model.commit_operation
   end
 
-  def sign(number)
-    if number > 0
-      return 1
-    elsif number < 0
-      return -1
-    else
-      return 0
-    end
-  end
-
-  def get_body_orientation_vector(body)
-    angles = body.get_euler_angles
-    pitch = angles[0]
-    yaw = angles[1]
-    roll = angles[2]
-    x = Math.cos(yaw)*Math.cos(pitch)
-    y = Math.sin(yaw)*Math.cos(pitch)
-    z = Math.sin(pitch)
-    Geom::Vector3d.new(x, y, z)
-  end
-
   def show_force(thingy, view)
     return if thingy.body.nil?
 
-    joint_force = thingy.body.net_joint_force
-    body_orientation = get_body_orientation_vector(thingy.body)
+    body_orientation = thingy.body.get_matrix
+    glob_up_vec = thingy.loc_up_vec.transform(body_orientation)
 
-    x = joint_force.x
-    y = joint_force.y
-    z = joint_force.z
-
-    joints = thingy.body.contained_joints
-    body_vector = thingy.second_joint.node.position - thingy.first_joint.node.position
-    joint1_force_angle = joints[0].get_tension1.angle_between(body_vector) * 180 / Math::PI
-    joint1_sign = (joint1_force_angle < 90) ? -1 : 1
-
-    # angle_to_body = joint_force.dot(thingy.first_joint.position - thingy.second_joint.position)
-
-    force = joint_force.length# * (angle_to_body > 0 ? 1 : -1)
-    force = force.round(3) * joint1_sign
+    f1 = thingy.first_joint.joint.get_tension1
+    f2 = thingy.second_joint.joint.get_tension1
+    lin_force = (f2 - f1).dot(glob_up_vec)
 
     position = thingy.body.get_position(1)
-    update_force_label(thingy, force, position)
+    update_force_label(thingy, lin_force, position)
   end
 
   def update_force_label(thingy, force, position)
     color = ColorConverter.get_color_for_force(force)
     thingy.change_color(color)
-    # if @force_labels[thingy.body].nil?
-    #   force_label =
-    #     Sketchup.active_model.entities.add_text("    #{force} ", position)
-    #   force_label.layer =
-    #     Sketchup.active_model.layers[Configuration::FORCE_LABEL_VIEW]
-    #   @force_labels[thingy.body] = force_label
-    # else
-    #   @force_labels[thingy.body].text = "    #{force} "
-    #   @force_labels[thingy.body].point = position
-    # end
+    if @force_labels[thingy.body].nil?
+      force_label =
+        Sketchup.active_model.entities.add_text("--------------- #{force.round(1)} ", position)
+        force_label.layer =
+        Sketchup.active_model.layers[Configuration::FORCE_LABEL_VIEW]
+      @force_labels[thingy.body] = force_label
+    else
+      @force_labels[thingy.body].text = "--------------- #{force.round(1)} "
+      @force_labels[thingy.body].point = position
+    end
   end
 
   def reset_force_labels()
