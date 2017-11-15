@@ -116,7 +116,7 @@ class HingeTool < Tool
       is_visited = visited_tris.include?(other_tri)
       is_rotating = rotation_partners[tri].include?(other_tri)
       if not is_visited and not is_rotating
-        recursive_found_substructure(other_tri, group, visited_tris, rotation_partners)
+        recursive_find_substructure(other_tri, group, visited_tris, rotation_partners)
       end
     end
   end
