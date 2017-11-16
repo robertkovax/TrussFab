@@ -180,6 +180,10 @@ class Edge < GraphObject
     "Edge " + @id.to_s
   end
 
+  def reset
+    recreate_thingy
+  end
+
   private
 
   def create_thingy(id)

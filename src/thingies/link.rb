@@ -21,6 +21,10 @@ class Link < PhysicsThingy
     @model = ModelStorage.instance.models[model_name]
     @first_elongation_length = nil
     @second_elongation_length = nil
+
+    @first_elongation = nil
+    @second_elongation = nil
+
     create_sub_thingies
   end
 
@@ -94,6 +98,14 @@ class Link < PhysicsThingy
   # Subthingy methods
   #
 
+  def shorten_elongation(is_first_joint)
+    if is_first_joint
+      @first_elongation.shorten(@first_elongation.direction)
+    else
+      @second_elongation.shorten(@second_elongation.direction)
+    end
+  end
+
   def bottle_link
     @sub_thingies.find { |thingy| thingy.is_a?(BottleLink) }
   end
@@ -108,19 +120,19 @@ class Link < PhysicsThingy
 
     direction = @position.vector_to(@second_position)
 
-    first_elongation = Elongation.new(@position,
+    @first_elongation = Elongation.new(@position,
                                       direction,
                                       @first_elongation_length)
 
-    second_elongation = Elongation.new(@second_position,
+    @second_elongation = Elongation.new(@second_position,
                                        direction.reverse,
                                        @second_elongation_length)
 
-    link_position = @position.offset(first_elongation.direction)
+    link_position = @position.offset(@first_elongation.direction)
 
-    add(first_elongation,
+    add(@first_elongation,
         BottleLink.new(link_position, direction, shortest_model),
         Line.new(@position, @second_position, LINK_LINE),
-        second_elongation)
+        @second_elongation)
   end
 end
