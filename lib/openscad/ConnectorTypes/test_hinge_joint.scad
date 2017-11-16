@@ -9,7 +9,7 @@ round_size = 12;
 hole_size = 7/2;
 
 // the part where ohter connectors go
-gap_witdh = round_size * 2 + 5;
+gap_witdh = round_size * 2 + 10;
 
 gap_epsilon = 0.6;
 gap_height = 10;
@@ -66,7 +66,7 @@ module hingepart(l1, l2, l3, gap, with_cap, solid_top, the_lower_one=false) {
             cylinder(l2 + l3 + safety_margin, hole_size, hole_size);
         }
     }
-         x = sqrt((depth / 2) * (depth / 2) + (depth / 4) * (depth / 4)) + 3; // pythagoras
+         x = sqrt((depth / 2) * (depth / 2) + (depth / 2) * (depth / 2)); // pythagoras
         translate([width - gap_witdh, gap_height_e + gap_height, 0])
         rotate([45, 0, -90])
         prism(gap_height_e, x, x);
