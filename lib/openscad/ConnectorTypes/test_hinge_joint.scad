@@ -11,13 +11,13 @@ hole_size = 7/2;
 // the part where ohter connectors go
 gap_witdh = round_size * 2 + 10;
 
-gap_epsilon = 0.6;
+gap_epsilon = 0.8;
 gap_height = 10;
 gap_height_e = gap_height + gap_epsilon;
 
 safety_margin = 10;
 
-cap_end_round = 30;
+cap_end_round = 30 / 2;
 cap_end_heigth = 4;
 
 prism_middle = 10;
@@ -66,10 +66,21 @@ module hingepart(l1, l2, l3, gap, with_cap, solid_top, the_lower_one=false) {
             cylinder(l2 + l3 + safety_margin, hole_size, hole_size);
         }
     }
+    
+    if (gap) {
+        prism_height = 2 * gap_height_e + 2 * gap_height;
+        prims_translate_y = the_lower_one ? prism_height : prism_height - gap_height_e;
+        
          x = sqrt((depth / 2) * (depth / 2) + (depth / 2) * (depth / 2)); // pythagoras
-        translate([width - gap_witdh, gap_height_e + gap_height, 0])
+        translate([width - gap_witdh, prims_translate_y, 0])
         rotate([45, 0, -90])
-        prism(gap_height_e, x, x);
+        prism(prism_height, x, x);
+        
+        
+        translate_help_cube_y = !the_lower_one ? -gap_height_e : 0;
+        translate([-8, translate_help_cube_y, 0]) // TODO
+        cube([gap_witdh, prism_height, depth]);
+    }
 }
 
 
@@ -130,7 +141,7 @@ function optimal_distance_origin(angle) = (
 );
 
 //connection_angle = 60;
-connection_angle = 60;
+connection_angle = 40;
 
 distance_origin = optimal_distance_origin(connection_angle);
 //distance_origin = 5s0;
@@ -162,5 +173,4 @@ b_l3 = elongation_length - b_l1 - b_l2;
 draw_hinge(alpha=connection_angle,
     a_l1=a_l1, a_l2=a_l2, a_l3=a_l3, a_gap=true,
     b_l1=b_l1, b_l2=b_l2, b_l3=b_l3, b_gap=true);  
-    
-    
+        
