@@ -8,7 +8,7 @@ require 'src/thingies/physics_thingy.rb'
 class Link < PhysicsThingy
   attr_accessor :first_joint, :second_joint
   attr_reader :body, :first_elongation_length, :second_elongation_length,
-    :position, :second_position, :loc_up_vec
+    :position, :second_position, :loc_up_vec, :first_node, :second_node
 
   def initialize(first_node, second_node, model_name, id: nil)
     super(id)
@@ -25,6 +25,9 @@ class Link < PhysicsThingy
 
     @first_joint = ThingyFixedJoint.new(first_node)
     @second_joint = ThingyFixedJoint.new(second_node)
+
+    @ext_1_body = nil
+    @ext_2_body = nil
 
     @model = ModelStorage.instance.models[model_name]
     @first_elongation_length = nil
@@ -58,18 +61,18 @@ class Link < PhysicsThingy
   def create_body(world)
     e1, bottles, _, e2 = @sub_thingies
     @body = Simulation.create_body(world, bottles.entity, collision_type: :convex_hull)
-    ext_1_body = Simulation.create_body(world, e1.entity)
-    ext_2_body = Simulation.create_body(world, e2.entity)
+    @ext_1_body = Simulation.create_body(world, e1.entity)
+    @ext_2_body = Simulation.create_body(world, e2.entity)
 
     @body.mass = Simulation::LINK_MASS
     @body.collidable = false
-    [ext_1_body, ext_2_body].each do |body|
+    [@ext_1_body, @ext_2_body].each do |body|
       body.mass = Simulation::ELONGATION_MASS
       body.collidable = false
     end
 
-    joint_to(world, MSPhysics::Fixed, ext_1_body, Geometry::Z_AXIS, solver_model: 1)
-    joint_to(world, MSPhysics::Fixed, ext_2_body, Geometry::Z_AXIS, solver_model: 1)
+    joint_to(world, MSPhysics::Fixed, @ext_1_body, Geometry::Z_AXIS, solver_model: 5)
+    joint_to(world, MSPhysics::Fixed, @ext_2_body, Geometry::Z_AXIS, solver_model: 5)
     update_up_vector
     @body
   end
@@ -84,8 +87,6 @@ class Link < PhysicsThingy
       unless edge.nil?
         if joint_type == ThingyBallJoint
           joint = joint_type.new(edge, mid_point.vector_to(edge.position)).create(world, @body)
-          joint.twist_limits_enabled = true
-          joint.max_twist_angle = 3
         else
           joint_type.new(edge).create(world, @body)
         end
@@ -94,13 +95,13 @@ class Link < PhysicsThingy
   end
 
   def create_joints(world)
-    # create_bottle_joints(world, ThingyBallJoint)
+    # create_bottle_joints(world)
     [@first_joint, @second_joint].each do |joint|
       joint.create(world, @body)
     end
 
-    # Simulation.joint_between(world, MSPhysics::Fixed, ext_1_body, @first_node.thingy.body, Geometry::Z_AXIS)
-    # Simulation.joint_between(world, MSPhysics::Fixed, ext_2_body, @second_node.thingy.body, Geometry::Z_AXIS)
+    joint1 = Simulation.joint_between(world, MSPhysics::Fixed, @ext_1_body, @first_node.thingy.body, Geometry::Z_AXIS, 5)
+    joint2 = Simulation.joint_between(world, MSPhysics::Fixed, @ext_2_body, @second_node.thingy.body, Geometry::Z_AXIS, 5)
   end
 
   def create_ball_joints(world, first_node, second_node)

@@ -20,11 +20,11 @@ class PhysicsThingy < Thingy
     raise NotImplementedError
   end
 
-  def joint_to(world, klass, other_body, pin_direction, group: nil, solver_model: 2)
+  def joint_to(world, klass, other_body, pin_direction, group: nil, solver_model: 16)
     joint_from_to(world, klass, @body, other_body, pin_direction, group: group, solver_model: solver_model)
   end
 
-  def joint_from_to(world, klass, body, other_body, pin_direction, group: nil, solver_model: 2)
+  def joint_from_to(world, klass, body, other_body, pin_direction, group: nil, solver_model: 16)
     matrix = Geom::Transformation.new(joint_position, pin_direction)
     Simulation.joint_between(world,
                              klass,
