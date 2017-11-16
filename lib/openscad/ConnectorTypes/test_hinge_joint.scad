@@ -55,9 +55,9 @@ module hingepart(l1, l2, l3, gap, with_cap, solid_top, the_lower_one=false) {
         }      
         if (gap) {
             // move gap to the middle of the part
-            cut_gap_height = gap_height + gap_epsilon / 2;
+            cut_gap_height = gap_height;
             translate([width - gap_witdh, cut_gap_height, 0])
-            cube([width, gap_height, depth]);
+            cube([width, gap_height_e, depth]);
             
             // cut out the two holes
             translate([width - round_size, 0, depth / 2])
