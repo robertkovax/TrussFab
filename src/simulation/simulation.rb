@@ -316,16 +316,16 @@ class Simulation
   def update_force_label(thingy, force, position)
     color = ColorConverter.get_color_for_force(force)
     thingy.change_color(color)
-    if @force_labels[thingy.body].nil?
-      force_label =
-        Sketchup.active_model.entities.add_text("--------------- #{force.round(1)} ", position)
-        force_label.layer =
-        Sketchup.active_model.layers[Configuration::FORCE_LABEL_VIEW]
-      @force_labels[thingy.body] = force_label
-    else
-      @force_labels[thingy.body].text = "--------------- #{force.round(1)} "
-      @force_labels[thingy.body].point = position
-    end
+    # if @force_labels[thingy.body].nil?
+    #   force_label =
+    #     Sketchup.active_model.entities.add_text("--------------- #{force.round(1)} ", position)
+    #     force_label.layer =
+    #     Sketchup.active_model.layers[Configuration::FORCE_LABEL_VIEW]
+    #   @force_labels[thingy.body] = force_label
+    # else
+    #   @force_labels[thingy.body].text = "--------------- #{force.round(1)} "
+    #   @force_labels[thingy.body].point = position
+    # end
   end
 
   def reset_force_labels()

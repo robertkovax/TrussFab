@@ -7,7 +7,8 @@ require 'src/thingies/physics_thingy.rb'
 
 class Link < PhysicsThingy
   attr_accessor :first_joint, :second_joint
-  attr_reader :body, :first_elongation_length, :second_elongation_length, :position, :second_position, :loc_up_vec
+  attr_reader :body, :first_elongation_length, :second_elongation_length,
+    :position, :second_position, :loc_up_vec
 
   def initialize(first_node, second_node, model_name, id: nil)
     super(id)
@@ -46,17 +47,13 @@ class Link < PhysicsThingy
     Geom::Point3d.linear_combination(0.5, @position, 0.5, @second_position)
   end
 
-  #
-  # Physics methods
-  #
-
   def joint_position
     mid_point
   end
 
-  def add_mass(mass)
-    @mass += mass
-  end
+  #
+  # Physics methods
+  #
 
   def create_body(world)
     e1, bottles, _, e2 = @sub_thingies
@@ -77,14 +74,6 @@ class Link < PhysicsThingy
     @body
   end
 
-  def update_up_vector
-    body_tra = @body.get_matrix
-    glob_up_vec = @loc_up_vec.transform(body_tra)
-    if (second_position - position).dot(glob_up_vec) > 0.0
-      @loc_up_vec.reverse!
-    end
-  end
-
   def create_bottle_joints(world, joint_type = ThingyFixedJoint)
     adjacent_edges = []
     @first_node.incidents.map{|edge| adjacent_edges << edge unless edge.thingy == self}
@@ -94,7 +83,9 @@ class Link < PhysicsThingy
     adjacent_edges.each do |edge|
       unless edge.nil?
         if joint_type == ThingyBallJoint
-          joint_type.new(edge, mid_point.vector_to(edge.position)).create(world, @body)
+          joint = joint_type.new(edge, mid_point.vector_to(edge.position)).create(world, @body)
+          joint.twist_limits_enabled = true
+          joint.max_twist_angle = 3
         else
           joint_type.new(edge).create(world, @body)
         end
@@ -103,15 +94,13 @@ class Link < PhysicsThingy
   end
 
   def create_joints(world)
-    create_bottle_joints(world, ThingyBallJoint)
-
+    # create_bottle_joints(world, ThingyBallJoint)
     [@first_joint, @second_joint].each do |joint|
       joint.create(world, @body)
     end
-  end
 
-  def update_force
-    @body.set_force(0, 0, -@mass)
+    # Simulation.joint_between(world, MSPhysics::Fixed, ext_1_body, @first_node.thingy.body, Geometry::Z_AXIS)
+    # Simulation.joint_between(world, MSPhysics::Fixed, ext_2_body, @second_node.thingy.body, Geometry::Z_AXIS)
   end
 
   def create_ball_joints(world, first_node, second_node)
@@ -128,10 +117,26 @@ class Link < PhysicsThingy
     end
   end
 
+  def add_mass(mass)
+    @mass += mass
+  end
+
   def reset_physics
     super
     [@first_joint, @second_joint].each do |joint|
       joint.joint = nil
+    end
+  end
+
+  def update_force
+    @body.set_force(0, 0, -@mass)
+  end
+
+  def update_up_vector
+    body_tra = @body.get_matrix
+    glob_up_vec = @loc_up_vec.transform(body_tra)
+    if (second_position - position).dot(glob_up_vec) > 0.0
+      @loc_up_vec.reverse!
     end
   end
 
