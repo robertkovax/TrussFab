@@ -7,9 +7,9 @@ class Simulation
 
   # masses in kg
   ELONGATION_MASS = 0.01
-  LINK_MASS = 1
-  PISTON_MASS = 1
-  HUB_MASS = 1
+  LINK_MASS = 0.10
+  PISTON_MASS = 0.10
+  HUB_MASS = 0.10
   POD_MASS = 0.1
 
   DEFAULT_STIFFNESS = 0.999
@@ -17,7 +17,7 @@ class Simulation
   DEFAULT_BREAKING_FORCE = 1_000_000
 
   # velocity in change of length in m/s
-  PISTON_RATE = 0.4
+  PISTON_RATE = 5.0
 
   MSPHYSICS_TIME_STEP = 1.0 / 200
   MSPHYSICS_N_STEPS = ((1.0 / 60) / MSPHYSICS_TIME_STEP).to_i

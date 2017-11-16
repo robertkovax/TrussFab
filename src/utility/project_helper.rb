@@ -47,6 +47,9 @@ module ProjectHelper
     layers.add(Configuration::DRAW_TOOLTIPS_VIEW)
     layers.add(Configuration::TRIANGLE_SURFACES_VIEW)
 
+    hinge_layer = layers.add(Configuration::HINGE_VIEW)
+    hinge_layer.visible = false
+
     hub_id_layer = layers.add(Configuration::HUB_ID_VIEW)
     hub_id_layer.visible = false
 

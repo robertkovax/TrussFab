@@ -8,7 +8,7 @@ require 'src/simulation/thingy_rotation.rb'
 
 class Edge < GraphObject
   attr_reader :first_node, :second_node, :link_type
-  attr_accessor :desired_length, :first_joint, :second_joint
+  attr_accessor :first_joint, :second_joint
 
   def initialize(first_node, second_node, model_name: 'hard', id: nil, link_type: 'bottle_link')
     @first_node = first_node
@@ -95,7 +95,7 @@ class Edge < GraphObject
 
   def mid_point
     p1 = @first_node.position
-    p2 = @first_node.position
+    p2 = @second_node.position
     Geom::Point3d.linear_combination(0.5, p1, 0.5, p2)
   end
 

@@ -10,6 +10,7 @@ module Configuration
   DRAW_TOOLTIPS_VIEW = 'Drawing Tooltips'.freeze
   FORCE_LABEL_VIEW = 'Force Labels'.freeze
   FORCE_VIEW = 'Forces'.freeze
+  HINGE_VIEW = 'Hinge lines'.freeze
 
   # UI Dialog Properties
   HTML_DIALOG = {

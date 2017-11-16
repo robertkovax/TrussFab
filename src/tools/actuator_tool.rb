@@ -22,10 +22,8 @@ class ActuatorTool < Tool
     super
   end
 
-  def onLButtonDown(_flags, x, y, view)
-    @mouse_input.update_positions(view, x, y)
-    edge = @mouse_input.snapped_object
-    return if edge.nil?
+  def change_edge_to_actuator(edge, view)
+
 
     edges_without_selected = edge.connected_component.reject { |e| e == edge }
     if RigidityTester.rigid?(edges_without_selected)
@@ -34,8 +32,8 @@ class ActuatorTool < Tool
       return
     end
 
-    create_actuator(edge, view)
 
+    create_actuator(edge, view)
     edges = edges_without_selected.reject { |e| e.link_type == 'actuator' }
     triangle_pairs = edges.flat_map { |e| valid_triangle_pairs(e) }
     original_angles = triangle_pair_angles(triangle_pairs)
@@ -49,6 +47,14 @@ class ActuatorTool < Tool
     highlight_rotation_axes(rotation_axes)
     add_hinges(changed_triangle_pairs)
     reset_simulation
+
+  end
+
+  def onLButtonDown(_flags, x, y, view)
+    @mouse_input.update_positions(view, x, y)
+    edge = @mouse_input.snapped_object
+    return if edge.nil?
+    change_edge_to_actuator(edge, view)
   end
 
   def onMouseMove(_flags, x, y, view)
@@ -147,6 +153,17 @@ class ActuatorTool < Tool
             rotating_edge.thingy.second_node.remove_joints
             rotating_edge.thingy.second_joint = hinge
           end
+
+          # Draw hinge visualization
+          help_point = Geom::Point3d.linear_combination(0.7, node.position, 0.3, rotation_axis.mid_point)
+          starting_point = Geom::Point3d.linear_combination(0.7, node.position, 0.3, rotating_edge.mid_point)
+          mid_point = Geom::Point3d.linear_combination(0.3, starting_point, 0.7, help_point)
+          end_point = Geom::Point3d.linear_combination(0.7, mid_point, 0.3, rotation_axis.mid_point)
+
+          line1 = Line.new(starting_point, mid_point, HINGE_LINE)
+          line2 = Line.new(mid_point, end_point, HINGE_LINE)
+
+          rotating_edge.thingy.add(line1, line2)
         end
       end
     end

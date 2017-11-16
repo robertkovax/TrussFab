@@ -170,7 +170,7 @@ class Link < PhysicsThingy
 
     add(first_elongation,
         BottleLink.new(link_position, direction, shortest_model),
-        Line.new(@position, @second_position),
+        Line.new(@position, @second_position, LINK_LINE),
         second_elongation)
   end
 end
