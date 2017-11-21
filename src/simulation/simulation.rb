@@ -252,17 +252,9 @@ class Simulation
     halt
     reset_positions if reset_positions_on_end?
     show_triangle_surfaces if @triangles_hidden
-    <<<<<<< Updated upstream
     reset_force_color
     reset_force_labels
-=======
-      <<<<<<< Updated upstream
-=======
-      reset_force_color
-    reset_force_labels
     @moving_pistons.clear
-    >>>>>>> Stashed changes
-    >>>>>>> Stashed changes
     destroy_world
   end
 
