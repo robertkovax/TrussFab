@@ -90,8 +90,6 @@ class Simulation
     @ground_group = nil
     @force_labels = {}
     @edges = []
-    @force_labels = {}
-    @edges = []
     @moving_pistons = []
   end
 
