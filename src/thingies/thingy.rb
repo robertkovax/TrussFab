@@ -35,12 +35,8 @@ class Thingy
     #     mat.color = color
     #     mat.alpha = 1.0
     #     @entity.material = mat
-    #     p "boop"
-    #     p Sketchup.active_model.materials.length
-    #     p "/boop"
     #   else
     #     @entity.material.color = color
-    #     p Sketchup.active_model.materials.length
     #   end
     # end
     @sub_thingies.each {|thingy| thingy.change_color(color)}
