@@ -90,6 +90,9 @@ class Simulation
     @ground_group = nil
     @force_labels = {}
     @edges = []
+    @force_labels = {}
+    @edges = []
+    @moving_pistons = []
   end
 
   #
@@ -163,7 +166,7 @@ class Simulation
   def add_ground
     @ground_group = Sketchup.active_model.entities.add_group
     x = y = 10_000
-    z = -1
+    z = -2
     pts = []
     pts[0] = [-x, -y, z]
     pts[1] = [x, -y, z]
@@ -192,8 +195,27 @@ class Simulation
     @dialog.add_action_callback('change_piston') do |_context, id, value|
       value = value.to_f
       id = id.to_i
+      @moving_pistons.push({:id=>id, :expanding=>true, :speed=>0.001})
       @pistons[id].controller = value
     end
+  end
+
+  def move_pistons
+    return if @moving_pistons.nil?
+    @moving_pistons.map! { |hash|
+
+      unless (@pistons[hash[:id]].controller - @pistons[hash[:id]].cur_position).abs > 0.1
+        @pistons[hash[:id]].controller += (hash[:expanding] ? hash[:speed] : -hash[:speed])
+        if @pistons[hash[:id]].controller >= Configuration::MAX_PISTON_HUB
+          hash[:expanding] = false
+        elsif @pistons[hash[:id]].controller <= Configuration::MIN_PISTON_HUB
+          hash[:expanding] = true
+        end
+      end
+
+      hash[:speed] += 0.0001
+      hash
+    }
   end
 
   def hide_triangle_surfaces
@@ -230,8 +252,17 @@ class Simulation
     halt
     reset_positions if reset_positions_on_end?
     show_triangle_surfaces if @triangles_hidden
+    <<<<<<< Updated upstream
     reset_force_color
     reset_force_labels
+=======
+      <<<<<<< Updated upstream
+=======
+      reset_force_color
+    reset_force_labels
+    @moving_pistons.clear
+    >>>>>>> Stashed changes
+    >>>>>>> Stashed changes
     destroy_world
   end
 
@@ -277,6 +308,7 @@ class Simulation
     end
 
     show_forces(view)
+    move_pistons
 
     view.show_frame
     @running
@@ -296,53 +328,107 @@ class Simulation
     Sketchup.active_model.start_operation('Change Materials', true)
     Graph.instance.edges.values.each do |edge|
       show_force(edge.thingy, view)
+      Sketchup.active_model.commit_operation
     end
-    Sketchup.active_model.commit_operation
-  end
 
-  def show_force(thingy, view)
-    return if thingy.body.nil?
+    def show_force(thingy, view)
+      return if thingy.body.nil?
 
-    body_orientation = thingy.body.get_matrix
-    glob_up_vec = thingy.loc_up_vec.transform(body_orientation)
+      body_orientation = thingy.body.get_matrix
+      glob_up_vec = thingy.loc_up_vec.transform(body_orientation)
 
-    f1 = thingy.first_joint.joint.get_tension1
-    f2 = thingy.second_joint.joint.get_tension1
-    lin_force = (f2 - f1).dot(glob_up_vec)
+      f1 = thingy.first_joint.joint.get_tension1
+      f2 = thingy.second_joint.joint.get_tension1
+      lin_force = (f2 - f1).dot(glob_up_vec)
 
-    position = thingy.body.get_position(1)
-    visualize_force(thingy, lin_force)
-    # \note(tim): this has a huge performance impact. We may have to think about
-    # only showing the highest force or omit some values that are uninteresting
-    # Commented out for now in order to keep the simulation running quickly.
-    # update_force_label(thingy, lin_force, position)
-  end
+      position = thingy.body.get_position(1)
+      visualize_force(thingy, lin_force)
+      # \note(tim): this has a huge performance impact. We may have to think about
+      # only showing the highest force or omit some values that are uninteresting
+      # Commented out for now in order to keep the simulation running quickly.
+      # update_force_label(thingy, lin_force, position)
+    end
 
-  def visualize_force(thingy, force)
-    color = ColorConverter.get_color_for_force(force)
-    thingy.change_color(color)
-  end
+    def visualize_force(thingy, force)
+      color = ColorConverter.get_color_for_force(force)
+      thingy.change_color(color)
+      Sketchup.active_model.start_operation('Change Materials', true)
+      Graph.instance.edges.values.each do |edge|
+        show_force(edge.thingy, view)
+      end
+      Sketchup.active_model.commit_operation
+    end
 
-  def update_force_label(thingy, force, position)
-    if @force_labels[thingy.body].nil?
-      force_label =
-        Sketchup.active_model.entities.add_text("--------------- #{force.round(1)} ", position)
-        force_label.layer =
-        Sketchup.active_model.layers[Configuration::FORCE_LABEL_VIEW]
-      @force_labels[thingy.body] = force_label
-    else
-      @force_labels[thingy.body].text = "--------------- #{force.round(1)} "
-      @force_labels[thingy.body].point = position
+    def show_force(thingy, view)
+      return if thingy.body.nil?
+
+      body_orientation = thingy.body.get_matrix
+      glob_up_vec = thingy.loc_up_vec.transform(body_orientation)
+
+      f1 = thingy.first_joint.joint.get_tension1
+      f2 = thingy.second_joint.joint.get_tension1
+      lin_force = (f2 - f1).dot(glob_up_vec)
+
+      position = thingy.body.get_position(1)
+      visualize_force(thingy, lin_force)
+      if lin_force.abs > 10000
+        update_force_label(thingy, lin_force, position)
+        stop
+      end
+      # \note(tim): this has a huge performance impact. We may have to think about
+      # only showing the highest force or omit some values that are uninteresting
+      # Commented out for now in order to keep the simulation running quickly.
+      # update_force_label(thingy, lin_force, position)
+    end
+
+    def visualize_force(thingy, force)
+      color = ColorConverter.get_color_for_force(force)
+      thingy.change_color(color)
+    end
+
+    def update_force_label(thingy, force, position)
+      if @force_labels[thingy.body].nil?
+        force_label =
+          Sketchup.active_model.entities.add_text("--------------- #{force.round(1)} ", position)
+          force_label.layer =
+          Sketchup.active_model.layers[Configuration::FORCE_LABEL_VIEW]
+        @force_labels[thingy.body] = force_label
+      else
+        @force_labels[thingy.body].text = "--------------- #{force.round(1)} "
+        @force_labels[thingy.body].point = position
+      end
+    end
+
+    def reset_force_color
+      Graph.instance.edges.values.each do |edge|
+        edge.thingy.un_highlight
+      end
+    end
+
+    def reset_force_labels
+      # @force_labels.each {|body, label| label.text = "" }
+    end
+
+    def update_force_label(thingy, force, position)
+      if @force_labels[thingy.body].nil?
+        force_label =
+          Sketchup.active_model.entities.add_text("--------------- #{force.round(1)} ", position)
+          force_label.layer =
+          Sketchup.active_model.layers[Configuration::FORCE_LABEL_VIEW]
+        @force_labels[thingy.body] = force_label
+      else
+        @force_labels[thingy.body].text = "--------------- #{force.round(1)} "
+        @force_labels[thingy.body].point = position
+      end
+    end
+
+    def reset_force_color
+      Graph.instance.edges.values.each do |edge|
+        edge.thingy.un_highlight
+      end
+    end
+
+    def reset_force_labels
+      @force_labels.each {|body, label| label.text = "" }
     end
   end
-
-  def reset_force_color
-    Graph.instance.edges.values.each do |edge|
-      edge.thingy.un_highlight
-    end
-  end
-
-  def reset_force_labels
-    @force_labels.each {|body, label| label.text = "" }
-  end
-end
