@@ -66,8 +66,10 @@ class Link < PhysicsThingy
       body.collidable = false
     end
 
-    joint_to(world, MSPhysics::Fixed, ext_1_body, Geometry::Z_AXIS, solver_model: 5)
-    joint_to(world, MSPhysics::Fixed, ext_2_body, Geometry::Z_AXIS, solver_model: 5)
+    joint_to(world, MSPhysics::Fixed, ext_1_body, Geometry::Z_AXIS,
+             solver_model: Configuration::SOLVER_MODEL)
+    joint_to(world, MSPhysics::Fixed, ext_2_body, Geometry::Z_AXIS,
+             solver_model: Configuration::SOLVER_MODEL)
     update_up_vector
     @body
   end

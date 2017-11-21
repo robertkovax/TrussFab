@@ -12,6 +12,9 @@ class Simulation
   HUB_MASS = 1
   POD_MASS = 0.1
 
+  # if this is 1.0, for some reason, there is no "dampening" in movement, but
+  # all movement is accumulated until the whole structure breaks
+  # 0.9993 was the "stiffest" value that didn't break the object
   DEFAULT_STIFFNESS = 0.9993
   DEFAULT_FRICTION = 1.0
   DEFAULT_BREAKING_FORCE = 1_000_000
@@ -309,6 +312,9 @@ class Simulation
 
     position = thingy.body.get_position(1)
     visualize_force(thingy, lin_force)
+    # \note(tim): this has a huge performance impact. We may have to think about
+    # only showing the highest force or omit some values that are uninteresting
+    # Commented out for now in order to keep the simulation running quickly.
     # update_force_label(thingy, lin_force, position)
   end
 

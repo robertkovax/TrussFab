@@ -92,4 +92,9 @@ module Configuration
   # Behavioural constants
   SNAP_TOLERANCE = 200.mm.freeze
   INTERSECTION_OFFSET = 200.mm.freeze
+
+  # this constant defines how accurate the joints are calculated.
+  # 0: Most accurate (VERY slow. We probably don't want to use it in interactive mode)
+  # 1 - 64: Less accurate, but faster
+  SOLVER_MODEL = 5
 end
