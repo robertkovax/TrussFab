@@ -53,14 +53,22 @@ module ProjectHelper
     hub_id_layer = layers.add(Configuration::HUB_ID_VIEW)
     hub_id_layer.visible = false
 
-    # layers.add Configuration::FORCE_VIEW
-    # force_label_layer = layers.add Configuration::FORCE_LABEL_VIEW
+    layers.add Configuration::FORCE_VIEW
+    force_label_layer = layers.add Configuration::FORCE_LABEL_VIEW
     # force_label_layer.visible = false
   end
 
   def self.setup_surface_materials
     material = Sketchup.active_model.materials.add('standard_material')
     material.color = Configuration::STANDARD_COLOR
+    material.alpha = 1
+
+    material = Sketchup.active_model.materials.add('bottle_material')
+    material.color = Configuration::BOTTLE_COLOR
+    material.alpha = 0.65
+
+    material = Sketchup.active_model.materials.add('actuator_material')
+    material.color = Configuration::ACTUATOR_COLOR
     material.alpha = 1
 
     material = Sketchup.active_model.materials.add('surface_material')

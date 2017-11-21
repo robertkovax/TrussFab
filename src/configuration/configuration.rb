@@ -8,6 +8,8 @@ module Configuration
   HUB_ID_VIEW = 'Hub IDs'.freeze
   TRIANGLE_SURFACES_VIEW = 'Triangle Surfaces'.freeze
   DRAW_TOOLTIPS_VIEW = 'Drawing Tooltips'.freeze
+  FORCE_LABEL_VIEW = 'Force Labels'.freeze
+  FORCE_VIEW = 'Forces'.freeze
   HINGE_VIEW = 'Hinge lines'.freeze
 
   # UI Dialog Properties
@@ -78,8 +80,10 @@ module Configuration
   ].freeze
 
   STANDARD_COLOR = [0.5, 0.5, 0.5].freeze
-  HIGHLIGHT_COLOR = [1, 1, 1].freeze
-  SURFACE_COLOR = [1, 1, 1].freeze
+  BOTTLE_COLOR = [114, 183,  99].freeze
+  ACTUATOR_COLOR = [1.0, 1.0, 1.0].freeze
+  HIGHLIGHT_COLOR = [1.0, 1.0, 1.0].freeze
+  SURFACE_COLOR = [1.0, 1.0, 1.0].freeze
   SURFACE_HIGHLIGHT_COLOR = [0.5, 0.5, 0.5].freeze
   HUB_COLOR = [0.69, 0.75, 0.81].freeze
   ELONGATION_COLOR = [0.69, 0.75, 0.81].freeze

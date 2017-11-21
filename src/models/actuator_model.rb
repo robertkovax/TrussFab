@@ -2,7 +2,7 @@ require 'src/configuration/configuration.rb'
 
 class ActuatorModel
 
-  attr_reader :length, :inner_cylinder, :outer_cylinder
+  attr_reader :length, :inner_cylinder, :outer_cylinder, :material
 
   def initialize
     @length = 688.mm
@@ -10,6 +10,7 @@ class ActuatorModel
     @up_vector = Geom::Vector3d.new(0, 0, 1).normalize!
     @inner_cylinder = create_cylinder('inner_piston_cylinder', 0.5)
     @outer_cylinder = create_cylinder('outer_piston_cylinder', 1)
+    @material = Sketchup.active_model.materials['actuator_material']
   end
 
   def create_cylinder(name, diameter)
