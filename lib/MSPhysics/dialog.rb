@@ -34,7 +34,7 @@ module MSPhysics
     @body_internal_joints = {}
     @body_connected_joints = {}
     @geared_joints = {}
-    @selection_observer = nil
+    @app_observer = nil
     @border_size = [0,0]
     @dialog_help_box = DEFAULT_DIALOG_HELP_BOX
     @dialog_scale = DEFAULT_DIALOG_SCALE
@@ -54,7 +54,7 @@ module MSPhysics
       # Update state of all UI.
       # @return [void]
       def update_state
-        return unless self.open?
+        return if @dialog.nil? || !@init_called
         # Simulation dialog
         update_simulation_state
         # Joint dialog
@@ -86,7 +86,9 @@ module MSPhysics
       # Update UI simulation tab.
       # @return [void]
       def update_simulation_state
-        return unless self.open?
+        return if @dialog.nil? || !@init_called
+        model = Sketchup.active_model
+        return unless model
         cmd = ''
         cmd << "$('#simulation-animate_scenes_state').val('#{MSPhysics::Settings.animate_scenes_state}');"
         cmd << "$('#simulation-animate_scenes_state').trigger('chosen:updated');"
@@ -126,7 +128,9 @@ module MSPhysics
 
       # @return [void]
       def update_simulation_sliders
-        return unless self.open?
+        return if @dialog.nil? || !@init_called
+        model = Sketchup.active_model
+        return unless model
         cmd = ''
         cmd << "if (g_kns_velocity != null) { g_kns_velocity.setValue(#{MSPhysics::Settings.key_nav_velocity}); };"
         cmd << "if (g_kns_omega != null) { g_kns_omega.setValue(#{MSPhysics::Settings.key_nav_omega}); };"
@@ -138,8 +142,9 @@ module MSPhysics
       # Update UI properties tab.
       # @return [void]
       def update_body_state
-        return unless self.open?
+        return if @dialog.nil? || !@init_called
         model = Sketchup.active_model
+        return unless model
         bodies = []
         model.selection.each { |ent|
           next unless ent.is_a?(Sketchup::Group) || ent.is_a?(Sketchup::ComponentInstance)
@@ -386,8 +391,9 @@ module MSPhysics
       # Update UI joint tab.
       # @return [void]
       def update_joint_state
-        return unless self.open?
+        return if @dialog.nil? || !@init_called
         model = Sketchup.active_model
+        return unless model
         joints = []
         model.selection.each { |ent|
           next unless ent.is_a?(Sketchup::Group) || ent.is_a?(Sketchup::ComponentInstance)
@@ -821,8 +827,9 @@ module MSPhysics
       # Update UI sound tab.
       # @return [void]
       def update_sound_state
-        return unless self.open?
+        return if @dialog.nil? || !@init_called
         model = Sketchup.active_model
+        return unless model
         cmd = ""
         cmd << "$('#sound-list').empty();"
         dict = model.attribute_dictionary('MSPhysics Sounds', false)
@@ -1079,7 +1086,7 @@ module MSPhysics
                 @border_size.x = 2
                 @border_size.y = 24
               end
-              Sketchup.active_model.selection.add_observer(@selection_observer)
+              @app_observer.selection_observer_active = true
             end
             execute_js("set_viewport_scale(#{@dialog_scale}); g_use_webdialog = #{!USE_HTML_DIALOG};")
             update_state
@@ -1097,17 +1104,30 @@ module MSPhysics
           }
           @dialog.add_action_callback('open_link') { |acs, params|
             dir = File.dirname(__FILE__)
+            intro = 'file:///'
             if params == 'http://mspdoc/index'
               fpath = File.join(dir, 'doc/index.html')
-              fpath = "http://www.rubydoc.info/github/AntonSynytsia/MSPhysics/master/index" unless File.exist?(fpath)
+              if File.exist?(fpath)
+                fpath = intro + File.expand_path(fpath)
+              else
+                fpath = "http://www.rubydoc.info/github/AntonSynytsia/MSPhysics/master/index"
+              end
             elsif params == 'http://amsdoc/index'
               fpath = File.join(dir, '../ams_Lib/doc/index.html')
-              fpath = "http://www.rubydoc.info/github/AntonSynytsia/AMS-Library/master/index" unless File.exist?(fpath)
+              if File.exist?(fpath)
+                fpath = intro + File.expand_path(fpath)
+              else
+                fpath = "http://www.rubydoc.info/github/AntonSynytsia/AMS-Library/master/index"
+              end
             elsif params == 'http://rubydoc/index'
               fpath = "http://ruby-doc.org/core-#{RUBY_VERSION}/"
             elsif params == 'http://mspdoc/controller'
               fpath = File.join(dir, 'doc/file.ControllersOverview.html')
-              fpath = "http://www.rubydoc.info/github/AntonSynytsia/MSPhysics/master/file/ControllersOverview.md" unless File.exist?(fpath)
+              if File.exist?(fpath)
+                fpath = intro + File.expand_path(fpath)
+              else
+                fpath = "http://www.rubydoc.info/github/AntonSynytsia/MSPhysics/master/file/RubyExtension/MSPhysics/ControllersOverview.md"
+              end
             else
               fpath = params
             end
@@ -1736,12 +1756,12 @@ module MSPhysics
               jdata = @body_internal_joints[fid]
               if jdata && jdata[0] && jdata[0].valid?
                 @selected_joint = jdata[0]
-                @selection_observer.enabled = false
+                @app_observer.selection_observer_active = false
                 sel = Sketchup.active_model.selection
                 sel.clear
                 sel.add(@selected_body) if @selected_body && @selected_body.valid?
                 sel.add(@selected_joint)
-                @selection_observer.enabled = true
+                @app_observer.selection_observer_active = true
                 update_joint_state
                 execute_js("setTimeout(function() { update_placement(4, true); }, 200);")
               end
@@ -1750,12 +1770,12 @@ module MSPhysics
               jdata = @body_connected_joints[fid]
               if jdata && jdata[0] && jdata[0].valid?
                 @selected_joint = jdata[0]
-                @selection_observer.enabled = false
+                @app_observer.selection_observer_active = false
                 sel = Sketchup.active_model.selection
                 sel.clear
                 sel.add(@selected_body) if @selected_body && @selected_body.valid?
                 sel.add(@selected_joint)
-                @selection_observer.enabled = true
+                @app_observer.selection_observer_active = true
                 update_joint_state
                 execute_js("setTimeout(function() { update_placement(4, true); }, 200);")
               end
@@ -1764,12 +1784,12 @@ module MSPhysics
               joint = @geared_joints[fid]
               if joint && joint.valid?
                 @selected_joint = joint
-                @selection_observer.enabled = false
+                @app_observer.selection_observer_active = false
                 sel = Sketchup.active_model.selection
                 sel.clear
                 sel.add(@selected_body) if @selected_body && @selected_body.valid?
                 sel.add(@selected_joint)
-                @selection_observer.enabled = true
+                @app_observer.selection_observer_active = true
                 update_joint_state
                 execute_js("setTimeout(function() { update_placement(4, true); }, 200);")
               end
@@ -1794,7 +1814,7 @@ module MSPhysics
             @active_tab = 1
             @activated_value = nil
             @selected_sound = nil
-            Sketchup.active_model.selection.remove_observer(@selection_observer)
+            @app_observer.selection_observer_active = false
             false
           }
           if USE_HTML_DIALOG
@@ -1826,10 +1846,10 @@ module MSPhysics
         AMS.validate_type(error, MSPhysics::ScriptException)
         return false unless error.entity.valid?
         model = Sketchup.active_model
-        @selection_observer.enabled = false
+        @app_observer.selection_observer_active = false
         model.selection.clear
         model.selection.add(error.entity)
-        @selection_observer.enabled = true
+        @app_observer.selection_observer_active = true
         @last_active_body_tab = 3
         msg = "setTimeout(function() { update_placement(3, true); }, 100);"
         msg << "setTimeout(function() { editor_set_cursor(#{error.line}, 0); editor_select_current_line(); }, 200);" if error.line
@@ -1934,14 +1954,14 @@ module MSPhysics
       end
 
       # @!visibility private
-      def selection_observer
-        @selection_observer
+      def app_observer
+        @app_observer
       end
 
       # @!visibility private
       def init
-        @selection_observer = MSPhysics::Dialog::SelectionObserver.new
-        Sketchup.add_observer(MSPhysics::Dialog::AppObserver.new)
+        @app_observer = MSPhysics::Dialog::AppObserver.new
+        ::Sketchup.add_observer(@app_observer)
         MSPhysics::Dialog.load_editor_settings
       end
 
@@ -1951,37 +1971,34 @@ module MSPhysics
     class SelectionObserver < ::Sketchup::SelectionObserver
 
       def initialize
-        @enabled = true
         @selection_changed = false
+        @id = nil
       end
 
-      def enabled?
-        @enabled
-      end
-
-      def enabled=(state)
-        @enabled = state ? true : false
+      def update_selection
+        return if MSPhysics::Simulation.active?
+        @selection_changed = true
+        return if @id
+        @id = ::UI.start_timer(0.05, false) {
+          ::UI.stop_timer(@id)
+          @id = nil
+          if @selection_changed
+            @selection_changed = false
+            MSPhysics::Dialog.update_state
+          end
+        }
       end
 
       def onSelectionBulkChange(sel)
-        return if !@enabled || MSPhysics::Simulation.active?
-        @selection_changed = true
-        MSPhysics::Dialog.update_state
+        update_selection
       end
 
       def onSelectionAdded(sel, entity)
-        return if !@enabled || MSPhysics::Simulation.active?
-        @selection_changed = true
-        MSPhysics::Dialog.update_state
+        update_selection
       end
 
       def onSelectionCleared(sel)
-        return if !@enabled || MSPhysics::Simulation.active?
-        @selection_changed = false
-        id = ::UI.start_timer(0.1, false) {
-          ::UI.stop_timer(id)
-          MSPhysics::Dialog.update_state unless @selection_changed
-        }
+        update_selection
       end
 
     end # class SelectionObserver
@@ -1989,18 +2006,52 @@ module MSPhysics
     # @!visibility private
     class AppObserver < ::Sketchup::AppObserver
 
+      def initialize
+        @selection_observer = MSPhysics::Dialog::SelectionObserver.new
+        @models = {}
+        @models[::Sketchup.active_model] = false
+        @active = false
+      end
+
+      attr_reader :selection_observer
+
+      def selection_observer_active=(bactive)
+        @active = bactive ? true : false
+        @models.reject! { |model, state|
+          next true unless model.valid?
+          next false if state == @active
+          if @active
+            model.selection.add_observer(@selection_observer)
+          else
+            model.selection.remove_observer(@selection_observer)
+          end
+          @models[model] = @active
+          false
+        }
+      end
+
+      def selection_observer_active?
+        @active
+      end
+
+      def onActivateModel(model)
+        MSPhysics::Dialog.update_state if @active
+      end
+
       def onNewModel(model)
-        if MSPhysics::Dialog.open?
-          model.selection.add_observer(MSPhysics::Dialog.selection_observer)
+        if @active
+          model.selection.add_observer(@selection_observer)
           MSPhysics::Dialog.update_state
         end
+        @models[model] = @active
       end
 
       def onOpenModel(model)
-        if MSPhysics::Dialog.open?
-          model.selection.add_observer(MSPhysics::Dialog.selection_observer)
+        if @active
+          model.selection.add_observer(@selection_observer)
           MSPhysics::Dialog.update_state
         end
+        @models[model] = @active
       end
 
       def onQuit

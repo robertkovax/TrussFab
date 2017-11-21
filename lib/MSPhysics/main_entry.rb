@@ -1,5 +1,4 @@
-require 'sketchup.rb'
-require 'extensions.rb'
+require 'MSPhysics.rb'
 
 tload_me = true
 
