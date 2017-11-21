@@ -67,9 +67,9 @@ class Link < PhysicsThingy
     end
 
     joint_to(world, MSPhysics::Fixed, ext_1_body, Geometry::Z_AXIS,
-             solver_model: Configuration::SOLVER_MODEL)
+             solver_model: Configuration::SOLVER_MODEL_ELONGATIONS)
     joint_to(world, MSPhysics::Fixed, ext_2_body, Geometry::Z_AXIS,
-             solver_model: Configuration::SOLVER_MODEL)
+             solver_model: Configuration::SOLVER_MODEL_ELONGATIONS)
     update_up_vector
     @body
   end

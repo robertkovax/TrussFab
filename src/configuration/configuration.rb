@@ -96,5 +96,8 @@ module Configuration
   # this constant defines how accurate the joints are calculated.
   # 0: Most accurate (VERY slow. We probably don't want to use it in interactive mode)
   # 1 - 64: Less accurate, but faster
-  SOLVER_MODEL = 5
+  # \note(tim): Right now, there is no real science behind those values. I just
+  # => used what worked best. ¯\_(ツ)_/¯
+  SOLVER_MODEL_ELONGATIONS = 5
+  SOLVER_MODEL = 16
 end
