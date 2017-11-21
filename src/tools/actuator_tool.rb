@@ -147,10 +147,8 @@ class ActuatorTool < Tool
           node.remove_joints
           hinge = ThingyHinge.new(node, rotation)
           if rotating_edge.first_node?(node)
-            rotating_edge.thingy.first_node.remove_joints
             rotating_edge.thingy.first_joint = hinge
           else
-            rotating_edge.thingy.second_node.remove_joints
             rotating_edge.thingy.second_joint = hinge
           end
 

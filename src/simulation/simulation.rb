@@ -17,7 +17,7 @@ class Simulation
   DEFAULT_BREAKING_FORCE = 1_000_000
 
   # velocity in change of length in m/s
-  PISTON_RATE = 5.0
+  PISTON_RATE = 1.0
 
   MSPHYSICS_TIME_STEP = 1.0 / 200
   MSPHYSICS_N_STEPS = ((1.0 / 60) / MSPHYSICS_TIME_STEP).to_i
@@ -227,6 +227,7 @@ class Simulation
     halt
     reset_positions if reset_positions_on_end?
     show_triangle_surfaces if @triangles_hidden
+    reset_force_color
     reset_force_labels
     destroy_world
   end
@@ -310,25 +311,35 @@ class Simulation
     lin_force = (f2 - f1).dot(glob_up_vec)
 
     position = thingy.body.get_position(1)
-    update_force_label(thingy, lin_force, position)
+    visualize_force(thingy, lin_force)
+    # update_force_label(thingy, lin_force, position)
+  end
+
+  def visualize_force(thingy, force)
+    color = ColorConverter.get_color_for_force(force)
+    thingy.change_color(color)
   end
 
   def update_force_label(thingy, force, position)
-    color = ColorConverter.get_color_for_force(force)
-    thingy.change_color(color)
-    # if @force_labels[thingy.body].nil?
-    #   force_label =
-    #     Sketchup.active_model.entities.add_text("--------------- #{force.round(1)} ", position)
-    #     force_label.layer =
-    #     Sketchup.active_model.layers[Configuration::FORCE_LABEL_VIEW]
-    #   @force_labels[thingy.body] = force_label
-    # else
-    #   @force_labels[thingy.body].text = "--------------- #{force.round(1)} "
-    #   @force_labels[thingy.body].point = position
-    # end
+    if @force_labels[thingy.body].nil?
+      force_label =
+        Sketchup.active_model.entities.add_text("--------------- #{force.round(1)} ", position)
+        force_label.layer =
+        Sketchup.active_model.layers[Configuration::FORCE_LABEL_VIEW]
+      @force_labels[thingy.body] = force_label
+    else
+      @force_labels[thingy.body].text = "--------------- #{force.round(1)} "
+      @force_labels[thingy.body].point = position
+    end
   end
 
-  def reset_force_labels()
+  def reset_force_color
+    Graph.instance.edges.values.each do |edge|
+      edge.thingy.un_highlight
+    end
+  end
+
+  def reset_force_labels
     @force_labels.each {|body, label| label.text = "" }
   end
 end
