@@ -1,8 +1,9 @@
 require 'src/tools/tool.rb'
-require 'src/algorithms/relaxation.rb'
+require 'src/algorithms/automatic_actuators.rb'
 require 'src/utility/mouse_input.rb'
+require 'src/tools/actuator_tool.rb'
 
-class MoveTool < Tool
+class AutomaticActuatorsTool < Tool
   LINE_STIPPLE = '_'.freeze
 
   def initialize(ui)
@@ -65,19 +66,24 @@ class MoveTool < Tool
     snapped_node = nil if snapped_node == @start_node
 
     Sketchup.active_model.start_operation('move node and relax', true)
-    relaxation = Relaxation.new
+    automatic_actuators = AutomaticActuators.new
 
     end_move_position = @end_position
     unless snapped_node.nil?
       # TODO: This is not working. For me, it is not even clear
       # what should be done in this case
-      relaxation.fix_node(snapped_node)
+      automatic_actuators.fix_node(snapped_node)
       @start_node.merge_into(snapped_node)
       end_move_position = snapped_node.position
     end
 
-    relaxation.move_and_fix_node(@start_node, end_move_position)
-    relaxation.relax
+    automatic_actuators.move_and_fix_node(@start_node, end_move_position)
+    omitted_edge = automatic_actuators.relax
+
+    # TODO: This is quite hacky. Fix it by properly refactoring the actuator tool.
+    a_tool = ActuatorTool.new @ui
+    a_tool.change_edge_to_actuator(omitted_edge, view)
+
     view.invalidate
     Sketchup.active_model.commit_operation
 
