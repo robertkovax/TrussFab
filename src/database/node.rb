@@ -12,7 +12,6 @@ class Node < GraphObject
     @position = position
     @incidents = []             # connected edges
     @adjacent_triangles = []    # connected triangles
-    @related_joints = []        # joints between edges belonging to this node
     @pod_directions = {}
     @pod_constraints = {}
     super(id)
@@ -53,18 +52,6 @@ class Node < GraphObject
 
   def add_incident(edge)
     @incidents << edge
-  end
-
-  def add_joint(joint)
-    return if joint.nil?
-    @related_joints << joint
-  end
-
-  def remove_joints
-    @related_joints.each do |joint|
-      joint = nil
-    end
-    @related_joints.clear
   end
 
   def add_adjacent_triangle(triangle)

@@ -144,7 +144,6 @@ class ActuatorTool < Tool
         (triangle.edges - [rotation_axis]).each do |rotating_edge|
           rotation = EdgeRotation.new(rotation_axis)
           node = rotating_edge.shared_node(rotation_axis)
-          node.remove_joints
           hinge = ThingyHinge.new(node, rotation)
           if rotating_edge.first_node?(node)
             rotating_edge.thingy.first_joint = hinge
