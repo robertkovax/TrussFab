@@ -273,10 +273,7 @@ class Simulation
       set_status_text
     end
 
-    # if @frame % 4 == 0
     show_forces(view)
-    # end
-
 
     view.show_frame
     @running

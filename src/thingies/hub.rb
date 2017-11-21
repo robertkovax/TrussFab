@@ -50,10 +50,6 @@ class Hub < PhysicsThingy
     @mass += mass
   end
 
-  def update_force
-    @body.set_force(0, 0, -@mass)
-  end
-
   def create_body(world)
     @body = Simulation.create_body(world, @entity, collision_type: :sphere)
     @body.collidable = true
@@ -61,9 +57,8 @@ class Hub < PhysicsThingy
     @body.auto_sleep_enabled = false
     pods.each do |pod|
       pod_body = pod.create_body(world)
-      joint = joint_to(world, MSPhysics::Fixed, pod_body, pod.direction, solver_model: 1)
+      joint_to(world, MSPhysics::Fixed, pod_body, pod.direction, solver_model: 1)
     end
-    update_force
     @body
   end
 

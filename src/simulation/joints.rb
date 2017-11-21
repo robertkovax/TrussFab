@@ -1,7 +1,7 @@
 require 'src/utility/geometry'
 
 class ThingyJoint
-  attr_accessor :joint, :node
+  attr_accessor :joint
 
   def initialize(node, joint_class = nil)
     @node = node

@@ -18,8 +18,6 @@ class Link < PhysicsThingy
     # the vector pointing along the length of the bottle
     @loc_up_vec = Geom::Vector3d.new(0, 0, -1)
 
-    @mass = 0
-
     @first_node = first_node
     @second_node = second_node
 
@@ -92,19 +90,11 @@ class Link < PhysicsThingy
     end
   end
 
-  def add_mass(mass)
-    @mass += mass
-  end
-
   def reset_physics
     super
     [@first_joint, @second_joint].each do |joint|
       joint.joint = nil
     end
-  end
-
-  def update_force
-    @body.set_force(0, 0, -@mass)
   end
 
   def update_up_vector
