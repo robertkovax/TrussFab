@@ -68,18 +68,19 @@ module hingepart(l1, l2, l3, gap, with_cap, solid_top, the_lower_one=false) {
     }
     
     if (gap) {
-        prism_height = 2 * gap_height_e + 2 * gap_height;
-        prims_translate_y = the_lower_one ? prism_height : prism_height - gap_height_e;
+//        prism_height = 2 * gap_height_e + 2 * gap_height;
+        prism_height = 1 * gap_height_e + 3 * gap_height;
+        prism_translate_x = width - gap_witdh;
+        prism_translate_y = the_lower_one ? prism_height : prism_height - gap_height;
         
          x = sqrt((depth / 2) * (depth / 2) + (depth / 2) * (depth / 2)); // pythagoras
-        translate([width - gap_witdh, prims_translate_y, 0])
+        translate([prism_translate_x, prism_translate_y, 0])
         rotate([45, 0, -90])
         prism(prism_height, x, x);
         
-        
         translate_help_cube_y = !the_lower_one ? -gap_height_e : 0;
-        translate([-8, translate_help_cube_y, 0]) // TODO
-        cube([gap_witdh, prism_height, depth]);
+        translate([0, translate_help_cube_y, 0])
+        cube([prism_translate_x, prism_height, depth]);
     }
 }
 
@@ -141,7 +142,7 @@ function optimal_distance_origin(angle) = (
 );
 
 //connection_angle = 60;
-connection_angle = 40;
+connection_angle = 70;
 
 distance_origin = optimal_distance_origin(connection_angle);
 //distance_origin = 5s0;
