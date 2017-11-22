@@ -4,12 +4,12 @@ use <../Misc/Prism.scad>
 depth = 24;
 width = 60;
 
-// diameters
+// radius
 round_size = 12;    
 hole_size = 7/2;
 
 // the part where ohter connectors go
-gap_witdh = round_size * 2 + 10;
+gap_witdh = 2 *round_size + depth / 2; 
 
 gap_epsilon = 0.8;
 gap_height = 10;
@@ -20,7 +20,6 @@ safety_margin = 10;
 cap_end_round = 30 / 2;
 cap_end_heigth = 4;
 
-prism_middle = 10;
 
 module hingepart(l1, l2, l3, gap, with_cap, solid_top, the_lower_one=false) {
     // the base model
@@ -67,6 +66,7 @@ module hingepart(l1, l2, l3, gap, with_cap, solid_top, the_lower_one=false) {
         }
     }
     
+    // the triangle within the gap
     if (gap) {
         prism_height = 1 * gap_height_e + 3 * gap_height;
         prism_translate_x = width - gap_witdh;
@@ -76,7 +76,8 @@ module hingepart(l1, l2, l3, gap, with_cap, solid_top, the_lower_one=false) {
         translate([prism_translate_x, prism_translate_y, 0])
         rotate([45, 0, -90])
         prism(prism_height, x, x);
-        
+            
+        // fill in space where the prism isn't enough
         translate_help_cube_y = !the_lower_one ? -gap_height_e : 0;
         translate([0, translate_help_cube_y, 0])
         cube([prism_translate_x, prism_height, depth]);
@@ -149,7 +150,7 @@ module draw_hinge(
             */
             prune_angle = 90 - (alpha / 2);
             prune_length = a_l1 * 2 - 0.001;
-            prune_width = gap_height * 1.4; // magic constant through experiments
+            prune_width = gap_height * 1.7; // magic constant through experiments
             prune_depth = 100;
             for (i = [0:1]) {
                 rotate([45 + 90 * i, 0, prune_angle])
