@@ -68,7 +68,6 @@ module hingepart(l1, l2, l3, gap, with_cap, solid_top, the_lower_one=false) {
     }
     
     if (gap) {
-//        prism_height = 2 * gap_height_e + 2 * gap_height;
         prism_height = 1 * gap_height_e + 3 * gap_height;
         prism_translate_x = width - gap_witdh;
         prism_translate_y = the_lower_one ? prism_height : prism_height - gap_height;
@@ -93,38 +92,60 @@ module draw_hinge(
     a_angle = - alpha / 2;
     a_translate_x = a_l1 * cos(90 + a_angle);
     a_translate_y = a_l1 * sin(90 + a_angle);
-    
         
-    difference() {
-        translate([a_translate_x, a_translate_y, 0])
-        rotate([0, 0, a_angle])
-        translate([-(width - round_size), 0, 0])
-        translate([0, 0, -depth / 2]) // center on the z axis
-        hingepart(a_l1, a_l2, a_l3, a_gap, a_with_cap, a_solid_top);
+    difference() {   
+        union() {
+            difference() {
+                translate([a_translate_x, a_translate_y, 0])
+                rotate([0, 0, a_angle])
+                translate([-(width - round_size), 0, 0])
+                translate([0, 0, -depth / 2]) // center on the z axis
+                hingepart(a_l1, a_l2, a_l3, a_gap, a_with_cap, a_solid_top);
+                
+                // cut away parts that are on the on the other site
+                translate([-100, 0, -50])
+                cube([100, 100, 100]);
+            }
+
+            b_angle = alpha / 2;
+            b_translate_x = b_l1 * cos(90 + b_angle);
+            b_translate_y = b_l1 * sin(90 + b_angle);
+            
+            difference() {
+                translate([b_translate_x, b_translate_y, 0])
+                rotate([0, 0, b_angle])
+                mirror([1, 0, 0])
+                translate([-(width - round_size), 0, 0])
+                translate([0, 0, -depth / 2])
+                hingepart(b_l1, b_l2, b_l3, b_gap, b_with_cap, b_solid_top, the_lower_one=true);
+
+                // cut away parts that are on the on the other site
+                translate([0, 0, -50])
+                cube([100, 100, 100]);        
+            }
+        }
         
-        // cut away parts that are on the on the other site
-        translate([-100, 0, -50])
-        cube([100, 100, 100]);
+        /*
+            The following code cuts out the last ramp of the hinge part that is clostest to
+            the origin. It's kind of difficult to achieve because before, every hinge part was
+            responsible for his quadrant. Now, the one that is furter away from the origin,
+            has to cut out parts of the other part (in the other quadrant). So we bascially
+            have to replicate all the combined roations and translations. It helps, that we
+            know the exacat distance from the origin. But it still unclear (to me) what the
+            excact modifications were just tried out some values.
+        */
+        prune_angle = 90 - (alpha / 2);
+        prune_length = a_l1 * 2 - 0.001;
+        prune_width = gap_height * 1.4; // magic constant through experiments
+        prune_depth = 100;
+        for (i = [0:1]) {
+            rotate([45 + 90 * i, 0, prune_angle])
+            cube([prune_length, prune_width, prune_depth], center=true);
+        }
     }
-
-    b_angle = alpha / 2;
-    b_translate_x = b_l1 * cos(90 + b_angle);
-    b_translate_y = b_l1 * sin(90 + b_angle);
-    
-    difference() {
-        translate([b_translate_x, b_translate_y, 0])
-        rotate([0, 0, b_angle])
-        mirror([1, 0, 0])
-        translate([-(width - round_size), 0, 0])
-        translate([0, 0, -depth / 2])
-        hingepart(b_l1, b_l2, b_l3, b_gap, b_with_cap, b_solid_top, the_lower_one=true);
-
-        // cut away parts that are on the on the other site
-        translate([0, 0, -50])
-        cube([100, 100, 100]);        
-    }
-   
+ 
 }
+
 
 
 // linear function to get the optiomal distance to the origin
@@ -142,7 +163,7 @@ function optimal_distance_origin(angle) = (
 );
 
 //connection_angle = 60;
-connection_angle = 70;
+connection_angle = 80;
 
 distance_origin = optimal_distance_origin(connection_angle);
 //distance_origin = 5s0;
