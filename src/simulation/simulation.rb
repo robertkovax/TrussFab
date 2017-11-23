@@ -223,6 +223,13 @@ class Simulation
     @triangles_hidden = true
   end
 
+  def hide_force_arrows
+    Graph.instance.nodes.values.each do |node|
+      node.thingy.arrow.erase! unless node.thingy.arrow.nil?
+      node.thingy.arrow = nil
+    end
+  end
+
   def show_triangle_surfaces
     Graph.instance.surfaces.each do |_, surface|
       surface.thingy.entity.hidden = false unless surface.thingy.entity.deleted?
@@ -236,6 +243,7 @@ class Simulation
 
   def start
     hide_triangle_surfaces
+    hide_force_arrows
     @running = true
     @last_frame_time = Time.now
   end
