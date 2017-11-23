@@ -7,9 +7,9 @@ class Simulation
 
   # masses in kg
   ELONGATION_MASS = 0.0
-  LINK_MASS = 1
-  PISTON_MASS = 1
-  HUB_MASS = 1
+  LINK_MASS = 0.2
+  PISTON_MASS = 0.1
+  HUB_MASS = 0.1
   POD_MASS = 0.1
 
   # if this is 1.0, for some reason, there is no "dampening" in movement, but
@@ -20,7 +20,7 @@ class Simulation
   DEFAULT_BREAKING_FORCE = 1_000_000
 
   # velocity in change of length in m/s
-  PISTON_RATE = 1.0
+  PISTON_RATE = 3.0
 
   MSPHYSICS_TIME_STEP = 1.0 / 200
   MSPHYSICS_N_STEPS = ((1.0 / 60) / MSPHYSICS_TIME_STEP).to_i
