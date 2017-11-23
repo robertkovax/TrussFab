@@ -86,6 +86,7 @@ class Simulation
     @reset_positions_on_end = true
     @saved_transformations = {}
     @stopped = false
+    @paused = false
     @triangles_hidden = false
     @ground_group = nil
     @force_labels = {}
@@ -193,27 +194,39 @@ class Simulation
     @dialog.add_action_callback('change_piston') do |_context, id, value|
       value = value.to_f
       id = id.to_i
-      @moving_pistons.push({:id=>id, :expanding=>true, :speed=>0.001})
+      @pistons[id].rate = PISTON_RATE
       @pistons[id].controller = value
+      test_pistons
+    end
+    @dialog.add_action_callback('test_piston') do |_context, id|
+      @moving_pistons.push({:id=>id.to_i, :expanding=>true, :speed=>0.2})
+      # test_pistons
     end
   end
 
-  def move_pistons
+  def test_pistons
     return if @moving_pistons.nil?
     @moving_pistons.map! { |hash|
+      piston = @pistons[hash[:id]]
 
-      unless (@pistons[hash[:id]].controller - @pistons[hash[:id]].cur_position).abs > 0.1
-        @pistons[hash[:id]].controller += (hash[:expanding] ? hash[:speed] : -hash[:speed])
-        if @pistons[hash[:id]].controller >= Configuration::MAX_PISTON_HUB
-          hash[:expanding] = false
-        elsif @pistons[hash[:id]].controller <= Configuration::MIN_PISTON_HUB
-          hash[:expanding] = true
-        end
+      piston.rate = hash[:speed]
+      piston.controller = (hash[:expanding] ? Configuration::MAX_PISTON_HUB : Configuration::MIN_PISTON_HUB)
+      if (piston.cur_position - Configuration::MAX_PISTON_HUB).abs < 0.005 && hash[:expanding]
+        hash[:speed] += 0.1
+        hash[:expanding] = false
+      elsif (piston.cur_position - Configuration::MIN_PISTON_HUB).abs < 0.005 && !hash[:expanding]
+        hash[:speed] += 0.1
+        hash[:expanding] = true
       end
-
-      hash[:speed] += 0.0001
       hash
     }
+  end
+
+  def print_piston_stats
+    @moving_pistons.each do |hash|
+      p "PISTON #{hash[:id]}"
+      p "Speed: #{hash[:speed]}"
+    end
   end
 
   def hide_triangle_surfaces
@@ -296,7 +309,7 @@ class Simulation
   end
 
   def nextFrame(view)
-    return @running unless @running
+    return @running unless (@running && !@paused)
     update_world
     update_entities
 
@@ -306,7 +319,7 @@ class Simulation
     end
 
     show_forces(view)
-    move_pistons
+    test_pistons
 
     view.show_frame
     @running
@@ -342,9 +355,10 @@ class Simulation
 
     position = thingy.body.get_position(1)
     visualize_force(thingy, lin_force)
-    if lin_force.abs > 10000
+    if lin_force.abs > 1500
       update_force_label(thingy, lin_force, position)
-      stop
+      print_piston_stats
+      @paused = true
     end
     # \note(tim): this has a huge performance impact. We may have to think about
     # only showing the highest force or omit some values that are uninteresting
@@ -359,13 +373,13 @@ class Simulation
 
   def update_force_label(thingy, force, position)
     if @force_labels[thingy.body].nil?
-      force_label =
-        Sketchup.active_model.entities.add_text("--------------- #{force.round(1)} ", position)
-        force_label.layer =
-        Sketchup.active_model.layers[Configuration::FORCE_LABEL_VIEW]
+      model = Sketchup.active_model
+      force_label = model.entities.add_text("--------------- #{force.round(1)}", position)
+
+      force_label.layer = model.layers[Configuration::FORCE_LABEL_VIEW]
       @force_labels[thingy.body] = force_label
     else
-      @force_labels[thingy.body].text = "--------------- #{force.round(1)} "
+      @force_labels[thingy.body].text = "--------------- #{force.round(1)}"
       @force_labels[thingy.body].point = position
     end
   end
@@ -377,6 +391,6 @@ class Simulation
   end
 
   def reset_force_labels
-    # @force_labels.each {|body, label| label.text = "" }
+    @force_labels.each {|body, label| label.text = "" }
   end
 end
