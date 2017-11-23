@@ -38,6 +38,7 @@ class HingeTool < Tool
 
     static_groups = find_rigid_substructures(edges.reject { |e| e.link_type == 'actuator' }, rotation_partners)
     static_groups.sort! { |a,b| b.size <=> a.size }
+    static_groups = prioritise_pod_groups(static_groups)
     static_groups.reverse.each do |group|
       color_group(group)
     end
@@ -81,6 +82,14 @@ class HingeTool < Tool
         hinging_tri = group2_adjacent_tris.sample
         (hinging_tri.edges - [axis]).each do |edge|
           hinges.add(Set.new [edge, axis])
+        end
+      end
+
+      if group.size == 1
+        group.flat_map { |tri| tri.edges }.combination(2).each do |pair|
+          unless hinges.include?(Set.new [pair[0], pair[1]])
+            hinges.add(Set.new [pair[0], pair[1]])
+          end
         end
       end
     end
@@ -141,6 +150,11 @@ class HingeTool < Tool
         recursive_find_substructure(other_tri, group, visited_tris, rotation_partners)
       end
     end
+  end
+
+  def prioritise_pod_groups(groups)
+    pod_groups = groups.select { |group| group.any? { |tri| tri.nodes.all? { |node| node.thingy.pods? } } }
+    pod_groups + (groups - pod_groups)
   end
 
   def color_group(group)
