@@ -22,8 +22,6 @@ class HingeTool < Tool
     rotation_axis_to_tris = Hash.new { |h,k| h[k] = Set.new }
     # Maps from a triangle to all triangles rotating with it around a common axis
     rotation_partners = Hash.new { |h,k| h[k] = Set.new }
-    # List with set of hinge choices
-    hinge_choices = []
 
     actuators.each do |actuator|
       edges_without_actuator = actuator.connected_component.reject { |e| e == actuator }
@@ -44,7 +42,13 @@ class HingeTool < Tool
       color_group(group)
     end
 
-    rotation_axis_to_group = Hash.new { |h,k| h[k] = Set.new }
+    node_group_count = Hash.new
+    Graph.instance.nodes.values.each do |node|
+      node_group_count[node] = static_groups.select { |group| group.any? { |tri| tri.nodes.include? node } }.size
+    end
+
+    group_rotations = Hash.new { |h,k| h[k] = Set.new }
+    rotations_axes = Set.new
 
     group_combinations = static_groups.combination(2)
     group_combinations.each do |pair|
@@ -57,72 +61,108 @@ class HingeTool < Tool
       end
 
       if common_edges.size > 0 and common_edges.to_a[0].link_type != 'actuator'
-        rotation_axis_to_group[common_edges.to_a[0]].add(pair[0])
-        rotation_axis_to_group[common_edges.to_a[0]].add(pair[1])
+        rotations_axes.add(common_edges.to_a[0])
+        group_rotations[pair[1]].add(pair[0])
+        group_rotations[pair[0]].add(pair[1])
       end
     end
 
     # color rotation axes differently
-    rotation_axis_to_group.keys.each do |rotation_axis|
-      color_rotation_axis(rotation_axis)
-    end
+    # rotations_axes.each do |rotation_axis|
+    #   color_rotation_axis(rotation_axis)
+    # end
 
-    hinges = 0
+    # start by taking a random group
+    # 1) find a random unfulfilled rotation axis of the group and put hinges on it
+    #   if everything is fulfilled return
+    #   if there is no unfulfilled rotation axis, backtrack to last decision until it is possible
+    # 2) go to the other group and go to 1)
 
-    rotation_axis_to_group.each do |axis, groups|
-      sorted_groups = groups.sort { |a,b| a.size <=> b.size }
-      # Removes the biggest group rotating around the axis, this can be considered the static group around the axis
-      sorted_groups.pop
+    hinge_map = Hash.new { |h,k| h[k] = Set.new }
+    node_hinge_count = Hash.new { |h,k| h[k] = 0 }
+    walk = [static_groups.to_a.sample]
+    current_group_rotations = group_rotations.clone
 
-      sorted_groups.each do |group|
-        adjacent_tris = group.select { |tri| tri.edges.include?(axis) }
-
-        # hinge_possible = false
-
-        hinge_choices.push([axis, adjacent_tris])
-
-        # adjacent_tris.each do |tri|
-        #   #if can_add_hinge?(axis, tri)
-        #     (tri.edges - [axis]).each do |edge|
-        #       unless add_hinge(axis, edge)
-        #         p "Logic error: hinge placed despite can_add_hinge? false"
-        #       end
-        #     end
-        #     hinge_possible = true
-        #     hinges += 1
-        #     break
-        #  #end
-        # end
-
-        # if not hinge_possible
-        #   p "Logic Error: hinge could not be placed."
-        # end
+    while current_group_rotations.values.any? { |rotations| rotations.size > 0 }
+      if walk.empty? or walk.size > 1000
+        hinge_map = Hash.new { |h,k| h[k] = Set.new }
+        node_hinge_count = Hash.new { |h,k| h[k] = 0 }
+        walk = [static_groups.to_a.sample]
+        current_group_rotations = group_rotations.clone
+        p "Reset."
       end
-    end
 
-    hinge_choices.each do |hinge_choice|
-      rotation_axis = hinge_choice[0]
-      possible_tris = hinge_choice[1]
+      # if walk.empty?
+      #   p "Logic Error: walk could not be continued."
+      #   break
+      # end
 
-      possible_tris.each do |tri|
-        (tri.edges - [rotation_axis]).each do |edge|
-          unless add_hinge(rotation_axis, edge)
-            p "Logic error: hinge placed despite can_add_hinge? false"
-          end
+      cur_group = walk.last
+
+      other_group_choices = current_group_rotations[cur_group]
+      if other_group_choices.empty?
+        walk.pop
+        next
+      end
+
+      other_group = other_group_choices.to_a.sample
+      walk.push(other_group)
+
+      rotating_group = cur_group.size <= other_group.size ? cur_group : other_group
+      static_group = cur_group.size <= other_group.size ? other_group : cur_group
+
+      rotating_group_edges = Set.new rotating_group.flat_map { |tri| tri.edges }
+      static_group_edges = Set.new static_group.flat_map { |tri| tri.edges }
+
+      common_edges = rotating_group_edges & static_group_edges
+
+      if common_edges.size != 1
+        p "Logic error: Expecting one common edge."
+      end
+
+      axis = common_edges.to_a[0]
+      adjacent_tris = rotating_group.select { |tri| tri.edges.include?(axis) }
+      hinging_tri = adjacent_tris.to_a.sample
+
+      skip = false
+      (hinging_tri.edges - [axis]).each do |edge|
+        node = edge.shared_node(axis)
+        num_groups = node_group_count[node]
+        num_hinges = node_hinge_count[node]
+        max_num_hinges = num_groups - 1
+
+        if hinges_around?(hinge_map,axis, edge) and num_hinges < max_num_hinges
+          skip = true
         end
-        hinges += 1
-        break
       end
 
-      possible_tris.each do |tri|
-        (tri.edges - [rotation_axis]).each do |edge|
-          node = edge.shared_node(rotation_axis)
-          add_elongation(edge, node)
+      next if skip
+
+      (hinging_tri.edges - [axis]).each do |edge|
+        node = edge.shared_node(axis)
+
+        unless hinges_around?(hinge_map, axis, edge)
+          hinge_map[edge].add(axis)
+          node_hinge_count[node] += 1
+          #add_hinge(axis, edge)
         end
+      end
+
+      current_group_rotations[cur_group].delete(other_group)
+      current_group_rotations[other_group].delete(cur_group)
+    end
+
+    hinge_map.each do |rotating_edge, rotation_axes|
+      rotation_axes.each do |axis|
+        add_hinge(axis, rotating_edge)
       end
     end
 
-    p "num_hinges: " + hinges.to_s
+    p "Finished."
+  end
+
+  def hinges_around?(hinge_map, rotating_edge, rotation_axis)
+    hinge_map[rotating_edge].include? rotation_axis
   end
 
   def find_rigid_substructures(edges, rotation_partners)
@@ -193,24 +233,6 @@ class HingeTool < Tool
     axis.thingy.change_color("%06x" % 0x000000)
   end
 
-  def can_add_hinge?(rotation_axis, triangle)
-    (triangle.edges - [rotation_axis]).each do |edge|
-      node = rotation_axis.shared_node(edge)
-
-      # other_joint = rotation_axis.first_node?(node) ? rotation_axis.thingy.first_joint : rotation_axis.thingy.second_joint
-      # if other_joint.is_a? ThingyHinge and other_joint.rotates_around?(edge)
-      #   return true
-      # end
-
-      joint = edge.first_node?(node) ? edge.thingy.first_joint : edge.thingy.second_joint
-      if joint.is_a? ThingyHinge
-        return false
-      end
-    end
-
-    true
-  end
-
   def add_elongation(rotating_edge, node)
     if rotating_edge.first_node?(node)
       rotating_edge.thingy.shorten_elongation(true)
@@ -224,20 +246,9 @@ class HingeTool < Tool
     node = rotating_edge.shared_node(rotation_axis)
     hinge = ThingyHinge.new(node, rotation)
 
-    # other_joint = rotation_axis.first_node?(node) ? rotation_axis.thingy.first_joint : rotation_axis.thingy.second_joint
-    # if other_joint.is_a? ThingyHinge and other_joint.rotates_around?(rotating_edge)
-    #   return true
-    # end
-
     if rotating_edge.first_node?(node)
-      # if rotating_edge.thingy.first_joint.is_a? ThingyHinge
-      #   return false
-      # end
       rotating_edge.thingy.first_joint = hinge
     else
-      # if rotating_edge.thingy.second_joint.is_a? ThingyHinge
-      #   return false
-      # end
       rotating_edge.thingy.second_joint = hinge
     end
 
@@ -251,8 +262,6 @@ class HingeTool < Tool
     line2 = Line.new(mid_point, end_point, HINGE_LINE)
 
     rotating_edge.thingy.add(line1, line2)
-
-    true
   end
 
   def start_simulation(edge)
