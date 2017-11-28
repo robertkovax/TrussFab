@@ -370,7 +370,6 @@ class Simulation
   def visualize_force(link, force)
     color = ColorConverter.get_color_for_force(force)
     link.change_color(color)
-    p link.to_s
   end
 
   def update_force_label(link, force, position)
