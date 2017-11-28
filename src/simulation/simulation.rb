@@ -223,10 +223,10 @@ class Simulation
 
       piston.rate = hash[:speed]
       piston.controller = (hash[:expanding] ? piston.max : piston.min)
-      if (piston.cur_position - piston.min).abs < 0.005 && hash[:expanding]
+      if (piston.cur_position - piston.max).abs < 0.005 && hash[:expanding]
         hash[:speed] += 0.05
         hash[:expanding] = false
-      elsif (piston.cur_position - piston.max).abs < 0.005 && !hash[:expanding]
+      elsif (piston.cur_position - piston.min).abs < 0.005 && !hash[:expanding]
         hash[:speed] += 0.05
         hash[:expanding] = true
       end
