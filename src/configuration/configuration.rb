@@ -24,17 +24,6 @@ module Configuration
     style: UI::HtmlDialog::STYLE_DIALOG
   }.freeze
 
-  PROPERTIES_DIALOG = {
-    dialog_title: 'TrussFab',
-    scrollable: true,
-    resizable: true,
-    width: 380,
-    height: 400,
-    left: 10,
-    top: 100,
-    style: UI::HtmlDialog::STYLE_DIALOG
-  }.freeze
-
   UI_WIDTH = 380
   UI_HEIGHT = 400
 

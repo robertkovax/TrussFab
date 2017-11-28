@@ -46,17 +46,18 @@ class ComponentProperties
     end
 
     properties = {
-      dialog_title: name,
-      scrollable: false,
-      resizable: false,
-      width: width,
-      height: height,
-      left: 10,
-      top: 100,
-      style: UI::HtmlDialog::STYLE_DIALOG
+      :dialog_title => name,
+      :scrollable => false,
+      :resizable => false,
+      :width => width,
+      :height => height,
+      :left => 10,
+      :top => 100,
+      :style => UI::HtmlDialog::STYLE_DIALOG
     }.freeze
 
     @dialog = UI::HtmlDialog.new(properties)
+    @dialog.set_size(width, height)
 
     @location = File.dirname(__FILE__)
     @dialog.set_html(render(file))
