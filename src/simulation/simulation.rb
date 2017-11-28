@@ -20,7 +20,7 @@ class Simulation
   DEFAULT_BREAKING_FORCE = 1_000_000
 
   # velocity in change of length in m/s
-  PISTON_RATE = 3.0
+  PISTON_RATE = 1.0
 
   MSPHYSICS_TIME_STEP = 1.0 / 200
   MSPHYSICS_N_STEPS = ((1.0 / 60) / MSPHYSICS_TIME_STEP).to_i
@@ -72,6 +72,7 @@ class Simulation
     def create_piston(world, parent_body, child_body, matrix)
       piston = joint_between(world, MSPhysics::Piston, parent_body, child_body, matrix)
       piston.rate = PISTON_RATE
+      piston.reduction_ratio = 0.05
       piston
     end
   end
@@ -212,10 +213,10 @@ class Simulation
       piston.rate = hash[:speed]
       piston.controller = (hash[:expanding] ? Configuration::MAX_PISTON_HUB : Configuration::MIN_PISTON_HUB)
       if (piston.cur_position - Configuration::MAX_PISTON_HUB).abs < 0.005 && hash[:expanding]
-        hash[:speed] += 0.1
+        hash[:speed] += 0.05
         hash[:expanding] = false
       elsif (piston.cur_position - Configuration::MIN_PISTON_HUB).abs < 0.005 && !hash[:expanding]
-        hash[:speed] += 0.1
+        hash[:speed] += 0.05
         hash[:expanding] = true
       end
       hash
@@ -343,20 +344,20 @@ class Simulation
     Sketchup.active_model.commit_operation
   end
 
-  def show_force(thingy, view)
-    return if thingy.body.nil?
+  def show_force(link, view)
+    return if link.body.nil?
 
-    body_orientation = thingy.body.get_matrix
-    glob_up_vec = thingy.loc_up_vec.transform(body_orientation)
+    body_orientation = link.body.get_matrix
+    glob_up_vec = link.loc_up_vec.transform(body_orientation)
 
-    f1 = thingy.first_joint.joint.get_tension1
-    f2 = thingy.second_joint.joint.get_tension1
+    f1 = link.first_joint.joint.get_tension1
+    f2 = link.second_joint.joint.get_tension1
     lin_force = (f2 - f1).dot(glob_up_vec)
 
-    position = thingy.body.get_position(1)
-    visualize_force(thingy, lin_force)
+    position = link.body.get_position(1)
+    visualize_force(link, lin_force)
     if lin_force.abs > 1500
-      update_force_label(thingy, lin_force, position)
+      update_force_label(link, lin_force, position)
       print_piston_stats
       @paused = true
     end
@@ -366,21 +367,22 @@ class Simulation
     # update_force_label(thingy, lin_force, position)
   end
 
-  def visualize_force(thingy, force)
+  def visualize_force(link, force)
     color = ColorConverter.get_color_for_force(force)
-    thingy.change_color(color)
+    link.change_color(color)
+    p link.to_s
   end
 
-  def update_force_label(thingy, force, position)
-    if @force_labels[thingy.body].nil?
+  def update_force_label(link, force, position)
+    if @force_labels[link.body].nil?
       model = Sketchup.active_model
       force_label = model.entities.add_text("--------------- #{force.round(1)}", position)
 
       force_label.layer = model.layers[Configuration::FORCE_LABEL_VIEW]
-      @force_labels[thingy.body] = force_label
+      @force_labels[link.body] = force_label
     else
-      @force_labels[thingy.body].text = "--------------- #{force.round(1)}"
-      @force_labels[thingy.body].point = position
+      @force_labels[link.body].text = "--------------- #{force.round(1)}"
+      @force_labels[link.body].point = position
     end
   end
 

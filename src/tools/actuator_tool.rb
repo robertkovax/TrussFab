@@ -12,6 +12,7 @@ class ActuatorTool < Tool
   def initialize(ui)
     super
     @mouse_input = MouseInput.new(snap_to_edges: true)
+    @edge = nil
   end
 
   #
@@ -22,22 +23,19 @@ class ActuatorTool < Tool
     super
   end
 
-  def change_edge_to_actuator(edge, view)
-
-
-    edges_without_selected = edge.connected_component.reject { |e| e == edge }
+  def change_edge_to_actuator(view)
+    edges_without_selected = @edge.connected_component.reject { |e| e == @edge }
     if RigidityTester.rigid?(edges_without_selected)
       UI.messagebox('The structure is still rigid and would break with this actuator. Please remove more edges to enable this structure to move',
                     type = MB_OK)
       return
     end
 
-
-    create_actuator(edge, view)
+    create_actuator(view)
     edges = edges_without_selected.reject { |e| e.link_type == 'actuator' }
     triangle_pairs = edges.flat_map { |e| valid_triangle_pairs(e) }
     original_angles = triangle_pair_angles(triangle_pairs)
-    start_simulation(edge)
+    start_simulation
     view.show_frame
     simulation_angles = triangle_pair_angles(triangle_pairs, true)
 
@@ -47,14 +45,13 @@ class ActuatorTool < Tool
     highlight_rotation_axes(rotation_axes)
     add_hinges(changed_triangle_pairs)
     reset_simulation
-
   end
 
   def onLButtonDown(_flags, x, y, view)
     @mouse_input.update_positions(view, x, y)
-    edge = @mouse_input.snapped_object
-    return if edge.nil?
-    change_edge_to_actuator(edge, view)
+    @edge = @mouse_input.snapped_object
+    return if @edge.nil?
+    change_edge_to_actuator(view)
   end
 
   def onMouseMove(_flags, x, y, view)
@@ -65,11 +62,11 @@ class ActuatorTool < Tool
   # Tool logic
   #
 
-  def start_simulation(edge)
+  def start_simulation
     @simulation = BallJointSimulation.new
     @simulation.setup
     @simulation.disable_gravity
-    piston = edge.thingy.piston
+    piston = @edge.thingy.piston
     piston.controller = 0.4
     @simulation.start
     @simulation.update_world_by(2)
@@ -80,9 +77,10 @@ class ActuatorTool < Tool
     @simulation = nil
   end
 
-  def create_actuator(edge, view)
+  def create_actuator(view)
     Sketchup.active_model.start_operation('toggle edge to actuator', true)
-    edge.link_type = 'actuator'
+    @edge.link_type = 'actuator'
+    @edge = Graph.instance.create_edge(@edge.first_node, @edge.second_node, model_name: 'actuator', link_type: 'actuator')
     view.invalidate
     Sketchup.active_model.commit_operation
   end
