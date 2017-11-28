@@ -69,7 +69,7 @@ class Simulation
       joint
     end
 
-    def create_piston(world, parent_body, child_body, matrix, dampening, power, rate, min, max)
+    def create_piston(world, parent_body, child_body, matrix, dampening, rate, power, min, max)
       piston = joint_between(world, MSPhysics::Piston, parent_body, child_body, matrix)
       piston.reduction_ratio = dampening
       piston.rate = rate
@@ -194,6 +194,7 @@ class Simulation
     file_content = File.read(File.join(File.dirname(__FILE__), '../ui/html/piston_slider.erb'))
     template = ERB.new(file_content)
     @dialog.set_html(template.result(binding))
+    @dialog.set_size(300, Configuration::UI_HEIGHT)
     @dialog.show
     @dialog.add_action_callback('change_piston') do |_context, id, value|
       value = value.to_f

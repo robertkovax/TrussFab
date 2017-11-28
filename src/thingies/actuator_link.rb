@@ -44,7 +44,7 @@ class ActuatorLink < Link
   end
 
   def set_power(value)
-    @min = value
+    @power = value
   end
 
   def set_min(value)

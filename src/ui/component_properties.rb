@@ -29,7 +29,7 @@ class ComponentProperties
     context_menu.add_item("TrussFab Piston Properties") {
       @actuator = actuator
       @title = "TrussFab Piston Properties"
-      show_dialog(erb_file, @title, Configuration::UI_WIDTH, Configuration::UI_HEIGHT)
+      show_dialog(erb_file, @title, Configuration::UI_WIDTH, 400)
     }
   end
 
@@ -49,8 +49,6 @@ class ComponentProperties
       :dialog_title => name,
       :scrollable => false,
       :resizable => false,
-      :width => width,
-      :height => height,
       :left => 10,
       :top => 100,
       :style => UI::HtmlDialog::STYLE_DIALOG

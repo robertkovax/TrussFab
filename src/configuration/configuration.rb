@@ -25,7 +25,7 @@ module Configuration
   }.freeze
 
   UI_WIDTH = 380
-  UI_HEIGHT = 400
+  UI_HEIGHT = 700
 
   # Thingy properties
   MINIMUM_ELONGATION = 20.mm.freeze
