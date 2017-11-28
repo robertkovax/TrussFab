@@ -5,7 +5,7 @@ require 'src/simulation/joints'
 
 class ActuatorLink < Link
 
-  attr_reader :piston, :first_cylinder_body, :second_cylinder_body, :dampening, :rate, :min, :max
+  attr_reader :piston, :first_cylinder_body, :second_cylinder_body, :dampening, :rate, :power, :min, :max
 
   def initialize(first_node, second_node, id: nil)
     @first_cylinder = nil
@@ -24,6 +24,7 @@ class ActuatorLink < Link
 
     @dampening = 0.1
     @rate = 1.0
+    @power = 0.0
     @min = -0.2
     @max = 0.2
 
@@ -40,6 +41,10 @@ class ActuatorLink < Link
 
   def set_rate(value)
     @rate = value
+  end
+
+  def set_power(value)
+    @min = value
   end
 
   def set_min(value)
@@ -66,6 +71,7 @@ class ActuatorLink < Link
                                        piston_matrix,
                                        @dampening,
                                        @rate,
+                                       @power,
                                        @min,
                                        @max)
 
@@ -102,6 +108,7 @@ class ActuatorLink < Link
     return if @piston.nil?
     @piston.rate = @rate
     @piston.reduction_ratio = @dampening
+    @piston.power = @power
     @piston.min = @min
     @piston.max = @max
   end
