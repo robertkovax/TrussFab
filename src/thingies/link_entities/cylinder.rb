@@ -5,13 +5,15 @@ class Cylinder < Thingy
 
   attr_accessor :body
 
-  def initialize(center, vector, definition, id = nil)
+  def initialize(center, vector, parent, definition, id = nil)
     super(id)
     @center = center
     @vector = vector
     @definition = definition
     @body = nil
     @entity = create_entity
+    @parent = parent
+    persist_entity(type: parent.class.to_s, id: parent.id)
   end
 
   def create_body(world)

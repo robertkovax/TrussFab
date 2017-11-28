@@ -15,6 +15,7 @@ class Hub < PhysicsThingy
     @mass = 0
     @arrow = nil
     update_id_label
+    persist_entity
   end
 
   def add_pod(node, direction, id: nil)
