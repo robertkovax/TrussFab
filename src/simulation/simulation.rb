@@ -69,10 +69,11 @@ class Simulation
       joint
     end
 
-    def create_piston(world, parent_body, child_body, matrix, dampening, rate, min, max)
+    def create_piston(world, parent_body, child_body, matrix, dampening, power, rate, min, max)
       piston = joint_between(world, MSPhysics::Piston, parent_body, child_body, matrix)
       piston.reduction_ratio = dampening
       piston.rate = rate
+      piston.power = power
       piston.min = min
       piston.max = max
       piston

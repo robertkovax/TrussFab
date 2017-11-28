@@ -29,16 +29,14 @@ class ComponentProperties
     context_menu.add_item("TrussFab Piston Properties") {
       @actuator = actuator
       @title = "TrussFab Piston Properties"
-      show_dialog(erb_file, @title, Configuration::UI_WIDTH,
-                  Configuration::UI_HEIGHT, clear_selection_on_close: true)
+      show_dialog(erb_file, @title, Configuration::UI_WIDTH, Configuration::UI_HEIGHT)
     }
   end
 
   def show_dialog(file,
                   name,
                   width = Configuration::UI_WIDTH,
-                  height = Configuration::UI_HEIGHT,
-                  clear_selection_on_close: false)
+                  height = Configuration::UI_HEIGHT)
 
     #close old window
     unless @dialog.nil?
@@ -49,8 +47,8 @@ class ComponentProperties
 
     properties = {
       dialog_title: name,
-      scrollable: true,
-      resizable: true,
+      scrollable: false,
+      resizable: false,
       width: width,
       height: height,
       left: 10,
@@ -87,6 +85,13 @@ class ComponentProperties
       value = param.to_f
       Sketchup.active_model.start_operation("Set Piston Rate", true)
       @actuator.set_rate(value)
+      @actuator.update_piston
+      Sketchup.active_model.commit_operation
+    end
+    @dialog.add_action_callback('set_power') do |dialog, param|
+      value = param.to_f
+      Sketchup.active_model.start_operation("Set Piston Power", true)
+      @actuator.set_power(value)
       @actuator.update_piston
       Sketchup.active_model.commit_operation
     end
