@@ -10,6 +10,7 @@ class Cover < Thingy
     @normal.length = Configuration::COVER_THICKNESS
     @pods = pods
     @entity = create_entity
+    persist_entity
   end
 
   def center

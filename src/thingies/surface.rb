@@ -9,6 +9,7 @@ class Surface < Thingy
     @second_position = second_position
     @third_position = third_position
     @entity = create_entity
+    persist_entity
   end
 
   def highlight(highlight_material = @highlight_material)

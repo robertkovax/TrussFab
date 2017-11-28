@@ -8,6 +8,7 @@ class BottleLink < Thingy
     @direction = direction
     @model = model
     @entity = create_entity
+    persist_entity
   end
 
   def change_color(color)

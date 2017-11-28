@@ -8,7 +8,7 @@
 </head>
 <body>
 <% for piston_id in @pistons.keys %>
-    <input id="<%= piston_id %>" type="range" min="-0.2" max="0.2" value="0" step="0.01" onchange="onChange(this.id, this.value)">
+    <input id="<%= piston_id %>" type="range" min="0" max="1" value="0" step="0.01" onchange="onChange(this.id, this.value)">
     <button id="<%= piston_id %>" class="tool" onclick="onClick(this.id)">Test</button>
 <% end %>
 <script type="text/javascript">

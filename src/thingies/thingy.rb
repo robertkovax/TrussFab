@@ -103,4 +103,10 @@ class Thingy
   def create_entity
     raise NotImplementedError
   end
+
+  def persist_entity(type: self.class.to_s, id: self.id)
+    return if @entity.nil?
+    @entity.set_attribute('attributes', :type, type)
+    @entity.set_attribute('attributes', :id, id)
+  end
 end

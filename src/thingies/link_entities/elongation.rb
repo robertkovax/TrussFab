@@ -11,6 +11,7 @@ class Elongation < Thingy
     @radius = Configuration::ELONGATION_RADIUS
     @layer = Configuration::HUB_VIEW
     @entity = create_entity
+    persist_entity
   end
 
   def length

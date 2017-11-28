@@ -17,6 +17,7 @@ class Pod < Thingy
     @node = node
     @direction.length = @model.length
     @entity = create_entity
+    persist_entity
   end
 
   def distance(point)

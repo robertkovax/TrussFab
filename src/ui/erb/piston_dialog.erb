@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="de">
+<link rel="stylesheet" href="../css/ui.css" type="text/css">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PistonMenu</title>
+</head>
+<body>
+Dampening:
+<br>
+<input type="number" min="0.0" max="1.0" value="<%= @piston.dampening %>" step="0.1" onchange="set_dampening(this.value)">
+<br>
+Speed:
+<br>
+<input type="number" min="0.0" value="<%= @piston.rate %>" step="0.1" onchange="set_rate(this.value)">
+<br>
+Minimum Position:
+<br>
+<input type="number" value="<%= @piston.min %>" step="0.1" onchange="set_min(this.value)">
+<br>
+Maximum Position:
+<br>
+<input type="number" value="<%= @piston.max %>" step="0.1" onchange="set_max(this.value)">
+<script type="text/javascript">
+    function set_dampening(newValue) {
+        sketchup.set_dampening(newValue);
+    }
+    function set_rate(newValue) {
+        sketchup.set_rate(newValue);
+    }
+    function set_min(newValue) {
+        sketchup.set_min(newValue);
+    }
+    function set_max(newValue) {
+        sketchup.set_max(newValue);
+    }
+</script>
+</body>
+</html>
