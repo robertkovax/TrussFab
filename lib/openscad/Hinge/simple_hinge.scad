@@ -142,13 +142,14 @@ module draw_hinge(
             }
             
             union() {
-                // cuts out parts at the top
-                a_l12 = a_l1 + a_l2;
-                b_l12 = b_l1 + b_l2;
-                longest = max(a_l12, b_l12);
-                translate([0, longest + 50 + 3, 0]) // you can tune the last summand
-                cube([100, 100, 100], center=true);    
-                
+                if (!a_solid_top && !b_solid_top) {
+                    // cuts out parts at the top
+                    a_l12 = a_l1 + a_l2;
+                    b_l12 = b_l1 + b_l2;
+                    longest = max(a_l12, b_l12);
+                    translate([0, longest + 50 + 3, 0]) // you can tune the last summand
+                    cube([100, 100, 100], center=true);    
+                }
                 /*
                     The following code cuts out the last ramp of the hinge part that is clostest to
                     the origin. It's kind of difficult to achieve because before, every hinge part was
@@ -168,10 +169,12 @@ module draw_hinge(
                 }
             }
         }
-        for (i = [0:1]) {
-            rotate([0, -45 - i * 180, 0]) 
-            translate([0, a_l1, 0])
-            cube([gap_witdh, gap_height_e, 100]);
+        if (b_gap) {
+            for (i = [0:1]) {
+                rotate([0, -45 - i * 180, 0]) 
+                translate([0, a_l1, 0])
+                cube([gap_witdh, gap_height_e, 100]);
+            }
         }
     }
 }
@@ -193,12 +196,12 @@ function optimal_distance_origin(angle) = (
 );
 
 //connection_angle = 60;
-connection_angle = 50;
+connection_angle = 40;
 
 //distance_origin = optimal_distance_origin(connection_angle);
-distance_origin = 55;
+distance_origin = 65;
 
-elongation_length = 100;
+elongation_length = 120;
 
 a_l1 = distance_origin;
 a_l2 = 3 * gap_height + gap_epsilon;
@@ -223,6 +226,6 @@ b_l3 = elongation_length - b_l1 - b_l2;
 //    b_l1=b_l1, b_l2=b_l2, b_l3=b_l3, b_solid_top=true);
     
 draw_hinge(alpha=connection_angle,
-    a_l1=a_l1, a_l2=a_l2, a_l3=a_l3, a_gap=true,
-    b_l1=b_l1, b_l2=b_l2, b_l3=b_l3, b_gap=true);  
+    a_l1=a_l1, a_l2=a_l2, a_l3=a_l3, a_gap=false,
+    b_l1=b_l1, b_l2=b_l2, b_l3=b_l3, b_gap=true, a_solid_top=true);  
         
