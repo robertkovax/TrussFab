@@ -109,6 +109,7 @@ module draw_hinge(
     b_translate_y = b_l1 * sin(90 + b_angle);
     
     // the last cut out for the gap of the left side to fully hinge
+    // the translations are only to cut off some other parts for the gaps more easily
     difference() {
         translate([-round_size - extra_width_for_hinging, 0, 0])
         rotate([0, 0, alpha / -2])    
@@ -145,7 +146,7 @@ module draw_hinge(
                 a_l12 = a_l1 + a_l2;
                 b_l12 = b_l1 + b_l2;
                 longest = max(a_l12, b_l12);
-                translate([0, longest + 50, 0])
+                translate([0, longest + 50 + 3, 0]) // you can tune the last summand
                 cube([100, 100, 100], center=true);    
                 
                 /*
