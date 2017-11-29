@@ -1,6 +1,42 @@
+require 'src/tools/hinge_tool'
+require 'src/export/export_hinge'
+require 'src/export/export_hub'
+require 'src/export/export_elongation'
+
 class ScadExport
   def self.export_to_scad(path, nodes)
-    nodes.each { |node| node_to_scad(path, node) }
+    hinge_tool = HingeTool.new
+    hinge_tool.activate
+
+    export_hinges = []
+    export_hubs = []
+
+    hinge_tool.hinges.each do |hinge|
+      #TODO: make sure that l1-l3 work with elongation of the two edges
+      angle = hinge.edge1.angle_between(hinge.edge2)
+      export_hinge = ExportHinge.new(0, 0, 0, 0, 0, 0,
+                                     angle, true, true, false, false)
+      export_hinges.push(export_hinge)
+    end
+    p hinge_tool.hubs
+
+    hinge_tool.hubs.each do |node, hubs|
+      i = 0
+      hubs.each do |hub|
+        is_main_hub = (i == 0)
+        export_hub = ExportHub.new(is_main_hub)
+
+        hub.each do |edge|
+          export_elongation = ExportElongation.new(false, 0, 0, 0)
+          export_hub.add_elongation(export_elongation)
+        end
+
+        export_hubs.push(export_hub)
+        i += 1
+      end
+    end
+
+    #nodes.each { |node| node_to_scad(path, node) }
   end
 
   def self.node_to_scad(path, node)

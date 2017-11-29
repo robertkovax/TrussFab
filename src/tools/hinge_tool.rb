@@ -6,6 +6,12 @@ require 'src/simulation/joints'
 require 'src/simulation/thingy_rotation'
 
 class HingeTool < Tool
+  attr_accessor :hubs, :hinges
+
+  def initialize
+    @hubs = nil
+    @hinges = nil
+  end
 
   MIN_ANGLE_DEVIATION = 0.05
 
@@ -141,15 +147,21 @@ class HingeTool < Tool
       add_hinge(hinge)
     end
 
-    #p hinges
-    p hubs.size
-
     hubs.each do |node, sub_hubs|
       p "Node " + node.id.to_s + ": "
       sub_hubs.each do |sub_hub|
-        p sub_hub.size.to_s + ", "
+        p sub_hub.size
       end
     end
+
+    node_hinges = Hash.new { |h,k| h[k] = [] }
+    hinges.select { |hinge| hinge.type == 'dynamic' }.each do |hinge|
+      node = hinge.edge1.shared_node(hinge.edge2)
+      node_hinges[node].push(hinge)
+    end
+
+    @hubs = hubs
+    @hinges = node_hinges
   end
 
   def group_hinges_around_axis?(hinges, group, axis)
