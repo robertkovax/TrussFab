@@ -34,7 +34,7 @@ class Pod < Thingy
 
   def create_body(world)
     @body = Simulation.create_body(world, @entity)
-    @body.collidable = false
+    @body.collidable = true
     @body.mass = Simulation::POD_MASS
     @body.static = true
     @body

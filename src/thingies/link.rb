@@ -7,13 +7,19 @@ require 'src/thingies/physics_thingy.rb'
 
 class Link < PhysicsThingy
   attr_accessor :first_joint, :second_joint
-  attr_reader :body, :first_elongation_length, :second_elongation_length
+  attr_reader :body, :first_elongation_length, :second_elongation_length,
+    :position, :second_position, :loc_up_vec, :first_node, :second_node
 
   def initialize(first_node, second_node, model_name, id: nil)
     super(id)
 
     @position = first_node.position
     @second_position = second_node.position
+    # the vector pointing along the length of the bottle
+    @loc_up_vec = Geom::Vector3d.new(0, 0, -1)
+
+    @first_node = first_node
+    @second_node = second_node
 
     @first_joint = ThingyFixedJoint.new(first_node)
     @second_joint = ThingyFixedJoint.new(second_node)
@@ -43,17 +49,17 @@ class Link < PhysicsThingy
     Geom::Point3d.linear_combination(0.5, @position, 0.5, @second_position)
   end
 
-  #
-  # Physics methods
-  #
-
   def joint_position
     mid_point
   end
 
+  #
+  # Physics methods
+  #
+
   def create_body(world)
     e1, bottles, _, e2 = @sub_thingies
-    @body = Simulation.create_body(world, bottles.entity)
+    @body = Simulation.create_body(world, bottles.entity, collision_type: :convex_hull)
     ext_1_body = Simulation.create_body(world, e1.entity)
     ext_2_body = Simulation.create_body(world, e2.entity)
 
@@ -64,8 +70,11 @@ class Link < PhysicsThingy
       body.collidable = false
     end
 
-    joint_to(world, MSPhysics::Fixed, ext_1_body, Geometry::Z_AXIS, solver_model: 1)
-    joint_to(world, MSPhysics::Fixed, ext_2_body, Geometry::Z_AXIS, solver_model: 1)
+    joint_to(world, MSPhysics::Fixed, ext_1_body, Geometry::Z_AXIS,
+             solver_model: Configuration::SOLVER_MODEL_ELONGATIONS)
+    joint_to(world, MSPhysics::Fixed, ext_2_body, Geometry::Z_AXIS,
+             solver_model: Configuration::SOLVER_MODEL_ELONGATIONS)
+    update_up_vector
     @body
   end
 
@@ -79,10 +88,10 @@ class Link < PhysicsThingy
     first_direction = mid_point.vector_to(first_node.position)
     second_direction = mid_point.vector_to(second_node.position)
 
-    first_ball_joint = ThingyBallJoint.new(first_node, first_direction)
-    second_ball_joint = ThingyBallJoint.new(second_node, second_direction)
+    @first_joint = ThingyBallJoint.new(first_node, first_direction)
+    @second_joint = ThingyBallJoint.new(second_node, second_direction)
 
-    [first_ball_joint, second_ball_joint].each do |joint|
+    [@first_joint, @second_joint].each do |joint|
       joint.create(world, @body)
     end
   end
@@ -91,6 +100,14 @@ class Link < PhysicsThingy
     super
     [@first_joint, @second_joint].each do |joint|
       joint.joint = nil
+    end
+  end
+
+  def update_up_vector
+    body_tra = @body.get_matrix
+    glob_up_vec = @loc_up_vec.transform(body_tra)
+    if (second_position - position).dot(glob_up_vec) > 0.0
+      @loc_up_vec.reverse!
     end
   end
 
@@ -111,12 +128,16 @@ class Link < PhysicsThingy
   end
 
   def create_sub_thingies
-    @first_elongation_length = @second_elongation_length = Configuration::MINIMUM_ELONGATION
+    @first_elongation_length =
+      @second_elongation_length =
+      Configuration::MINIMUM_ELONGATION
 
     model_length = length - @first_elongation_length - @second_elongation_length
     shortest_model = @model.longest_model_shorter_than(model_length)
 
-    @first_elongation_length = @second_elongation_length = (length - shortest_model.length) / 2
+    @first_elongation_length =
+      @second_elongation_length =
+      (length - shortest_model.length) / 2
 
     direction = @position.vector_to(@second_position)
 

@@ -164,22 +164,22 @@ module JsonImport
         node = nodes[joint_json['node_id']]
 
         rotation = if !joint_json['rotation_axis_id'].nil?
-                     EdgeRotation.new(edges[joint_json['rotation_axis_id']])
-                   elsif !joint_json['rotation_plane_ids'].nil?
-                     plane_nodes = joint_json['rotation_plane_ids'].map { |id| nodes[id] }
-                     PlaneRotation.new(plane_nodes)
-                   else
-                     raise ArgumentError('No rotation vector given')
-                   end
+          EdgeRotation.new(edges[joint_json['rotation_axis_id']])
+        elsif !joint_json['rotation_plane_ids'].nil?
+          plane_nodes = joint_json['rotation_plane_ids'].map { |id| nodes[id] }
+          PlaneRotation.new(plane_nodes)
+        else
+          raise ArgumentError('No rotation vector given')
+        end
 
         joint = case joint_json['type']
-                when 'hinge'
-                  ThingyHinge.new(node, rotation)
-                when 'ball'
-                  ThingyBallJoint.new(node, rotation)
-                else
-                  raise "Unsupported joint type: #{joint_json['type']}"
-                end
+        when 'hinge'
+          ThingyHinge.new(node, rotation)
+        when 'ball'
+          ThingyBallJoint.new(node, rotation)
+        else
+          raise "Unsupported joint type: #{joint_json['type']}"
+        end
         if node == edge.first_node
           edge.thingy.first_joint = joint
         else

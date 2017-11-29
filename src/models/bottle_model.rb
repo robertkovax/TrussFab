@@ -1,11 +1,12 @@
 require 'src/models/bottle.rb'
 
 class BottleModel
-  attr_reader :name, :models
+  attr_reader :name, :models, :material
 
-  def initialize(name, specifications)
+  def initialize(name, specifications, material = 'bottle_material')
     @name = name
     @models = {}
+    @material = Sketchup.active_model.materials[material]
     specifications.each do |specification|
       @models[specification[:NAME]] = create_model(specification)
     end

@@ -3,7 +3,7 @@ require 'src/models/model_storage.rb'
 require 'src/simulation/simulation.rb'
 
 class Hub < PhysicsThingy
-  attr_accessor :position, :body
+  attr_accessor :position, :body, :mass
 
   def initialize(position, id: nil, material: 'hub_material')
     super(id, material: material)
@@ -12,6 +12,7 @@ class Hub < PhysicsThingy
     @position = position
     @entity = create_entity
     @id_label = nil
+    @mass = 0
     update_id_label
   end
 
@@ -45,10 +46,15 @@ class Hub < PhysicsThingy
   # Physics methods
   #
 
+  def add_mass(mass)
+    @mass += mass
+  end
+
   def create_body(world)
     @body = Simulation.create_body(world, @entity, collision_type: :sphere)
     @body.collidable = true
-    @body.mass = Simulation::HUB_MASS
+    @body.mass = @mass <= 0 ? Simulation::HUB_MASS : @mass
+    @body.auto_sleep_enabled = false
     pods.each do |pod|
       pod_body = pod.create_body(world)
       joint_to(world, MSPhysics::Fixed, pod_body, pod.direction, solver_model: 1)
