@@ -2,28 +2,90 @@ require 'src/tools/hinge_tool'
 require 'src/export/export_hinge'
 require 'src/export/export_hub'
 require 'src/export/export_elongation'
+require 'src/algorithms/relaxation.rb'
 
 class ScadExport
+  def self.l1_for_angle(angle)
+    p1_x = 30
+    p1_y = 60
+
+    p2_x = 90
+    p2_y = 20
+
+    m = (p2_y - p1_y) / (p2_x - p1_x)
+    b = p1_y - m * p1_x
+
+    m * angle + b
+  end
+
   def self.export_to_scad(path, nodes)
-    hinge_tool = HingeTool.new
+    hinge_tool = HingeTool.new(nil)
     hinge_tool.activate
+    relaxation = Relaxation.new
 
     export_hinges = []
     export_hubs = []
 
+    gap_height = 10
+    gap_epsilon = 0.8
+    l2 = 3 * gap_height + gap_epsilon
+
+    #TODO: find out minimum l3 value
+    l3_min = 10
+
     hinge_tool.hinges.each do |node, hinges|
       hinges.each do |hinge|
+        edge1 = hinge.edge1
+        edge2 = hinge.edge2
+
+        #TODO: remove code duplication
+        angle = hinge.edge1.direction.angle_between(hinge.edge2.direction)
+        angle = 180 / Math::PI * angle
+        angle = 180 - angle if angle > 90
+
+        l1 = l1_for_angle(angle)
+
+        [edge1, edge2].each do |edge|
+          loop do
+            elongation = edge1.first_node?(node) ? edge.first_elongation_length.to_mm : edge.second_elongation_length.to_mm
+
+            if elongation < l1 + l2 + l3_min
+              relaxation.stretch(edge)
+              relaxation.relax
+            else
+              break
+            end
+          end
+        end
+      end
+    end
+    Sketchup.active_model.commit_operation
+
+    hinge_tool.hinges.each do |node, hinges|
+      hinges.each do |hinge|
+        edge1 = hinge.edge1
+        edge2 = hinge.edge2
+        elongation1 = edge1.first_node?(node) ? edge1.first_elongation_length.to_mm : edge1.second_elongation_length.to_mm
+        elongation2 = edge2.first_node?(node) ? edge2.first_elongation_length.to_mm : edge2.second_elongation_length.to_mm
+
         #TODO: make sure that l1-l3 work with elongation of the two edges
         angle = hinge.edge1.direction.angle_between(hinge.edge2.direction)
         angle = 180 / Math::PI * angle
-        angle = angle - 90 if angle > 90
+        angle = 180 - angle if angle > 90
 
-        export_hinge = ExportHinge.new(40, 40, 40, 40, 40, 40,
+        l1 = l1_for_angle(angle)
+        a_l3 = elongation1 - l1 - l2
+        b_l3 = elongation2 - l1 - l2
+
+        if a_l3 <= 0 or b_l3 <= 0
+          p "Logic Error: l3 distance negative."
+        end
+
+        export_hinge = ExportHinge.new(l1, l2, a_l3, l1, l2, b_l3,
                                        angle, true, true, false, false)
         export_hinges.push(export_hinge)
       end
     end
-    p hinge_tool.hubs
 
     hinge_tool.hubs.each do |node, hubs|
       i = 0
@@ -32,7 +94,8 @@ class ScadExport
         export_hub = ExportHub.new(is_main_hub)
 
         hub.each do |edge|
-          export_elongation = ExportElongation.new(false, 0, 0, 0)
+          elongation = edge.first_node?(node) ? edge.first_elongation_length.to_mm : edge.second_elongation_length.to_mm
+          export_elongation = ExportElongation.new(false, elongation, 0, 0)
           export_hub.add_elongation(export_elongation)
         end
 
@@ -44,6 +107,7 @@ class ScadExport
     export_hinges.each do |hinge|
       hinge.write_to_file(path)
     end
+
     #nodes.each { |node| node_to_scad(path, node) }
   end
 

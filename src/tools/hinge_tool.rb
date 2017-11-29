@@ -148,13 +148,6 @@ class HingeTool < Tool
       add_hinge(hinge)
     end
 
-    hubs.each do |node, sub_hubs|
-      p "Node " + node.id.to_s + ": "
-      sub_hubs.each do |sub_hub|
-        p sub_hub.size
-      end
-    end
-
     node_hinges = Hash.new { |h,k| h[k] = [] }
     hinges.select { |hinge| hinge.type == 'dynamic' }.each do |hinge|
       node = hinge.edge1.shared_node(hinge.edge2)
