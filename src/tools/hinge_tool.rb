@@ -8,7 +8,8 @@ require 'src/simulation/thingy_rotation'
 class HingeTool < Tool
   attr_accessor :hubs, :hinges
 
-  def initialize
+  def initialize(ui)
+    super(ui)
     @hubs = nil
     @hinges = nil
   end
