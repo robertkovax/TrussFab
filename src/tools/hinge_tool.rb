@@ -9,6 +9,24 @@ class HingeTool < Tool
 
   MIN_ANGLE_DEVIATION = 0.05
 
+  class Hinge
+    attr_accessor :edge1, :edge2, :type
+
+    def initialize(edge1, edge2, type)
+      @edge1 = edge1
+      @edge2 = edge2
+      @type = type
+    end
+
+    def hash
+      self.class.hash ^ @edge1.hash ^ @edge2.hash
+    end
+
+    def eql?(other)
+      hash == other.hash
+    end
+  end
+
   def activate
     edges = Graph.instance.edges.values
 
@@ -18,8 +36,6 @@ class HingeTool < Tool
 
     actuators = edges.reject { |e| e.link_type != 'actuator' }
 
-    # Maps from a rotation axis to all triangles rotating around it
-    rotation_axis_to_tris = Hash.new { |h,k| h[k] = Set.new }
     # Maps from a triangle to all triangles rotating with it around a common axis
     rotation_partners = Hash.new { |h,k| h[k] = Set.new }
 
@@ -31,7 +47,7 @@ class HingeTool < Tool
       start_simulation(actuator)
       simulation_angles = triangle_pair_angles(triangle_pairs, true)
 
-      process_triangle_pairs(triangle_pairs, original_angles, simulation_angles, rotation_axis_to_tris, rotation_partners)
+      process_triangle_pairs(triangle_pairs, original_angles, simulation_angles, rotation_partners)
 
       reset_simulation
     end
@@ -62,6 +78,22 @@ class HingeTool < Tool
     end
 
     hinges = Set.new
+    hubs = Hash.new { |h,k| h[k] = [] }
+
+    # generate hubs for all groups with size > 1
+    processed_edges = Set.new
+    static_groups.select { |group| group.size > 1 }.each do |group|
+      group_nodes = Set.new group.flat_map { |tri| tri.nodes }
+      group_edges = Set.new group.flat_map { |tri| tri.edges }
+      group_edges = group_edges - processed_edges
+
+      group_nodes.each do |node|
+        hub_edges = group_edges.select { |edge| edge.nodes.include? node }
+        hubs[node].push(hub_edges)
+      end
+
+      processed_edges = processed_edges.merge(group_edges)
+    end
 
     static_groups.each do |group|
       other_groups = group_rotations[group].select { |other_group| group.size >= other_group.size }
@@ -81,22 +113,42 @@ class HingeTool < Tool
 
         hinging_tri = group2_adjacent_tris.sample
         (hinging_tri.edges - [axis]).each do |edge|
-          hinges.add(Set.new [edge, axis])
+          hinges.add(Hinge.new(edge, axis, 'dynamic'))
         end
       end
 
       if group.size == 1
+        # close triangle by placing hinges
         group.flat_map { |tri| tri.edges }.combination(2).each do |pair|
-          unless hinges.include?(Set.new [pair[0], pair[1]])
-            hinges.add(Set.new [pair[0], pair[1]])
+          node = pair[0].shared_node(pair[1])
+          has_hub = !hubs[node].empty?
+          has_pods = node.thingy.pods?
+          hinge_type = (has_pods and not has_hub) ? 'static' : 'dynamic'
+
+          new_hinge = Hinge.new(pair[0], pair[1], hinge_type)
+          unless hinges.include?(new_hinge)
+            hinges.add(new_hinge)
+
+            if hinge_type == 'static'
+              hubs[node].push([pair[0], pair[1]])
+            end
           end
         end
       end
     end
 
-    hinges.each do |pair|
-      axes = pair.to_a
-      add_hinge(axes[0], axes[1])
+    hinges.each do |hinge|
+      add_hinge(hinge)
+    end
+
+    #p hinges
+    p hubs.size
+
+    hubs.each do |node, sub_hubs|
+      p "Node " + node.id.to_s + ": "
+      sub_hubs.each do |sub_hub|
+        p sub_hub.size.to_s + ", "
+      end
     end
   end
 
@@ -179,25 +231,40 @@ class HingeTool < Tool
     end
   end
 
-  def add_hinge(rotation_axis, rotating_edge)
-    rotation = EdgeRotation.new(rotation_axis)
+  def add_hinge(hinge)
+    rotation_axis = hinge.edge1
+    rotating_edge = hinge.edge2
     node = rotating_edge.shared_node(rotation_axis)
-    hinge = ThingyHinge.new(node, rotation)
 
-    if rotating_edge.first_node?(node)
-      rotating_edge.thingy.first_joint = hinge
-    else
-      rotating_edge.thingy.second_joint = hinge
-    end
+    # rotation = EdgeRotation.new(rotation_axis)
+    # thingy_hinge = ThingyHinge.new(node, rotation)
+    #
+    # if rotating_edge.first_node?(node)
+    #   rotating_edge.thingy.first_joint = thingy_hinge
+    # else
+    #   rotating_edge.thingy.second_joint = thingy_hinge
+    # end
+
+    line1 = nil
+    line2 = nil
+
+    mid_point1 = Geom::Point3d.linear_combination(0.7, node.position, 0.3, rotation_axis.mid_point)
+    mid_point2 = Geom::Point3d.linear_combination(0.7, node.position, 0.3, rotating_edge.mid_point)
 
     # Draw hinge visualization
-    help_point = Geom::Point3d.linear_combination(0.7, node.position, 0.3, rotation_axis.mid_point)
-    starting_point = Geom::Point3d.linear_combination(0.7, node.position, 0.3, rotating_edge.mid_point)
-    mid_point = Geom::Point3d.linear_combination(0.3, starting_point, 0.7, help_point)
-    end_point = Geom::Point3d.linear_combination(0.7, mid_point, 0.3, rotation_axis.mid_point)
+    if hinge.type == 'dynamic'
+      #outwards = rotation_axis.direction.normalize + rotating_edge.direction.normalize
+      mid_point = Geom::Point3d.linear_combination(0.5, mid_point2, 0.5, mid_point1)
+      #mid_point = mid_point + (rotation_axis.mid_point + rotating_edge.mid_point) * 0.1
 
-    line1 = Line.new(starting_point, mid_point, HINGE_LINE)
-    line2 = Line.new(mid_point, end_point, HINGE_LINE)
+      line1 = Line.new(mid_point, mid_point1, HINGE_LINE)
+      line2 = Line.new(mid_point, mid_point2, HINGE_LINE)
+    elsif hinge.type == 'static'
+      line1 = Line.new(node.position, mid_point1, HINGE_LINE)
+      line2 = Line.new(node.position, mid_point2, HINGE_LINE)
+    else
+      p 'Logic Error: unknown hinge type.'
+    end
 
     rotating_edge.thingy.add(line1, line2)
   end
@@ -248,12 +315,9 @@ class HingeTool < Tool
     (angle - other_angle).abs > MIN_ANGLE_DEVIATION
   end
 
-  def process_triangle_pairs(triangle_pairs, original_angles, simulation_angles, hash, partners)
+  def process_triangle_pairs(triangle_pairs, original_angles, simulation_angles, partners)
     triangle_pairs.zip(original_angles, simulation_angles).each do |pair, oa, sa|
       if angle_changed?(oa, sa)
-        rotation_axis = pair[0].shared_edge(pair[1])
-        hash[rotation_axis].add(pair[0])
-        hash[rotation_axis].add(pair[1])
         partners[pair[0]].add(pair[1])
         partners[pair[1]].add(pair[0])
       end
