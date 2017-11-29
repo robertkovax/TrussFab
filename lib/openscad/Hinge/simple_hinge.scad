@@ -1,15 +1,21 @@
+// NB: Not all parameters for the angle and distance (to the origin) make sense. If the angle is low
+// e.g. 40 deg, the distance should be high e.g. 80 mm.
+
 use <../Misc/Prism.scad>
 
 // dimension of one hinge part
 depth = 24;
-width = 60;
+width = 100; // not really important because it gets cut off anyway. But should be large enough to cover all.
 
 // radius
 round_size = 12;    
 hole_size = 7/2;
 
 // the part where ohter connectors go
-gap_witdh = 2 *round_size + depth / 2; 
+// 1. summand: the diameter of the hinging part
+// 2. summand: the prism
+// 3. summand: extra offset because we want to turn beyond 90 deg
+gap_witdh = 2 * round_size + depth / 2 + round_size / 2; 
 
 gap_epsilon = 0.8;
 gap_height = 10;
@@ -19,7 +25,6 @@ safety_margin = 10;
 
 cap_end_round = 30 / 2;
 cap_end_heigth = 4;
-
 
 module hingepart(l1, l2, l3, gap, with_cap, solid_top, the_lower_one=false) {
     // the base model
@@ -78,7 +83,7 @@ module hingepart(l1, l2, l3, gap, with_cap, solid_top, the_lower_one=false) {
         prism(prism_height, x, x);
             
         // fill in space where the prism isn't enough
-        translate_help_cube_y = !the_lower_one ? -gap_height_e : 0;
+        translate_help_cube_y = the_lower_one ? 0 : -gap_height;
         translate([0, translate_help_cube_y, 0])
         cube([prism_translate_x, prism_height, depth]);
     }
@@ -112,8 +117,8 @@ module draw_hinge(
                 hingepart(a_l1, a_l2, a_l3, a_gap, a_with_cap, a_solid_top);
                 
                 // cut away parts that are on the on the other site
-                translate([-100, 0, -50])
-                cube([100, 100, 100]);
+                translate([-1000, 0, -500])
+                cube([1000, 1000, 1000]);
             }
             
             difference() {
@@ -125,8 +130,8 @@ module draw_hinge(
                 hingepart(b_l1, b_l2, b_l3, b_gap, b_with_cap, b_solid_top, the_lower_one=true);
 
                 // cut away parts that are on the on the other site
-                translate([0, 0, -50])
-                cube([100, 100, 100]);        
+                translate([0, 0, -500])
+                cube([1000, 1000, 1000]);        
             }
         }
         
@@ -138,7 +143,6 @@ module draw_hinge(
             translate([0, longest + 50, 0])
             cube([100, 100, 100], center=true);    
             
- 
             /*
                 The following code cuts out the last ramp of the hinge part that is clostest to
                 the origin. It's kind of difficult to achieve because before, every hinge part was
@@ -150,7 +154,7 @@ module draw_hinge(
             */
             prune_angle = 90 - (alpha / 2);
             prune_length = a_l1 * 2 - 0.001;
-            prune_width = gap_height * 1.7; // magic constant through experiments
+            prune_width = gap_height * 2.55; // magic constant through experiments            
             prune_depth = 100;
             for (i = [0:1]) {
                 rotate([45 + 90 * i, 0, prune_angle])
@@ -177,10 +181,10 @@ function optimal_distance_origin(angle) = (
 );
 
 //connection_angle = 60;
-connection_angle = 80;
+connection_angle = 60;
 
-distance_origin = optimal_distance_origin(connection_angle);
-//distance_origin = 5s0;
+//distance_origin = optimal_distance_origin(connection_angle);
+distance_origin = 65;
 
 elongation_length = 100;
 
