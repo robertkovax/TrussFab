@@ -10,11 +10,11 @@ class ScadExport
       vector = incident.direction.normalize
       if incident.first_node == node
         info[:addon_array] << "[#{incident.first_elongation_length.to_mm}, \"#{incident.second_node.id}\"0] "
-        info[:type_array] << '\"SNAP\"'
+        info[:type_array] << '"SNAP"'
       else
         vector.reverse!
         info[:addon_array] << "[#{incident.second_elongation_length.to_mm}, \"#{incident.first_node.id}\"0] "
-        info[:type_array] << '\"SNAP\"'
+        info[:type_array] << '"SNAP"'
       end
       info[:vector_array] << "[#{vector.to_a.join(', ')}]"
     end
