@@ -11,12 +11,17 @@ class ScadExport
     export_hinges = []
     export_hubs = []
 
-    hinge_tool.hinges.each do |hinge|
-      #TODO: make sure that l1-l3 work with elongation of the two edges
-      angle = hinge.edge1.angle_between(hinge.edge2)
-      export_hinge = ExportHinge.new(0, 0, 0, 0, 0, 0,
-                                     angle, true, true, false, false)
-      export_hinges.push(export_hinge)
+    hinge_tool.hinges.each do |node, hinges|
+      hinges.each do |hinge|
+        #TODO: make sure that l1-l3 work with elongation of the two edges
+        angle = hinge.edge1.direction.angle_between(hinge.edge2.direction)
+        angle = 180 / Math::PI * angle
+        angle = angle - 90 if angle > 90
+
+        export_hinge = ExportHinge.new(40, 40, 40, 40, 40, 40,
+                                       angle, true, true, false, false)
+        export_hinges.push(export_hinge)
+      end
     end
     p hinge_tool.hubs
 
@@ -36,6 +41,9 @@ class ScadExport
       end
     end
 
+    export_hinges.each do |hinge|
+      hinge.write_to_file(path)
+    end
     #nodes.each { |node| node_to_scad(path, node) }
   end
 
