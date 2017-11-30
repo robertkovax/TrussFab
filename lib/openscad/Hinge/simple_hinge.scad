@@ -3,11 +3,11 @@ use <../Misc/Prism.scad>
 
 
 module cut_out_a_cap(a_l1) {
-        translate([0, gap_height + 5, 0])
         mirror([1, 0, 0])
         union() {
         for (ii = [0:1]) {
-            y_height_gap_cut = a_l1 + ii * (gap_height + gap_height_e);
+            y_height_gap_cut = a_l1 + gap_height + ii * (2 * gap_height + gap_epsilon);
+            echo(y_height_gap_cut);
             for (i = [0:1]) {
                 rotate([0, -45 - i * 180, 0]) 
                 translate([0, y_height_gap_cut, 0])
@@ -83,13 +83,20 @@ module draw_hinge(
     b_translate_x = b_l1 * cos(90 + b_angle);
     b_translate_y = b_l1 * sin(90 + b_angle);
     
+//        cut_out_a_cap(40);
+    
 
     difference() {
     // the last cut out for the gap of the left side to fully hinge
     // the translations are only to cut off some other parts for the gaps more easily
-    translate([-6, a_l1, 0])
-    rotate([0, 0, alpha])
-    translate([0, -a_l1, 0])
+//    translate([-6, a_l1, 0])
+//    rotate([0, 0, alpha])
+//    translate([0, -a_l1, 0])
+//    translate([6,0,0])
+         translate([+extra_width_for_hinging + round_size, 0, 0])
+         rotate([0, 0, alpha / 2])    
+         rotate([0, 0, alpha / +2]) 
+        translate([+round_size + extra_width_for_hinging, 0, 0])
     difference() {
         translate([-round_size - extra_width_for_hinging, 0, 0])
         rotate([0, 0, alpha / -2])    
@@ -148,19 +155,19 @@ module draw_hinge(
 
 connection_angle = 40;
 
-l1 = 40;
-l2 = gap_height * 4 + gap_epsilon;
+l1 = 50;
+l2 = gap_height * 4 + gap_epsilon * 1.5; // beaause there is no need to have it for the free haning part
 l3 = 40;
 
-//draw_hinge(alpha=connection_angle,
-//    a_l1=l1, a_l2=l2, a_l3=l3, a_gap=true,
-//    b_l1=l1, b_l2=l2, b_l3=l3, b_gap=true);
+draw_hinge(alpha=connection_angle,
+    a_l1=l1, a_l2=l2, a_l3=l3, a_gap=true,
+    b_l1=l1, b_l2=l2, b_l3=l3, b_gap=true);
 
 //draw_hinge(alpha=connection_angle,
 //    a_l1=l1, a_l2=l2, a_l3=l3, a_gap=true,
 //    b_l1=l1, b_l2=l2, b_l3=l3, b_with_connector=true);
 
 
-draw_hinge(alpha=connection_angle,
-    a_l1=l1, a_l2=l2, a_l3=l3, b_gap=true,
-    b_l1=l1, b_l2=l2, b_l3=l3, a_with_connector=true);
+//draw_hinge(alpha=connection_angle,
+//    a_l1=l1, a_l2=l2, a_l3=l3, b_gap=true,
+//    b_l1=l1, b_l2=l2, b_l3=l3, a_with_connector=true);

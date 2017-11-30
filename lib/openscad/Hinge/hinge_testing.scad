@@ -16,10 +16,10 @@ function optimal_distance_origin(angle) = (
 );
 
 //connection_angle = 60;
-connection_angle = 30;
+connection_angle = 90;
 
 //distance_origin = optimal_distance_origin(connection_angle);
-distance_origin = 65;
+distance_origin = 50;
 
 elongation_length = 120;
 
