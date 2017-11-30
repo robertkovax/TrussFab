@@ -96,6 +96,8 @@ class Simulation
     @force_labels = {}
     @edges = []
     @moving_pistons = []
+    @breaking_force = 1500
+    @max_speed = 0
   end
 
   #
@@ -205,6 +207,18 @@ class Simulation
     @dialog.add_action_callback('test_piston') do |_context, id|
       @moving_pistons.push({:id=>id.to_i, :expanding=>true, :speed=>0.2})
     end
+    @dialog.add_action_callback('set_breaking_force') do |_context, param|
+      value = param.to_f
+      Sketchup.active_model.start_operation("Set Simulation Breaking Force", true)
+      @breaking_force = value
+      Sketchup.active_model.commit_operation
+    end
+    @dialog.add_action_callback('set_max_speed') do |_context, param|
+      value = param.to_f
+      Sketchup.active_model.start_operation("Set Simulation Breaking Force", true)
+      @max_speed = value
+      Sketchup.active_model.commit_operation
+    end
   end
 
   def close_piston_dialog
@@ -224,10 +238,10 @@ class Simulation
       piston.rate = hash[:speed]
       piston.controller = (hash[:expanding] ? piston.max : piston.min)
       if (piston.cur_position - piston.max).abs < 0.005 && hash[:expanding]
-        hash[:speed] += 0.05
+        hash[:speed] += 0.05 unless (hash[:speed] >= @max_speed && @max_speed != 0)
         hash[:expanding] = false
       elsif (piston.cur_position - piston.min).abs < 0.005 && !hash[:expanding]
-        hash[:speed] += 0.05
+        hash[:speed] += 0.05 unless (hash[:speed] >= @max_speed && @max_speed != 0)
         hash[:expanding] = true
       end
       hash
@@ -368,7 +382,7 @@ class Simulation
 
     position = link.body.get_position(1)
     visualize_force(link, lin_force)
-    if lin_force.abs > 1500
+    if lin_force.abs > @breaking_force
       update_force_label(link, lin_force, position)
       print_piston_stats
       @paused = true
