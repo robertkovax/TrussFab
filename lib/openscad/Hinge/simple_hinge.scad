@@ -1,33 +1,7 @@
-// NB: Not all parameters for the angle and distance (to the origin) make sense. If the angle is low
-// e.g. 40 deg, the distance should be high e.g. 80 mm.
-
+include <settings.scad>
 use <../Misc/Prism.scad>
 
-// dimension of one hinge part
-depth = 24;
-width = 100; // not really important because it gets cut off anyway. But should be large enough to cover all.
-
-// radius
-round_size = 12;    
-hole_size = 7/2;
-
-// the part where ohter connectors go
-// 1. summand: the diameter of the hinging part
-// 2. summand: the prism
-// 3. summand: extra offset because we want to turn beyond 90 deg
-extra_width_for_hinging = round_size / 2;
-gap_witdh = 2 * round_size + depth / 2 + extra_width_for_hinging; 
-
-gap_epsilon = 0.8;
-gap_height = 10;
-gap_height_e = gap_height + gap_epsilon;
-
-safety_margin = 10;
-
-cap_end_round = 30 / 2;
-cap_end_heigth = 4;
-
-module hingepart(l1, l2, l3, gap, with_cap, solid_top, the_lower_one=false) {
+module hingepart(l1, l2, l3, gap, with_cap, with_connector, the_lower_one=false) {
     // the base model
     difference() {
         union() {
@@ -37,17 +11,7 @@ module hingepart(l1, l2, l3, gap, with_cap, solid_top, the_lower_one=false) {
             rotate([-90, 0, 0])
             cylinder(l2, round_size, round_size);
             
-            if (with_cap) {
-                translate([width - round_size, l2 + safety_margin, depth / 2])
-                rotate([-90, 0, 0])
-                cylinder(l3, round_size, round_size);
-                
-                translate([width - round_size, l2 + l3 - cap_end_heigth + safety_margin, depth / 2])
-                rotate([-90, 0, 0])
-                cylinder(cap_end_heigth, cap_end_round, cap_end_round);
-            }
-            
-            if (solid_top) {
+            if (with_connector) {
                 translate([width - round_size, l2, depth / 2])
                 rotate([-90, 0, 0])
                 cylinder(l3, round_size, round_size);
@@ -55,20 +19,20 @@ module hingepart(l1, l2, l3, gap, with_cap, solid_top, the_lower_one=false) {
                 translate([width - round_size, l2 + l3 - cap_end_heigth, depth / 2])
                 rotate([-90, 0, 0])
                 cylinder(cap_end_heigth, cap_end_round, cap_end_round);
-
             }
-        }      
+        }     
         if (gap) {
             // move gap to the middle of the part
             cut_gap_height = gap_height;
             translate([width - gap_witdh, cut_gap_height, 0])
             cube([width, gap_height_e, depth]);
-            
+        }
+        
+        if (gap || with_connector) {
             // cut out the two holes
             translate([width - round_size, 0, depth / 2])
             rotate([-90, 0, 0])
-            
-            cylinder(l2 + l3 + safety_margin, hole_size, hole_size);
+            cylinder(l2 + l3, hole_size, hole_size);
         }
     }
     
@@ -97,8 +61,8 @@ b: the left part, should be the one closer to the origin
 
 module draw_hinge(
     alpha,
-    a_l1, a_l2, a_l3, a_gap, a_solid_top, a_with_cap,
-    b_l1, b_l2, b_l3, b_gap, b_solid_top, b_with_cap) {
+    a_l1, a_l2, a_l3, a_gap, a_with_connector, a_with_cap,
+    b_l1, b_l2, b_l3, b_gap, b_with_connector, b_with_cap) {
     
     a_angle = alpha / -2;
     a_translate_x = a_l1 * cos(90 + a_angle);
@@ -120,7 +84,7 @@ module draw_hinge(
                     rotate([0, 0, a_angle])
                     translate([-(width - round_size), 0, 0])
                     translate([0, 0, depth / -2]) // center on the z axis
-                    hingepart(a_l1, a_l2, a_l3, a_gap, a_with_cap, a_solid_top);
+                    hingepart(a_l1, a_l2, a_l3, a_gap, a_with_cap, a_with_connector);
                     
                     // cut away parts that are on the on the other site
                     translate([-1000, 0, -500])
@@ -133,7 +97,7 @@ module draw_hinge(
                     mirror([1, 0, 0])
                     translate([-(width - round_size), 0, 0])
                     translate([0, 0, depth / -2])
-                    hingepart(b_l1, b_l2, b_l3, b_gap, b_with_cap, b_solid_top, the_lower_one=true);
+                    hingepart(b_l1, b_l2, b_l3, b_gap, b_with_cap, b_with_connector, the_lower_one=true);
 
                     // cut away parts that are on the on the other site
                     translate([0, 0, -500])
@@ -142,7 +106,7 @@ module draw_hinge(
             }
             
             union() {
-                if (!a_solid_top && !b_solid_top) {
+                if (!a_with_connector && !b_with_connector) {
                     // cuts out parts at the top
                     a_l12 = a_l1 + a_l2;
                     b_l12 = b_l1 + b_l2;
@@ -182,7 +146,6 @@ module draw_hinge(
 }
 
 
-
 // linear function to get the optiomal distance to the origin
 p1_x = 30;
 p1_y = 60;
@@ -215,19 +178,19 @@ b_l3 = elongation_length - b_l1 - b_l2;
 
 //
 //draw_hinge(alpha=connection_angle,
-//    a_l1=l1, a_l2=l2, a_l3=l3, a_solid_top=true,
+//    a_l1=l1, a_l2=l2, a_l3=l3, a_with_connector=true,
 //    b_l1=l1, b_l2=l2, b_l3=l3, b_gap=true, b_with_cap=true);
 
 //
 //draw_hinge(alpha=connection_angle,
-//    a_l1=a_l1, a_l2=a_l2, a_l3=a_l3, a_solid_top=true,
+//    a_l1=a_l1, a_l2=a_l2, a_l3=a_l3, a_with_connector=true,
 //    b_l1=b_l1, b_l2=b_l2, b_l3=b_l3, b_gap=true, b_with_cap=true);
     
 //draw_hinge(alpha=connection_angle,
 //    a_l1=a_l1, a_l2=a_l2, a_l3=a_l3, a_gap=true,
-//    b_l1=b_l1, b_l2=b_l2, b_l3=b_l3, b_solid_top=true);
+//    b_l1=b_l1, b_l2=b_l2, b_l3=b_l3, b_with_connector=true);
     
 draw_hinge(alpha=connection_angle,
     a_l1=a_l1, a_l2=a_l2, a_l3=a_l3, a_gap=false,
-    b_l1=b_l1, b_l2=b_l2, b_l3=b_l3, b_gap=true, a_solid_top=true);  
+    b_l1=b_l1, b_l2=b_l2, b_l3=b_l3, b_gap=true, a_with_connector=true);  
         
