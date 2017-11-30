@@ -68,26 +68,23 @@ class ScadExport
         elongation1 = edge1.first_node?(node) ? edge1.first_elongation_length.to_mm : edge1.second_elongation_length.to_mm
         elongation2 = edge2.first_node?(node) ? edge2.first_elongation_length.to_mm : edge2.second_elongation_length.to_mm
 
-        #TODO: make sure that l1-l3 work with elongation of the two edges
-        angle = hinge.angle
-
         a_l3 = elongation1 - l1 - l2
         b_l3 = elongation2 - l1 - l2
 
-        export_cap = ExportCap.new(a_l3)
+        export_cap = ExportCap.new(edge1.id, a_l3)
         export_caps.push(export_cap)
 
         if a_l3 < l3_min or b_l3 < l3_min
           p 'Logic Error: l3 distance negative.'
         end
 
-        a_is_l3_solid = is_first
-        b_is_l3_solid = is_last
+        a_with_connector = is_first
+        b_with_connector = is_last
         a_gap = !is_first
         b_gap = !is_last
 
-        export_hinge = ExportHinge.new(l1, l2, a_l3, l1, l2, b_l3,
-                                       angle, a_gap, b_gap, a_is_l3_solid, b_is_l3_solid)
+        export_hinge = ExportHinge.new(edge1.id, edge2.id,l1, l2, a_l3, l1, l2, b_l3,
+                                       hinge.angle, a_gap, b_gap, a_with_connector, b_with_connector)
         export_hinges.push(export_hinge)
 
         i += 1

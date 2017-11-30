@@ -3,6 +3,7 @@
 
 class ExportHub
   def initialize(is_main_hub)
+    @id = IdManager.instance.generate_next_id
     @is_main_hub = is_main_hub # otherwise sub hubs ('hubless design')
     @elongations = []
     @pods = []
@@ -17,11 +18,9 @@ class ExportHub
   end
 
   def write_to_file(path)
-    filename = "#{path}/Hub_#{self.hash}.scad"
+    filename = "#{path}/Hub_#{@id}.scad"
     file = File.new(filename, 'w')
 
-    #TODO
-    id = 0
     mode = 'Tube'
 
     vector_array = []
@@ -50,7 +49,7 @@ class ExportHub
         "// adjust filepath to LibSTLExport if neccessary\n" \
       "include <#{ProjectHelper.library_directory}/openscad/LibSTLExport.scad>\n" \
       "\n" \
-      "hubID = \"#{id}\";\n" \
+      "hubID = \"#{@id}\";\n" \
       "mode = \"#{mode}\";\n" \
       "safetyFlag = false;\n" \
       "connectorDataDistance = 0;\n" \

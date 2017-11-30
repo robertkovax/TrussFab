@@ -186,22 +186,24 @@ class HingeTool < Tool
       end
     end
 
-    hinges.each do |hinge|
-      add_hinge(hinge)
-    end
-
-    node_hinges = Hash.new { |h,k| h[k] = [] }
+    hinge_map = Hash.new { |h,k| h[k] = [] }
     hinges.select { |hinge| hinge.type == 'dynamic' }.each do |hinge|
       node = hinge.edge1.shared_node(hinge.edge2)
-      node_hinges[node].push(hinge)
+      hinge_map[node].push(hinge)
     end
 
-    # orders hinges so that they form a chain
-    # also always puts the edge connected to the former hinge as edge1
-    # TODO: refactor
-    node_hinges2 = Hash.new { |h,k| h[k] = [] }
+    hinge_map = order_hinges(hinge_map)
 
-    node_hinges.each do |node, hinges|
+    @hubs = hubs
+    @hinges = hinge_map
+  end
+
+  # orders hinges so that they form a chain
+  # also always puts the edge connected to the former hinge as edge1
+  def order_hinges(hinge_map)
+    result = Hash.new { |h,k| h[k] = [] }
+
+    hinge_map.each do |node, hinges|
       if hinges.size == node.incidents.size
         hinges.pop
       end
@@ -224,11 +226,10 @@ class HingeTool < Tool
         cur_hinge = next_hinge_possibilities[0]
       end
 
-      node_hinges2[node] = new_hinges
+      result[node] = new_hinges
     end
 
-    @hubs = hubs
-    @hinges = node_hinges2
+    result
   end
 
   def group_hinges_around_axis?(hinges, group, axis)
