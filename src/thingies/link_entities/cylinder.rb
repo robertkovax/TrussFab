@@ -35,7 +35,7 @@ class Cylinder < Thingy
 
     transformation = rotation * translation
     Sketchup.active_model.active_entities.add_instance(@definition,
-                                                       transformation)
+                                                       transformation).make_unique
   end
 
   def change_color(color)

@@ -351,29 +351,41 @@ class Simulation
   def show_forces(view)
     Sketchup.active_model.start_operation('Change Materials', true)
     Graph.instance.edges.values.each do |edge|
-      # if edge.link_type == 'actuator'
-      #   [edge.thingy.first_cylinder, edge.thingy.first_cylinder].each do |cylinder|
-      #     show_force(edge.thingy, view)
-      #   end
-      # else
       show_force(edge.thingy, view)
-      # end
     end
     Sketchup.active_model.commit_operation
   end
 
-  def show_force(link, view)
-    return if link.body.nil?
-
-    body_orientation = link.body.get_matrix
+  def get_force_from_body(link, body)
+    return if body.nil?
+    body_orientation = body.get_matrix
     glob_up_vec = link.loc_up_vec.transform(body_orientation)
 
     f1 = link.first_joint.joint.get_tension1
     f2 = link.second_joint.joint.get_tension1
     lin_force = (f2 - f1).dot(glob_up_vec)
 
-    position = link.body.get_position(1)
-    visualize_force(link, lin_force)
+    position = body.get_position(1)
+    [lin_force, position]
+  end
+
+  def show_force(link, view)
+    lin_force = nil
+    position = nil
+    if !link.body.nil?
+      lin_force, position = get_force_from_body(link, link.body)
+      visualize_force(link, lin_force)
+    elsif (!link.first_cylinder_body.nil? && !link.second_cylinder_body.nil?)
+      [link.first_cylinder_body, link.second_cylinder_body].each do |body|
+        lin_force, position = get_force_from_body(link, body)
+        visualize_force(link, lin_force)
+      end
+    else
+      return
+    end
+
+    return if lin_force.nil?
+
     if lin_force.abs > 1500
       update_force_label(link, lin_force, position)
       print_piston_stats
@@ -384,35 +396,6 @@ class Simulation
     # Commented out for now in order to keep the simulation running quickly.
     # update_force_label(thingy, lin_force, position)
   end
-
-  # def get_force_from_body(body)
-  #   return if body.nil?
-  #   body_orientation = link.body.get_matrix
-  #   glob_up_vec = link.loc_up_vec.transform(body_orientation)
-
-  #   f1 = link.first_joint.joint.get_tension1
-  #   f2 = link.second_joint.joint.get_tension1
-  #   lin_force = (f2 - f1).dot(glob_up_vec)
-
-  #   position = link.body.get_position(1)
-  #   [lin_force, position]
-  # end
-
-  # def show_force(link, view)
-  #   lin_force, position = get_force_from_body(link.body)
-  #   return if lin_force.nil?
-
-  #   visualize_force(link, lin_force)
-  #   if lin_force.abs > 1500
-  #     update_force_label(link, lin_force, position)
-  #     print_piston_stats
-  #     @paused = true
-  #   end
-  #   # \note(tim): this has a huge performance impact. We may have to think about
-  #   # only showing the highest force or omit some values that are uninteresting
-  #   # Commented out for now in order to keep the simulation running quickly.
-  #   # update_force_label(thingy, lin_force, position)
-  # end
 
   def visualize_force(link, force)
     color = ColorConverter.get_color_for_force(force)
