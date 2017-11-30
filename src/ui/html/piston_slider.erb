@@ -11,6 +11,14 @@
     <input id="<%= piston_id %>" type="range" min="0" max="1" value="0.5" step="0.01" onchange="onChange(this.id, this.value)">
     <button id="<%= piston_id %>" class="tool" onclick="onClick(this.id)">Test</button>
 <% end %>
+<br><br>
+Breaking Force:
+<br>
+<input type="number" min = "0" value="<%= @breaking_force %>" step="1" onchange="set_breaking_force(this.value)"> N
+<br><br>
+Maximum Speed (0 for continuous acceleration):
+<br>
+<input type="number" value="<%= @max_speed %>" step="0.1" onchange="set_max_speed(this.value)"> m/s
 <script type="text/javascript">
     function onChange(id, newValue) {
         sketchup.change_piston(id, newValue);
@@ -19,6 +27,16 @@
 <script type="text/javascript">
     function onClick(id) {
         sketchup.test_piston(id)
+    }
+</script>
+<script type="text/javascript">
+    function set_breaking_force(value) {
+        sketchup.set_breaking_force(value)
+    }
+</script>
+<script type="text/javascript">
+    function set_max_speed(value) {
+        sketchup.set_max_speed(value)
     }
 </script>
 </body>
