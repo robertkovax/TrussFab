@@ -96,6 +96,9 @@ class Simulation
     @force_labels = {}
     @edges = []
     @moving_pistons = []
+    @breaking_force = 1500
+    @color_converter = ColorConverter.new(@breaking_force)
+    @max_speed = 0
   end
 
   #
@@ -205,6 +208,22 @@ class Simulation
     @dialog.add_action_callback('test_piston') do |_context, id|
       @moving_pistons.push({:id=>id.to_i, :expanding=>true, :speed=>0.2})
     end
+    <<<<<<< Updated upstream
+=======
+    @dialog.add_action_callback('set_breaking_force') do |_context, param|
+      value = param.to_f
+      Sketchup.active_model.start_operation("Set Simulation Breaking Force", true)
+      @breaking_force = value
+      @color_converter.update_max_force(@breaking_force)
+      Sketchup.active_model.commit_operation
+    end
+    @dialog.add_action_callback('set_max_speed') do |_context, param|
+      value = param.to_f
+      Sketchup.active_model.start_operation("Set Simulation Breaking Force", true)
+      @max_speed = value
+      Sketchup.active_model.commit_operation
+    end
+    >>>>>>> Stashed changes
   end
 
   def close_piston_dialog
@@ -380,7 +399,7 @@ class Simulation
   end
 
   def visualize_force(link, force)
-    color = ColorConverter.get_color_for_force(force)
+    color = @color_converter.get_color_for_force(force)
     link.change_color(color)
   end
 
