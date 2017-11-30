@@ -13,6 +13,10 @@ module addBaseTube() {
 		sphere(r=holderODSNAP/2);
     } else if (search(["PLUG"],connectorTypeArray)!=[[]]) { //Check from big to small
 		sphere(r=tubeODPLUG/2);
+    } else if (search(["PLUGPLANE"],connectorTypeArray)!=[[]]) {
+        sphere(r=tubeODPLUGPLANE/2);
+    } else if (search(["PLUGHOLE"],connectorTypeArray)!=[[]]) {
+        sphere(r=tubeODPLUGHOLE/2);
 	} else if (search(["PH"],connectorTypeArray)!=[[]]) {
 		sphere(r=holderODPH);
 	} 
@@ -53,6 +57,12 @@ module addAddonTube(vStart,part,distance,parametersArray) { // Adding the addons
 	else if (part == "PLUG") {
 		drawPLUG();
 	}
+	else if (part == "PLUGPLANE") {
+		drawPLUGPLANE();
+	}
+	else if (part == "PLUGHOLE") {
+		drawPLUGHOLE();
+	}
 	else if (part == "STAND") {
 		drawSTAND(parametersArray); //Stand has user defined size
 	}
@@ -65,6 +75,9 @@ module addAddonTube(vStart,part,distance,parametersArray) { // Adding the addons
 	else if (part == "STRONG") {
 		drawStrong();
 	}
+    else if (part == "HOLE") {
+        drawHole();
+    }
 }
 
 module addSubstractionTube(vStart,part,distance,parametersArray) { // Remove parts to counter overlapping. Optional, used when safetyFlag = true.
@@ -99,6 +112,12 @@ module addSubstractionTube(vStart,part,distance,parametersArray) { // Remove par
 	else if (part == "PLUG") {
 		substractPLUG();
 	}
+    else if (part == "PLUGPLANE") {
+        substractPLUGPLANE();
+    }
+    else if (part == "PLUGHOLE") {
+        substractPLUGHOLE();
+    }
 	else if (part == "STAND") {
 		substractSTAND(parametersArray);
 	}
@@ -139,8 +158,14 @@ module addHolesTube(vStart,part,distance,holeLength,paramArray) { // Always used
     if (part == "SNAP") {
 		holeSNAP(holeLength);
 	}
-	else if (part == "PLUG") {
-       // holePLUG(holeLength, 0);
+    else if (part == "PLUGHOLE") {
+        holePLUGHOLE(holeLength, 0);
+    }
+    else if (part == "PLUGPLANE") {
+        holePLUGPLANE(holeLength, 0);
+    }
+	else if (part == "HOLE") {
+        holeHOLE(holeLength, 0);
 	}
 	else if (part == "STAND") {
        // holePLUG(holeLength, 20);
@@ -188,7 +213,24 @@ module addExtrusionTube(vStart,distance,widthOfExtrusionTube,thinning,hubID, con
                 text_on_cylinder(t=hubID,locn_vec=[0,0,-5],r=(widthOfExtrusionTube/2),h=1,eastwest=90,direction="ltr",size=textSize);
                 //text_on_cylinder(t=hubID,locn_vec=[0,0,-5],r=(widthOfExtrusionTube/2),h=1,eastwest=270,direction="ltr",size=textSize);
             }
-        }else
+        }
+        else if (connectorType == "PLUGHOLE"){
+            translate([0,0,6])
+            rotate(180,[1,0,0]) // The connection-ID's are added here on the sides of the tubes.
+            {
+                text_on_cylinder(t=hubID,locn_vec=[0,0,-5],r=(widthOfExtrusionTube/2),h=1,eastwest=90,direction="ltr",size=textSize);
+                //text_on_cylinder(t=hubID,locn_vec=[0,0,-5],r=(widthOfExtrusionTube/2),h=1,eastwest=270,direction="ltr",size=textSize);
+            }
+        }
+        else if (connectorType == "PLUGPLANE"){
+            translate([0,0,6])
+            rotate(180,[1,0,0]) // The connection-ID's are added here on the sides of the tubes.
+            {
+                text_on_cylinder(t=hubID,locn_vec=[0,0,-5],r=(widthOfExtrusionTube/2),h=1,eastwest=90,direction="ltr",size=textSize);
+                //text_on_cylinder(t=hubID,locn_vec=[0,0,-5],r=(widthOfExtrusionTube/2),h=1,eastwest=270,direction="ltr",size=textSize);
+            }
+        }
+        else
         {
             rotate(180,[1,0,0]) // The connection-ID's are added here on the sides of the tubes.
             {

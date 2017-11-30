@@ -25,7 +25,7 @@ dataFileVectorArray = [ // Storage for all vectors (different addons, standing p
 
 dataFileAddonParameterArray = [ // Parameters for all addons; First parameter = extra distance of the addon from the center of the connector in mm, 
 	// Second (6. for stand addons) parameter = specific connection ID. Use "undef" (without parenthesis) to use the hubID for this connection instead. Use " " (whitespace-String) for no text. 
-	// Third (7. for stand addons) parameter = diameter for a hole for a string that can be stretched throuhg or alongside the bottle connection to strengthen it against tensile forces
+	// Third (7. for stand addons) parameter = diameter for a hole for a string that can be stretched through or alongside the bottle connection to strengthen it against tensile forces
     // Fourth (Not necessary for stand addons yet) parameter = length of hole, e.g. for SnapPush wedge. If this is undef, a value long enough to penetrate the whole connector+connections is used instead.
 [0,undef,0],
 [15,"conn_2",5],

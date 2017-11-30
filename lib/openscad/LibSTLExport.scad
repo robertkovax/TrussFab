@@ -17,6 +17,10 @@ include <ConnectorTypes/BBSbig.scad>
 include <ConnectorTypes/HINGE.scad>
 include <ConnectorTypes/STRONG.scad>
 include <ConnectorTypes/PLUG.scad>
+include <ConnectorTypes/HOLE.scad>
+include <ConnectorTypes/PLUGHOLE.scad>
+include <ConnectorTypes/PLUGPLANE.scad>
+
 
 // ********* Script Setup *********
 
@@ -70,8 +74,11 @@ module drawTubeConnectors(vectorArray, addonParameterArray, connectorTypeArray){
             holeLengthForSNAP =
                 (connectorTypeArray[i] == "PLUG") ? (addonParameterArray[i][0]) :
                 ((connectorTypeArray[i] == "STAND") ? (addonParameterArray[i][0]+addonParameterArray[i][2]+addonParameterArray[i][4]+16) :
-                ((addonParameterArray[i][3] == undef) ?
-                (40+30+2*connectorDataDistance) : (addonParameterArray[i][3])));
+                ((connectorTypeArray[i] == "PLUGHOLE") ? (addonParameterArray[i][0]) :
+                ((connectorTypeArray[i] == "PLUGPLANE") ? (addonParameterArray[i][0]) :
+                ((connectorTypeArray[i] == "HOLE") ? (addonParameterArray[i][0]) :
+                ((addonParameterArray[i][3] == undef) ? (40+30+2*connectorDataDistance) :
+                (addonParameterArray[i][3]))))));
 
             echo(holeLength=holeLengthForSNAP);
             addHolesTube(vectorArray[i],connectorTypeArray[i],connectorDataDistance+prolongedConnectionLength+50,holeLengthForSNAP,addonParameterArray[i]);
@@ -98,11 +105,14 @@ function getExtrusionTubeWidth(connectorType, addonParameterArray,i)=
             ((connectorType=="BBSsmall") ? (connectorDataArrayBBSsmall[0]) :
             ((connectorType=="BBSbig") ? (connectorDataArrayBBSbig[0]) :
             ((connectorType=="PLUG") ? (connectorDataArrayPLUG[0]) :
+            ((connectorType=="PLUGPLANE") ? (connectorDataArrayPLUG[0]) :
             ((connectorType=="STAND") ? (addonParameterArray[i][3]) : //Stand does not have a fixed width, always user defined
             ((connectorType=="HINGEF") ? (connectorDataArrayHingeF[0]) :
             ((connectorType=="HINGEM") ? (connectorDataArrayHinge[0]) :
             ((connectorType=="STRONG") ? (connectorDataArrayStrong[0]) :
-            (0))))))))))
+            ((connectorType=="HOLE") ? (connectorDataArrayHOLE[0]) :
+            ((connectorType=="PLUGHOLE") ? (connectorDataArrayPLUGHOLE[0]) :
+            (0)))))))))))))
 ;
 
 function getSubstractionLength(connectorType)= 
@@ -112,11 +122,15 @@ function getSubstractionLength(connectorType)=
                 ((connectorTypeArray[i]=="BBSsmall") ? (connectorDataArrayBBSsmall[1]) :
                 ((connectorTypeArray[i]=="BBSbig") ? (connectorDataArrayBBSbig[1]) :
                 ((connectorTypeArray[i]=="PLUG") ? (connectorDataArrayPLUG[1]) :
+                ((connectorTypeArray[i]=="PLUGPLANE") ? (connectorDataArrayPLUG[1]) :
+                ((connectorTypeArray[i]=="HOLE") ? (connectorDataArrayHOLE[1]) :
+                ((connectorTypeArray[i]=="PLUGHOLE") ? (connectorDataArrayPLUGHOLE[1]) :
                 ((connectorTypeArray[i]=="STAND") ? (0) :
 	            ((connectorType=="HINGEF") ? (connectorDataArrayHingeF[1]) :
 	            ((connectorType=="HINGEM") ? (connectorDataArrayHinge[1]) :
                 ((connectorType=="STRONG") ? (connectorDataArrayStrong[1]) :
-	            (0))))))))))
+
+	            (0)))))))))))))
 ;
 
 module drawFlatConnectors(vectorArray, addonParameterArray, connectorTypeArray){
