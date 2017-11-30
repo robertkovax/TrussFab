@@ -97,6 +97,7 @@ class Simulation
     @edges = []
     @moving_pistons = []
     @breaking_force = 1500
+    @color_converter = ColorConverter.new(@breaking_force)
     @max_speed = 0
   end
 
@@ -211,6 +212,7 @@ class Simulation
       value = param.to_f
       Sketchup.active_model.start_operation("Set Simulation Breaking Force", true)
       @breaking_force = value
+      @color_converter.update_max_force(@breaking_force)
       Sketchup.active_model.commit_operation
     end
     @dialog.add_action_callback('set_max_speed') do |_context, param|
@@ -394,7 +396,7 @@ class Simulation
   end
 
   def visualize_force(link, force)
-    color = ColorConverter.get_color_for_force(force)
+    color = @color_converter.get_color_for_force(force)
     link.change_color(color)
   end
 
