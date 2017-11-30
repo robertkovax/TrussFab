@@ -2,6 +2,7 @@ require 'src/tools/hinge_tool'
 require 'src/export/export_hinge'
 require 'src/export/export_hub'
 require 'src/export/export_elongation'
+require 'src/export/export_cap'
 require 'src/algorithms/relaxation.rb'
 
 class ScadExport
@@ -12,6 +13,7 @@ class ScadExport
 
     export_hinges = []
     export_hubs = []
+    export_caps = []
 
     gap_height = 10
     gap_epsilon = 0.8
@@ -43,17 +45,38 @@ class ScadExport
     end
     Sketchup.active_model.commit_operation
 
+    # stored the l1 value per node (since it needs to be constant across a node)
+    node_l1 = Hash.new
+
     hinge_tool.hinges.each do |node, hinges|
+      max_l1 = 0.0
+
       hinges.each do |hinge|
+        max_l1 = [max_l1, hinge.l1].max
+      end
+
+      node_l1[node] = max_l1
+    end
+
+    hinge_tool.hinges.each do |node, hinges|
+      l1 = node_l1[node]
+
+      i = 0
+      hinges.each do |hinge|
+        is_first = (i == 0)
+        is_last = (i == hinges.size - 1)
+
         edge1 = hinge.edge1
         edge2 = hinge.edge2
         elongation1 = edge1.first_node?(node) ? edge1.first_elongation_length.to_mm : edge1.second_elongation_length.to_mm
         elongation2 = edge2.first_node?(node) ? edge2.first_elongation_length.to_mm : edge2.second_elongation_length.to_mm
 
+        export_cap = ExportCap.new(elongation1)
+        export_caps.push(export_cap)
+
         #TODO: make sure that l1-l3 work with elongation of the two edges
         angle = hinge.angle
 
-        l1 = hinge.l1
         a_l3 = elongation1 - l1 - l2
         b_l3 = elongation2 - l1 - l2
 
@@ -61,9 +84,16 @@ class ScadExport
           p 'Logic Error: l3 distance negative.'
         end
 
+        a_is_l3_solid = is_first
+        b_is_l3_solid = is_last
+        a_gap = !is_first
+        b_gap = !is_last
+
         export_hinge = ExportHinge.new(l1, l2, a_l3, l1, l2, b_l3,
-                                       angle, true, true, false, false)
+                                       angle, a_gap, b_gap, a_is_l3_solid, b_is_l3_solid)
         export_hinges.push(export_hinge)
+
+        i += 1
       end
     end
 
@@ -123,6 +153,10 @@ class ScadExport
 
     export_hubs.each do |hub|
       hub.write_to_file(path)
+    end
+
+    export_caps.each do |cap|
+      cap.write_to_file(path)
     end
 
     #nodes.each { |node| node_to_scad(path, node) }

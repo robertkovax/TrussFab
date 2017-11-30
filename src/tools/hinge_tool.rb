@@ -33,6 +33,27 @@ class HingeTool < Tool
       hash == other.hash
     end
 
+    # TODO assertion
+    def common_edge(other)
+      common_edges = [edge1, edge2] & [other.edge1, other.edge2]
+      common_edges[0]
+    end
+
+    def connected_with?(other)
+      common_edges = [edge1, edge2] & [other.edge1, other.edge2]
+      common_edges.size > 0
+    end
+
+    def num_connected_hinges(hinges)
+      hinges.select { |other| not eql?(other) and connected_with?(other) }.size
+    end
+
+    def swap_edges
+      temp = @edge1
+      @edge1 = @edge2
+      @edge2 = temp
+    end
+
     def angle
       val = @edge1.direction.angle_between(@edge2.direction)
       val = 180 / Math::PI * val
@@ -175,8 +196,39 @@ class HingeTool < Tool
       node_hinges[node].push(hinge)
     end
 
+    # orders hinges so that they form a chain
+    # also always puts the edge connected to the former hinge as edge1
+    # TODO: refactor
+    node_hinges2 = Hash.new { |h,k| h[k] = [] }
+
+    node_hinges.each do |node, hinges|
+      if hinges.size == node.incidents.size
+        hinges.pop
+      end
+
+      sorted_hinges = hinges.sort { |h1, h2| h1.num_connected_hinges(hinges) <=> h2.num_connected_hinges(hinges) }
+      cur_hinge = sorted_hinges[0]
+      new_hinges = []
+
+      while new_hinges.size < hinges.size
+        new_hinges.push(cur_hinge)
+        next_hinge_possibilities = hinges.select { |hinge| hinge.connected_with?(cur_hinge) and not new_hinges.include?(hinge) }
+        break if next_hinge_possibilities.empty?
+        if next_hinge_possibilities.size > 1
+          p "Logic Error: more than one next hinge possible."
+        end
+
+        if cur_hinge.common_edge(next_hinge_possibilities[0]) != next_hinge_possibilities[0].edge1
+          next_hinge_possibilities[0].swap_edges
+        end
+        cur_hinge = next_hinge_possibilities[0]
+      end
+
+      node_hinges2[node] = new_hinges
+    end
+
     @hubs = hubs
-    @hinges = node_hinges
+    @hinges = node_hinges2
   end
 
   def group_hinges_around_axis?(hinges, group, axis)
