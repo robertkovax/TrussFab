@@ -159,13 +159,15 @@ module draw_hinge(
                     know the exacat distance from the origin. But it still unclear (to me) what the
                     excact modifications were just tried out some values.
                 */
-                prune_angle = 90 - (alpha / 2);
-                prune_length = a_l1 * 2 - 0.001;
-                prune_width = gap_height * 2.55; // magic constant through experiments            
-                prune_depth = 100;
-                for (i = [0:1]) {
-                    rotate([45 + 90 * i, 0, prune_angle])
-                    cube([prune_length, prune_width, prune_depth], center=true);
+                if (a_gap) {
+                    prune_angle = 90 - (alpha / 2);
+                    prune_length = a_l1 * 2 - 0.001;
+                    prune_width = gap_height * 2.55; // magic constant through experiments            
+                    prune_depth = 100;
+                    for (i = [0:1]) {
+                        rotate([45 + 90 * i, 0, prune_angle])
+                        cube([prune_length, prune_width, prune_depth], center=true);
+                    }
                 }
             }
         }
