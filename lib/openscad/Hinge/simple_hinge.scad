@@ -19,19 +19,19 @@ module hingepart(l1, l2, l3, gap, with_cap, with_connector, the_lower_one=false)
                 translate([width - round_size, l2 + l3 - cap_end_heigth, depth / 2])
                 rotate([-90, 0, 0])
                 cylinder(cap_end_heigth, cap_end_round, cap_end_round);
-
             }
-        }      
+        }     
         if (gap) {
             // move gap to the middle of the part
             cut_gap_height = gap_height;
             translate([width - gap_witdh, cut_gap_height, 0])
             cube([width, gap_height_e, depth]);
-            
+        }
+        
+        if (gap || with_connector) {
             // cut out the two holes
             translate([width - round_size, 0, depth / 2])
             rotate([-90, 0, 0])
-            
             cylinder(l2 + l3, hole_size, hole_size);
         }
     }
@@ -144,7 +144,6 @@ module draw_hinge(
         }
     }
 }
-
 
 
 // linear function to get the optiomal distance to the origin
