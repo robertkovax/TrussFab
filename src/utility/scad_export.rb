@@ -130,7 +130,7 @@ class ScadExport
             end
           end
 
-          export_elongation = ExportElongation.new(is_hinge_connected, cur_l1, cur_l2, cur_l3, direction)
+          export_elongation = ExportElongation.new(edge.id, is_hinge_connected, cur_l1, cur_l2, cur_l3, direction)
           export_hub.add_elongation(export_elongation)
         end
 

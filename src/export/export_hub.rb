@@ -36,7 +36,7 @@ class ExportHub
 
       vector_array << "[#{elongation.direction.to_a.join(', ')}]"
       #TODO: get id of connected node
-      addon_array << "[#{elongation.l1}, \"#{0}\"]"
+      addon_array << "[#{elongation.l1}, \"#{elongation.edge_id}\"]"
     end
 
     @pods.each do |pod|

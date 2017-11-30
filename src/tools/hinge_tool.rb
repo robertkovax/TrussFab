@@ -194,6 +194,12 @@ class HingeTool < Tool
 
     hinge_map = order_hinges(hinge_map)
 
+    hinge_map.values.each do |hinges|
+      hinges.each do |hinge|
+        add_hinge(hinge)
+      end
+    end
+
     @hubs = hubs
     @hinges = hinge_map
   end
