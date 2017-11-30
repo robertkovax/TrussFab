@@ -43,7 +43,7 @@ class ExportHub
     @pods.each do |pod|
       addon_array << '[(45 - 0 - 10), "STAND",0,24,10,60,0]'
       type_array << '"STAND"'
-      vector_array << pod.direction.normalize.to_a.join(', ').to_s
+      vector_array << "[" + pod.direction.normalize.to_a.join(', ').to_s + "]"
     end
 
     export_string =

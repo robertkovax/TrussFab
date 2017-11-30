@@ -22,29 +22,6 @@ class ScadExport
     #TODO: find out minimum l3 value
     l3_min = 10
 
-    hinge_tool.hinges.each do |node, hinges|
-      hinges.each do |hinge|
-        edge1 = hinge.edge1
-        edge2 = hinge.edge2
-
-        l1 = hinge.l1
-
-        [edge1, edge2].each do |edge|
-          loop do
-            elongation = edge1.first_node?(node) ? edge.first_elongation_length.to_mm : edge.second_elongation_length.to_mm
-
-            if elongation < l1 + l2 + l3_min
-              relaxation.stretch(edge)
-              relaxation.relax
-            else
-              break
-            end
-          end
-        end
-      end
-    end
-    Sketchup.active_model.commit_operation
-
     # stored the l1 value per node (since it needs to be constant across a node)
     node_l1 = Hash.new
 
@@ -61,6 +38,26 @@ class ScadExport
     hinge_tool.hinges.each do |node, hinges|
       l1 = node_l1[node]
 
+      hinges.each do |hinge|
+        [hinge.edge1, hinge.edge2].each do |edge|
+          loop do
+            elongation = edge.first_node?(node) ? edge.first_elongation_length.to_mm : edge.second_elongation_length.to_mm
+
+            if elongation < l1 + l2 + l3_min
+              relaxation.stretch(edge)
+              relaxation.relax
+            else
+              break
+            end
+          end
+        end
+      end
+    end
+    Sketchup.active_model.commit_operation
+
+    hinge_tool.hinges.each do |node, hinges|
+      l1 = node_l1[node]
+
       i = 0
       hinges.each do |hinge|
         is_first = (i == 0)
@@ -71,14 +68,14 @@ class ScadExport
         elongation1 = edge1.first_node?(node) ? edge1.first_elongation_length.to_mm : edge1.second_elongation_length.to_mm
         elongation2 = edge2.first_node?(node) ? edge2.first_elongation_length.to_mm : edge2.second_elongation_length.to_mm
 
-        export_cap = ExportCap.new(elongation1)
-        export_caps.push(export_cap)
-
         #TODO: make sure that l1-l3 work with elongation of the two edges
         angle = hinge.angle
 
         a_l3 = elongation1 - l1 - l2
         b_l3 = elongation2 - l1 - l2
+
+        export_cap = ExportCap.new(a_l3)
+        export_caps.push(export_cap)
 
         if a_l3 < l3_min or b_l3 < l3_min
           p 'Logic Error: l3 distance negative.'
@@ -119,16 +116,14 @@ class ScadExport
           other_node = edge.other_node(node)
           direction = node.position.vector_to(other_node.position).normalize
 
-          #TODO: assert that all hinges have same l1
-
           cur_l1 = elongation
           cur_l2 = 0
           cur_l3 = 0
           is_hinge_connected = hinges.size > 0
 
           if is_hinge_connected
-            hinge = hinges[0]
-            cur_l1 = hinge.l1
+            l1 = node_l1[node]
+            cur_l1 = l1
             cur_l2 = l2
             cur_l2 += gap_height if hinges.size == 2
             cur_l3 = elongation - cur_l1 - l2
