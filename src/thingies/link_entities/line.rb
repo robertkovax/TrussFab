@@ -10,6 +10,7 @@ class Line < Thingy
     @second_position = second_position
     @line_type = line_type
     @entity = create_entity
+    persist_entity
   end
 
   def create_entity

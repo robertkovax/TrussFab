@@ -24,6 +24,9 @@ module Configuration
     style: UI::HtmlDialog::STYLE_DIALOG
   }.freeze
 
+  UI_WIDTH = 380
+  UI_HEIGHT = 700
+
   # Thingy properties
   MINIMUM_ELONGATION = 20.mm.freeze
   DEFAULT_ELONGATION = 30.mm.freeze
@@ -92,12 +95,6 @@ module Configuration
   # Behavioural constants
   SNAP_TOLERANCE = 200.mm.freeze
   INTERSECTION_OFFSET = 200.mm.freeze
-
-  # Piston constants
-  # \note(tim): if these are changed, the values in piston_slider.erb have to be
-  # => changed as well
-  MAX_PISTON_HUB = 0.2
-  MIN_PISTON_HUB = -0.2
 
   # this constant defines how accurate the joints are calculated.
   # 0: Most accurate (VERY slow. We probably don't want to use it in interactive mode)

@@ -69,10 +69,13 @@ class Simulation
       joint
     end
 
-    def create_piston(world, parent_body, child_body, matrix)
+    def create_piston(world, parent_body, child_body, matrix, dampening, rate, power, min, max)
       piston = joint_between(world, MSPhysics::Piston, parent_body, child_body, matrix)
-      piston.rate = PISTON_RATE
-      piston.reduction_ratio = 0.05
+      piston.reduction_ratio = dampening
+      piston.rate = rate
+      piston.power = power
+      piston.min = min
+      piston.max = max
       piston
     end
   end
@@ -191,17 +194,25 @@ class Simulation
     file_content = File.read(File.join(File.dirname(__FILE__), '../ui/html/piston_slider.erb'))
     template = ERB.new(file_content)
     @dialog.set_html(template.result(binding))
+    @dialog.set_size(300, Configuration::UI_HEIGHT)
     @dialog.show
     @dialog.add_action_callback('change_piston') do |_context, id, value|
       value = value.to_f
       id = id.to_i
-      @pistons[id].rate = PISTON_RATE
-      @pistons[id].controller = value
-      test_pistons
+      piston = @pistons[id]
+      @pistons[id].controller = piston.min + value * (piston.max - piston.min)
     end
     @dialog.add_action_callback('test_piston') do |_context, id|
       @moving_pistons.push({:id=>id.to_i, :expanding=>true, :speed=>0.2})
-      # test_pistons
+    end
+  end
+
+  def close_piston_dialog
+    #close old window
+    unless @dialog.nil?
+      if @dialog.visible?
+        @dialog.close
+      end
     end
   end
 
@@ -211,11 +222,11 @@ class Simulation
       piston = @pistons[hash[:id]]
 
       piston.rate = hash[:speed]
-      piston.controller = (hash[:expanding] ? Configuration::MAX_PISTON_HUB : Configuration::MIN_PISTON_HUB)
-      if (piston.cur_position - Configuration::MAX_PISTON_HUB).abs < 0.005 && hash[:expanding]
+      piston.controller = (hash[:expanding] ? piston.max : piston.min)
+      if (piston.cur_position - piston.max).abs < 0.005 && hash[:expanding]
         hash[:speed] += 0.05
         hash[:expanding] = false
-      elsif (piston.cur_position - Configuration::MIN_PISTON_HUB).abs < 0.005 && !hash[:expanding]
+      elsif (piston.cur_position - piston.min).abs < 0.005 && !hash[:expanding]
         hash[:speed] += 0.05
         hash[:expanding] = true
       end
@@ -274,6 +285,7 @@ class Simulation
     show_triangle_surfaces if @triangles_hidden
     reset_force_color
     reset_force_labels
+    close_piston_dialog
     @moving_pistons.clear
     destroy_world
   end
