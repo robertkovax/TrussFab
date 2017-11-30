@@ -1,31 +1,5 @@
-// NB: Not all parameters for the angle and distance (to the origin) make sense. If the angle is low
-// e.g. 40 deg, the distance should be high e.g. 80 mm.
-
+include <settings.scad>
 use <../Misc/Prism.scad>
-
-// dimension of one hinge part
-depth = 24;
-width = 100; // not really important because it gets cut off anyway. But should be large enough to cover all.
-
-// radius
-round_size = 12;    
-hole_size = 7/2;
-
-// the part where ohter connectors go
-// 1. summand: the diameter of the hinging part
-// 2. summand: the prism
-// 3. summand: extra offset because we want to turn beyond 90 deg
-extra_width_for_hinging = round_size / 2;
-gap_witdh = 2 * round_size + depth / 2 + extra_width_for_hinging; 
-
-gap_epsilon = 0.8;
-gap_height = 10;
-gap_height_e = gap_height + gap_epsilon;
-
-safety_margin = 10;
-
-cap_end_round = 30 / 2;
-cap_end_heigth = 4;
 
 module hingepart(l1, l2, l3, gap, with_cap, with_connector, the_lower_one=false) {
     // the base model
@@ -36,16 +10,6 @@ module hingepart(l1, l2, l3, gap, with_cap, with_connector, the_lower_one=false)
             translate([width - round_size, 0, depth / 2])
             rotate([-90, 0, 0])
             cylinder(l2, round_size, round_size);
-            
-            if (with_cap) {
-                translate([width - round_size, l2 + safety_margin, depth / 2])
-                rotate([-90, 0, 0])
-                cylinder(l3, round_size, round_size);
-                
-                translate([width - round_size, l2 + l3 - cap_end_heigth + safety_margin, depth / 2])
-                rotate([-90, 0, 0])
-                cylinder(cap_end_heigth, cap_end_round, cap_end_round);
-            }
             
             if (with_connector) {
                 translate([width - round_size, l2, depth / 2])
@@ -68,7 +32,7 @@ module hingepart(l1, l2, l3, gap, with_cap, with_connector, the_lower_one=false)
             translate([width - round_size, 0, depth / 2])
             rotate([-90, 0, 0])
             
-            cylinder(l2 + l3 + safety_margin, hole_size, hole_size);
+            cylinder(l2 + l3, hole_size, hole_size);
         }
     }
     
