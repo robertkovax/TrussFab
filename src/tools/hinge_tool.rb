@@ -32,6 +32,27 @@ class HingeTool < Tool
     def eql?(other)
       hash == other.hash
     end
+
+    def angle
+      val = @edge1.direction.angle_between(@edge2.direction)
+      val = 180 / Math::PI * val
+      val = 180 - val if val > 90
+
+      val
+    end
+
+    def l1
+      p1_x = 30
+      p1_y = 60
+
+      p2_x = 90
+      p2_y = 20
+
+      m = (p2_y - p1_y) / (p2_x - p1_x)
+      b = p1_y - m * p1_x
+
+      m * angle + b
+    end
   end
 
   def activate

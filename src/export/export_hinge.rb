@@ -18,7 +18,7 @@ class ExportHinge
   end
 
   def write_to_file(path)
-    filename = "#{path}/Hinge_#{self.inspect}.scad"
+    filename = "#{path}/Hinge_#{self.hash}.scad"
     file = File.new(filename, 'w')
     export_string = [
       "// adjust filepath to LibSTLExport if neccessary",

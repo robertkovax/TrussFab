@@ -5,19 +5,6 @@ require 'src/export/export_elongation'
 require 'src/algorithms/relaxation.rb'
 
 class ScadExport
-  def self.l1_for_angle(angle)
-    p1_x = 30
-    p1_y = 60
-
-    p2_x = 90
-    p2_y = 20
-
-    m = (p2_y - p1_y) / (p2_x - p1_x)
-    b = p1_y - m * p1_x
-
-    m * angle + b
-  end
-
   def self.export_to_scad(path, nodes)
     hinge_tool = HingeTool.new(nil)
     hinge_tool.activate
@@ -38,12 +25,7 @@ class ScadExport
         edge1 = hinge.edge1
         edge2 = hinge.edge2
 
-        #TODO: remove code duplication
-        angle = hinge.edge1.direction.angle_between(hinge.edge2.direction)
-        angle = 180 / Math::PI * angle
-        angle = 180 - angle if angle > 90
-
-        l1 = l1_for_angle(angle)
+        l1 = hinge.l1
 
         [edge1, edge2].each do |edge|
           loop do
@@ -69,16 +51,14 @@ class ScadExport
         elongation2 = edge2.first_node?(node) ? edge2.first_elongation_length.to_mm : edge2.second_elongation_length.to_mm
 
         #TODO: make sure that l1-l3 work with elongation of the two edges
-        angle = hinge.edge1.direction.angle_between(hinge.edge2.direction)
-        angle = 180 / Math::PI * angle
-        angle = 180 - angle if angle > 90
+        angle = hinge.angle
 
-        l1 = l1_for_angle(angle)
+        l1 = hinge.l1
         a_l3 = elongation1 - l1 - l2
         b_l3 = elongation2 - l1 - l2
 
         if a_l3 <= 0 or b_l3 <= 0
-          p "Logic Error: l3 distance negative."
+          p 'Logic Error: l3 distance negative.'
         end
 
         export_hinge = ExportHinge.new(l1, l2, a_l3, l1, l2, b_l3,
@@ -93,9 +73,41 @@ class ScadExport
         is_main_hub = (i == 0)
         export_hub = ExportHub.new(is_main_hub)
 
+        if is_main_hub
+          node.pods.each do |pod|
+            export_hub.add_pod(pod)
+          end
+        end
+
         hub.each do |edge|
+          hinges = hinge_tool.hinges[node].select { |hinge| hinge.edge1 == edge or hinge.edge2 == edge }
+          if hinges.size > 2
+            p 'Logic Error: more than two hinges around an edge.'
+          end
+
           elongation = edge.first_node?(node) ? edge.first_elongation_length.to_mm : edge.second_elongation_length.to_mm
-          export_elongation = ExportElongation.new(false, elongation, 0, 0)
+          other_node = edge.other_node(node)
+          direction = node.position.vector_to(other_node.position)
+
+          #TODO: assert that all hinges have same l1
+
+          cur_l1 = elongation
+          cur_l2 = 0
+          cur_l3 = 0
+          is_hinge_connected = hinges.size > 0
+
+          if is_hinge_connected
+            hinge = hinges[0]
+            cur_l1 = hinge.l1
+            cur_l2 = l2
+            cur_l3 = elongation - cur_l1 - l2
+
+            if cur_l3 < l3_min
+              p 'Logic Error: l3 not long enough.'
+            end
+          end
+
+          export_elongation = ExportElongation.new(false, cur_l1, cur_l2, cur_l3, direction.normalize)
           export_hub.add_elongation(export_elongation)
         end
 
@@ -106,6 +118,10 @@ class ScadExport
 
     export_hinges.each do |hinge|
       hinge.write_to_file(path)
+    end
+
+    export_hubs.each do |hub|
+      hub.write_to_file(path)
     end
 
     #nodes.each { |node| node_to_scad(path, node) }
