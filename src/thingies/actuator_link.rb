@@ -5,7 +5,8 @@ require 'src/simulation/joints'
 
 class ActuatorLink < Link
 
-  attr_reader :piston, :first_cylinder_body, :second_cylinder_body, :dampening, :rate, :power, :min, :max
+  attr_accessor :dampening, :rate, :power, :min, :max
+  attr_reader :piston, :first_cylinder_body, :second_cylinder_body
 
   def initialize(first_node, second_node, id: nil)
     @first_cylinder = nil
@@ -29,30 +30,6 @@ class ActuatorLink < Link
     @max = 0.2
 
     persist_entity
-  end
-
-  #
-  # Setter
-  #
-
-  def set_dampening(value)
-    @dampening = value
-  end
-
-  def set_rate(value)
-    @rate = value
-  end
-
-  def set_power(value)
-    @power = value
-  end
-
-  def set_min(value)
-    @min = value
-  end
-
-  def set_max(value)
-    @max = value
   end
 
   #
