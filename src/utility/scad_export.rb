@@ -17,7 +17,7 @@ class ScadExport
 
     gap_height = 10
     gap_epsilon = 0.8
-    l2 = 3 * gap_height + gap_epsilon
+    l2 = 4 * gap_height + gap_epsilon * 1.5 # see openscad gap height for more information
 
     #TODO: find out minimum l3 value
     l3_min = 10
