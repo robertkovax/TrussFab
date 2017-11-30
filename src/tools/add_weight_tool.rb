@@ -21,6 +21,7 @@ class AddWeightTool < Tool
 
   def addWeightToNode(node)
     node.thingy.add_mass(20)
+    node.thingy.add_force_arrow
   end
 
   def addWeightToSurface(surface)

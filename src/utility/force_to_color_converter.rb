@@ -54,14 +54,15 @@ class ColorConverter
       # the "most vibrant" in HSL
       # no force will have a value of 0, which gives us a lightness value of 1,
       # which is always white
-      value = force.abs / 3000.0
-      value = 0.5 if value > 0.5
+      value = force.abs / 1500.0
+      value = 0.3 if (value > 0.3)
       value = 0 if value < 0
+      value = 0.5 if force.abs >= 1500
 
       # strong negative force will be blue (stretching), strong positive force
       # will be red (compression)
       # In HSL, a hue value of 200 degrees is a light blue color, 360 degrees is red
-      h = force <= 0 ? 200.0 : 360.0
+      h = force <= 0 ? 200.0 : 0.0
       s = 1
       l = 1 - value
 

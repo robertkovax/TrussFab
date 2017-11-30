@@ -3,7 +3,7 @@ require 'src/models/model_storage.rb'
 require 'src/simulation/simulation.rb'
 
 class Hub < PhysicsThingy
-  attr_accessor :position, :body, :mass
+  attr_accessor :position, :body, :mass, :arrow
 
   def initialize(position, id: nil, material: 'hub_material')
     super(id, material: material)
@@ -13,6 +13,7 @@ class Hub < PhysicsThingy
     @entity = create_entity
     @id_label = nil
     @mass = 0
+    @arrow = nil
     update_id_label
   end
 
@@ -20,6 +21,18 @@ class Hub < PhysicsThingy
     pod = Pod.new(node, @position, direction, id: id)
     add(pod)
     pod
+  end
+
+  def add_force_arrow
+    point = Geom::Point3d.new(@position)
+    point.z += 1
+    if @arrow.nil?
+      model = ModelStorage.instance.models['force_arrow']
+      transform = Geom::Transformation.new(point)
+      @arrow = Sketchup.active_model.active_entities.add_instance(model.definition, transform)
+    else
+      @arrow.transform!(Geom::Transformation.scaling(point, 1.5))
+    end
   end
 
   def pods
@@ -32,6 +45,7 @@ class Hub < PhysicsThingy
 
   def delete
     @id_label.erase!
+    @arrow.erase! unless @arrow.nil?
     super
   end
 
@@ -54,7 +68,6 @@ class Hub < PhysicsThingy
     @body = Simulation.create_body(world, @entity, collision_type: :sphere)
     @body.collidable = true
     @body.mass = @mass <= 0 ? Simulation::HUB_MASS : @mass
-    @body.auto_sleep_enabled = false
     pods.each do |pod|
       pod_body = pod.create_body(world)
       joint_to(world, MSPhysics::Fixed, pod_body, pod.direction, solver_model: 1)

@@ -35,4 +35,13 @@ class Cylinder < Thingy
     Sketchup.active_model.active_entities.add_instance(@definition,
                                                        transformation)
   end
+
+  def change_color(color)
+    @entity.definition.entities.each do |ent|
+      if ent.material != color
+        ent.material = color
+        ent.material.alpha = 1.0
+      end
+    end
+  end
 end
