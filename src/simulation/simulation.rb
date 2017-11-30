@@ -208,8 +208,6 @@ class Simulation
     @dialog.add_action_callback('test_piston') do |_context, id|
       @moving_pistons.push({:id=>id.to_i, :expanding=>true, :speed=>0.2})
     end
-    <<<<<<< Updated upstream
-=======
     @dialog.add_action_callback('set_breaking_force') do |_context, param|
       value = param.to_f
       Sketchup.active_model.start_operation("Set Simulation Breaking Force", true)
@@ -223,7 +221,6 @@ class Simulation
       @max_speed = value
       Sketchup.active_model.commit_operation
     end
-    >>>>>>> Stashed changes
   end
 
   def close_piston_dialog
