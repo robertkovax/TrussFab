@@ -27,7 +27,7 @@ safety_margin = 10;
 cap_end_round = 30 / 2;
 cap_end_heigth = 4;
 
-module hingepart(l1, l2, l3, gap, with_cap, solid_top, the_lower_one=false) {
+module hingepart(l1, l2, l3, gap, with_cap, with_connector, the_lower_one=false) {
     // the base model
     difference() {
         union() {
@@ -47,7 +47,7 @@ module hingepart(l1, l2, l3, gap, with_cap, solid_top, the_lower_one=false) {
                 cylinder(cap_end_heigth, cap_end_round, cap_end_round);
             }
             
-            if (solid_top) {
+            if (with_connector) {
                 translate([width - round_size, l2, depth / 2])
                 rotate([-90, 0, 0])
                 cylinder(l3, round_size, round_size);
@@ -97,8 +97,8 @@ b: the left part, should be the one closer to the origin
 
 module draw_hinge(
     alpha,
-    a_l1, a_l2, a_l3, a_gap, a_solid_top, a_with_cap,
-    b_l1, b_l2, b_l3, b_gap, b_solid_top, b_with_cap) {
+    a_l1, a_l2, a_l3, a_gap, a_with_connector, a_with_cap,
+    b_l1, b_l2, b_l3, b_gap, b_with_connector, b_with_cap) {
     
     a_angle = alpha / -2;
     a_translate_x = a_l1 * cos(90 + a_angle);
@@ -120,7 +120,7 @@ module draw_hinge(
                     rotate([0, 0, a_angle])
                     translate([-(width - round_size), 0, 0])
                     translate([0, 0, depth / -2]) // center on the z axis
-                    hingepart(a_l1, a_l2, a_l3, a_gap, a_with_cap, a_solid_top);
+                    hingepart(a_l1, a_l2, a_l3, a_gap, a_with_cap, a_with_connector);
                     
                     // cut away parts that are on the on the other site
                     translate([-1000, 0, -500])
@@ -133,7 +133,7 @@ module draw_hinge(
                     mirror([1, 0, 0])
                     translate([-(width - round_size), 0, 0])
                     translate([0, 0, depth / -2])
-                    hingepart(b_l1, b_l2, b_l3, b_gap, b_with_cap, b_solid_top, the_lower_one=true);
+                    hingepart(b_l1, b_l2, b_l3, b_gap, b_with_cap, b_with_connector, the_lower_one=true);
 
                     // cut away parts that are on the on the other site
                     translate([0, 0, -500])
@@ -142,7 +142,7 @@ module draw_hinge(
             }
             
             union() {
-                if (!a_solid_top && !b_solid_top) {
+                if (!a_with_connector && !b_with_connector) {
                     // cuts out parts at the top
                     a_l12 = a_l1 + a_l2;
                     b_l12 = b_l1 + b_l2;
@@ -215,19 +215,19 @@ b_l3 = elongation_length - b_l1 - b_l2;
 
 //
 //draw_hinge(alpha=connection_angle,
-//    a_l1=l1, a_l2=l2, a_l3=l3, a_solid_top=true,
+//    a_l1=l1, a_l2=l2, a_l3=l3, a_with_connector=true,
 //    b_l1=l1, b_l2=l2, b_l3=l3, b_gap=true, b_with_cap=true);
 
 //
 //draw_hinge(alpha=connection_angle,
-//    a_l1=a_l1, a_l2=a_l2, a_l3=a_l3, a_solid_top=true,
+//    a_l1=a_l1, a_l2=a_l2, a_l3=a_l3, a_with_connector=true,
 //    b_l1=b_l1, b_l2=b_l2, b_l3=b_l3, b_gap=true, b_with_cap=true);
     
 //draw_hinge(alpha=connection_angle,
 //    a_l1=a_l1, a_l2=a_l2, a_l3=a_l3, a_gap=true,
-//    b_l1=b_l1, b_l2=b_l2, b_l3=b_l3, b_solid_top=true);
+//    b_l1=b_l1, b_l2=b_l2, b_l3=b_l3, b_with_connector=true);
     
 draw_hinge(alpha=connection_angle,
     a_l1=a_l1, a_l2=a_l2, a_l3=a_l3, a_gap=false,
-    b_l1=b_l1, b_l2=b_l2, b_l3=b_l3, b_gap=true, a_solid_top=true);  
+    b_l1=b_l1, b_l2=b_l2, b_l3=b_l3, b_gap=true, a_with_connector=true);  
         
