@@ -32,6 +32,20 @@ class ActuatorLink < Link
     persist_entity
   end
 
+  def change_color(color)
+    [@first_cylinder, @second_cylinder].each do |cylinder|
+      cylinder.change_color(color)
+    end
+  end
+
+  def highlight(highlight_material = @highlight_material)
+    change_color(highlight_material)
+  end
+
+  def un_highlight
+    change_color(@model.material.color)
+  end
+
   #
   # Physics methods
   #
