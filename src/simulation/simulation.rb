@@ -240,10 +240,10 @@ class Simulation
       piston.rate = hash[:speed]
       piston.controller = (hash[:expanding] ? piston.max : piston.min)
       if (piston.cur_position - piston.max).abs < 0.005 && hash[:expanding]
-        hash[:speed] += 0.05
+        hash[:speed] += 0.05 unless (hash[:speed] >= @max_speed && @max_speed != 0)
         hash[:expanding] = false
       elsif (piston.cur_position - piston.min).abs < 0.005 && !hash[:expanding]
-        hash[:speed] += 0.05
+        hash[:speed] += 0.05 unless (hash[:speed] >= @max_speed && @max_speed != 0)
         hash[:expanding] = true
       end
       hash
@@ -384,7 +384,7 @@ class Simulation
 
     position = link.body.get_position(1)
     visualize_force(link, lin_force)
-    if lin_force.abs > 1500
+    if lin_force.abs > @breaking_force
       update_force_label(link, lin_force, position)
       print_piston_stats
       @paused = true
