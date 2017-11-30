@@ -1,6 +1,5 @@
 # Convert a force in Newton to a color
 class ColorConverter
-  # class << self
   def initialize(max_force)
     @max_force = max_force
   end
@@ -76,5 +75,4 @@ class ColorConverter
 
     return hsl_to_rgb(h, s, l)
   end
-  # end
 end
