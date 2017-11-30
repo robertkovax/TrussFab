@@ -57,7 +57,7 @@ class ScadExport
         a_l3 = elongation1 - l1 - l2
         b_l3 = elongation2 - l1 - l2
 
-        if a_l3 <= 0 or b_l3 <= 0
+        if a_l3 < l3_min or b_l3 < l3_min
           p 'Logic Error: l3 distance negative.'
         end
 
@@ -87,7 +87,7 @@ class ScadExport
 
           elongation = edge.first_node?(node) ? edge.first_elongation_length.to_mm : edge.second_elongation_length.to_mm
           other_node = edge.other_node(node)
-          direction = node.position.vector_to(other_node.position)
+          direction = node.position.vector_to(other_node.position).normalize
 
           #TODO: assert that all hinges have same l1
 
@@ -100,6 +100,7 @@ class ScadExport
             hinge = hinges[0]
             cur_l1 = hinge.l1
             cur_l2 = l2
+            cur_l2 += gap_height if hinges.size == 2
             cur_l3 = elongation - cur_l1 - l2
 
             if cur_l3 < l3_min
@@ -107,7 +108,7 @@ class ScadExport
             end
           end
 
-          export_elongation = ExportElongation.new(false, cur_l1, cur_l2, cur_l3, direction.normalize)
+          export_elongation = ExportElongation.new(is_hinge_connected, cur_l1, cur_l2, cur_l3, direction)
           export_hub.add_elongation(export_elongation)
         end
 

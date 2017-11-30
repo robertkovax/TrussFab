@@ -29,7 +29,12 @@ class ExportHub
     type_array = []
 
     @elongations.each do |elongation|
-      type_array << '"HOLE"'
+      if elongation.is_hinge_connected
+        type_array << '"HOLE"'
+      else
+        type_array << '"PLUG"'
+      end
+
       vector_array << "[#{elongation.direction.to_a.join(', ')}]"
       #TODO: get id of connected node
       addon_array << "[#{elongation.l1}, \"#{0}\"]"
