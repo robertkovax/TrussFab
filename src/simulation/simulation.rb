@@ -12,7 +12,7 @@ class Simulation
   HUB_MASS = 0.1
   POD_MASS = 0.1
 
-  # if this is 1.0, for some reason, there is no "dampening" in movement, but
+  # if this is 1.0, for some reason, there is no "damping" in movement, but
   # all movement is accumulated until the whole structure breaks
   # 0.9993 was the "stiffest" value that didn't break the object
   DEFAULT_STIFFNESS = 0.9993
@@ -69,9 +69,9 @@ class Simulation
       joint
     end
 
-    def create_piston(world, parent_body, child_body, matrix, dampening, rate, power, min, max)
+    def create_piston(world, parent_body, child_body, matrix, damping, rate, power, min, max)
       piston = joint_between(world, MSPhysics::Piston, parent_body, child_body, matrix)
-      piston.reduction_ratio = dampening
+      piston.reduction_ratio = damping
       piston.rate = rate
       piston.power = power
       piston.min = min

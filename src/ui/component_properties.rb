@@ -73,10 +73,10 @@ class ComponentProperties
 
   def register_callbacks
     # pistons
-    @dialog.add_action_callback('set_dampening') do |dialog, param|
+    @dialog.add_action_callback('set_damping') do |dialog, param|
       value = param.to_f
-      Sketchup.active_model.start_operation("Set Piston Dampening", true)
-      @actuator.dampening = value
+      Sketchup.active_model.start_operation("Set Piston Damping", true)
+      @actuator.damping = value
       @actuator.update_piston
       Sketchup.active_model.commit_operation
     end
