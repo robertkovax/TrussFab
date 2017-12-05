@@ -39,7 +39,7 @@ class ActuatorLink < Link
   end
 
   def highlight(highlight_material = @highlight_material)
-    change_color(highlight_material)
+    change_color(highlight_material.color)
   end
 
   def un_highlight
