@@ -45,10 +45,8 @@ class Cylinder < Thingy
       @entity.material = color
       @entity.material.alpha = 1.0
       @entity.definition.entities.each do |ent|
-        if (ent.class.to_s == "Sketchup::Face")
-          ent.material = @entity.material
-          ent.material.alpha = 1.0
-        end
+        ent.material = @entity.material
+        ent.material.alpha = 1.0
       end
     else
       @entity.material.color = color
