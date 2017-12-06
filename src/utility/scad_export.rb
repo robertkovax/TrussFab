@@ -6,7 +6,7 @@ require 'src/export/export_cap'
 require 'src/algorithms/relaxation.rb'
 
 class ScadExport
-  def self.export_to_scad(path, nodes)
+  def self.export_to_scad(path, nodes, edges)
     hinge_tool = HingeTool.new(nil)
     hinge_tool.activate
     relaxation = Relaxation.new
@@ -44,7 +44,7 @@ class ScadExport
             elongation = edge.first_node?(node) ? edge.first_elongation_length.to_mm : edge.second_elongation_length.to_mm
 
             if elongation < l1 + l2 + l3_min
-              relaxation.stretch(edge)
+              relaxation.stretch_to(edge, edge.length * 1.02)
               relaxation.relax
             else
               break
@@ -57,6 +57,8 @@ class ScadExport
 
     hinge_tool.hinges.each do |node, hinges|
       l1 = node_l1[node]
+      node_actuators = edges.select { |edge| edge.link_type == 'actuator' and edge.nodes.include?(node) }
+      has_actuator = node_actuators.size > 0
 
       i = 0
       hinges.each do |hinge|
@@ -78,13 +80,18 @@ class ScadExport
         export_caps.push(export_cap)
 
         if a_l3 < l3_min or b_l3 < l3_min
-          p 'Logic Error: l3 distance negative.'
+          p 'Logic Error: l3 distance too small.'
         end
 
         a_with_connector = is_first
         b_with_connector = is_last
         a_gap = !is_first
         b_gap = !is_last
+
+        # if an actuator is present, one gap has to be created to allow the actuator to be connected
+        if is_last and has_actuator
+          b_gap = true
+        end
 
         export_hinge = ExportHinge.new(node.id, a_other_node.id, b_other_node.id, l1, l2, a_l3, l1, l2, b_l3,
                                        hinge.angle, a_gap, b_gap, a_with_connector, b_with_connector)
