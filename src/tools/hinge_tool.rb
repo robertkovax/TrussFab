@@ -33,9 +33,9 @@ class HingeTool < Tool
       hash == other.hash
     end
 
-    # TODO assertion
     def common_edge(other)
       common_edges = [edge1, edge2] & [other.edge1, other.edge2]
+      raise RuntimeError, 'More or no common edge.' unless common_edges.size == 1
       common_edges[0]
     end
 
