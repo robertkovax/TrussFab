@@ -3,8 +3,8 @@ use <../Misc/Prism.scad>
 
 
 module cut_out_a_cap(a_l1) {
-        mirror([1, 0, 0])
-        union() {
+    mirror([1, 0, 0])
+    union() {
         for (ii = [0:1]) {
             y_height_gap_cut = a_l1 + gap_height + ii * (2 * gap_height + gap_epsilon);
             echo(y_height_gap_cut);
@@ -36,6 +36,7 @@ module cut_out_b_cap(a_l1) {
     }   
 }
 
+
 module hingepart(l1, l2, l3, gap, with_cap, with_connector, the_lower_one=false) {
     // the base model
     difference() {
@@ -56,6 +57,7 @@ module hingepart(l1, l2, l3, gap, with_cap, with_connector, the_lower_one=false)
                 cylinder(cap_end_heigth, cap_end_round, cap_end_round);
             }
         }
+        
         if (gap || with_connector) {
             // cut out the two holes
             translate([width - round_size, 0, depth / 2])
@@ -65,11 +67,11 @@ module hingepart(l1, l2, l3, gap, with_cap, with_connector, the_lower_one=false)
     }
 }
 
+
 /*
 a: the right part
 b: the left part, should be the one closer to the origin
 */
-
 module draw_hinge(
     alpha,
     a_l1, a_l2, a_l3, a_gap, a_with_connector, a_with_cap,
@@ -81,77 +83,72 @@ module draw_hinge(
 
     b_angle = alpha / 2;
     b_translate_x = b_l1 * cos(90 + b_angle);
-    b_translate_y = b_l1 * sin(90 + b_angle);
-    
-//        cut_out_a_cap(40);
-    
+    b_translate_y = b_l1 * sin(90 + b_angle);    
 
-    difference() {
     // the last cut out for the gap of the left side to fully hinge
     // the translations are only to cut off some other parts for the gaps more easily
-//    translate([-6, a_l1, 0])
-//    rotate([0, 0, alpha])
-//    translate([0, -a_l1, 0])
-//    translate([6,0,0])
-         translate([+extra_width_for_hinging + round_size, 0, 0])
+    difference() {
+         translate([extra_width_for_hinging + round_size, 0, 0])
          rotate([0, 0, alpha / 2])    
          rotate([0, 0, alpha / +2]) 
-        translate([+round_size + extra_width_for_hinging, 0, 0])
-    difference() {
-        translate([-round_size - extra_width_for_hinging, 0, 0])
-        rotate([0, 0, alpha / -2])    
-        difference() {   
-            union() {
-                difference() {
-                    translate([a_translate_x, a_translate_y, 0])
-                    rotate([0, 0, a_angle])
-                    translate([-(width - round_size), 0, 0])
-                    translate([0, 0, depth / -2]) // center on the z axis
-                    hingepart(a_l1, a_l2, a_l3, a_gap, a_with_cap, a_with_connector);
+        translate([round_size + extra_width_for_hinging, 0, 0])
+        difference() {
+            translate([- round_size - extra_width_for_hinging, 0, 0])
+            rotate([0, 0, alpha / -2])
+            difference() {
+                union() {
+                    difference() {
+                        translate([a_translate_x, a_translate_y, 0])
+                        rotate([0, 0, a_angle])
+                        translate([-(width - round_size), 0, 0])
+                        translate([0, 0, depth / -2]) // center on the z axis
+                        hingepart(a_l1, a_l2, a_l3, a_gap, a_with_cap, a_with_connector);
+                        
+                        // cut away parts that are on the on the other site
+                        translate([-1000, 0, -500])
+                        cube([1000, 1000, 1000]);
+                    }
                     
-                    // cut away parts that are on the on the other site
-                    translate([-1000, 0, -500])
-                    cube([1000, 1000, 1000]);
+                    difference() {
+                        translate([b_translate_x, b_translate_y, 0])
+                        rotate([0, 0, b_angle])
+                        mirror([1, 0, 0])
+                        translate([-(width - round_size), 0, 0])
+                        translate([0, 0, depth / -2])
+                        hingepart(b_l1, b_l2, b_l3, b_gap, b_with_cap, b_with_connector, the_lower_one=true);
+
+                        // cut away parts that are on the on the other site
+                        translate([0, 0, -500])
+                        cube([1000, 1000, 1000]);        
+                    }
                 }
                 
-                difference() {
-                    translate([b_translate_x, b_translate_y, 0])
-                    rotate([0, 0, b_angle])
-                    mirror([1, 0, 0])
-                    translate([-(width - round_size), 0, 0])
-                    translate([0, 0, depth / -2])
-                    hingepart(b_l1, b_l2, b_l3, b_gap, b_with_cap, b_with_connector, the_lower_one=true);
-
-                    // cut away parts that are on the on the other site
-                    translate([0, 0, -500])
-                    cube([1000, 1000, 1000]);        
+                union() {
+                    if (!a_with_connector && !b_with_connector) {
+                        // cuts out parts at the top
+                        a_l12 = a_l1 + a_l2;
+                        b_l12 = b_l1 + b_l2;
+                        longest = max(a_l12, b_l12);
+                        translate([0, longest + 50 + 3, 0]) // you can tune the last summand
+                        cube([100, 100, 100], center=true);    
+                    }
                 }
             }
             
-            union() {
-                if (!a_with_connector && !b_with_connector) {
-                    // cuts out parts at the top
-                    a_l12 = a_l1 + a_l2;
-                    b_l12 = b_l1 + b_l2;
-                    longest = max(a_l12, b_l12);
-                    translate([0, longest + 50 + 3, 0]) // you can tune the last summand
-                    cube([100, 100, 100], center=true);    
-                }
+            if (b_gap) {
+                cut_out_b_cap(a_l1);
             }
+          
         }
-        if (b_gap) {
-            cut_out_b_cap(a_l1);
-        }
-      
-    }
-            if (a_gap) {
+        
+        if (a_gap) {
           cut_out_a_cap(a_l1);
         }
-}
+    }
 }
 
-//          cut_out_a_cap(30);
 
+// just for developing are some calls here
 
 connection_angle = 40;
 
