@@ -24,12 +24,12 @@ class ActuatorTool < Tool
   end
 
   def change_edge_to_actuator(view)
-    edges_without_selected = @edge.connected_component.reject { |e| e == @edge }
-    if RigidityTester.rigid?(edges_without_selected)
-      UI.messagebox('The structure is still rigid and would break with this actuator. Please remove more edges to enable this structure to move',
-                    type = MB_OK)
-      return
-    end
+    # edges_without_selected = @edge.connected_component.reject { |e| e == @edge }
+    # if RigidityTester.rigid?(edges_without_selected)
+    #   UI.messagebox('The structure is still rigid and would break with this actuator. Please remove more edges to enable this structure to move',
+    #                 type = MB_OK)
+    #   return
+    # end
 
     create_actuator(view)
 
