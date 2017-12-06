@@ -7,9 +7,10 @@ module cut_out_a_cap(a_l1) {
     union() {
         for (ii = [0:1]) {
             y_height_gap_cut = a_l1 + gap_height + ii * (2 * gap_height + gap_epsilon);
-            echo(y_height_gap_cut);
             for (i = [0:1]) {
-                rotate([0, -45 - i * 180, 0]) 
+                // 270: 180 deg because it's the other site and then (90 - deg)
+                gap_angle_i = i == 0 ? - gap_angle_a : gap_angle_a - 270; 
+                rotate([0, gap_angle_i, 0]) 
                 translate([0, y_height_gap_cut, 0])
                 cube([gap_witdh, gap_height_e, 100]);
             }
@@ -26,7 +27,8 @@ module cut_out_b_cap(a_l1) {
             extra_offset =  ii == 0 ? 100 : 0;            
             y_height_gap_cut = a_l1 + ii * (gap_height + gap_height_e);
             for (i = [0:1]) {
-                rotate([0, -45 - i * 180, 0]) 
+                gap_angle_i = i == 0 ? -gap_angle_b : gap_angle_b - 270;
+                rotate([0, gap_angle_i, 0]) 
                 translate([0, y_height_gap_cut - extra_offset, 0])
                 cube([gap_witdh, gap_height_e + extra_offset, 100]);
             }
