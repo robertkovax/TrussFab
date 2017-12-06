@@ -1,13 +1,14 @@
 class ExportCap
   attr_accessor :length
 
-  def initialize(id, length)
-    @id = id
+  def initialize(hub_id, other_hub_id, length)
+    @hub_id = hub_id
+    @other_hub_id = other_hub_id
     @length = length
   end
 
   def write_to_file(path)
-    filename = "#{path}/Cap_#{@id}.scad"
+    filename = "#{path}/Cap_#{@hub_id}.#{@other_hub_id}.scad"
     file = File.new(filename, 'w')
     export_string = [
       "// adjust filepath to LibSTLExport if neccessary",

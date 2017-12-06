@@ -2,8 +2,8 @@
 # * two hinges on one elongation
 
 class ExportHub
-  def initialize(is_main_hub)
-    @id = IdManager.instance.generate_next_id
+  def initialize(is_main_hub, id)
+    @id = id
     @is_main_hub = is_main_hub # otherwise sub hubs ('hubless design')
     @elongations = []
     @pods = []
@@ -36,7 +36,7 @@ class ExportHub
 
       vector_array << "[#{elongation.direction.to_a.join(', ')}]"
       #TODO: get id of connected node
-      addon_array << "[#{elongation.l1}, \"#{elongation.edge_id}\"]"
+      addon_array << "[#{elongation.l1}, \"#{elongation.other_hub_id}\"]"
     end
 
     @pods.each do |pod|

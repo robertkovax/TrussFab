@@ -3,9 +3,10 @@
 # * subhub
 
 class ExportHinge
-  def initialize(edge1_id, edge2_id, a_l1, a_l2, a_l3, b_l1, b_l2, b_l3, connection_angle, a_gap, b_gap, a_with_connector, b_with_connector)
-    @edge1_id = edge1_id
-    @edge2_id = edge2_id
+  def initialize(hub_id, a_other_hub_id, b_other_hub_id, a_l1, a_l2, a_l3, b_l1, b_l2, b_l3, connection_angle, a_gap, b_gap, a_with_connector, b_with_connector)
+    @hub_id = hub_id
+    @a_other_hub_id = a_other_hub_id
+    @b_other_hub_id = b_other_hub_id
     @a_l1 = a_l1
     @a_l2 = a_l2
     @a_l3 = a_l3
@@ -20,7 +21,7 @@ class ExportHinge
   end
 
   def write_to_file(path)
-    filename = "#{path}/Hinge_#{@edge1_id}_#{@edge2_id}.scad"
+    filename = "#{path}/Hinge_#{@hub_id}.#{@a_other_hub_id}_#{@hub_id}.#{@b_other_hub_id}.scad"
     file = File.new(filename, 'w')
     export_string = [
       "// adjust filepath to LibSTLExport if neccessary",

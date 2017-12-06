@@ -22,7 +22,7 @@ class ScadExport
     #TODO: find out minimum l3 value
     l3_min = 10
 
-    # stored the l1 value per node (since it needs to be constant across a node)
+    # stores the l1 value per node (since it needs to be constant across a node)
     node_l1 = Hash.new
 
     hinge_tool.hinges.each do |node, hinges|
@@ -68,10 +68,13 @@ class ScadExport
         elongation1 = edge1.first_node?(node) ? edge1.first_elongation_length.to_mm : edge1.second_elongation_length.to_mm
         elongation2 = edge2.first_node?(node) ? edge2.first_elongation_length.to_mm : edge2.second_elongation_length.to_mm
 
+        a_other_node = edge1.other_node(node)
+        b_other_node = edge2.other_node(node)
+
         a_l3 = elongation1 - l1 - l2
         b_l3 = elongation2 - l1 - l2
 
-        export_cap = ExportCap.new(edge1.id, a_l3)
+        export_cap = ExportCap.new(node.id, a_other_node.id, a_l3)
         export_caps.push(export_cap)
 
         if a_l3 < l3_min or b_l3 < l3_min
@@ -83,7 +86,7 @@ class ScadExport
         a_gap = !is_first
         b_gap = !is_last
 
-        export_hinge = ExportHinge.new(edge1.id, edge2.id,l1, l2, a_l3, l1, l2, b_l3,
+        export_hinge = ExportHinge.new(node.id, a_other_node.id, b_other_node.id, l1, l2, a_l3, l1, l2, b_l3,
                                        hinge.angle, a_gap, b_gap, a_with_connector, b_with_connector)
         export_hinges.push(export_hinge)
 
@@ -92,10 +95,12 @@ class ScadExport
     end
 
     hinge_tool.hubs.each do |node, hubs|
+      hub_id = node.id
+
       i = 0
       hubs.each do |hub|
         is_main_hub = (i == 0)
-        export_hub = ExportHub.new(is_main_hub)
+        export_hub = ExportHub.new(is_main_hub, hub_id)
 
         if is_main_hub
           node.pods.each do |pod|
@@ -130,7 +135,7 @@ class ScadExport
             end
           end
 
-          export_elongation = ExportElongation.new(edge.id, is_hinge_connected, cur_l1, cur_l2, cur_l3, direction)
+          export_elongation = ExportElongation.new(hub_id, other_node.id, is_hinge_connected, cur_l1, cur_l2, cur_l3, direction)
           export_hub.add_elongation(export_elongation)
         end
 
