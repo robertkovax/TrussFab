@@ -80,7 +80,7 @@ class ScadExport
         export_caps.push(export_cap)
 
         if a_l3 < l3_min or b_l3 < l3_min
-          p 'Logic Error: l3 distance too small.'
+          raise RuntimeError, 'Hinge l3 distance too small.'
         end
 
         a_with_connector = is_first
@@ -118,7 +118,7 @@ class ScadExport
         hub.each do |edge|
           hinges = hinge_tool.hinges[node].select { |hinge| hinge.edge1 == edge or hinge.edge2 == edge }
           if hinges.size > 2
-            p 'Logic Error: more than two hinges around an edge.'
+            raise RuntimeError, 'More than two hinges around an edge.'
           end
 
           elongation = edge.first_node?(node) ? edge.first_elongation_length.to_mm : edge.second_elongation_length.to_mm
@@ -138,7 +138,7 @@ class ScadExport
             cur_l3 = elongation - cur_l1 - l2
 
             if cur_l3 < l3_min
-              p 'Logic Error: l3 not long enough.'
+              raise RuntimeError, 'Hub l3 distance too small.'
             end
           end
 

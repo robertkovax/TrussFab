@@ -117,7 +117,7 @@ class HingeTool < Tool
 
       common_edges = group1_edges & group2_edges
       if common_edges.size > 1
-        p "Logic error: More than one common edge."
+        raise RuntimeError, 'More than one common edge.'
       end
 
       if common_edges.size > 0 and common_edges.to_a[0].link_type != 'actuator'
@@ -223,7 +223,7 @@ class HingeTool < Tool
         next_hinge_possibilities = hinges.select { |hinge| hinge.connected_with?(cur_hinge) and not new_hinges.include?(hinge) }
         break if next_hinge_possibilities.empty?
         if next_hinge_possibilities.size > 1
-          p "Logic Error: more than one next hinge possible."
+          raise RuntimeError, 'More than one next hinge possible.'
         end
 
         if cur_hinge.common_edge(next_hinge_possibilities[0]) != next_hinge_possibilities[0].edge1
@@ -349,7 +349,7 @@ class HingeTool < Tool
       line1 = Line.new(node.position, mid_point1, HINGE_LINE)
       line2 = Line.new(node.position, mid_point2, HINGE_LINE)
     else
-      p 'Logic Error: unknown hinge type.'
+      raise RuntimeError, 'Unknown hinge type.'
     end
 
     rotating_edge.thingy.add(line1, line2)
