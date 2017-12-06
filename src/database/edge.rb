@@ -154,6 +154,10 @@ class Edge < GraphObject
     super
     @first_node.delete_incident(self)
     @second_node.delete_incident(self)
+
+    adjacent_triangles.each do |tri|
+      tri.delete
+    end
   end
 
   def move
