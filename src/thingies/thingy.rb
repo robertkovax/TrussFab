@@ -30,7 +30,7 @@ class Thingy
 
   def change_color(color)
     @entity.material = color unless @entity.nil?
-    @sub_thingies.each {|thingy| thingy.change_color(color)}
+    @sub_thingies.each { |thingy| thingy.change_color(color) }
   end
 
   def hide
@@ -102,5 +102,11 @@ class Thingy
 
   def create_entity
     raise NotImplementedError
+  end
+
+  def persist_entity(type: self.class.to_s, id: self.id)
+    return if @entity.nil?
+    @entity.set_attribute('attributes', :type, type)
+    @entity.set_attribute('attributes', :id, id)
   end
 end

@@ -3,6 +3,7 @@ require 'src/models/connector_model.rb'
 require 'src/models/bottle_model.rb'
 require 'src/models/actuator_model.rb'
 require 'src/models/pod_model.rb'
+require 'src/models/force_arrow_model.rb'
 
 class ModelStorage
   include Singleton
@@ -23,5 +24,6 @@ class ModelStorage
     @models['pod'] = components['Pod'].nil? ? PodModel.new : components['Pod']
     @models['hard'] = BottleModel.new('hard', Configuration::HARD_MODELS)
     @models['actuator'] = ActuatorModel.new
+    @models['force_arrow'] = ForceArrowModel.new
   end
 end

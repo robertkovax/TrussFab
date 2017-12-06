@@ -5,13 +5,15 @@ class Cylinder < Thingy
 
   attr_accessor :body
 
-  def initialize(center, vector, definition, id = nil)
+  def initialize(center, vector, parent, definition, id = nil)
     super(id)
     @center = center
     @vector = vector
     @definition = definition
     @body = nil
     @entity = create_entity
+    @parent = parent
+    persist_entity(type: parent.class.to_s, id: parent.id)
   end
 
   def create_body(world)
@@ -34,5 +36,14 @@ class Cylinder < Thingy
     transformation = rotation * translation
     Sketchup.active_model.active_entities.add_instance(@definition,
                                                        transformation)
+  end
+
+  def change_color(color)
+    @entity.definition.entities.each do |ent|
+      if ent.material != color
+        ent.material = color
+        ent.material.alpha = 1.0
+      end
+    end
   end
 end

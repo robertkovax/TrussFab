@@ -24,6 +24,9 @@ module Configuration
     style: UI::HtmlDialog::STYLE_DIALOG
   }.freeze
 
+  UI_WIDTH = 380
+  UI_HEIGHT = 700
+
   # Thingy properties
   MINIMUM_ELONGATION = 20.mm.freeze
   DEFAULT_ELONGATION = 30.mm.freeze
