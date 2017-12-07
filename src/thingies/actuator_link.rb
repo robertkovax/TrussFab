@@ -5,7 +5,7 @@ require 'src/simulation/joints'
 
 class ActuatorLink < Link
 
-  attr_accessor :dampening, :rate, :power, :min, :max
+  attr_accessor :damping, :rate, :power, :min, :max
   attr_reader :piston, :first_cylinder_body, :second_cylinder_body
 
   def initialize(first_node, second_node, id: nil)
@@ -23,7 +23,7 @@ class ActuatorLink < Link
     @second_joint = ThingyBallJoint.new(second_node,
                                         mid_point.vector_to(@second_position))
 
-    @dampening = 0.1
+    @damping = 0.1
     @rate = 1.0
     @power = 0.0
     @min = -0.2
@@ -60,7 +60,7 @@ class ActuatorLink < Link
                                        @first_cylinder_body,
                                        @second_cylinder_body,
                                        piston_matrix,
-                                       @dampening,
+                                       @damping,
                                        @rate,
                                        @power,
                                        @min,
@@ -98,7 +98,7 @@ class ActuatorLink < Link
   def update_piston
     return if @piston.nil?
     @piston.rate = @rate
-    @piston.reduction_ratio = @dampening
+    @piston.reduction_ratio = @damping
     @piston.power = @power
     @piston.min = @min
     @piston.max = @max
