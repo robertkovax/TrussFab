@@ -32,6 +32,20 @@ class ActuatorLink < Link
     persist_entity
   end
 
+  def change_color(color)
+    [@first_cylinder, @second_cylinder].each do |cylinder|
+      cylinder.change_color(color)
+    end
+  end
+
+  def highlight(highlight_material = @highlight_material)
+    change_color(highlight_material)
+  end
+
+  def un_highlight
+    change_color(@model.material.color)
+  end
+
   #
   # Physics methods
   #
@@ -64,11 +78,11 @@ class ActuatorLink < Link
     first_direction = mid_point.vector_to(first_node.position)
     second_direction = mid_point.vector_to(second_node.position)
 
-    first_ball_joint = ThingyBallJoint.new(first_node, first_direction)
-    second_ball_joint = ThingyBallJoint.new(second_node, second_direction)
+    @first_joint = ThingyBallJoint.new(first_node, first_direction)
+    @second_joint = ThingyBallJoint.new(second_node, second_direction)
 
-    first_ball_joint.create(world, @first_cylinder.body)
-    second_ball_joint.create(world, @second_cylinder.body)
+    @first_joint.create(world, @first_cylinder.body)
+    @second_joint.create(world, @second_cylinder.body)
   end
 
   def reset_physics

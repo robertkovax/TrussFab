@@ -17,7 +17,7 @@ class ActuatorModel
     definition = Sketchup.active_model.definitions.add(name)
     circle_edgearray = definition.entities.add_circle(@center,
                                                       @up_vector,
-                                                      diameter)
+                                                      diameter, 12)
     face = definition.entities.add_face(circle_edgearray)
     face.pushpull(-2 * @length / 3, false)
     definition

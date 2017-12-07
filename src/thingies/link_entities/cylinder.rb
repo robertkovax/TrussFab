@@ -24,6 +24,7 @@ class Cylinder < Thingy
   end
 
   def create_entity
+    return @entity if @entity
     translation = Geom::Transformation.translation(@center)
     rotation_angle = Geometry.rotation_angle_between(Geometry::Z_AXIS,
                                                      @vector)
@@ -34,16 +35,17 @@ class Cylinder < Thingy
                                              rotation_angle)
 
     transformation = rotation * translation
-    Sketchup.active_model.active_entities.add_instance(@definition,
-                                                       transformation)
+    entity = Sketchup.active_model.active_entities.add_instance(@definition,
+                                                                transformation)
+    entity
   end
 
   def change_color(color)
-    @entity.definition.entities.each do |ent|
-      if ent.material != color
-        ent.material = color
-        ent.material.alpha = 1.0
-      end
+    if @entity.material.nil?
+      @entity.material = color
+      @entity.material.alpha = 1.0
+    else
+      @entity.material = color
     end
   end
 end

@@ -16,7 +16,7 @@ class Simulation
   # all movement is accumulated until the whole structure breaks
   # 0.9993 was the "stiffest" value that didn't break the object
   DEFAULT_STIFFNESS = 0.9993
-  DEFAULT_FRICTION = 1.0
+  DEFAULT_FRICTION = 0.0
   DEFAULT_BREAKING_FORCE = 1_000_000
 
   # velocity in change of length in m/s
@@ -273,7 +273,11 @@ class Simulation
 
   def show_triangle_surfaces
     Graph.instance.surfaces.each do |_, surface|
-      surface.thingy.entity.hidden = false unless surface.thingy.entity.deleted?
+      unless surface.thingy.entity.deleted?
+        surface.thingy.entity.hidden = false
+        # workaround to properly reset surface color
+        surface.un_highlight
+      end
     end
     @triangles_hidden = false
   end
@@ -372,18 +376,35 @@ class Simulation
     Sketchup.active_model.commit_operation
   end
 
-  def show_force(link, view)
-    return if link.body.nil?
-
-    body_orientation = link.body.get_matrix
+  def get_force_from_body(link, body)
+    return if body.nil?
+    body_orientation = body.get_matrix
     glob_up_vec = link.loc_up_vec.transform(body_orientation)
 
     f1 = link.first_joint.joint.get_tension1
     f2 = link.second_joint.joint.get_tension1
     lin_force = (f2 - f1).dot(glob_up_vec)
+    position = body.get_position(1)
+    [lin_force, position]
+  end
 
-    position = link.body.get_position(1)
-    visualize_force(link, lin_force)
+  def show_force(link, view)
+    lin_force = nil
+    position = nil
+    if !link.body.nil?
+      lin_force, position = get_force_from_body(link, link.body)
+      visualize_force(link, lin_force)
+    elsif (!link.first_cylinder_body.nil? && !link.second_cylinder_body.nil?)
+      [link.first_cylinder_body, link.second_cylinder_body].each do |body|
+        lin_force, position = get_force_from_body(link, body)
+        visualize_force(link, lin_force)
+      end
+    else
+      return
+    end
+
+    return if lin_force.nil?
+
     if lin_force.abs > @breaking_force
       update_force_label(link, lin_force, position)
       print_piston_stats
