@@ -1,4 +1,3 @@
-include <settings.scad>
 use <simple_hinge.scad>
 
 // linear function to get the optiomal distance to the origin
@@ -22,6 +21,9 @@ connection_angle = 90;
 distance_origin = 50;
 
 elongation_length = 120;
+
+gap_height = 10;
+gap_epsilon = 0.8;
 
 a_l1 = distance_origin;
 a_l2 = 4 * gap_height + gap_epsilon;
