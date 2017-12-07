@@ -41,11 +41,7 @@ class Cylinder < Thingy
   end
 
   def change_color(color)
-    if @entity.material.nil?
-      @entity.material = color
-      @entity.material.alpha = 1.0
-    else
-      @entity.material = color
-    end
+    @entity.material = color
+    @entity.material.alpha = 1.0
   end
 end
