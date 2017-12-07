@@ -5,6 +5,74 @@ require 'src/algorithms/rigidity_tester.rb'
 require 'src/simulation/joints'
 require 'src/simulation/thingy_rotation'
 
+class Hinge
+  attr_accessor :edge1, :edge2, :type
+
+  def initialize(edge1, edge2, type)
+    raise RuntimeError, 'Edges have to be different.' unless edge1 != edge2
+    @edge1 = edge1
+    @edge2 = edge2
+    @type = type
+  end
+
+  def hash
+    self.class.hash ^ @edge1.hash ^ @edge2.hash
+  end
+
+  def eql?(other)
+    hash == other.hash
+  end
+
+  def common_edge(other)
+    common_edges = [edge1, edge2] & [other.edge1, other.edge2]
+    raise RuntimeError, 'More or no common edge.' unless common_edges.size == 1
+    common_edges[0]
+  end
+
+  def connected_with?(other)
+    common_edges = [edge1, edge2] & [other.edge1, other.edge2]
+    common_edges.size > 0
+  end
+
+  def num_connected_hinges(hinges)
+    hinges.select { |other| not eql?(other) and connected_with?(other) }.size
+  end
+
+  def swap_edges
+    temp = @edge1
+    @edge1 = @edge2
+    @edge2 = temp
+  end
+
+  def angle
+    val = @edge1.direction.angle_between(@edge2.direction)
+    val = 180 / Math::PI * val
+    val = 180 - val if val > 90
+
+    raise RuntimeError, 'Angle between edges not between 0° and 90°.' unless val > 0 and val <= 90
+
+    val
+  end
+
+  def l1
+    p1_x = 30
+    p1_y = 60
+
+    p2_x = 90
+    p2_y = 20
+
+    m = (p2_y - p1_y) / (p2_x - p1_x)
+    b = p1_y - m * p1_x
+
+    length = m * angle + b
+    length.mm
+  end
+end
+
+class ActuatorHinge < Hinge
+
+end
+
 class HingeTool < Tool
   attr_accessor :hubs, :hinges
 
@@ -16,66 +84,6 @@ class HingeTool < Tool
 
   MIN_ANGLE_DEVIATION = 0.05
 
-  class Hinge
-    attr_accessor :edge1, :edge2, :type
-
-    def initialize(edge1, edge2, type)
-      @edge1 = edge1
-      @edge2 = edge2
-      @type = type
-    end
-
-    def hash
-      self.class.hash ^ @edge1.hash ^ @edge2.hash
-    end
-
-    def eql?(other)
-      hash == other.hash
-    end
-
-    def common_edge(other)
-      common_edges = [edge1, edge2] & [other.edge1, other.edge2]
-      raise RuntimeError, 'More or no common edge.' unless common_edges.size == 1
-      common_edges[0]
-    end
-
-    def connected_with?(other)
-      common_edges = [edge1, edge2] & [other.edge1, other.edge2]
-      common_edges.size > 0
-    end
-
-    def num_connected_hinges(hinges)
-      hinges.select { |other| not eql?(other) and connected_with?(other) }.size
-    end
-
-    def swap_edges
-      temp = @edge1
-      @edge1 = @edge2
-      @edge2 = temp
-    end
-
-    def angle
-      val = @edge1.direction.angle_between(@edge2.direction)
-      val = 180 / Math::PI * val
-      val = 180 - val if val > 90
-
-      val
-    end
-
-    def l1
-      p1_x = 30
-      p1_y = 60
-
-      p2_x = 90
-      p2_y = 20
-
-      m = (p2_y - p1_y) / (p2_x - p1_x)
-      b = p1_y - m * p1_x
-
-      m * angle + b
-    end
-  end
-
   def activate
     edges = Graph.instance.edges.values
 
@@ -83,7 +91,7 @@ class HingeTool < Tool
       edge.reset
     end
 
-    actuators = edges.reject { |e| e.link_type != 'actuator' }
+    actuators = edges.select { |e| e.link_type == 'actuator' }
 
     # Maps from a triangle to all triangles rotating with it around a common axis
     rotation_partners = Hash.new { |h,k| h[k] = Set.new }
@@ -197,6 +205,26 @@ class HingeTool < Tool
     hinge_map.values.each do |hinges|
       hinges.each do |hinge|
         add_hinge(hinge)
+      end
+    end
+
+    actuators.each do |actuator|
+      adjacent_tris = actuator.adjacent_triangles
+
+      actuator.nodes.each do |node|
+        possible_hinge_edges = adjacent_tris.flat_map { |tri| tri.edges }.select { |edge| edge != actuator and edge.nodes.include? node }
+        found_hinge_placement = false
+        possible_hinge_edges.each do |edge|
+          hinges = hinge_map[node].select { |hinge| hinge.edge1 == edge or hinge.edge2 == edge }
+          if hinges.size <= 1
+            hinge = ActuatorHinge.new(edge, actuator, 'dynamic')
+            hinge_map[node].push(hinge)
+            found_hinge_placement = true
+            break
+          end
+        end
+
+        raise RuntimeError, 'Could not find a placement for actuator hinge.' unless found_hinge_placement
       end
     end
 

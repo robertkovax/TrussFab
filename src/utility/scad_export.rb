@@ -15,20 +15,21 @@ class ScadExport
     export_hubs = []
     export_caps = []
 
-    gap_height = 10
-    gap_epsilon = 0.8
+    gap_height = 10.mm.freeze
+    gap_epsilon = 0.8.mm.freeze
     l2 = 4 * gap_height + gap_epsilon * 1.5 # see openscad gap height for more information
 
     #TODO: find out minimum l3 value
-    l3_min = 10
+    l3_min = 10.mm.freeze
 
     # stores the l1 value per node (since it needs to be constant across a node)
     node_l1 = Hash.new
 
     hinge_tool.hinges.each do |node, hinges|
-      max_l1 = 0.0
+      max_l1 = 0.0.mm
 
       hinges.each do |hinge|
+        p hinge.angle
         max_l1 = [max_l1, hinge.l1].max
       end
 
@@ -39,16 +40,24 @@ class ScadExport
       l1 = node_l1[node]
 
       hinges.each do |hinge|
-        [hinge.edge1, hinge.edge2].each do |edge|
-          loop do
-            elongation = edge.first_node?(node) ? edge.first_elongation_length.to_mm : edge.second_elongation_length.to_mm
+        if hinge.is_a? ActuatorHinge
+          next
+        end
 
-            if elongation < l1 + l2 + l3_min
-              relaxation.stretch_to(edge, edge.length * 1.02)
-              relaxation.relax
-            else
-              break
-            end
+        [hinge.edge1, hinge.edge2].each do |edge|
+          elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length
+          target_elongation = l1 + l2 + l3_min
+
+          p '---'
+          p l1.to_mm
+          p elongation.to_mm
+          p target_elongation.to_mm
+
+          while elongation < target_elongation
+            total_elongation = edge.first_elongation_length + edge.second_elongation_length
+            relaxation.stretch_to(edge, edge.length - total_elongation + 2*target_elongation + 10.mm)
+            relaxation.relax
+            elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length
           end
         end
       end
@@ -62,13 +71,22 @@ class ScadExport
 
       i = 0
       hinges.each do |hinge|
+        if hinge.is_a? ActuatorHinge
+          #TODO: generate two actuator hinges
+          # angle 35° for both
+          # gap distance 1mm
+          # l1 same as node
+          # one open on both sides, one connecting to edge
+          next
+        end
+
         is_first = (i == 0)
         is_last = (i == hinges.size - 1)
 
         edge1 = hinge.edge1
         edge2 = hinge.edge2
-        elongation1 = edge1.first_node?(node) ? edge1.first_elongation_length.to_mm : edge1.second_elongation_length.to_mm
-        elongation2 = edge2.first_node?(node) ? edge2.first_elongation_length.to_mm : edge2.second_elongation_length.to_mm
+        elongation1 = edge1.first_node?(node) ? edge1.first_elongation_length : edge1.second_elongation_length
+        elongation2 = edge2.first_node?(node) ? edge2.first_elongation_length : edge2.second_elongation_length
 
         a_other_node = edge1.other_node(node)
         b_other_node = edge2.other_node(node)
@@ -76,11 +94,11 @@ class ScadExport
         a_l3 = elongation1 - l1 - l2
         b_l3 = elongation2 - l1 - l2
 
-        export_cap = ExportCap.new(node.id, a_other_node.id, a_l3)
+        export_cap = ExportCap.new(node.id, a_other_node.id, a_l3.to_mm)
         export_caps.push(export_cap)
 
         if a_l3 < l3_min or b_l3 < l3_min
-          raise RuntimeError, 'Hinge l3 distance too small.'
+          raise RuntimeError, "Hinge l3 distance too small.: #{a_l3.to_mm}, #{b_l3.to_mm}, #{l3_min.to_mm}."
         end
 
         a_with_connector = is_first
@@ -93,7 +111,7 @@ class ScadExport
           b_gap = true
         end
 
-        export_hinge = ExportHinge.new(node.id, a_other_node.id, b_other_node.id, l1, l2, a_l3, l1, l2, b_l3,
+        export_hinge = ExportHinge.new(node.id, a_other_node.id, b_other_node.id, l1.to_mm, l2.to_mm, a_l3.to_mm, l1.to_mm, l2.to_mm, b_l3.to_mm,
                                        hinge.angle, a_gap, b_gap, a_with_connector, b_with_connector)
         export_hinges.push(export_hinge)
 
@@ -121,13 +139,13 @@ class ScadExport
             raise RuntimeError, 'More than two hinges around an edge.'
           end
 
-          elongation = edge.first_node?(node) ? edge.first_elongation_length.to_mm : edge.second_elongation_length.to_mm
+          elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length
           other_node = edge.other_node(node)
           direction = node.position.vector_to(other_node.position).normalize
 
           cur_l1 = elongation
-          cur_l2 = 0
-          cur_l3 = 0
+          cur_l2 = 0.mm
+          cur_l3 = 0.mm
           is_hinge_connected = hinges.size > 0
 
           if is_hinge_connected
@@ -142,7 +160,7 @@ class ScadExport
             end
           end
 
-          export_elongation = ExportElongation.new(hub_id, other_node.id, is_hinge_connected, cur_l1, cur_l2, cur_l3, direction)
+          export_elongation = ExportElongation.new(hub_id, other_node.id, is_hinge_connected, cur_l1.to_mm, cur_l2.to_mm, cur_l3.to_mm, direction)
           export_hub.add_elongation(export_elongation)
         end
 
