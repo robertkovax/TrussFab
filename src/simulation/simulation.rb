@@ -16,7 +16,7 @@ class Simulation
   # all movement is accumulated until the whole structure breaks
   # 0.9993 was the "stiffest" value that didn't break the object
   DEFAULT_STIFFNESS = 0.9993
-  DEFAULT_FRICTION = 1.0
+  DEFAULT_FRICTION = 0.0
   DEFAULT_BREAKING_FORCE = 1_000_000
 
   # velocity in change of length in m/s
