@@ -85,6 +85,7 @@ class HingeTool < Tool
   MIN_ANGLE_DEVIATION = 0.05
 
   def activate
+    nodes = Graph.instance.nodes.values
     edges = Graph.instance.edges.values
 
     edges.each do |edge|
@@ -202,12 +203,6 @@ class HingeTool < Tool
 
     hinge_map = order_hinges(hinge_map)
 
-    hinge_map.values.each do |hinges|
-      hinges.each do |hinge|
-        add_hinge(hinge)
-      end
-    end
-
     actuators.each do |actuator|
       adjacent_tris = actuator.adjacent_triangles
 
@@ -225,6 +220,24 @@ class HingeTool < Tool
         end
 
         raise RuntimeError, 'Could not find a placement for actuator hinge.' unless found_hinge_placement
+      end
+    end
+
+    hinge_map.values.each do |hinges|
+      hinges.each do |hinge|
+        add_hinge(hinge)
+      end
+    end
+
+    # shorten elongations for all edges that are not part of the main hub
+    nodes.each do |node|
+      main_hub = hubs[node][0]
+
+      node_edges = edges.select { |edge| edge.nodes.include? node and edge.link_type != 'actuator' }
+      node_edges.each do |edge|
+        if main_hub.nil? or not main_hub.include? edge
+          add_elongation(edge, node)
+        end
       end
     end
 

@@ -29,7 +29,6 @@ class ScadExport
       max_l1 = 0.0.mm
 
       hinges.each do |hinge|
-        p hinge.angle
         max_l1 = [max_l1, hinge.l1].max
       end
 
@@ -47,11 +46,6 @@ class ScadExport
         [hinge.edge1, hinge.edge2].each do |edge|
           elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length
           target_elongation = l1 + l2 + l3_min
-
-          p '---'
-          p l1.to_mm
-          p elongation.to_mm
-          p target_elongation.to_mm
 
           while elongation < target_elongation
             total_elongation = edge.first_elongation_length + edge.second_elongation_length
@@ -122,6 +116,7 @@ class ScadExport
     hinge_tool.hubs.each do |node, hubs|
       hub_id = node.id
 
+      #TODO: consider sub hubs, currently every hub is exported as a main hub
       i = 0
       hubs.each do |hub|
         is_main_hub = (i == 0)
@@ -143,24 +138,14 @@ class ScadExport
           other_node = edge.other_node(node)
           direction = node.position.vector_to(other_node.position).normalize
 
-          cur_l1 = elongation
-          cur_l2 = 0.mm
-          cur_l3 = 0.mm
+          elongation_length = elongation
           is_hinge_connected = hinges.size > 0
 
           if is_hinge_connected
-            l1 = node_l1[node]
-            cur_l1 = l1
-            cur_l2 = l2
-            cur_l2 += gap_height if hinges.size == 2
-            cur_l3 = elongation - cur_l1 - l2
-
-            if cur_l3 < l3_min
-              raise RuntimeError, 'Hub l3 distance too small.'
-            end
+            elongation_length = node_l1[node]
           end
 
-          export_elongation = ExportElongation.new(hub_id, other_node.id, is_hinge_connected, cur_l1.to_mm, cur_l2.to_mm, cur_l3.to_mm, direction)
+          export_elongation = ExportElongation.new(hub_id, other_node.id, is_hinge_connected, elongation_length.to_mm, direction)
           export_hub.add_elongation(export_elongation)
         end
 
