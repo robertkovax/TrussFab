@@ -221,6 +221,10 @@ class Simulation
       @max_speed = value
       Sketchup.active_model.commit_operation
     end
+    @dialog.add_action_callback('unpause_simulation') do |_context|
+      reset_force_labels
+      start
+    end
   end
 
   def close_piston_dialog
@@ -290,6 +294,7 @@ class Simulation
     hide_triangle_surfaces
     hide_force_arrows
     @running = true
+    @paused = false
     @last_frame_time = Time.now
   end
 

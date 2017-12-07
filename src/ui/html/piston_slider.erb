@@ -19,6 +19,9 @@ Breaking Force:
 Maximum Speed (0 for continuous acceleration):
 <br>
 <input type="number" value="<%= @max_speed %>" step="0.1" onchange="set_max_speed(this.value)"> m/s
+<br><br>
+<button class="tool" onclick="unpause_simulation()">Unpause Simulation</button>
+
 <script type="text/javascript">
     function onChange(id, newValue) {
         sketchup.change_piston(id, newValue);
@@ -37,6 +40,11 @@ Maximum Speed (0 for continuous acceleration):
 <script type="text/javascript">
     function set_max_speed(value) {
         sketchup.set_max_speed(value)
+    }
+</script>
+<script type="text/javascript">
+    function unpause_simulation() {
+        sketchup.unpause_simulation()
     }
 </script>
 </body>
