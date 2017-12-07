@@ -1,6 +1,13 @@
 include <settings.scad>
+include <../Util/text_on.scad>
 use <../Misc/Prism.scad>
 
+module add_text(text) {
+    v = [0, 0, 0];
+    text_on_cube(t=text, cube_size=0, locn_vec=v, size=5, face="top", center=false, spacing=0.8);
+}
+
+add_text();
 
 module cut_out_a_cap(a_l1) {
     mirror([1, 0, 0])
@@ -39,7 +46,7 @@ module cut_out_b_cap(a_l1) {
 }
 
 
-module hingepart(l1, l2, l3, gap, with_cap, with_connector, the_lower_one=false) {
+module hingepart(l1, l2, l3, gap, with_cap, with_connector, label, the_lower_one=false) {
     // the base model
     difference() {
         union() {
@@ -48,7 +55,7 @@ module hingepart(l1, l2, l3, gap, with_cap, with_connector, the_lower_one=false)
             translate([width - round_size, 0, depth / 2])
             rotate([-90, 0, 0])
             cylinder(l2, round_size, round_size);
-            
+
             if (with_connector) {
                 translate([width - round_size, l2, depth / 2])
                 rotate([-90, 0, 0])
@@ -60,11 +67,32 @@ module hingepart(l1, l2, l3, gap, with_cap, with_connector, the_lower_one=false)
             }
         }
         
-        if (gap || with_connector) {
-            // cut out the two holes
-            translate([width - round_size, 0, depth / 2])
-            rotate([-90, 0, 0])
-            cylinder(l2 + l3, hole_size, hole_size);
+        union() {
+            // TODO: remove the magic numbers with calculated values            
+            text_offset_x = width - round_size - 21;
+            
+            text_offset_y =
+                the_lower_one ?
+                gap_height * 3 + gap_epsilon * 1.5 + 2 :
+                gap_height * 2 + gap_epsilon * 1.5 + 2;
+            
+            text_offset_z = depth - 1;
+            
+            if (the_lower_one) {
+                translate([text_offset_x + 22, text_offset_y + 1, text_offset_z])
+                mirror([1, 0, 0])
+                add_text(label);                
+            } else {
+                translate([text_offset_x, text_offset_y, text_offset_z])
+                add_text(label);                
+            }
+            
+            if (gap || with_connector) {
+                // cut out the two holes
+                translate([width - round_size, 0, depth / 2])
+                rotate([-90, 0, 0])
+                cylinder(l2 + l3, hole_size, hole_size);
+            }
         }
     }
 }
@@ -76,8 +104,10 @@ b: the left part, should be the one closer to the origin
 */
 module draw_hinge(
     alpha,
-    a_l1, a_l2, a_l3, a_gap, a_with_connector, a_with_cap,
-    b_l1, b_l2, b_l3, b_gap, b_with_connector, b_with_cap) {
+    a_l1, a_l2, a_l3,
+    a_gap, a_with_connector, a_with_cap, a_label,
+    b_l1, b_l2, b_l3,
+    b_gap, b_with_connector, b_with_cap, b_label) {
     
     a_angle = alpha / -2;
     a_translate_x = a_l1 * cos(90 + a_angle);
@@ -104,7 +134,7 @@ module draw_hinge(
                         rotate([0, 0, a_angle])
                         translate([-(width - round_size), 0, 0])
                         translate([0, 0, depth / -2]) // center on the z axis
-                        hingepart(a_l1, a_l2, a_l3, a_gap, a_with_cap, a_with_connector);
+                        hingepart(a_l1, a_l2, a_l3, a_gap, a_with_cap, a_with_connector, a_label);
                         
                         // cut away parts that are on the on the other site
                         translate([-1000, 0, -500])
@@ -117,7 +147,7 @@ module draw_hinge(
                         mirror([1, 0, 0])
                         translate([-(width - round_size), 0, 0])
                         translate([0, 0, depth / -2])
-                        hingepart(b_l1, b_l2, b_l3, b_gap, b_with_cap, b_with_connector, the_lower_one=true);
+                        hingepart(b_l1, b_l2, b_l3, b_gap, b_with_cap, b_with_connector, b_label, the_lower_one=true);
 
                         // cut away parts that are on the on the other site
                         translate([0, 0, -500])
@@ -159,7 +189,7 @@ l2 = gap_height * 4 + gap_epsilon * 1.5; // beaause there is no need to have it 
 l3 = 40;
 
 draw_hinge(alpha=connection_angle,
-    a_l1=l1, a_l2=l2, a_l3=l3, a_gap=true,
+    a_l1=l1, a_l2=l2, a_l3=l3, a_gap=true, a_label="123.456", b_label="133.789",
     b_l1=l1, b_l2=l2, b_l3=l3, b_gap=true);
 
 //draw_hinge(alpha=connection_angle,
