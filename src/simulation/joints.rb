@@ -16,6 +16,10 @@ class ThingyJoint
   def create(world, other_body)
     @joint = @node.thingy.joint_to(world, @joint_class, other_body, pin_direction)
   end
+
+  def is_hinge?
+    false
+  end
 end
 
 class ThingyFixedJoint < ThingyJoint
@@ -38,6 +42,10 @@ class ThingyHinge < ThingyJoint
 
   def pin_direction
     @rotation.vector
+  end
+
+  def is_hinge?
+    true
   end
 end
 

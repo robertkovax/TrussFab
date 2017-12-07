@@ -74,7 +74,12 @@ class Link < PhysicsThingy
     @body
   end
 
-  def create_joints(world)
+  def create_joints(world, first_node, second_node)
+    unless @first_joint.is_hinge? || @second_joint.is_hinge?
+      @first_joint = ThingyFixedJoint.new(first_node)
+      @second_joint = ThingyFixedJoint.new(second_node)
+    end
+
     [@first_joint, @second_joint].each do |joint|
       joint.create(world, @body)
     end
