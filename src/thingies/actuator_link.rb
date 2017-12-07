@@ -23,7 +23,7 @@ class ActuatorLink < Link
     @second_joint = ThingyBallJoint.new(second_node,
                                         mid_point.vector_to(@second_position))
 
-    @damping = 0.1
+    @damping = 0.0
     @rate = 1.0
     @power = 0.0
     @min = -0.2
