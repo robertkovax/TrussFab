@@ -273,7 +273,11 @@ class Simulation
 
   def show_triangle_surfaces
     Graph.instance.surfaces.each do |_, surface|
-      surface.thingy.entity.hidden = false unless surface.thingy.entity.deleted?
+      unless surface.thingy.entity.deleted?
+        surface.thingy.entity.hidden = false
+        # workaround to properly reset surface color
+        surface.un_highlight
+      end
     end
     @triangles_hidden = false
   end

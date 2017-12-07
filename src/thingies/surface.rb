@@ -9,6 +9,8 @@ class Surface < Thingy
     @second_position = second_position
     @third_position = third_position
     @entity = create_entity
+    @material = Sketchup.active_model.materials[material].freeze
+    @highlight_material = Sketchup.active_model.materials[highlight_material].freeze
     persist_entity
   end
 

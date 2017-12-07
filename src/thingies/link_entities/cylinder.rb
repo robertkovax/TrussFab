@@ -36,7 +36,7 @@ class Cylinder < Thingy
 
     transformation = rotation * translation
     entity = Sketchup.active_model.active_entities.add_instance(@definition,
-                                                                transformation).make_unique
+                                                                transformation)
     entity
   end
 
@@ -44,12 +44,8 @@ class Cylinder < Thingy
     if @entity.material.nil?
       @entity.material = color
       @entity.material.alpha = 1.0
-      @entity.definition.entities.each do |ent|
-        ent.material = @entity.material
-        ent.material.alpha = 1.0
-      end
     else
-      @entity.material.color = color
+      @entity.material = color
     end
   end
 end
