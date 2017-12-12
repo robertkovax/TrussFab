@@ -418,7 +418,7 @@ class Simulation
     # \note(tim): this has a huge performance impact. We may have to think about
     # only showing the highest force or omit some values that are uninteresting
     # Commented out for now in order to keep the simulation running quickly.
-    # update_force_label(thingy, lin_force, position)
+    # update_force_label(link, lin_force, position)
   end
 
   def visualize_force(link, force)
