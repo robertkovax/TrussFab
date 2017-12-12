@@ -228,7 +228,6 @@ class Simulation
 
   def chart_dialog
     @chart.open_dialog
-    @chart.addData('0', 5)
   end
 
   def close_piston_dialog
@@ -361,7 +360,9 @@ class Simulation
     end
 
     show_forces(view)
-    send_force_to_chart
+    if @frame % 5 == 0
+      send_force_to_chart
+    end
     test_pistons
 
     view.show_frame
@@ -411,6 +412,7 @@ class Simulation
     elsif (!link.first_cylinder_body.nil? && !link.second_cylinder_body.nil?)
       [link.first_cylinder_body, link.second_cylinder_body].each do |body|
         lin_force, position = get_force_from_body(link, body)
+        @total_force += lin_force.abs
         visualize_force(link, lin_force)
       end
     else
@@ -418,7 +420,6 @@ class Simulation
     end
 
     return if lin_force.nil?
-    @total_force += lin_force
 
     if lin_force.abs > @breaking_force
       update_force_label(link, lin_force, position)
