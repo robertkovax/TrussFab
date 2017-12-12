@@ -1,6 +1,7 @@
 require 'lib/MSPhysics/main.rb'
 
 require 'src/utility/force_to_color_converter.rb'
+require 'src/ui/force_chart.rb'
 require 'erb'
 
 class Simulation
@@ -99,6 +100,8 @@ class Simulation
     @breaking_force = 1500
     @color_converter = ColorConverter.new(@breaking_force)
     @max_speed = 0
+    @root_dir = File.join(__dir__, '..')
+    @chart = ForceChart.new()
   end
 
   #
@@ -221,6 +224,11 @@ class Simulation
       @max_speed = value
       Sketchup.active_model.commit_operation
     end
+  end
+
+  def chart_dialog
+    @chart.open_dialog
+    @chart.addData('0', 5)
   end
 
   def close_piston_dialog
@@ -347,11 +355,13 @@ class Simulation
     update_entities
 
     @frame += 1
+    @total_force = 0
     if @frame % 20 == 0
       set_status_text
     end
 
     show_forces(view)
+    send_force_to_chart
     test_pistons
 
     view.show_frame
@@ -388,6 +398,10 @@ class Simulation
     [lin_force, position]
   end
 
+  def send_force_to_chart
+    @chart.addData(@frame, @total_force)
+  end
+
   def show_force(link, view)
     lin_force = nil
     position = nil
@@ -404,6 +418,7 @@ class Simulation
     end
 
     return if lin_force.nil?
+    @total_force += lin_force
 
     if lin_force.abs > @breaking_force
       update_force_label(link, lin_force, position)
