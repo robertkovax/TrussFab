@@ -21,11 +21,12 @@ module PRESETS
     4 * SIMPLE_HINGE_RUBY['gap_height'] +
     1.5 * SIMPLE_HINGE_RUBY['gap_epsilon']
 
+  # returns the preset as paramets to use in a openscad function call
   def get_parameters_s preset
     lines = preset.map do |key, value|
-      "#{key}=value"
-      lines = lines.join(',') + ");\n"
+      "#{key}=#{value}"
     end
+    lines.join(',')
   end
 end
 
