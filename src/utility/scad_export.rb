@@ -61,6 +61,11 @@ class ScadExport
       l1 = node_l1[node]
       node_actuators = edges.select { |edge| edge.link_type == 'actuator' and edge.nodes.include?(node) }
       has_actuator = node_actuators.size > 0
+      is_full_hinge = hinges.first.edge1 = hinges.last.edge2
+
+      if has_actuator and is_full_hinge
+        raise RuntimeError, 'Hinge chain has an actuator, but there is no place for it to connect.'
+      end
 
       i = 0
       hinges.each do |hinge|
@@ -87,17 +92,21 @@ class ScadExport
         a_l3 = elongation1 - l1 - l2
         b_l3 = elongation2 - l1 - l2
 
-        export_cap = ExportCap.new(node.id, a_other_node.id, a_l3.to_mm)
-        export_caps.push(export_cap)
+        # if we have a full hinge, the first element also need a cap
+        if is_first and is_full_hinge
+          export_caps.push(ExportCap.new(node.id, a_other_node.id, a_l3.to_mm))
+        end
+
+        export_caps.push(ExportCap.new(node.id, b_other_node.id, b_l3.to_mm))
 
         if a_l3 < l3_min or b_l3 < l3_min
           raise RuntimeError, "Hinge l3 distance too small.: #{a_l3.to_mm}, #{b_l3.to_mm}, #{l3_min.to_mm}."
         end
 
-        a_with_connector = is_first
-        b_with_connector = is_last
-        a_gap = !is_first
-        b_gap = !is_last
+        a_with_connector = (is_first and !is_full_hinge)
+        b_with_connector = (is_last and !is_full_hinge)
+        a_gap = (is_full_hinge or !is_first)
+        b_gap = (is_full_hinge or !is_last)
 
         # if an actuator is present, one gap has to be created to allow the actuator to be connected
         if is_last and has_actuator

@@ -207,7 +207,7 @@ class HingeTool < Tool
       adjacent_tris = actuator.adjacent_triangles
 
       actuator.nodes.each do |node|
-        possible_hinge_edges = adjacent_tris.flat_map { |tri| tri.edges }.select { |edge| edge != actuator and edge.nodes.include? node }
+        possible_hinge_edges = adjacent_tris.flat_map { |tri| tri.edges }.select { |edge| edge.link_type != 'actuator' and edge.nodes.include? node }
         found_hinge_placement = false
         possible_hinge_edges.each do |edge|
           hinges = hinge_map[node].select { |hinge| hinge.edge1 == edge or hinge.edge2 == edge }
@@ -251,26 +251,27 @@ class HingeTool < Tool
     result = Hash.new { |h,k| h[k] = [] }
 
     hinge_map.each do |node, hinges|
-      if hinges.size == node.incidents.size
-        hinges.pop
-      end
-
       sorted_hinges = hinges.sort { |h1, h2| h1.num_connected_hinges(hinges) <=> h2.num_connected_hinges(hinges) }
       cur_hinge = sorted_hinges[0]
       new_hinges = []
+      first = true
 
       while new_hinges.size < hinges.size
         new_hinges.push(cur_hinge)
         next_hinge_possibilities = hinges.select { |hinge| hinge.connected_with?(cur_hinge) and not new_hinges.include?(hinge) }
         break if next_hinge_possibilities.empty?
-        if next_hinge_possibilities.size > 1
-          raise RuntimeError, 'More than one next hinge possible.'
+        if not first and next_hinge_possibilities.size > 1
+          raise RuntimeError, 'More than one next hinge possible arounf hinge at node ' + node.id.to_s
+        elsif first and next_hinge_possibilities.size > 2
+          raise RuntimeError, 'More than two next hinges possible around starting hinge at node ' + node.id.to_s
         end
 
         if cur_hinge.common_edge(next_hinge_possibilities[0]) != next_hinge_possibilities[0].edge1
           next_hinge_possibilities[0].swap_edges
         end
         cur_hinge = next_hinge_possibilities[0]
+
+        first = false
       end
 
       result[node] = new_hinges
