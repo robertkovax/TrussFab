@@ -1,11 +1,11 @@
 module draw_hinge_cap(
     cap_height,
-    round_size=12,
-    hole_size=
-    connector_end_round=30/2,
-    connector_end_heigth=4,
-    connector_end_extra_round=19.5/2,
-    connector_end_extra_height=2) {
+    round_size,
+    hole_size,
+    connector_end_round,
+    connector_end_heigth,
+    connector_end_extra_round,
+    connector_end_extra_height) {
     difference() {
         union() {
             rotate([-90, 0, 0])
