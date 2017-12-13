@@ -16,21 +16,20 @@ class ScadExport
     export_hubs = []
     export_caps = []
 
-<<<<<<< Updated upstream
-    gap_height = 10.mm.freeze
-    gap_epsilon = 0.8.mm.freeze
-    l2 = 4 * gap_height + gap_epsilon * 1.5 # see openscad gap height for more information
+    # old
+    # gap_height = 10.mm.freeze
+    # gap_epsilon = 0.8.mm.freeze
+    # l2 = 4 * gap_height + gap_epsilon * 1.5 # see openscad gap height for more information
 
-    #TODO: find out minimum l3 value
-    l3_min = 10.mm.freeze
-=======
+    # #TODO: find out minimum l3 value
+    # l3_min = 10.mm.freeze
+
     gap_height = PRESETS::SIMPLE_HING_RUBY['gap_height']
     gap_epsilon = PRESETS::SIMPLE_HING_RUBY['gap_epsilon'] # never used?
     l2 = PRESETS::SIMPLE_HING_RUBY['l2']
 
     #TODO: find out minimum l3 value
     l3_min = PRESETS::SIMPLE_HING_RUBY['l3_min']
->>>>>>> Stashed changes
 
     # stores the l1 value per node (since it needs to be constant across a node)
     node_l1 = Hash.new
