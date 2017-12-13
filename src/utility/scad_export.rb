@@ -38,11 +38,11 @@ class ScadExport
       l1 = node_l1[node]
 
       hinges.each do |hinge|
-        if hinge.is_a? ActuatorHinge
-          next
-        end
-
         [hinge.edge1, hinge.edge2].each do |edge|
+          if edge.link_type == 'actuator'
+            next
+          end
+
           elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length
           target_elongation = l1 + l2 + l3_min
 
@@ -61,7 +61,7 @@ class ScadExport
       l1 = node_l1[node]
       node_actuators = edges.select { |edge| edge.link_type == 'actuator' and edge.nodes.include?(node) }
       has_actuator = node_actuators.size > 0
-      is_full_hinge = hinges.first.edge1 = hinges.last.edge2
+      is_full_hinge = hinges.first.edge1 == hinges.last.edge2
 
       if has_actuator and is_full_hinge
         raise RuntimeError, 'Hinge chain has an actuator, but there is no place for it to connect.'
