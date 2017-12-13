@@ -26,7 +26,7 @@ class ExportHinge
   def write_to_file(path)
     filename = "#{path}/Hinge_#{@hub_id}.#{@a_other_hub_id}_#{@hub_id}.#{@b_other_hub_id}.scad"
     file = File.new(filename, 'w')
-    params = get_params_for_openscad(PRESETS::SIMPLE_HINGE_OPENSCAD)
+    params = get_defaults_for_openscad(PRESETS::SIMPLE_HINGE_OPENSCAD)
     export_string = [
       "// adjust filepath to LibSTLExport if neccessary",
       "use <#{ProjectHelper.library_directory}/openscad/Hinge/simple_hinge.scad>",

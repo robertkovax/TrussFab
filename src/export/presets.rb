@@ -14,9 +14,13 @@ module PRESETS
     'connector_end_extra_height' => 2.mm,
     'cut_out_hex_height' => 5.mm, # for the screw
     'cut_out_hex_d' => 11.5.mm,
-  }
+  }.freeze
 
-  SIMPLE_HINGE_RUBY = SIMPLE_HINGE_OPENSCAD.clone
+  CAP_RUBY = SIMPLE_HINGE_OPENSCAD.select do |key, _|
+    key.start_with?('connector_end', 'cut_out', 'round_size', 'hole_size')
+  end
+
+  SIMPLE_HINGE_RUBY = SIMPLE_HINGE_OPENSCAD.dup
 
   SIMPLE_HINGE_RUBY['l3_min'] = 10.mm
   SIMPLE_HINGE_RUBY['l2'] =
@@ -25,7 +29,7 @@ module PRESETS
 end
 
 # returns the preset as paramets to use in a openscad function call
-def get_params_for_openscad(preset)
+def get_defaults_for_openscad(preset)
   lines = preset.map do |key, value|
     "#{key}=#{value.to_mm}"
   end
