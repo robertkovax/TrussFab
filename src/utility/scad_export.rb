@@ -67,7 +67,6 @@ class ScadExport
         raise RuntimeError, 'Hinge chain has an actuator, but there is no place for it to connect.'
       end
 
-      i = 0
       hinges.each do |hinge|
         if hinge.is_a? ActuatorHinge
           #TODO: generate two actuator hinges
@@ -75,49 +74,43 @@ class ScadExport
           # gap distance 1mm
           # l1 same as node
           # one open on both sides, one connecting to edge
+          # take a and b side intro consideration
           next
         end
 
-        is_first = (i == 0)
-        is_last = (i == hinges.size - 1)
+        other_a_hinges = hinges.select { |other| hinge.edge1 == other.edge2 }
+        other_b_hinges = hinges.select { |other| hinge.edge2 == other.edge1 }
 
-        edge1 = hinge.edge1
-        edge2 = hinge.edge2
-        elongation1 = edge1.first_node?(node) ? edge1.first_elongation_length : edge1.second_elongation_length
-        elongation2 = edge2.first_node?(node) ? edge2.first_elongation_length : edge2.second_elongation_length
+        if other_a_hinges.size > 1 or other_b_hinges.size > 1
+          raise RuntimeError, 'More than one hinge connected to a hinge.'
+        end
 
-        a_other_node = edge1.other_node(node)
-        b_other_node = edge2.other_node(node)
+        elongation1 = hinge.edge1.first_node?(node) ? hinge.edge1.first_elongation_length : hinge.edge1.second_elongation_length
+        elongation2 = hinge.edge2.first_node?(node) ? hinge.edge2.first_elongation_length : hinge.edge2.second_elongation_length
+
+        a_other_node = hinge.edge1.other_node(node)
+        b_other_node = hinge.edge2.other_node(node)
 
         a_l3 = elongation1 - l1 - l2
         b_l3 = elongation2 - l1 - l2
 
-        # if we have a full hinge, the first element also need a cap
-        if is_first and is_full_hinge
-          export_caps.push(ExportCap.new(node.id, a_other_node.id, a_l3.to_mm))
+        # for every b hinge that has another hinge, we add a cap
+        unless other_b_hinges.empty?
+          export_caps.push(ExportCap.new(node.id, b_other_node.id, b_l3.to_mm))
         end
-
-        export_caps.push(ExportCap.new(node.id, b_other_node.id, b_l3.to_mm))
 
         if a_l3 < l3_min or b_l3 < l3_min
           raise RuntimeError, "Hinge l3 distance too small.: #{a_l3.to_mm}, #{b_l3.to_mm}, #{l3_min.to_mm}."
         end
 
-        a_with_connector = (is_first and !is_full_hinge)
-        b_with_connector = (is_last and !is_full_hinge)
-        a_gap = (is_full_hinge or !is_first)
-        b_gap = (is_full_hinge or !is_last)
-
-        # if an actuator is present, one gap has to be created to allow the actuator to be connected
-        if is_last and has_actuator
-          b_gap = true
-        end
+        a_with_connector = other_a_hinges.empty?
+        b_with_connector = other_b_hinges.empty?
+        a_gap = !other_a_hinges.empty?
+        b_gap = !other_b_hinges.empty?
 
         export_hinge = ExportHinge.new(node.id, a_other_node.id, b_other_node.id, l1.to_mm, l2.to_mm, a_l3.to_mm, l1.to_mm, l2.to_mm, b_l3.to_mm,
                                        hinge.angle, a_gap, b_gap, a_with_connector, b_with_connector)
         export_hinges.push(export_hinge)
-
-        i += 1
       end
     end
 

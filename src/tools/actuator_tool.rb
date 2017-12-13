@@ -149,17 +149,6 @@ class ActuatorTool < Tool
           else
             rotating_edge.thingy.second_joint = hinge
           end
-
-          # Draw hinge visualization
-          help_point = Geom::Point3d.linear_combination(0.7, node.position, 0.3, rotation_axis.mid_point)
-          starting_point = Geom::Point3d.linear_combination(0.7, node.position, 0.3, rotating_edge.mid_point)
-          mid_point = Geom::Point3d.linear_combination(0.3, starting_point, 0.7, help_point)
-          end_point = Geom::Point3d.linear_combination(0.7, mid_point, 0.3, rotation_axis.mid_point)
-
-          line1 = Line.new(starting_point, mid_point, HINGE_LINE)
-          line2 = Line.new(mid_point, end_point, HINGE_LINE)
-
-          rotating_edge.thingy.add(line1, line2)
         end
       end
     end
