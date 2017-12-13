@@ -109,18 +109,18 @@ module draw_hinge(
     a_gap, a_with_connector, a_label,
     b_l1, b_l2, b_l3,
     b_gap, b_with_connector, b_label,
-    depth=24, // depth of a hinge part
-    width=100, // not really important because parts that are too much gets cut away anyway
-    round_size=12, // the round part of a hinge part
-    hole_size=3.1, // where the screw goes through
-    gap_angle=45, // the angle for the triangle in the gap
-    extra_width_for_hinging=6, // there needs to be an extra offset so the hinge part can swing fully
-    gap_height=10, // gap of a hinge part
-    gap_epsilon=0.8, // margin of the gap (due to printing issues)
-    connector_end_round=30/2,
-    connector_end_heigth=4,
-    connector_end_extra_round=19.5/2,
-    connector_end_extra_height=2
+    depth, // depth of a hinge part
+    width, // not really important because parts that are too much gets cut away anyway
+    round_size, // the round part of a hinge part
+    hole_size, // where the screw goes through
+    gap_angle, // the angle for the triangle in the gap
+    extra_width_for_hinging, // there needs to be an extra offset so the hinge part can swing fully
+    gap_height, // gap of a hinge part
+    gap_epsilon, // margin of the gap (due to printing issues)
+    connector_end_round,
+    connector_end_heigth,
+    connector_end_extra_round,
+    connector_end_extra_height
     ) {
     
     gap_width = 2 * round_size + depth / 2 + extra_width_for_hinging;
