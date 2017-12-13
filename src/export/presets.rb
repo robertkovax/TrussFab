@@ -1,38 +1,38 @@
 module PRESETS
   SIMPLE_HINGE_OPENSCAD = {
-    "depth" => 24, # depth of a hinge part
-    "width" => 100, # not really important because parts that are too much gets cut away anyway
-    "round_size" => 12, # the round part of a hinge part
-    "hole_size" => 3.1, # where the screw goes through
-    "gap_angle" => 45, # the angle for the triangle in the gap
-    "extra_width_for_hinging" => 6, # there needs to be an extra offset so the hinge part can swing fully
-    "gap_height" => 10, # gap of a hinge part
-    "gap_epsilon" => 0.8, # margin of the gap (due to printing issues)
-    "connector_end_round" => 30/2,
-    "connector_end_heigth" => 4,
-    "connector_end_extra_round" => 19.5/2,
-    "connector_end_extra_height" => 2,
+    "depth" => 24.mm, # depth of a hinge part
+    "width" => 100.mm, # not really important because parts that are too much gets cut away anyway
+    "round_size" => 12.mm, # the round part of a hinge part
+    "hole_size" => 3.1.mm, # where the screw goes through
+    "gap_angle" => 45.mm, # the angle for the triangle in the gap
+    "extra_width_for_hinging" => 6.mm, # there needs to be an extra offset so the hinge part can swing fully
+    "gap_height" => 10.mm, # gap of a hinge part
+    "gap_epsilon" => 0.8.mm, # margin of the gap (due to printing issues)
+    "connector_end_round" => (30 / 2).mm,
+    "connector_end_heigth" => 4.mm,
+    "connector_end_extra_round" => (19.5 / 2).mm,
+    "connector_end_extra_height" => 2.mm,
   }
 
   SIMPLE_HINGE_RUBY = SIMPLE_HINGE_OPENSCAD.clone
 
-  SIMPLE_HINGE_RUBY['l3_min'] = 10
+  SIMPLE_HINGE_RUBY['l3_min'] = 10.mm
   SIMPLE_HINGE_RUBY['l2'] =
     4 * SIMPLE_HINGE_RUBY['gap_height'] +
     1.5 * SIMPLE_HINGE_RUBY['gap_epsilon']
+end
 
-  # returns the preset as paramets to use in a openscad function call
-  def get_parameters_s preset
-    lines = preset.map do |key, value|
-      "#{key}=#{value}"
-    end
-    lines.join(',')
+# returns the preset as paramets to use in a openscad function call
+def get_params_for_openscad(preset)
+  lines = preset.map do |key, value|
+    "#{key}=#{value.to_mm}"
   end
+  lines.join(', ')
 end
 
 def save_to_scad(hash, path)
   lines = hash.map do |key, value|
-    "#{key} = #{value};"
+    "#{key} = #{value.to_mm};"
   end
 
   File.open(path, 'w') do |file|
