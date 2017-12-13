@@ -10,7 +10,6 @@ class ScadExport
   def self.export_to_scad(path, nodes, edges)
     hinge_tool = HingeTool.new(nil)
     hinge_tool.activate
-    relaxation = Relaxation.new
 
     export_hinges = []
     export_hubs = []
@@ -34,39 +33,42 @@ class ScadExport
       node_l1[node] = max_l1
     end
 
-    hinge_tool.hinges.each do |node, hinges|
-      l1 = node_l1[node]
+    loop do
+      relaxation = Relaxation.new
+      is_finished = true
 
-      hinges.each do |hinge|
-        [hinge.edge1, hinge.edge2].each do |edge|
-          if edge.link_type == 'actuator'
-            next
-          end
+      hinge_tool.hinges.each do |node, hinges|
+        l1 = node_l1[node]
 
-          elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length
-          target_elongation = l1 + l2 + l3_min
+        hinges.each do |hinge|
+          [hinge.edge1, hinge.edge2].each do |edge|
+            if edge.link_type == 'actuator'
+              next
+            end
 
-          while elongation < target_elongation
-            total_elongation = edge.first_elongation_length + edge.second_elongation_length
-            relaxation.stretch_to(edge, edge.length - total_elongation + 2*target_elongation + 10.mm)
-            relaxation.relax
             elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length
+            target_elongation = l1 + l2 + l3_min
+
+            if elongation < target_elongation
+              total_elongation = edge.first_elongation_length + edge.second_elongation_length
+              relaxation.stretch_to(edge, edge.length - total_elongation + 2*target_elongation + 10.mm)
+              is_finished = false
+            end
           end
         end
       end
+
+      if is_finished
+        break
+      end
+
+      relaxation.relax
+      Sketchup.active_model.commit_operation
     end
-    Sketchup.active_model.commit_operation
 
     hinge_tool.hinges.each do |node, hinges|
       l1 = node_l1[node]
-      node_actuators = edges.select { |edge| edge.link_type == 'actuator' and edge.nodes.include?(node) }
-      has_actuator = node_actuators.size > 0
-      is_full_hinge = hinges.first.edge1 == hinges.last.edge2
-
-      if has_actuator and is_full_hinge
-        raise RuntimeError, 'Hinge chain has an actuator, but there is no place for it to connect.'
-      end
-
+      
       hinges.each do |hinge|
         if hinge.is_a? ActuatorHinge
           #TODO: generate two actuator hinges
@@ -75,6 +77,7 @@ class ScadExport
           # l1 same as node
           # one open on both sides, one connecting to edge
           # take a and b side intro consideration
+          # need to generate cap if b side is connected to edge
           next
         end
 
@@ -100,7 +103,7 @@ class ScadExport
         end
 
         if a_l3 < l3_min or b_l3 < l3_min
-          raise RuntimeError, "Hinge l3 distance too small.: #{a_l3.to_mm}, #{b_l3.to_mm}, #{l3_min.to_mm}."
+          raise RuntimeError, "Hinge l3 distance too small: #{a_l3.to_mm}, #{b_l3.to_mm}, #{l3_min.to_mm}."
         end
 
         a_with_connector = other_a_hinges.empty?

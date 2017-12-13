@@ -160,7 +160,9 @@ class HingeTool < Tool
 
       other_groups.each do |other_group|
         group2_edges = Set.new other_group.flat_map { |tri| tri.edges }
-        axis = (group1_edges & group2_edges).to_a[0]
+        common_edges = group1_edges & group2_edges
+        raise RuntimeError, 'Groups dont have one common edge' unless common_edges.size == 1
+        axis = common_edges.to_a[0]
 
         group1_adjacent_tris = group.select { |tri| tri.edges.include? axis }
         group2_adjacent_tris = other_group.select { |tri| tri.edges.include? axis }
@@ -177,7 +179,8 @@ class HingeTool < Tool
 
       if group.size == 1
         # close triangle by placing hinges
-        group.flat_map { |tri| tri.edges }.combination(2).each do |pair|
+        group_edges = Set.new(group.flat_map { |tri| tri.edges })
+        group_edges.to_a.combination(2).each do |pair|
           node = pair[0].shared_node(pair[1])
           has_hub = !hubs[node].empty?
           has_pods = node.thingy.pods?
@@ -187,16 +190,17 @@ class HingeTool < Tool
           unless hinges.include?(new_hinge)
             hinges.add(new_hinge)
 
-            if hinge_type == 'static'
-              hubs[node].push([pair[0], pair[1]])
-            end
+            #TODO: implement hinges as hubs when necessary (they are a hub and have pods)
+            # if hinge_type == 'static'
+            #   hubs[node].push([pair[0], pair[1]])
+            # end
           end
         end
       end
     end
 
     hinge_map = Hash.new { |h,k| h[k] = [] }
-    hinges.select { |hinge| hinge.type == 'dynamic' }.each do |hinge|
+    hinges.each do |hinge|
       node = hinge.edge1.shared_node(hinge.edge2)
       hinge_map[node].push(hinge)
     end
@@ -210,9 +214,16 @@ class HingeTool < Tool
         possible_hinge_edges = adjacent_tris.flat_map { |tri| tri.edges }.select { |edge| edge.link_type != 'actuator' and edge.nodes.include? node }
         found_hinge_placement = false
         possible_hinge_edges.each do |edge|
-          hinges = hinge_map[node].select { |hinge| hinge.edge1 == edge or hinge.edge2 == edge }
-          if hinges.size <= 1
+          edge_hinges = hinge_map[node].select { |hinge| hinge.edge1 == edge or hinge.edge2 == edge }
+          if edge_hinges.size <= 1
             hinge = ActuatorHinge.new(edge, actuator, 'dynamic')
+
+            unless edge_hinges.empty?
+              if edge_hinges[0].edge1 == hinge.edge1
+                hinge.swap_edges
+              end
+            end
+
             hinge_map[node].push(hinge)
             found_hinge_placement = true
             break
@@ -223,10 +234,15 @@ class HingeTool < Tool
       end
     end
 
-    hinge_map.values.each do |hinges|
-      hinges.each do |hinge|
+    hinge_map.values.each do |node_hinges|
+      node_hinges.each do |hinge|
         add_hinge(hinge)
       end
+    end
+
+    # make main hub the one with most incidents
+    hubs.each do |node, node_hubs|
+      node_hubs.sort! { |hub1, hub2| hub2.size <=> hub1.size }
     end
 
     # shorten elongations for all edges that are not part of the main hub
@@ -253,15 +269,31 @@ class HingeTool < Tool
     hinge_map.each do |node, hinges|
       sorted_hinges = hinges.sort { |h1, h2| h1.num_connected_hinges(hinges) <=> h2.num_connected_hinges(hinges) }
       cur_hinge = sorted_hinges[0]
+
+      # make sure that edge1 is the unconnected one if there is one
+      other_edges = (hinges - [cur_hinge]).flat_map { |hinge| [hinge.edge1, hinge.edge2] }
+      cur_hinge.swap_edges unless other_edges.include? cur_hinge.edge2
+
       new_hinges = []
       first = true
 
       while new_hinges.size < hinges.size
         new_hinges.push(cur_hinge)
+
+        break if new_hinges.size == hinges.size
+
         next_hinge_possibilities = hinges.select { |hinge| hinge.connected_with?(cur_hinge) and not new_hinges.include?(hinge) }
-        break if next_hinge_possibilities.empty?
+        if next_hinge_possibilities.empty?
+          remaining_hinges = sorted_hinges - new_hinges
+          cur_hinge = remaining_hinges[0]
+          #TODO: remove duplication
+          other_edges = (remaining_hinges - [cur_hinge]).flat_map { |hinge| [hinge.edge1, hinge.edge2] }
+          cur_hinge.swap_edges unless other_edges.include? cur_hinge.edge2
+          next
+        end
+
         if not first and next_hinge_possibilities.size > 1
-          raise RuntimeError, 'More than one next hinge possible arounf hinge at node ' + node.id.to_s
+          raise RuntimeError, 'More than one next hinge possible around hinge at node ' + node.id.to_s
         elsif first and next_hinge_possibilities.size > 2
           raise RuntimeError, 'More than two next hinges possible around starting hinge at node ' + node.id.to_s
         end
@@ -282,10 +314,10 @@ class HingeTool < Tool
 
   def group_hinges_around_axis?(hinges, group, axis)
     side1_edges = group.flat_map { |tri| tri.edges }.select { |edge| edge.nodes.include? axis.first_node }
-    side1_hinges = side1_edges.any? { |edge| hinges.include? Set.new [edge, axis] }
+    side1_hinges = side1_edges.any? { |edge| edge != axis and hinges.include? Hinge.new(edge, axis, 'dynamic') }
 
     side2_edges = group.flat_map { |tri| tri.edges }.select { |edge| edge.nodes.include? axis.second_node }
-    side2_hinges = side2_edges.any? { |edge| hinges.include? Set.new [edge, axis] }
+    side2_hinges = side2_edges.any? { |edge| edge != axis and hinges.include? Hinge.new(edge, axis, 'dynamic') }
 
     side1_hinges and side2_hinges
   end
