@@ -62,7 +62,7 @@ module hingepart(l1, l2, l3, gap, with_connector, label,
                 rotate([-90, 0, 0])
                 cylinder(l3, round_size, round_size);
                 
-                translate([width - round_size, l2 + l3 - cap_end_heigth, depth / 2])
+                translate([width - round_size, l2 + l3 - connector_end_heigth, depth / 2])
                 rotate([-90, 0, 0])
                 cylinder(connector_end_heigth, connector_end_round, connector_end_round);
             }
