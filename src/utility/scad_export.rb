@@ -70,14 +70,30 @@ class ScadExport
       l1 = node_l1[node]
       
       hinges.each do |hinge|
+        a_other_node = hinge.edge1.other_node(node)
+        b_other_node = hinge.edge2.other_node(node)
+
         if hinge.is_a? ActuatorHinge
-          #TODO: generate two actuator hinges
-          # angle 35° for both
-          # gap distance 1mm
-          # l1 same as node
-          # one open on both sides, one connecting to edge
-          # take a and b side intro consideration
-          # need to generate cap if b side is connected to edge
+          a_with_connector = false
+          b_with_connector = true
+          a_gap = true
+          b_gap = false
+
+          if hinge.edge1.link_type == 'actuator'
+            a_with_connector = true
+            b_with_connector = false
+            a_gap = false
+            b_gap = true
+          end
+
+          intermediate_hinge = ExportHinge.new(node.id, "i" + a_other_node.id.to_s, "i" + b_other_node.id.to_s, l1.to_mm, l2.to_mm, l3_min.to_mm, l1.to_mm, l2.to_mm, l3_min.to_mm,
+                                               PRESETS::ACTUATOR_HINGE_OPENSCAD['gap_angle'], true, true, false, false, PRESETS::ACTUATOR_HINGE_OPENSCAD)
+          export_hinges.push(intermediate_hinge)
+
+          actuator_hinge = ExportHinge.new(node.id, "a" + a_other_node.id.to_s, "a" + b_other_node.id.to_s, l1.to_mm, l2.to_mm, l3_min.to_mm, l1.to_mm, l2.to_mm, l3_min.to_mm,
+                                           PRESETS::ACTUATOR_HINGE_OPENSCAD['gap_angle'], a_gap, b_gap, a_with_connector, b_with_connector, PRESETS::ACTUATOR_HINGE_OPENSCAD)
+          export_hinges.push(actuator_hinge)
+
           next
         end
 
@@ -90,9 +106,6 @@ class ScadExport
 
         elongation1 = hinge.edge1.first_node?(node) ? hinge.edge1.first_elongation_length : hinge.edge1.second_elongation_length
         elongation2 = hinge.edge2.first_node?(node) ? hinge.edge2.first_elongation_length : hinge.edge2.second_elongation_length
-
-        a_other_node = hinge.edge1.other_node(node)
-        b_other_node = hinge.edge2.other_node(node)
 
         a_l3 = elongation1 - l1 - l2
         b_l3 = elongation2 - l1 - l2
@@ -112,7 +125,7 @@ class ScadExport
         b_gap = !other_b_hinges.empty?
 
         export_hinge = ExportHinge.new(node.id, a_other_node.id, b_other_node.id, l1.to_mm, l2.to_mm, a_l3.to_mm, l1.to_mm, l2.to_mm, b_l3.to_mm,
-                                       hinge.angle, a_gap, b_gap, a_with_connector, b_with_connector)
+                                       hinge.angle, a_gap, b_gap, a_with_connector, b_with_connector, PRESETS::SIMPLE_HINGE_OPENSCAD)
         export_hinges.push(export_hinge)
       end
     end
