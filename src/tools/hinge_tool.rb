@@ -218,6 +218,8 @@ class HingeTool < Tool
           if edge_hinges.size <= 1
             hinge = ActuatorHinge.new(edge, actuator, 'dynamic')
 
+            # make sure actuator hinge fits on other hinge if there is one
+            # i.e. if other hinge is b, this one is a and vice versa
             unless edge_hinges.empty?
               if edge_hinges[0].edge1 == hinge.edge1
                 hinge.swap_edges
