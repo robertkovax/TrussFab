@@ -235,6 +235,10 @@ class Simulation
     @chart.open_dialog
   end
 
+  def close_chart
+    @chart.close
+  end
+
   def close_piston_dialog
     #close old window
     unless @dialog.nil?
@@ -318,6 +322,7 @@ class Simulation
     reset_force_color
     reset_force_labels
     close_piston_dialog
+    close_chart
     @moving_pistons.clear
     destroy_world
   end

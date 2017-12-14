@@ -15,6 +15,10 @@ class ForceChart
     end
   end
 
+  def close
+    @dialog.close
+  end
+
   def addData(label, data)
     @dialog.execute_script("addData('#{label}', '#{data}')")
   end
