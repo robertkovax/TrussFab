@@ -56,7 +56,7 @@ class Edge < GraphObject
   end
 
   def create_joints(world)
-    @thingy.create_joints(world)
+    @thingy.create_joints(world, first_node, second_node)
   end
 
   def create_ball_joints(world)
@@ -181,17 +181,17 @@ class Edge < GraphObject
 
   def create_thingy(id)
     case @link_type
-      when 'bottle_link'
-        Link.new(@first_node,
-                 @second_node,
-                 @model_name,
-                 id: id)
-      when 'actuator'
-        ActuatorLink.new(@first_node,
-                         @second_node,
-                         id: id)
-      else
-        raise "Unkown link type: #{@link_type}"
+    when 'bottle_link'
+      Link.new(@first_node,
+               @second_node,
+               @model_name,
+               id: id)
+    when 'actuator'
+      ActuatorLink.new(@first_node,
+                       @second_node,
+                       id: id)
+    else
+      raise "Unkown link type: #{@link_type}"
     end
   end
 end

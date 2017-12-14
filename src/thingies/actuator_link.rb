@@ -69,20 +69,21 @@ class ActuatorLink < Link
     [@first_cylinder_body, @second_cylinder_body]
   end
 
-  def create_joints(world)
+  def create_joints(world, first_node, second_node)
+    first_direction = mid_point.vector_to(first_node.position)
+    second_direction = mid_point.vector_to(second_node.position)
+
+    @first_joint = ThingyBallJoint.new(first_node,
+                                       first_direction)
+    @second_joint = ThingyBallJoint.new(second_node,
+                                        second_direction)
+
     @first_joint.create(world, @first_cylinder.body)
     @second_joint.create(world, @second_cylinder.body)
   end
 
   def create_ball_joints(world, first_node, second_node)
-    first_direction = mid_point.vector_to(first_node.position)
-    second_direction = mid_point.vector_to(second_node.position)
-
-    @first_joint = ThingyBallJoint.new(first_node, first_direction)
-    @second_joint = ThingyBallJoint.new(second_node, second_direction)
-
-    @first_joint.create(world, @first_cylinder.body)
-    @second_joint.create(world, @second_cylinder.body)
+    create_joints(world, first_node, second_node)
   end
 
   def reset_physics

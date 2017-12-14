@@ -227,6 +227,15 @@ class Simulation
       @max_speed = value
       Sketchup.active_model.commit_operation
     end
+    @dialog.add_action_callback('play_pause_simulation') do |_context|
+      if @paused
+        reset_force_labels
+        start
+      else
+        update_force_labels
+        @paused = true
+      end
+    end
   end
 
   def chart_dialog
@@ -306,6 +315,7 @@ class Simulation
     hide_triangle_surfaces
     hide_force_arrows
     @running = true
+    @paused = false
     @last_frame_time = Time.now
   end
 
@@ -397,6 +407,24 @@ class Simulation
     Sketchup.active_model.commit_operation
   end
 
+  def get_force_from_link(link)
+    lin_force = nil
+    position = nil
+    if !link.body.nil?
+      lin_force, position = get_force_from_body(link, link.body)
+    elsif (!link.first_cylinder_body.nil? && !link.second_cylinder_body.nil?)
+      [link.first_cylinder_body, link.second_cylinder_body].each do |body|
+        lin_force, position = get_force_from_body(link, body)
+        visualize_force(link, lin_force)
+        @total_force += lin_force.abs
+      end
+    else
+      return
+    end
+
+    [lin_force, position]
+  end
+
   def get_force_from_body(link, body)
     return if body.nil?
     body_orientation = body.get_matrix
@@ -415,22 +443,10 @@ class Simulation
   end
 
   def show_force(link, view)
-    lin_force = nil
-    position = nil
-    if !link.body.nil?
-      lin_force, position = get_force_from_body(link, link.body)
-      visualize_force(link, lin_force)
-    elsif (!link.first_cylinder_body.nil? && !link.second_cylinder_body.nil?)
-      [link.first_cylinder_body, link.second_cylinder_body].each do |body|
-        lin_force, position = get_force_from_body(link, body)
-        @total_force += lin_force.abs
-        visualize_force(link, lin_force)
-      end
-    else
-      return
-    end
+    lin_force, position = get_force_from_link(link)
 
     return if lin_force.nil?
+    visualize_force(link, lin_force)
 
     if lin_force.abs > @breaking_force
       update_force_label(link, lin_force, position)
@@ -440,12 +456,21 @@ class Simulation
     # \note(tim): this has a huge performance impact. We may have to think about
     # only showing the highest force or omit some values that are uninteresting
     # Commented out for now in order to keep the simulation running quickly.
-    # update_force_label(thingy, lin_force, position)
+    # update_force_label(link, lin_force, position)
   end
 
   def visualize_force(link, force)
     color = @color_converter.get_color_for_force(force)
     link.change_color(color)
+  end
+
+  def update_force_labels
+    Sketchup.active_model.start_operation('Change Materials', true)
+    Graph.instance.edges.values.each do |edge|
+      lin_force, position = get_force_from_link(edge.thingy)
+      update_force_label(edge.thingy, lin_force, position)
+    end
+    Sketchup.active_model.commit_operation
   end
 
   def update_force_label(link, force, position)
