@@ -6,7 +6,7 @@ module add_text(text) {
     text_on_cube(t=text, cube_size=0, locn_vec=v, size=5, face="top", center=false, spacing=0.8);
 }
 
-module cut_out_a_cap(l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e) {
+module cut_out_b_cap(l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e) {
     mirror([1, 0, 0])
     union() {
         for (ii = [0:1]) {
@@ -25,7 +25,7 @@ module cut_out_a_cap(l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_heig
 }
 
 
-module cut_out_b_cap(l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e) {
+module cut_out_a_cap(l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e) {
         union() {
         for (ii = [0:1]) {
             extra_offset =  ii == 0 ? 100 : 0;            
@@ -192,14 +192,14 @@ module draw_hinge(
 
             }
             
-            if (b_gap) {
-                cut_out_b_cap(b_l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e);
+            if (a_gap) {
+                cut_out_a_cap(a_l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e);
             }
           
         }
         
-        if (a_gap) {
-            cut_out_a_cap(a_l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e);
+        if (b_gap) {
+            cut_out_b_cap(b_l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e);
         }
     }
 }
