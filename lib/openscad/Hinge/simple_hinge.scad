@@ -180,16 +180,16 @@ module draw_hinge(
                     }
                 }
                 
-                union() {
-                    if (!a_with_connector && !b_with_connector) {
-                        // cuts out parts at the top
-                        a_l12 = a_l1 + a_l2;
-                        b_l12 = b_l1 + b_l2;
-                        longest = max(a_l12, b_l12);
-                        translate([0, longest + 50 + 3, 0]) // you can tune the last summand
-                        cube([100, 100, 100], center=true);    
-                    }
-                }
+                // cuts out parts at the top
+                // the height of the cube is responsible for the cutting out of the the top part
+                // it can cause some problems if it cuts too much or to little
+
+                a_l12 = a_l1 + a_l2;
+                b_l12 = b_l1 + b_l2;
+                longest = max(a_l12, b_l12);
+                translate([0, longest + 50 + 3, 0]) // you can tune the last summand
+                cube([50, 100, 100], center=true);
+
             }
             
             if (b_gap) {
@@ -217,4 +217,4 @@ l3 = 40;
 //    a_l1=l1, a_l2=l2, a_l3=l3, a_gap=true, a_label="123.456", b_label="133.789",
 //    b_l1=l1, b_l2=l2, b_l3=l3, b_gap=true);
 
-draw_hinge(alpha=59.93035835020898, a_l1=30.069641649791023, a_l2=41.199999999999996, a_l3=14.771333346882312, a_gap=true, b_l1=30.069641649791023, b_l2=41.199999999999996, b_l3=15.258982187190027, b_gap=true, a_with_connector=false, b_with_connector=false, a_label="76.149", b_label="76.75", depth=24.0, width=100.0, round_size=12.0, hole_size=3.1, gap_angle=45.0, extra_width_for_hinging=6.0, gap_height=10.0, gap_epsilon=0.8000000000000002, connector_end_round=15.0, connector_end_heigth=3.7, connector_end_extra_round=9.95, connector_end_extra_height=1.9999999999999998, cut_out_hex_height=5.0, cut_out_hex_d=11.5);
+draw_hinge(alpha=59.93035835020898, a_l1=30.069641649791023, a_l2=41.199999999999996, a_l3=14.771333346882312, a_gap=false, b_l1=30.069641649791023, b_l2=41.199999999999996, b_l3=15.258982187190027, b_gap=true, a_with_connector=true, b_with_connector=false, a_label="76.149", b_label="76.75", depth=24.0, width=100.0, round_size=12.0, hole_size=3.1, gap_angle=45.0, extra_width_for_hinging=6.0, gap_height=10.0, gap_epsilon=0.8000000000000002, connector_end_round=15.0, connector_end_heigth=3.7, connector_end_extra_round=9.95, connector_end_extra_height=1.9999999999999998, cut_out_hex_height=5.0, cut_out_hex_d=11.5);
