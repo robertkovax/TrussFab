@@ -245,6 +245,7 @@ class Simulation
   end
 
   def close_chart
+    return if @chart.nil?
     @chart.close
   end
 
@@ -398,6 +399,10 @@ class Simulation
     @last_frame = @frame
     @last_time = now
   end
+
+  #
+  # Force Related Methods
+  #
 
   def show_forces(view)
     Sketchup.active_model.start_operation('Change Materials', true)
