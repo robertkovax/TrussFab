@@ -88,12 +88,10 @@ module hingepart(l1, l2, l3, gap, with_connector, label,
                 add_text(label);                
             }
             
-            if (gap || with_connector) {
-                // cut out the two holes
-                translate([width - round_size, 0, depth / 2])
-                rotate([-90, 0, 0])
-                cylinder(l2 + l3, hole_size, hole_size);
-            }
+            // cut out the two holes
+            translate([width - round_size, 0, depth / 2])
+            rotate([-90, 0, 0])
+            cylinder(l2 + l3, hole_size, hole_size);     
         }
     }
 }
