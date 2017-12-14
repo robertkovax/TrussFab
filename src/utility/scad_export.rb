@@ -35,6 +35,8 @@ class ScadExport
 
     loop do
       relaxation = Relaxation.new
+      relaxation.ignore_fixation
+
       is_finished = true
 
       hinge_tool.hinges.each do |node, hinges|

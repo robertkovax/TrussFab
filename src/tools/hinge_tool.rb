@@ -6,13 +6,12 @@ require 'src/simulation/joints'
 require 'src/simulation/thingy_rotation'
 
 class Hinge
-  attr_accessor :edge1, :edge2, :type
+  attr_accessor :edge1, :edge2
 
-  def initialize(edge1, edge2, type)
+  def initialize(edge1, edge2)
     raise RuntimeError, 'Edges have to be different.' unless edge1 != edge2
     @edge1 = edge1
     @edge2 = edge2
-    @type = type
   end
 
   def hash
@@ -173,7 +172,7 @@ class HingeTool < Tool
 
         hinging_tri = group2_adjacent_tris.sample
         (hinging_tri.edges - [axis]).each do |edge|
-          hinges.add(Hinge.new(edge, axis, 'dynamic'))
+          hinges.add(Hinge.new(edge, axis))
         end
       end
 
@@ -184,21 +183,23 @@ class HingeTool < Tool
           node = pair[0].shared_node(pair[1])
           has_hub = !hubs[node].empty?
           has_pods = node.thingy.pods?
-          hinge_type = (has_pods and not has_hub) ? 'static' : 'dynamic'
 
-          new_hinge = Hinge.new(pair[0], pair[1], hinge_type)
-          unless hinges.include?(new_hinge)
+          if !has_hub and has_pods
+            hubs[node].push([pair[0], pair[1]])
+          else
+            new_hinge = Hinge.new(pair[0], pair[1])
             hinges.add(new_hinge)
-
-            #TODO: implement hinges as hubs when necessary (they are a hub and have pods)
-            # if hinge_type == 'static'
-            #   hubs[node].push([pair[0], pair[1]])
-            # end
           end
         end
       end
     end
 
+    # make main hub the one with most incidents
+    hubs.each do |node, node_hubs|
+      node_hubs.sort! { |hub1, hub2| hub2.size <=> hub1.size }
+    end
+
+    # place all hinges to the node which they rotate around
     hinge_map = Hash.new { |h,k| h[k] = [] }
     hinges.each do |hinge|
       node = hinge.edge1.shared_node(hinge.edge2)
@@ -216,7 +217,7 @@ class HingeTool < Tool
         possible_hinge_edges.each do |edge|
           edge_hinges = hinge_map[node].select { |hinge| hinge.edge1 == edge or hinge.edge2 == edge }
           if edge_hinges.size <= 1
-            hinge = ActuatorHinge.new(edge, actuator, 'dynamic')
+            hinge = ActuatorHinge.new(edge, actuator)
 
             # make sure actuator hinge fits on other hinge if there is one
             # i.e. if other hinge is b, this one is a and vice versa
@@ -240,11 +241,6 @@ class HingeTool < Tool
       node_hinges.each do |hinge|
         add_hinge(hinge)
       end
-    end
-
-    # make main hub the one with most incidents
-    hubs.each do |node, node_hubs|
-      node_hubs.sort! { |hub1, hub2| hub2.size <=> hub1.size }
     end
 
     # shorten elongations for all edges that are not part of the main hub
@@ -316,10 +312,10 @@ class HingeTool < Tool
 
   def group_hinges_around_axis?(hinges, group, axis)
     side1_edges = group.flat_map { |tri| tri.edges }.select { |edge| edge.nodes.include? axis.first_node }
-    side1_hinges = side1_edges.any? { |edge| edge != axis and hinges.include? Hinge.new(edge, axis, 'dynamic') }
+    side1_hinges = side1_edges.any? { |edge| edge != axis and hinges.include? Hinge.new(edge, axis) }
 
     side2_edges = group.flat_map { |tri| tri.edges }.select { |edge| edge.nodes.include? axis.second_node }
-    side2_hinges = side2_edges.any? { |edge| edge != axis and hinges.include? Hinge.new(edge, axis, 'dynamic') }
+    side2_hinges = side2_edges.any? { |edge| edge != axis and hinges.include? Hinge.new(edge, axis) }
 
     side1_hinges and side2_hinges
   end
@@ -398,35 +394,14 @@ class HingeTool < Tool
     rotating_edge = hinge.edge2
     node = rotating_edge.shared_node(rotation_axis)
 
-    # rotation = EdgeRotation.new(rotation_axis)
-    # thingy_hinge = ThingyHinge.new(node, rotation)
-    #
-    # if rotating_edge.first_node?(node)
-    #   rotating_edge.thingy.first_joint = thingy_hinge
-    # else
-    #   rotating_edge.thingy.second_joint = thingy_hinge
-    # end
-
-    line1 = nil
-    line2 = nil
-
     mid_point1 = Geom::Point3d.linear_combination(0.7, node.position, 0.3, rotation_axis.mid_point)
     mid_point2 = Geom::Point3d.linear_combination(0.7, node.position, 0.3, rotating_edge.mid_point)
 
     # Draw hinge visualization
-    if hinge.type == 'dynamic'
-      #outwards = rotation_axis.direction.normalize + rotating_edge.direction.normalize
-      mid_point = Geom::Point3d.linear_combination(0.5, mid_point2, 0.5, mid_point1)
-      #mid_point = mid_point + (rotation_axis.mid_point + rotating_edge.mid_point) * 0.1
+    mid_point = Geom::Point3d.linear_combination(0.5, mid_point2, 0.5, mid_point1)
 
-      line1 = Line.new(mid_point, mid_point1, HINGE_LINE)
-      line2 = Line.new(mid_point, mid_point2, HINGE_LINE)
-    elsif hinge.type == 'static'
-      line1 = Line.new(node.position, mid_point1, HINGE_LINE)
-      line2 = Line.new(node.position, mid_point2, HINGE_LINE)
-    else
-      raise RuntimeError, 'Unknown hinge type.'
-    end
+    line1 = Line.new(mid_point, mid_point1, HINGE_LINE)
+    line2 = Line.new(mid_point, mid_point2, HINGE_LINE)
 
     rotating_edge.thingy.add(line1, line2)
   end
