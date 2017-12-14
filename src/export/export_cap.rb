@@ -17,7 +17,10 @@ class ExportCap
     export_string = [
       "// adjust filepath to LibSTLExport if neccessary",
       "use <#{ProjectHelper.library_directory}/openscad/Hinge/cap.scad>",
-    "draw_hinge_cap(cap_height=#{@length}, label=\"#{identifier}\", #{defaults});"].join("\n") + "\n"
+      "draw_hinge_cap(",
+      "cap_height=#{@length},",
+      "label=\"#{identifier}\",",
+      "#{defaults});"].join("\n") + "\n"
 
     file.write(export_string)
     file.close

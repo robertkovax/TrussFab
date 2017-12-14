@@ -1,6 +1,3 @@
-# TODO
-# * two hinges on one elongation
-
 class ExportHub
   def initialize(is_main_hub, id)
     @id = id
@@ -47,26 +44,26 @@ class ExportHub
 
     export_string =
         "// adjust filepath to LibSTLExport if neccessary\n" \
-      "include <#{ProjectHelper.library_directory}/openscad/LibSTLExport.scad>\n" \
-      "\n" \
-      "hubID = \"#{@id}\";\n" \
-      "mode = \"#{mode}\";\n" \
-      "safetyFlag = false;\n" \
-      "connectorDataDistance = 0;\n" \
-      "tubeThinning = 1.0;\n" \
-      "useFixedCenterSize = false;\n" \
-      "hubCenterSize = 0;\n" \
-      "printVectorInteger = 8;\n" \
-      "dataFileVectorArray = [\n" \
-      "#{vector_array.join(",\n")}\n" \
-      "];\n" \
-      "dataFileAddonParameterArray = [\n" \
-      "#{addon_array.join(",\n")}\n" \
-      "];\n" \
-      "connectorTypeArray = [\n" \
-      "#{type_array.join(",\n")}\n" \
-      "];\n" \
-      "drawHub(dataFileVectorArray, dataFileAddonParameterArray, connectorTypeArray);\n"
+        "include <#{ProjectHelper.library_directory}/openscad/LibSTLExport.scad>\n" \
+        "\n" \
+        "hubID = \"#{@id}\";\n" \
+        "mode = \"#{mode}\";\n" \
+        "safetyFlag = false;\n" \
+        "connectorDataDistance = 0;\n" \
+        "tubeThinning = 1.0;\n" \
+        "useFixedCenterSize = false;\n" \
+        "hubCenterSize = 0;\n" \
+        "printVectorInteger = 8;\n" \
+        "dataFileVectorArray = [\n" \
+        "#{vector_array.join(",\n")}\n" \
+        "];\n" \
+        "dataFileAddonParameterArray = [\n" \
+        "#{addon_array.join(",\n")}\n" \
+        "];\n" \
+        "connectorTypeArray = [\n" \
+        "#{type_array.join(",\n")}\n" \
+        "];\n" \
+        "drawHub(dataFileVectorArray, dataFileAddonParameterArray, connectorTypeArray);\n"
 
     file.write(export_string)
     file.close

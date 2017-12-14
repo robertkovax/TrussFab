@@ -33,7 +33,7 @@ def get_defaults_for_openscad(preset)
   lines = preset.map do |key, value|
     "#{key}=#{value.to_mm}"
   end
-  lines.join(', ')
+  lines.join(",\n")
 end
 
 def save_to_scad(hash, path)
