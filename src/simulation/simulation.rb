@@ -12,11 +12,11 @@ class Simulation
   HUB_MASS = 0.1
   POD_MASS = 0.1
 
-  # if this is 1.0, for some reason, there is no "dampening" in movement, but
+  # if this is 1.0, for some reason, there is no "damping" in movement, but
   # all movement is accumulated until the whole structure breaks
   # 0.9993 was the "stiffest" value that didn't break the object
   DEFAULT_STIFFNESS = 0.9993
-  DEFAULT_FRICTION = 1.0
+  DEFAULT_FRICTION = 0.0
   DEFAULT_BREAKING_FORCE = 1_000_000
 
   # velocity in change of length in m/s
@@ -69,9 +69,9 @@ class Simulation
       joint
     end
 
-    def create_piston(world, parent_body, child_body, matrix, dampening, rate, power, min, max)
+    def create_piston(world, parent_body, child_body, matrix, damping, rate, power, min, max)
       piston = joint_between(world, MSPhysics::Piston, parent_body, child_body, matrix)
-      piston.reduction_ratio = dampening
+      piston.reduction_ratio = damping
       piston.rate = rate
       piston.power = power
       piston.min = min
@@ -221,6 +221,15 @@ class Simulation
       @max_speed = value
       Sketchup.active_model.commit_operation
     end
+    @dialog.add_action_callback('play_pause_simulation') do |_context|
+      if @paused
+        reset_force_labels
+        start
+      else
+        update_force_labels
+        @paused = true
+      end
+    end
   end
 
   def close_piston_dialog
@@ -273,7 +282,11 @@ class Simulation
 
   def show_triangle_surfaces
     Graph.instance.surfaces.each do |_, surface|
-      surface.thingy.entity.hidden = false unless surface.thingy.entity.deleted?
+      unless surface.thingy.entity.deleted?
+        surface.thingy.entity.hidden = false
+        # workaround to properly reset surface color
+        surface.un_highlight
+      end
     end
     @triangles_hidden = false
   end
@@ -286,6 +299,7 @@ class Simulation
     hide_triangle_surfaces
     hide_force_arrows
     @running = true
+    @paused = false
     @last_frame_time = Time.now
   end
 
@@ -372,18 +386,41 @@ class Simulation
     Sketchup.active_model.commit_operation
   end
 
-  def show_force(link, view)
-    return if link.body.nil?
+  def get_force_from_link(link)
+    lin_force = nil
+    position = nil
+    if !link.body.nil?
+      lin_force, position = get_force_from_body(link, link.body)
+    elsif (!link.first_cylinder_body.nil? && !link.second_cylinder_body.nil?)
+      [link.first_cylinder_body, link.second_cylinder_body].each do |body|
+        lin_force, position = get_force_from_body(link, body)
+        visualize_force(link, lin_force)
+      end
+    else
+      return
+    end
 
-    body_orientation = link.body.get_matrix
+    [lin_force, position]
+  end
+
+  def get_force_from_body(link, body)
+    return if body.nil?
+    body_orientation = body.get_matrix
     glob_up_vec = link.loc_up_vec.transform(body_orientation)
 
     f1 = link.first_joint.joint.get_tension1
     f2 = link.second_joint.joint.get_tension1
     lin_force = (f2 - f1).dot(glob_up_vec)
+    position = body.get_position(1)
+    [lin_force, position]
+  end
 
-    position = link.body.get_position(1)
+  def show_force(link, view)
+    lin_force, position = get_force_from_link(link)
+
+    return if lin_force.nil?
     visualize_force(link, lin_force)
+
     if lin_force.abs > @breaking_force
       update_force_label(link, lin_force, position)
       print_piston_stats
@@ -392,12 +429,21 @@ class Simulation
     # \note(tim): this has a huge performance impact. We may have to think about
     # only showing the highest force or omit some values that are uninteresting
     # Commented out for now in order to keep the simulation running quickly.
-    # update_force_label(thingy, lin_force, position)
+    # update_force_label(link, lin_force, position)
   end
 
   def visualize_force(link, force)
     color = @color_converter.get_color_for_force(force)
     link.change_color(color)
+  end
+
+  def update_force_labels
+    Sketchup.active_model.start_operation('Change Materials', true)
+    Graph.instance.edges.values.each do |edge|
+      lin_force, position = get_force_from_link(edge.thingy)
+      update_force_label(edge.thingy, lin_force, position)
+    end
+    Sketchup.active_model.commit_operation
   end
 
   def update_force_label(link, force, position)

@@ -5,7 +5,7 @@ require 'src/simulation/joints'
 
 class ActuatorLink < Link
 
-  attr_accessor :dampening, :rate, :power, :min, :max
+  attr_accessor :damping, :rate, :power, :min, :max
   attr_reader :piston, :first_cylinder_body, :second_cylinder_body
 
   def initialize(first_node, second_node, id: nil)
@@ -23,13 +23,27 @@ class ActuatorLink < Link
     @second_joint = ThingyBallJoint.new(second_node,
                                         mid_point.vector_to(@second_position))
 
-    @dampening = 0.1
+    @damping = 0.0
     @rate = 1.0
     @power = 0.0
     @min = -0.2
     @max = 0.2
 
     persist_entity
+  end
+
+  def change_color(color)
+    [@first_cylinder, @second_cylinder].each do |cylinder|
+      cylinder.change_color(color)
+    end
+  end
+
+  def highlight(highlight_material = @highlight_material)
+    change_color(highlight_material)
+  end
+
+  def un_highlight
+    change_color(@model.material.color)
   end
 
   #
@@ -46,7 +60,7 @@ class ActuatorLink < Link
                                        @first_cylinder_body,
                                        @second_cylinder_body,
                                        piston_matrix,
-                                       @dampening,
+                                       @damping,
                                        @rate,
                                        @power,
                                        @min,
@@ -55,20 +69,21 @@ class ActuatorLink < Link
     [@first_cylinder_body, @second_cylinder_body]
   end
 
-  def create_joints(world)
+  def create_joints(world, first_node, second_node)
+    first_direction = mid_point.vector_to(first_node.position)
+    second_direction = mid_point.vector_to(second_node.position)
+
+    @first_joint = ThingyBallJoint.new(first_node,
+                                       first_direction)
+    @second_joint = ThingyBallJoint.new(second_node,
+                                        second_direction)
+
     @first_joint.create(world, @first_cylinder.body)
     @second_joint.create(world, @second_cylinder.body)
   end
 
   def create_ball_joints(world, first_node, second_node)
-    first_direction = mid_point.vector_to(first_node.position)
-    second_direction = mid_point.vector_to(second_node.position)
-
-    first_ball_joint = ThingyBallJoint.new(first_node, first_direction)
-    second_ball_joint = ThingyBallJoint.new(second_node, second_direction)
-
-    first_ball_joint.create(world, @first_cylinder.body)
-    second_ball_joint.create(world, @second_cylinder.body)
+    create_joints(world, first_node, second_node)
   end
 
   def reset_physics
@@ -84,7 +99,7 @@ class ActuatorLink < Link
   def update_piston
     return if @piston.nil?
     @piston.rate = @rate
-    @piston.reduction_ratio = @dampening
+    @piston.reduction_ratio = @damping
     @piston.power = @power
     @piston.min = @min
     @piston.max = @max

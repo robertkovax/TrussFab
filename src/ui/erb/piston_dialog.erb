@@ -7,9 +7,9 @@
     <title>PistonMenu</title>
 </head>
 <body>
-Dampening:
+Damping:
 <br>
-<input type="number" min="0.0" max="1.0" value="<%= @actuator.dampening %>" step="0.1" onchange="set_dampening(this.value)">
+<input type="number" min="0.0" max="1.0" value="<%= @actuator.damping %>" step="0.1" onchange="set_damping(this.value)">
 <br><br>
 Speed:
 <br>
@@ -27,8 +27,8 @@ Maximum Position:
 <br>
 <input type="number" value="<%= @actuator.max %>" step="0.1" onchange="set_max(this.value)"> m
 <script type="text/javascript">
-    function set_dampening(newValue) {
-        sketchup.set_dampening(newValue);
+    function set_damping(newValue) {
+        sketchup.set_damping(newValue);
     }
     function set_rate(newValue) {
         sketchup.set_rate(newValue);

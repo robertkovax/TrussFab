@@ -3,13 +3,13 @@ require 'set'
 class Relaxation
   DEFAULT_MAX_ITERATIONS = 20_000
   CONVERGENCE_DEVIATION = 1.mm
-  DAMPENING_FACTOR = 0.9
+  DAMPING_FACTOR = 0.9
 
   attr_reader :new_node_positions, :new_direction_vectors, :new_start_positions,
     :max_iterations
 
   def initialize(max_iterations: DEFAULT_MAX_ITERATIONS)
-    @dampening_factor = DAMPENING_FACTOR
+    @damping_factor = DAMPING_FACTOR
     @max_iterations = max_iterations
 
     # We first calculate over several iterations the new positions and
@@ -71,7 +71,7 @@ class Relaxation
       next if deviation.abs < CONVERGENCE_DEVIATION
       # add neighbors if we have still edges left to add
       add_edges(edge.incidents) unless @edges.length == number_connected_edges
-      adapt_edge(edge, deviation * @dampening_factor)
+      adapt_edge(edge, deviation * @damping_factor)
       count += 1
     end
     puts "Relaxation iterations: #{count}"
