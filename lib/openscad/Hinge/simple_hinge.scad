@@ -183,12 +183,14 @@ module draw_hinge(
                 // cuts out parts at the top
                 // the height of the cube is responsible for the cutting out of the the top part
                 // it can cause some problems if it cuts too much or to little
-
+                // Edit: Hotfix, we choose a small cube height for smaller angles
+                // (where there is less to cut)
+                cut_out_cube = alpha < 50 ? (alpha < 40 ? 10 : 20) : 50;
                 a_l12 = a_l1 + a_l2;
                 b_l12 = b_l1 + b_l2;
                 longest = max(a_l12, b_l12);
                 translate([0, longest + 50 + 3, 0]) // you can tune the last summand
-                cube([50, 100, 100], center=true);
+                cube([cut_out_cube, 100, 100], center=true);
 
             }
             
