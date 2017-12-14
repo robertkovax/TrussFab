@@ -3,12 +3,13 @@ module PRESETS
     'depth' => 24.mm, # depth of a hinge part
     'width' => 100.mm, # not really important because parts that are too much gets cut away anyway
     'round_size' => 12.mm, # the round part of a hinge part
-    'hole_size' => 3.1.mm, # where the screw goes through
     'gap_angle' => 45.mm, # the angle for the triangle in the gap
+    'hole_size_a' => 3.1.mm, # where the screw goes through
+    'hole_size_b' => 3.1.mm, # where the screw goes through
     'extra_width_for_hinging' => 6.mm, # there needs to be an extra offset so the hinge part can swing fully
     'gap_height' => 10.mm, # gap of a hinge part
     'gap_epsilon' => 0.8.mm, # margin of the gap (due to printing issues)
-    'connector_end_round' => (30 / 2).mm,
+    'connector_end_round' => (30.0 / 2).mm,
     'connector_end_heigth' => 3.7.mm,
     'connector_end_extra_round' => (19.9 / 2).mm, # to better connect the bottles
     'connector_end_extra_height' => 2.mm,
@@ -18,11 +19,11 @@ module PRESETS
 
   ACTUATOR_HINGE_OPENSCAD = SIMPLE_HINGE_OPENSCAD.dup
 
-  ACTUATOR_HINGE_OPENSCAD['hole_size'] = (7 / 2).mm
   ACTUATOR_HINGE_OPENSCAD['extra_width_for_hinging'] = 1.mm
   ACTUATOR_HINGE_OPENSCAD['gap_angle'] = 70.mm
 
   ACTUATOR_HINGE_OPENSCAD_ANGLE = 40
+  ACTUATOR_HINGE_OPENSCAD_HOLE_SIZE = (7.0 / 2).mm
 
   CAP_RUBY = SIMPLE_HINGE_OPENSCAD.select do |key, _|
     key.start_with?('connector_end', 'cut_out', 'round_size', 'hole_size')

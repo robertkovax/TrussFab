@@ -70,7 +70,7 @@ class ScadExport
 
     hinge_tool.hinges.each do |node, hinges|
       l1 = node_l1[node]
-      
+
       hinges.each do |hinge|
         a_other_node = hinge.edge1.other_node(node)
         b_other_node = hinge.edge2.other_node(node)
@@ -81,18 +81,22 @@ class ScadExport
         if hinge.is_a? ActuatorHinge
           a_gap = true
           b_gap = false
+          params = PRESETS::ACTUATOR_HINGE_OPENSCAD.dup
+
+          intermediate_hinge = ExportHinge.new(node.id, "i" + a_other_node.id.to_s, "i" + b_other_node.id.to_s, l1.to_mm, l2.to_mm, l3_min.to_mm, l1.to_mm, l2.to_mm, l3_min.to_mm,
+                                               PRESETS::ACTUATOR_HINGE_OPENSCAD_ANGLE, true, true, false, false, params)
+          export_hinges.push(intermediate_hinge)
 
           if hinge.edge1.link_type == 'actuator'
             a_gap = false
             b_gap = true
+            params['hole_size_a'] = PRESETS::ACTUATOR_HINGE_OPENSCAD_HOLE_SIZE
+          else
+            params['hole_size_b'] = PRESETS::ACTUATOR_HINGE_OPENSCAD_HOLE_SIZE
           end
 
-          intermediate_hinge = ExportHinge.new(node.id, "i" + a_other_node.id.to_s, "i" + b_other_node.id.to_s, l1.to_mm, l2.to_mm, l3_min.to_mm, l1.to_mm, l2.to_mm, l3_min.to_mm,
-                                               PRESETS::ACTUATOR_HINGE_OPENSCAD_ANGLE, true, true, false, false, PRESETS::ACTUATOR_HINGE_OPENSCAD)
-          export_hinges.push(intermediate_hinge)
-
           actuator_hinge = ExportHinge.new(node.id, "a" + a_other_node.id.to_s, "a" + b_other_node.id.to_s, l1.to_mm, l2.to_mm, l3_min.to_mm, l1.to_mm, l2.to_mm, l3_min.to_mm,
-                                           PRESETS::ACTUATOR_HINGE_OPENSCAD_ANGLE, a_gap, b_gap, a_with_connector, b_with_connector, PRESETS::ACTUATOR_HINGE_OPENSCAD)
+                                           PRESETS::ACTUATOR_HINGE_OPENSCAD_ANGLE, a_gap, b_gap, a_with_connector, b_with_connector, params)
           export_hinges.push(actuator_hinge)
 
           next

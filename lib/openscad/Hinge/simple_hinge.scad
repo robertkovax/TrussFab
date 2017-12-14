@@ -112,7 +112,8 @@ module draw_hinge(
     depth, // depth of a hinge part
     width, // not really important because parts that are too much gets cut away anyway
     round_size, // the round part of a hinge part
-    hole_size, // where the screw goes through
+    hole_size_a, // where the screw goes through
+    hole_size_b, // where the screw goes through
     gap_angle, // the angle for the triangle in the gap
     extra_width_for_hinging, // there needs to be an extra offset so the hinge part can swing fully
     gap_height, // gap of a hinge part
@@ -152,7 +153,7 @@ module draw_hinge(
                         translate([-(width - round_size), 0, 0])
                         translate([0, 0, depth / -2]) // center on the z axis
                         hingepart(b_l1, b_l2, b_l3, b_gap, b_with_connector, b_label,
-                            depth, width, round_size, hole_size,
+                            depth, width, round_size, hole_size_b,
                             gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e,
                             connector_end_round, connector_end_heigth,
                             connector_end_extra_round, connector_end_extra_height);
@@ -169,7 +170,7 @@ module draw_hinge(
                         translate([-(width - round_size), 0, 0])
                         translate([0, 0, depth / -2])
                         hingepart(a_l1, a_l2, a_l3, a_gap, a_with_connector, a_label,
-                            depth, width, round_size, hole_size,
+                            depth, width, round_size, hole_size_a,
                             gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e,
                             connector_end_round, connector_end_heigth,
                             connector_end_extra_round, connector_end_extra_height, the_A_one=true);
