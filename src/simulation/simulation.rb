@@ -101,7 +101,7 @@ class Simulation
     @color_converter = ColorConverter.new(@breaking_force)
     @max_speed = 0
     @root_dir = File.join(__dir__, '..')
-    @chart = ForceChart.new()
+    @chart = nil
   end
 
   #
@@ -182,6 +182,9 @@ class Simulation
     pts[2] = [x, y, z]
     pts[3] = [-x, y, z]
     face = @ground_group.entities.add_face(pts)
+    face.material = Sketchup::Color.new(240, 240, 240)
+    face.material.alpha = 0.2
+    face.back_material = nil
     face.pushpull(-1)
     face.visible = false
     body = Simulation.create_body(@world, @ground_group)
@@ -227,6 +230,8 @@ class Simulation
   end
 
   def chart_dialog
+    return if @pistons.empty?
+    @chart = ForceChart.new()
     @chart.open_dialog
   end
 
@@ -400,6 +405,7 @@ class Simulation
   end
 
   def send_force_to_chart
+    return if @chart.nil?
     @chart.addData(@frame, @total_force)
   end
 

@@ -27,7 +27,6 @@ var forceChart = new Chart(ctx, {
 });
 
 function addData(label, data) {
-    console.log("Adding Data")
     forceChart.data.labels.push(label);
     forceChart.data.datasets.forEach((dataset) => {
         dataset.data.push(data);
