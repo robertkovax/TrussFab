@@ -4,7 +4,7 @@ module PRESETS
     'width' => 100.mm, # not really important because parts that are too much gets cut away anyway
     'round_size' => 12.mm, # the round part of a hinge part
     'hole_size' => 3.1.mm, # where the screw goes through
-    'gap_angle' => 45, # the angle for the triangle in the gap
+    'gap_angle' => 45.mm, # the angle for the triangle in the gap
     'extra_width_for_hinging' => 6.mm, # there needs to be an extra offset so the hinge part can swing fully
     'gap_height' => 10.mm, # gap of a hinge part
     'gap_epsilon' => 0.8.mm, # margin of the gap (due to printing issues)
@@ -20,8 +20,9 @@ module PRESETS
 
   ACTUATOR_HINGE_OPENSCAD['hole_size'] = (7 / 2).mm
   ACTUATOR_HINGE_OPENSCAD['extra_width_for_hinging'] = 1.mm
-  ACTUATOR_HINGE_OPENSCAD['gap_angle'] = 36
+  ACTUATOR_HINGE_OPENSCAD['gap_angle'] = 70.mm
 
+  ACTUATOR_HINGE_OPENSCAD_ANGLE = 40
 
   CAP_RUBY = SIMPLE_HINGE_OPENSCAD.select do |key, _|
     key.start_with?('connector_end', 'cut_out', 'round_size', 'hole_size')

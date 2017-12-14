@@ -64,6 +64,8 @@ class Hinge
     b = p1_y - m * p1_x
 
     length = m * angle + b
+    length = [35, length].max
+
     length.mm
   end
 end
