@@ -21,7 +21,7 @@ class ExportHinge
     @b_gap = b_gap
     @a_with_connector = a_with_connector
     @b_with_connector = b_with_connector
-    @presets = presets
+    @presets = presets.clone
   end
 
   def write_to_file(path)
