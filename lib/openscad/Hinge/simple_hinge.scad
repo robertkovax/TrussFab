@@ -1,5 +1,7 @@
 include <../Util/text_on.scad>
 use <../Misc/Prism.scad>
+use <../Misc/Hexagon.scad>
+
 
 module add_text(text) {
     v = [0, 0, 0];
@@ -47,8 +49,8 @@ module hingepart(l1, l2, l3, gap, with_connector, label,
     depth, width, round_size, hole_size,
     gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e,
     connector_end_round, connector_end_heigth,
-    connector_end_extra_round, connector_end_extra_height,
-    the_A_one=false) {
+    connector_end_extra_round, connector_end_extra_height, cut_out_hex_height, cut_out_hex_d,
+    the_A_one=false) { 
     difference() {
         union() {
             cube([width - round_size, l2, depth]);
@@ -65,6 +67,10 @@ module hingepart(l1, l2, l3, gap, with_connector, label,
                 translate([width - round_size, l2 + l3 - connector_end_heigth, depth / 2])
                 rotate([-90, 0, 0])
                 cylinder(connector_end_heigth, connector_end_round, connector_end_round);
+
+                translate([width - round_size, l2 + l3, depth / 2])
+                rotate([-90, 0, 0])
+                cylinder(connector_end_extra_height, connector_end_extra_round,            connector_end_extra_round);
             }
         }
         
@@ -91,7 +97,11 @@ module hingepart(l1, l2, l3, gap, with_connector, label,
             // cut out the two holes
             translate([width - round_size, 0, depth / 2])
             rotate([-90, 0, 0])
-            cylinder(l2 + l3, hole_size, hole_size);     
+            cylinder(l2 + l3 + connector_end_extra_height, hole_size, hole_size);
+            
+            translate([width - round_size, l2 + l3 + connector_end_extra_height - cut_out_hex_height / 2 + 0.01, depth / 2])
+            rotate([-90, 0, 0])       
+            Hexagon(cut_out_hex_d, cut_out_hex_height);
         }
     }
 }
@@ -119,9 +129,10 @@ module draw_hinge(
     connector_end_round,
     connector_end_heigth,
     connector_end_extra_round,
-    connector_end_extra_height
-    ) {
-    
+    connector_end_extra_height,
+    cut_out_hex_height,
+    cut_out_hex_d,
+    ) {        
     gap_width = 2 * round_size + depth / 2 + extra_width_for_hinging;
     gap_height_e = gap_height + gap_epsilon;
     
@@ -154,7 +165,8 @@ module draw_hinge(
                             depth, width, round_size, hole_size_b,
                             gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e,
                             connector_end_round, connector_end_heigth,
-                            connector_end_extra_round, connector_end_extra_height);
+                            connector_end_extra_round, connector_end_extra_height,
+                            cut_out_hex_height, cut_out_hex_d);
                         
                         // cut away parts that are on the on the other site
                         translate([-1000, 0, -500])
@@ -171,7 +183,8 @@ module draw_hinge(
                             depth, width, round_size, hole_size_a,
                             gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e,
                             connector_end_round, connector_end_heigth,
-                            connector_end_extra_round, connector_end_extra_height, the_A_one=true);
+                            connector_end_extra_round, connector_end_extra_height,
+                            cut_out_hex_height, cut_out_hex_d ,the_A_one=true);
 
                         // cut away parts that are on the on the other site
                         translate([0, 0, -500])
@@ -218,4 +231,4 @@ l3 = 40;
 //    a_l1=l1, a_l2=l2, a_l3=l3, a_gap=true, a_label="123.456", b_label="133.789",
 //    b_l1=l1, b_l2=l2, b_l3=l3, b_gap=true);
 
-draw_hinge(alpha=59.93035835020898, a_l1=30.069641649791023, a_l2=41.199999999999996, a_l3=14.771333346882312, a_gap=false, b_l1=30.069641649791023, b_l2=41.199999999999996, b_l3=15.258982187190027, b_gap=true, a_with_connector=true, b_with_connector=false, a_label="76.149", b_label="76.75", depth=24.0, width=100.0, round_size=12.0, hole_size=3.1, gap_angle=45.0, extra_width_for_hinging=6.0, gap_height=10.0, gap_epsilon=0.8000000000000002, connector_end_round=15.0, connector_end_heigth=3.7, connector_end_extra_round=9.95, connector_end_extra_height=1.9999999999999998, cut_out_hex_height=5.0, cut_out_hex_d=11.5);
+draw_hinge(alpha=59.93035835020898, a_l1=30.069641649791023, a_l2=41.199999999999996, a_l3=14.771333346882312, a_gap=false, b_l1=30.069641649791023, b_l2=41.199999999999996, b_l3=15.258982187190027, b_gap=true, a_with_connector=true, b_with_connector=false, a_label="76.149", b_label="76.75", depth=24.0, width=100.0, round_size=12.0, hole_size_a=3.1, hole_size_b=3.1, gap_angle=45.0, extra_width_for_hinging=6.0, gap_height=10.0, gap_epsilon=0.8000000000000002, connector_end_round=15.0, connector_end_heigth=3.7, connector_end_extra_round=9.95, connector_end_extra_height=1.9999999999999998, cut_out_hex_height=5.0, cut_out_hex_d=11.5);
