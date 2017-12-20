@@ -29,8 +29,8 @@ module Hexagon(cle,h)
 {
 	angle = 360/6;		// 6 pans
 	cote = cle * cot(angle);
-	echo(angle, cot(angle), cote);
-	echo(acos(.6));
+	// echo(angle, cot(angle), cote);
+	// echo(acos(.6));
 
 	union()
 	{
