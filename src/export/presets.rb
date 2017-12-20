@@ -14,7 +14,7 @@ module PRESETS
     'connector_end_extra_round' => (19.9 / 2).mm, # to better connect the bottles
     'connector_end_extra_height' => 2.mm,
     'cut_out_hex_height' => 5.mm, # for the screw
-    'cut_out_hex_d' => 11.5.mm,
+    'cut_out_hex_d' => 11.mm,
   }.freeze
 
   ACTUATOR_HINGE_OPENSCAD = SIMPLE_HINGE_OPENSCAD.dup
