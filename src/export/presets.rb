@@ -26,8 +26,10 @@ module PRESETS
   ACTUATOR_HINGE_OPENSCAD_HOLE_SIZE = (7.0 / 2).mm
 
   CAP_RUBY = SIMPLE_HINGE_OPENSCAD.select do |key, _|
-    key.start_with?('connector_end', 'cut_out', 'round_size', 'hole_size')
+    key.start_with?('connector_end', 'cut_out', 'round_size')
   end
+
+  CAP_RUBY['hole_size'] = 3.1.mm # where the screw goes through
 
   SIMPLE_HINGE_RUBY = SIMPLE_HINGE_OPENSCAD.dup
 
