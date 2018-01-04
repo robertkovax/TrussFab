@@ -71,7 +71,7 @@ class ActuatorHinge < Hinge
 
 end
 
-class ExportAlgorithm
+class HingePlacementAlgorithm
   include Singleton
 
   attr_accessor :hubs, :hinges, :node_l1
@@ -91,11 +91,9 @@ class ExportAlgorithm
     edges = Graph.instance.edges.values
 
     # early out if result was already calculated
-    return if @last_edges == edges and @last_nodes == nodes
-    @last_edges = edges
-    @last_nodes = nodes
-
-    p 'Running export algorithm...'
+    # return if @last_edges.eql? edges and @last_nodes.eql? nodes
+    # @last_edges = edges
+    # @last_nodes = nodes
 
     edges.each do |edge|
       edge.reset

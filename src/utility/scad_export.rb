@@ -1,4 +1,4 @@
-require 'src/tools/hinge_tool'
+require 'src/tools/hinge_analysis_tool'
 require 'src/export/export_hinge'
 require 'src/export/export_hub'
 require 'src/export/export_elongation'
@@ -8,8 +8,8 @@ require 'src/export/presets.rb'
 
 class ScadExport
   def self.export_to_scad(path)
-    export_algorithm = ExportAlgorithm.instance
-    export_algorithm.run
+    hinge_algorithm = HingePlacementAlgorithm.instance
+    hinge_algorithm.run
 
     export_hinges = []
     export_hubs = []
@@ -18,8 +18,8 @@ class ScadExport
     l2 = PRESETS::SIMPLE_HINGE_RUBY['l2']
     l3_min = PRESETS::SIMPLE_HINGE_RUBY['l3_min']
 
-    export_algorithm.hinges.each do |node, hinges|
-      l1 = export_algorithm.node_l1[node]
+    hinge_algorithm.hinges.each do |node, hinges|
+      l1 = hinge_algorithm.node_l1[node]
 
       hinges.each do |hinge|
         a_other_node = hinge.edge1.other_node(node)
@@ -85,13 +85,16 @@ class ScadExport
       end
     end
 
-    export_algorithm.hubs.each do |node, hubs|
+    hinge_algorithm.hubs.each do |node, hubs|
       hub_id = node.id
 
-      #TODO: consider sub hubs, currently every hub is exported as a main hub
       i = 0
       hubs.each do |hub|
         is_main_hub = (i == 0)
+
+        # TODO: consider sub hubs, currently they are ignored
+        next unless is_main_hub
+
         export_hub = ExportHub.new(is_main_hub, hub_id)
 
         if is_main_hub
@@ -101,7 +104,7 @@ class ScadExport
         end
 
         hub.each do |edge|
-          hinges = export_algorithm.hinges[node].select { |hinge| hinge.edge1 == edge or hinge.edge2 == edge }
+          hinges = hinge_algorithm.hinges[node].select { |hinge| hinge.edge1 == edge or hinge.edge2 == edge }
           if hinges.size > 2
             raise RuntimeError, 'More than two hinges around an edge.'
           end
@@ -114,7 +117,7 @@ class ScadExport
           is_hinge_connected = hinges.size > 0
 
           if is_hinge_connected
-            elongation_length = export_algorithm.node_l1[node]
+            elongation_length = hinge_algorithm.node_l1[node]
           end
 
           export_elongation = ExportElongation.new(hub_id, other_node.id, is_hinge_connected, elongation_length.to_mm, direction)
