@@ -27,7 +27,7 @@ class Graph
   end
 
   def export_to_scad(path)
-    ScadExport.export_to_scad(path, @nodes.values, @edges.values)
+    ScadExport.export_to_scad(path)
   end
 
   #

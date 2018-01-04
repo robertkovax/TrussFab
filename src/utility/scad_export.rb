@@ -7,69 +7,19 @@ require 'src/algorithms/relaxation.rb'
 require 'src/export/presets.rb'
 
 class ScadExport
-  def self.export_to_scad(path, nodes, edges)
-    hinge_tool = HingeTool.new(nil)
-    hinge_tool.activate
+  def self.export_to_scad(path)
+    export_algorithm = ExportAlgorithm.instance
+    export_algorithm.run
 
     export_hinges = []
     export_hubs = []
     export_caps = []
 
     l2 = PRESETS::SIMPLE_HINGE_RUBY['l2']
-
-    #TODO: find out minimum l3 value
     l3_min = PRESETS::SIMPLE_HINGE_RUBY['l3_min']
 
-    # stores the l1 value per node (since it needs to be constant across a node)
-    node_l1 = Hash.new
-
-    hinge_tool.hinges.each do |node, hinges|
-      max_l1 = 0.0.mm
-
-      hinges.each do |hinge|
-        max_l1 = [max_l1, hinge.l1].max
-      end
-
-      node_l1[node] = max_l1
-    end
-
-    loop do
-      relaxation = Relaxation.new
-      relaxation.ignore_fixation
-
-      is_finished = true
-
-      hinge_tool.hinges.each do |node, hinges|
-        l1 = node_l1[node]
-
-        hinges.each do |hinge|
-          [hinge.edge1, hinge.edge2].each do |edge|
-            if edge.link_type == 'actuator'
-              next
-            end
-
-            elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length
-            target_elongation = l1 + l2 + l3_min
-
-            if elongation < target_elongation
-              total_elongation = edge.first_elongation_length + edge.second_elongation_length
-              relaxation.stretch_to(edge, edge.length - total_elongation + 2*target_elongation + 10.mm)
-              is_finished = false
-            end
-          end
-        end
-      end
-
-      if is_finished
-        break
-      end
-
-      relaxation.relax
-      Sketchup.active_model.commit_operation
-    end
-
-    hinge_tool.hinges.each do |node, hinges|
-      l1 = node_l1[node]
+    export_algorithm.hinges.each do |node, hinges|
+      l1 = export_algorithm.node_l1[node]
 
       hinges.each do |hinge|
         a_other_node = hinge.edge1.other_node(node)
@@ -135,7 +85,7 @@ class ScadExport
       end
     end
 
-    hinge_tool.hubs.each do |node, hubs|
+    export_algorithm.hubs.each do |node, hubs|
       hub_id = node.id
 
       #TODO: consider sub hubs, currently every hub is exported as a main hub
@@ -151,7 +101,7 @@ class ScadExport
         end
 
         hub.each do |edge|
-          hinges = hinge_tool.hinges[node].select { |hinge| hinge.edge1 == edge or hinge.edge2 == edge }
+          hinges = export_algorithm.hinges[node].select { |hinge| hinge.edge1 == edge or hinge.edge2 == edge }
           if hinges.size > 2
             raise RuntimeError, 'More than two hinges around an edge.'
           end
@@ -164,7 +114,7 @@ class ScadExport
           is_hinge_connected = hinges.size > 0
 
           if is_hinge_connected
-            elongation_length = node_l1[node]
+            elongation_length = export_algorithm.node_l1[node]
           end
 
           export_elongation = ExportElongation.new(hub_id, other_node.id, is_hinge_connected, elongation_length.to_mm, direction)
@@ -187,63 +137,5 @@ class ScadExport
     export_caps.each do |cap|
       cap.write_to_file(path)
     end
-
-    #nodes.each { |node| node_to_scad(path, node) }
-  end
-
-  def self.node_to_scad(path, node)
-    info = { vector_array: [], addon_array: [], type_array: [] }
-
-    node.incidents.each do |incident|
-      vector = incident.direction.normalize
-      if incident.first_node == node
-        info[:addon_array] << "[#{incident.first_elongation_length.to_mm}, \"#{incident.second_node.id}\"0] "
-        info[:type_array] << '"SNAP"'
-      else
-        vector.reverse!
-        info[:addon_array] << "[#{incident.second_elongation_length.to_mm}, \"#{incident.first_node.id}\"0] "
-        info[:type_array] << '"SNAP"'
-      end
-      info[:vector_array] << "[#{vector.to_a.join(', ')}]"
-    end
-
-    node.pods.each do |pod|
-      info[:addon_array] << '[(45 - 0 - 10), \"STAND\",0,24,10,60,0] '
-      info[:type_array] << '\"STAND\"'
-      info[:vector_array] << pod.direction.normalize.to_a.join(', ').to_s
-    end
-
-    filename = path + '/Connector_' + node.id.to_s.rjust(3, '0') + '.scad'
-    write_node_to_file(filename, node.id, info, 'Tube')
-  end
-
-  def self.write_node_to_file(filename, id, info, mode)
-    file = File.new(filename, 'w')
-    export_string =
-      "// adjust filepath to LibSTLExport if neccessary\n" \
-      "include <#{ProjectHelper.library_directory}/openscad/LibSTLExport.scad>\n" \
-      "\n" \
-      "hubID = \"#{id}\";\n" \
-      "mode = \"#{mode}\";\n" \
-      "safetyFlag = false;\n" \
-      "connectorDataDistance = 0;\n" \
-      "tubeThinning = 1.0;\n" \
-      "useFixedCenterSize = false;\n" \
-      "hubCenterSize = 0;\n" \
-      "printVectorInteger = 8;\n" \
-      "dataFileVectorArray = [\n" \
-      "#{info[:vector_array].join(",\n")}\n" \
-      "];\n" \
-      "dataFileAddonParameterArray = [\n" \
-      "#{info[:addon_array].join(",\n")}\n" \
-      "];\n" \
-      "connectorTypeArray = [\n" \
-      "#{info[:type_array].join(",\n")}\n" \
-      "];\n" \
-      "drawHub(dataFileVectorArray, dataFileAddonParameterArray, connectorTypeArray);\n"
-
-    file.write(export_string)
-    file.close
-    export_string
   end
 end
