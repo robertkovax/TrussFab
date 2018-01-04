@@ -102,6 +102,8 @@ class Simulation
     @max_speed = 0
     @root_dir = File.join(__dir__, '..')
     @chart = nil
+    @piston_time = 0
+    @piston_world_time = 0
   end
 
   #
@@ -193,6 +195,17 @@ class Simulation
     body
   end
 
+  def chart_dialog
+    return if @pistons.empty?
+    @chart = ForceChart.new()
+    @chart.open_dialog
+  end
+
+  def close_chart
+    return if @chart.nil?
+    @chart.close
+  end
+
   def piston_dialog
     # get all pistons from actuator edges
     actuators = Graph.instance.edges.values.select { |edge| edge.link_type == 'actuator' }
@@ -205,15 +218,19 @@ class Simulation
     @dialog.set_html(template.result(binding))
     @dialog.set_size(300, Configuration::UI_HEIGHT)
     @dialog.show
+
+    # Callbacks
     @dialog.add_action_callback('change_piston') do |_context, id, value|
       value = value.to_f
       id = id.to_i
       piston = @pistons[id]
       @pistons[id].controller = piston.min + value * (piston.max - piston.min)
     end
+
     @dialog.add_action_callback('test_piston') do |_context, id|
       @moving_pistons.push({:id=>id.to_i, :expanding=>true, :speed=>0.2})
     end
+
     @dialog.add_action_callback('set_breaking_force') do |_context, param|
       value = param.to_f
       Sketchup.active_model.start_operation("Set Simulation Breaking Force", true)
@@ -221,12 +238,14 @@ class Simulation
       @color_converter.update_max_force(@breaking_force)
       Sketchup.active_model.commit_operation
     end
+
     @dialog.add_action_callback('set_max_speed') do |_context, param|
       value = param.to_f
       Sketchup.active_model.start_operation("Set Simulation Breaking Force", true)
       @max_speed = value
       Sketchup.active_model.commit_operation
     end
+
     @dialog.add_action_callback('play_pause_simulation') do |_context|
       if @paused
         reset_force_labels
@@ -236,17 +255,6 @@ class Simulation
         @paused = true
       end
     end
-  end
-
-  def chart_dialog
-    return if @pistons.empty?
-    @chart = ForceChart.new()
-    @chart.open_dialog
-  end
-
-  def close_chart
-    return if @chart.nil?
-    @chart.close
   end
 
   def close_piston_dialog
@@ -266,11 +274,14 @@ class Simulation
       piston.rate = hash[:speed]
       piston.controller = (hash[:expanding] ? piston.max : piston.min)
       if (piston.cur_position - piston.max).abs < 0.005 && hash[:expanding]
-        hash[:speed] += 0.05 unless (hash[:speed] >= @max_speed && @max_speed != 0)
+        @piston_world_time = @world.time
+        @piston_time = Time.now
+        # hash[:speed] += 0.05 unless (hash[:speed] >= @max_speed && @max_speed != 0)
         hash[:expanding] = false
       elsif (piston.cur_position - piston.min).abs < 0.005 && !hash[:expanding]
         hash[:speed] += 0.05 unless (hash[:speed] >= @max_speed && @max_speed != 0)
         hash[:expanding] = true
+        add_chart_label((1 / (@world.time - @piston_world_time).to_f).round(2))
       end
       hash
     }
@@ -444,7 +455,12 @@ class Simulation
 
   def send_force_to_chart
     return if @chart.nil?
-    @chart.addData(@frame, @total_force)
+    @chart.addData(' ', @total_force)
+  end
+
+  def add_chart_label(label)
+    return if @chart.nil?
+    @chart.addData(label, @total_force)
   end
 
   def show_force(link, view)
