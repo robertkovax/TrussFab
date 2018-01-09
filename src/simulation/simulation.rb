@@ -395,7 +395,7 @@ class Simulation
     end
 
     show_forces(view)
-    if @frame % 5 == 0
+    if @frame % 5 == 0 # do this every 5 frames to increase fps
       send_force_to_chart
     end
     test_pistons
