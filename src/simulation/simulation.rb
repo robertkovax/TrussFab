@@ -82,28 +82,38 @@ class Simulation
   end
 
   def initialize
-    @world = nil
-    @last_frame_time = nil
-    @last_frame = 0
-    @last_time = 0
-    @running = false
-    @frame = 0
-    @reset_positions_on_end = true
-    @saved_transformations = {}
-    @stopped = false
-    @paused = false
-    @triangles_hidden = false
-    @ground_group = nil
-    @force_labels = {}
-    @edges = []
-    @moving_pistons = []
-    @breaking_force = 1500
-    @color_converter = ColorConverter.new(@breaking_force)
-    @max_speed = 0
-    @root_dir = File.join(__dir__, '..')
+    # general
     @chart = nil
+    @color_converter = ColorConverter.new(@breaking_force)
+    @ground_group = nil
+    @root_dir = File.join(__dir__, '..')
+    @world = nil
+
+    # collections
+    @edges = []
+    @force_labels = {}
+    @moving_pistons = []
+    @saved_transformations = {}
+    @sensors = []
+
+    # time keeping
+    @frame = 0
+    @last_frame = 0
+    @last_frame_time = nil
+    @last_time = 0
     @piston_time = 0
     @piston_world_time = 0
+
+    # simulation state
+    @paused = false
+    @reset_positions_on_end = true
+    @running = false
+    @stopped = false
+    @triangles_hidden = false
+
+    # physics variables
+    @breaking_force = 1500
+    @max_speed = 0
   end
 
   #
@@ -297,6 +307,17 @@ class Simulation
     end
   end
 
+  def show_triangle_surfaces
+    Graph.instance.surfaces.each do |_, surface|
+      unless surface.thingy.entity.deleted?
+        surface.thingy.entity.hidden = false
+        # workaround to properly reset surface color
+        surface.un_highlight
+      end
+    end
+    @triangles_hidden = false
+  end
+
   def hide_triangle_surfaces
     Graph.instance.surfaces.each do |_, surface|
       surface.thingy.entity.hidden = true unless surface.thingy.entity.deleted?
@@ -311,17 +332,6 @@ class Simulation
     end
   end
 
-  def show_triangle_surfaces
-    Graph.instance.surfaces.each do |_, surface|
-      unless surface.thingy.entity.deleted?
-        surface.thingy.entity.hidden = false
-        # workaround to properly reset surface color
-        surface.un_highlight
-      end
-    end
-    @triangles_hidden = false
-  end
-
   #
   # Animation methods
   #
@@ -329,6 +339,7 @@ class Simulation
   def start
     hide_triangle_surfaces
     hide_force_arrows
+    collect_sensors
     @running = true
     @paused = false
     @last_frame_time = Time.now
@@ -415,6 +426,24 @@ class Simulation
   end
 
   #
+  # Sensor Related Methods
+  #
+
+  def collect_sensors
+    Graph.instance.nodes.values.each do |node|
+      # if node.thingy.is_sensor?
+      #   @sensors.push(node.thingy)
+      # end
+    end
+  end
+
+  def get_sensor_speed
+    @sensors.each do |sensor|
+      p "Test"#sensor.get_velocity
+    end
+  end
+
+  #
   # Force Related Methods
   #
 
@@ -429,7 +458,7 @@ class Simulation
 
   # returns the force and position for a link
   # note: this also visualizes the force if the link has cylinders (i.e. a piston)
-  # => we might think about returning an array to pass multiple value pairs
+  # => we might want to think about returning an array to pass multiple value pairs
   def get_force_from_link(link)
     lin_force = nil
     position = nil
