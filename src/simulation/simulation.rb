@@ -1,6 +1,7 @@
 require 'lib/MSPhysics/main.rb'
 
 require 'src/utility/force_to_color_converter.rb'
+require 'src/ui/force_chart.rb'
 require 'erb'
 
 class Simulation
@@ -99,6 +100,10 @@ class Simulation
     @breaking_force = 1500
     @color_converter = ColorConverter.new(@breaking_force)
     @max_speed = 0
+    @root_dir = File.join(__dir__, '..')
+    @chart = nil
+    @piston_time = 0
+    @piston_world_time = 0
   end
 
   #
@@ -179,12 +184,26 @@ class Simulation
     pts[2] = [x, y, z]
     pts[3] = [-x, y, z]
     face = @ground_group.entities.add_face(pts)
+    face.material = Sketchup::Color.new(240, 240, 240)
+    face.material.alpha = 0.2
+    face.back_material = nil
     face.pushpull(-1)
     face.visible = false
     body = Simulation.create_body(@world, @ground_group)
     body.static = true
     body.collidable = true
     body
+  end
+
+  def chart_dialog
+    return if @pistons.empty?
+    @chart = ForceChart.new()
+    @chart.open_dialog
+  end
+
+  def close_chart
+    return if @chart.nil?
+    @chart.close
   end
 
   def piston_dialog
@@ -199,15 +218,19 @@ class Simulation
     @dialog.set_html(template.result(binding))
     @dialog.set_size(300, Configuration::UI_HEIGHT)
     @dialog.show
+
+    # Callbacks
     @dialog.add_action_callback('change_piston') do |_context, id, value|
       value = value.to_f
       id = id.to_i
       piston = @pistons[id]
       @pistons[id].controller = piston.min + value * (piston.max - piston.min)
     end
+
     @dialog.add_action_callback('test_piston') do |_context, id|
       @moving_pistons.push({:id=>id.to_i, :expanding=>true, :speed=>0.2})
     end
+
     @dialog.add_action_callback('set_breaking_force') do |_context, param|
       value = param.to_f
       Sketchup.active_model.start_operation("Set Simulation Breaking Force", true)
@@ -215,12 +238,14 @@ class Simulation
       @color_converter.update_max_force(@breaking_force)
       Sketchup.active_model.commit_operation
     end
+
     @dialog.add_action_callback('set_max_speed') do |_context, param|
       value = param.to_f
       Sketchup.active_model.start_operation("Set Simulation Breaking Force", true)
       @max_speed = value
       Sketchup.active_model.commit_operation
     end
+
     @dialog.add_action_callback('play_pause_simulation') do |_context|
       if @paused
         reset_force_labels
@@ -249,11 +274,17 @@ class Simulation
       piston.rate = hash[:speed]
       piston.controller = (hash[:expanding] ? piston.max : piston.min)
       if (piston.cur_position - piston.max).abs < 0.005 && hash[:expanding]
-        hash[:speed] += 0.05 unless (hash[:speed] >= @max_speed && @max_speed != 0)
+        #
+        @piston_world_time = @world.time
+        @piston_time = Time.now
         hash[:expanding] = false
       elsif (piston.cur_position - piston.min).abs < 0.005 && !hash[:expanding]
+        # increase speed everytime the piston reaches its minimum value
         hash[:speed] += 0.05 unless (hash[:speed] >= @max_speed && @max_speed != 0)
         hash[:expanding] = true
+        # add the piston frequency as a label in the chart (every value between
+        # two frequencies has the same frequency)
+        add_chart_label((1 / (@world.time - @piston_world_time).to_f).round(2))
       end
       hash
     }
@@ -316,6 +347,7 @@ class Simulation
     reset_force_color
     reset_force_labels
     close_piston_dialog
+    close_chart
     @moving_pistons.clear
     destroy_world
   end
@@ -357,11 +389,15 @@ class Simulation
     update_entities
 
     @frame += 1
+    @total_force = 0
     if @frame % 20 == 0
       set_status_text
     end
 
     show_forces(view)
+    if @frame % 5 == 0 # do this every 5 frames to increase fps
+      send_force_to_chart
+    end
     test_pistons
 
     view.show_frame
@@ -377,6 +413,10 @@ class Simulation
     @last_frame = @frame
     @last_time = now
   end
+
+  #
+  # Force Related Methods
+  #
 
   def show_forces(view)
     Sketchup.active_model.start_operation('Change Materials', true)
@@ -395,6 +435,7 @@ class Simulation
       [link.first_cylinder_body, link.second_cylinder_body].each do |body|
         lin_force, position = get_force_from_body(link, body)
         visualize_force(link, lin_force)
+        @total_force += lin_force.abs
       end
     else
       return
@@ -413,6 +454,16 @@ class Simulation
     lin_force = (f2 - f1).dot(glob_up_vec)
     position = body.get_position(1)
     [lin_force, position]
+  end
+
+  def send_force_to_chart
+    return if @chart.nil?
+    @chart.addData(' ', @total_force)
+  end
+
+  def add_chart_label(label)
+    return if @chart.nil?
+    @chart.addData(label, @total_force)
   end
 
   def show_force(link, view)
