@@ -84,7 +84,6 @@ class Simulation
   def initialize
     # general
     @chart = nil
-    @color_converter = ColorConverter.new(@breaking_force)
     @ground_group = nil
     @root_dir = File.join(__dir__, '..')
     @world = nil
@@ -95,6 +94,7 @@ class Simulation
     @moving_pistons = []
     @saved_transformations = {}
     @sensors = []
+    @last_sensor_speed = {}
 
     # time keeping
     @frame = 0
@@ -114,6 +114,7 @@ class Simulation
     # physics variables
     @breaking_force = 1500
     @max_speed = 0
+    @color_converter = ColorConverter.new(@breaking_force)
   end
 
   #
@@ -205,6 +206,31 @@ class Simulation
     body
   end
 
+  def show_triangle_surfaces
+    Graph.instance.surfaces.each do |_, surface|
+      unless surface.thingy.entity.deleted?
+        surface.thingy.entity.hidden = false
+        # workaround to properly reset surface color
+        surface.un_highlight
+      end
+    end
+    @triangles_hidden = false
+  end
+
+  def hide_triangle_surfaces
+    Graph.instance.surfaces.each do |_, surface|
+      surface.thingy.entity.hidden = true unless surface.thingy.entity.deleted?
+    end
+    @triangles_hidden = true
+  end
+
+  def hide_force_arrows
+    Graph.instance.nodes.values.each do |node|
+      node.thingy.arrow.erase! unless node.thingy.arrow.nil?
+      node.thingy.arrow = nil
+    end
+  end
+
   def chart_dialog
     return if @pistons.empty?
     @chart = ForceChart.new()
@@ -215,6 +241,10 @@ class Simulation
     return if @chart.nil?
     @chart.close
   end
+
+  #
+  # Piston Related Methods
+  #
 
   def piston_dialog
     # get all pistons from actuator edges
@@ -307,31 +337,6 @@ class Simulation
     end
   end
 
-  def show_triangle_surfaces
-    Graph.instance.surfaces.each do |_, surface|
-      unless surface.thingy.entity.deleted?
-        surface.thingy.entity.hidden = false
-        # workaround to properly reset surface color
-        surface.un_highlight
-      end
-    end
-    @triangles_hidden = false
-  end
-
-  def hide_triangle_surfaces
-    Graph.instance.surfaces.each do |_, surface|
-      surface.thingy.entity.hidden = true unless surface.thingy.entity.deleted?
-    end
-    @triangles_hidden = true
-  end
-
-  def hide_force_arrows
-    Graph.instance.nodes.values.each do |node|
-      node.thingy.arrow.erase! unless node.thingy.arrow.nil?
-      node.thingy.arrow = nil
-    end
-  end
-
   #
   # Animation methods
   #
@@ -340,6 +345,9 @@ class Simulation
     hide_triangle_surfaces
     hide_force_arrows
     collect_sensors
+    if @sensors.length > 0 && @sensor_dialog.nil?
+      open_sensor_dialog
+    end
     @running = true
     @paused = false
     @last_frame_time = Time.now
@@ -359,6 +367,7 @@ class Simulation
     reset_force_labels
     close_piston_dialog
     close_chart
+    close_sensor_dialog
     @moving_pistons.clear
     destroy_world
   end
@@ -408,8 +417,10 @@ class Simulation
     show_forces(view)
     if @frame % 5 == 0 # do this every 5 frames to increase fps
       send_force_to_chart
+      send_sensor_acceleration_to_dialog
     end
     test_pistons
+    send_sensor_speed_to_dialog
 
     view.show_frame
     @running
@@ -429,17 +440,52 @@ class Simulation
   # Sensor Related Methods
   #
 
-  def collect_sensors
-    Graph.instance.nodes.values.each do |node|
-      # if node.thingy.is_sensor?
-      #   @sensors.push(node.thingy)
-      # end
+  def open_sensor_dialog
+    @sensor_dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
+    file_content = File.read(File.join(File.dirname(__FILE__), '../ui/erb/sensor_overview.erb'))
+    template = ERB.new(file_content)
+    @sensor_dialog.set_html(template.result(binding))
+    @sensor_dialog.set_size(300, Configuration::UI_HEIGHT)
+    @sensor_dialog.show
+  end
+
+  def close_sensor_dialog
+    unless @sensor_dialog.nil?
+      if @sensor_dialog.visible?
+        @sensor_dialog.close
+      end
     end
   end
 
-  def get_sensor_speed
+  def collect_sensors
+    Graph.instance.nodes.values.each do |node|
+      if node.thingy.is_sensor?
+        @sensors.push(node.thingy)
+      end
+    end
+  end
+
+  def send_sensor_speed_to_dialog
+    return if @sensor_dialog.nil?
     @sensors.each do |sensor|
-      p "Test"#sensor.get_velocity
+      @sensor_dialog.execute_script("updateSpeed('#{sensor.id}', '#{sensor.body.get_velocity.length.round(2)}')")
+      @last_sensor_speed[sensor.id] = [sensor.body.get_velocity.length, Time.now]
+    end
+  end
+
+  def get_sensor_acceleration(sensor)
+    return 0 if @last_sensor_speed[sensor.id].nil?
+    last_speed = @last_sensor_speed[sensor.id][0]
+    last_time = @last_sensor_speed[sensor.id][1]
+    curr_speed = sensor.body.get_velocity.length
+    curr_acceleration = (curr_speed - last_speed)/(Time.now - last_time)
+    curr_acceleration
+  end
+
+  def send_sensor_acceleration_to_dialog
+    return if @sensor_dialog.nil?
+    @sensors.each do |sensor|
+      @sensor_dialog.execute_script("updateAcceleration('#{sensor.id}', '#{get_sensor_acceleration(sensor).round(2)}')")
     end
   end
 
