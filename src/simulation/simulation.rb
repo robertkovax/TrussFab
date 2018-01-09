@@ -104,6 +104,7 @@ class Simulation
     @chart = nil
     @piston_time = 0
     @piston_world_time = 0
+    @highest_force_mode = false
   end
 
   #
@@ -255,6 +256,10 @@ class Simulation
         @paused = true
       end
     end
+
+    @dialog.add_action_callback('change_highest_force_mode') do |_context, param|
+      @highest_force_mode = param
+    end
   end
 
   def close_piston_dialog
@@ -394,7 +399,11 @@ class Simulation
       set_status_text
     end
 
-    show_forces(view)
+    if @highest_force_mode
+      show_highest_forces(view)
+    else
+      show_forces(view)
+    end
     if @frame % 5 == 0 # do this every 5 frames to increase fps
       send_force_to_chart
     end
@@ -424,6 +433,26 @@ class Simulation
     Graph.instance.edges.values.each do |edge|
       show_force(edge.thingy, view)
     end
+    Sketchup.active_model.commit_operation
+  end
+
+  # only visualizes the bottles with the highest tension and contraction force
+  def show_highest_forces(view)
+    Sketchup.active_model.start_operation('Change Materials (Highest Only)', true)
+    # tupel of force and link
+    lowest_force_tuple = [nil, Float::INFINITY]
+    highest_force_tuple = [nil, -Float::INFINITY]
+    Graph.instance.edges.values.each do |edge|
+      force = get_force_from_link(edge.thingy)[0]
+      if force < lowest_force_tuple[1]
+        lowest_force_tuple = [edge, force]
+      elsif force > highest_force_tuple[1]
+        highest_force_tuple = [edge, force]
+      end
+    end
+    reset_force_color
+    visualize_force(lowest_force_tuple[0].thingy, lowest_force_tuple[1])
+    visualize_force(highest_force_tuple[0].thingy, highest_force_tuple[1])
     Sketchup.active_model.commit_operation
   end
 
