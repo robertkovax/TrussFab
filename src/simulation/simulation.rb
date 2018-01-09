@@ -418,6 +418,7 @@ class Simulation
   # Force Related Methods
   #
 
+  # visualizes force for every edge in the graph
   def show_forces(view)
     Sketchup.active_model.start_operation('Change Materials', true)
     Graph.instance.edges.values.each do |edge|
@@ -426,6 +427,9 @@ class Simulation
     Sketchup.active_model.commit_operation
   end
 
+  # returns the force and position for a link
+  # note: this also visualizes the force if the link has cylinders (i.e. a piston)
+  # => we might think about returning an array to pass multiple value pairs
   def get_force_from_link(link)
     lin_force = nil
     position = nil
@@ -444,6 +448,7 @@ class Simulation
     [lin_force, position]
   end
 
+  # returns the joint tension force from an MSPhysics::Body
   def get_force_from_body(link, body)
     return if body.nil?
     body_orientation = body.get_matrix
@@ -456,16 +461,21 @@ class Simulation
     [lin_force, position]
   end
 
+  # sends @total_force to the force graph
   def send_force_to_chart
     return if @chart.nil?
     @chart.addData(' ', @total_force)
   end
 
+  # sends @total_force to the force graph and adds a label
   def add_chart_label(label)
     return if @chart.nil?
     @chart.addData(label, @total_force)
   end
 
+  # retrieves force for a link and visualizes the according edge
+  # => if the force exceeds @breaking_force, this pauses the simulation and prints
+  # => the force labels
   def show_force(link, view)
     lin_force, position = get_force_from_link(link)
 
@@ -483,11 +493,13 @@ class Simulation
     # update_force_label(link, lin_force, position)
   end
 
+  # colors a given link based on a given force
   def visualize_force(link, force)
     color = @color_converter.get_color_for_force(force)
     link.change_color(color)
   end
 
+  # adds a label with the force value for each edge in the graph
   def update_force_labels
     Sketchup.active_model.start_operation('Change Materials', true)
     Graph.instance.edges.values.each do |edge|
@@ -497,6 +509,7 @@ class Simulation
     Sketchup.active_model.commit_operation
   end
 
+  # adds a label with the force value for a single edge
   def update_force_label(link, force, position)
     if @force_labels[link.body].nil?
       model = Sketchup.active_model
@@ -510,12 +523,14 @@ class Simulation
     end
   end
 
+  # resets the color of all edges to its default value
   def reset_force_color
     Graph.instance.edges.values.each do |edge|
       edge.thingy.un_highlight
     end
   end
 
+  # removes force labels
   def reset_force_labels
     @force_labels.each {|body, label| label.text = "" }
   end
