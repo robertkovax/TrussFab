@@ -274,13 +274,16 @@ class Simulation
       piston.rate = hash[:speed]
       piston.controller = (hash[:expanding] ? piston.max : piston.min)
       if (piston.cur_position - piston.max).abs < 0.005 && hash[:expanding]
+        #
         @piston_world_time = @world.time
         @piston_time = Time.now
-        # hash[:speed] += 0.05 unless (hash[:speed] >= @max_speed && @max_speed != 0)
         hash[:expanding] = false
       elsif (piston.cur_position - piston.min).abs < 0.005 && !hash[:expanding]
+        # increase speed everytime the piston reaches its minimum value
         hash[:speed] += 0.05 unless (hash[:speed] >= @max_speed && @max_speed != 0)
         hash[:expanding] = true
+        # add the piston frequency as a label in the chart (every value between
+        # two frequencies has the same frequency)
         add_chart_label((1 / (@world.time - @piston_world_time).to_f).round(2))
       end
       hash

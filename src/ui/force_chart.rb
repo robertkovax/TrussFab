@@ -10,9 +10,6 @@ class ForceChart
     @dialog.set_html(template.result(binding))
     @dialog.set_size(300, Configuration::UI_HEIGHT)
     @dialog.show
-    @dialog.add_action_callback('onClick') do |_context, button_id|
-      addData(0, 5)
-    end
   end
 
   def close
