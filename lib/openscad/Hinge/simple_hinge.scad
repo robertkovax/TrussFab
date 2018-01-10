@@ -1,4 +1,5 @@
 include <../Util/text_on.scad>
+use <../Util/line_calculations.scad>
 use <../Misc/Prism.scad>
 use <../Misc/Hexagon.scad>
 
@@ -147,13 +148,13 @@ module draw_hinge(
     // the last cut out for the gap of the left side to fully hinge
     // the translations are only to cut off some other parts for the gaps more easily
     difference() {
-         translate([extra_width_for_hinging + round_size, 0, 0])
-         rotate([0, 0, alpha / 2])    
-         rotate([0, 0, alpha / +2]) 
-        translate([round_size + extra_width_for_hinging, 0, 0])
+//         translate([extra_width_for_hinging + round_size, 0, 0])
+//         rotate([0, 0, alpha / 2])    
+//         rotate([0, 0, alpha / +2]) 
+//        translate([round_size + extra_width_for_hinging, 0, 0])
         difference() {
-            translate([- round_size - extra_width_for_hinging, 0, 0])
-            rotate([0, 0, alpha / -2])
+//            translate([- round_size - extra_width_for_hinging, 0, 0])
+//            rotate([0, 0, alpha / -2])
             difference() {
                 union() {
                     difference() {
@@ -190,30 +191,44 @@ module draw_hinge(
                         translate([0, 0, -500])
                         cube([1000, 1000, 1000]);        
                     }
-                }
-                
+                }                
                 // cuts out parts at the top
                 // the height of the cube is responsible for the cutting out of the the top part
                 // it can cause some problems if it cuts too much or to little
                 // Edit: Hotfix, we choose a small cube height for smaller angles
                 // (where there is less to cut)
-                cut_out_cube = alpha < 50 ? (alpha < 40 ? 10 : 20) : 50;
+//                cut_out_cube = alpha < 50 ? (alpha < 40 ? 10 : 20) : 50;
                 a_l12 = a_l1 + a_l2;
                 b_l12 = b_l1 + b_l2;
                 longest = max(a_l12, b_l12);
-                translate([0, longest + 50 + 3, 0]) // you can tune the last summand
-                cube([cut_out_cube, 100, 100], center=true);
+                
+                t1 = longest;
+                m1 = 0;
+                
+                m2 = tan(90 - alpha / -2);
+                t2 = t1 / (cos(alpha / 2)); // ankathete
+                
+                echo(longest);
+                echo(m2);
+                echo(t2);
+                
+                intersection_x = get_line_intersection_x(m1, t1, m2, t2);
+                
+                echo(intersection_x);
+                
+                translate([0, longest + 25, 0]) // you can tune the last summand
+                cube([intersection_x * 4, 25 * 2, 100], center=true);
 
             }
             
             if (a_gap) {
-                cut_out_a_cap(a_l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e);
+//                cut_out_a_cap(a_l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e);
             }
           
         }
         
         if (b_gap) {
-            cut_out_b_cap(b_l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e);
+//            cut_out_b_cap(b_l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e);
         }
     }
 }
@@ -221,14 +236,32 @@ module draw_hinge(
 
 // just for dev
 
-connection_angle = 40;
-
-l1 = 50;
-l2 = 10 * 4 + 0.8 * 1.5; // beaause there is no need to have it for the free haning part
-l3 = 40;
-//
-//draw_hinge(alpha=connection_angle,
-//    a_l1=l1, a_l2=l2, a_l3=l3, a_gap=true, a_label="123.456", b_label="133.789",
-//    b_l1=l1, b_l2=l2, b_l3=l3, b_gap=true);
-
-draw_hinge(alpha=59.93035835020898, a_l1=30.069641649791023, a_l2=41.199999999999996, a_l3=14.771333346882312, a_gap=false, b_l1=30.069641649791023, b_l2=41.199999999999996, b_l3=15.258982187190027, b_gap=true, a_with_connector=true, b_with_connector=false, a_label="76.149", b_label="76.75", depth=24.0, width=100.0, round_size=12.0, hole_size_a=3.1, hole_size_b=3.1, gap_angle=45.0, extra_width_for_hinging=6.0, gap_height=10.0, gap_epsilon=0.8000000000000002, connector_end_round=15.0, connector_end_heigth=3.7, connector_end_extra_round=9.95, connector_end_extra_height=1.9999999999999998, cut_out_hex_height=5.0, cut_out_hex_d=11.5);
+draw_hinge(
+alpha=70,
+a_l1=85.0,
+a_l2=41.199999999999996,
+a_l3=10.0,
+a_gap=true,
+b_l1=85.0,
+b_l2=41.199999999999996,
+b_l3=10.0,
+b_gap=true,
+a_with_connector=false,
+b_with_connector=false,
+a_label="130.i76",
+b_label="130.i20",
+depth=24.0,
+width=100.0,
+round_size=12.0,
+gap_angle=70.0,
+hole_size_a=3.1,
+hole_size_b=3.1,
+extra_width_for_hinging=0.9999999999999999,
+gap_height=10.0,
+gap_epsilon=0.8000000000000002,
+connector_end_round=15.0,
+connector_end_heigth=3.7,
+connector_end_extra_round=9.95,
+connector_end_extra_height=1.9999999999999998,
+cut_out_hex_height=5.0,
+cut_out_hex_d=11.0);
