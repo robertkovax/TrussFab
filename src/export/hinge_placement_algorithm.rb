@@ -80,8 +80,6 @@ class HingePlacementAlgorithm
     @hubs = nil
     @hinges = nil
     @node_l1 = nil
-    @last_nodes = nil
-    @last_edges = nil
   end
 
   MIN_ANGLE_DEVIATION = 0.05
@@ -89,11 +87,6 @@ class HingePlacementAlgorithm
   def run
     nodes = Graph.instance.nodes.values
     edges = Graph.instance.edges.values
-
-    # early out if result was already calculated
-    # return if @last_edges.eql? edges and @last_nodes.eql? nodes
-    # @last_edges = edges
-    # @last_nodes = nodes
 
     edges.each do |edge|
       edge.reset
@@ -118,6 +111,7 @@ class HingePlacementAlgorithm
     end
 
     static_groups = find_rigid_substructures(edges.reject { |e| e.link_type == 'actuator' }, rotation_partners)
+    static_groups.select! { |group| group.size > 1 }
     static_groups.sort! { |a,b| b.size <=> a.size }
     static_groups = prioritise_pod_groups(static_groups)
     static_groups.reverse.each do |group|
@@ -144,13 +138,16 @@ class HingePlacementAlgorithm
 
     hinges = Set.new
     hubs = Hash.new { |h,k| h[k] = [] }
+    group_edge_map = Hash.new
 
     # generate hubs for all groups with size > 1
     processed_edges = Set.new
-    static_groups.select { |group| group.size > 1 }.each do |group|
+    static_groups.each do |group|
       group_nodes = Set.new group.flat_map { |tri| tri.nodes }
       group_edges = Set.new group.flat_map { |tri| tri.edges }
       group_edges = group_edges - processed_edges
+
+      group_edge_map[group] = group_edges
 
       group_nodes.each do |node|
         hub_edges = group_edges.select { |edge| edge.nodes.include? node }
@@ -160,52 +157,29 @@ class HingePlacementAlgorithm
       processed_edges = processed_edges.merge(group_edges)
     end
 
-    static_groups.each do |group|
-      other_groups = group_rotations[group].select { |other_group| group.size >= other_group.size }
+    # put hinges everywhere possible
+    triangles = Set.new edges.flat_map { |edge| edge.adjacent_triangles }
+    # static_groups.each do |group|
+    #   triangles.merge(group)
+    # end
 
-      group1_edges = Set.new group.flat_map { |tri| tri.edges }
-
-      other_groups.each do |other_group|
-        group2_edges = Set.new other_group.flat_map { |tri| tri.edges }
-        common_edges = group1_edges & group2_edges
-        raise RuntimeError, 'Groups dont have one common edge' unless common_edges.size == 1
-        axis = common_edges.to_a[0]
-
-        group1_adjacent_tris = group.select { |tri| tri.edges.include? axis }
-        group2_adjacent_tris = other_group.select { |tri| tri.edges.include? axis }
-
-        # TODO: clear up if connection must be on same group
-        next if group_hinges_around_axis?(hinges, group1_adjacent_tris, axis)
-        next if group_hinges_around_axis?(hinges, group2_adjacent_tris, axis)
-
-        hinging_tri = group2_adjacent_tris.sample
-        (hinging_tri.edges - [axis]).each do |edge|
-          hinges.add(Hinge.new(edge, axis))
-        end
-      end
-
-      if group.size == 1
-        # close triangle by placing hinges
-        group_edges = Set.new(group.flat_map { |tri| tri.edges })
-        group_edges.to_a.combination(2).each do |pair|
-          node = pair[0].shared_node(pair[1])
-          has_hub = !hubs[node].empty?
-          has_pods = node.thingy.pods?
-
-          if !has_hub and has_pods
-            hubs[node].push([pair[0], pair[1]])
-          else
-            new_hinge = Hinge.new(pair[0], pair[1])
-            hinges.add(new_hinge)
-          end
-        end
+    adjacent_edges = Set.new
+    triangles.each do |tri|
+      tri.edges.combination(2).each do |comb|
+        adjacent_edges.add(comb)
       end
     end
 
-    # make main hub the one with most incidents
-    hubs.each do |node, node_hubs|
-      node_hubs.sort! { |hub1, hub2| hub2.size <=> hub1.size }
+    adjacent_edges.each do |e1, e2|
+      same_group = static_groups.any? { |group| group_edge_map[group].include? e1 and group_edge_map[group].include? e2 }
+      unless same_group
+        hinges.add(Hinge.new(e1, e2))
+      end
     end
+
+    # TODO: add double hinges if triangle contains actuator
+
+    # TODO: make hinges a hub, if a pod exists at node and there is no other hub
 
     # place all hinges to the node which they rotate around
     hinge_map = Hash.new { |h,k| h[k] = [] }
@@ -214,56 +188,23 @@ class HingePlacementAlgorithm
       hinge_map[node].push(hinge)
     end
 
+    hinge_map.each { |node, hinges|
+      new_hinges = hinges.reject { |hinge|
+        shared_hinges = hinges.select { |other_hinge| hinge != other_hinge and ([hinge.edge1, hinge.edge2] & [other_hinge.edge1, other_hinge.edge2]).size > 0}
+        shared_hinges.size >= 4
+      }
+
+      hinge_map[node] = new_hinges
+    }
+
     hinge_map = order_hinges(hinge_map)
 
-    actuators.each do |actuator|
-      adjacent_tris = actuator.adjacent_triangles
-
-      actuator.nodes.each do |node|
-        possible_hinge_edges = adjacent_tris.flat_map { |tri| tri.edges }.select { |edge| edge.link_type != 'actuator' and edge.nodes.include? node }
-        found_hinge_placement = false
-        possible_hinge_edges.each do |edge|
-          edge_hinges = hinge_map[node].select { |hinge| hinge.edge1 == edge or hinge.edge2 == edge }
-          if edge_hinges.size <= 1
-            hinge = ActuatorHinge.new(edge, actuator)
-
-            # make sure actuator hinge fits on other hinge if there is one
-            # i.e. if other hinge is b, this one is a and vice versa
-            unless edge_hinges.empty?
-              if edge_hinges[0].edge1 == hinge.edge1
-                hinge.swap_edges
-              end
-            end
-
-            hinge_map[node].push(hinge)
-            found_hinge_placement = true
-            break
-          end
-        end
-
-        raise RuntimeError, 'Could not find a placement for actuator hinge.' unless found_hinge_placement
+    hinge_map.each do |node, hinges|
+      hinges.each do |hinge|
+        visualize_hinge(hinge)
       end
     end
 
-    hinge_map.values.each do |node_hinges|
-      node_hinges.each do |hinge|
-        add_hinge(hinge)
-      end
-    end
-
-    # shorten elongations for all edges that are not part of the main hub
-    nodes.each do |node|
-      main_hub = hubs[node][0]
-
-      node_edges = edges.select { |edge| edge.nodes.include? node and edge.link_type != 'actuator' }
-      node_edges.each do |edge|
-        if main_hub.nil? or not main_hub.include? edge
-          add_elongation(edge, node)
-        end
-      end
-    end
-
-    @hubs = hubs
     @hinges = hinge_map
 
     # stores the l1 value per node (since it needs to be constant across a node)
@@ -279,7 +220,7 @@ class HingePlacementAlgorithm
       @node_l1[node] = max_l1
     end
 
-    elongate_edges
+    elongate_edges unless @hinges.empty?
   end
 
   # orders hinges so that they form a chain
@@ -333,59 +274,6 @@ class HingePlacementAlgorithm
     result
   end
 
-  def elongate_edges
-    l2 = PRESETS::SIMPLE_HINGE_RUBY['l2']
-    l3_min = PRESETS::SIMPLE_HINGE_RUBY['l3_min']
-
-    loop do
-      relaxation = Relaxation.new
-      relaxation.ignore_fixation
-
-      is_finished = true
-
-      @hinges.each do |node, hinges|
-        l1 = @node_l1[node]
-
-        hinges.each do |hinge|
-          [hinge.edge1, hinge.edge2].each do |edge|
-            if edge.link_type == 'actuator'
-              next
-            end
-
-            elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length
-            target_elongation = l1 + l2 + l3_min
-
-            if elongation < target_elongation
-              total_elongation = edge.first_elongation_length + edge.second_elongation_length
-              relaxation.stretch_to(edge, edge.length - total_elongation + 2*target_elongation + 10.mm)
-              is_finished = false
-            end
-          end
-        end
-      end
-
-      if is_finished
-        break
-      end
-
-      relaxation.relax
-      Sketchup.active_model.commit_operation
-    end
-  end
-
-  def group_hinges_around_axis?(hinges, group, axis)
-    side1_edges = group.flat_map { |tri| tri.edges }.select { |edge| edge.nodes.include? axis.first_node }
-    side1_hinges = side1_edges.any? { |edge| edge != axis and hinges.include? Hinge.new(edge, axis) }
-
-    side2_edges = group.flat_map { |tri| tri.edges }.select { |edge| edge.nodes.include? axis.second_node }
-    side2_hinges = side2_edges.any? { |edge| edge != axis and hinges.include? Hinge.new(edge, axis) }
-
-    side1_hinges and side2_hinges
-  end
-
-  def hinges_around?(hinge_map, rotating_edge, rotation_axis)
-    hinge_map[rotating_edge].include? rotation_axis
-  end
 
   def find_rigid_substructures(edges, rotation_partners)
     visited_tris = Set.new
@@ -425,11 +313,6 @@ class HingePlacementAlgorithm
     end
   end
 
-  def prioritise_pod_groups(groups)
-    pod_groups = groups.select { |group| group.any? { |tri| tri.nodes.all? { |node| node.thingy.pods? } } }
-    pod_groups + (groups - pod_groups)
-  end
-
   def color_group(group)
     if group.length == 1
       return
@@ -452,7 +335,7 @@ class HingePlacementAlgorithm
     end
   end
 
-  def add_hinge(hinge)
+  def visualize_hinge(hinge)
     rotation_axis = hinge.edge1
     rotating_edge = hinge.edge2
     node = rotating_edge.shared_node(rotation_axis)
@@ -521,6 +404,51 @@ class HingePlacementAlgorithm
         partners[pair[0]].add(pair[1])
         partners[pair[1]].add(pair[0])
       end
+    end
+  end
+
+  def prioritise_pod_groups(groups)
+    pod_groups = groups.select { |group| group.any? { |tri| tri.nodes.all? { |node| node.thingy.pods? } } }
+    pod_groups + (groups - pod_groups)
+  end
+
+  def elongate_edges
+    l2 = PRESETS::SIMPLE_HINGE_RUBY['l2']
+    l3_min = PRESETS::SIMPLE_HINGE_RUBY['l3_min']
+
+    loop do
+      relaxation = Relaxation.new
+      relaxation.ignore_fixation
+
+      is_finished = true
+
+      @hinges.each do |node, hinges|
+        l1 = @node_l1[node]
+
+        hinges.each do |hinge|
+          [hinge.edge1, hinge.edge2].each do |edge|
+            if edge.link_type == 'actuator'
+              next
+            end
+
+            elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length
+            target_elongation = l1 + l2 + l3_min
+
+            if elongation < target_elongation
+              total_elongation = edge.first_elongation_length + edge.second_elongation_length
+              relaxation.stretch_to(edge, edge.length - total_elongation + 2*target_elongation + 10.mm)
+              is_finished = false
+            end
+          end
+        end
+      end
+
+      if is_finished
+        break
+      end
+
+      relaxation.relax
+      Sketchup.active_model.commit_operation
     end
   end
 
