@@ -163,21 +163,20 @@ class HingePlacementAlgorithm
     #   triangles.merge(group)
     # end
 
-    adjacent_edges = Set.new
     triangles.each do |tri|
-      tri.edges.combination(2).each do |comb|
-        adjacent_edges.add(comb)
+      tri.edges.combination(2).each do |e1, e2|
+        same_group = static_groups.any? { |group| group_edge_map[group].include? e1 and group_edge_map[group].include? e2 }
+        unless same_group
+          new_hinge = Hinge.new(e1, e2)
+
+          if tri.contains_actuator?
+            new_hinge = ActuatorHinge.new(e1, e2)
+          end
+
+          hinges.add(new_hinge)
+        end
       end
     end
-
-    adjacent_edges.each do |e1, e2|
-      same_group = static_groups.any? { |group| group_edge_map[group].include? e1 and group_edge_map[group].include? e2 }
-      unless same_group
-        hinges.add(Hinge.new(e1, e2))
-      end
-    end
-
-    # TODO: add double hinges if triangle contains actuator
 
     # TODO: make hinges a hub, if a pod exists at node and there is no other hub
 
@@ -345,6 +344,10 @@ class HingePlacementAlgorithm
 
     # Draw hinge visualization
     mid_point = Geom::Point3d.linear_combination(0.5, mid_point2, 0.5, mid_point1)
+
+    if hinge.is_a? ActuatorHinge
+      mid_point = Geom::Point3d.linear_combination(0.75, mid_point, 0.25, node.position)
+    end
 
     line1 = Line.new(mid_point, mid_point1, HINGE_LINE)
     line2 = Line.new(mid_point, mid_point2, HINGE_LINE)
