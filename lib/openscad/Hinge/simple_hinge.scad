@@ -248,13 +248,13 @@ module draw_hinge(
             }
             
             if (a_gap) {
-//                cut_out_a_cap(a_l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e);
+                cut_out_a_cap(a_l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e);
             }
           
         }
         
         if (b_gap) {
-//            cut_out_b_cap(b_l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e);
+            cut_out_b_cap(b_l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e);
         }
     }
 }
