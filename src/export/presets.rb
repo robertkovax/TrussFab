@@ -1,13 +1,17 @@
 module PRESETS
-  normal_hole_size = 3.2.mm # where the screw goes through
+  default_hole_size = 3.2.mm # where the screw goes through
+
+  # to remove the Hexagon, set both values to 0
+  default_cut_out_hex_height = 5.mm
+  default_cut_out_hex_d = 10.6.mm
 
   SIMPLE_HINGE_OPENSCAD = {
     'depth' => 24.mm, # depth of a hinge part
     'width' => 100.mm, # not really important because parts that are too much gets cut away anyway
     'round_size' => 12.mm, # the round part of a hinge part
     'gap_angle' => 45.mm, # the angle for the triangle in the gap
-    'hole_size_a' => normal_hole_size,
-    'hole_size_b' => normal_hole_size,
+    'hole_size_a' => default_hole_size,
+    'hole_size_b' => default_hole_size,
     'extra_width_for_hinging' => 6.mm, # there needs to be an extra offset so the hinge part can swing fully
     'gap_height' => 10.mm, # gap of a hinge part
     'gap_epsilon' => 0.8.mm, # margin of the gap (due to printing issues)
@@ -15,8 +19,10 @@ module PRESETS
     'connector_end_heigth' => 3.7.mm,
     'connector_end_extra_round' => (19.9 / 2).mm, # to better connect the bottles
     'connector_end_extra_height' => 4.mm,
-    'cut_out_hex_height' => 5.mm, # for the screw
-    'cut_out_hex_d' => 10.6.mm
+    'cut_out_hex_height_a' => default_cut_out_hex_height,
+    'cut_out_hex_height_b' => default_cut_out_hex_height,
+    'cut_out_hex_d_a' => default_cut_out_hex_d
+    'cut_out_hex_d_b' => default_cut_out_hex_d
   }.freeze
 
   ACTUATOR_HINGE_OPENSCAD = SIMPLE_HINGE_OPENSCAD.dup
@@ -31,7 +37,7 @@ module PRESETS
     key.start_with?('connector_end', 'cut_out', 'round_size')
   end
 
-  CAP_RUBY['hole_size'] = normal_hole_size
+  CAP_RUBY['hole_size'] = default_hole_size
 
   SIMPLE_HINGE_RUBY = SIMPLE_HINGE_OPENSCAD.dup
 
@@ -59,6 +65,7 @@ def save_to_scad(hash, path)
   end
 end
 
+# a helper for exporting the presets for developing
 if $PROGRAM_NAME == __FILE__
   save_to_scad SIMPLE_HINGE_OPENSCAD, 'lib/openscad/Hinge/preset.scad'
 end
