@@ -27,7 +27,6 @@ module cut_out_b_cap(l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_heig
     }   
 }
 
-
 module cut_out_a_cap(l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e) {
         union() {
         for (ii = [0:1]) {
@@ -43,6 +42,55 @@ module cut_out_a_cap(l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_heig
             cube([gap_width, gap_height_e + extra_offset, 100]);
         }
     }   
+}
+
+
+// cuts out parts at the top of both hinge parts
+module cut_out_top_part(alpha, a_l1, a_l2, b_l1, b_l2, depth) {
+    SKIM = 1;
+    CUT_OFF_TOP = 100;
+    
+    a_l12 = a_l1 + a_l2;
+    b_l12 = b_l1 + b_l2;
+    longest = max(a_l12, b_l12);
+    
+    // line parallel to the x axis to cut off later
+    t1 = longest;
+    m1 = 0;
+
+    the_angle = 90 + (90 - alpha / 2); // used later to get the slopes   
+    m2 = tan(the_angle);
+    t2 = t1 / (cos(alpha / 2)); // ankathete
+    
+    // We need to find the intersecion of l1 and l2 to determin how much we have to cut away.
+    // This is important because if we have a connector, you might cut away parts of it otherwise.
+    intersection_x = get_line_intersection_x(m1, t1, m2, t2);
+                    
+    translate([0, longest + CUT_OFF_TOP, 0])
+    cube([intersection_x * 2 + SKIM, CUT_OFF_TOP * 2, depth + SKIM], center=true);
+}
+
+module add_bottom_for_higher_degrees(alpha, a_l1, a_l2, b_l1, b_l2, depth) {
+    cube_height = max(a_l1, b_l1);
+    
+    a_l12 = a_l1 + a_l2;
+    b_l12 = b_l1 + b_l2;
+    longest = max(a_l12, b_l12);
+    
+    t1 = longest;
+    m1 = 0;
+
+    the_angle = 90 + (90 - alpha / 2); // used later to get the slope
+    m2 = tan(the_angle);
+    t2 = t1 / (cos(alpha / 2)); // ankathete
+    
+    // We need to find the intersecion of l1 and l2 to determin how much we have to cut away.
+    // This is important because if we have a connector, you might cut away parts of it otherwise.
+    intersection_x = get_line_intersection_x(m1, t1, m2, t2);
+    
+    // the parameter to determine how much to add was determined experimentally
+    translate([0, longest - cube_height / 4, 0]) 
+    cube([intersection_x * 2, cube_height, depth], center=true);
 }
 
 
@@ -148,13 +196,13 @@ module draw_hinge(
     // the last cut out for the gap of the left side to fully hinge
     // the translations are only to cut off some other parts for the gaps more easily
     difference() {
-//         translate([extra_width_for_hinging + round_size, 0, 0])
-//         rotate([0, 0, alpha / 2])    
-//         rotate([0, 0, alpha / +2]) 
-//        translate([round_size + extra_width_for_hinging, 0, 0])
+         translate([extra_width_for_hinging + round_size, 0, 0])
+         rotate([0, 0, alpha / 2])    
+         rotate([0, 0, alpha / +2]) 
+        translate([round_size + extra_width_for_hinging, 0, 0])
         difference() {
-//            translate([- round_size - extra_width_for_hinging, 0, 0])
-//            rotate([0, 0, alpha / -2])
+            translate([- round_size - extra_width_for_hinging, 0, 0])
+            rotate([0, 0, alpha / -2])
             difference() {
                 union() {
                     difference() {
@@ -191,34 +239,12 @@ module draw_hinge(
                         translate([0, 0, -500])
                         cube([1000, 1000, 1000]);        
                     }
+                    
+                    if (alpha > 90) {
+                        add_bottom_for_higher_degrees(alpha, a_l1, a_l2, b_l1, b_l2, depth);
+                    }
                 }                
-                // cuts out parts at the top
-                // the height of the cube is responsible for the cutting out of the the top part
-                // it can cause some problems if it cuts too much or to little
-                // Edit: Hotfix, we choose a small cube height for smaller angles
-                // (where there is less to cut)
-//                cut_out_cube = alpha < 50 ? (alpha < 40 ? 10 : 20) : 50;
-                a_l12 = a_l1 + a_l2;
-                b_l12 = b_l1 + b_l2;
-                longest = max(a_l12, b_l12);
-                
-                t1 = longest;
-                m1 = 0;
-                
-                m2 = tan(90 - alpha / -2);
-                t2 = t1 / (cos(alpha / 2)); // ankathete
-                
-                echo(longest);
-                echo(m2);
-                echo(t2);
-                
-                intersection_x = get_line_intersection_x(m1, t1, m2, t2);
-                
-                echo(intersection_x);
-                
-                translate([0, longest + 25, 0]) // you can tune the last summand
-                cube([intersection_x * 4, 25 * 2, 100], center=true);
-
+                cut_out_top_part(alpha, a_l1, a_l2, b_l1, b_l2, depth);
             }
             
             if (a_gap) {
@@ -237,17 +263,17 @@ module draw_hinge(
 // just for dev
 
 draw_hinge(
-alpha=70,
-a_l1=85.0,
+alpha=130,
+a_l1=65.0,
 a_l2=41.199999999999996,
-a_l3=10.0,
+a_l3=50.0,
 a_gap=true,
-b_l1=85.0,
+b_l1=65.0,
 b_l2=41.199999999999996,
-b_l3=10.0,
+b_l3=50.0,
 b_gap=true,
-a_with_connector=false,
-b_with_connector=false,
+a_with_connector=true,
+b_with_connector=true,
 a_label="130.i76",
 b_label="130.i20",
 depth=24.0,
