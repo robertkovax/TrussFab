@@ -344,10 +344,6 @@ class Simulation
   def start
     hide_triangle_surfaces
     hide_force_arrows
-    collect_sensors
-    if @sensors.length > 0 && @sensor_dialog.nil?
-      open_sensor_dialog
-    end
     @running = true
     @paused = false
     @last_frame_time = Time.now
@@ -441,6 +437,8 @@ class Simulation
   #
 
   def open_sensor_dialog
+    collect_sensors
+    return if @sensors.empty?
     @sensor_dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
     file_content = File.read(File.join(File.dirname(__FILE__), '../ui/erb/sensor_overview.erb'))
     template = ERB.new(file_content)
