@@ -34,6 +34,10 @@ class Hinge
     hinges.select { |other| not eql?(other) and connected_with?(other) }.size
   end
 
+  def edges
+    [@edge1, @edge2]
+  end
+
   def swap_edges
     temp = @edge1
     @edge1 = @edge2
@@ -159,9 +163,6 @@ class HingePlacementAlgorithm
 
     # put hinges everywhere possible
     triangles = Set.new edges.flat_map { |edge| edge.adjacent_triangles }
-    # static_groups.each do |group|
-    #   triangles.merge(group)
-    # end
 
     triangles.each do |tri|
       tri.edges.combination(2).each do |e1, e2|
@@ -187,11 +188,33 @@ class HingePlacementAlgorithm
       hinge_map[node].push(hinge)
     end
 
+    # remove hinges that are superfluous, i.e. they connect to an edge that already has two other hinges
     hinge_map.each { |node, hinges|
-      new_hinges = hinges.reject { |hinge|
-        shared_hinges = hinges.select { |other_hinge| hinge != other_hinge and ([hinge.edge1, hinge.edge2] & [other_hinge.edge1, other_hinge.edge2]).size > 0}
-        shared_hinges.size >= 4
-      }
+      new_hinges = hinges.clone
+
+      loop do
+        # save how many hinges each hinge shares an edge with around the current node
+        # if it is more than 2, one of them needs to be removed
+        shared_hinges_count = Hash.new
+        new_hinges.each do |hinge|
+          shared_hinges = new_hinges.select { |other_hinge| hinge != other_hinge and (hinge.edges & other_hinge.edges).size > 0 }
+          shared_hinges_count[hinge] = shared_hinges.size
+        end
+
+        violating_hinges = shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] >= 3 }
+
+        if violating_hinges.empty?
+          break
+        end
+
+        violating_hinges.sort! { |a,b| shared_hinges_count[b] <=> shared_hinges_count[a] }
+
+        # move the hinges that connect to at least one group to the front
+        violating_and_connecting_group = violating_hinges.select { |hinge| group_edge_map.values.any? { |edges| edges.include? hinge.edge1 } || group_edge_map.values.any? { |edges| edges.include? hinge.edge2 } }
+        violating_hinges = violating_and_connecting_group + (violating_hinges - violating_and_connecting_group)
+
+        new_hinges.delete(violating_hinges.first)
+      end
 
       hinge_map[node] = new_hinges
     }
