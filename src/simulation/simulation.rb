@@ -378,7 +378,7 @@ class Simulation
 
   def update_force_arrows
     Graph.instance.nodes.values.each do |node|
-      node.thingy.move_force_arrow(node.thingy.body.get_matrix)
+      node.thingy.move_force_arrow(node.thingy.body.get_position)
     end
   end
 
