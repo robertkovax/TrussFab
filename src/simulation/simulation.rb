@@ -439,7 +439,7 @@ class Simulation
   # only visualizes the bottles with the highest tension and contraction force
   def show_highest_forces(view)
     Sketchup.active_model.start_operation('Change Materials (Highest Only)', true)
-    # tupel of force and link
+    # tupel of link and force
     lowest_force_tuple = [nil, Float::INFINITY]
     highest_force_tuple = [nil, -Float::INFINITY]
     Graph.instance.edges.values.each do |edge|
@@ -450,9 +450,9 @@ class Simulation
         highest_force_tuple = [edge, force]
       end
     end
-    reset_force_color
-    visualize_force(lowest_force_tuple[0].thingy, lowest_force_tuple[1])
-    visualize_force(highest_force_tuple[0].thingy, highest_force_tuple[1])
+    whiten_all_bottles
+    visualize_highest_force(lowest_force_tuple[0].thingy, lowest_force_tuple[1])
+    visualize_highest_force(highest_force_tuple[0].thingy, highest_force_tuple[1])
     Sketchup.active_model.commit_operation
   end
 
@@ -528,6 +528,16 @@ class Simulation
     link.change_color(color)
   end
 
+  # colors a given link based on a given force
+  # => in order to properly identify bottles with highest force, the saturation
+  # => for the highest force mode is at least @breaking_force/2
+  def visualize_highest_force(link, force)
+    if force < (@breaking_force/2.0)
+      force = sign(force) * @breaking_force/2.0
+    end
+    visualize_force(link, force)
+  end
+
   # adds a label with the force value for each edge in the graph
   def update_force_labels
     Sketchup.active_model.start_operation('Change Materials', true)
@@ -559,8 +569,22 @@ class Simulation
     end
   end
 
+  def whiten_all_bottles
+    Graph.instance.edges.values.each do |edge|
+      edge.thingy.highlight
+    end
+  end
+
   # removes force labels
   def reset_force_labels
     @force_labels.each {|body, label| label.text = "" }
+  end
+
+  #
+  # Helper functions
+  #
+
+  def sign(n)
+    n == 0 ? 1 : n.abs / n
   end
 end
