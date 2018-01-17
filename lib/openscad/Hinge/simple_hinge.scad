@@ -3,10 +3,13 @@ use <../Util/line_calculations.scad>
 use <../Misc/Prism.scad>
 use <../Misc/Hexagon.scad>
 
+text_size = 7;
+text_spacing = 0.9;
+text_printin = 1; // how much mm goes into 
 
 module add_text(text) {
     v = [0, 0, 0];
-    text_on_cube(t=text, cube_size=0, locn_vec=v, size=5, face="top", center=false, spacing=0.8);
+    text_on_cube(t=text, cube_size=0, locn_vec=v, size=text_size, face="top", center=false, spacing=text_spacing);
 }
 
 module cut_out_b_cap(l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e) {
@@ -88,9 +91,12 @@ module add_bottom_for_higher_degrees(alpha, a_l1, a_l2, b_l1, b_l2, depth) {
     // This is important because if we have a connector, you might cut away parts of it otherwise.
     intersection_x = get_line_intersection_x(m1, t1, m2, t2);
     
+    // they are not needed (because there is already solid structure) but can mess up with the text. So cut some mms off.
+    remove_some_mm = 20; 
+    
     // the parameter to determine how much to add was determined experimentally
     translate([0, longest - cube_height / 4, 0]) 
-    cube([intersection_x * 2, cube_height, depth], center=true);
+    cube([intersection_x * 2 - remove_some_mm, cube_height, depth], center=true);
 }
 
 
@@ -124,21 +130,20 @@ module hingepart(l1, l2, l3, gap, with_connector, label,
         }
         
         union() {
-            // TODO: remove the magic numbers with calculated values            
-            text_offset_x = width - round_size - 21;
-            
-            text_offset_y =
-                the_A_one ?
-                gap_height * 3 + gap_epsilon * 1.5 + 2 :
-                gap_height * 2 + gap_epsilon * 1.5 + 2;
-            
-            text_offset_z = depth - 1;
-            
+            // TODO: remove the magic numbers with calculated values for the label/text placing           
             if (the_A_one) {
-                translate([text_offset_x + 22, text_offset_y + 1, text_offset_z])
+                text_offset_x = width - round_size;
+                text_offset_y = gap_height * 3 + gap_epsilon * 1.5 + 2;
+                text_offset_z = depth - text_printin;
+                
+                translate([text_offset_x, text_offset_y, text_offset_z])
                 mirror([1, 0, 0])
                 add_text(label);                
             } else {
+                text_offset_x = width - round_size - 35;
+                text_offset_y = gap_height * 2 + gap_epsilon * 1.5 + 1.5;
+                text_offset_z = depth - text_printin;
+                
                 translate([text_offset_x, text_offset_y, text_offset_z])
                 add_text(label);                
             }
