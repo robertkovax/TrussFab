@@ -48,6 +48,8 @@ module cut_out_a_cap(l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_heig
 }
 
 
+function calc_extra_width_for_hinging(gap_angle, radius) = radius / cos(gap_angle) - radius;
+
 // cuts out parts at the top of both hinge parts
 module cut_out_top_part(alpha, a_l1, a_l2, b_l1, b_l2, depth) {
     SKIM = 1;
@@ -189,8 +191,17 @@ module draw_hinge(
     cut_out_hex_height_b,
     cut_out_hex_d_a,
     cut_out_hex_d_b,
-    ) {        
-    gap_width = 2 * round_size + depth / 2 + extra_width_for_hinging;
+    ) {
+     // there needs to be an extra offset so the hinge part can swing fully
+    extra_width_for_hinging_a = calc_extra_width_for_hinging(gap_angle_a, round_size);
+    extra_width_for_hinging_b = calc_extra_width_for_hinging(gap_angle_b, round_size);
+        
+    echo(extra_width_for_hinging_a);
+    echo(extra_width_for_hinging_b);
+
+    gap_width_a = 2 * round_size + depth / 2 + extra_width_for_hinging_a;
+    gap_width_b = 2 * round_size + depth / 2 + extra_width_for_hinging_b;
+
     gap_height_e = gap_height + gap_epsilon;
     
     a_angle = alpha / -2;
@@ -204,12 +215,12 @@ module draw_hinge(
     // the last cut out for the gap of the left side to fully hinge
     // the translations are only to cut off some other parts for the gaps more easily
     difference() {
-         translate([extra_width_for_hinging + round_size, 0, 0])
+         translate([extra_width_for_hinging_b + round_size, 0, 0])
          rotate([0, 0, alpha / 2])    
          rotate([0, 0, alpha / +2]) 
-        translate([round_size + extra_width_for_hinging, 0, 0])
+        translate([round_size + extra_width_for_hinging_a, 0, 0])
         difference() {
-            translate([- round_size - extra_width_for_hinging, 0, 0])
+            translate([- round_size - extra_width_for_hinging_a, 0, 0])
             rotate([0, 0, alpha / -2])
             difference() {
                 union() {
@@ -220,7 +231,7 @@ module draw_hinge(
                         translate([0, 0, depth / -2]) // center on the z axis
                         hingepart(b_l1, b_l2, b_l3, b_gap, b_with_connector, b_label,
                             depth, width, round_size, hole_size_b,
-                            gap_angle_b, gap_width, gap_height, gap_epsilon, gap_height_e,
+                            gap_angle_b, gap_width_b, gap_height, gap_epsilon, gap_height_e,
                             connector_end_round, connector_end_heigth,
                             connector_end_extra_round, connector_end_extra_height,
                             cut_out_hex_height_b, cut_out_hex_d_b);
@@ -238,7 +249,7 @@ module draw_hinge(
                         translate([0, 0, depth / -2])
                         hingepart(a_l1, a_l2, a_l3, a_gap, a_with_connector, a_label,
                             depth, width, round_size, hole_size_a,
-                            gap_angle_a, gap_width, gap_height, gap_epsilon, gap_height_e,
+                            gap_angle_a, gap_width_a, gap_height, gap_epsilon, gap_height_e,
                             connector_end_round, connector_end_heigth,
                             connector_end_extra_round, connector_end_extra_height,
                             cut_out_hex_height_a, cut_out_hex_d_a ,the_A_one=true);
@@ -256,13 +267,13 @@ module draw_hinge(
             }
             
             if (a_gap) {
-                cut_out_a_cap(a_l1, gap_angle_a, gap_width, gap_height, gap_epsilon, gap_height_e);
+                cut_out_a_cap(a_l1, gap_angle_a, gap_width_a, gap_height, gap_epsilon, gap_height_e);
             }
           
         }
         
         if (b_gap) {
-            cut_out_b_cap(b_l1, gap_angle_a, gap_width, gap_height, gap_epsilon, gap_height_e);
+            cut_out_b_cap(b_l1, gap_angle_b, gap_width_b, gap_height, gap_epsilon, gap_height_e);
         }
     }
 }
@@ -288,10 +299,9 @@ depth=24.0,
 width=100.0,
 round_size=12.0,
 gap_angle_a=45.0,
-gap_angle_b=45.0,
+gap_angle_b=30.0,
 hole_size_a=3.1,
 hole_size_b=3.1,
-extra_width_for_hinging=0.9999999999999999,
 gap_height=10.0,
 gap_epsilon=0.8000000000000002,
 connector_end_round=15.0,
