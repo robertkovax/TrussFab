@@ -176,7 +176,8 @@ module draw_hinge(
     round_size, // the round part of a hinge part
     hole_size_a, // where the screw goes through
     hole_size_b, // where the screw goes through
-    gap_angle, // the angle for the triangle in the gap
+    gap_angle_a, // the angle for the triangle in the gap
+    gap_angle_b, // the angle for the triangle in the gap
     extra_width_for_hinging, // there needs to be an extra offset so the hinge part can swing fully
     gap_height, // gap of a hinge part
     gap_epsilon, // margin of the gap (due to printing issues)
@@ -219,7 +220,7 @@ module draw_hinge(
                         translate([0, 0, depth / -2]) // center on the z axis
                         hingepart(b_l1, b_l2, b_l3, b_gap, b_with_connector, b_label,
                             depth, width, round_size, hole_size_b,
-                            gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e,
+                            gap_angle_b, gap_width, gap_height, gap_epsilon, gap_height_e,
                             connector_end_round, connector_end_heigth,
                             connector_end_extra_round, connector_end_extra_height,
                             cut_out_hex_height_b, cut_out_hex_d_b);
@@ -237,7 +238,7 @@ module draw_hinge(
                         translate([0, 0, depth / -2])
                         hingepart(a_l1, a_l2, a_l3, a_gap, a_with_connector, a_label,
                             depth, width, round_size, hole_size_a,
-                            gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e,
+                            gap_angle_a, gap_width, gap_height, gap_epsilon, gap_height_e,
                             connector_end_round, connector_end_heigth,
                             connector_end_extra_round, connector_end_extra_height,
                             cut_out_hex_height_a, cut_out_hex_d_a ,the_A_one=true);
@@ -255,13 +256,13 @@ module draw_hinge(
             }
             
             if (a_gap) {
-                cut_out_a_cap(a_l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e);
+                cut_out_a_cap(a_l1, gap_angle_a, gap_width, gap_height, gap_epsilon, gap_height_e);
             }
           
         }
         
         if (b_gap) {
-            cut_out_b_cap(b_l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e);
+            cut_out_b_cap(b_l1, gap_angle_a, gap_width, gap_height, gap_epsilon, gap_height_e);
         }
     }
 }
@@ -270,7 +271,7 @@ module draw_hinge(
 // just for dev
 
 draw_hinge(
-alpha=130,
+alpha=120,
 a_l1=65.0,
 a_l2=41.199999999999996,
 a_l3=50.0,
@@ -286,7 +287,8 @@ b_label="130.i20",
 depth=24.0,
 width=100.0,
 round_size=12.0,
-gap_angle=70.0,
+gap_angle_a=45.0,
+gap_angle_b=45.0,
 hole_size_a=3.1,
 hole_size_b=3.1,
 extra_width_for_hinging=0.9999999999999999,
