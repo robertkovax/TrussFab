@@ -20,26 +20,53 @@ module construct_intersection_poly(vectors) {
     polyhedron( points, faces );
 }
 
+module construct_spheres(outer_radius, inner_radius) {
+    difference() {
+        mirror([0, 0, 1])
+        sphere(r=outer_radius, center=true);
 
-construct_intersection_poly([[5, 0, 10], [0, 5, 10], [-5, 0, 7],[0, -5, 7]]);
+        union() {
+            sphere(r=inner_radius, center=true);
+//            translate([0, 0, -50])
+//            cube([100, 100, 100], center=true);
+        }
+    }    
+}
+
+l1 = 20;
+l2 = 10;
+l3 = 10;
+
+real_vectors = [[-0.9948266171932849, -0.00015485714145741815, 0.1015872912476312],
+[-0.3984857593670732, -0.28854789426039135, 0.8706027867515364],
+[-0.4641256842132446, -0.883604515803502, 0.06189029734333352],
+[-0.026760578914151064, -0.01836892195863407, -0.9994730882431289]];
+
+real_vectors2 = 1000 * real_vectors;
 
 
-//intersection() {
-//difference() {
-// mirror([0, 0, 1])
-// sphere(26, 5, center=true);
-// 
-// union() {   
-// sphere(20, 5, center=true);
-// 
-// translate([-50, -50, -100])
-// cube([100, 100, 100]);
-//     
-// }
-//}
-//
-//translate([0, 0, 26])
-//mirror([0, 0, 1])
-//cylinder(20,20,00,$fn=3);
-//
-//}
+
+intersection() {
+    construct_intersection_poly(real_vectors2);
+    construct_spheres(outer_radius=l1 + l2, inner_radius=l1);
+}
+
+//    construct_intersection_poly(real_vectors2);
+
+module construct_plug(vector) {
+t_v_temp = vector * l1;
+translating_vector = [t_v_temp[0] - l2/2, t_v_temp[1], t_v_temp[2]];
+
+translate(translating_vector)
+rotate([0, 90, 0])
+rotate(vector)
+cylinder(h=l2, r=6, center=true);
+}
+
+construct_plug(real_vectors[0]);
+
+construct_plug(real_vectors[1]);
+
+construct_plug(real_vectors[2]);
+
+construct_plug(real_vectors[3]);
