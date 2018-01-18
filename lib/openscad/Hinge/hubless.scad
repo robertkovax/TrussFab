@@ -5,12 +5,14 @@ function cat(L1, L2) = [for (i=[0:len(L1)+len(L2)-1])
 module construct_intersection_poly(vectors) {
     points = cat([[0, 0, 0]], vectors);
     
+    // NB: The order of the faces must be clock-wise (looking from the outside towards the face)
+    
     // the top face depends on the number of input vector (points)
     top = [[for(i=[1:len(vectors)]) i ]];
     // always triangles, first get the easy sides
-    side_all_but_not_last = [for(i=[1:len(vectors) - 1]) [0, i, i + 1]];
+    side_all_but_not_last = [for(i=[1:len(vectors) - 1]) [i + 1, i, 0]];
     // the last to connect to the first one
-    side_last = [[0, len(vectors), 1]];
+    side_last = [[0, 1, len(vectors)]];
 
     // concat all together
     faces = cat(cat(side_all_but_not_last, side_last), top);
