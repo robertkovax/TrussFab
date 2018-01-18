@@ -21,7 +21,7 @@ module PRESETS
     'connector_end_extra_height' => 4.mm,
     'cut_out_hex_height_a' => default_cut_out_hex_height,
     'cut_out_hex_height_b' => default_cut_out_hex_height,
-    'cut_out_hex_d_a' => default_cut_out_hex_d
+    'cut_out_hex_d_a' => default_cut_out_hex_d,
     'cut_out_hex_d_b' => default_cut_out_hex_d
   }.freeze
 
