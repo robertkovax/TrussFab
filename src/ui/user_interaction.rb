@@ -51,6 +51,7 @@ class UserInteraction
     build_tool(BottleCountTool, 'bottle_count_tool')
     build_tool(RigidityTestTool, 'rigidity_test_tool')
     build_tool(AutomaticActuatorsTool, 'automatic_actuators_tool')
+    build_tool(GeneticActuatorPlacementTool, 'genetic_actuator_placement_tool')
   end
 
   def build_tool(tool_class, tool_id)

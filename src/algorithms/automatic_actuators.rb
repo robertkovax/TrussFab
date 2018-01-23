@@ -137,7 +137,7 @@ class AutomaticActuators
     @new_start_positions[edge_id] = edge.first_node.position
   end
 
-  # delta is dampened to prevent undesired behavior like length jumping between
+  # delta is damped to prevent undesired behavior like length jumping between
   # two extreme cases it will adapt to the desired length over a larger number
   # of iterations
   def adapt_edge(edge, delta)

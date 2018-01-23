@@ -79,6 +79,10 @@ class Edge < GraphObject
     [first_node, second_node]
   end
 
+  def fixed?
+    first_node.fixed? && second_node.fixed?
+  end
+
   def exchange_node(current_node, new_node)
     if current_node == @first_node
       @first_node = new_node
