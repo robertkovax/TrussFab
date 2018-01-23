@@ -42,7 +42,7 @@ real_vectors = [[-0.9948266171932849, -0.00015485714145741815, 0.101587291247631
 [-0.4641256842132446, -0.883604515803502, 0.06189029734333352],
 [-0.026760578914151064, -0.01836892195863407, -0.9994730882431289]];
 
-real_vectors2 = 1000 * real_vectors;
+real_vectors2 = 100 * real_vectors;
 
 
 
@@ -53,13 +53,39 @@ intersection() {
 
 //    construct_intersection_poly(real_vectors2);
 
+
+function len_v(v) = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+
+
+function get_direction(v) = [acos(v[0] / len_v(v)), acos(v[1] / len_v(v)), acos(v[2] / len_v(v))];
+
+
+function get_init_rotate(a) = a[0] > a[1] && a[0] > a[2] ? [0, 0, 0] : ( a[1] > a[0] && a[1] > a[2] ? [90, 0, 0] : ( a[2] > a[1] && a[2] > a[0] ? [9, 90, 0] : [0, 0, 0] ) );
+
+
 module construct_plug(vector) {
+//t_v_temp = [0, 0, 0];
 t_v_temp = vector * l1;
-translating_vector = [t_v_temp[0] - l2/2, t_v_temp[1], t_v_temp[2]];
+
+translating_vector = [t_v_temp[0] , t_v_temp[1], t_v_temp[2]];
+
+angles = get_direction(vector);
+
+angles_turn = [angles[2], angles[0], angles[1]];
+    
+echo(angles);
+    
+rotate_vector = get_init_rotate(angles);
+    
+echo(angles[0] > angles[1]);
+    
+
+
+echo(rotate_vector);
 
 translate(translating_vector)
-rotate([0, 90, 0])
-rotate(vector)
+rotate(angles_turn)
+rotate(rotate_vector)
 cylinder(h=l2, r=6, center=true);
 }
 
@@ -70,3 +96,6 @@ construct_plug(real_vectors[1]);
 construct_plug(real_vectors[2]);
 
 construct_plug(real_vectors[3]);
+
+//rotate([0, 90, 0])
+//cylinder(h=12, r=6);
