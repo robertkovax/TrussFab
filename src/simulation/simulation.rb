@@ -206,10 +206,14 @@ class Simulation
     @chart.close
   end
 
-  def piston_dialog
+  def get_all_pistons
     # get all pistons from actuator edges
     actuators = Graph.instance.edges.values.select { |edge| edge.link_type == 'actuator' }
     @pistons = actuators.map(&:thingy).map { |thingy| [thingy.id, thingy.piston] }.to_h
+  end
+
+  def piston_dialog
+    get_all_pistons
     return if @pistons.empty?
 
     @dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
@@ -266,8 +270,28 @@ class Simulation
     end
   end
 
+  def schedule_piston_for_testing(edge)
+    @moving_pistons.push({:id=>edge.id.to_i, :expanding=>true, :speed=>0.2})
+  end
+
+  def reset_tested_pistons
+    @moving_pistons.clear
+  end
+
+  def get_closest_node_to_point(point)
+    closest_distance = Float::INFINITY
+    Graph.instance.nodes.values.each do |node|
+      if node.thingy.body.get_position.distance(point) < closest_distance
+        closest_node = node
+        closest_distance = node.thingy.body.get_position.distance(point)
+      end
+    end
+    closest_distance
+  end
+
   def test_pistons
     return if @moving_pistons.nil?
+    closest_distance = Float::INFINITY
     @moving_pistons.map! { |hash|
       piston = @pistons[hash[:id]]
 
@@ -286,8 +310,29 @@ class Simulation
         # two frequencies has the same frequency)
         add_chart_label((1 / (@world.time - @piston_world_time).to_f).round(2))
       end
+      update_entities
+      distance = get_closest_node_to_point(Geom::Point3d.new(0, 0, 0))
+      if distance < closest_distance
+        closest_distance = distance
+      end
       hash
     }
+    closest_distance
+  end
+
+  def test_pistons_for(seconds)
+    closest_distance = Float::INFINITY
+    get_all_pistons
+    steps = (seconds.to_f / MSPHYSICS_TIME_STEP).to_i
+    steps.times do
+      @world.update(MSPHYSICS_TIME_STEP)
+      distance, piston_id = test_pistons
+      if distance < closest_distance
+        closest_distance = distance
+      end
+    end
+    reset_tested_pistons
+    closest_distance
   end
 
   def print_piston_stats
@@ -348,7 +393,7 @@ class Simulation
     reset_force_labels
     close_piston_dialog
     close_chart
-    @moving_pistons.clear
+    reset_tested_pistons
     destroy_world
   end
 
