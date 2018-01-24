@@ -13,6 +13,8 @@ module addBaseTube() {
 		sphere(r=holderODSNAP/2);
     } else if (search(["PLUG"],connectorTypeArray)!=[[]]) { //Check from big to small
 		sphere(r=tubeODPLUG/2);
+    } else if (search(["HOLE"],connectorTypeArray)!=[[]]) {
+		sphere(r=tubeODHOLE/2);
     } else if (search(["PLUGPLANE"],connectorTypeArray)!=[[]]) {
         sphere(r=tubeODPLUGPLANE/2);
     } else if (search(["PLUGHOLE"],connectorTypeArray)!=[[]]) {
