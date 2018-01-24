@@ -97,5 +97,8 @@ class GeneticActuatorPlacementTool < Tool
   end
 
   def draw(view)
+    return if @start_position.nil? || @desired_position.nil?
+    view.line_stipple = '_'
+    view.draw_lines(@start_position, @desired_position)
   end
 end
