@@ -4,6 +4,13 @@ require 'src/database/graph.rb'
 class GeneticActuatorPlacementTool < Tool
   def initialize(ui)
     super(ui)
+    @mouse_input = MouseInput.new(snap_to_nodes: true)
+    @move_mouse_input = nil
+
+    @node = nil
+    @start_position = nil
+    @desired_position = nil
+    @moving = false
   end
 
   def create_actuator(edge)
@@ -21,6 +28,21 @@ class GeneticActuatorPlacementTool < Tool
   end
 
   def activate
+  end
+
+  def deactivate(view)
+    super(view)
+    reset
+  end
+
+  def reset
+    @node = nil
+    @start_position = nil
+    @desired_position = nil
+    @moving = false
+  end
+
+  def test_pistons
     closest_distance = Float::INFINITY
     best_piston = nil
     Graph.instance.edges.values.each do |edge|
@@ -28,12 +50,9 @@ class GeneticActuatorPlacementTool < Tool
       create_actuator(edge)
       @simulation = BallJointSimulation.new
       @simulation.setup
-      # @simulation.disable_gravity
-      piston = edge.thingy.piston
-      piston.controller = 0.4
       @simulation.schedule_piston_for_testing(edge)
       @simulation.start
-      distance = @simulation.test_pistons_for(2)
+      distance = @simulation.test_pistons_for(2, @node, @desired_position)
       if distance < closest_distance
         closest_distance = distance
         best_piston = edge
@@ -44,7 +63,37 @@ class GeneticActuatorPlacementTool < Tool
     create_actuator(best_piston) unless best_piston.nil?
   end
 
+  def update(view, x, y)
+    @mouse_input.update_positions(
+      view, x, y, point_on_plane_from_camera_normal: @start_position || nil
+    )
+
+    return unless @moving && (@mouse_input.position != @desired_position)
+    @desired_position = @mouse_input.position
+    view.invalidate
+  end
+
   def onMouseMove(_flags, x, y, view)
+    update(view, x, y)
+  end
+
+  def onLButtonDown(_flags, x, y, view)
+    update(view, x, y)
+    node = @mouse_input.snapped_object
+    return if node.nil?
+    @moving = true
+    @node = node
+    @start_position = @desired_position = @mouse_input.position
+  end
+
+  def onLButtonUp(_flags, x, y, view)
+    update(view, x, y)
+    return unless @moving
+    @desired_position = @mouse_input.position
+    test_pistons
+
+    view.invalidate
+    reset
   end
 
   def draw(view)

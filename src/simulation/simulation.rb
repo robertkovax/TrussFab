@@ -291,7 +291,6 @@ class Simulation
 
   def test_pistons
     return if @moving_pistons.nil?
-    closest_distance = Float::INFINITY
     @moving_pistons.map! { |hash|
       piston = @pistons[hash[:id]]
 
@@ -310,23 +309,26 @@ class Simulation
         # two frequencies has the same frequency)
         add_chart_label((1 / (@world.time - @piston_world_time).to_f).round(2))
       end
-      update_entities
-      distance = get_closest_node_to_point(Geom::Point3d.new(0, 0, 0))
-      if distance < closest_distance
-        closest_distance = distance
-      end
       hash
     }
-    closest_distance
   end
 
-  def test_pistons_for(seconds)
+  def test_piston_for_hub_movement(node, point)
+    test_pistons
+    update_entities
+    node.thingy.body.get_position.distance(point)
+  end
+
+  # this automatically uses the test function on all the pistons in the scene
+  # => and tries to find the piston whose movement brings a given node closest
+  # => to a given point
+  def test_pistons_for(seconds, node, point)
     closest_distance = Float::INFINITY
     get_all_pistons
     steps = (seconds.to_f / MSPHYSICS_TIME_STEP).to_i
     steps.times do
       @world.update(MSPHYSICS_TIME_STEP)
-      distance, piston_id = test_pistons
+      distance = test_piston_for_hub_movement(node, point)
       if distance < closest_distance
         closest_distance = distance
       end
