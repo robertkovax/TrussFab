@@ -1,3 +1,5 @@
+use <../Util/maths.scad>
+
 // https://en.wikibooks.org/wiki/OpenSCAD_User_Manual/List_Comprehensions
 function cat(L1, L2) = [for (i=[0:len(L1)+len(L2)-1]) 
                         i < len(L1)? L1[i] : L2[i-len(L1)]] ;
@@ -33,8 +35,17 @@ module construct_spheres(outer_radius, inner_radius) {
     }    
 }
 
+
+module create_intersection() {
+    intersection() {
+        construct_intersection_poly(real_vectors2);
+        construct_spheres(outer_radius=l1 + l2, inner_radius=l1);
+    }
+}
+
+
 l1 = 20;
-l2 = 10;
+l2 = 30;
 l3 = 10;
 
 real_vectors = [[-0.9948266171932849, -0.00015485714145741815, 0.1015872912476312],
@@ -44,49 +55,19 @@ real_vectors = [[-0.9948266171932849, -0.00015485714145741815, 0.101587291247631
 
 real_vectors2 = 100 * real_vectors;
 
-
-
-intersection() {
-    construct_intersection_poly(real_vectors2);
-    construct_spheres(outer_radius=l1 + l2, inner_radius=l1);
-}
-
-//    construct_intersection_poly(real_vectors2);
-
-
-function len_v(v) = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
-
-
-function get_direction(v) = [acos(v[0] / len_v(v)), acos(v[1] / len_v(v)), acos(v[2] / len_v(v))];
-
-
-function get_init_rotate(a) = a[0] > a[1] && a[0] > a[2] ? [0, 0, 0] : ( a[1] > a[0] && a[1] > a[2] ? [90, 0, 0] : ( a[2] > a[1] && a[2] > a[0] ? [9, 90, 0] : [0, 0, 0] ) );
-
+create_intersection();
 
 module construct_plug(vector) {
-//t_v_temp = [0, 0, 0];
-t_v_temp = vector * l1;
+    translating_vector = vector * l1  + vector * l2 / 2;
 
-translating_vector = [t_v_temp[0] , t_v_temp[1], t_v_temp[2]];
+    start_position_vector = [0, 0, 1]; // starting position of the vector
 
-angles = get_direction(vector);
+    q = getQuatWithCrossproductCheck(start_position_vector,vector);
+    qmat = quat_to_mat4(q);
 
-angles_turn = [angles[2], angles[0], angles[1]];
-    
-echo(angles);
-    
-rotate_vector = get_init_rotate(angles);
-    
-echo(angles[0] > angles[1]);
-    
-
-
-echo(rotate_vector);
-
-translate(translating_vector)
-rotate(angles_turn)
-rotate(rotate_vector)
-cylinder(h=l2, r=6, center=true);
+    translate(translating_vector)
+    multmatrix(qmat) // rotation for connection vector
+    cylinder(h=l2, r=6, center=true);
 }
 
 construct_plug(real_vectors[0]);
@@ -99,3 +80,12 @@ construct_plug(real_vectors[3]);
 
 //rotate([0, 90, 0])
 //cylinder(h=12, r=6);
+
+//construct_plug([1, 0, 0]);
+//construct_plug([0, 1, 0]);
+//construct_plug([0, 0, 1]);
+//
+//construct_plug([-1, 0, 0]);
+//construct_plug([0, -1, 0]);
+//construct_plug([0, 0, -1]);
+
