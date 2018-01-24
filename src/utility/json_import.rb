@@ -13,6 +13,7 @@ module JsonImport
       edges, nodes = build_edges(json_objects, points)
       triangles = create_triangles(edges)
       add_joints(json_objects, edges, nodes) unless json_objects['joints'].nil?
+      add_pods(json_objects, nodes)
       [triangles.values, edges.values]
     end
 
@@ -184,6 +185,23 @@ module JsonImport
           edge.thingy.first_joint = joint
         else
           edge.thingy.second_joint = joint
+        end
+      end
+    end
+
+    def string_to_vector3d(string)
+      string.delete!('(')
+      string.delete!(')')
+      string_parts = string.split(', ')
+      Geom::Vector3d.new(string_parts[0].to_f, string_parts[1].to_f, string_parts[2].to_f)
+    end
+
+    def add_pods(json_objects, nodes)
+      json_objects['nodes'].each do |node_json|
+        node = nodes[node_json['id']]
+        next if node_json['pod_directions'].nil? || node_json['pod_directions'].empty?
+        node_json['pod_directions'].values.each do |direction|
+          node.add_pod(string_to_vector3d(direction))
         end
       end
     end
