@@ -27,7 +27,8 @@ class JsonExport
         id: id,
         x: node.position.x.to_mm,
         y: node.position.y.to_mm,
-        z: node.position.z.to_mm
+        z: node.position.z.to_mm,
+        pod_directions: node.pod_directions
       }
     end
   end
@@ -37,7 +38,8 @@ class JsonExport
       {
         id: id,
         n1: edge.first_node.id,
-        n2: edge.second_node.id
+        n2: edge.second_node.id,
+        type: edge.link_type
       }
     end
   end

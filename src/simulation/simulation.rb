@@ -115,6 +115,7 @@ class Simulation
     @breaking_force = 1500
     @max_speed = 0
     @color_converter = ColorConverter.new(@breaking_force)
+    @highest_force_mode = false
   end
 
   #
@@ -295,6 +296,10 @@ class Simulation
         @paused = true
       end
     end
+
+    @dialog.add_action_callback('change_highest_force_mode') do |_context, param|
+      @highest_force_mode = param
+    end
   end
 
   def close_piston_dialog
@@ -410,7 +415,11 @@ class Simulation
       set_status_text
     end
 
-    show_forces(view)
+    if @highest_force_mode
+      show_highest_forces(view)
+    else
+      show_forces(view)
+    end
     if @frame % 5 == 0 # do this every 5 frames to increase fps
       send_force_to_chart
       send_sensor_acceleration_to_dialog
@@ -500,6 +509,26 @@ class Simulation
     Sketchup.active_model.commit_operation
   end
 
+  # only visualizes the bottles with the highest tension and contraction force
+  def show_highest_forces(view)
+    Sketchup.active_model.start_operation('Change Materials (Highest Only)', true)
+    # tupel of link and force
+    lowest_force_tuple = [nil, Float::INFINITY]
+    highest_force_tuple = [nil, -Float::INFINITY]
+    Graph.instance.edges.values.each do |edge|
+      force = get_force_from_link(edge.thingy)[0]
+      if force < lowest_force_tuple[1]
+        lowest_force_tuple = [edge, force]
+      elsif force > highest_force_tuple[1]
+        highest_force_tuple = [edge, force]
+      end
+    end
+    whiten_all_bottles
+    visualize_highest_force(lowest_force_tuple[0].thingy, lowest_force_tuple[1])
+    visualize_highest_force(highest_force_tuple[0].thingy, highest_force_tuple[1])
+    Sketchup.active_model.commit_operation
+  end
+
   # returns the force and position for a link
   # note: this also visualizes the force if the link has cylinders (i.e. a piston)
   # => we might want to think about returning an array to pass multiple value pairs
@@ -572,39 +601,63 @@ class Simulation
     link.change_color(color)
   end
 
-  # adds a label with the force value for each edge in the graph
-  def update_force_labels
-    Sketchup.active_model.start_operation('Change Materials', true)
-    Graph.instance.edges.values.each do |edge|
-      lin_force, position = get_force_from_link(edge.thingy)
-      update_force_label(edge.thingy, lin_force, position)
+  # colors a given link based on a given force
+  # => in order to properly identify bottles with highest force, the saturation
+  # => for the highest force mode is at least @breaking_force/2
+    def visualize_highest_force(link, force)
+      if force < (@breaking_force/2.0)
+        force = sign(force) * @breaking_force/2.0
+      end
+      visualize_force(link, force)
     end
-    Sketchup.active_model.commit_operation
-  end
 
-  # adds a label with the force value for a single edge
-  def update_force_label(link, force, position)
-    if @force_labels[link.body].nil?
-      model = Sketchup.active_model
-      force_label = model.entities.add_text("--------------- #{force.round(1)}", position)
+    # adds a label with the force value for each edge in the graph
+    def update_force_labels
+      Sketchup.active_model.start_operation('Change Materials', true)
+      Graph.instance.edges.values.each do |edge|
+        lin_force, position = get_force_from_link(edge.thingy)
+        update_force_label(edge.thingy, lin_force, position)
+      end
+      Sketchup.active_model.commit_operation
+    end
 
-      force_label.layer = model.layers[Configuration::FORCE_LABEL_VIEW]
-      @force_labels[link.body] = force_label
-    else
-      @force_labels[link.body].text = "--------------- #{force.round(1)}"
-      @force_labels[link.body].point = position
+    # adds a label with the force value for a single edge
+    def update_force_label(link, force, position)
+      if @force_labels[link.body].nil?
+        model = Sketchup.active_model
+        force_label = model.entities.add_text("--------------- #{force.round(1)}", position)
+
+        force_label.layer = model.layers[Configuration::FORCE_LABEL_VIEW]
+        @force_labels[link.body] = force_label
+      else
+        @force_labels[link.body].text = "--------------- #{force.round(1)}"
+        @force_labels[link.body].point = position
+      end
+    end
+
+    # resets the color of all edges to its default value
+    def reset_force_color
+      Graph.instance.edges.values.each do |edge|
+        edge.thingy.un_highlight
+      end
+    end
+
+    def whiten_all_bottles
+      Graph.instance.edges.values.each do |edge|
+        edge.thingy.highlight
+      end
+    end
+
+    # removes force labels
+    def reset_force_labels
+      @force_labels.each {|body, label| label.text = "" }
+    end
+
+    #
+    # Helper functions
+    #
+
+    def sign(n)
+      n == 0 ? 1 : n.abs / n
     end
   end
-
-  # resets the color of all edges to its default value
-  def reset_force_color
-    Graph.instance.edges.values.each do |edge|
-      edge.thingy.un_highlight
-    end
-  end
-
-  # removes force labels
-  def reset_force_labels
-    @force_labels.each {|body, label| label.text = "" }
-  end
-end
