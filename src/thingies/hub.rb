@@ -14,6 +14,7 @@ class Hub < PhysicsThingy
     @id_label = nil
     @mass = 0
     @arrow = nil
+    @is_sensor = false
     update_id_label
     persist_entity
   end
@@ -55,6 +56,14 @@ class Hub < PhysicsThingy
     @entity.move!(Geom::Transformation.new(position))
     @id_label.point = position
     @sub_thingies.each { |sub_thingy| sub_thingy.update_position(position) }
+  end
+
+  def toggle_sensor_state
+    @is_sensor = !@is_sensor
+  end
+
+  def is_sensor?
+    @is_sensor
   end
 
   #

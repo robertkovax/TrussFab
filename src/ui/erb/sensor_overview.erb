@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="de">
+<link rel="stylesheet" href="<%= @root_dir %>/ui/css/ui.css" type="text/css">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SensorOverview</title>
+</head>
+<body>
+<% for sensor in @sensors %>
+    Hub <%= sensor.id %>:<br>
+    Speed: <label id="speed_<%=sensor.id%>"><%= sensor.body.get_velocity.length %></label> m/s<br>
+    Acceleration: <label id="acceleration_<%=sensor.id%>"><%= sensor.body.get_velocity.length %></label>m/s/s
+    <br><br>
+<% end %>
+
+<script type="text/javascript">
+function updateSpeed(id, value) {
+    document.getElementById("speed_"+id).innerHTML = value;
+}
+
+function updateAcceleration(id, value) {
+    document.getElementById("acceleration_"+id).innerHTML = value;
+}
+</script>
+</body>
+</html>
