@@ -118,9 +118,6 @@ class HingePlacementAlgorithm
     static_groups.select! { |group| group.size > 1 }
     static_groups.sort! { |a,b| b.size <=> a.size }
     static_groups = prioritise_pod_groups(static_groups)
-    static_groups.reverse.each do |group|
-      color_group(group)
-    end
 
     group_rotations = Hash.new { |h,k| h[k] = Set.new }
 
@@ -221,12 +218,6 @@ class HingePlacementAlgorithm
 
     hinge_map = order_hinges(hinge_map)
 
-    hinge_map.each do |node, hinges|
-      hinges.each do |hinge|
-        visualize_hinge(hinge)
-      end
-    end
-
     @hubs = hubs
     @hinges = hinge_map
 
@@ -244,6 +235,17 @@ class HingePlacementAlgorithm
     end
 
     elongate_edges unless @hinges.empty?
+
+    # add visualisations
+    @hinges.each do |node, hinges|
+      hinges.each do |hinge|
+        visualize_hinge(hinge)
+      end
+    end
+
+    static_groups.reverse.each do |group|
+      color_group(group)
+    end
   end
 
   # orders hinges so that they form a chain
