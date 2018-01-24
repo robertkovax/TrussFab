@@ -247,10 +247,14 @@ class Simulation
   # Piston Related Methods
   #
 
-  def piston_dialog
+  def get_all_pistons
     # get all pistons from actuator edges
     actuators = Graph.instance.edges.values.select { |edge| edge.link_type == 'actuator' }
     @pistons = actuators.map(&:thingy).map { |thingy| [thingy.id, thingy.piston] }.to_h
+  end
+
+  def piston_dialog
+    get_all_pistons
     return if @pistons.empty?
 
     @dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
@@ -311,6 +315,25 @@ class Simulation
     end
   end
 
+  def schedule_piston_for_testing(edge)
+    @moving_pistons.push({:id=>edge.id.to_i, :expanding=>true, :speed=>0.2})
+  end
+
+  def reset_tested_pistons
+    @moving_pistons.clear
+  end
+
+  def get_closest_node_to_point(point)
+    closest_distance = Float::INFINITY
+    Graph.instance.nodes.values.each do |node|
+      if node.thingy.body.get_position.distance(point) < closest_distance
+        closest_node = node
+        closest_distance = node.thingy.body.get_position.distance(point)
+      end
+    end
+    closest_distance
+  end
+
   def test_pistons
     return if @moving_pistons.nil?
     @moving_pistons.map! { |hash|
@@ -333,6 +356,30 @@ class Simulation
       end
       hash
     }
+  end
+
+  def test_piston_for_hub_movement(node, point)
+    test_pistons
+    update_entities
+    node.thingy.body.get_position.distance(point)
+  end
+
+  # this automatically uses the test function on all the pistons in the scene
+  # => and tries to find the piston whose movement brings a given node closest
+  # => to a given point
+  def test_pistons_for(seconds, node, point)
+    closest_distance = Float::INFINITY
+    get_all_pistons
+    steps = (seconds.to_f / MSPHYSICS_TIME_STEP).to_i
+    steps.times do
+      @world.update(MSPHYSICS_TIME_STEP)
+      distance = test_piston_for_hub_movement(node, point)
+      if distance < closest_distance
+        closest_distance = distance
+      end
+    end
+    reset_tested_pistons
+    closest_distance
   end
 
   def print_piston_stats
@@ -368,6 +415,7 @@ class Simulation
     reset_force_labels
     close_piston_dialog
     close_chart
+    reset_tested_pistons
     close_sensor_dialog
     @moving_pistons.clear
     destroy_world
