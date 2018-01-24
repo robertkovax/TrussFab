@@ -52,7 +52,9 @@ class GeneticActuatorPlacementTool < Tool
       @simulation.setup
       @simulation.schedule_piston_for_testing(edge)
       @simulation.start
+      Sketchup.active_model.start_operation('simulate a piston', true)
       distance = @simulation.test_pistons_for(2, @node, @desired_position)
+      Sketchup.active_model.commit_operation
       if distance < closest_distance
         closest_distance = distance
         best_piston = edge

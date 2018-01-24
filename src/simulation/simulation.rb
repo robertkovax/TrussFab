@@ -316,7 +316,7 @@ class Simulation
   end
 
   def schedule_piston_for_testing(edge)
-    @moving_pistons.push({:id=>edge.id.to_i, :expanding=>true, :speed=>0.2})
+    @moving_pistons.push({:id=>edge.id.to_i, :expanding=>true, :speed=>0.4})
   end
 
   def reset_tested_pistons
