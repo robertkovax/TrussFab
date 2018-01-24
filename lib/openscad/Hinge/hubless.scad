@@ -65,7 +65,7 @@ module construct_multiple_cylinders_at_positin(normal_vectors, distance, h, r) {
     }
 }
 
-module construct_hubless(normal_vectors, l1, l2, l3, round_size, hole_size) {
+module construct_hubless(normal_vectors, l1, l2, l3, round_size, hole_size, gap_size, gap_play) {
     vectors = 1.5 * (l1 + l2 + l3) * normal_vectors;  
   
     difference() {
@@ -74,14 +74,21 @@ module construct_hubless(normal_vectors, l1, l2, l3, round_size, hole_size) {
             construct_multiple_cylinders_at_positin(normal_vectors, l1, l2, round_size);
         }
         union() {
+            gap_distance_from_origin = l1 + gap_size + gap_play;
+            construct_multiple_cylinders_at_positin(normal_vectors, gap_distance_from_origin, gap_size,  round_size + 3);
+            
+            gap_distance_from_origin_2 = l1 + gap_size * 3 + gap_play * 3;
+            construct_multiple_cylinders_at_positin(normal_vectors, gap_distance_from_origin_2, gap_size,  round_size + 3);
+
+
             construct_multiple_cylinders_at_positin(normal_vectors, l1 / 2, l2 * 2, hole_size);
           }
     }
 }
 
 
-l1 = 20;
-l2 = 30;
+l1 = 30;
+l2 = 10 * 4 + 2 * 0.1;
 l3 = 10;
 
 
@@ -90,6 +97,6 @@ normal_vectors = [[-0.9948266171932849, -0.00015485714145741815, 0.1015872912476
 [-0.4641256842132446, -0.883604515803502, 0.06189029734333352],
 [-0.026760578914151064, -0.01836892195863407, -0.9994730882431289]];
 
-construct_hubless(normal_vectors, l1, l2, l3, 12, 3);
+construct_hubless(normal_vectors, l1, l2, l3, 12, 3, 10, 0.1);
 
 
