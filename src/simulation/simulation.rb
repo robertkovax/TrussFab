@@ -82,28 +82,40 @@ class Simulation
   end
 
   def initialize
-    @world = nil
-    @last_frame_time = nil
-    @last_frame = 0
-    @last_time = 0
-    @running = false
-    @frame = 0
-    @reset_positions_on_end = true
-    @saved_transformations = {}
-    @stopped = false
-    @paused = false
-    @triangles_hidden = false
-    @ground_group = nil
-    @force_labels = {}
-    @edges = []
-    @moving_pistons = []
-    @breaking_force = 1500
-    @color_converter = ColorConverter.new(@breaking_force)
-    @max_speed = 0
-    @root_dir = File.join(__dir__, '..')
+    # general
     @chart = nil
+    @ground_group = nil
+    @root_dir = File.join(__dir__, '..')
+    @world = nil
+
+    # collections
+    @edges = []
+    @force_labels = {}
+    @moving_pistons = []
+    @saved_transformations = {}
+    @sensors = []
+    @last_sensor_speed = {}
+
+    # time keeping
+    @frame = 0
+    @last_frame = 0
+    @last_frame_time = nil
+    @last_time = 0
     @piston_time = 0
     @piston_world_time = 0
+
+    # simulation state
+    @paused = false
+    @reset_positions_on_end = true
+    @running = false
+    @stopped = false
+    @triangles_hidden = false
+
+    # physics variables
+    @breaking_force = 1500
+    @max_speed = 0
+    @color_converter = ColorConverter.new(@breaking_force)
+    @highest_force_mode = false
   end
 
   #
@@ -195,6 +207,31 @@ class Simulation
     body
   end
 
+  def show_triangle_surfaces
+    Graph.instance.surfaces.each do |_, surface|
+      unless surface.thingy.entity.deleted?
+        surface.thingy.entity.hidden = false
+        # workaround to properly reset surface color
+        surface.un_highlight
+      end
+    end
+    @triangles_hidden = false
+  end
+
+  def hide_triangle_surfaces
+    Graph.instance.surfaces.each do |_, surface|
+      surface.thingy.entity.hidden = true unless surface.thingy.entity.deleted?
+    end
+    @triangles_hidden = true
+  end
+
+  def hide_force_arrows
+    Graph.instance.nodes.values.each do |node|
+      node.thingy.arrow.erase! unless node.thingy.arrow.nil?
+      node.thingy.arrow = nil
+    end
+  end
+
   def chart_dialog
     return if @pistons.empty?
     @chart = ForceChart.new()
@@ -205,6 +242,10 @@ class Simulation
     return if @chart.nil?
     @chart.close
   end
+
+  #
+  # Piston Related Methods
+  #
 
   def get_all_pistons
     # get all pistons from actuator edges
@@ -258,6 +299,10 @@ class Simulation
         update_force_labels
         @paused = true
       end
+    end
+
+    @dialog.add_action_callback('change_highest_force_mode') do |_context, param|
+      @highest_force_mode = param
     end
   end
 
@@ -344,31 +389,6 @@ class Simulation
     end
   end
 
-  def hide_triangle_surfaces
-    Graph.instance.surfaces.each do |_, surface|
-      surface.thingy.entity.hidden = true unless surface.thingy.entity.deleted?
-    end
-    @triangles_hidden = true
-  end
-
-  def hide_force_arrows
-    Graph.instance.nodes.values.each do |node|
-      node.thingy.arrow.erase! unless node.thingy.arrow.nil?
-      node.thingy.arrow = nil
-    end
-  end
-
-  def show_triangle_surfaces
-    Graph.instance.surfaces.each do |_, surface|
-      unless surface.thingy.entity.deleted?
-        surface.thingy.entity.hidden = false
-        # workaround to properly reset surface color
-        surface.un_highlight
-      end
-    end
-    @triangles_hidden = false
-  end
-
   #
   # Animation methods
   #
@@ -396,6 +416,8 @@ class Simulation
     close_piston_dialog
     close_chart
     reset_tested_pistons
+    close_sensor_dialog
+    @moving_pistons.clear
     destroy_world
   end
 
@@ -441,11 +463,17 @@ class Simulation
       set_status_text
     end
 
-    show_forces(view)
+    if @highest_force_mode
+      show_highest_forces(view)
+    else
+      show_forces(view)
+    end
     if @frame % 5 == 0 # do this every 5 frames to increase fps
       send_force_to_chart
+      send_sensor_acceleration_to_dialog
     end
     test_pistons
+    send_sensor_speed_to_dialog
 
     view.show_frame
     @running
@@ -462,6 +490,61 @@ class Simulation
   end
 
   #
+  # Sensor Related Methods
+  #
+
+  def open_sensor_dialog
+    collect_sensors
+    return if @sensors.empty?
+    @sensor_dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
+    file_content = File.read(File.join(File.dirname(__FILE__), '../ui/erb/sensor_overview.erb'))
+    template = ERB.new(file_content)
+    @sensor_dialog.set_html(template.result(binding))
+    @sensor_dialog.set_size(300, Configuration::UI_HEIGHT)
+    @sensor_dialog.show
+  end
+
+  def close_sensor_dialog
+    unless @sensor_dialog.nil?
+      if @sensor_dialog.visible?
+        @sensor_dialog.close
+      end
+    end
+  end
+
+  def collect_sensors
+    Graph.instance.nodes.values.each do |node|
+      if node.thingy.is_sensor?
+        @sensors.push(node.thingy)
+      end
+    end
+  end
+
+  def send_sensor_speed_to_dialog
+    return if @sensor_dialog.nil?
+    @sensors.each do |sensor|
+      @sensor_dialog.execute_script("updateSpeed('#{sensor.id}', '#{sensor.body.get_velocity.length.round(2)}')")
+      @last_sensor_speed[sensor.id] = [sensor.body.get_velocity.length, Time.now]
+    end
+  end
+
+  def get_sensor_acceleration(sensor)
+    return 0 if @last_sensor_speed[sensor.id].nil?
+    last_speed = @last_sensor_speed[sensor.id][0]
+    last_time = @last_sensor_speed[sensor.id][1]
+    curr_speed = sensor.body.get_velocity.length
+    curr_acceleration = (curr_speed - last_speed)/(Time.now - last_time)
+    curr_acceleration
+  end
+
+  def send_sensor_acceleration_to_dialog
+    return if @sensor_dialog.nil?
+    @sensors.each do |sensor|
+      @sensor_dialog.execute_script("updateAcceleration('#{sensor.id}', '#{get_sensor_acceleration(sensor).round(2)}')")
+    end
+  end
+
+  #
   # Force Related Methods
   #
 
@@ -474,9 +557,29 @@ class Simulation
     Sketchup.active_model.commit_operation
   end
 
+  # only visualizes the bottles with the highest tension and contraction force
+  def show_highest_forces(view)
+    Sketchup.active_model.start_operation('Change Materials (Highest Only)', true)
+    # tupel of link and force
+    lowest_force_tuple = [nil, Float::INFINITY]
+    highest_force_tuple = [nil, -Float::INFINITY]
+    Graph.instance.edges.values.each do |edge|
+      force = get_force_from_link(edge.thingy)[0]
+      if force < lowest_force_tuple[1]
+        lowest_force_tuple = [edge, force]
+      elsif force > highest_force_tuple[1]
+        highest_force_tuple = [edge, force]
+      end
+    end
+    whiten_all_bottles
+    visualize_highest_force(lowest_force_tuple[0].thingy, lowest_force_tuple[1])
+    visualize_highest_force(highest_force_tuple[0].thingy, highest_force_tuple[1])
+    Sketchup.active_model.commit_operation
+  end
+
   # returns the force and position for a link
   # note: this also visualizes the force if the link has cylinders (i.e. a piston)
-  # => we might think about returning an array to pass multiple value pairs
+  # => we might want to think about returning an array to pass multiple value pairs
   def get_force_from_link(link)
     lin_force = nil
     position = nil
@@ -546,39 +649,63 @@ class Simulation
     link.change_color(color)
   end
 
-  # adds a label with the force value for each edge in the graph
-  def update_force_labels
-    Sketchup.active_model.start_operation('Change Materials', true)
-    Graph.instance.edges.values.each do |edge|
-      lin_force, position = get_force_from_link(edge.thingy)
-      update_force_label(edge.thingy, lin_force, position)
+  # colors a given link based on a given force
+  # => in order to properly identify bottles with highest force, the saturation
+  # => for the highest force mode is at least @breaking_force/2
+    def visualize_highest_force(link, force)
+      if force < (@breaking_force/2.0)
+        force = sign(force) * @breaking_force/2.0
+      end
+      visualize_force(link, force)
     end
-    Sketchup.active_model.commit_operation
-  end
 
-  # adds a label with the force value for a single edge
-  def update_force_label(link, force, position)
-    if @force_labels[link.body].nil?
-      model = Sketchup.active_model
-      force_label = model.entities.add_text("--------------- #{force.round(1)}", position)
+    # adds a label with the force value for each edge in the graph
+    def update_force_labels
+      Sketchup.active_model.start_operation('Change Materials', true)
+      Graph.instance.edges.values.each do |edge|
+        lin_force, position = get_force_from_link(edge.thingy)
+        update_force_label(edge.thingy, lin_force, position)
+      end
+      Sketchup.active_model.commit_operation
+    end
 
-      force_label.layer = model.layers[Configuration::FORCE_LABEL_VIEW]
-      @force_labels[link.body] = force_label
-    else
-      @force_labels[link.body].text = "--------------- #{force.round(1)}"
-      @force_labels[link.body].point = position
+    # adds a label with the force value for a single edge
+    def update_force_label(link, force, position)
+      if @force_labels[link.body].nil?
+        model = Sketchup.active_model
+        force_label = model.entities.add_text("--------------- #{force.round(1)}", position)
+
+        force_label.layer = model.layers[Configuration::FORCE_LABEL_VIEW]
+        @force_labels[link.body] = force_label
+      else
+        @force_labels[link.body].text = "--------------- #{force.round(1)}"
+        @force_labels[link.body].point = position
+      end
+    end
+
+    # resets the color of all edges to its default value
+    def reset_force_color
+      Graph.instance.edges.values.each do |edge|
+        edge.thingy.un_highlight
+      end
+    end
+
+    def whiten_all_bottles
+      Graph.instance.edges.values.each do |edge|
+        edge.thingy.highlight
+      end
+    end
+
+    # removes force labels
+    def reset_force_labels
+      @force_labels.each {|body, label| label.text = "" }
+    end
+
+    #
+    # Helper functions
+    #
+
+    def sign(n)
+      n == 0 ? 1 : n.abs / n
     end
   end
-
-  # resets the color of all edges to its default value
-  def reset_force_color
-    Graph.instance.edges.values.each do |edge|
-      edge.thingy.un_highlight
-    end
-  end
-
-  # removes force labels
-  def reset_force_labels
-    @force_labels.each {|body, label| label.text = "" }
-  end
-end

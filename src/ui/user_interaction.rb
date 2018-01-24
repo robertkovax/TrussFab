@@ -42,6 +42,7 @@ class UserInteraction
     build_tool(ExportFileTool, 'export_file_tool')
     build_tool(ImportFileTool, 'import_file_tool')
     build_tool(PodTool, 'pod_tool')
+    build_tool(SensorTool, 'sensor_tool')
     build_tool(SimulationTool, 'simulation_tool')
     build_tool(AddWeightTool, 'add_weight_tool')
     build_tool(BallJointSimulationTool, 'ball_joint_simulation_tool')
