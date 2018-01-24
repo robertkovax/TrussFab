@@ -91,6 +91,7 @@ class ScadExport
       i = 0
       hubs.each do |hub|
         is_main_hub = (i == 0)
+        i += 1
 
         # TODO: consider sub hubs, currently they are ignored
         next unless is_main_hub
@@ -125,7 +126,6 @@ class ScadExport
         end
 
         export_hubs.push(export_hub)
-        i += 1
       end
     end
 

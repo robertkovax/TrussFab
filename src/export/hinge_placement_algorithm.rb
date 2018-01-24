@@ -227,6 +227,7 @@ class HingePlacementAlgorithm
       end
     end
 
+    @hubs = hubs
     @hinges = hinge_map
 
     # stores the l1 value per node (since it needs to be constant across a node)
