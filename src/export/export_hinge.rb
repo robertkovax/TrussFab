@@ -43,8 +43,10 @@ class ExportHinge
       "b_gap=#{@b_gap},",
       "a_with_connector=#{@a_with_connector},",
       "b_with_connector=#{@b_with_connector},",
-      "a_label=\"#{@hub_id}.#{@a_other_hub_id}\",",
-      "b_label=\"#{@hub_id}.#{@b_other_hub_id}\","].join("\n") + "\n" + params + ");\n"
+      "a_label=\"#{@a_other_hub_id}\",",
+      "b_label=\"#{@b_other_hub_id}\",",
+      "id_label=\"#{@hub_id}\","
+    ].join("\n") + "\n" + params + ");\n"
     file.write(export_string)
     file.close
     export_string

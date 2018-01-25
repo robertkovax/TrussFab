@@ -134,15 +134,27 @@ module hingepart(l1, l2, l3, gap, with_connector, label,
         union() {
             // TODO: remove the magic numbers with calculated values for the label/text placing           
             if (the_A_one) {
-                text_offset_x = width - round_size;
+                text_offset_x = width - round_size + 5;
                 text_offset_y = gap_height * 3 + gap_epsilon * 1.5 + 2;
                 text_offset_z = depth - text_printin;
                 
                 translate([text_offset_x, text_offset_y, text_offset_z])
                 mirror([1, 0, 0])
-                add_text(label);                
+                add_text(label);
+
+                text_offset_x_2 = width - round_size + 5;
+                text_offset_y_2 = gap_height * 1 + gap_epsilon * 1 + 2;
+                text_offset_z_2 = depth - text_printin;
+                
+                translate([text_offset_x_2, text_offset_y_2, text_offset_z_2])
+                mirror([1, 0, 0])
+                add_text(label);
+                
             } else {
-                text_offset_x = width - round_size - 35;
+                l_b = len(label);
+                bla = l_b == 2 ? 10 : l_b == 3 ? 15 : 17;
+                echo(bla);
+                text_offset_x = width - round_size - bla;
                 text_offset_y = gap_height * 2 + gap_epsilon * 1.5 + 1.5;
                 text_offset_z = depth - text_printin;
                 
@@ -281,35 +293,38 @@ module draw_hinge(
 
 // just for dev
 
+// adjust filepath to LibSTLExport if necessary
+
 draw_hinge(
-alpha=120,
-a_l1=65.0,
+alpha=40,
+a_l1=35.0,
 a_l2=41.199999999999996,
-a_l3=50.0,
+a_l3=10.0,
 a_gap=true,
-b_l1=65.0,
+b_l1=35.0,
 b_l2=41.199999999999996,
-b_l3=50.0,
+b_l3=10.0,
 b_gap=true,
-a_with_connector=true,
-b_with_connector=true,
-a_label="130.i76",
-b_label="130.i20",
+a_with_connector=false,
+b_with_connector=false,
+a_label="i823",
+b_label="i753",
+id_label = "127",
 depth=24.0,
 width=100.0,
 round_size=12.0,
 gap_angle_a=45.0,
-gap_angle_b=30.0,
-hole_size_a=3.1,
-hole_size_b=3.1,
+gap_angle_b=45.0,
+hole_size_a=3.2000000000000006,
+hole_size_b=3.2000000000000006,
 gap_height=10.0,
 gap_epsilon=0.8000000000000002,
 connector_end_round=15.0,
 connector_end_heigth=3.7,
 connector_end_extra_round=9.95,
-connector_end_extra_height=1.9999999999999998,
-cut_out_hex_height_a=0,
-cut_out_hex_d_a=0,
-cut_out_hex_height_b=0,
-cut_out_hex_d_b=0
-);
+connector_end_extra_height=3.9999999999999996,
+cut_out_hex_height_a=5.0,
+cut_out_hex_height_b=5.0,
+cut_out_hex_d_a=10.6,
+cut_out_hex_d_b=10.6,
+gap_angle=70.0);
