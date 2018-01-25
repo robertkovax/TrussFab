@@ -102,11 +102,11 @@ module add_bottom_for_higher_degrees(alpha, a_l1, a_l2, b_l1, b_l2, depth) {
 }
 
 
-module hingepart(l1, l2, l3, gap, with_connector, label,
+module hingepart(l1, l2, l3, gap, with_connector, label, id_label,
     depth, width, round_size, hole_size,
     gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e,
     connector_end_round, connector_end_heigth,
-    connector_end_extra_round, connector_end_extra_height, cut_out_hex_height, cut_out_hex_d,
+    connector_end_extra_round, connector_end_extra_height, cut_out_hex_height, cut_out_hex_d, 
     the_A_one=false) { 
     difference() {
         union() {
@@ -148,7 +148,7 @@ module hingepart(l1, l2, l3, gap, with_connector, label,
                 
                 translate([text_offset_x_2, text_offset_y_2, text_offset_z_2])
                 mirror([1, 0, 0])
-                add_text(label);
+                add_text(id_label);
                 
             } else {
                 l_b = len(label);
@@ -185,6 +185,7 @@ module draw_hinge(
     a_gap, a_with_connector, a_label,
     b_l1, b_l2, b_l3,
     b_gap, b_with_connector, b_label,
+    id_label,
     depth, // depth of a hinge part
     width, // not really important because parts that are too much gets cut away anyway
     round_size, // the round part of a hinge part
@@ -241,7 +242,7 @@ module draw_hinge(
                         rotate([0, 0, a_angle])
                         translate([-(width - round_size), 0, 0])
                         translate([0, 0, depth / -2]) // center on the z axis
-                        hingepart(b_l1, b_l2, b_l3, b_gap, b_with_connector, b_label,
+                        hingepart(b_l1, b_l2, b_l3, b_gap, b_with_connector, b_label, id_label,
                             depth, width, round_size, hole_size_b,
                             gap_angle_b, gap_width_b, gap_height, gap_epsilon, gap_height_e,
                             connector_end_round, connector_end_heigth,
@@ -259,7 +260,7 @@ module draw_hinge(
                         mirror([1, 0, 0])
                         translate([-(width - round_size), 0, 0])
                         translate([0, 0, depth / -2])
-                        hingepart(a_l1, a_l2, a_l3, a_gap, a_with_connector, a_label,
+                        hingepart(a_l1, a_l2, a_l3, a_gap, a_with_connector, a_label, id_label,
                             depth, width, round_size, hole_size_a,
                             gap_angle_a, gap_width_a, gap_height, gap_epsilon, gap_height_e,
                             connector_end_round, connector_end_heigth,
