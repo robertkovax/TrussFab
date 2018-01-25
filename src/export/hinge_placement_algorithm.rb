@@ -81,8 +81,11 @@ class HingePlacementAlgorithm
   attr_accessor :hubs, :hinges, :node_l1
 
   def initialize()
+    # maps from a node to an array of all subhubs around this node, ordered by size of the subhub
     @hubs = nil
+    # maps from a node to an array of all hinges around this node
     @hinges = nil
+    # maps from a node to the l1 distance, that all hubs and hinges around this node must have
     @node_l1 = nil
   end
 
@@ -237,6 +240,19 @@ class HingePlacementAlgorithm
     elongate_edges unless @hinges.empty?
 
     # add visualisations
+
+    # shorten elongations for all edges that are not part of the main hub
+    nodes.each do |node|
+      main_hub = hubs[node][0]
+
+      node_edges = edges.select { |edge| edge.nodes.include? node and edge.link_type != 'actuator' }
+      node_edges.each do |edge|
+        if main_hub.nil? or not main_hub.include? edge
+          add_elongation(edge, node)
+        end
+      end
+    end
+
     @hinges.each do |node, hinges|
       hinges.each do |hinge|
         visualize_hinge(hinge)
@@ -248,6 +264,12 @@ class HingePlacementAlgorithm
     end
   end
 
+  # make sure that edge1 is the unconnected one if there is one
+  def align_first_hinge(hinges, cur_hinge)
+    other_edges = (hinges - [cur_hinge]).flat_map { |hinge| [hinge.edge1, hinge.edge2] }
+    cur_hinge.swap_edges unless other_edges.include? cur_hinge.edge2
+  end
+
   # orders hinges so that they form a chain
   # also always puts the edge connected to the former hinge as edge1
   def order_hinges(hinge_map)
@@ -256,10 +278,7 @@ class HingePlacementAlgorithm
     hinge_map.each do |node, hinges|
       sorted_hinges = hinges.sort { |h1, h2| h1.num_connected_hinges(hinges) <=> h2.num_connected_hinges(hinges) }
       cur_hinge = sorted_hinges[0]
-
-      # make sure that edge1 is the unconnected one if there is one
-      other_edges = (hinges - [cur_hinge]).flat_map { |hinge| [hinge.edge1, hinge.edge2] }
-      cur_hinge.swap_edges unless other_edges.include? cur_hinge.edge2
+      align_first_hinge(hinges, cur_hinge)
 
       new_hinges = []
       first = true
@@ -273,9 +292,7 @@ class HingePlacementAlgorithm
         if next_hinge_possibilities.empty?
           remaining_hinges = sorted_hinges - new_hinges
           cur_hinge = remaining_hinges[0]
-          #TODO: remove duplication
-          other_edges = (remaining_hinges - [cur_hinge]).flat_map { |hinge| [hinge.edge1, hinge.edge2] }
-          cur_hinge.swap_edges unless other_edges.include? cur_hinge.edge2
+          align_first_hinge(hinges, cur_hinge)
           next
         end
 
@@ -299,7 +316,8 @@ class HingePlacementAlgorithm
     result
   end
 
-
+  # return a an array of groups of triangles that do not change their angle in regards to each other
+  # we call these groups rigid substructures
   def find_rigid_substructures(edges, rotation_partners)
     visited_tris = Set.new
     groups = []
