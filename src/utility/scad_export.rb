@@ -28,6 +28,13 @@ class ScadExport
         a_with_connector = false
         b_with_connector = false
 
+        other_a_hinges = hinges.select { |other| hinge.edge1 == other.edge2 }
+        other_b_hinges = hinges.select { |other| hinge.edge2 == other.edge1 }
+
+        if other_a_hinges.size > 1 or other_b_hinges.size > 1
+          raise RuntimeError, 'More than one hinge connected to a hinge.'
+        end
+
         if hinge.is_a? ActuatorHinge
           a_gap = true
           b_gap = false
@@ -40,8 +47,14 @@ class ScadExport
           if hinge.edge1.link_type == 'actuator'
             a_gap = false
             b_gap = true
+            if other_a_hinges.size > 0
+              a_gap = true
+            end
             params['hole_size_a'] = PRESETS::ACTUATOR_HINGE_OPENSCAD_HOLE_SIZE
           else
+            if other_b_hinges.size > 0
+              b_gap = true
+            end
             params['hole_size_b'] = PRESETS::ACTUATOR_HINGE_OPENSCAD_HOLE_SIZE
           end
 
@@ -50,13 +63,6 @@ class ScadExport
           export_hinges.push(actuator_hinge)
 
           next
-        end
-
-        other_a_hinges = hinges.select { |other| hinge.edge1 == other.edge2 }
-        other_b_hinges = hinges.select { |other| hinge.edge2 == other.edge1 }
-
-        if other_a_hinges.size > 1 or other_b_hinges.size > 1
-          raise RuntimeError, 'More than one hinge connected to a hinge.'
         end
 
         elongation1 = hinge.edge1.first_node?(node) ? hinge.edge1.first_elongation_length : hinge.edge1.second_elongation_length
