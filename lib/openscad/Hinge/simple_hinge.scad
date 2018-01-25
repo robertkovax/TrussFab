@@ -48,7 +48,7 @@ module cut_out_a_cap(l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_heig
 }
 
 
-function calc_extra_width_for_hinging(gap_angle, radius) = radius / cos(gap_angle) - radius;
+function calc_extra_width_for_hinging(gap_angle, radius) = radius / cos(gap_angle/2) - radius;
 
 // cuts out parts at the top of both hinge parts
 module cut_out_top_part(alpha, a_l1, a_l2, b_l1, b_l2, depth) {
