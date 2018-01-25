@@ -1,5 +1,6 @@
 module PRESETS
   default_hole_size = 3.2.mm # where the screw goes through
+  default_gap_angle = 45.mm # the angle for the triangle in the gap, because of a hack, we give it as mm, it actually is as degrees
 
   # to remove the Hexagon, set both values to 0
   default_cut_out_hex_height = 5.mm
@@ -9,7 +10,8 @@ module PRESETS
     'depth' => 24.mm, # depth of a hinge part
     'width' => 100.mm, # not really important because parts that are too much gets cut away anyway
     'round_size' => 12.mm, # the round part of a hinge part
-    'gap_angle' => 45.mm, # the angle for the triangle in the gap
+    'gap_angle_a' => default_gap_angle,
+    'gap_angle_b' => default_gap_angle,
     'hole_size_a' => default_hole_size,
     'hole_size_b' => default_hole_size,
     'extra_width_for_hinging' => 6.mm, # there needs to be an extra offset so the hinge part can swing fully
