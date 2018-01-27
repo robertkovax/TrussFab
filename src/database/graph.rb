@@ -160,6 +160,18 @@ class Graph
     all_graph_objects.each(&:redraw)
   end
 
+  def cleanup
+    @edges.reject! { |id, e|
+      !e.check_if_valid
+    }
+    @nodes.reject! { |id, e|
+      !e.check_if_valid
+    }
+    @surfaces.reject! { |id, e|
+      !e.check_if_valid
+    }
+  end
+
   #
   # Method to delete either a node, an edge or a surface
   #

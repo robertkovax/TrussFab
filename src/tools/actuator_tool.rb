@@ -66,8 +66,8 @@ class ActuatorTool < Tool
     @simulation = BallJointSimulation.new
     @simulation.setup
     @simulation.disable_gravity
-    piston = @edge.thingy.piston
-    piston.controller = 0.4
+    piston = @edge.thingy.joint
+    piston.controller = 0
     @simulation.start
     @simulation.update_world_by(2)
   end

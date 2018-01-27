@@ -6,8 +6,8 @@ require 'src/thingies/physics_thingy.rb'
 
 
 class Link < PhysicsThingy
-  attr_accessor :first_joint, :second_joint
-  attr_reader :body, :first_elongation_length, :second_elongation_length,
+  attr_accessor :joint
+  attr_reader :first_elongation_length, :second_elongation_length,
     :position, :second_position, :loc_up_vec, :first_node, :second_node
 
   def initialize(first_node, second_node, model_name, id: nil)
@@ -21,13 +21,14 @@ class Link < PhysicsThingy
     @first_node = first_node
     @second_node = second_node
 
-    @first_joint = ThingyFixedJoint.new(first_node)
-    @second_joint = ThingyFixedJoint.new(second_node)
-
     @model = ModelStorage.instance.models[model_name]
     @first_elongation_length = nil
     @second_elongation_length = nil
     create_sub_thingies
+  end
+
+  def check_if_valid
+    (super && (@first_node.nil? || @first_node.thingy.check_if_valid) && (@second_node.nil? || @second_node.thingy.check_if_valid)) ? true : false
   end
 
   def update_positions(first_position, second_position)
@@ -53,55 +54,44 @@ class Link < PhysicsThingy
   # Physics methods
   #
 
-  def create_body(world)
-    e1, bottles, _, e2 = @sub_thingies
-    @body = Simulation.create_body(world, bottles.entity, collision_type: :convex_hull)
-    ext_1_body = Simulation.create_body(world, e1.entity)
-    ext_2_body = Simulation.create_body(world, e2.entity)
+  def update_link_transformations
+    pt1 = @first_node.thingy.entity.bounds.center
+    pt2 = @second_node.thingy.entity.bounds.center
+    dir = pt2 - pt1
 
-    @body.mass = Simulation::LINK_MASS
-    @body.collidable = false
-    [ext_1_body, ext_2_body].each do |body|
-      body.mass = Simulation::ELONGATION_MASS
-      body.collidable = false
-    end
+    return if (dir.length.to_f < 1.0e-6)
 
-    joint_to(world, MSPhysics::Fixed, ext_1_body, Geometry::Z_AXIS,
-             solver_model: Configuration::SOLVER_MODEL_ELONGATIONS)
-    joint_to(world, MSPhysics::Fixed, ext_2_body, Geometry::Z_AXIS,
-             solver_model: Configuration::SOLVER_MODEL_ELONGATIONS)
-    update_up_vector
-    @body
+    elong1 = @sub_thingies[0]
+    elong2 = @sub_thingies[3]
+    bottle = @sub_thingies[1]
+
+    scale1 = Geom::Transformation.scaling(elong1.radius, elong1.radius, elong1.length)
+    scale2 = Geom::Transformation.scaling(elong2.radius, elong2.radius, elong2.length)
+
+    dir.normalize!
+    t1 = Geom::Transformation.new(pt1, dir) * scale1
+    t2 = Geom::Transformation.new(pt2, dir.reverse) * scale2
+    t3 = Geom::Transformation.new(pt2 - AMS::Geometry.scale_vector(dir, elong2.length), dir.reverse)
+
+    elong1.entity.move!(t1)
+    elong2.entity.move!(t2)
+    bottle.entity.move!(t3)
   end
 
   def create_joints(world, first_node, second_node)
-    unless @first_joint.is_hinge? || @second_joint.is_hinge?
-      @first_joint = ThingyFixedJoint.new(first_node)
-      @second_joint = ThingyFixedJoint.new(second_node)
-    end
-
-    [@first_joint, @second_joint].each do |joint|
-      joint.create(world, @body)
-    end
-  end
-
-  def create_ball_joints(world, first_node, second_node)
-    first_direction = mid_point.vector_to(first_node.position)
-    second_direction = mid_point.vector_to(second_node.position)
-
-    @first_joint = ThingyBallJoint.new(first_node, first_direction)
-    @second_joint = ThingyBallJoint.new(second_node, second_direction)
-
-    [@first_joint, @second_joint].each do |joint|
-      joint.create(world, @body)
-    end
+    # Associated nodes are to be connected with one joint:
+    #   Node A connected to Node B by PointToPoint constraint.
+    # The link object in between will not be part of physics simulation.
+    bd1 = first_node.thingy.body
+    bd2 = second_node.thingy.body
+    @joint = MSPhysics::PointToPoint.new(world, bd1, bd1.group.bounds.center, bd2.group.bounds.center, nil)
+    @joint.connect(bd2)
+    @joint.stiffness = Simulation::DEFAULT_STIFFNESS
   end
 
   def reset_physics
     super
-    [@first_joint, @second_joint].each do |joint|
-      joint.joint = nil
-    end
+    @joint = nil
   end
 
   def update_up_vector

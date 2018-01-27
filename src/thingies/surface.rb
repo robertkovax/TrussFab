@@ -16,11 +16,11 @@ class Surface < Thingy
 
   def highlight(highlight_material = @highlight_material)
     super(highlight_material)
-    @entity.back_material = highlight_material
+    @entity.back_material = highlight_material if @entity && @entity.valid?
   end
 
   def un_highlight
-    @entity.back_material = @material
+    @entity.back_material = @material if @entity && @entity.valid?
     super
   end
 

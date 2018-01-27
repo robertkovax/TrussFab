@@ -18,13 +18,14 @@ class SimulationTool < Tool
     @simulation.piston_dialog
     @simulation.chart_dialog
     @simulation.open_sensor_dialog
-    @simulation.add_ground
-    @simulation.start
     Sketchup.active_model.active_view.animation = @simulation
   end
 
   def deactivate(view)
-    Sketchup.active_model.active_view.animation = nil
+    @simulation.reset(view)
+    @simulation.close_piston_dialog
+    @simulation.close_chart
+    @simulation.close_sensor_dialog
     @simulation = nil
     super
   end

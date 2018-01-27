@@ -8,7 +8,6 @@ require 'src/simulation/thingy_rotation.rb'
 
 class Edge < GraphObject
   attr_reader :first_node, :second_node, :link_type
-  attr_accessor :first_joint, :second_joint
 
   def initialize(first_node, second_node, model_name: 'hard', id: nil, link_type: 'bottle_link')
     @first_node = first_node

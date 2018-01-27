@@ -172,7 +172,7 @@ module JsonImport
         else
           raise ArgumentError('No rotation vector given')
         end
-
+=begin
         joint = case joint_json['type']
         when 'hinge'
           ThingyHinge.new(node, rotation)
@@ -186,6 +186,7 @@ module JsonImport
         else
           edge.thingy.second_joint = joint
         end
+=end
       end
     end
 
