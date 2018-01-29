@@ -71,7 +71,7 @@ class Link < PhysicsThingy
     dir.normalize!
     t1 = Geom::Transformation.new(pt1, dir) * scale1
     t2 = Geom::Transformation.new(pt2, dir.reverse) * scale2
-    t3 = Geom::Transformation.new(pt2 - AMS::Geometry.scale_vector(dir, elong2.length), dir.reverse)
+    t3 = Geom::Transformation.new(pt2 - Geometry.scale_vector(dir, elong2.length), dir.reverse)
 
     elong1.entity.move!(t1)
     elong2.entity.move!(t2)
@@ -84,22 +84,16 @@ class Link < PhysicsThingy
     # The link object in between will not be part of physics simulation.
     bd1 = first_node.thingy.body
     bd2 = second_node.thingy.body
-    @joint = MSPhysics::PointToPoint.new(world, bd1, bd1.group.bounds.center, bd2.group.bounds.center, nil)
+    @joint = TrussFab::PointToPoint.new(world, bd1, bd1.group.bounds.center, bd2.group.bounds.center, nil)
+    @joint.solver_model = Configuration::JOINT_SOLVER_MODEL
+    @joint.stiffness = Configuration::JOINT_STIFFNESS
+    @joint.breaking_force = Configuration::JOINT_BREAKING_FORCE
     @joint.connect(bd2)
-    @joint.stiffness = Simulation::DEFAULT_STIFFNESS
   end
 
   def reset_physics
     super
     @joint = nil
-  end
-
-  def update_up_vector
-    body_tra = @body.get_matrix
-    glob_up_vec = @loc_up_vec.transform(body_tra)
-    if (second_position - position).dot(glob_up_vec) > 0.0
-      @loc_up_vec.reverse!
-    end
   end
 
   #

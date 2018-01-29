@@ -9,4 +9,9 @@ class Bottle
     @length = @definition.bounds.depth
     @model = model
   end
+
+  def valid?
+    @definition.valid?
+  end
+
 end

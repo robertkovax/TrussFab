@@ -13,6 +13,10 @@ class ActuatorModel
     @material = Sketchup.active_model.materials['actuator_material']
   end
 
+  def valid?
+    @inner_cylinder.valid? && @outer_cylinder.valid?
+  end
+
   def create_cylinder(name, diameter)
     definition = Sketchup.active_model.definitions.add(name)
     circle_edgearray = definition.entities.add_circle(@center,
@@ -22,4 +26,5 @@ class ActuatorModel
     face.pushpull(-2 * @length / 3, false)
     definition
   end
+
 end

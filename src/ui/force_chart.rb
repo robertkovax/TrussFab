@@ -17,6 +17,10 @@ class ForceChart
   end
 
   def addData(label, data)
-    @dialog.execute_script("addData('#{label}', '#{data}')")
+    @dialog.execute_script("addData('#{label}', '#{data}');")
+  end
+  
+  def shiftData
+    @dialog.execute_script("shiftData();")
   end
 end

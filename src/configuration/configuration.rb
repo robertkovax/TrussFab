@@ -24,16 +24,17 @@ module Configuration
     style: UI::HtmlDialog::STYLE_DIALOG
   }.freeze
 
-  UI_WIDTH = 380
+  UI_WIDTH  = 380
   UI_HEIGHT = 700
 
-  # Thingy properties
-  MINIMUM_ELONGATION = 20.mm.freeze
-  DEFAULT_ELONGATION = 30.mm.freeze
-  MAXIMUM_ELONGATION = 100.mm.freeze
-  BALL_HUB_RADIUS = 14.mm.freeze
-  STANDARD_BOTTLES = 'hard'.freeze
-  COVER_THICKNESS = 20.mm.freeze
+  # Thingy Properties
+  MINIMUM_ELONGATION    = 20.mm.freeze
+  DEFAULT_ELONGATION    = 30.mm.freeze
+  MAXIMUM_ELONGATION    = 100.mm.freeze
+  BALL_HUB_RADIUS       = 14.mm.freeze
+  STANDARD_BOTTLES      = 'hard'.freeze
+  COVER_THICKNESS       = 20.mm.freeze
+  ELONGATION_RADIUS     = 11.mm.freeze
 
   # Paths
   JSON_PATH = (ProjectHelper.asset_directory + '/exports/').freeze
@@ -82,25 +83,66 @@ module Configuration
     }
   ].freeze
 
-  STANDARD_COLOR = [0.5, 0.5, 0.5].freeze
-  BOTTLE_COLOR = [114, 183,  99].freeze
-  ACTUATOR_COLOR = [1.0, 1.0, 1.0].freeze
-  HIGHLIGHT_COLOR = [1.0, 1.0, 1.0].freeze
-  SURFACE_COLOR = [1.0, 1.0, 1.0].freeze
-  SURFACE_HIGHLIGHT_COLOR = [0.5, 0.5, 0.5].freeze
-  HUB_COLOR = [0.69, 0.75, 0.81].freeze
-  ELONGATION_COLOR = [0.69, 0.75, 0.81].freeze
-  ELONGATION_RADIUS = 11.mm.freeze
+  # Colors
+  STANDARD_COLOR            = Sketchup::Color.new(0.5, 0.5, 0.5)
+  BOTTLE_COLOR              = Sketchup::Color.new(114, 183,  99)
+  ACTUATOR_COLOR            = Sketchup::Color.new(1.0, 1.0, 1.0)
+  HIGHLIGHT_COLOR           = Sketchup::Color.new(1.0, 1.0, 1.0)
+  SURFACE_COLOR             = Sketchup::Color.new(1.0, 1.0, 1.0)
+  SURFACE_HIGHLIGHT_COLOR   = Sketchup::Color.new(0.5, 0.5, 0.5)
+  HUB_COLOR                 = Sketchup::Color.new(0.69, 0.75, 0.81)
+  ELONGATION_COLOR          = Sketchup::Color.new(0.69, 0.75, 0.81)
 
-  # Behavioural constants
-  SNAP_TOLERANCE = 200.mm.freeze
-  INTERSECTION_OFFSET = 200.mm.freeze
+  # Ground Stuff
+  GROUND_COLOR          = Sketchup::Color.new(240, 240, 240)
+  GROUND_ALPHA          = 0.2
+  GROUND_SIZE           = 10000 # in inches
+  GROUND_HEIGHT         = -2.0 # in inches
+  GROUND_THICKNESS      = 20.0 # in inches
 
-  # this constant defines how accurate the joints are calculated.
-  # 0: Most accurate (VERY slow. We probably don't want to use it in interactive mode)
-  # 1 - 64: Less accurate, but faster
-  # \note(tim): Right now, there is no real science behind those values. I just
-  # => used what worked best. ¯\_(ツ)_/¯
-  SOLVER_MODEL_ELONGATIONS = 5
-  SOLVER_MODEL = 16
+  # Behavioural Constants
+  SNAP_TOLERANCE        = 200.mm.freeze
+  INTERSECTION_OFFSET   = 200.mm.freeze
+
+  # Simulation Properties
+  WORLD_GRAVITY         = -9.8 # in m/s/s
+  WORLD_SOLVER_MODEL    = 8 # 1 - 64
+  WORLD_TIMESTEP        = 1.0 / 200 # in seconds
+  WORLD_NUM_ITERATIONS  = ((1.0 / 60) / WORLD_TIMESTEP).to_i
+  JOINT_SOLVER_MODEL    = 0 # 0 or 2
+  JOINT_STIFFNESS       = 0.9 # ratio (0.0 - 1.0)
+  JOINT_BREAKING_FORCE  = 200 # (in Newtons)
+  BODY_STATIC_FRICITON  = 0.9
+  BODY_KINETIC_FRICITON = 0.5
+  BODY_ELASTICITY       = 0.1
+  BODY_SOFTNESS         = 0.1
+
+  # PointToPointActuator Properties
+  ACTUATOR_RATE         = 1.0 # in m/s
+  ACTUATOR_POWER        = 0.0 # in Newtons (0 indicates max)
+  ACTUATOR_REDUCTION    = 0.1 # ratio (0.0 - 1.0)
+  ACTUATOR_MIN          = -0.2 # in meters
+  ACTUATOR_MAX          = 0.2 # in meters
+
+  # Tension
+  TENSION_COLORS = [
+    Sketchup::Color.new(0, 255, 255),
+    Sketchup::Color.new(0, 0, 255),
+    Sketchup::Color.new(0, 255, 255),
+    Sketchup::Color.new(0, 255, 0),
+    Sketchup::Color.new(255, 255, 0),
+    Sketchup::Color.new(255, 0, 0)
+  ]
+  TENSION_SENSITIVITY = 10.0 # usually this should be 1.0
+
+  # Mass (in kilograms)
+  # Because only hubs have physics components to them,
+  #  it would be ideal to increase hub mass to accommodate
+  #  for all the linked pods and links.
+  ELONGATION_MASS   = 0.0
+  LINK_MASS         = 0.2
+  PISTON_MASS       = 0.1
+  HUB_MASS          = 0.1
+  POD_MASS          = 0.1
+
 end

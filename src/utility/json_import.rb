@@ -1,7 +1,6 @@
 require 'json'
 require 'src/database/graph.rb'
 require 'src/utility/geometry.rb'
-require 'src/simulation/joints.rb'
 require 'src/simulation/thingy_rotation.rb'
 
 module JsonImport

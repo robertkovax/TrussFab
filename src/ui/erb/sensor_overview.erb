@@ -9,8 +9,8 @@
 <body>
 <% for sensor in @sensors %>
     Hub <%= sensor.id %>:<br>
-    Speed: <label id="speed_<%=sensor.id%>"><%= sensor.body.get_velocity.length %></label> m/s<br>
-    Acceleration: <label id="acceleration_<%=sensor.id%>"><%= sensor.body.get_velocity.length %></label>m/s/s
+    Speed: <label id="speed_<%=sensor.id%>"><%= 0.0 %></label> m/s<br>
+    Acceleration: <label id="acceleration_<%=sensor.id%>"><%= 0.0 %></label>m/s/s
     <br><br>
 <% end %>
 

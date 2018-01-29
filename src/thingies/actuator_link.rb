@@ -1,11 +1,10 @@
 require 'src/thingies/link.rb'
 require 'src/thingies/link_entities/cylinder.rb'
 require 'src/simulation/simulation.rb'
-require 'src/simulation/joints'
 
 class ActuatorLink < Link
 
-  attr_accessor :damping, :rate, :power, :min, :max
+  attr_accessor :reduction, :rate, :power, :min, :max
   attr_reader :joint, :first_cylinder, :second_cylinder
 
   def initialize(first_node, second_node, id: nil)
@@ -15,11 +14,11 @@ class ActuatorLink < Link
 
     super(first_node, second_node, 'actuator', id: id)
 
-    @damping = 0.0
-    @rate = 1.0
-    @power = 0.0
-    @min = -0.2
-    @max = 0.2
+    @reduction = Configuration::ACTUATOR_REDUCTION
+    @rate = Configuration::ACTUATOR_RATE
+    @power = Configuration::ACTUATOR_POWER
+    @min = Configuration::ACTUATOR_MIN
+    @max = Configuration::ACTUATOR_MAX
 
     persist_entity
   end
@@ -48,42 +47,37 @@ class ActuatorLink < Link
 
     bd1 = first_node.thingy.body
     bd2 = second_node.thingy.body
-    @joint = MSPhysics::PointToPointActuator.new(world, bd1, bd1.group.bounds.center, bd2.group.bounds.center, nil)
+    @joint = TrussFab::PointToPointActuator.new(world, bd1, bd1.group.bounds.center, bd2.group.bounds.center, nil)
+    @joint.solver_model = Configuration::JOINT_SOLVER_MODEL
+    @joint.stiffness = Configuration::JOINT_STIFFNESS
+    @joint.breaking_force = Configuration::JOINT_BREAKING_FORCE
     @joint.connect(bd2)
-    @joint.stiffness = Simulation::DEFAULT_STIFFNESS
-    @joint.rate = @rate
-    @joint.reduction_ratio = @damping
-    @joint.power = @power
+    update_piston
   end
-  
+
   def update_link_transformations
     pt1 = @first_node.thingy.entity.bounds.center
     pt2 = @second_node.thingy.entity.bounds.center
     dir = pt2 - pt1
     return if (dir.length.to_f < 1.0e-6)
     dir.normalize!
-    t1 = Geom::Transformation.new(pt1, dir)
-    t2 = Geom::Transformation.new(pt2, dir.reverse)
+    
+    ot = Geometry.scale_vector(dir, Configuration::MINIMUM_ELONGATION)
+    t1 = Geom::Transformation.new(pt1 + ot, dir)
+    t2 = Geom::Transformation.new(pt2 - ot, dir.reverse)
     @first_cylinder.entity.move!(t1)
     @second_cylinder.entity.move!(t2)
-  end
-
-  def create_ball_joints(world, first_node, second_node)
-    create_joints(world, first_node, second_node)
   end
 
   def reset_physics
     super
     @joint = nil
-    [@first_cylinder, @second_cylinder].each do |cylinder|
-      cylinder.body = nil
-    end
   end
 
   def update_piston
-    return if @joint.nil?
+    return unless @joint
     @joint.rate = @rate
-    @joint.reduction_ratio = @damping
+    @joint.reduction_ratio = @reduction
     @joint.power = @power
   end
 

@@ -43,24 +43,25 @@ class GeneticActuatorPlacementTool < Tool
   end
 
   def test_pistons
+    model = Sketchup.active_model
     closest_distance = Float::INFINITY
     best_piston = nil
     Graph.instance.edges.values.each do |edge|
       next if edge.fixed?
       create_actuator(edge)
-      @simulation = BallJointSimulation.new
+      @simulation = Simulation.new
       @simulation.setup
       @simulation.schedule_piston_for_testing(edge)
       @simulation.start
-      Sketchup.active_model.start_operation('simulate a piston', true)
+      model.start_operation('simulate a piston', true)
       distance = @simulation.test_pistons_for(2, @node, @desired_position)
-      Sketchup.active_model.commit_operation
+      model.commit_operation
       if distance < closest_distance
         closest_distance = distance
         best_piston = edge
       end
       uncreate_actuator(edge)
-      @simulation.stop
+      @simulation.reset
     end
     create_actuator(best_piston) unless best_piston.nil?
   end

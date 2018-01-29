@@ -1,20 +1,28 @@
-# Require AMS Library
-require 'ams_Lib'
+# TrussFab is compatible with SU2014 or later
 
 # Load the C extension
-dir = File.dirname(__FILE__)
 
-ops = AMS::IS_PLATFORM_WINDOWS ? 'win' : 'osx'
-bit = AMS::IS_SKETCHUP_64BIT ? '64' : '32'
+dir = File.dirname(__FILE__)
+dir.force_encoding("UTF-8")
+
+bwin = (RUBY_PLATFORM =~ /mswin|mingw/i ? true : false)
+b64 = ((Sketchup.respond_to?('is_64bit?') && Sketchup.is_64bit?) ? true : false)
+
+ops = bwin ? 'win' : 'osx'
+bit = b64 ? '64' : '32'
 rbv = RUBY_VERSION[0..2].to_s
-c_ext = AMS::IS_PLATFORM_WINDOWS ? '.so' : '.bundle'
-l_ext = AMS::IS_PLATFORM_WINDOWS ? '.dll' : '.dylib'
+c_ext = bwin ? '.so' : '.bundle'
+l_ext = bwin ? '.dll' : '.dylib'
 
 lib_path =  File.join(dir, 'ext', ops + bit)
 lib_fpath = File.join(lib_path, 'newton' + l_ext)
-ext_fpath = File.join(lib_path, rbv, 'msp_lib' + c_ext)
+ext_fpath = File.join(lib_path, rbv, 'tfn_lib' + c_ext)
 
-AMS::DLL.load_library lib_fpath
+if bwin
+  require 'fiddle'
+  Fiddle.dlopen(lib_fpath)
+end
+
 require ext_fpath
 
 # Require the main files

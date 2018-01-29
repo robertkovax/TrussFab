@@ -75,9 +75,13 @@ class Hub < PhysicsThingy
   end
 
   def create_body(world)
-    @body = Simulation.create_body(world, @entity, collision_type: :sphere)
+    @body = Simulation.create_body(world, @entity, :box) # spheres will have it rolling
     @body.collidable = true
-    @body.mass = (@mass <= 0) ? Simulation::HUB_MASS : @mass
+    @body.mass = (@mass > 0) ? @mass : Configuration::HUB_MASS
+    @body.static_friction = Configuration::BODY_STATIC_FRICITON
+    @body.kinetic_friction = Configuration::BODY_KINETIC_FRICITON
+    @body.elasticity = Configuration::BODY_ELASTICITY
+    @body.softness = Configuration::BODY_SOFTNESS
     @body
   end
 
@@ -98,8 +102,7 @@ class Hub < PhysicsThingy
     return @entity if @entity
     position = Geom::Transformation.translation(@position)
     transformation = position * @model.scaling
-    entity = Sketchup.active_model.entities.add_instance(@model.definition,
-                                                         transformation)
+    entity = Sketchup.active_model.entities.add_instance(@model.definition, transformation)
     entity.layer = Configuration::HUB_VIEW
     entity.material = @material
     entity

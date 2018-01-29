@@ -21,78 +21,125 @@ module ProjectHelper
   end
 
   def self.setup_sketchup
-    Sketchup.active_model.options['UnitsOptions']['LengthUnit'] = 2 # print and display lengths in mm
-    Sketchup.active_model.options['UnitsOptions']['LengthFormat'] = 0 # print and display lengths as decimal number
-    set_style
-    create_layers
+    model = Sketchup.active_model
+    model.start_operation('TrussFab Setup', true)
+    model.options['UnitsOptions']['LengthUnit'] = 2 # print and display lengths in mm
+    model.options['UnitsOptions']['LengthFormat'] = 0 # print and display lengths as decimal number
+    setup_style
+    setup_layers
     setup_surface_materials
+    model.commit_operation
   end
 
   private_class_method
 
-  def self.set_style
+  def self.setup_style
     styles = Sketchup.active_model.styles
-    styles.add_style(plugin_directory + '/Bottle Editor Style1.style', false)
-    styles.selected_style = styles['Bottle Editor Style1']
+    unless styles['Bottle Editor Style1']
+      styles.add_style(plugin_directory + '/Bottle Editor Style1.style', false)
+      styles.selected_style = styles['Bottle Editor Style1']
+    end
   end
 
-  def self.create_layers
+  def self.setup_layers
     layers = Sketchup.active_model.layers
 
-    model_layer = layers.add(Configuration::LINE_VIEW)
-    model_layer.visible = false
+    unless layers[Configuration::LINE_VIEW]
+      model_layer = layers.add(Configuration::LINE_VIEW)
+      model_layer.visible = false
+    end
 
-    layers.add(Configuration::COMPONENT_VIEW)
-    layers.add(Configuration::HUB_VIEW)
-    layers.add(Configuration::DRAW_TOOLTIPS_VIEW)
-    layers.add(Configuration::TRIANGLE_SURFACES_VIEW)
+    unless layers[Configuration::COMPONENT_VIEW]
+      layers.add(Configuration::COMPONENT_VIEW)
+    end
 
-    hinge_layer = layers.add(Configuration::HINGE_VIEW)
-    hinge_layer.visible = false
+    unless layers[Configuration::HUB_VIEW]
+      layers.add(Configuration::HUB_VIEW)
+    end
 
-    hub_id_layer = layers.add(Configuration::HUB_ID_VIEW)
-    hub_id_layer.visible = false
+    unless layers[Configuration::DRAW_TOOLTIPS_VIEW]
+      layers.add(Configuration::DRAW_TOOLTIPS_VIEW)
+    end
 
-    layers.add Configuration::FORCE_VIEW
-    force_label_layer = layers.add Configuration::FORCE_LABEL_VIEW
-    # force_label_layer.visible = false
+    unless layers[Configuration::TRIANGLE_SURFACES_VIEW]
+      layers.add(Configuration::TRIANGLE_SURFACES_VIEW)
+    end
+
+    unless layers[Configuration::HINGE_VIEW]
+      hinge_layer = layers.add(Configuration::HINGE_VIEW)
+      hinge_layer.visible = false
+    end
+
+    unless layers[Configuration::HUB_ID_VIEW]
+      hub_id_layer = layers.add(Configuration::HUB_ID_VIEW)
+      hub_id_layer.visible = false
+    end
+
+    unless layers[Configuration::FORCE_VIEW]
+      layers.add(Configuration::FORCE_VIEW)
+    end
+
+    unless layers[Configuration::FORCE_LABEL_VIEW]
+      force_label_layer = layers.add(Configuration::FORCE_LABEL_VIEW)
+      #force_label_layer.visible = false
+    end
   end
 
   def self.setup_surface_materials
-    material = Sketchup.active_model.materials.add('standard_material')
-    material.color = Configuration::STANDARD_COLOR
-    material.alpha = 1
+    materials = Sketchup.active_model.materials
 
-    material = Sketchup.active_model.materials.add('bottle_material')
-    material.color = Configuration::BOTTLE_COLOR
-    material.alpha = 0.65
+    unless materials['standard_material']
+      material = materials.add('standard_material')
+      material.color = Configuration::STANDARD_COLOR
+      material.alpha = 1
+    end
 
-    material = Sketchup.active_model.materials.add('actuator_material')
-    material.color = Configuration::ACTUATOR_COLOR
-    material.alpha = 1
+    unless materials['bottle_material']
+      material = materials.add('bottle_material')
+      material.color = Configuration::BOTTLE_COLOR
+      material.alpha = 0.65
+    end
 
-    material = Sketchup.active_model.materials.add('surface_material')
-    material.color = Configuration::SURFACE_COLOR
-    material.alpha = 0.03
+    unless materials['actuator_material']
+      material = materials.add('actuator_material')
+      material.color = Configuration::ACTUATOR_COLOR
+      material.alpha = 1
+    end
 
-    material = Sketchup.active_model.materials.add('surface_highlight_material')
-    material.color = Configuration::SURFACE_HIGHLIGHT_COLOR
-    material.alpha = 1
+    unless materials['surface_material']
+      material = materials.add('surface_material')
+      material.color = Configuration::SURFACE_COLOR
+      material.alpha = 0.03
+    end
 
-    material = Sketchup.active_model.materials.add('highlight_material')
-    material.color = Configuration::HIGHLIGHT_COLOR
-    material.alpha = 1
+    unless materials['surface_highlight_material']
+      material = materials.add('surface_highlight_material')
+      material.color = Configuration::SURFACE_HIGHLIGHT_COLOR
+      material.alpha = 1
+    end
 
-    material = Sketchup.active_model.materials.add('hub_material')
-    material.color = Configuration::HUB_COLOR
-    material.alpha = 1
+    unless materials['highlight_material']
+      material = materials.add('highlight_material')
+      material.color = Configuration::HIGHLIGHT_COLOR
+      material.alpha = 1
+    end
 
-    material = Sketchup.active_model.materials.add('elongation_material')
-    material.color = Configuration::ELONGATION_COLOR
-    material.alpha = 1
+    unless materials['hub_material']
+      material = materials.add('hub_material')
+      material.color = Configuration::HUB_COLOR
+      material.alpha = 1
+    end
 
-    material = Sketchup.active_model.materials.add('wooden_cover')
-    material.texture = asset_directory + '/textures/plywood.jpg'
-    material.alpha = 1
+    unless materials['elongation_material']
+      material = materials.add('elongation_material')
+      material.color = Configuration::ELONGATION_COLOR
+      material.alpha = 1
+    end
+
+    unless materials['wooden_cover']
+      material = materials.add('wooden_cover')
+      material.texture = asset_directory + '/textures/plywood.jpg'
+      material.alpha = 1
+    end
   end
 end

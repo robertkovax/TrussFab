@@ -160,6 +160,8 @@ class Graph
     all_graph_objects.each(&:redraw)
   end
 
+  # This removes all objects with deleted instances
+  # Call this prior to exporting, importing, or starting simulation
   def cleanup
     @edges.reject! { |id, e|
       !e.check_if_valid

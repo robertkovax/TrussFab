@@ -6,4 +6,9 @@ class ForceArrowModel
     @definition.name = 'Force Arrow'
     @weight = 0
   end
+
+  def valid?
+    @definition.valid?
+  end
+
 end

@@ -3,7 +3,6 @@ require 'src/database/graph_object.rb'
 require 'src/thingies/link.rb'
 require 'src/thingies/actuator_link.rb'
 require 'src/models/model_storage.rb'
-require 'src/simulation/joints'
 require 'src/simulation/thingy_rotation.rb'
 
 class Edge < GraphObject
@@ -56,10 +55,6 @@ class Edge < GraphObject
 
   def create_joints(world)
     @thingy.create_joints(world, first_node, second_node)
-  end
-
-  def create_ball_joints(world)
-    @thingy.create_ball_joints(world, first_node, second_node)
   end
 
   def position
