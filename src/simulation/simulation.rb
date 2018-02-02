@@ -384,7 +384,7 @@ class Simulation
         hash[:expanding] = true
         # add the piston frequency as a label in the chart (every value between
         # two frequencies has the same frequency)
-        add_chart_label((1 / (@world.elapsed_time - @piston_world_time).to_f).round(2))
+        log_max_actuator_tensions((1 / (@world.elapsed_time - @piston_world_time).to_f).round(2))
       end
       hash
     }
@@ -488,7 +488,7 @@ class Simulation
 
     if @frame % 5 == 0
       #shift_chart_data if @frame > 100
-      log_max_actuator_tensions
+      log_max_actuator_tensions(' ')
       send_sensor_speed_to_dialog
       send_sensor_acceleration_to_dialog
       test_pistons
@@ -656,9 +656,9 @@ class Simulation
 
   # Outs the net maximum tension of all actuators to the chart
   # and resets the @max_actuator_tensions variable
-  def log_max_actuator_tensions
+  def log_max_actuator_tensions(label)
     return unless @chart
-    @chart.addData(' ', @max_actuator_tensions)
+    @chart.addData(label, @max_actuator_tensions)
     @max_actuator_tensions = 0.0
   end
 
@@ -671,7 +671,7 @@ class Simulation
   # FIXME
   def add_chart_label(label)
     return unless @chart
-    @chart.addData(label, @total_force.length.to_f)
+    @chart.addData(label, @max_actuator_tensions.to_f)
   end
 
   # Adds a label with the force value for each edge in the graph
