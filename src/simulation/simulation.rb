@@ -24,10 +24,10 @@ class Simulation
       end
       om = Geom::Transformation.new(cn)
       col = case collision_type
-        when :box
-          world.create_box_collision(sbx, sby, sbz, om)
-        when :sphere
-          world.create_scaled_sphere_collision(sbx, sby, sbz, om)
+      when :box
+        world.create_box_collision(sbx, sby, sbz, om)
+      when :sphere
+        world.create_scaled_sphere_collision(sbx, sby, sbz, om)
       else
         raise TypeError, "Invalid collision type '#{collision_type}'"
       end
@@ -70,7 +70,7 @@ class Simulation
 
     # physics variables
     @breaking_force = Configuration::JOINT_BREAKING_FORCE
-    @breaking_force_invh = (@breaking_force > 1.0e-6) ? 0.5 / @breaking_force : 0.0
+    @breaking_force_invh = (@breaking_force > 1.0e-6) ? (0.5.fdiv(@breaking_force)) : 0.0
 
     @max_actuator_tensions = 0.0
     @max_speed = 0
@@ -207,7 +207,8 @@ class Simulation
       [-x, -y, z],
       [ x, -y, z],
       [ x,  y, z],
-      [-x,  y, z]]
+      [-x,  y, z]
+    ]
     face = @ground_group.entities.add_face(pts)
     face.pushpull(-Configuration::GROUND_THICKNESS)
     @ground_group.entities.each { |e|
@@ -306,7 +307,7 @@ class Simulation
 
     @dialog.add_action_callback('set_breaking_force') do |_context, param|
       @breaking_force = param.to_f
-      @breaking_force_invh = (@breaking_force > 1.0e-6) ? 0.5 / @breaking_force : 0.0
+      @breaking_force_invh = (@breaking_force > 1.0e-6) ? (0.5.fdiv(@breaking_force)) : 0.0
       Graph.instance.edges.each_value { |edge|
         link = edge.thingy
         if link.is_a?(Link)
