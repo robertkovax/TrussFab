@@ -111,7 +111,7 @@ module Configuration
   WORLD_NUM_ITERATIONS  = ((1.0 / 60) / WORLD_TIMESTEP).to_i
   JOINT_SOLVER_MODEL    = 0 # 0 or 2
   JOINT_STIFFNESS       = 0.9 # ratio (0.0 - 1.0)
-  JOINT_BREAKING_FORCE  = 200 # (in Newtons)
+  JOINT_BREAKING_FORCE  = 3000 # (in Newtons)
   BODY_STATIC_FRICITON  = 0.9
   BODY_KINETIC_FRICITON = 0.5
   BODY_ELASTICITY       = 0.1
@@ -126,14 +126,11 @@ module Configuration
 
   # Tension
   TENSION_COLORS = [
-    Sketchup::Color.new(0, 255, 255),
     Sketchup::Color.new(0, 0, 255),
-    Sketchup::Color.new(0, 255, 255),
-    Sketchup::Color.new(0, 255, 0),
-    Sketchup::Color.new(255, 255, 0),
+    Sketchup::Color.new(255, 255, 255),
     Sketchup::Color.new(255, 0, 0)
   ]
-  TENSION_SENSITIVITY = 10.0 # usually this should be 1.0
+  TENSION_SENSITIVITY = 1.0
 
   # Mass (in kilograms)
   # Because only hubs have physics components to them,
@@ -142,7 +139,7 @@ module Configuration
   ELONGATION_MASS   = 0.0
   LINK_MASS         = 0.2
   PISTON_MASS       = 0.1
-  HUB_MASS          = 0.1
+  HUB_MASS          = 1.0
   POD_MASS          = 0.1
 
 end
