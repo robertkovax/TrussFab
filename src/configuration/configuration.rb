@@ -120,7 +120,7 @@ module Configuration
   # PointToPointActuator Properties
   ACTUATOR_RATE         = 1.0 # in m/s
   ACTUATOR_POWER        = 0.0 # in Newtons (0 indicates max)
-  ACTUATOR_REDUCTION    = 0.1 # ratio (0.0 - 1.0)
+  ACTUATOR_REDUCTION    = 0.0 # ratio (0.0 - 1.0)
   ACTUATOR_MIN          = -0.2 # in meters
   ACTUATOR_MAX          = 0.2 # in meters
 
@@ -139,7 +139,7 @@ module Configuration
   ELONGATION_MASS   = 0.0
   LINK_MASS         = 0.2
   PISTON_MASS       = 0.1
-  HUB_MASS          = 1.0
+  HUB_MASS          = 0.7
   POD_MASS          = 0.1
 
 end
