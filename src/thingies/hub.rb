@@ -82,6 +82,7 @@ class Hub < PhysicsThingy
     @body.kinetic_friction = Configuration::BODY_KINETIC_FRICITON
     @body.elasticity = Configuration::BODY_ELASTICITY
     @body.softness = Configuration::BODY_SOFTNESS
+    @body.static = pods?
     @body
   end
 

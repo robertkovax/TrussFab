@@ -570,18 +570,9 @@ class Simulation
     # First, store current mats of bottles and sub-bottles
     Graph.instance.edges.each_value { |edge|
       link = edge.thingy
-      # Make sure we're dealing with a bottle link and not an actuator
-      next if link.is_a?(ActuatorLink)
       # Get the bottle of the link
       bottle = link.sub_thingies[1].entity
-      bottle_ents = bottle.is_a?(::Sketchup::Group) ? bottle.entities : bottle.definition.entities
-      sub_mats = {}
-      bottle_ents.each { |e|
-        if e.is_a?(::Sketchup::Group) || e.is_a?(::Sketchup::ComponentInstance)
-          sub_mats[e] = e.material
-        end
-      }
-      @bottle_dat[link] = [bottle, bottle.material, sub_mats, nil]
+      persist_material(link, bottle)
     }
     # Now, create new materials
     @bottle_dat.each { |link, dat|
@@ -590,7 +581,23 @@ class Simulation
       dat[3] = umat
       dat[0].material = umat
       dat[2].each { |e, m| e.material = nil }
+      if link.is_a?(ActuatorLink)
+        second_cylinder = link.sub_thingies[0].entity
+        second_cylinder.material = dat[3]
+      end
     }
+  end
+
+  def persist_material(link, bottle)
+    bottle_entities = bottle.is_a?(::Sketchup::Group) ? bottle.entities : bottle.definition.entities
+    sub_mats = {}
+    bottle_entities.each { |entity|
+      if entity.is_a?(::Sketchup::Group) || entity.is_a?(::Sketchup::ComponentInstance)
+        sub_mats[entity] = entity.material
+      end
+    }
+    sub_mats
+    @bottle_dat[link] = [bottle, bottle.material, sub_mats, nil]
   end
 
   # This is called when simulation ends and restores original materials, deleting the created ones.
