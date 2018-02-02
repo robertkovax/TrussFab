@@ -482,7 +482,11 @@ class Simulation
     model.start_operation('Simulation', true)
 
     update_entities
-    visualize_tensions
+    if(@highest_force_mode)
+      visualize_highest_tension
+    else
+      visualize_tensions
+    end
 
     model.commit_operation
 
@@ -627,13 +631,54 @@ class Simulation
     @bottle_dat.each { |link, dat|
       mat = dat[3]
       if mat && mat.valid?
-        pt1 = link.first_node.thingy.entity.bounds.center
-        pt2 = link.second_node.thingy.entity.bounds.center
-        dir = pt1.vector_to(pt2).normalize
-        tension = link.joint.get_linear_tension
-        r = (@breaking_force + tension.dot(dir) * Configuration::TENSION_SENSITIVITY) * @breaking_force_invh
+        force = get_directed_force(link)
+        r = (@breaking_force + force * Configuration::TENSION_SENSITIVITY) * @breaking_force_invh
         mat.color = Geometry.blend_colors(Configuration::TENSION_COLORS, r)
       end
+    }
+  end
+
+  def visualize_highest_tension
+    whiten_all_bottles
+    lowest_force_tuple = [nil, Float::INFINITY]
+    highest_force_tuple = [nil, -Float::INFINITY]
+    @bottle_dat.each { |link, dat|
+      force = get_directed_force(link)
+      if force < lowest_force_tuple[1]
+        lowest_force_tuple = [link, force]
+      elsif force > highest_force_tuple[1]
+        highest_force_tuple = [link, force]
+      end
+    }
+    color_single_link(lowest_force_tuple[0])
+    color_single_link(highest_force_tuple[0])
+  end
+
+  def color_single_link(link)
+    dat = @bottle_dat[link]
+    mat = dat[3]
+    if mat && mat.valid?
+      force = get_directed_force(link)
+      if(@highest_force_mode)
+        force = @breaking_force/2.0 if (force < @breaking_force/2.0 && force > 0)
+        force = -@breaking_force/2.0 if (force > -@breaking_force/2.0 && force < 0)
+      end
+      r = (@breaking_force + force * Configuration::TENSION_SENSITIVITY) * @breaking_force_invh
+      mat.color = Geometry.blend_colors(Configuration::TENSION_COLORS, r)
+    end
+  end
+
+  def get_directed_force(link)
+    pt1 = link.first_node.thingy.entity.bounds.center
+    pt2 = link.second_node.thingy.entity.bounds.center
+    dir = pt1.vector_to(pt2).normalize
+    tension = link.joint.get_linear_tension
+    tension.dot(dir)
+  end
+
+  def whiten_all_bottles
+    @bottle_dat.each { |link, dat|
+      dat[3].color = Configuration::HIGHLIGHT_COLOR
     }
   end
 
