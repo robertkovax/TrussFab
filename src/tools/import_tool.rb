@@ -59,9 +59,12 @@ class ImportTool < Tool
                        diagonal.reverse,
                        Configuration::INTERSECTION_OFFSET
       ))
-      old_bounds = old_triangle.thingy.entity.bounds
-      intersection = old_bounds.intersect(new_bounds)
-      return true if intersection.valid?
+      oent = old_triangle.thingy.entity
+      if oent.valid?
+        old_bounds = oent.bounds
+        intersection = old_bounds.intersect(new_bounds)
+        return true if intersection.valid?
+      end
     end
     puts('Add object on the ground')
     false

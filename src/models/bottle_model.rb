@@ -38,6 +38,13 @@ class BottleModel
     @models.values.min_by(&:length)
   end
 
+  def valid?
+    @models.each { |spec, model|
+      return false unless model.valid?
+    }
+    return true
+  end
+
   private
 
   def create_model(specification)

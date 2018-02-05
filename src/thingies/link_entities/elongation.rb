@@ -1,5 +1,5 @@
 class Elongation < Thingy
-  attr_reader :direction
+  attr_reader :direction, :radius
 
   def initialize(position, direction, length,
                  id: nil, material: 'elongation_material')
