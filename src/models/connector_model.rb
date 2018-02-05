@@ -5,4 +5,9 @@ class ConnectorModel
     @definition = Sketchup.active_model.definitions.load(ProjectHelper.component_directory + '/connector.skp')
     @definition.name = 'Connector'
   end
+
+  def valid?
+    @definition.valid?
+  end
+
 end

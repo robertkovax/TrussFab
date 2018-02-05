@@ -19,7 +19,9 @@ var forceChart = new Chart(ctx, {
         scales: {
             yAxes: [{
                 ticks: {
-                    beginAtZero:true
+                    beginAtZero:true,
+                    suggestedMin: -5,
+                    suggestedMax: 5
                 }
             }]
         }
@@ -32,4 +34,12 @@ function addData(label, data) {
         dataset.data.push(data);
     });
     forceChart.update();
+}
+
+function shiftData() {
+    forceChart.data.labels.shift();
+    forceChart.data.datasets.forEach((dataset) => {
+        dataset.data.shift();
+    });
+    //forceChart.update({ duration: 0 } );
 }

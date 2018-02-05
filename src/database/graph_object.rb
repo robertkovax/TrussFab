@@ -9,6 +9,10 @@ class GraphObject
     @deleted = false
   end
 
+  def check_if_valid
+    (@thingy && @thingy.check_if_valid) ? true : false
+  end
+
   def delete
     delete_thingy
     Graph.instance.delete_object(self)
@@ -25,7 +29,7 @@ class GraphObject
   end
 
   def highlight
-    @thingy.highlight unless thingy.nil?
+    @thingy.highlight unless @thingy.nil?
   end
 
   def un_highlight

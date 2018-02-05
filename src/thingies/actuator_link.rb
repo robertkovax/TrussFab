@@ -1,33 +1,24 @@
 require 'src/thingies/link.rb'
 require 'src/thingies/link_entities/cylinder.rb'
 require 'src/simulation/simulation.rb'
-require 'src/simulation/joints'
 
 class ActuatorLink < Link
 
-  attr_accessor :damping, :rate, :power, :min, :max
-  attr_reader :piston, :first_cylinder_body, :second_cylinder_body
+  attr_accessor :reduction, :rate, :power, :min, :max
+  attr_reader :joint, :first_cylinder, :second_cylinder
 
   def initialize(first_node, second_node, id: nil)
     @first_cylinder = nil
     @second_cylinder = nil
+    @joint = nil
 
-    @first_cylinder_body = nil
-    @second_cylinder_body = nil
-
-    @piston = nil
     super(first_node, second_node, 'actuator', id: id)
 
-    @first_joint = ThingyBallJoint.new(first_node,
-                                       mid_point.vector_to(@position))
-    @second_joint = ThingyBallJoint.new(second_node,
-                                        mid_point.vector_to(@second_position))
-
-    @damping = 0.0
-    @rate = 1.0
-    @power = 0.0
-    @min = -0.2
-    @max = 0.2
+    @reduction = Configuration::ACTUATOR_REDUCTION
+    @rate = Configuration::ACTUATOR_RATE
+    @power = Configuration::ACTUATOR_POWER
+    @min = Configuration::ACTUATOR_MIN
+    @max = Configuration::ACTUATOR_MAX
 
     persist_entity
   end
@@ -50,59 +41,44 @@ class ActuatorLink < Link
   # Physics methods
   #
 
-  def create_body(world)
-    @first_cylinder_body = @first_cylinder.create_body(world)
-    @second_cylinder_body = @second_cylinder.create_body(world)
-
-    direction_up = @position.vector_to(@second_position)
-    piston_matrix = Geom::Transformation.new(@position, direction_up)
-    @piston = Simulation.create_piston(world,
-                                       @first_cylinder_body,
-                                       @second_cylinder_body,
-                                       piston_matrix,
-                                       @damping,
-                                       @rate,
-                                       @power,
-                                       @min,
-                                       @max)
-
-    [@first_cylinder_body, @second_cylinder_body]
-  end
-
   def create_joints(world, first_node, second_node)
     first_direction = mid_point.vector_to(first_node.position)
     second_direction = mid_point.vector_to(second_node.position)
 
-    @first_joint = ThingyBallJoint.new(first_node,
-                                       first_direction)
-    @second_joint = ThingyBallJoint.new(second_node,
-                                        second_direction)
-
-    @first_joint.create(world, @first_cylinder.body)
-    @second_joint.create(world, @second_cylinder.body)
+    bd1 = first_node.thingy.body
+    bd2 = second_node.thingy.body
+    @joint = TrussFab::PointToPointActuator.new(world, bd1, bd1.group.bounds.center, bd2.group.bounds.center, nil)
+    @joint.solver_model = Configuration::JOINT_SOLVER_MODEL
+    @joint.stiffness = Configuration::JOINT_STIFFNESS
+    @joint.breaking_force = Configuration::JOINT_BREAKING_FORCE
+    @joint.connect(bd2)
+    update_piston
   end
 
-  def create_ball_joints(world, first_node, second_node)
-    create_joints(world, first_node, second_node)
+  def update_link_transformations
+    pt1 = @first_node.thingy.entity.bounds.center
+    pt2 = @second_node.thingy.entity.bounds.center
+    dir = pt2 - pt1
+    return if (dir.length.to_f < 1.0e-6)
+    dir.normalize!
+    
+    ot = Geometry.scale_vector(dir, Configuration::MINIMUM_ELONGATION)
+    t1 = Geom::Transformation.new(pt1 + ot, dir)
+    t2 = Geom::Transformation.new(pt2 - ot, dir.reverse)
+    @first_cylinder.entity.move!(t1)
+    @second_cylinder.entity.move!(t2)
   end
 
   def reset_physics
     super
-    @piston = nil
-    @first_cylinder_body = nil
-    @second_cylinder_body = nil
-    [@first_cylinder, @second_cylinder].each do |cylinder|
-      cylinder.body = nil
-    end
+    @joint = nil
   end
 
   def update_piston
-    return if @piston.nil?
-    @piston.rate = @rate
-    @piston.reduction_ratio = @damping
-    @piston.power = @power
-    @piston.min = @min
-    @piston.max = @max
+    return unless @joint
+    @joint.rate = @rate
+    @joint.reduction_ratio = @reduction
+    @joint.power = @power
   end
 
   #
