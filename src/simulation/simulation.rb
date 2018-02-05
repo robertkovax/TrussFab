@@ -142,7 +142,6 @@ class Simulation
     model.start_operation('Starting Simulation', true)
     begin
       hide_triangle_surfaces
-      hide_force_arrows
       add_ground
       assign_unique_materials
     rescue Exception => err
@@ -165,6 +164,7 @@ class Simulation
       reset_materials
       show_triangle_surfaces if @triangles_hidden
       reset_force_labels
+      reset_force_arrows
     rescue Exception => err
       model.abort_operation
       raise err
@@ -473,11 +473,24 @@ class Simulation
     end
   end
 
+  def update_force_arrows
+    Graph.instance.nodes.values.each do |node|
+      node.thingy.move_force_arrow(node.thingy.body.get_position(1))
+    end
+  end
+
+  def reset_force_arrows
+    Graph.instance.nodes.values.each do |node|
+      node.thingy.reset_force_arrow_position
+    end
+  end
+
   def nextFrame(view)
     model = view.model
     return @running unless (@running && !@paused)
 
     update_world
+    update_force_arrows
 
     model.start_operation('Simulation', true)
 

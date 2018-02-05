@@ -37,6 +37,18 @@ class Hub < PhysicsThingy
     end
   end
 
+  def move_force_arrow(position)
+    return if @arrow.nil?
+    @arrow.move!(Geom::Transformation.new(position))
+    @arrow.transform!(Geom::Transformation.new(Geom::Point3d.new(0, 0, 1)))
+  end
+
+  def reset_force_arrow_position
+    return if @arrow.nil?
+    @arrow.move!(Geom::Transformation.new(@position))
+    @arrow.transform!(Geom::Transformation.new(Geom::Point3d.new(0, 0, 1)))
+  end
+
   def pods
     @sub_thingies.select { |sub_thingy| sub_thingy.is_a?(Pod) }
   end
@@ -55,6 +67,7 @@ class Hub < PhysicsThingy
     @position = position
     @entity.move!(Geom::Transformation.new(position))
     @id_label.point = position
+    move_force_arrow(position)
     @sub_thingies.each { |sub_thingy| sub_thingy.update_position(position) }
   end
 
