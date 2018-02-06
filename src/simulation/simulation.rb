@@ -448,6 +448,12 @@ class Simulation
     @saved_transformations.clear
   end
 
+  def update_forces
+    Graph.instance.nodes.each_value do |node|
+      node.thingy.add_force
+    end
+  end
+
   def update_world_by(time_step)
     steps = (time_step.to_f / Configuration::WORLD_TIMESTEP).to_i
     steps.times do
@@ -489,6 +495,7 @@ class Simulation
     model = view.model
     return @running unless (@running && !@paused)
 
+    update_forces
     update_world
     update_force_arrows
 
