@@ -448,6 +448,9 @@ class Simulation
     Graph.instance.edges.each do |id, edge|
       edge.thingy.update_link_transformations
     end
+    Graph.instance.nodes.values.each do |node|
+      node.move(node.thingy.position)
+    end
     @saved_transformations.clear
   end
 
