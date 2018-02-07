@@ -445,6 +445,12 @@ class Simulation
     @saved_transformations.each do |entity, transformation|
       entity.move!(transformation) if entity.valid?
     end
+    Graph.instance.edges.each do |id, edge|
+      edge.thingy.update_link_transformations
+    end
+    Graph.instance.nodes.values.each do |node|
+      node.move(node.thingy.position)
+    end
     @saved_transformations.clear
   end
 
@@ -471,11 +477,14 @@ class Simulation
       link = edge.thingy
       link.update_link_transformations if link.is_a?(Link)
     end
+    Graph.instance.nodes.values.each do |node|
+      node.move(node.thingy.body.get_position(1))
+    end
   end
 
   def update_force_arrows
     Graph.instance.nodes.values.each do |node|
-      node.thingy.move_force_arrow(node.thingy.body.get_position(1))
+      node.thingy.move_force_arrow(node.position)
     end
   end
 
@@ -579,6 +588,10 @@ class Simulation
   #
   # Force Related Methods
   #
+
+  def add_force_to_node(node, force)
+    node.thingy.body.add_force(force)
+  end
 
   # This is called when simulation starts and assigns unique materials to bottles
   # Note: this must be wrapped in operation
