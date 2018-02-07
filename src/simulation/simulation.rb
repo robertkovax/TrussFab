@@ -461,7 +461,7 @@ class Simulation
       @world.advance
       # We need to record this every time the world updates, otherwise, we might skip the crucial forces involved
       rec_max_actuator_tensions
-      if(@highest_force_mode)
+      if @highest_force_mode
         visualize_highest_tension
       else
         visualize_tensions
@@ -475,7 +475,7 @@ class Simulation
       @world.advance
       # We need to record this every time the world updates, otherwise, we might skip the crucial forces involved
       rec_max_actuator_tensions
-      if(@highest_force_mode)
+      if @highest_force_mode
         visualize_highest_tension
       else
         visualize_tensions
