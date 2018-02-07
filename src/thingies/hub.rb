@@ -39,14 +39,14 @@ class Hub < PhysicsThingy
 
   def move_force_arrow(position)
     return if @arrow.nil?
-    @arrow.move!(Geom::Transformation.new(position))
-    @arrow.transform!(Geom::Transformation.new(Geom::Point3d.new(0, 0, 1)))
+    old_pos = @arrow.transformation.origin
+    movement_vec = old_pos.vector_to(position + Geom::Vector3d.new(0, 0, 1))
+    @arrow.transform!(movement_vec)
   end
 
   def reset_force_arrow_position
     return if @arrow.nil?
-    @arrow.move!(Geom::Transformation.new(@position))
-    @arrow.transform!(Geom::Transformation.new(Geom::Point3d.new(0, 0, 1)))
+    move_force_arrow(@position)
   end
 
   def pods
@@ -87,10 +87,15 @@ class Hub < PhysicsThingy
     @mass += mass
   end
 
+  def add_force
+    return if @body.nil?
+    @body.add_force(Geom::Vector3d.new(0, 0, -@mass))
+  end
+
   def create_body(world)
     @body = Simulation.create_body(world, @entity, :box) # spheres will have it rolling
     @body.collidable = true
-    @body.mass = (@mass > 0) ? @mass : Configuration::HUB_MASS
+    @body.mass = Configuration::HUB_MASS
     @body.static_friction = Configuration::BODY_STATIC_FRICITON
     @body.kinetic_friction = Configuration::BODY_KINETIC_FRICITON
     @body.elasticity = Configuration::BODY_ELASTICITY
