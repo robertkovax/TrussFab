@@ -1,4 +1,5 @@
 use <simple_hinge.scad>
+// just for d
 
 // linear function to get the optiomal distance to the origin
 p1_x = 30;
@@ -11,7 +12,7 @@ m = (p2_y - p1_y) / (p2_x - p1_x);
 b = p1_y - m * p1_x;
 
 function optimal_distance_origin(angle) = (
-    m * angle + b
+  m * angle + b
 );
 
 //connection_angle = 60;
@@ -33,23 +34,17 @@ b_l1 = distance_origin; // add epsilon?
 b_l2 = a_l2;
 b_l3 = elongation_length - b_l1 - b_l2;
 
-//
-//draw_hinge(alpha=connection_angle,
-//    a_l1=l1, a_l2=l2, a_l3=l3, a_with_connector=true,
-//    b_l1=l1, b_l2=l2, b_l3=l3, b_gap=true, b_with_cap=true);
-
-
 draw_hinge(alpha=connection_angle,
-    a_l1=a_l1, a_l2=a_l2, a_l3=a_l3, a_gap=true,
-    b_l1=b_l1, b_l2=b_l2, b_l3=b_l3, b_gap=true);
+  a_l1=a_l1, a_l2=a_l2, a_l3=a_l3, a_gap=true,
+  b_l1=b_l1, b_l2=b_l2, b_l3=b_l3, b_gap=true);
 
 translate([150, 0, 0])
 draw_hinge(alpha=connection_angle,
-    a_l1=a_l1, a_l2=a_l2, a_l3=a_l3, a_gap=true,
-    b_l1=b_l1, b_l2=b_l2, b_l3=b_l3, b_with_connector=true);
+  a_l1=a_l1, a_l2=a_l2, a_l3=a_l3, a_gap=true,
+  b_l1=b_l1, b_l2=b_l2, b_l3=b_l3, b_with_connector=true);
 
 translate([-150, 0, 0])
 draw_hinge(alpha=connection_angle,
-    a_l1=a_l1, a_l2=a_l2, a_l3=a_l3, a_gap=false,
-    b_l1=b_l1, b_l2=b_l2, b_l3=b_l3, b_gap=true, a_with_connector=true);  
-        
+  a_l1=a_l1, a_l2=a_l2, a_l3=a_l3, a_gap=false,
+  b_l1=b_l1, b_l2=b_l2, b_l3=b_l3, b_gap=true, a_with_connector=true);
+

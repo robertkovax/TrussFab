@@ -18,15 +18,15 @@ negativeHeightPLUGPLANE = discHeightPLUGPLANE;
 connectorDataArrayPLUGPLANE = [tubeODPLUG, negativeHeightPLUGPLANE];
 
 module drawPLUGPLANE() {
-        difference() {
-        translate([0,0,-negativeHeightPLUGPLANE+0.5]) //0.2 correction + 0.3 indent (?)
-        cylinder(r=discODPLUGPLANE/2, h=discHeightPLUGPLANE);
-        translate([0,0,-negativeHeightPLUGPLANE+4.2])
-        cylinder(r=discODPLUGPLANE/2-2, h=1);
-        }
-    //bottle holder
-    translate([0,0,-negativeHeightPLUGPLANE+0.5])
-    cylinder(r=holeRadiusPLUGPLANE, h=discHeightPLUGPLANE+2.5);
+  difference() {
+    translate([0,0,-negativeHeightPLUGPLANE+0.5]) //0.2 correction + 0.3 indent (?)
+    cylinder(r=discODPLUGPLANE/2, h=discHeightPLUGPLANE);
+    translate([0,0,-negativeHeightPLUGPLANE+4.2])
+    cylinder(r=discODPLUGPLANE/2-2, h=1);
+  }
+  //bottle holder
+  translate([0,0,-negativeHeightPLUGPLANE+0.5])
+  cylinder(r=holeRadiusPLUGPLANE, h=discHeightPLUGPLANE+2.5);
 }
 
 module holePLUGPLANE(holeLength, distanceToMiddle) { // Just a hole to save material
