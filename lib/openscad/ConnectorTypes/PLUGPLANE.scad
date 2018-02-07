@@ -10,7 +10,7 @@ $fn=200;
 tubeODPLUGPLANE = 2*(12);
 discODPLUGPLANE = 2*(15);
 discHeightPLUGPLANE = 4;
-holederRadiusPLUGPLANE = 0;
+holeRadiusPLUGPLANE = 0;
 
 negativeHeightPLUGPLANE = discHeightPLUGPLANE;
 
@@ -26,7 +26,7 @@ module drawPLUGPLANE() {
         }
     //bottle holder
     translate([0,0,-negativeHeightPLUGPLANE+0.5])
-    cylinder(r=holederRadiusPLUGPLANE, h=discHeightPLUGPLANE+2.5);
+    cylinder(r=holeRadiusPLUGPLANE, h=discHeightPLUGPLANE+2.5);
 }
 
 module holePLUGPLANE(holeLength, distanceToMiddle) { // Just a hole to save material

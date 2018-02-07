@@ -10,7 +10,7 @@ $fn=200;
 tubeODPLUG = 2*(12);
 discODPLUG = 2*(15);
 discHeightPLUG = 4;
-holederRadiusPLUG = 9.8;
+holeRadiusPLUG = 9.8;
 
 negativeHeightPLUG = discHeightPLUG;
 
@@ -26,7 +26,7 @@ module drawPLUG() {
         }
     //bottle holder
     translate([0,0,-negativeHeightPLUGHOLE+0.5])
-    cylinder(r=holederRadiusPLUG, h=discHeightPLUGHOLE+2.5);
+    cylinder(r=holeRadiusPLUG, h=discHeightPLUGHOLE+2.5);
 }
 
 // There are differences but I don't know which version is better.
@@ -42,12 +42,10 @@ module drawPLUG() {
 
 module holePLUG(holeLength, distanceToMiddle) { // Just a hole to save material
   translate([0,0,-50+distanceToMiddle])
-    //cylinder(r=tubeODPLUG/2, h=50);
   translate([0,0,0.1])
   rotate(180,[1,0,0])
-  //cylinder(r=holeRadiusPLUG,h=55+connectorDataDistance+discHeightPLUG);
-    cylinder(r=holeRadiusPLUG,h=holeLength);
-    echo(length=holeLength);
+  cylinder(r=holeRadiusPLUG,h=holeLength);
+  echo(length=holeLength);
 }
 
 
