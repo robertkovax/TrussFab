@@ -50,6 +50,14 @@ class Link < PhysicsThingy
     mid_point
   end
 
+  def toggle_sensor_state
+    @is_sensor = !@is_sensor
+  end
+
+  def is_sensor?
+    @is_sensor
+  end
+
   #
   # Physics methods
   #

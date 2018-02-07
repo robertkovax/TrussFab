@@ -553,9 +553,9 @@ class Simulation
   end
 
   def collect_sensors
-    Graph.instance.nodes.values.each do |node|
-      if node.thingy.is_sensor?
-        @sensors.push(node.thingy)
+    Graph.instance.nodes_and_edges.each do |obj|
+      if obj.thingy.is_sensor?
+        @sensors.push(obj.thingy)
       end
     end
   end
