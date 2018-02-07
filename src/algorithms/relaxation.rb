@@ -11,7 +11,6 @@ class Relaxation
   def initialize(max_iterations: DEFAULT_MAX_ITERATIONS)
     @damping_factor = DAMPING_FACTOR
     @max_iterations = max_iterations
-    @ignore_fixation = false
 
     # We first calculate over several iterations the new positions and
     # only update the final position in the end for performance reasons.
@@ -27,10 +26,6 @@ class Relaxation
 
     # All edges want to preserve their original length in the optimal case.
     @optimal_length = {}
-  end
-
-  def ignore_fixation
-    @ignore_fixation = true
   end
 
   def stretch(edge)
@@ -218,8 +213,6 @@ class Relaxation
   end
 
   def fixed?(node)
-    return false if @ignore_fixation
-
     incidents_frozen = node.incidents.any? do |incident|
       incident.opposite(node).frozen?
     end

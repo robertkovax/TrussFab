@@ -472,6 +472,10 @@ class HingePlacementAlgorithm
               next
             end
 
+            if edge.nodes.any? { |node| node.pod_directions.size > 0 }
+              raise RuntimeError, 'Hinge is connected to edge that has a pod.'
+            end
+
             elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length
             target_elongation = l1 + l2 + l3_min
 
