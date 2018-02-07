@@ -20,7 +20,7 @@ class AddWeightTool < Tool
   end
 
   def addWeightToNode(node)
-    node.thingy.add_mass(20)
+    node.thingy.add_mass(20 * GRAVITY)
     node.thingy.add_force_arrow
   end
 

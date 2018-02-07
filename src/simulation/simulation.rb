@@ -457,17 +457,29 @@ class Simulation
   def update_world_by(time_step)
     steps = (time_step.to_f / Configuration::WORLD_TIMESTEP).to_i
     steps.times do
+      update_forces
       @world.advance
       # We need to record this every time the world updates, otherwise, we might skip the crucial forces involved
       rec_max_actuator_tensions
+      if(@highest_force_mode)
+        visualize_highest_tension
+      else
+        visualize_tensions
+      end
     end
   end
 
   def update_world
     Configuration::WORLD_NUM_ITERATIONS.times do
+      update_forces
       @world.advance
       # We need to record this every time the world updates, otherwise, we might skip the crucial forces involved
       rec_max_actuator_tensions
+      if(@highest_force_mode)
+        visualize_highest_tension
+      else
+        visualize_tensions
+      end
     end
   end
 
@@ -495,18 +507,11 @@ class Simulation
     model = view.model
     return @running unless (@running && !@paused)
 
-    update_forces
-    update_world
-    update_force_arrows
-
     model.start_operation('Simulation', true)
 
+    update_world
+    update_force_arrows
     update_entities
-    if(@highest_force_mode)
-      visualize_highest_tension
-    else
-      visualize_tensions
-    end
 
     model.commit_operation
 
@@ -708,10 +713,7 @@ class Simulation
     Graph.instance.edges.each_value do |edge|
       link = edge.thingy
       if link.is_a?(ActuatorLink)
-        pt1 = link.first_node.thingy.entity.bounds.center
-        pt2 = link.second_node.thingy.entity.bounds.center
-        dir = pt1.vector_to(pt2).normalize
-        net_lin_tension += link.joint.get_linear_tension.dot(dir).to_f
+        net_lin_tension += get_directed_force(link)
       end
     end
     net_lin_tension
