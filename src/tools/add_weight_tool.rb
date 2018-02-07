@@ -1,5 +1,6 @@
 class AddWeightTool < Tool
   GRAVITY = 9.800000190734863
+  WEIGHT = 20 #in kg
 
   def initialize(ui = nil)
     super
@@ -20,7 +21,7 @@ class AddWeightTool < Tool
   end
 
   def addWeightToNode(node)
-    node.thingy.add_mass(20 * GRAVITY)
+    node.thingy.add_mass(WEIGHT * GRAVITY) #in N
     node.thingy.add_force_arrow
   end
 
