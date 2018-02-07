@@ -33,6 +33,11 @@ class Relaxation
     self
   end
 
+  def stretch_to(edge, length)
+    change_length(edge, length)
+    self
+  end
+
   def shrink(edge)
     change_length(edge, edge.next_shorter_length)
     self

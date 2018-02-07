@@ -12,6 +12,10 @@ class EdgeRotation < ThingyRotation
   def vector
     @edge.direction
   end
+
+  def edge
+    @edge
+  end
 end
 
 class PlaneRotation < ThingyRotation

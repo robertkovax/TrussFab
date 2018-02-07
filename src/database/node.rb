@@ -173,6 +173,10 @@ class Node < GraphObject
     end
   end
 
+  def inspect
+    "Node: " + @position.to_s
+  end
+
   private
 
   def create_thingy(id)
