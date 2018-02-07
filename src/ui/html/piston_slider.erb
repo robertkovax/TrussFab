@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="de">
-<link rel="stylesheet" href="../css/ui.css" type="text/css">
+<link rel="stylesheet" href="<%= @root_dir %>/ui/css/ui.css" type="text/css">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript" src="<%= @root_dir %>/ui/js/Chart.min.js"></script>
     <title>PistonSlider</title>
 </head>
 <body>
@@ -20,32 +21,34 @@ Maximum Speed (0 for continuous acceleration):
 <br>
 <input type="number" value="<%= @max_speed %>" step="0.1" onchange="set_max_speed(this.value)"> m/s
 <br><br>
-<button class="tool" onclick="play_pause_simulation()">Play/Pause Simulation</button>
+<button class="tool" onclick="play_pause_simulation()">Play/Pause Simulation</button><br>
+Highest Force Mode:
+<input id="force_mode_checkbox" type="checkbox" onChange="change_highest_force_mode()">
 
 <script type="text/javascript">
     function onChange(id, newValue) {
         sketchup.change_piston(id, newValue);
-    }
-</script>
-<script type="text/javascript">
+    };
+
     function onClick(id) {
         sketchup.test_piston(id)
-    }
-</script>
-<script type="text/javascript">
+    };
+
     function set_breaking_force(value) {
         sketchup.set_breaking_force(value)
-    }
-</script>
-<script type="text/javascript">
+    };
+
     function set_max_speed(value) {
         sketchup.set_max_speed(value)
-    }
-</script>
-<script type="text/javascript">
+    };
+
     function play_pause_simulation() {
         sketchup.play_pause_simulation()
-    }
+    };
+
+    function change_highest_force_mode() {
+        sketchup.change_highest_force_mode(force_mode_checkbox.checked)
+    };
 </script>
 </body>
 </html>

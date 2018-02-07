@@ -14,6 +14,7 @@ class Hub < PhysicsThingy
     @id_label = nil
     @mass = 0
     @arrow = nil
+    @is_sensor = false
     update_id_label
     persist_entity
   end
@@ -36,6 +37,18 @@ class Hub < PhysicsThingy
     end
   end
 
+  def move_force_arrow(position)
+    return if @arrow.nil?
+    @arrow.move!(Geom::Transformation.new(position))
+    @arrow.transform!(Geom::Transformation.new(Geom::Point3d.new(0, 0, 1)))
+  end
+
+  def reset_force_arrow_position
+    return if @arrow.nil?
+    @arrow.move!(Geom::Transformation.new(@position))
+    @arrow.transform!(Geom::Transformation.new(Geom::Point3d.new(0, 0, 1)))
+  end
+
   def pods
     @sub_thingies.select { |sub_thingy| sub_thingy.is_a?(Pod) }
   end
@@ -54,7 +67,16 @@ class Hub < PhysicsThingy
     @position = position
     @entity.move!(Geom::Transformation.new(position))
     @id_label.point = position
+    move_force_arrow(position)
     @sub_thingies.each { |sub_thingy| sub_thingy.update_position(position) }
+  end
+
+  def toggle_sensor_state
+    @is_sensor = !@is_sensor
+  end
+
+  def is_sensor?
+    @is_sensor
   end
 
   #
@@ -66,13 +88,14 @@ class Hub < PhysicsThingy
   end
 
   def create_body(world)
-    @body = Simulation.create_body(world, @entity, collision_type: :sphere)
+    @body = Simulation.create_body(world, @entity, :box) # spheres will have it rolling
     @body.collidable = true
-    @body.mass = @mass <= 0 ? Simulation::HUB_MASS : @mass
-    pods.each do |pod|
-      pod_body = pod.create_body(world)
-      joint_to(world, MSPhysics::Fixed, pod_body, pod.direction, solver_model: 1)
-    end
+    @body.mass = (@mass > 0) ? @mass : Configuration::HUB_MASS
+    @body.static_friction = Configuration::BODY_STATIC_FRICITON
+    @body.kinetic_friction = Configuration::BODY_KINETIC_FRICITON
+    @body.elasticity = Configuration::BODY_ELASTICITY
+    @body.softness = Configuration::BODY_SOFTNESS
+    @body.static = pods?
     @body
   end
 
@@ -93,8 +116,7 @@ class Hub < PhysicsThingy
     return @entity if @entity
     position = Geom::Transformation.translation(@position)
     transformation = position * @model.scaling
-    entity = Sketchup.active_model.entities.add_instance(@model.definition,
-                                                         transformation)
+    entity = Sketchup.active_model.entities.add_instance(@model.definition, transformation)
     entity.layer = Configuration::HUB_VIEW
     entity.material = @material
     entity

@@ -1,3 +1,0 @@
-- Add media recorders. Consider using DirectShow and AVIFile API.
-- Add viewport drawing utility.
-- Implement Socket for communication between SU windows from different computers.

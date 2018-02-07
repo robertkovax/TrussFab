@@ -4,6 +4,8 @@ class RigidityTester
 
   # expects an array of edges that make up a connected_component
   def self.rigid?(edges)
+    #disabled for now, because it causes bugs on bigger structures
+    return false
     nodes = Set.new
     proto_matrix = edges.map do |edge|
       [edge.first_node, edge.second_node].map do |node|
