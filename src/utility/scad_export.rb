@@ -35,7 +35,7 @@ class ScadExport
           raise RuntimeError, 'More than one hinge connected to a hinge.'
         end
 
-        if hinge.is_a? ActuatorHinge
+        if hinge.is_actuator_hinge
           a_gap = true
           b_gap = false
           params = PRESETS::ACTUATOR_HINGE_OPENSCAD.dup

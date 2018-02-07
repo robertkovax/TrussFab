@@ -13,7 +13,7 @@ class ExportCap
     identifier= "#{@hub_id}.#{@other_hub_id}"
     filename = "#{path}/Cap_#{identifier}.scad"
     file = File.new(filename, 'w')
-    defaults = get_defaults_for_openscad PRESETS::CAP_RUBY
+    defaults = get_defaults_for_openscad(PRESETS::CAP_RUBY)
     export_string = [
       "// adjust filepath to LibSTLExport if neccessary",
       "use <#{ProjectHelper.library_directory}/openscad/Hinge/cap.scad>",
