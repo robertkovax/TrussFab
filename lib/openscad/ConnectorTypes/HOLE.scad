@@ -21,13 +21,11 @@ module drawHole() {
 }
 
 module holeHOLE(holeLength, distanceToMiddle) { // Just a hole to save material
-	translate([0,0,-50+distanceToMiddle])
-    //cylinder(r=tubeODHOLE/2, h=50);
-	translate([0,0,0.1])
-	rotate(180,[1,0,0])
-	//cylinder(r=holeRadiusHOLE,h=55+connectorDataDistance+discHeightHOLE);
-    cylinder(r=holeRadiusHOLE,h=holeLength);
-    echo(length=holeLength);
+  translate([0,0,-50+distanceToMiddle])
+  translate([0,0,0.1])
+  rotate(180,[1,0,0])
+  cylinder(r=holeRadiusHOLE,h=holeLength);
+  echo(length=holeLength);
 }
 
 //if (part=="HOLE") drawHole();
