@@ -3,12 +3,13 @@ require 'src/simulation/ball_joint_simulation.rb'
 require 'src/algorithms/rigidity_tester.rb'
 
 class Hinge
-  attr_accessor :edge1, :edge2
+  attr_accessor :edge1, :edge2, :is_actuator_hinge
 
   def initialize(edge1, edge2)
-    raise RuntimeError, 'Edges have to be different.' unless edge1 != edge2
+    raise RuntimeError, 'Edges have to be different.' if edge1 == edge2
     @edge1 = edge1
     @edge2 = edge2
+    @is_actuator_hinge = false
   end
 
   def hash
@@ -21,7 +22,7 @@ class Hinge
 
   def common_edge(other)
     common_edges = [edge1, edge2] & [other.edge1, other.edge2]
-    raise RuntimeError, 'More or no common edge.' unless common_edges.size == 1
+    raise RuntimeError, 'Too many or no common edges.' if common_edges.size != 1
     common_edges[0]
   end
 
@@ -31,7 +32,7 @@ class Hinge
   end
 
   def num_connected_hinges(hinges)
-    hinges.select { |other| not eql?(other) and connected_with?(other) }.size
+    hinges.select { |other| !eql?(other) && connected_with?(other) }.size
   end
 
   def edges
@@ -71,18 +72,17 @@ class Hinge
   end
 end
 
-class ActuatorHinge < Hinge
-
-end
-
 class HingePlacementAlgorithm
   include Singleton
 
   attr_accessor :hubs, :hinges, :node_l1
 
   def initialize()
+    # maps from a node to an array of all subhubs around this node, ordered by size of the subhub
     @hubs = nil
+    # maps from a node to an array of all hinges around this node
     @hinges = nil
+    # maps from a node to the l1 distance, that all hubs and hinges around this node must have
     @node_l1 = nil
   end
 
@@ -131,7 +131,7 @@ class HingePlacementAlgorithm
         raise RuntimeError, 'More than one common edge.'
       end
 
-      if common_edges.size > 0 and common_edges.to_a[0].link_type != 'actuator'
+      if common_edges.size > 0 && common_edges.to_a[0].link_type != 'actuator'
         group_rotations[pair[1]].add(pair[0])
         group_rotations[pair[0]].add(pair[1])
       end
@@ -163,13 +163,10 @@ class HingePlacementAlgorithm
 
     triangles.each do |tri|
       tri.edges.combination(2).each do |e1, e2|
-        same_group = static_groups.any? { |group| group_edge_map[group].include? e1 and group_edge_map[group].include? e2 }
+        same_group = static_groups.any? { |group| group_edge_map[group].include?(e1) && group_edge_map[group].include?(e2) }
         unless same_group
           new_hinge = Hinge.new(e1, e2)
-
-          if tri.contains_actuator?
-            new_hinge = ActuatorHinge.new(e1, e2)
-          end
+          new_hinge.is_actuator_hinge = tri.contains_actuator?
 
           hinges.add(new_hinge)
         end
@@ -194,7 +191,7 @@ class HingePlacementAlgorithm
         # if it is more than 2, one of them needs to be removed
         shared_hinges_count = Hash.new
         new_hinges.each do |hinge|
-          shared_hinges = new_hinges.select { |other_hinge| hinge != other_hinge and (hinge.edges & other_hinge.edges).size > 0 }
+          shared_hinges = new_hinges.select { |other_hinge| hinge != other_hinge && (hinge.edges & other_hinge.edges).size > 0 }
           shared_hinges_count[hinge] = shared_hinges.size
         end
 
@@ -237,6 +234,19 @@ class HingePlacementAlgorithm
     elongate_edges unless @hinges.empty?
 
     # add visualisations
+
+    # shorten elongations for all edges that are not part of the main hub
+    nodes.each do |node|
+      main_hub = hubs[node][0]
+
+      node_edges = edges.select { |edge| edge.nodes.include? node && edge.link_type != 'actuator' }
+      node_edges.each do |edge|
+        if main_hub.nil? || !main_hub.include?(edge)
+          add_elongation(edge, node)
+        end
+      end
+    end
+
     @hinges.each do |node, hinges|
       hinges.each do |hinge|
         visualize_hinge(hinge)
@@ -248,6 +258,12 @@ class HingePlacementAlgorithm
     end
   end
 
+  # make sure that edge1 is the unconnected one if there is one
+  def align_first_hinge(hinges, cur_hinge)
+    other_edges = (hinges - [cur_hinge]).flat_map { |hinge| [hinge.edge1, hinge.edge2] }
+    cur_hinge.swap_edges unless other_edges.include? cur_hinge.edge2
+  end
+
   # orders hinges so that they form a chain
   # also always puts the edge connected to the former hinge as edge1
   def order_hinges(hinge_map)
@@ -256,10 +272,7 @@ class HingePlacementAlgorithm
     hinge_map.each do |node, hinges|
       sorted_hinges = hinges.sort { |h1, h2| h1.num_connected_hinges(hinges) <=> h2.num_connected_hinges(hinges) }
       cur_hinge = sorted_hinges[0]
-
-      # make sure that edge1 is the unconnected one if there is one
-      other_edges = (hinges - [cur_hinge]).flat_map { |hinge| [hinge.edge1, hinge.edge2] }
-      cur_hinge.swap_edges unless other_edges.include? cur_hinge.edge2
+      align_first_hinge(hinges, cur_hinge)
 
       new_hinges = []
       first = true
@@ -269,19 +282,17 @@ class HingePlacementAlgorithm
 
         break if new_hinges.size == hinges.size
 
-        next_hinge_possibilities = hinges.select { |hinge| hinge.connected_with?(cur_hinge) and not new_hinges.include?(hinge) }
+        next_hinge_possibilities = hinges.select { |hinge| hinge.connected_with?(cur_hinge) && !new_hinges.include?(hinge) }
         if next_hinge_possibilities.empty?
           remaining_hinges = sorted_hinges - new_hinges
           cur_hinge = remaining_hinges[0]
-          #TODO: remove duplication
-          other_edges = (remaining_hinges - [cur_hinge]).flat_map { |hinge| [hinge.edge1, hinge.edge2] }
-          cur_hinge.swap_edges unless other_edges.include? cur_hinge.edge2
+          align_first_hinge(hinges, cur_hinge)
           next
         end
 
-        if not first and next_hinge_possibilities.size > 1
+        if !first && next_hinge_possibilities.size > 1
           raise RuntimeError, 'More than one next hinge possible around hinge at node ' + node.id.to_s
-        elsif first and next_hinge_possibilities.size > 2
+        elsif first && next_hinge_possibilities.size > 2
           raise RuntimeError, 'More than two next hinges possible around starting hinge at node ' + node.id.to_s
         end
 
@@ -299,25 +310,26 @@ class HingePlacementAlgorithm
     result
   end
 
-
+  # return a an array of groups of triangles that do not change their angle in regards to each other
+  # we call these groups rigid substructures
   def find_rigid_substructures(edges, rotation_partners)
-    visited_tris = Set.new
+    visited_triangles = Set.new
     groups = []
 
-    tris = Set.new edges.flat_map { |e| e.adjacent_triangles }
-    tris.reject! { |t| t.contains_actuator? }
+    triangles = Set.new edges.flat_map { |e| e.adjacent_triangles }
+    triangles.reject! { |t| t.contains_actuator? }
 
     loop do
-      unvisited_tris = tris - visited_tris
+      unvisited_tris = triangles - visited_triangles
 
       if unvisited_tris.empty?
         break
       end
 
-      tri = unvisited_tris.to_a.sample
+      triangle = unvisited_tris.to_a.sample
       new_group = Set.new
 
-      recursive_find_substructure(tri, new_group, visited_tris, rotation_partners)
+      recursive_find_substructure(triangle, new_group, visited_triangles, rotation_partners)
 
       groups.push(new_group)
     end
@@ -325,15 +337,15 @@ class HingePlacementAlgorithm
     groups
   end
 
-  def recursive_find_substructure(tri, group, visited_tris, rotation_partners)
-    visited_tris.add(tri)
-    group.add(tri)
+  def recursive_find_substructure(triangle, group, visited_triangles, rotation_partners)
+    visited_triangles.add(triangle)
+    group.add(triangle)
 
-    tri.adjacent_triangles.reject { |t| t.contains_actuator? }.each do |other_tri|
-      is_visited = visited_tris.include?(other_tri)
-      is_rotating = rotation_partners[tri].include?(other_tri)
-      if not is_visited and not is_rotating
-        recursive_find_substructure(other_tri, group, visited_tris, rotation_partners)
+    triangle.adjacent_triangles.reject { |t| t.contains_actuator? }.each do |other_triangle|
+      is_visited = visited_triangles.include?(other_triangle)
+      is_rotating = rotation_partners[triangle].include?(other_triangle)
+      if !is_visited && !is_rotating
+        recursive_find_substructure(other_triangle, group, visited_triangles, rotation_partners)
       end
     end
   end
@@ -371,7 +383,7 @@ class HingePlacementAlgorithm
     # Draw hinge visualization
     mid_point = Geom::Point3d.linear_combination(0.5, mid_point2, 0.5, mid_point1)
 
-    if hinge.is_a? ActuatorHinge
+    if hinge.is_actuator_hinge
       mid_point = Geom::Point3d.linear_combination(0.75, mid_point, 0.25, node.position)
     end
 
