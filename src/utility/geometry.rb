@@ -159,4 +159,8 @@ module Geometry
     pb = s0 + scale(v, b)
     point.distance(pb)
   end
+
+  def self.midpoint(point1, point2)
+    return Geom::Point3d.new((point1.x + point2.x)/2, (point1.y + point2.y)/2, (point1.z + point2.z)/2)
+  end
 end
