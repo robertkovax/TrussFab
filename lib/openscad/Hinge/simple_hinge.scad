@@ -1,7 +1,7 @@
 include <../Util/text_on.scad>
 use <../Util/line_calculations.scad>
-use <../Misc/Prism.scad>
-use <../Misc/Hexagon.scad>
+use <../Models/Prism.scad>
+use <../Models/Hexagon.scad>
 use <util.scad>
 
 text_size = 7;
