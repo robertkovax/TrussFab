@@ -50,13 +50,11 @@ module construct_cylinder_at_position(vector, distance, h, r) {
 
   translate(translating_vector)
   multmatrix(qmat) // rotation for connection vector
-  difference() {
-    cylinder(h=h, r=r, center=true);
-  }
+  cylinder(h=h, r=r, center=true);
 }
 
 // construct to later substract
-module construct_a_gap(vector, gap_height, gap_epsilon, round_size) {
+module construct_a_gap(vector, gap_height, gap_epsilon, gap_extra_round_size, round_size) {
   union() {
     for (i = [0:1]) {
       gap_distance_from_origin = hinge_a_y_gap(l1, gap_height, gap_epsilon, i);
@@ -66,13 +64,21 @@ module construct_a_gap(vector, gap_height, gap_epsilon, round_size) {
 }
 
 // construct to later substract
-module construct_b_gap(vector, gap_height, gap_epsilon, round_size) {
+module construct_b_gap(vector, gap_height, gap_epsilon, gap_extra_round_size, round_size) {
   union() {
     for (i = [0:1]) {
       gap_distance_from_origin = hinge_b_y_gap(l1, gap_height, gap_epsilon, i);
-      construct_cylinder_at_position(vector, gap_distance_from_origin, gap_height, round_size + 3);
+      construct_cylinder_at_position(vector, gap_distance_from_origin, gap_height, round_size + gap_extra_round_size);
     }
   }
+}
+
+module construct_bottle_connector(vector, l1, l2, l3, round_size, connector_end_round, connector_end_heigth, connector_end_extra_round, connector_end_extra_height) {
+  construct_cylinder_at_position(vector, l1, l2 + l3, round_size);
+
+  construct_cylinder_at_position(vector, l1 + l2 + l3 - connector_end_heigth, connector_end_heigth, connector_end_round);
+
+  construct_cylinder_at_position(vector, l1 + l2 + l3, connector_end_extra_height, connector_end_extra_round);
 }
 
 // construct to later substract
@@ -91,7 +97,12 @@ module construct_hubless(
   round_size,
   hole_size,
   gap_height,
-  gap_epsilon
+  gap_epsilon,
+  gap_extra_round_size,
+  connector_end_round,
+  connector_end_heigth,
+  connector_end_extra_round,
+  connector_end_extra_height
   ) {
   vectors = 1.5 * (l1 + l2) * normal_vectors;
 
@@ -103,8 +114,7 @@ module construct_hubless(
         if (types[i] == "a_gap" || types[i] == "b_gap") {
           construct_cylinder_at_position(normal_vectors[i], l1, l2, round_size);
         } else  if (types[i] == "bottle_connector") {
-          // TODO: REAL_CONNECTOR
-          construct_cylinder_at_position(normal_vectors[i], l1, l2, round_size);
+          construct_bottle_connector(normal_vectors[i], l1, l2, l3[i], round_size, connector_end_round, connector_end_heigth, connector_end_extra_round, connector_end_extra_height);
         }
       }
     }
@@ -112,9 +122,9 @@ module construct_hubless(
       construct_screw_holes(normal_vectors, l1, l2, hole_size);
       for (i=[0:len(normal_vectors)]) {
         if (types[i] == "a_gap") {
-          construct_a_gap(normal_vectors[i], gap_height, gap_epsilon, round_size);
+          construct_a_gap(normal_vectors[i], gap_height, gap_epsilon, gap_extra_round_size, round_size);
         } else if (types[i] == "b_gap") {
-          construct_b_gap(normal_vectors[i], gap_height, gap_epsilon, round_size);
+          construct_b_gap(normal_vectors[i], gap_height, gap_epsilon, gap_extra_round_size, round_size);
         }
       }
     }
@@ -132,6 +142,13 @@ normal_vectors = [[-0.9948266171932849, -0.00015485714145741815, 0.1015872912476
 [-0.026760578914151064, -0.01836892195863407, -0.9994730882431289]];
 
 types = ["a_gap", "b_gap", "bottle_connector", "bottle_connector"];
-l3 = [0, 0, 0, 0];
+l3 = [0, 0, 10, 10];
 
-construct_hubless(normal_vectors, types, l1, l2, l3, 12, 3, 10, 0.1);
+gap_epsilon=0.8000000000000002;
+gap_extra_round_size = 3;
+
+construct_hubless(normal_vectors, types, l1, l2, l3, 12, 3, 10, gap_epsilon, gap_extra_round_size,
+                  connector_end_round=15.0,
+connector_end_heigth=3.7,
+connector_end_extra_round=9.95,
+connector_end_extra_height=3.9999999999999996);
