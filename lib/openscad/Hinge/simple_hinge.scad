@@ -2,6 +2,7 @@ include <../Util/text_on.scad>
 use <../Util/line_calculations.scad>
 use <../Misc/Prism.scad>
 use <../Misc/Hexagon.scad>
+use <util.scad>
 
 text_size = 7;
 text_spacing = 0.9;
@@ -16,7 +17,7 @@ module cut_out_b_gap(l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_heig
   mirror([1, 0, 0])
   union() {
     for (ii = [0:1]) {
-      y_height_gap_cut = l1 + gap_height + ii * (2 * gap_height + gap_epsilon);
+      y_height_gap_cut = hinge_b_y_gap(l1, gap_height, gap_epsilon, ii);
       for (i = [0:1]) {
         // 270: 180 deg because it's the other site and then (90 - deg)
         gap_angle_i = i == 0 ? - gap_angle : gap_angle - 270;
@@ -34,7 +35,7 @@ module cut_out_a_gap(l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_heig
   union() {
     for (ii = [0:1]) {
       extra_offset = ii == 0 ? 100 : 0;
-      y_height_gap_cut = l1 + ii * (gap_height + gap_height_e);
+      y_height_gap_cut = hinge_a_y_gap(l1, gap_height, gap_epsilon, ii);
       for (i = [0:1]) {
         gap_angle_i = i == 0 ? -gap_angle : gap_angle - 270;
         rotate([0, gap_angle_i, 0])
