@@ -25,6 +25,7 @@ module construct_intersection_poly(vectors) {
   }
 }
 
+
 module construct_spheres(outer_radius, inner_radius) {
   difference() {
     mirror([0, 0, 1])
@@ -36,8 +37,7 @@ module construct_spheres(outer_radius, inner_radius) {
   }
 }
 
-
-module create_intersection(vectors, l1, l2) {
+module construct_base_model(vectors, l1, l2) {
   intersection() {
     construct_intersection_poly(vectors);
     construct_spheres(outer_radius=l1 + l2, inner_radius=l1);
@@ -46,7 +46,6 @@ module create_intersection(vectors, l1, l2) {
 
 module construct_cylinders_at_position(vector, distance, h, r) {
   translating_vector = vector * distance  + vector * h / 2;
-
   start_position_vector = [0, 0, 1]; // starting position of the vector
 
   q = getQuatWithCrossproductCheck(start_position_vector,vector);
@@ -65,33 +64,74 @@ module construct_multiple_cylinders_at_positin(normal_vectors, distance, h, r) {
   }
 }
 
-module construct_hubless(normal_vectors, l1, l2, l3, round_size, hole_size, gap_size, gap_play) {
-  vectors = 1.5 * (l1 + l2 + l3) * normal_vectors;
-
-  difference() {
-    union() {
-      create_intersection(vectors, l1, l2);
-      construct_multiple_cylinders_at_positin(normal_vectors, l1, l2, round_size);
-    }
-    union() {
-      gap_distance_from_origin = l1 + gap_size + gap_play;
-      construct_multiple_cylinders_at_positin(normal_vectors, gap_distance_from_origin, gap_size,  round_size + 3);
-
-      gap_distance_from_origin_2 = l1 + gap_size * 3 + gap_play * 3;
-      construct_multiple_cylinders_at_positin(normal_vectors, gap_distance_from_origin_2, gap_size,  round_size + 3);
-
-      construct_multiple_cylinders_at_positin(normal_vectors, l1 / 2, l2 * 2, hole_size);
-      }
+// construct to later substract
+module construct_a_gap(vector, gap_size, gap_play, round_size) {
+  union() {
+    gap_distance_from_origin_1 = l1 + gap_size + gap_play;
+    construct_cylinders_at_position(vector, gap_distance_from_origin_1, gap_size, round_size + 3);
+    
+    gap_distance_from_origin_2 = l1 + gap_size * 3 + gap_play * 3;
+    construct_cylinders_at_position(vector, gap_distance_from_origin_2, gap_size, round_size + 3);
   }
 }
 
+// construct to later substract
+module construct_screw_holes(normal_vectors, l1, l2, hole_size) {
+  construct_multiple_cylinders_at_positin(normal_vectors, l1 / 2, l2 * 2, hole_size);
+}
+
+module construct_hubless(
+  normal_vectors, // array of vectors
+  types, // array of types
+  l1,
+  l2,
+  l3, // array of l3
+  round_size,
+  hole_size,
+  gap_size,
+  gap_play
+  ) {
+  vectors = 1.5 * (l1 + l2) * normal_vectors;
+
+  difference() {
+    union() {
+      construct_base_model(vectors, l1, l2);
+      
+      for (i=[0:len(normal_vectors)]) {
+        if (types[i] == "a_gap" || types[i] == "b_gap") {
+          construct_cylinders_at_position(normal_vectors[i], l1, l2, round_size);
+        } else  if (types[i] == "bottle_connector") {
+          // TODO: REAL_CONNECTOR
+          construct_cylinders_at_position(normal_vectors[i], l1, l2, round_size);
+        }
+      }
+    }
+    union() {
+      construct_screw_holes(normal_vectors, l1, l2, hole_size);
+      for (i=[0:len(normal_vectors)]) {
+        if (types[i] == "a_gap") {
+          construct_a_gap(normal_vectors[i], gap_size, gap_play, round_size);
+        } else if (types[i] == "b_gap") {
+          // TODO
+          construct_a_gap(normal_vectors[i], gap_size, gap_play, round_size);      
+        }
+      }
+    }
+  }
+}
+
+// for dev only
+
 l1 = 30;
 l2 = 10 * 4 + 2 * 0.1;
-l3 = 10;
+//l3 = 10;
 
 normal_vectors = [[-0.9948266171932849, -0.00015485714145741815, 0.1015872912476312],
 [-0.3984857593670732, -0.28854789426039135, 0.8706027867515364],
 [-0.4641256842132446, -0.883604515803502, 0.06189029734333352],
 [-0.026760578914151064, -0.01836892195863407, -0.9994730882431289]];
 
-construct_hubless(normal_vectors, l1, l2, l3, 12, 3, 10, 0.1);
+types = ["a_gap", "b_gap", "bottle_connector", "bottle_connector"];
+l3 = [0, 0, 0, 0];
+
+construct_hubless(normal_vectors, types, l1, l2, l3, 12, 3, 10, 0.1);
