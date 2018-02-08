@@ -66,8 +66,3 @@ def save_to_scad(hash, path)
     file.write(lines.join("\n"))
   end
 end
-
-# a helper for exporting the presets for developing
-if $PROGRAM_NAME == __FILE__
-  save_to_scad SIMPLE_HINGE_OPENSCAD, 'lib/openscad/Hinge/preset.scad'
-end
