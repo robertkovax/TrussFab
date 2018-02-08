@@ -13,7 +13,6 @@ class Pod < Thingy
     @position = position
     @direction = direction
     @model = ModelStorage.instance.models['pod']
-    @body = nil
     @node = node
     @direction.length = @model.length
     @entity = create_entity
@@ -31,14 +30,6 @@ class Pod < Thingy
     @position = position
     delete_entity
     @entity = create_entity
-  end
-
-  def create_body(world)
-    @body = Simulation.create_body(world, @entity)
-    @body.collidable = true
-    @body.mass = Simulation::POD_MASS
-    @body.static = true
-    @body
   end
 
   def delete

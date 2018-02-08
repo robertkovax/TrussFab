@@ -108,10 +108,39 @@ module Geometry
 
   def self.scale(vector, scalar)
     cloned_vector = vector.clone
-    if cloned_vector.length > 0 
+    if cloned_vector.length > 0
       cloned_vector.length = cloned_vector.length * scalar
     end
     cloned_vector
+  end
+
+  def self.scale_vector(vector, mag)
+    Geom::Vector3d.new(vector.x * mag, vector.y * mag, vector.z * mag)
+  end
+
+  def self.blend_colors(colors, ratio)
+    if colors.size < 2
+      raise(TypeError, "Expected at least two colors")
+    end
+    ratio = ratio.to_f
+    if ratio < 1.0e-6
+      Sketchup::Color.new(colors.first)
+    elsif ratio > 0.9999
+      Sketchup::Color.new(colors.last)
+    else
+      cr = (colors.size - 1) * ratio
+      i1 = cr.to_i
+      i2 = i1 + 1
+      i2 -= 1 if (i2 == colors.size)
+      lr = cr - i1.to_f
+      c1 = colors[i1]
+      c2 = colors[i2]
+      r = (c1.red + (c2.red - c1.red) * lr).to_i
+      g = (c1.green + (c2.green - c1.green) * lr).to_i
+      b = (c1.blue + (c2.blue - c1.blue) * lr).to_i
+      a = (c1.alpha + (c2.alpha - c1.alpha) * lr).to_i
+      Sketchup::Color.new(r, g, b, a)
+    end
   end
 
   # http://geomalgorithms.com/a02-_lines.html
@@ -129,5 +158,9 @@ module Geometry
     b = c1 / c2
     pb = s0 + scale(v, b)
     point.distance(pb)
+  end
+
+  def self.midpoint(point1, point2)
+    return Geom::Point3d.new((point1.x + point2.x)/2, (point1.y + point2.y)/2, (point1.z + point2.z)/2)
   end
 end

@@ -19,9 +19,6 @@ class Node < GraphObject
 
   def move(position)
     @position = position
-    @thingy.update_position(position)
-    @incidents.each(&:move)
-    @adjacent_triangles.each(&:move)
   end
 
   def transform(transformation)

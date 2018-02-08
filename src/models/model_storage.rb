@@ -12,18 +12,31 @@ class ModelStorage
 
   def initialize
     @models = {}
-    setup_models
   end
 
-  private
-
   def setup_models
-    components = Sketchup.active_model.definitions
-    @models['ball_hub'] = components['Hub'].nil? ? BallHubModel.new : components['Hub']
-    @models['connector'] = components['Connector'].nil? ? ConnectorModel.new : components['Connector']
-    @models['pod'] = components['Pod'].nil? ? PodModel.new : components['Pod']
-    @models['hard'] = BottleModel.new('hard', Configuration::HARD_MODELS)
-    @models['actuator'] = ActuatorModel.new
-    @models['force_arrow'] = ForceArrowModel.new
+    if @models['ball_hub'].nil? || !@models['ball_hub'].valid?
+      @models['ball_hub'] = BallHubModel.new
+    end
+
+    if @models['connector'].nil? || !@models['connector'].valid?
+      @models['connector'] = ConnectorModel.new
+    end
+
+    if @models['pod'].nil? || !@models['pod'].valid?
+      @models['pod'] = PodModel.new
+    end
+
+    if @models['hard'].nil? || !@models['hard'].valid?
+      @models['hard'] = BottleModel.new('hard', Configuration::HARD_MODELS)
+    end
+
+    if @models['actuator'].nil? || !@models['actuator'].valid?
+      @models['actuator'] = ActuatorModel.new
+    end
+
+    if @models['force_arrow'].nil? || !@models['force_arrow'].valid?
+      @models['force_arrow'] = ForceArrowModel.new
+    end
   end
 end

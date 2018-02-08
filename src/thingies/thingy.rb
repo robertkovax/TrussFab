@@ -14,56 +14,64 @@ class Thingy
     @deleted = false
   end
 
+  def check_if_valid
+    return false if (@entity && !@entity.valid?)
+    @sub_thingies.each { |sub_thingy|
+      return false unless sub_thingy.check_if_valid
+    }
+    true
+  end
+
   def all_entities
     entities = []
-    entities.push(@entity) unless @entity.nil?
-    @sub_thingies.each do |thingy|
+    entities.push(@entity) if @entity && @entity.valid?
+    @sub_thingies.each { |thingy|
       entities.concat(thingy.all_entities)
-    end
+    }
     entities
   end
 
   def transform(transformation)
-    @entity.transform!(transformation) unless @entity.nil?
+    @entity.transform!(transformation) if @entity && @entity.valid?
     @sub_thingies.each { |thingy| thingy.transform(transformation) }
   end
 
   def change_color(color)
-    @entity.material = color unless @entity.nil?
+    @entity.material = color if @entity && @entity.valid?
     @sub_thingies.each { |thingy| thingy.change_color(color) }
   end
 
   def hide
-    @entity.hidden = true unless @entity.nil?
+    @entity.hidden = true if @entity && @entity.valid?
     @sub_thingies.each(&:hide)
   end
 
   def show
-    @entity.hidden = false unless @entity.nil?
+    @entity.hidden = false if @entity && @entity.valid?
     @sub_thingies.each(&:hide)
   end
 
   def color
-    @entity.material unless @entity.nil?
+    @entity.material if @entity && @entity.valid?
   end
 
   def material=(material)
-    @entity.material = material
+    @entity.material = material if @entity && @entity.valid?
     @sub_thingies.each { |thingy| thingy.material = material }
   end
 
   def highlight(highlight_material = @highlight_material)
-    @entity.material = highlight_material unless @entity.nil?
+    @entity.material = highlight_material if @entity && @entity.valid?
     @sub_thingies.each { |thingy| thingy.highlight(highlight_material) }
   end
 
   def un_highlight
-    @entity.material = @material unless @entity.nil?
+    @entity.material = @material if @entity && @entity.valid?
     @sub_thingies.each(&:un_highlight)
   end
 
   def delete_entity
-    @entity.erase! unless @entity.nil? || @entity.deleted?
+    @entity.erase! if @entity && @entity.valid?
     @entity = nil
   end
 

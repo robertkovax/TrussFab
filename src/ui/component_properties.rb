@@ -74,39 +74,22 @@ class ComponentProperties
   def register_callbacks
     # pistons
     @dialog.add_action_callback('set_damping') do |dialog, param|
-      value = param.to_f
-      Sketchup.active_model.start_operation("Set Piston Damping", true)
-      @actuator.damping = value
+      @actuator.reduction = param.to_f
       @actuator.update_piston
-      Sketchup.active_model.commit_operation
     end
     @dialog.add_action_callback('set_rate') do |dialog, param|
-      value = param.to_f
-      Sketchup.active_model.start_operation("Set Piston Rate", true)
-      @actuator.rate = value
+      @actuator.rate = param.to_f
       @actuator.update_piston
-      Sketchup.active_model.commit_operation
     end
     @dialog.add_action_callback('set_power') do |dialog, param|
-      value = param.to_f
-      Sketchup.active_model.start_operation("Set Piston Power", true)
-      @actuator.power = value
+      @actuator.power = param.to_f
       @actuator.update_piston
-      Sketchup.active_model.commit_operation
     end
     @dialog.add_action_callback('set_min') do |dialog, param|
-      value = param.to_f
-      Sketchup.active_model.start_operation("Set Piston Minimum", true)
-      @actuator.min = value
-      @actuator.update_piston
-      Sketchup.active_model.commit_operation
+      @actuator.min = param.to_f
     end
     @dialog.add_action_callback('set_max') do |dialog, param|
-      value = param.to_f
-      Sketchup.active_model.start_operation("Set Piston Maximum", true)
-      @actuator.max = value
-      @actuator.update_piston
-      Sketchup.active_model.commit_operation
+      @actuator.max = param.to_f
     end
   end
 end

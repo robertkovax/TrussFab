@@ -11,4 +11,9 @@ class BallHubModel
 
     @scaling = Geom::Transformation.scaling(scaling_factor)
   end
+
+  def valid?
+    @definition.valid?
+  end
+
 end

@@ -1,9 +1,8 @@
 require 'src/tools/tool.rb'
 require 'src/utility/mouse_input.rb'
-require 'src/simulation/ball_joint_simulation.rb'
+require 'src/simulation/simulation.rb'
 require 'src/algorithms/rigidity_tester.rb'
-require 'src/simulation/joints'
-require 'src/simulation/thingy_rotation'
+require 'src/simulation/thingy_rotation.rb'
 
 class ActuatorTool < Tool
 
@@ -64,17 +63,17 @@ class ActuatorTool < Tool
   #
 
   def start_simulation
-    @simulation = BallJointSimulation.new
+    @simulation = Simulation.new
     @simulation.setup
     @simulation.disable_gravity
-    piston = @edge.thingy.piston
-    piston.controller = 0.4
+    piston = @edge.thingy.joint
+    piston.controller = 0
     @simulation.start
     @simulation.update_world_by(2)
   end
 
   def reset_simulation
-    @simulation.stop
+    @simulation.reset
     @simulation = nil
   end
 

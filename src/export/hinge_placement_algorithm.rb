@@ -1,5 +1,5 @@
 require 'singleton'
-require 'src/simulation/ball_joint_simulation.rb'
+require 'src/simulation/simulation.rb'
 require 'src/algorithms/rigidity_tester.rb'
 
 class Hinge
@@ -394,17 +394,17 @@ class HingePlacementAlgorithm
   end
 
   def start_simulation(edge)
-    @simulation = BallJointSimulation.new
+    @simulation = Simulation.new
     @simulation.setup
     @simulation.disable_gravity
-    piston = edge.thingy.piston
+    piston = edge.thingy.joint
     piston.controller = 0.6
     @simulation.start
     @simulation.update_world_by(2)
   end
 
   def reset_simulation
-    @simulation.stop
+    @simulation.reset
     @simulation = nil
   end
 
@@ -459,7 +459,6 @@ class HingePlacementAlgorithm
 
     loop do
       relaxation = Relaxation.new
-      relaxation.ignore_fixation
 
       is_finished = true
 
@@ -470,6 +469,10 @@ class HingePlacementAlgorithm
           [hinge.edge1, hinge.edge2].each do |edge|
             if edge.link_type == 'actuator'
               next
+            end
+
+            if edge.nodes.any? { |node| node.pod_directions.size > 0 }
+              raise RuntimeError, 'Hinge is connected to edge that has a pod.'
             end
 
             elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length

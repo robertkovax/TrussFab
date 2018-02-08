@@ -6,4 +6,9 @@ class PodModel
     @definition.name = 'Pod'
     @length = @definition.bounds.depth
   end
+
+  def valid?
+    @definition.valid?
+  end
+
 end
