@@ -82,10 +82,8 @@ module construct_bottle_connector(vector, l1, l2, l3, round_size, connector_end_
 }
 
 // construct to later substract
-module construct_screw_holes(normal_vectors, l1, l2, hole_size) {
-  for(n_v = normal_vectors) {
-    construct_cylinder_at_position(n_v, l1 / 2, l2 * 2, hole_size);
-  }
+module construct_screw_hole(vector, l1, l2, hole_size) {
+  construct_cylinder_at_position(vector, l1 / 2, l2 * 2, hole_size);
 }
 
 module construct_hubless(
@@ -119,11 +117,12 @@ module construct_hubless(
       }
     }
     union() {
-      construct_screw_holes(normal_vectors, l1, l2, hole_size);
       for (i=[0:len(normal_vectors)]) {
         if (types[i] == "a_gap") {
+          construct_screw_hole(normal_vectors[i], l1, l2, hole_size);
           construct_a_gap(normal_vectors[i], gap_height, gap_epsilon, gap_extra_round_size, round_size);
         } else if (types[i] == "b_gap") {
+          construct_screw_hole(normal_vectors[i], l1, l2, hole_size);
           construct_b_gap(normal_vectors[i], gap_height, gap_epsilon, gap_extra_round_size, round_size);
         }
       }
