@@ -293,11 +293,11 @@ module draw_hinge(
 draw_hinge(
 alpha=40,
 a_l1=35.0,
-a_l2=41.199999999999996,
+a_l2=41.6,
 a_l3=10.0,
 a_gap=true,
 b_l1=35.0,
-b_l2=41.199999999999996,
+b_l2=41.6,
 b_l3=10.0,
 b_gap=true,
 a_with_connector=true,

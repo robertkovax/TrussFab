@@ -88,7 +88,8 @@ module construct_screw_hole(vector, l1, l2, hole_size) {
 
 module construct_hubless(
   normal_vectors, // array of vectors
-  types, // array of types
+  gap_types, // array o
+  connector_types,
   l1,
   l2,
   l3, // array of l3
@@ -109,19 +110,22 @@ module construct_hubless(
       construct_base_model(vectors, l1, l2);
 
       for (i=[0:len(normal_vectors)]) {
-        if (types[i] == "a_gap" || types[i] == "b_gap") {
+        if (gap_types[i] != undef) {
           construct_cylinder_at_position(normal_vectors[i], l1, l2, round_size);
-        } else  if (types[i] == "bottle_connector") {
-          construct_bottle_connector(normal_vectors[i], l1, l2, l3[i], round_size, connector_end_round, connector_end_heigth, connector_end_extra_round, connector_end_extra_height);
+        }
+        if (connector_types[i] == "bottle") {
+          construct_bottle_connector(normal_vectors[i], l1, l2, l3[i], round_size,
+            connector_end_round, connector_end_heigth, connector_end_extra_round, connector_end_extra_height);
         }
       }
     }
     union() {
       for (i=[0:len(normal_vectors)]) {
-        if (types[i] == "a_gap") {
+        if (gap_types[i] == "a") {
           construct_screw_hole(normal_vectors[i], l1, l2, hole_size);
           construct_a_gap(normal_vectors[i], gap_height, gap_epsilon, gap_extra_round_size, round_size);
-        } else if (types[i] == "b_gap") {
+        }
+        if (gap_types[i] == "b") {
           construct_screw_hole(normal_vectors[i], l1, l2, hole_size);
           construct_b_gap(normal_vectors[i], gap_height, gap_epsilon, gap_extra_round_size, round_size);
         }
@@ -133,20 +137,22 @@ module construct_hubless(
 // for dev only
 
 l1 = 30;
-l2 = 41.199999999999996;
+l2 = 40 + 0.8 * 2;
 
 normal_vectors = [[-0.9948266171932849, -0.00015485714145741815, 0.1015872912476312],
 [-0.3984857593670732, -0.28854789426039135, 0.8706027867515364],
 [-0.4641256842132446, -0.883604515803502, 0.06189029734333352],
 [-0.026760578914151064, -0.01836892195863407, -0.9994730882431289]];
 
-types = ["a_gap", "b_gap", "bottle_connector", "bottle_connector"];
-l3 = [0, 0, 10, 10];
+gap_types = ["b", "a", undef, undef];
+connector_types = [undef, "bottle", "bottle", "bottle"];
+
+l3 = [undef, 10, 10, 10];
 
 gap_epsilon=0.8000000000000002;
 gap_extra_round_size = 3;
 
-construct_hubless(normal_vectors, types, l1, l2, l3, 12, 3, 10, gap_epsilon, gap_extra_round_size,
+construct_hubless(normal_vectors, gap_types, connector_types, l1, l2, l3, 12, 3, 10, gap_epsilon, gap_extra_round_size,
                   connector_end_round=15.0,
 connector_end_heigth=3.7,
 connector_end_extra_round=9.95,
