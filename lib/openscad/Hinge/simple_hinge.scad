@@ -12,7 +12,7 @@ module add_text(text) {
   text_on_cube(t=text, cube_size=0, locn_vec=v, size=text_size, face="top", center=false, spacing=text_spacing);
 }
 
-module cut_out_b_cap(l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e) {
+module cut_out_b_gap(l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e) {
   mirror([1, 0, 0])
   union() {
     for (ii = [0:1]) {
@@ -30,7 +30,7 @@ module cut_out_b_cap(l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_heig
   }
 }
 
-module cut_out_a_cap(l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e) {
+module cut_out_a_gap(l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e) {
   union() {
     for (ii = [0:1]) {
       extra_offset = ii == 0 ? 100 : 0;
@@ -63,8 +63,8 @@ module cut_out_top_part(alpha, a_l1, a_l2, b_l1, b_l2, depth) {
   t1 = longest;
   m1 = 0;
 
-  the_angle = 90 + (90 - alpha / 2); // used later to get the slopes
-  m2 = tan(the_angle);
+  real_angle_on_the_line = 90 + (90 - alpha / 2); // used later to get the slopes
+  m2 = tan(real_angle_on_the_line);
   t2 = t1 / (cos(alpha / 2)); // ankathete
 
   // We need to find the intersecion of l1 and l2 to determin how much we have to cut away.
@@ -75,6 +75,7 @@ module cut_out_top_part(alpha, a_l1, a_l2, b_l1, b_l2, depth) {
   cube([intersection_x * 2 + SKIM, CUT_OFF_TOP * 2, depth + SKIM], center=true);
 }
 
+// add support material when the degress for the alpha are very high
 module add_bottom_for_higher_degrees(alpha, a_l1, a_l2, b_l1, b_l2, depth) {
   cube_height = max(a_l1, b_l1);
 
@@ -85,8 +86,8 @@ module add_bottom_for_higher_degrees(alpha, a_l1, a_l2, b_l1, b_l2, depth) {
   t1 = longest;
   m1 = 0;
 
-  the_angle = 90 + (90 - alpha / 2); // used later to get the slope
-  m2 = tan(the_angle);
+  real_angle_on_the_line = 90 + (90 - alpha / 2); // used later to get the slope
+  m2 = tan(real_angle_on_the_line);
   t2 = t1 / (cos(alpha / 2)); // ankathete
 
   // We need to find the intersecion of l1 and l2 to determin how much we have to cut away.
@@ -102,7 +103,7 @@ module add_bottom_for_higher_degrees(alpha, a_l1, a_l2, b_l1, b_l2, depth) {
 }
 
 
-module hingepart(l1, l2, l3, gap, with_connector, label, id_label,
+module construct_hinge_part(l1, l2, l3, gap, with_connector, label, id_label,
     depth, width, round_size, hole_size,
     gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e,
     connector_end_round, connector_end_heigth,
@@ -127,7 +128,7 @@ module hingepart(l1, l2, l3, gap, with_connector, label, id_label,
 
                 translate([width - round_size, l2 + l3, depth / 2])
                 rotate([-90, 0, 0])
-                cylinder(connector_end_extra_height, connector_end_extra_round,            connector_end_extra_round);
+                cylinder(connector_end_extra_height, connector_end_extra_round, connector_end_extra_round);
             }
         }
 
@@ -152,9 +153,8 @@ module hingepart(l1, l2, l3, gap, with_connector, label, id_label,
 
             } else {
                 l_b = len(label);
-                bla = l_b == 2 ? 10 : l_b == 3 ? 15 : 17;
-                echo(bla);
-                text_offset_x = width - round_size - bla;
+                magic_x_number = l_b == 2 ? 10 : l_b == 3 ? 15 : 17;
+                text_offset_x = width - round_size - magic_x_number;
                 text_offset_y = gap_height * 2 + gap_epsilon * 1.5 + 1.5;
                 text_offset_z = depth - text_printin;
 
@@ -209,9 +209,6 @@ module draw_hinge(
   extra_width_for_hinging_a = calc_extra_width_for_hinging(gap_angle_a, round_size);
   extra_width_for_hinging_b = calc_extra_width_for_hinging(gap_angle_b, round_size);
 
-  echo(extra_width_for_hinging_a);
-  echo(extra_width_for_hinging_b);
-
   gap_width_a = 2 * round_size + depth / 2 + extra_width_for_hinging_a;
   gap_width_b = 2 * round_size + depth / 2 + extra_width_for_hinging_b;
 
@@ -242,7 +239,7 @@ module draw_hinge(
               rotate([0, 0, a_angle])
               translate([-(width - round_size), 0, 0])
               translate([0, 0, depth / -2]) // center on the z axis
-              hingepart(b_l1, b_l2, b_l3, b_gap, b_with_connector, b_label, id_label,
+              construct_hinge_part(b_l1, b_l2, b_l3, b_gap, b_with_connector, b_label, id_label,
                   depth, width, round_size, hole_size_b,
                   gap_angle_b, gap_width_b, gap_height, gap_epsilon, gap_height_e,
                   connector_end_round, connector_end_heigth,
@@ -260,7 +257,7 @@ module draw_hinge(
               mirror([1, 0, 0])
               translate([-(width - round_size), 0, 0])
               translate([0, 0, depth / -2])
-              hingepart(a_l1, a_l2, a_l3, a_gap, a_with_connector, a_label, id_label,
+              construct_hinge_part(a_l1, a_l2, a_l3, a_gap, a_with_connector, a_label, id_label,
                 depth, width, round_size, hole_size_a,
                 gap_angle_a, gap_width_a, gap_height, gap_epsilon, gap_height_e,
                 connector_end_round, connector_end_heigth,
@@ -280,11 +277,11 @@ module draw_hinge(
         }
 
     if (a_gap) {
-      cut_out_a_cap(a_l1, gap_angle_a, gap_width_a, gap_height, gap_epsilon, gap_height_e);
+      cut_out_a_gap(a_l1, gap_angle_a, gap_width_a, gap_height, gap_epsilon, gap_height_e);
     }
   }
     if (b_gap) {
-      cut_out_b_cap(b_l1, gap_angle_b, gap_width_b, gap_height, gap_epsilon, gap_height_e);
+      cut_out_b_gap(b_l1, gap_angle_b, gap_width_b, gap_height, gap_epsilon, gap_height_e);
     }
   }
 }
