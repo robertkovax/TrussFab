@@ -288,9 +288,7 @@ module draw_hinge(
 }
 
 
-// just for dev
-
-// adjust filepath to LibSTLExport if necessary
+// for dev only
 
 draw_hinge(
 alpha=40,
