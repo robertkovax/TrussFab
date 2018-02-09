@@ -53,6 +53,7 @@ class Simulation
     @sensors = []
     @pistons = {}
     @bottle_dat = {}
+    @charts = {}
 
     # time keeping
     @frame = 0
@@ -507,7 +508,7 @@ class Simulation
       #shift_chart_data if @frame > 100
       log_max_actuator_tensions(' ')
       send_sensor_speed_to_dialog
-      send_sensor_acceleration_to_dialog
+      # send_sensor_acceleration_to_dialog
       test_pistons
     end
 
@@ -563,18 +564,26 @@ class Simulation
   def send_sensor_speed_to_dialog
     return unless @sensor_dialog
     @sensors.each do |sensor|
-      speed = sensor.body.get_velocity.length.to_f
-      @sensor_dialog.execute_script("updateSpeed('#{sensor.id}', '#{speed.round(2)} ')")
+      if sensor.is_a?(Hub)
+        speed = sensor.body.get_velocity.length.to_f
+        @sensor_dialog.execute_script("updateSpeed('#{sensor.id}', '#{speed.round(2)} ')")
+        accel = sensor.body.get_acceleration.length.to_f
+        @sensor_dialog.execute_script("updateAcceleration('#{sensor.id}', '#{accel.round(2)} ')")
+      elsif sensor.is_a?(Link)
+        @sensor_dialog.execute_script("addData('#{sensor.id}, '', 5)")
+      end
     end
   end
 
-  def send_sensor_acceleration_to_dialog
-    return unless @sensor_dialog
-    @sensors.each do |sensor|
-      accel = sensor.body.get_acceleration.length.to_f
-      @sensor_dialog.execute_script("updateAcceleration('#{sensor.id}', '#{accel.round(2)} ')")
-    end
-  end
+  # def send_sensor_acceleration_to_dialog
+  #   return unless @sensor_dialog
+  #   @sensors.each do |sensor|
+  #     if sensor.is_a?(Hub)
+  #     elsif sensor.is_a?(Link)
+  #       @sensor_dialog.execute_script("addChartData('', '#{sensor.joint.get_linear_tension} ')")
+  #     end
+  #   end
+  # end
 
   #
   # Force Related Methods
@@ -725,6 +734,11 @@ class Simulation
     return unless @chart
     @chart.addData(label, @max_actuator_tensions)
     @max_actuator_tensions = 0.0
+  end
+
+  def add_chart_data(label, force)
+    return unless @chart
+    @chart.addData(label, force)
   end
 
   def shift_chart_data
