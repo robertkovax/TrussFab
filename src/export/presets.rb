@@ -3,8 +3,10 @@ module PRESETS
   default_gap_angle = 45.mm # the angle for the triangle in the gap, because of a hack, we give it as mm, it actually is as degrees
 
   # to remove the Hexagon, set both values to 0
-  default_cut_out_hex_height = 5.mm
-  default_cut_out_hex_d = 10.6.mm
+  #default_cut_out_hex_height = 5.mm
+  #default_cut_out_hex_d = 10.6.mm
+  default_cut_out_hex_height = 0.mm
+  default_cut_out_hex_d = 0.mm
 
   SIMPLE_HINGE_OPENSCAD = {
     'depth' => 24.mm, # depth of a hinge part

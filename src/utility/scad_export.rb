@@ -7,7 +7,7 @@ require 'src/algorithms/relaxation.rb'
 require 'src/export/presets.rb'
 
 class ScadExport
-  def self.create_export_hinges(hinges, l1, l2, l3_min)
+  def self.create_export_hinges(hinges, node, l1, l2, l3_min)
     export_hinges = []
     hinges.each do |hinge|
       a_other_node = hinge.edge1.other_node(node)
@@ -58,16 +58,12 @@ class ScadExport
       a_l3 = elongation1 - l1 - l2
       b_l3 = elongation2 - l1 - l2
 
-      # for every b hinge that has another hinge, we add a cap
-      unless other_b_hinges.empty?
-        export_caps.push(ExportCap.new(node.id, b_other_node.id, b_l3.to_mm))
-      end
-
       if a_l3 < l3_min or b_l3 < l3_min
         raise RuntimeError, "Hinge l3 distance too small: #{a_l3.to_mm}, #{b_l3.to_mm}, #{l3_min.to_mm}."
       end
 
-      a_with_connector = other_a_hinges.empty?
+      # a parts always have connectors, b parts only if no other hinge connects to it
+      a_with_connector = true
       b_with_connector = other_b_hinges.empty?
       a_gap = !other_a_hinges.empty?
       b_gap = !other_b_hinges.empty?
@@ -128,14 +124,13 @@ class ScadExport
 
     export_hinges = []
     export_hubs = []
-    export_caps = []
 
     l2 = PRESETS::SIMPLE_HINGE_RUBY['l2']
     l3_min = PRESETS::SIMPLE_HINGE_RUBY['l3_min']
 
     hinge_algorithm.hinges.each do |node, hinges|
       l1 = hinge_algorithm.node_l1[node]
-      export_hinges = create_export_hinges(hinges, l1, l2, l3_min)
+      export_hinges = create_export_hinges(hinges, node, l1, l2, l3_min)
     end
 
     hinge_algorithm.hubs.each do |node, hubs|
@@ -150,10 +145,6 @@ class ScadExport
 
     export_hubs.each do |hub|
       hub.write_to_file(path)
-    end
-
-    export_caps.each do |cap|
-      cap.write_to_file(path)
     end
   end
 end
