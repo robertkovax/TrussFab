@@ -96,7 +96,7 @@ module construct_screw_hole(vector, l1, l2, hole_size) {
   construct_cylinder_at_position(vector, l1 / 2, l2 * 2, hole_size);
 }
 
-module construct_hubless(
+module draw_subhub(
   normal_vectors, // array of vectors
   gap_types, // array o
   connector_types,
@@ -160,7 +160,7 @@ l3 = [undef, 10, 10];
 gap_epsilon=0.8000000000000002;
 gap_extra_round_size = 3;
 
-construct_hubless(normal_vectors, gap_types, connector_types, l1, l2, l3, 12, 3, gap_epsilon, gap_extra_round_size,
+draw_subhub(normal_vectors, gap_types, connector_types, l1, l2, l3, 12, 3, gap_epsilon, gap_extra_round_size,
 connector_end_round=15.0,
 connector_end_heigth=3.7,
 connector_end_extra_round=9.95,
