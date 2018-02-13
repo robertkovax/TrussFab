@@ -38,7 +38,7 @@ class SimulationTool < Tool
 
   def apply_force(view)
     return unless @moving
-    @start_position = @node.position
+    @start_position = @node.thingy.body.get_position(1)
     @end_position = @mouse_input.position
     force = @start_position.vector_to(@end_position)
     force.length *= Configuration::DRAG_FACTOR unless force.length == 0

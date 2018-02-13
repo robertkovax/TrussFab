@@ -68,7 +68,6 @@ class Hub < PhysicsThingy
     @entity.move!(Geom::Transformation.new(position))
     @id_label.point = position
     move_force_arrow(position)
-    @sub_thingies.each { |sub_thingy| sub_thingy.update_position(position) }
   end
 
   def toggle_sensor_state
