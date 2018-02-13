@@ -57,13 +57,3 @@ def get_defaults_for_openscad(preset)
   end
   lines.join(",\n")
 end
-
-def save_to_scad(hash, path)
-  lines = hash.map do |key, value|
-    "#{key} = #{value.to_mm};"
-  end
-
-  File.open(path, 'w') do |file|
-    file.write(lines.join("\n"))
-  end
-end
