@@ -8,45 +8,55 @@ text_size = 7;
 text_spacing = 0.9;
 text_printin = 1; // how much mm goes into
 
+// some large constant to cut away space for gaps
+cut_out_z = 100;
+// some small constant to remove leftovers
+rounding_fix_epsilon = 0.001;
+
 module add_text(text) {
   v = [0, 0, 0];
   text_on_cube(t=text, cube_size=0, locn_vec=v, size=text_size, face="top", center=false, spacing=text_spacing);
 }
 
-module cut_out_b_gap(l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e) {
+
+module cut_out_b_gap(l1, l2, gap_angle, gap_width, gap_epsilon) {
   mirror([1, 0, 0])
   union() {
     for (ii = [0:1]) {
-      y_height_gap_cut = hinge_b_y_gap(l1, gap_height, gap_epsilon, ii);
+      fix_rounding_issue = ii == 1 ? rounding_fix_epsilon : 0;
+      gap_height = hinge_b_y_gap_height(l2, gap_epsilon, ii == 0);
+      gap_offset = hinge_b_y_gap_offset(l1, l2, gap_epsilon, ii == 0);
       for (i = [0:1]) {
         // 270: 180 deg because it's the other site and then (90 - deg)
         gap_angle_i = i == 0 ? - gap_angle : gap_angle - 270;
         rotate([0, gap_angle_i, 0])
-        translate([0, y_height_gap_cut, 0])
-        cube([gap_width, gap_height_e, 100]);
+        translate([0, gap_offset, 0])
+        cube([gap_width, gap_height + fix_rounding_issue, cut_out_z]);
       }
-      translate([-gap_width, y_height_gap_cut, -50])
-      cube([gap_width, gap_height_e, 100]);
+      translate([-gap_width, gap_offset, cut_out_z / -2])
+      cube([gap_width, gap_height + fix_rounding_issue, cut_out_z]);
     }
   }
 }
 
-module cut_out_a_gap(l1, gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e) {
-  union() {
-    for (ii = [0:1]) {
-      extra_offset = ii == 0 ? 100 : 0;
-      y_height_gap_cut = hinge_a_y_gap(l1, gap_height, gap_epsilon, ii);
-      for (i = [0:1]) {
-        gap_angle_i = i == 0 ? -gap_angle : gap_angle - 270;
-        rotate([0, gap_angle_i, 0])
-        translate([0, y_height_gap_cut - extra_offset, 0])
-        cube([gap_width, gap_height_e + extra_offset, 100]);
-      }
-      translate([-gap_width, y_height_gap_cut - extra_offset, -50])
-      cube([gap_width, gap_height_e + extra_offset, 100]);
-    }
-  }
-}
+ module cut_out_a_gap(l1, l2, gap_angle, gap_width, gap_epsilon) {
+   union() {
+     for (ii = [0:1]) {
+       fix_rounding_issue = ii == 0 ? rounding_fix_epsilon : 0;
+       gap_height = hinge_a_y_gap_height(l2, gap_epsilon, ii == 0);
+       gap_offset = hinge_a_y_gap_offset(l1, l2, gap_epsilon, ii == 0);
+        for (i = [0:1]) {
+         // 270: 180 deg because it's the other site and then (90 - deg)
+         gap_angle_i = i == 0 ? -gap_angle : gap_angle - 270;
+         rotate([0, gap_angle_i, 0])
+         translate([0, gap_offset - fix_rounding_issue, 0])
+         cube([gap_width, gap_height + fix_rounding_issue, cut_out_z]);
+       }
+       translate([-gap_width, gap_offset - fix_rounding_issue, cut_out_z / -2])
+       cube([gap_width, gap_height + fix_rounding_issue, cut_out_z]);
+     }
+   }
+ }
 
 
 function calc_extra_width_for_hinging(gap_angle, radius) = radius / cos(gap_angle/2) - radius;
@@ -278,11 +288,11 @@ module draw_hinge(
         }
 
     if (a_gap) {
-      cut_out_a_gap(a_l1, gap_angle_a, gap_width_a, gap_height, gap_epsilon, gap_height_e);
+      cut_out_a_gap(a_l1, a_l2, gap_angle_a, gap_width_a, gap_epsilon);
     }
   }
     if (b_gap) {
-      cut_out_b_gap(b_l1, gap_angle_b, gap_width_b, gap_height, gap_epsilon, gap_height_e);
+      cut_out_b_gap(b_l1, b_l2, gap_angle_b, gap_width_b, gap_epsilon);
     }
   }
 }
@@ -293,14 +303,14 @@ module draw_hinge(
 draw_hinge(
 alpha=40,
 a_l1=35.0,
-a_l2=41.6,
+a_l2=40,
 a_l3=10.0,
 a_gap=true,
 b_l1=35.0,
-b_l2=41.6,
+b_l2=40,
 b_l3=10.0,
 b_gap=true,
-a_with_connector=true,
+a_with_connector=false,
 b_with_connector=false,
 a_label="i823",
 b_label="i753",
@@ -313,7 +323,7 @@ gap_angle_b=45.0,
 hole_size_a=3.2000000000000006,
 hole_size_b=3.2000000000000006,
 gap_height=10.0,
-gap_epsilon=0.8000000000000002,
+gap_epsilon=0.8,
 connector_end_round=15.0,
 connector_end_heigth=3.7,
 connector_end_extra_round=9.95,
