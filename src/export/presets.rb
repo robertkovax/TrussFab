@@ -9,6 +9,7 @@ module PRESETS
   default_cut_out_hex_d = 0.mm
 
   SIMPLE_HINGE_OPENSCAD = {
+    'l2' => 40.mm, # gap sized derived from this value
     'depth' => 24.mm, # depth of a hinge part
     'width' => 100.mm, # not really important because parts that are too much gets cut away anyway
     'round_size' => 12.mm, # the round part of a hinge part
@@ -16,8 +17,6 @@ module PRESETS
     'gap_angle_b' => default_gap_angle,
     'hole_size_a' => default_hole_size,
     'hole_size_b' => default_hole_size,
-    'extra_width_for_hinging' => 6.mm, # there needs to be an extra offset so the hinge part can swing fully
-    'gap_height' => 10.mm, # gap of a hinge part
     'gap_epsilon' => 0.8.mm, # margin of the gap (due to printing issues)
     'connector_end_round' => (30.0 / 2).mm,
     'connector_end_heigth' => 3.7.mm,
@@ -31,7 +30,6 @@ module PRESETS
 
   ACTUATOR_HINGE_OPENSCAD = SIMPLE_HINGE_OPENSCAD.dup
 
-  ACTUATOR_HINGE_OPENSCAD['extra_width_for_hinging'] = 1.mm
   ACTUATOR_HINGE_OPENSCAD['gap_angle'] = 70.mm
 
   ACTUATOR_HINGE_OPENSCAD_ANGLE = 40
@@ -46,9 +44,6 @@ module PRESETS
   SIMPLE_HINGE_RUBY = SIMPLE_HINGE_OPENSCAD.dup
 
   SIMPLE_HINGE_RUBY['l3_min'] = 10.mm
-  SIMPLE_HINGE_RUBY['l2'] =
-    4 * SIMPLE_HINGE_RUBY['gap_height'] +
-    1.5 * SIMPLE_HINGE_RUBY['gap_epsilon']
 
   # values are in mm and are converted to Length class later
   MINIMUM_L1 = 35

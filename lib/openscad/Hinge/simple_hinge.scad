@@ -203,8 +203,6 @@ module draw_hinge(
   hole_size_b, // where the screw goes through
   gap_angle_a, // the angle for the triangle in the gap
   gap_angle_b, // the angle for the triangle in the gap
-  extra_width_for_hinging, // there needs to be an extra offset so the hinge part can swing fully
-  gap_height, // gap of a hinge part
   gap_epsilon, // margin of the gap (due to printing issues)
   connector_end_round,
   connector_end_heigth,
@@ -317,7 +315,6 @@ gap_angle_a=45.0,
 gap_angle_b=45.0,
 hole_size_a=3.2000000000000006,
 hole_size_b=3.2000000000000006,
-gap_height=10.0,
 gap_epsilon=0.8,
 connector_end_round=15.0,
 connector_end_heigth=3.7,
