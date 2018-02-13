@@ -9,10 +9,9 @@ text_spacing = 0.9;
 text_printin = 1; // how much mm goes into
 
 // some large constant to cut away space for gaps
-cut_out_z = 100;
+large_number_to_cut_off = 100;
 // some small constant to remove leftovers
 rounding_fix_epsilon = 0.001;
-
 
 function label_offset(l2, i, gap_epsilon) = l2 * (i/4) + ((l2/4) - text_size) / 2 + gap_epsilon / 4;
 
@@ -33,10 +32,10 @@ module cut_out_b_gap(l1, l2, gap_angle, gap_width, gap_epsilon) {
         gap_angle_i = i == 0 ? - gap_angle : gap_angle - 270;
         rotate([0, gap_angle_i, 0])
         translate([0, gap_offset, 0])
-        cube([gap_width, gap_height + fix_rounding_issue, cut_out_z]);
+        cube([gap_width, gap_height + fix_rounding_issue, large_number_to_cut_off]);
       }
-      translate([-gap_width, gap_offset, cut_out_z / -2])
-      cube([gap_width, gap_height + fix_rounding_issue, cut_out_z]);
+      translate([-gap_width, gap_offset, large_number_to_cut_off / -2])
+      cube([gap_width, gap_height + fix_rounding_issue, large_number_to_cut_off]);
     }
   }
 }
@@ -44,7 +43,7 @@ module cut_out_b_gap(l1, l2, gap_angle, gap_width, gap_epsilon) {
  module cut_out_a_gap(l1, l2, gap_angle, gap_width, gap_epsilon) {
    union() {
      for (ii = [0:1]) {
-       fix_rounding_issue = ii == 0 ? rounding_fix_epsilon : 0;
+       fix_rounding_issue = ii == 0 ? large_number_to_cut_off : 0;
        gap_height = hinge_a_y_gap_height(l2, gap_epsilon, ii == 0);
        gap_offset = hinge_a_y_gap_offset(l1, l2, gap_epsilon, ii == 0);
         for (i = [0:1]) {
@@ -52,10 +51,10 @@ module cut_out_b_gap(l1, l2, gap_angle, gap_width, gap_epsilon) {
          gap_angle_i = i == 0 ? -gap_angle : gap_angle - 270;
          rotate([0, gap_angle_i, 0])
          translate([0, gap_offset - fix_rounding_issue, 0])
-         cube([gap_width, gap_height + fix_rounding_issue, cut_out_z]);
+         cube([gap_width, gap_height + fix_rounding_issue, large_number_to_cut_off]);
        }
-       translate([-gap_width, gap_offset - fix_rounding_issue, cut_out_z / -2])
-       cube([gap_width, gap_height + fix_rounding_issue, cut_out_z]);
+       translate([-gap_width, gap_offset - fix_rounding_issue, large_number_to_cut_off / -2])
+       cube([gap_width, gap_height + fix_rounding_issue, large_number_to_cut_off]);
      }
    }
  }
