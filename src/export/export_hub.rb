@@ -1,3 +1,6 @@
+require 'src/export/presets.rb'
+
+
 class ExportHub
   def initialize(id)
     @id = id
@@ -12,6 +15,13 @@ end
 class ExportSubHub < ExportHub
   def initialize(id)
     super(id)
+    @params = {
+      'normal_vectors' => [], # [[-0.9948266171932849, -0.00015485714145741815, 0.1015872912476312], [-0.3984857593670732, -0.28854789426039135, 0.8706027867515364],[-0.4641256842132446, -0.883604515803502, 0.06189029734333352]]
+      'gap_types' => [], # ["b", "a", undef];
+      'connector_types' => [], # [undef, "bottle", "bottle"]
+      'l3' => [], # [undef, 10, 10];
+      'l1' => 30
+    }
   end
 
   def write_to_file(path)
@@ -19,6 +29,23 @@ class ExportSubHub < ExportHub
     @elongations.each do |elongation|
       'elongation ' + elongation.hinge_connection.to_s
     end
+
+    # TODO: rename get_defaults_for_openscad
+    params = get_defaults_for_openscad(@params)
+    default_params = get_defaults_for_openscad(PRESETS::SUBHUB_OPENSCAD)
+    filename = "#{path}/SubHub_#{@id}.scad"
+    file = File.new(filename, 'w')
+
+    export_string = ["// adjust filepath to LibSTLExport if necessary",
+      "use <#{ProjectHelper.library_directorsy}/openscad/Hinge/subhub.scad>",
+      "draw_subhub(",
+    ].join("\n") + "\n" + params + "\n" + default_params + ");\n"
+
+    file.write(export_string)
+    file.close
+    export_string
+)
+
   end
 end
 

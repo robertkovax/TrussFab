@@ -48,6 +48,13 @@ module PRESETS
   # values are in mm and are converted to Length class later
   MINIMUM_L1 = 35
   MINIMUM_ACTUATOR_L1 = 40
+
+  SUBHUB_OPENSCAD = SIMPLE_HINGE_OPENSCAD.select do |key, _|
+    key.start_with?('connector_end', 'gap_epsilon', 'round_size')
+  end
+  SUBHUB_OPENSCAD['gap_extra_round_size'] = 3
+  SUBHUB_OPENSCAD['hole_size'] = default_hole_size
+
 end
 
 # returns the preset as paramets to use in a openscad function call
