@@ -3,8 +3,10 @@ module PRESETS
   default_gap_angle = 45.mm # the angle for the triangle in the gap, because of a hack, we give it as mm, it actually is as degrees
 
   # to remove the Hexagon, set both values to 0
-  default_cut_out_hex_height = 5.mm
-  default_cut_out_hex_d = 10.6.mm
+  #default_cut_out_hex_height = 5.mm
+  #default_cut_out_hex_d = 10.6.mm
+  default_cut_out_hex_height = 0.mm
+  default_cut_out_hex_d = 0.mm
 
   SIMPLE_HINGE_OPENSCAD = {
     'depth' => 24.mm, # depth of a hinge part
@@ -20,7 +22,7 @@ module PRESETS
     'connector_end_round' => (30.0 / 2).mm,
     'connector_end_heigth' => 3.7.mm,
     'connector_end_extra_round' => (19.9 / 2).mm, # to better connect the bottles
-    'connector_end_extra_height' => 4.mm,
+    'connector_end_extra_height' => 7.mm,
     'cut_out_hex_height_a' => default_cut_out_hex_height,
     'cut_out_hex_height_b' => default_cut_out_hex_height,
     'cut_out_hex_d_a' => default_cut_out_hex_d,
@@ -47,6 +49,10 @@ module PRESETS
   SIMPLE_HINGE_RUBY['l2'] =
     4 * SIMPLE_HINGE_RUBY['gap_height'] +
     1.5 * SIMPLE_HINGE_RUBY['gap_epsilon']
+
+  # values are in mm and are converted to Length class later
+  MINIMUM_L1 = 35
+  MINIMUM_ACTUATOR_L1 = 40
 end
 
 # returns the preset as paramets to use in a openscad function call
@@ -65,9 +71,4 @@ def save_to_scad(hash, path)
   File.open(path, 'w') do |file|
     file.write(lines.join("\n"))
   end
-end
-
-# a helper for exporting the presets for developing
-if $PROGRAM_NAME == __FILE__
-  save_to_scad SIMPLE_HINGE_OPENSCAD, 'lib/openscad/Hinge/preset.scad'
 end

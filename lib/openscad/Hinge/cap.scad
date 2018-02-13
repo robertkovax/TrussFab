@@ -1,5 +1,5 @@
 include <../Util/text_on.scad>
-use <../Misc/Hexagon.scad>
+use <../Models/Hexagon.scad>
 
 module draw_hinge_cap(
   cap_height,

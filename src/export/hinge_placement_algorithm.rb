@@ -66,7 +66,11 @@ class Hinge
     b = p1_y - m * p1_x
 
     length = m * angle + b
-    length = [35, length].max
+    length = [PRESETS::MINIMUM_L1, length].max
+
+    if @is_actuator_hinge
+      length = [PRESETS::MINIMUM_ACTUATOR_L1, length].max
+    end
 
     length.mm
   end
@@ -86,7 +90,7 @@ class HingePlacementAlgorithm
     @node_l1 = nil
   end
 
-  MIN_ANGLE_DEVIATION = 0.05
+  MIN_ANGLE_DEVIATION = 0.001
 
   def run
     nodes = Graph.instance.nodes.values
@@ -182,6 +186,7 @@ class HingePlacementAlgorithm
       hinge_map[node].push(hinge)
     end
 
+    Sketchup.active_model.start_operation('find hinges')
     # remove hinges that are superfluous, i.e. they connect to an edge that already has two other hinges
     hinge_map.each { |node, hinges|
       new_hinges = hinges.clone
@@ -214,6 +219,7 @@ class HingePlacementAlgorithm
     }
 
     hinge_map = order_hinges(hinge_map)
+    Sketchup.active_model.commit_operation
 
     @hubs = hubs
     @hinges = hinge_map
@@ -231,7 +237,7 @@ class HingePlacementAlgorithm
       @node_l1[node] = max_l1
     end
 
-    Sketchup.active_model.start_operation('elongate', true)
+    Sketchup.active_model.start_operation('elongate edges', true)
     elongate_edges unless @hinges.empty?
     Sketchup.active_model.commit_operation
 
@@ -400,7 +406,7 @@ class HingePlacementAlgorithm
     @simulation.setup
     @simulation.disable_gravity
     piston = edge.thingy.joint
-    piston.controller = 0.6
+    piston.controller = edge.thingy.max
     @simulation.start
     @simulation.update_world_by(2)
   end
