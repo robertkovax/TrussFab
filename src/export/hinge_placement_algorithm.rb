@@ -66,10 +66,10 @@ class Hinge
     b = p1_y - m * p1_x
 
     length = m * angle + b
-    length = [35, length].max
+    length = [PRESETS::MINIMUM_L1, length].max
 
     if @is_actuator_hinge
-      length = [40, length].max
+      length = [PRESETS::MINIMUM_ACTUATOR_L1, length].max
     end
 
     length.mm

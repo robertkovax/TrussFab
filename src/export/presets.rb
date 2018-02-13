@@ -47,6 +47,10 @@ module PRESETS
   SIMPLE_HINGE_RUBY['l2'] =
     4 * SIMPLE_HINGE_RUBY['gap_height'] +
     1.5 * SIMPLE_HINGE_RUBY['gap_epsilon']
+
+  # values are in mm and are converted to Length class later
+  MINIMUM_L1 = 35
+  MINIMUM_ACTUATOR_L1 = 40
 end
 
 # returns the preset as paramets to use in a openscad function call
