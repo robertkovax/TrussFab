@@ -156,7 +156,11 @@ class HingePlacementAlgorithm
 
       group_nodes.each do |node|
         hub_edges = group_edges.select { |edge| edge.nodes.include? node }
-        hubs[node].push(hub_edges)
+        if hub_edges.size == 2
+          hinges.add(Hinge.new(hub_edges[0], hub_edges[1]))
+        else
+          hubs[node].push(hub_edges)
+        end
       end
 
       processed_edges = processed_edges.merge(group_edges)
@@ -200,17 +204,20 @@ class HingePlacementAlgorithm
           shared_hinges_count[hinge] = shared_hinges.size
         end
 
-        violating_hinges = shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] >= 3 }
+        violating_hinges = shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] >= 3 && hinge_connects_to_groups(group_edge_map, hinge, 2) }
+        violating_hinges.concat(shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] >= 3 && hinge_connects_to_groups(group_edge_map, hinge, 1) })
+        violating_hinges.concat(shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] >= 3 })
+        violating_hinges.concat(shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] == 2 && hinge_connects_to_groups(group_edge_map, hinge, 2) })
 
         if violating_hinges.empty?
           break
         end
 
-        violating_hinges.sort! { |a,b| shared_hinges_count[b] <=> shared_hinges_count[a] }
+        #violating_hinges.sort! { |a,b| shared_hinges_count[b] <=> shared_hinges_count[a] }
 
         # move the hinges that connect to at least one group to the front
-        violating_and_connecting_group = violating_hinges.select { |hinge| group_edge_map.values.any? { |edges| edges.include? hinge.edge1 } || group_edge_map.values.any? { |edges| edges.include? hinge.edge2 } }
-        violating_hinges = violating_and_connecting_group + (violating_hinges - violating_and_connecting_group)
+        #violating_and_connecting_group = violating_hinges.select { |hinge| group_edge_map.values.any? { |edges| edges.include? hinge.edge1 } || group_edge_map.values.any? { |edges| edges.include? hinge.edge2 } }
+        #violating_hinges = violating_and_connecting_group + (violating_hinges - violating_and_connecting_group)
 
         new_hinges.delete(violating_hinges.first)
       end
@@ -264,6 +271,19 @@ class HingePlacementAlgorithm
     static_groups.reverse.each do |group|
       color_group(group)
     end
+  end
+
+  def hinge_connects_to_groups(group_edge_map, hinge, num_groups = 1)
+    include_edge1 = group_edge_map.select { |k, edges| edges.include? hinge.edge1 }.keys
+    include_edge2 = group_edge_map.select { |k, edges| edges.include? hinge.edge2 }.keys
+
+    if num_groups == 1
+      return include_edge1.size > 0 || include_edge2.size > 0
+    elsif num_groups == 2
+      return include_edge1.size > 0 && include_edge2.size > 0 && !include_edge1[0].eql?(include_edge2[0])
+    end
+
+    raise RuntimeError, 'Hinge can connect to maximally two groups.'
   end
 
   # make sure that edge1 is the unconnected one if there is one

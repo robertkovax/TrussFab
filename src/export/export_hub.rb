@@ -1,13 +1,31 @@
 class ExportHub
-  def initialize(is_main_hub, id)
+  def initialize(id)
     @id = id
-    @is_main_hub = is_main_hub # otherwise sub hubs ('hubless design')
     @elongations = []
-    @pods = []
   end
 
   def add_elongation(elongation)
     @elongations.push(elongation)
+  end
+end
+
+class ExportSubHub < ExportHub
+  def initialize(id)
+    super(id)
+  end
+
+  def write_to_file(path)
+    p 'subhub:'
+    @elongations.each do |elongation|
+      'elongation ' + elongation.hinge_connection.to_s
+    end
+  end
+end
+
+class ExportMainHub < ExportHub
+  def initialize(id)
+    super(id)
+    @pods = []
   end
 
   def add_pod(pod)
@@ -25,7 +43,7 @@ class ExportHub
     type_array = []
 
     @elongations.each do |elongation|
-      if elongation.is_hinge_connected
+      if elongation.hinge_connection == NO_HINGE
         type_array << '"HOLE"'
       else
         type_array << '"PLUG"'

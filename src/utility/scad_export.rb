@@ -75,16 +75,15 @@ class ScadExport
     export_hinges
   end
 
-  def self.create_export_hubs(hubs, hub_id, i)
+  def self.create_export_hubs(hubs, hinges, node_l1, node, hub_id)
     export_hubs = []
+    i = 0
+
     hubs.each do |hub|
       is_main_hub = (i == 0)
       i += 1
 
-      # TODO: consider sub hubs, currently they are ignored
-      next unless is_main_hub
-
-      export_hub = ExportHub.new(is_main_hub, hub_id)
+      export_hub = is_main_hub ? ExportMainHub.new(hub_id) : ExportSubHub.new(hub_id)
 
       if is_main_hub
         node.pods.each do |pod|
@@ -93,23 +92,42 @@ class ScadExport
       end
 
       hub.each do |edge|
-        hinges = hinge_algorithm.hinges[node].select { |hinge| hinge.edge1 == edge or hinge.edge2 == edge }
-        if hinges.size > 2
-          raise RuntimeError, 'More than two hinges around an edge.'
+        a_hinges = hinges.select { |hinge| hinge.edge1 == edge }
+        b_hinges = hinges.select { |hinge| hinge.edge2 == edge }
+
+        if a_hinges.size > 1 || b_hinges.size > 1
+          raise RuntimeError, 'More than one A or B hinge around an edge.'
         end
 
         elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length
         other_node = edge.other_node(node)
         direction = node.position.vector_to(other_node.position).normalize
 
-        elongation_length = elongation
-        is_hinge_connected = hinges.size > 0
+        hinge_connection = NO_HINGE
 
-        if is_hinge_connected
-          elongation_length = hinge_algorithm.node_l1[node]
+        if a_hinges.size > 0
+          hinge_connection = A_HINGE
         end
 
-        export_elongation = ExportElongation.new(hub_id, other_node.id, is_hinge_connected, elongation_length.to_mm, direction)
+        if b_hinges.size > 0
+          hinge_connection = B_HINGE
+        end
+
+        if a_hinges.size > 0 && b_hinges.size > 0
+          hinge_connection = A_B_HINGE
+        end
+
+        if export_hub.is_a?(ExportSubHub) && hinge_connection == A_B_HINGE
+          raise RuntimeError, 'Subhub can not bo connected to both A and B hinge'
+        end
+
+        elongation_length = elongation
+
+        if hinge_connection != NO_HINGE
+          elongation_length = node_l1
+        end
+
+        export_elongation = ExportElongation.new(hub_id, other_node.id, hinge_connection, elongation_length.to_mm, direction)
         export_hub.add_elongation(export_elongation)
       end
 
@@ -130,13 +148,14 @@ class ScadExport
 
     hinge_algorithm.hinges.each do |node, hinges|
       l1 = hinge_algorithm.node_l1[node]
-      export_hinges = create_export_hinges(hinges, node, l1, l2, l3_min)
+      export_hinges.concat(create_export_hinges(hinges, node, l1, l2, l3_min))
     end
 
     hinge_algorithm.hubs.each do |node, hubs|
       hub_id = node.id
-      i = 0
-      export_hubs = create_export_hubs(hubs, hub_id, i)
+      node_l1 = hinge_algorithm.node_l1[node]
+      hinges = hinge_algorithm.hinges[node]
+      export_hubs.concat(create_export_hubs(hubs, hinges, node_l1, node, hub_id))
     end
 
     export_hinges.each do |hinge|
