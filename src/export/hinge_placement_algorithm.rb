@@ -231,7 +231,9 @@ class HingePlacementAlgorithm
       @node_l1[node] = max_l1
     end
 
+    Sketchup.active_model.start_operation('elongate', true)
     elongate_edges unless @hinges.empty?
+    Sketchup.active_model.commit_operation
 
     # add visualisations
 
@@ -492,7 +494,6 @@ class HingePlacementAlgorithm
       end
 
       relaxation.relax
-      Sketchup.active_model.commit_operation
     end
   end
 

@@ -18,9 +18,13 @@ class Node < GraphObject
   end
 
   def move(position)
-    @position = position
+    update_position(position)
     @thingy.update_position(position)
     @incidents.each(&:move)
+  end
+
+  def update_position(position)
+    @position = position
   end
 
   def transform(transformation)

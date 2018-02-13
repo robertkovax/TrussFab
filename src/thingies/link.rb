@@ -131,12 +131,12 @@ class Link < PhysicsThingy
     direction = @position.vector_to(@second_position)
 
     @first_elongation = Elongation.new(@position,
-                                      direction,
-                                      @first_elongation_length)
+                                       direction,
+                                       @first_elongation_length)
 
     @second_elongation = Elongation.new(@second_position,
-                                       direction.reverse,
-                                       @second_elongation_length)
+                                        direction.reverse,
+                                        @second_elongation_length)
 
     link_position = @position.offset(@first_elongation.direction)
 

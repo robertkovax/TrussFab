@@ -445,15 +445,10 @@ class Simulation
     @saved_transformations.each do |entity, transformation|
       entity.move!(transformation) if entity.valid?
     end
-    Graph.instance.edges.each do |id, edge|
-      edge.thingy.update_link_transformations
-    end
-    Graph.instance.nodes.values.each do |node|
-      Sketchup.active_model.start_operation('reset node positions')
-      node.move(node.thingy.position)
-      Sketchup.active_model.commit_operation
-    end
     @saved_transformations.clear
+    Graph.instance.nodes.values.each do |node|
+      node.update_position(node.thingy.position)
+    end
   end
 
   def update_forces
@@ -495,7 +490,10 @@ class Simulation
     @world.update_group_transformations
     Graph.instance.edges.each do |id, edge|
       link = edge.thingy
-      link.update_link_transformations if link.is_a?(Link)
+      link.update_link_transformations
+    end
+    Graph.instance.nodes.values.each do |node|
+      node.update_position(node.thingy.body.get_position(1))
     end
   end
 
