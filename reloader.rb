@@ -1,5 +1,7 @@
 require 'digest'
 
+$VERBOSE = true
+
 class Reloader
   def initialize
     @file_digests = {}
