@@ -408,7 +408,7 @@ class HingePlacementAlgorithm
     piston = edge.thingy.joint
     piston.controller = edge.thingy.max
     @simulation.start
-    @simulation.update_world_by(2)
+    @simulation.update_world_headless_by(2)
   end
 
   def reset_simulation

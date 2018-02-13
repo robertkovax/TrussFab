@@ -472,6 +472,13 @@ class Simulation
     end
   end
 
+  def update_world_headless_by(time_step)
+    steps = (time_step.to_f / Configuration::WORLD_TIMESTEP).to_i
+    steps.times do
+      @world.advance
+    end
+  end
+
   def update_world
     Configuration::WORLD_NUM_ITERATIONS.times do
       update_forces
