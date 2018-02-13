@@ -74,7 +74,7 @@ class AutomaticActuators
       adapt_edge(edge, deviation * @damping_factor)
       count += 1
     end
-    puts "Relaxation iterations: #{count}"
+    # puts "Relaxation iterations: #{count}"
     find_edge_minimum_length # returns omitted edge
   end
 
