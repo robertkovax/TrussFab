@@ -13,11 +13,13 @@ cut_out_z = 100;
 // some small constant to remove leftovers
 rounding_fix_epsilon = 0.001;
 
+
+function label_offset(l2, i, gap_epsilon) = l2 * (i/4) + ((l2/4) - text_size) / 2 + gap_epsilon / 4;
+
 module add_text(text) {
   v = [0, 0, 0];
   text_on_cube(t=text, cube_size=0, locn_vec=v, size=text_size, face="top", center=false, spacing=text_spacing);
 }
-
 
 module cut_out_b_gap(l1, l2, gap_angle, gap_width, gap_epsilon) {
   mirror([1, 0, 0])
@@ -115,15 +117,12 @@ module add_bottom_for_higher_degrees(alpha, a_l1, a_l2, b_l1, b_l2, depth) {
 
 
 module construct_hinge_part(l1, l2, l3, gap, with_connector, label, id_label,
-    depth, width, round_size, hole_size,
-    gap_angle, gap_width, gap_height, gap_epsilon, gap_height_e,
-    connector_end_round, connector_end_heigth,
+    depth, width, round_size, hole_size, gap_epsilon, connector_end_round, connector_end_heigth,
     connector_end_extra_round, connector_end_extra_height, cut_out_hex_height, cut_out_hex_d,
     the_A_one=false) {
     difference() {
         union() {
             cube([width - round_size, l2, depth]);
-
             translate([width - round_size, 0, depth / 2])
             rotate([-90, 0, 0])
             cylinder(l2, round_size, round_size);
@@ -147,7 +146,7 @@ module construct_hinge_part(l1, l2, l3, gap, with_connector, label, id_label,
             // TODO: remove the magic numbers with calculated values for the label/text placing
             if (the_A_one) {
                 text_offset_x = width - round_size + 5;
-                text_offset_y = gap_height * 3 + gap_epsilon * 1.5 + 2;
+                text_offset_y = label_offset(l2, 3, gap_epsilon);
                 text_offset_z = depth - text_printin;
 
                 translate([text_offset_x, text_offset_y, text_offset_z])
@@ -155,7 +154,7 @@ module construct_hinge_part(l1, l2, l3, gap, with_connector, label, id_label,
                 add_text(label);
 
                 text_offset_x_2 = width - round_size + 5;
-                text_offset_y_2 = gap_height * 1 + gap_epsilon * 1 + 2;
+                text_offset_y_2 = label_offset(l2, 1, gap_epsilon);
                 text_offset_z_2 = depth - text_printin;
 
                 translate([text_offset_x_2, text_offset_y_2, text_offset_z_2])
@@ -166,7 +165,7 @@ module construct_hinge_part(l1, l2, l3, gap, with_connector, label, id_label,
                 l_b = len(label);
                 magic_x_number = l_b == 2 ? 10 : l_b == 3 ? 15 : 17;
                 text_offset_x = width - round_size - magic_x_number;
-                text_offset_y = gap_height * 2 + gap_epsilon * 1.5 + 1.5;
+                text_offset_y = label_offset(l2, 2, gap_epsilon);
                 text_offset_z = depth - text_printin;
 
                 translate([text_offset_x, text_offset_y, text_offset_z])
@@ -223,8 +222,6 @@ module draw_hinge(
   gap_width_a = 2 * round_size + depth / 2 + extra_width_for_hinging_a;
   gap_width_b = 2 * round_size + depth / 2 + extra_width_for_hinging_b;
 
-  gap_height_e = gap_height + gap_epsilon;
-
   a_angle = alpha / -2;
   a_translate_x = a_l1 * cos(90 + a_angle);
   a_translate_y = a_l1 * sin(90 + a_angle);
@@ -251,8 +248,7 @@ module draw_hinge(
               translate([-(width - round_size), 0, 0])
               translate([0, 0, depth / -2]) // center on the z axis
               construct_hinge_part(b_l1, b_l2, b_l3, b_gap, b_with_connector, b_label, id_label,
-                  depth, width, round_size, hole_size_b,
-                  gap_angle_b, gap_width_b, gap_height, gap_epsilon, gap_height_e,
+                  depth, width, round_size, hole_size_b, gap_epsilon,
                   connector_end_round, connector_end_heigth,
                   connector_end_extra_round, connector_end_extra_height,
                   cut_out_hex_height_b, cut_out_hex_d_b);
@@ -269,8 +265,7 @@ module draw_hinge(
               translate([-(width - round_size), 0, 0])
               translate([0, 0, depth / -2])
               construct_hinge_part(a_l1, a_l2, a_l3, a_gap, a_with_connector, a_label, id_label,
-                depth, width, round_size, hole_size_a,
-                gap_angle_a, gap_width_a, gap_height, gap_epsilon, gap_height_e,
+                depth, width, round_size, hole_size_a, gap_epsilon,
                 connector_end_round, connector_end_heigth,
                 connector_end_extra_round, connector_end_extra_height,
                 cut_out_hex_height_a, cut_out_hex_d_a ,the_A_one=true);
