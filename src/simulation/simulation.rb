@@ -446,8 +446,11 @@ class Simulation
       entity.move!(transformation) if entity.valid?
     end
     @saved_transformations.clear
-    Graph.instance.nodes.values.each do |node|
+    Graph.instance.nodes.each_value do |node|
       node.update_position(node.thingy.position)
+    end
+    Graph.instance.surfaces.each_value do |surface|
+      surface.move
     end
   end
 
