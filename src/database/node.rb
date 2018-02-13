@@ -3,13 +3,14 @@ require 'src/thingies/hub.rb'
 require 'src/thingies/hub_entities/pod.rb'
 
 class Node < GraphObject
-  attr_reader :position, :incidents, :pod_directions, :pod_constraints, :adjacent_triangles
+  attr_reader :position, :original_position, :incidents, :pod_directions, :pod_constraints, :adjacent_triangles
 
   POD_ANGLE_THRESHOLD = 0.2
 
   def initialize(position, id: nil)
     @deleting = false
     @position = position
+    @original_position = position
     @incidents = []             # connected edges
     @adjacent_triangles = []    # connected triangles
     @pod_directions = {}
@@ -18,18 +19,10 @@ class Node < GraphObject
   end
 
   def move(position)
-    update_position(position)
-    @thingy.update_position(position)
-    @incidents.each(&:move)
-  end
-
-  def update_position(position)
     @position = position
-  end
-
-  def transform(transformation)
-    @position = transformation * @position
-    @thingy.transform(transformation)
+    @incidents.each(&:move)
+    @adjacent_triangles.each(&:move)
+    @thingy.entity.move!(Geom::Transformation.new(position))
   end
 
   def distance(point)

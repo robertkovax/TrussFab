@@ -11,6 +11,7 @@ class GeneticActuatorPlacementTool < Tool
     @start_position = nil
     @desired_position = nil
     @moving = false
+    @simulation = Simulation.new
   end
 
   def create_actuator(edge)
@@ -49,7 +50,6 @@ class GeneticActuatorPlacementTool < Tool
     Graph.instance.edges.values.each do |edge|
       next if edge.fixed?
       create_actuator(edge)
-      @simulation = Simulation.new
       @simulation.setup
       @simulation.schedule_piston_for_testing(edge)
       @simulation.start
@@ -61,7 +61,9 @@ class GeneticActuatorPlacementTool < Tool
         best_piston = edge
       end
       uncreate_actuator(edge)
+      model.start_operation('reset simulation', true)
       @simulation.reset
+      model.commit_operation
     end
     create_actuator(best_piston) unless best_piston.nil?
   end
@@ -92,6 +94,7 @@ class GeneticActuatorPlacementTool < Tool
   def onLButtonUp(_flags, x, y, view)
     update(view, x, y)
     return unless @moving
+    @moving = false
     @desired_position = @mouse_input.position
     test_pistons
 
@@ -100,7 +103,7 @@ class GeneticActuatorPlacementTool < Tool
   end
 
   def draw(view)
-    return if @start_position.nil? || @desired_position.nil?
+    return if @start_position.nil? || @desired_position.nil? || !@moving
     view.line_stipple = '_'
     view.draw_lines(@start_position, @desired_position)
   end

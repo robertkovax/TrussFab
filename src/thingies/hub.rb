@@ -63,13 +63,6 @@ class Hub < PhysicsThingy
     super
   end
 
-  def update_position(position)
-    @position = position
-    @entity.move!(Geom::Transformation.new(position))
-    @id_label.point = position
-    move_force_arrow(position)
-  end
-
   def toggle_sensor_state
     @is_sensor = !@is_sensor
   end
