@@ -11,7 +11,7 @@ class SimulationTool < Tool
     @simulation = Simulation.new
     @simulation.setup
     @simulation.piston_dialog
-    @simulation.chart_dialog
+    # @simulation.chart_dialog
     @simulation.open_sensor_dialog
     Sketchup.active_model.active_view.animation = @simulation
     @simulation.start

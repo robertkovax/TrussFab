@@ -114,8 +114,8 @@ module Configuration
   JOINT_BREAKING_FORCE  = 3000 # (in Newtons)
   BODY_STATIC_FRICITON  = 0.9
   BODY_KINETIC_FRICITON = 0.5
-  BODY_ELASTICITY       = 0.1
-  BODY_SOFTNESS         = 0.1
+  BODY_ELASTICITY       = 10
+  BODY_SOFTNESS         = 10
 
   # PointToPointActuator Properties
   ACTUATOR_RATE         = 1.0 # in m/s

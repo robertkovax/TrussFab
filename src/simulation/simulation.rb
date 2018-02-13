@@ -262,16 +262,16 @@ class Simulation
     end
   end
 
-  def chart_dialog
-    return if @pistons.empty?
-    @chart = ForceChart.new()
-    @chart.open_dialog
-  end
+  # def chart_dialog
+  #   return if @pistons.empty?
+  #   @chart = ForceChart.new()
+  #   @chart.open_dialog
+  # end
 
-  def close_chart
-    return if @chart.nil?
-    @chart.close
-  end
+  # def close_chart
+  #   return if @chart.nil?
+  #   @chart.close
+  # end
 
   #
   # Piston Related Methods
@@ -507,8 +507,7 @@ class Simulation
     if @frame % 5 == 0
       #shift_chart_data if @frame > 100
       log_max_actuator_tensions(' ')
-      send_sensor_speed_to_dialog
-      # send_sensor_acceleration_to_dialog
+      send_sensor_data_to_dialog
       test_pistons
     end
 
@@ -561,7 +560,7 @@ class Simulation
     end
   end
 
-  def send_sensor_speed_to_dialog
+  def send_sensor_data_to_dialog
     return unless @sensor_dialog
     @sensors.each do |sensor|
       if sensor.is_a?(Hub)
@@ -570,7 +569,8 @@ class Simulation
         accel = sensor.body.get_acceleration.length.to_f
         @sensor_dialog.execute_script("updateAcceleration('#{sensor.id}', '#{accel.round(2)} ')")
       elsif sensor.is_a?(Link)
-        @sensor_dialog.execute_script("addData('#{sensor.id}, '', 5)")
+        # chart[sensor.id] = ForceChart.new() if chart[sensor.id].nil?
+        @sensor_dialog.execute_script("addData('#{sensor.id}, ' ', 5)")
       end
     end
   end
