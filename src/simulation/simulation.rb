@@ -506,7 +506,6 @@ class Simulation
 
     if @frame % 5 == 0
       #shift_chart_data if @frame > 100
-      log_max_actuator_tensions(' ')
       send_sensor_data_to_dialog
       test_pistons
     end
@@ -569,21 +568,10 @@ class Simulation
         accel = sensor.body.get_acceleration.length.to_f
         @sensor_dialog.execute_script("updateAcceleration('#{sensor.id}', '#{accel.round(2)} ')")
       elsif sensor.is_a?(Link)
-        # chart[sensor.id] = ForceChart.new() if chart[sensor.id].nil?
-        @sensor_dialog.execute_script("addData('#{sensor.id}, ' ', 5)")
+        @sensor_dialog.execute_script("addChartData(#{sensor.id}, ' ', #{sensor.joint.get_linear_tension})")
       end
     end
   end
-
-  # def send_sensor_acceleration_to_dialog
-  #   return unless @sensor_dialog
-  #   @sensors.each do |sensor|
-  #     if sensor.is_a?(Hub)
-  #     elsif sensor.is_a?(Link)
-  #       @sensor_dialog.execute_script("addChartData('', '#{sensor.joint.get_linear_tension} ')")
-  #     end
-  #   end
-  # end
 
   #
   # Force Related Methods
