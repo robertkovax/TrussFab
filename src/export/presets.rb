@@ -48,7 +48,7 @@ module PRESETS
   SUBHUB_OPENSCAD = SIMPLE_HINGE_OPENSCAD.select do |key, _|
     key.start_with?('l2', 'connector_end', 'gap_epsilon', 'round_size')
   end
-  SUBHUB_OPENSCAD['gap_extra_round_size'] = 3
+  SUBHUB_OPENSCAD['gap_extra_round_size'] = 3.mm
   SUBHUB_OPENSCAD['hole_size'] = default_hole_size
 
   # defines what the minimum l1 distance is for hinges
@@ -60,11 +60,7 @@ end
 # returns the preset as paramets to use in a openscad function call
 def get_defaults_for_openscad(preset)
   lines = preset.map do |key, value|
-    if value.is_a?(Length)
-      "#{key}=#{value.to_mm}"
-    else
-      "#{key}=#{value.to_s}"
-    end
+    "#{key}=#{value.to_mm}"
   end
   lines.join(",\n")
 end
