@@ -74,7 +74,7 @@ class Edge < GraphObject
   end
 
   def fixed?
-    @first_node.fixed? && @second_node.fixed?
+    first_node.fixed? || second_node.fixed?
   end
 
   def exchange_node(current_node, new_node)
