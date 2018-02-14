@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="text/javascript" src="<%= @root_dir %>/ui/js/Chart.min.js"></script>
     <script type='text/javascript' >
-      var myFunctionTag = false;
+      var charts = {};
     </script>
     <title>SensorOverview</title>
 </head>
@@ -19,7 +19,7 @@
         <br><br>
     <% elsif sensor.is_a?(Link) %>
         <canvas id="forceChart_<%=sensor.id%>" width="600" height="300"></canvas>
-        <script type="text/javascript" src="<%= @root_dir %>/ui/js/force_chart.js" id="<%= sensor.id %>" char="<%= chart[sensor.id] %>"></script>
+        <script type="text/javascript" src="<%= @root_dir %>/ui/js/force_chart.js" id="<%= sensor.id %>"></script>
     <% end %>
 <% end %>
 

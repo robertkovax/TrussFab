@@ -1,9 +1,7 @@
 var id = document.currentScript.getAttribute('id');
 // TODO: Find a way to persist this charts map
-var charts = document.currentScript.getAttribute('charts');
-console.log("Chart length: " + charts.length);
 var ctx = document.getElementById("forceChart_" + id);
-charts[id] = new Chart(ctx, {
+charts.id = new Chart(ctx, {
     type: 'line',
     data: {
         labels: [],
@@ -33,16 +31,16 @@ charts[id] = new Chart(ctx, {
 });
 
 function addData(id, label, data) {
-    charts[id].data.labels.push(label);
-    charts[id].data.datasets.forEach((dataset) => {
+    charts.id.data.labels.push(label);
+    charts.id.data.datasets.forEach((dataset) => {
         dataset.data.push(data);
     });
-    charts[id].update();
+    charts.id.update();
 }
 
 function shiftData(id) {
-    charts[id].data.labels.shift();
-    charts[id].data.datasets.forEach((dataset) => {
+    charts.id.data.labels.shift();
+    charts.id.data.datasets.forEach((dataset) => {
         dataset.data.shift();
     });
     //charts[id].update({ duration: 0 } );
