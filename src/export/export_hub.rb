@@ -26,8 +26,11 @@ class ExportSubHub < ExportHub
 
     @elongations.each do |elongation|
       gap_type_string = "none"
+      connector_type_string = "none"
+
       if elongation.hinge_connection == A_HINGE
         gap_type_string = "a"
+        connector_type_string = "bottle"
       elsif elongation.hinge_connection == B_HINGE
         gap_type_string = "b"
       elsif elongation.hinge_connection == A_B_HINGE
@@ -36,7 +39,7 @@ class ExportSubHub < ExportHub
 
       vector_array << "[#{elongation.direction.to_a.join(', ')}]"
       gap_type_array << "\"#{gap_type_string}\""
-      connector_type_array << '"bottle"'
+      connector_type_array << "\"#{connector_type_string}\""
       l3_array << elongation.l3.to_s
     end
 
