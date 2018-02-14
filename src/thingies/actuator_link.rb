@@ -61,7 +61,7 @@ class ActuatorLink < Link
     dir = pt2 - pt1
     return if (dir.length.to_f < 1.0e-6)
     dir.normalize!
-    
+
     ot = Geometry.scale_vector(dir, Configuration::MINIMUM_ELONGATION)
     t1 = Geom::Transformation.new(pt1 + ot, dir)
     t2 = Geom::Transformation.new(pt2 - ot, dir.reverse)

@@ -11,20 +11,17 @@ class GeneticActuatorPlacementTool < Tool
     @start_position = nil
     @desired_position = nil
     @moving = false
-    @simulation = Simulation.new
   end
 
   def create_actuator(edge)
     Sketchup.active_model.start_operation('toggle edge to actuator', true)
     edge.link_type = 'actuator'
-    edge = Graph.instance.create_edge(edge.first_node, edge.second_node, model_name: 'actuator', link_type: 'actuator')
     Sketchup.active_model.commit_operation
   end
 
   def uncreate_actuator(edge)
     Sketchup.active_model.start_operation('toggle actuator to edge', true)
     edge.link_type = 'bottle_link'
-    edge = Graph.instance.create_edge(edge.first_node, edge.second_node, model_name: 'hard', link_type: 'bottle_link')
     Sketchup.active_model.commit_operation
   end
 
@@ -47,23 +44,25 @@ class GeneticActuatorPlacementTool < Tool
     model = Sketchup.active_model
     closest_distance = Float::INFINITY
     best_piston = nil
-    Graph.instance.edges.values.each do |edge|
+    Graph.instance.edges.each_value do |edge|
       next if edge.fixed?
       create_actuator(edge)
-      @simulation.setup
-      @simulation.schedule_piston_for_testing(edge)
-      @simulation.start
+      simulation = Simulation.new
+      simulation.setup
+      simulation.schedule_piston_for_testing(edge)
+      simulation.start
       model.start_operation('simulate a piston', true)
-      distance = @simulation.test_pistons_for(2, @node, @desired_position)
+      distance = simulation.test_pistons_for(2, @node, @desired_position)
       model.commit_operation
       if distance < closest_distance
         closest_distance = distance
         best_piston = edge
       end
-      uncreate_actuator(edge)
       model.start_operation('reset simulation', true)
-      @simulation.reset
+      simulation.reset
+      simulation = nil
       model.commit_operation
+      uncreate_actuator(edge)
     end
     create_actuator(best_piston) unless best_piston.nil?
   end

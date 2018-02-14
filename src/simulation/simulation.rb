@@ -95,6 +95,7 @@ class Simulation
 
   def save_transformations
     Graph.instance.nodes.each_value do |obj|
+      obj.original_position = obj.position
       e = obj.thingy.entity
       @saved_transformations[e] = e.transformation
       obj.thingy.sub_thingies.each { |sub_obj|
@@ -157,7 +158,7 @@ class Simulation
 
     destroy_world
 
-    model.start_operation('Reseting Simulation', true)
+    model.start_operation('Resetting Simulation', true)
     begin
       remove_ground
       reset_positions if @reset_positions_on_end
