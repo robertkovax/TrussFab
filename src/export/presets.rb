@@ -45,22 +45,26 @@ module PRESETS
 
   SIMPLE_HINGE_RUBY['l3_min'] = 10.mm
 
-  # values are in mm and are converted to Length class later
-  MINIMUM_L1 = 35
-  MINIMUM_ACTUATOR_L1 = 40
-
   SUBHUB_OPENSCAD = SIMPLE_HINGE_OPENSCAD.select do |key, _|
-    key.start_with?('connector_end', 'gap_epsilon', 'round_size')
+    key.start_with?('l2', 'connector_end', 'gap_epsilon', 'round_size')
   end
   SUBHUB_OPENSCAD['gap_extra_round_size'] = 3
   SUBHUB_OPENSCAD['hole_size'] = default_hole_size
 
+  # defines what the minimum l1 distance is for hinges
+  # values are in mm and are converted to Length class later
+  MINIMUM_L1 = 35
+  MINIMUM_ACTUATOR_L1 = 40
 end
 
 # returns the preset as paramets to use in a openscad function call
 def get_defaults_for_openscad(preset)
   lines = preset.map do |key, value|
-    "#{key}=#{value.to_mm}"
+    if value.is_a?(Length)
+      "#{key}=#{value.to_mm}"
+    else
+      "#{key}=#{value.to_s}"
+    end
   end
   lines.join(",\n")
 end

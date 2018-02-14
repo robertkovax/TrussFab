@@ -16,11 +16,11 @@ class ExportSubHub < ExportHub
   def initialize(id)
     super(id)
     @params = {
-      'normal_vectors' => [], # [[-0.9948266171932849, -0.00015485714145741815, 0.1015872912476312], [-0.3984857593670732, -0.28854789426039135, 0.8706027867515364],[-0.4641256842132446, -0.883604515803502, 0.06189029734333352]]
-      'gap_types' => [], # ["b", "a", undef];
-      'connector_types' => [], # [undef, "bottle", "bottle"]
-      'l3' => [], # [undef, 10, 10];
-      'l1' => 30
+      'normal_vectors' => [[-0.9948266171932849, -0.00015485714145741815, 0.1015872912476312], [-0.3984857593670732, -0.28854789426039135, 0.8706027867515364],[-0.4641256842132446, -0.883604515803502, 0.06189029734333352]],
+      'gap_types' => ["b", "a", "none"],
+      'connector_types' => ["none", "bottle", "bottle"],
+      'l3' => [0, 10, 10],
+      'l1' => 30.mm
     }
   end
 
@@ -37,15 +37,13 @@ class ExportSubHub < ExportHub
     file = File.new(filename, 'w')
 
     export_string = ["// adjust filepath to LibSTLExport if necessary",
-      "use <#{ProjectHelper.library_directorsy}/openscad/Hinge/subhub.scad>",
+      "use <#{ProjectHelper.library_directory}/openscad/Hinge/subhub.scad>",
       "draw_subhub(",
-    ].join("\n") + "\n" + params + "\n" + default_params + ");\n"
+    ].join("\n") + "\n" + params + ",\n" + default_params + ");\n"
 
     file.write(export_string)
     file.close
     export_string
-)
-
   end
 end
 
