@@ -23,42 +23,13 @@ class ScadExport
         raise RuntimeError, 'More than one hinge connected to a hinge.'
       end
 
-      if hinge.is_actuator_hinge
-        a_gap = true
-        b_gap = false
-        params = PRESETS::ACTUATOR_HINGE_OPENSCAD.dup
-
-        intermediate_hinge = ExportHinge.new(node.id, "i" + a_other_node.id.to_s, "i" + b_other_node.id.to_s, l1.to_mm, l2.to_mm, l3_min.to_mm, l1.to_mm, l2.to_mm, l3_min.to_mm,
-                                             PRESETS::ACTUATOR_HINGE_OPENSCAD_ANGLE, true, true, false, false, params)
-        export_hinges.push(intermediate_hinge)
-
-        if hinge.edge1.link_type == 'actuator'
-          a_gap = false
-          b_gap = true
-          if other_a_hinges.size > 0
-            a_gap = true
-          end
-          params['hole_size_a'] = PRESETS::ACTUATOR_HINGE_OPENSCAD_HOLE_SIZE
-        else
-          if other_b_hinges.size > 0
-            b_gap = true
-          end
-          params['hole_size_b'] = PRESETS::ACTUATOR_HINGE_OPENSCAD_HOLE_SIZE
-        end
-
-        actuator_hinge = ExportHinge.new(node.id, "a" + a_other_node.id.to_s, "a" + b_other_node.id.to_s, l1.to_mm, l2.to_mm, l3_min.to_mm, l1.to_mm, l2.to_mm, l3_min.to_mm,
-                                         PRESETS::ACTUATOR_HINGE_OPENSCAD_ANGLE, a_gap, b_gap, a_with_connector, b_with_connector, params)
-        export_hinges.push(actuator_hinge)
-        next
-      end
-
       elongation1 = hinge.edge1.first_node?(node) ? hinge.edge1.first_elongation_length : hinge.edge1.second_elongation_length
       elongation2 = hinge.edge2.first_node?(node) ? hinge.edge2.first_elongation_length : hinge.edge2.second_elongation_length
 
       a_l3 = elongation1 - l1 - l2
       b_l3 = elongation2 - l1 - l2
 
-      if a_l3 < l3_min or b_l3 < l3_min
+      if (a_l3 < l3_min || b_l3 < l3_min) && hinge.edge1.link_type != 'actuator' && hinge.edge2.link_type != 'actuator'
         raise RuntimeError, "Hinge l3 distance too small: #{a_l3.to_mm}, #{b_l3.to_mm}, #{l3_min.to_mm}."
       end
 
@@ -68,9 +39,32 @@ class ScadExport
       a_gap = !other_a_hinges.empty?
       b_gap = !other_b_hinges.empty?
 
-      export_hinge = ExportHinge.new(node.id, a_other_node.id, b_other_node.id, l1.to_mm, l2.to_mm, a_l3.to_mm, l1.to_mm, l2.to_mm, b_l3.to_mm,
-                                     hinge.angle, a_gap, b_gap, a_with_connector, b_with_connector, PRESETS::SIMPLE_HINGE_OPENSCAD)
-      export_hinges.push(export_hinge)
+      params_first = PRESETS::ACTUATOR_HINGE_OPENSCAD.dup
+      params_second = PRESETS::ACTUATOR_HINGE_OPENSCAD.dup
+
+      if hinge.is_actuator_hinge
+        if hinge.edge1.link_type == "actuator"
+          a_with_connector = false
+          params_first['hole_size_a'] = PRESETS::ACTUATOR_HINGE_OPENSCAD_HOLE_SIZE
+        end
+
+        if hinge.edge2.link_type == "actuator"
+          b_with_connector = false
+          params_second['hole_size_b'] = PRESETS::ACTUATOR_HINGE_OPENSCAD_HOLE_SIZE
+        end
+
+        first_hinge = ExportHinge.new(node.id, "i" + a_other_node.id.to_s, "i" + b_other_node.id.to_s, l1.to_mm, l2.to_mm, a_l3.to_mm, l1.to_mm, l2.to_mm, b_l3.to_mm,
+                                      PRESETS::ACTUATOR_HINGE_OPENSCAD_ANGLE, a_gap, true, a_with_connector, false, params_first)
+        second_hinge = ExportHinge.new(node.id, "i" + b_other_node.id.to_s, "a" + b_other_node.id.to_s, l1.to_mm, l2.to_mm, a_l3.to_mm, l1.to_mm, l2.to_mm, b_l3.to_mm,
+                                       PRESETS::ACTUATOR_HINGE_OPENSCAD_ANGLE, true, b_gap, false, b_with_connector, params_second)
+
+        export_hinges.push(first_hinge)
+        export_hinges.push(second_hinge)
+      else
+        export_hinge = ExportHinge.new(node.id, a_other_node.id, b_other_node.id, l1.to_mm, l2.to_mm, a_l3.to_mm, l1.to_mm, l2.to_mm, b_l3.to_mm,
+                                       hinge.angle, a_gap, b_gap, a_with_connector, b_with_connector, PRESETS::SIMPLE_HINGE_OPENSCAD)
+        export_hinges.push(export_hinge)
+      end
     end
     export_hinges
   end
