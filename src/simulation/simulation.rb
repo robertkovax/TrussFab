@@ -73,7 +73,7 @@ class Simulation
     @breaking_force = Configuration::JOINT_BREAKING_FORCE
     @breaking_force_invh = (@breaking_force > 1.0e-6) ? (0.5.fdiv(@breaking_force)) : 0.0
 
-    @max_actuator_tensions = 0.0
+    @max_actuator_tensions = {}
     @max_speed = 0
     @highest_force_mode = false
   end
@@ -568,7 +568,8 @@ class Simulation
         accel = sensor.body.get_acceleration.length.to_f
         @sensor_dialog.execute_script("updateAcceleration('#{sensor.id}', '#{accel.round(2)} ')")
       elsif sensor.is_a?(Link)
-        @sensor_dialog.execute_script("addChartData(#{sensor.id}, ' ', #{sensor.joint.get_linear_tension})")
+        @sensor_dialog.execute_script("addChartData(#{sensor.id}, ' ', #{@max_actuator_tensions[sensor.id]})")
+        @max_actuator_tensions[sensor.id] = 0
       end
     end
   end
@@ -693,26 +694,28 @@ class Simulation
   end
 
   # Returns total tension applied to actuators along their directions
-  def compute_net_actuator_tension
+  def compute_net_actuator_tension(edge)
     net_lin_tension = 0.0
-    Graph.instance.edges.each_value do |edge|
-      link = edge.thingy
-      if link.is_a?(ActuatorLink)
-        pt1 = link.first_node.thingy.entity.bounds.center
-        pt2 = link.second_node.thingy.entity.bounds.center
-        dir = pt1.vector_to(pt2).normalize
-        net_lin_tension += link.joint.get_linear_tension.dot(dir).to_f
-      end
+    link = edge.thingy
+    if link.is_a?(Link)
+      pt1 = link.first_node.thingy.entity.bounds.center
+      pt2 = link.second_node.thingy.entity.bounds.center
+      dir = pt1.vector_to(pt2).normalize
+      net_lin_tension += link.joint.get_linear_tension.dot(dir).to_f
     end
     net_lin_tension
   end
 
   # Updates the net maximum tension variable
   def rec_max_actuator_tensions
-    return unless @chart
-    net_lin_tension = compute_net_actuator_tension()
-    if net_lin_tension.abs > @max_actuator_tensions.abs
-      @max_actuator_tensions = net_lin_tension
+    return unless @sensor_dialog
+    Graph.instance.edges.each_value do |edge|
+      next unless edge.thingy.is_sensor?
+      net_lin_tension = compute_net_actuator_tension(edge)
+      @max_actuator_tensions[edge.id] = net_lin_tension if @max_actuator_tensions[edge.id].nil?
+      if net_lin_tension.abs > @max_actuator_tensions[edge.id].abs
+        @max_actuator_tensions[edge.id] = net_lin_tension
+      end
     end
   end
 
