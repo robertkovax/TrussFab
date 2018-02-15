@@ -62,9 +62,9 @@ class ScadExport
           params_second['hole_size_b'] = get_appropriate_actuator_hole_size(hinge.edge2, node)
         end
 
-        first_hinge = ExportHinge.new(node.id, "i" + a_other_node.id.to_s, "i" + b_other_node.id.to_s, l1.to_mm, l2.to_mm, a_l3.to_mm, l1.to_mm, l2.to_mm, b_l3.to_mm,
+        first_hinge = ExportHinge.new(node.id, "I" + a_other_node.id.to_s, "I" + b_other_node.id.to_s, l1.to_mm, l2.to_mm, a_l3.to_mm, l1.to_mm, l2.to_mm, b_l3.to_mm,
                                       PRESETS::ACTUATOR_HINGE_OPENSCAD_ANGLE, a_gap, true, a_with_connector, false, params_first)
-        second_hinge = ExportHinge.new(node.id, "i" + b_other_node.id.to_s, "a" + b_other_node.id.to_s, l1.to_mm, l2.to_mm, a_l3.to_mm, l1.to_mm, l2.to_mm, b_l3.to_mm,
+        second_hinge = ExportHinge.new(node.id, "I" + b_other_node.id.to_s, "A" + b_other_node.id.to_s, l1.to_mm, l2.to_mm, a_l3.to_mm, l1.to_mm, l2.to_mm, b_l3.to_mm,
                                        PRESETS::ACTUATOR_HINGE_OPENSCAD_ANGLE, true, b_gap, false, b_with_connector, params_second)
 
         export_hinges.push(first_hinge)

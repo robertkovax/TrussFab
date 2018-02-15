@@ -52,7 +52,7 @@ class ExportHinge
       "b_with_connector=#{@b_with_connector},",
       "a_label=\"#{@a_other_hub_id}\",",
       "b_label=\"#{@b_other_hub_id}\",",
-      "id_label=\"#{@hub_id}\","
+      "id_label=\"#{@hub_id + 'N'}\","
     ].join("\n") + "\n" + params + ");\n"
     file.write(export_string)
     file.close
