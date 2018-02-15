@@ -142,7 +142,7 @@ class ScadExport
     export_hinges = []
     export_hubs = []
 
-    l2 = PRESETS::SIMPLE_HINGE_RUBY['l2']
+    l2 = PRESETS::L2
     l3_min = PRESETS::SIMPLE_HINGE_RUBY['l3_min']
 
     hinge_algorithm.hinges.each do |node, hinges|

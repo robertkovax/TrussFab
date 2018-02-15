@@ -8,8 +8,15 @@ module PRESETS
   default_cut_out_hex_height = 0.mm
   default_cut_out_hex_d = 0.mm
 
+  # defines what the minimum l1 distance is for hinges
+  # values are in mm and are converted to Length class later
+  MINIMUM_L1 = 35
+  MINIMUM_ACTUATOR_L1 = 40
+
+  # the default l2
+  L2 = 40.mm # gap sized derived from this value
+
   SIMPLE_HINGE_OPENSCAD = {
-    'l2' => 40.mm, # gap sized derived from this value
     'depth' => 24.mm, # depth of a hinge part
     'width' => 100.mm, # not really important because parts that are too much gets cut away anyway
     'round_size' => 12.mm, # the round part of a hinge part
@@ -29,7 +36,6 @@ module PRESETS
   }.freeze
 
   ACTUATOR_HINGE_OPENSCAD = SIMPLE_HINGE_OPENSCAD.dup
-
   ACTUATOR_HINGE_OPENSCAD['gap_angle'] = 70.mm
 
   ACTUATOR_HINGE_OPENSCAD_ANGLE = 40
@@ -39,23 +45,17 @@ module PRESETS
   CAP_RUBY = SIMPLE_HINGE_OPENSCAD.select do |key, _|
     key.start_with?('connector_end', 'cut_out', 'round_size')
   end
-
   CAP_RUBY['hole_size'] = default_hole_size
 
   SIMPLE_HINGE_RUBY = SIMPLE_HINGE_OPENSCAD.dup
-
   SIMPLE_HINGE_RUBY['l3_min'] = 10.mm
 
   SUBHUB_OPENSCAD = SIMPLE_HINGE_OPENSCAD.select do |key, _|
-    key.start_with?('l2', 'connector_end', 'gap_epsilon', 'round_size')
+    key.start_with?('connector_end', 'gap_epsilon', 'round_size')
   end
   SUBHUB_OPENSCAD['gap_extra_round_size'] = 3.mm
   SUBHUB_OPENSCAD['hole_size'] = default_hole_size
-
-  # defines what the minimum l1 distance is for hinges
-  # values are in mm and are converted to Length class later
-  MINIMUM_L1 = 35
-  MINIMUM_ACTUATOR_L1 = 40
+  SUBHUB_OPENSCAD['l2'] = L2
 end
 
 # returns the preset as paramets to use in a openscad function call

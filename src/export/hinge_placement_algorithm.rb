@@ -483,7 +483,7 @@ class HingePlacementAlgorithm
   end
 
   def elongate_edges
-    l2 = PRESETS::SIMPLE_HINGE_RUBY['l2']
+    l2 = PRESETS::L2
     l3_min = PRESETS::SIMPLE_HINGE_RUBY['l3_min']
 
     loop do
