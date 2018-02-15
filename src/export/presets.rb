@@ -33,7 +33,8 @@ module PRESETS
   ACTUATOR_HINGE_OPENSCAD['gap_angle'] = 70.mm
 
   ACTUATOR_HINGE_OPENSCAD_ANGLE = 40
-  ACTUATOR_HINGE_OPENSCAD_HOLE_SIZE = (6.3 / 2).mm
+  ACTUATOR_HINGE_OPENSCAD_HOLE_SIZE_SMALL = (6.5 / 2).mm
+  ACTUATOR_HINGE_OPENSCAD_HOLE_SIZE_BIG = (10.5 / 2).mm
 
   CAP_RUBY = SIMPLE_HINGE_OPENSCAD.select do |key, _|
     key.start_with?('connector_end', 'cut_out', 'round_size')

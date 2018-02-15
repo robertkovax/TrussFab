@@ -7,6 +7,15 @@ require 'src/algorithms/relaxation.rb'
 require 'src/export/presets.rb'
 
 class ScadExport
+  # we choose the first node to get the big hole size for the actuator
+  def self.get_appropriate_actuator_hole_size(edge, node)
+    if edge.first_node?(node)
+      PRESETS::ACTUATOR_HINGE_OPENSCAD_HOLE_SIZE_BIG
+    else
+      PRESETS::ACTUATOR_HINGE_OPENSCAD_HOLE_SIZE_SMALL
+    end
+  end
+
   def self.create_export_hinges(hinges, node, l1, l2, l3_min)
     export_hinges = []
     hinges.each do |hinge|
@@ -45,12 +54,12 @@ class ScadExport
       if hinge.is_actuator_hinge
         if hinge.edge1.link_type == "actuator"
           a_with_connector = false
-          params_first['hole_size_a'] = PRESETS::ACTUATOR_HINGE_OPENSCAD_HOLE_SIZE
+          params_first['hole_size_a'] = get_appropriate_actuator_hole_size(hinge.edge1, node)
         end
 
         if hinge.edge2.link_type == "actuator"
           b_with_connector = false
-          params_second['hole_size_b'] = PRESETS::ACTUATOR_HINGE_OPENSCAD_HOLE_SIZE
+          params_second['hole_size_b'] = get_appropriate_actuator_hole_size(hinge.edge2, node)
         end
 
         first_hinge = ExportHinge.new(node.id, "i" + a_other_node.id.to_s, "i" + b_other_node.id.to_s, l1.to_mm, l2.to_mm, a_l3.to_mm, l1.to_mm, l2.to_mm, b_l3.to_mm,
