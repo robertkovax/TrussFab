@@ -18,6 +18,7 @@
         Acceleration: <label id="acceleration_<%=sensor.id%>"><%= 0.0 %></label>m/s/s
         <br><br>
     <% elsif sensor.is_a?(Link) %>
+        Edge <%= sensor.id %>:<br>
         <canvas id="forceChart_<%=sensor.id%>" width="600" height="300"></canvas>
         <script type="text/javascript" src="<%= @root_dir %>/ui/js/force_chart.js" id="<%= sensor.id %>"></script>
     <% end %>
