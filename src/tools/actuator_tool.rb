@@ -22,17 +22,11 @@ class ActuatorTool < Tool
     super
   end
 
-  def change_edge_to_actuator(view)
-    edges_without_selected = @edge.connected_component.reject { |e| e == @edge }
-
-    create_actuator(view)
-  end
-
   def onLButtonDown(_flags, x, y, view)
     @mouse_input.update_positions(view, x, y)
     @edge = @mouse_input.snapped_object
     return if @edge.nil?
-    change_edge_to_actuator(view)
+    create_actuator(view)
   end
 
   def onMouseMove(_flags, x, y, view)
@@ -43,94 +37,10 @@ class ActuatorTool < Tool
   # Tool logic
   #
 
-  def start_simulation
-    @simulation = Simulation.new
-    @simulation.setup
-    @simulation.disable_gravity
-    piston = @edge.thingy.joint
-    piston.controller = 0
-    @simulation.start
-    @simulation.update_world_by(2)
-  end
-
-  def reset_simulation
-    @simulation.reset
-    @simulation = nil
-  end
-
   def create_actuator(view)
     Sketchup.active_model.start_operation('toggle edge to actuator', true)
     @edge.link_type = 'actuator'
-    @edge = Graph.instance.create_edge(@edge.first_node, @edge.second_node, model_name: 'actuator', link_type: 'actuator')
     view.invalidate
     Sketchup.active_model.commit_operation
-  end
-
-  def valid_triangle_pairs(edge)
-    edge.sorted_adjacent_triangle_pairs.select do |pair|
-      pair.all? { |t| t.complete? && !t.contains_actuator? }
-    end
-  end
-
-  def simulation_triangle_normal(t)
-    pos1 = t.first_node.thingy.body.get_position(1)
-    pos2 = t.second_node.thingy.body.get_position(1)
-    pos3 = t.third_node.thingy.body.get_position(1)
-    vector1 = pos1.vector_to(pos2)
-    vector2 = pos1.vector_to(pos3)
-    vector1.cross(vector2)
-  end
-
-  def triangle_pair_angles(triangle_pairs, simulation = false)
-    triangle_pairs.map do |t1, t2|
-      if simulation
-        n1 = simulation_triangle_normal(t1)
-        n2 = simulation_triangle_normal(t2)
-        n1.angle_between(n2)
-      else
-        t1.angle_between(t2)
-      end
-    end
-  end
-
-  def angle_changed?(angle, other_angle)
-    (angle - other_angle).abs > MIN_ANGLE_DEVIATION
-  end
-
-  def get_changed_triangle_pairs(triangle_pairs, original_angles, simulation_angles)
-    triangle_pairs.zip(original_angles, simulation_angles).flat_map do |p, oa, sa|
-      if angle_changed?(oa, sa)
-        [p]
-      else
-        []
-      end
-    end
-  end
-
-  def find_rotation_axes(triangle_pairs)
-    edges = triangle_pairs.map { |t1, t2| t1.shared_edge(t2) }
-    edges.uniq
-  end
-
-  def highlight_rotation_axes(edges)
-    edges.each(&:highlight)
-  end
-
-  def add_hinges(triangle_pairs)
-    triangle_pairs.each do |t1, t2|
-      rotation_axis = t1.shared_edge(t2)
-      [t1, t2].each do |triangle|
-        (triangle.edges - [rotation_axis]).each do |rotating_edge|
-          rotation = EdgeRotation.new(rotation_axis)
-          node = rotating_edge.shared_node(rotation_axis)
-          hinge = ThingyHinge.new(node, rotation)
-          if rotating_edge.first_node?(node)
-            rotating_edge.thingy.first_joint = hinge
-          else
-            rotating_edge.thingy.second_joint = hinge
-          end
-        end
-      end
-    end
   end
 end
