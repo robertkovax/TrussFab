@@ -262,17 +262,6 @@ class Simulation
     end
   end
 
-  # def chart_dialog
-  #   return if @pistons.empty?
-  #   @chart = ForceChart.new()
-  #   @chart.open_dialog
-  # end
-
-  # def close_chart
-  #   return if @chart.nil?
-  #   @chart.close
-  # end
-
   #
   # Piston Related Methods
   #
