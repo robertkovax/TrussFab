@@ -6,9 +6,18 @@ require 'src/simulation/thingy_rotation.rb'
 module JsonImport
   class << self
 
+    def distance_to_ground(json_objects)
+      lowest_z = Float::INFINITY
+      json_objects['nodes'].each do |node|
+        z = node['z'].to_f.mm
+        lowest_z = z if z < lowest_z
+      end
+      lowest_z
+    end
+
     def at_position(path, position)
       json_objects = load_json(path)
-      points = build_points(json_objects, position)
+      points = build_points(json_objects, position, distance_to_ground(json_objects))
       edges, nodes = build_edges(json_objects, points)
       triangles = create_triangles(edges)
       add_joints(json_objects, edges, nodes) unless json_objects['joints'].nil?
@@ -20,7 +29,7 @@ module JsonImport
       json_objects = load_json(path)
 
       # retrieve points from json
-      json_points = build_points(json_objects, Geom::Point3d.new(0, 0, 0))
+      json_points = build_points(json_objects, Geom::Point3d.new(0, 0, 0), 0)
 
       # get center and direction of the triangle to snap to from our graph
       # and the triangle to snap on from json
@@ -119,7 +128,7 @@ module JsonImport
       triangles
     end
 
-    def build_points(json_objects, position)
+    def build_points(json_objects, position, z_offset)
       first = true
       translation = Geom::Transformation.new
       points = {}
@@ -129,6 +138,7 @@ module JsonImport
         z = node['z'].to_f.mm
         point = Geom::Point3d.new(x, y, z)
         if first
+          position.z = -z_offset
           translation = point.vector_to(position)
           first = false
         end
