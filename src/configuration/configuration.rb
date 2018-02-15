@@ -116,6 +116,7 @@ module Configuration
   BODY_KINETIC_FRICITON = 0.5
   BODY_ELASTICITY       = 0.1
   BODY_SOFTNESS         = 0.1
+  DRAG_FACTOR           = 10
 
   # PointToPointActuator Properties
   ACTUATOR_RATE         = 1.0 # in m/s

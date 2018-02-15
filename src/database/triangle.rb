@@ -158,6 +158,10 @@ class Triangle < GraphObject
     end
   end
 
+  def inspect
+    "Triangle " + @id.to_s
+  end
+
   private
 
   def create_thingy(id)

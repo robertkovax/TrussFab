@@ -18,10 +18,13 @@ class Node < GraphObject
   end
 
   def move(position)
-    @position = position
+    update_position(position)
     @thingy.update_position(position)
     @incidents.each(&:move)
-    @adjacent_triangles.each(&:move)
+  end
+
+  def update_position(position)
+    @position = position
   end
 
   def transform(transformation)
@@ -171,6 +174,10 @@ class Node < GraphObject
     @adjacent_triangles.clone.each do |triangle|
       triangle.delete unless triangle.deleted
     end
+  end
+
+  def inspect
+    "Node: " + @position.to_s
   end
 
   private

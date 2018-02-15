@@ -18,6 +18,10 @@ class Elongation < Thingy
     @direction.length
   end
 
+  def shorten(offset)
+    @entity.transform! Geom::Transformation.translation(offset)
+  end
+
   private
 
   def create_entity

@@ -24,26 +24,8 @@ class ActuatorTool < Tool
 
   def change_edge_to_actuator(view)
     edges_without_selected = @edge.connected_component.reject { |e| e == @edge }
-    if RigidityTester.rigid?(edges_without_selected)
-      UI.messagebox('The structure is still rigid and would break with this actuator. Please remove more edges to enable this structure to move',
-                    type = MB_OK)
-      return
-    end
 
     create_actuator(view)
-    edges = edges_without_selected.reject { |e| e.link_type == 'actuator' }
-    triangle_pairs = edges.flat_map { |e| valid_triangle_pairs(e) }
-    original_angles = triangle_pair_angles(triangle_pairs)
-    start_simulation
-    view.show_frame
-    simulation_angles = triangle_pair_angles(triangle_pairs, true)
-
-    changed_triangle_pairs = get_changed_triangle_pairs(triangle_pairs, original_angles, simulation_angles)
-
-    rotation_axes = find_rotation_axes(changed_triangle_pairs)
-    highlight_rotation_axes(rotation_axes)
-    add_hinges(changed_triangle_pairs)
-    reset_simulation
   end
 
   def onLButtonDown(_flags, x, y, view)
@@ -147,17 +129,6 @@ class ActuatorTool < Tool
           else
             rotating_edge.thingy.second_joint = hinge
           end
-
-          # Draw hinge visualization
-          help_point = Geom::Point3d.linear_combination(0.7, node.position, 0.3, rotation_axis.mid_point)
-          starting_point = Geom::Point3d.linear_combination(0.7, node.position, 0.3, rotating_edge.mid_point)
-          mid_point = Geom::Point3d.linear_combination(0.3, starting_point, 0.7, help_point)
-          end_point = Geom::Point3d.linear_combination(0.7, mid_point, 0.3, rotation_axis.mid_point)
-
-          line1 = Line.new(starting_point, mid_point, HINGE_LINE)
-          line2 = Line.new(mid_point, end_point, HINGE_LINE)
-
-          rotating_edge.thingy.add(line1, line2)
         end
       end
     end

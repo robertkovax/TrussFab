@@ -1,7 +1,7 @@
 include <../Models/BottlePrecomputed.scad>
 include <../Util/maths.scad>
 
-part="HINGE"; 
+part="HINGE";
 
 //$fn=300;
 
@@ -14,11 +14,11 @@ holderODHinge = 20;
 
 washerODHinge = 0; // Outer diameter of the bottom plate/washer
 washerHeightHinge = 0; // bottom plate/washer height
-connectorDataArrayHinge = [washerODHinge, washerHeightHinge]; 
+connectorDataArrayHinge = [washerODHinge, washerHeightHinge];
 
 washerODHingeF = 0; // Outer diameter of the bottom plate/washer
 washerHeightHingeF = 0; // bottom plate/washer height
-connectorDataArrayHingeF = [washerODHingeF, washerHeightHingeF]; 
+connectorDataArrayHingeF = [washerODHingeF, washerHeightHingeF];
 
 hingeDistance = 16; //distance to baseTube
 

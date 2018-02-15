@@ -19,31 +19,31 @@ negativeHeightCAPH = 1; // The actual pen starts after 1mm. This parameter makes
 connectorDataArrayCAPH = [holderODCAPH,negativeHeightCAPH]; // Addon data in an array to pass-through to other scripts as a single parameter
 
 module drawBottleNeckCAPH() {
-	color("Blue")
-	 translate([0,0,-0.5]) cylinder(r1=bottleODCAPH/2+clearanceCAPH,r2=bottleODCAPH/2+clearanceCAPH-0.2,h=bottleHeightCAPH+1);
+  color("Blue")
+   translate([0,0,-0.5]) cylinder(r1=bottleODCAPH/2+clearanceCAPH,r2=bottleODCAPH/2+clearanceCAPH-0.2,h=bottleHeightCAPH+1);
 }
 
 module drawBottleHolderCAPH() {
-	difference() {
-		cylinder(r=holderORCAPH,h=bottleHeightCAPH);
-		drawBottleNeckCAPH();
-		}
-	}
+  difference() {
+    cylinder(r=holderORCAPH,h=bottleHeightCAPH);
+    drawBottleNeckCAPH();
+    }
+  }
 
 module drawCAPH() {
-	translate([0,0,-negativeHeightCAPH])
-	{
-	translate([0,0,1]) 
-	drawBottleHolderCAPH();
-	cylinder(r=holderORCAPH, h=1);
-	}
+  translate([0,0,-negativeHeightCAPH])
+  {
+  translate([0,0,1])
+  drawBottleHolderCAPH();
+  cylinder(r=holderORCAPH, h=1);
+  }
 }
-	
+
 module substractCAPH() {
-	translate([0,0,-negativeHeightCAPH])
-	translate([0,0,1.5])
-	drawBottleNeckCAPH();
-	//drawCAPH();
+  translate([0,0,-negativeHeightCAPH])
+  translate([0,0,1.5])
+  drawBottleNeckCAPH();
+  //drawCAPH();
 }
 
 //difference(){

@@ -62,6 +62,7 @@ class UserInteraction
     build_tool(FabricateTool, 'fabricate_tool')
     build_tool(BottleCountTool, 'bottle_count_tool')
     build_tool(RigidityTestTool, 'rigidity_test_tool')
+    build_tool(HingeAnalysisTool, 'hinge_analysis_tool')
     build_tool(AutomaticActuatorsTool, 'automatic_actuators_tool')
     build_tool(GeneticActuatorPlacementTool, 'genetic_actuator_placement_tool')
   end

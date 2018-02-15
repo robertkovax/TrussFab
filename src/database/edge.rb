@@ -103,8 +103,7 @@ class Edge < GraphObject
 
   def sorted_adjacent_triangle_pairs
     sorted_triangles = sorted_adjacent_triangles
-    sorted_triangles << sorted_triangles.first
-    sorted_triangles.each_cons(2)
+    sorted_triangles.product(sorted_triangles)
   end
 
   def sorted_adjacent_triangles
@@ -153,6 +152,10 @@ class Edge < GraphObject
     super
     @first_node.delete_incident(self)
     @second_node.delete_incident(self)
+
+    adjacent_triangles.each do |tri|
+      tri.delete
+    end
   end
 
   def move
@@ -173,6 +176,14 @@ class Edge < GraphObject
 
   def second_elongation_length
     @thingy.second_elongation_length
+  end
+
+  def inspect
+    "Edge " + @id.to_s
+  end
+
+  def reset
+    recreate_thingy
   end
 
   private

@@ -436,22 +436,53 @@ class Simulation
       entity.move!(transformation) if entity.valid?
     end
     @saved_transformations.clear
+    Graph.instance.nodes.each_value do |node|
+      node.update_position(node.thingy.position)
+    end
+    Graph.instance.surfaces.each_value do |surface|
+      surface.move
+    end
+  end
+
+  def update_forces
+    Graph.instance.nodes.each_value do |node|
+      node.thingy.add_force
+    end
   end
 
   def update_world_by(time_step)
     steps = (time_step.to_f / Configuration::WORLD_TIMESTEP).to_i
     steps.times do
+      update_forces
       @world.advance
       # We need to record this every time the world updates, otherwise, we might skip the crucial forces involved
       rec_max_actuator_tensions
+      if @highest_force_mode
+        visualize_highest_tension
+      else
+        visualize_tensions
+      end
+    end
+  end
+
+  def update_world_headless_by(time_step)
+    steps = (time_step.to_f / Configuration::WORLD_TIMESTEP).to_i
+    steps.times do
+      @world.advance
     end
   end
 
   def update_world
     Configuration::WORLD_NUM_ITERATIONS.times do
+      update_forces
       @world.advance
       # We need to record this every time the world updates, otherwise, we might skip the crucial forces involved
       rec_max_actuator_tensions
+      if @highest_force_mode
+        visualize_highest_tension
+      else
+        visualize_tensions
+      end
     end
   end
 
@@ -459,13 +490,16 @@ class Simulation
     @world.update_group_transformations
     Graph.instance.edges.each do |id, edge|
       link = edge.thingy
-      link.update_link_transformations if link.is_a?(Link)
+      link.update_link_transformations
+    end
+    Graph.instance.nodes.values.each do |node|
+      node.update_position(node.thingy.body.get_position(1))
     end
   end
 
   def update_force_arrows
     Graph.instance.nodes.values.each do |node|
-      node.thingy.move_force_arrow(node.thingy.body.get_position(1))
+      node.thingy.move_force_arrow(node.position)
     end
   end
 
@@ -479,17 +513,11 @@ class Simulation
     model = view.model
     return @running unless (@running && !@paused)
 
-    update_world
-    update_force_arrows
-
     model.start_operation('Simulation', true)
 
+    update_world
+    update_force_arrows
     update_entities
-    if(@highest_force_mode)
-      visualize_highest_tension
-    else
-      visualize_tensions
-    end
 
     model.commit_operation
 
@@ -566,6 +594,10 @@ class Simulation
   #
   # Force Related Methods
   #
+
+  def add_force_to_node(node, force)
+    node.thingy.body.add_force(force)
+  end
 
   # This is called when simulation starts and assigns unique materials to bottles
   # Note: this must be wrapped in operation
@@ -684,13 +716,9 @@ class Simulation
 
   # Returns total tension applied to actuators along their directions
   def compute_net_actuator_tension(edge)
-    net_lin_tension = 0.0
     link = edge.thingy
     if link.is_a?(Link)
-      pt1 = link.first_node.thingy.entity.bounds.center
-      pt2 = link.second_node.thingy.entity.bounds.center
-      dir = pt1.vector_to(pt2).normalize
-      net_lin_tension += link.joint.get_linear_tension.dot(dir).to_f
+      net_lin_tension = get_directed_force(link)
     end
     net_lin_tension
   end
