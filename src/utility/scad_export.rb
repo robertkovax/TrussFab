@@ -16,7 +16,7 @@ class ScadExport
     end
   end
 
-  def self.create_export_hinges(hinges, node, l1, l2, l3_min)
+  def self.create_export_hinges(hinges, node, l1, l2, l3_min, hubs)
     export_hinges = []
     hinges.each do |hinge|
       a_other_node = hinge.edge1.other_node(node)
@@ -43,12 +43,22 @@ class ScadExport
       # b parts only if
       #   1) no other hinge connects to it OR
       #   2) is not connecting to a subhub
+
+      is_hinge_connecting_b = !other_b_hinges.empty?
+      is_sub_hub_connecting_b = false
+
+      hub_hinges = hubs[node]
+
+      if hub_hinges.size > 1 && hub_hinges[0].include?(hinge.edge2)
+        p 'found!'
+        p hinge
+        is_sub_hub_connecting_b = true
       end
 
-      a_with_connector = true
-      b_with_connector = other_b_hinges.empty?
       a_gap = !other_a_hinges.empty?
-      b_gap = !other_b_hinges.empty?
+      b_gap = is_hinge_connecting_b || is_sub_hub_connecting_b
+      a_with_connector = true
+      b_with_connector = !b_gap # only adding connector when there is no gap
 
       params_first = PRESETS::ACTUATOR_HINGE_OPENSCAD.dup
       params_second = PRESETS::ACTUATOR_HINGE_OPENSCAD.dup
@@ -144,7 +154,7 @@ class ScadExport
 
     hinge_algorithm.hinges.each do |node, hinges|
       l1 = hinge_algorithm.node_l1[node]
-      export_hinges.concat(create_export_hinges(hinges, node, l1, l2, l3_min))
+      export_hinges.concat(create_export_hinges(hinges, node, l1, l2, l3_min, hinge_algorithm.hubs))
     end
 
     hinge_algorithm.hubs.each do |node, hubs|
