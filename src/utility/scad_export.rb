@@ -89,7 +89,7 @@ class ScadExport
     i = 0
 
     hubs.each do |hub|
-      is_main_hub = (i == 0)
+      is_main_hub = i.zero?
       i += 1
 
       export_hub = is_main_hub ? ExportMainHub.new(hub_id, l1.to_mm) : ExportSubHub.new(hub_id, l1.to_mm)
@@ -105,7 +105,7 @@ class ScadExport
         b_hinges = hinges.select { |hinge| hinge.edge2 == edge }
 
         if a_hinges.size > 1 || b_hinges.size > 1
-          raise RuntimeError, 'More than one A or B hinge around an edge.'
+          raise 'More than one A or B hinge around an edge.'
         end
 
         elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length
@@ -113,21 +113,12 @@ class ScadExport
         direction = node.position.vector_to(other_node.position).normalize
 
         hinge_connection = NO_HINGE
-
-        if a_hinges.size > 0
-          hinge_connection = A_HINGE
-        end
-
-        if b_hinges.size > 0
-          hinge_connection = B_HINGE
-        end
-
-        if a_hinges.size > 0 && b_hinges.size > 0
-          hinge_connection = A_B_HINGE
-        end
+        hinge_connection = A_HINGE unless a_hinges.empty?
+        hinge_connection = B_HINGE unless b_hinges.empty?
+        hinge_connection = A_B_HINGE unless a_hinges.empty? || b_hinges.empty?
 
         if export_hub.is_a?(ExportSubHub) && hinge_connection == A_B_HINGE
-          raise RuntimeError, 'Subhub can not be connected to both A and B hinge'
+          raise 'Subhub can not be connected to both A and B hinge'
         end
 
         l3 = elongation - l1 - l2
@@ -159,9 +150,9 @@ class ScadExport
     hinge_algorithm.hubs.each do |node, hubs|
       hub_id = node.id
       l1 = hinge_algorithm.node_l1[node]
-      if l1.nil?
-        l1 = 0.0.mm
-      end
+
+      l1 = 0.0.mm if l1.nil?
+
       hinges = hinge_algorithm.hinges[node]
       export_hubs.concat(create_export_hubs(hubs, hinges, l1, l2, node, hub_id))
     end
