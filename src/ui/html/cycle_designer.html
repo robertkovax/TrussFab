@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<style>
+
+.selected {
+  fill: red;
+  stroke: brown;
+}
+
+</style>
+<svg width="960" height="500"></svg>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+
+// var randomX = d3.randomUniform(0, 10),
+//     randomY = function() { return Math.random() > 0.5 ? 0.9 : 0.1; },//d3.randomNormal(0.5, 0.5);
+//     data = d3.range(20).map(function() { return [randomX(), randomY()]; });
+
+var svg = d3.select("svg"),
+    margin = {top: 194, right: 50, bottom: 214, left: 50},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom,
+    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var data = [[1, 0.9], [2, 0.1], [3, 0.1], [4, 0.9], [5, 0.9]];
+
+var x = d3.scaleLinear().domain([0, data.length]).range([0, svg.width]);
+var y = d3.scaleLinear().domain([0, 10]).range([svg.height, 0]);
+
+var line = d3.line()
+            .x(function(d) {return x(d[0])})
+            .y(function(d) {return y(d[1])});
+
+var x = d3.scaleLinear()
+    .domain([0, 10])
+    .range([0, width]);
+
+var y = d3.scaleLinear()
+    .range([height, 0]);
+
+let drag = d3.drag()
+    .on('start', dragstarted)
+    .on('drag', dragged)
+    .on('end', dragended);
+
+var brush = d3.brushX()
+    .extent([[0, 0], [width, height]])
+    .on("start brush", brushed);
+
+g.append("path")
+    .datum(data)
+    .attr("fill", "none")
+    .attr("stroke", "steelblue")
+    .attr("stroke-linejoin", "round")
+    .attr("stroke-linecap", "round")
+    .attr("stroke-width", 1.5)
+    .attr("d", line(data));
+
+var dot = g.append("g")
+    .attr("fill-opacity", 1)
+    .selectAll("circle")
+    .data(data)
+    .enter().append("circle")
+    .attr('cx', function(d) { return x(d[0]);  })
+    .attr('cy', function(d) { return y(d[1]); })
+    .attr("r", 3.5)
+    .on("click", function(event) { console.log(event) });
+
+g.selectAll('circle')
+        .call(drag);
+
+g.append("line")
+.attr("x1", x(1))  //<<== change your code here
+.attr("y1", 0)
+.attr("x2", x(1))  //<<== and here
+.attr("y2", 100)
+.style("stroke-width", 2)
+.style("stroke", "red")
+.style("fill", "none");
+
+g.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x));
+
+function updateData() {
+    var line = d3.select("line");
+    var old_x = x.invert(line.attr('x1'));
+    var new_x = x(1);
+    if (old_x <= 5) {
+        var new_x = x(old_x + 0.01);
+    }
+    d3.selectAll("circle").each(function(circle) {
+        var diff = Math.abs( new_x - x(circle[0]));
+        if (diff < 0.4) {
+            if(circle[1] == 0.1) {
+                console.log("low");
+            } else {
+                console.log("high");
+            }
+        }
+    });
+    line.attr('x1', new_x);
+    line.attr('x2', new_x);
+}
+
+var inter = setInterval(function() {
+            updateData();
+    }, 10);
+
+function beforebrushed() {
+  d3.event.stopImmediatePropagation();
+  d3.select(this.parentNode).transition().call(brush.move, x.range());
+}
+
+function brushed() {
+  var extent = d3.event.selection.map(x.invert, x);
+  dot.classed("selected", function(d) { return extent[0] <= d[0] && d[0] <= extent[1]; });
+}
+
+function dragstarted(d) {
+    d3.select(this).raise().classed('active', true);
+}
+
+function dragged(d) {
+    d[0] = x.invert(d3.event.x);
+    d3.select(this)
+        .attr('cx', x(d[0]))
+        .attr('cy', y(d[1]))
+    g.select('path').attr('d', line);
+}
+
+function dragended(d) {
+    d3.select(this).classed('active', false);
+}
+
+</script>
