@@ -22,14 +22,11 @@ class ScadExport
       a_other_node = hinge.edge1.other_node(node)
       b_other_node = hinge.edge2.other_node(node)
 
-      a_with_connector = false
-      b_with_connector = false
-
       other_a_hinges = hinges.select { |other| hinge.edge1 == other.edge2 }
       other_b_hinges = hinges.select { |other| hinge.edge2 == other.edge1 }
 
-      if other_a_hinges.size > 1 or other_b_hinges.size > 1
-        raise RuntimeError, 'More than one hinge connected to a hinge.'
+      if other_a_hinges.size > 1 || other_b_hinges.size > 1
+        raise 'More than one hinge connected to a hinge.'
       end
 
       elongation1 = hinge.edge1.first_node?(node) ? hinge.edge1.first_elongation_length : hinge.edge1.second_elongation_length
@@ -38,11 +35,16 @@ class ScadExport
       a_l3 = elongation1 - l1 - l2
       b_l3 = elongation2 - l1 - l2
 
-      if (a_l3 < l3_min || b_l3 < l3_min) && hinge.edge1.link_type != 'actuator' && hinge.edge2.link_type != 'actuator'
-        raise RuntimeError, "Hinge l3 distance too small: #{a_l3.to_mm}, #{b_l3.to_mm}, #{l3_min.to_mm}."
+      # if (a_l3 < l3_min || b_l3 < l3_min) && hinge.edge1.link_type != 'actuator' && hinge.edge2.link_type != 'actuator'
+      #   raise "Hinge l3 distance too small: #{a_l3.to_mm}, #{b_l3.to_mm}, #{l3_min.to_mm}."
+      # end
+
+      # a parts always have connectors
+      # b parts only if
+      #   1) no other hinge connects to it OR
+      #   2) is not connecting to a subhub
       end
 
-      # a parts always have connectors, b parts only if no other hinge connects to it
       a_with_connector = true
       b_with_connector = other_b_hinges.empty?
       a_gap = !other_a_hinges.empty?
@@ -54,14 +56,18 @@ class ScadExport
       if hinge.is_actuator_hinge
         if hinge.edge1.link_type == "actuator"
           a_with_connector = false
-          params_first['hole_size_a'] = get_appropriate_actuator_hole_size(hinge.edge1, node)
+          params_first['hole_size_a'] =
+            get_appropriate_actuator_hole_size(hinge.edge1, node)
         end
 
         if hinge.edge2.link_type == "actuator"
           b_with_connector = false
-          params_second['hole_size_b'] = get_appropriate_actuator_hole_size(hinge.edge2, node)
+          params_second['hole_size_b'] =
+            get_appropriate_actuator_hole_size(hinge.edge2, node)
         end
 
+        # For now, we never really though of as the 'actuator hinge' as two seperate hinges.
+        # It only happens in the following steps that the ones hinges get's split into two.
         first_hinge = ExportHinge.new(node.id, "I" + a_other_node.id.to_s, "I" + b_other_node.id.to_s, l1.to_mm, l2.to_mm, a_l3.to_mm, l1.to_mm, l2.to_mm, b_l3.to_mm,
                                       PRESETS::ACTUATOR_HINGE_OPENSCAD_ANGLE, a_gap, true, a_with_connector, false, params_first)
         second_hinge = ExportHinge.new(node.id, "I" + b_other_node.id.to_s, "A" + b_other_node.id.to_s, l1.to_mm, l2.to_mm, a_l3.to_mm, l1.to_mm, l2.to_mm, b_l3.to_mm,
