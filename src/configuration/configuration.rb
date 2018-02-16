@@ -97,7 +97,7 @@ module Configuration
   GROUND_COLOR          = Sketchup::Color.new(240, 240, 240)
   GROUND_ALPHA          = 0.2
   GROUND_SIZE           = 10000 # in inches
-  GROUND_HEIGHT         = -2.0 # in inches
+  GROUND_HEIGHT         = 0.01 # in inches
   GROUND_THICKNESS      = 20.0 # in inches
 
   # Behavioural Constants
