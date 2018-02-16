@@ -40,9 +40,7 @@ class Hinge
   end
 
   def swap_edges
-    temp = @edge1
-    @edge1 = @edge2
-    @edge2 = temp
+    @edge1, @edge2 = @edge2, @edge1
   end
 
   def angle
