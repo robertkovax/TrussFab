@@ -14,6 +14,10 @@ class Hinge
     @is_actuator_hinge = false
   end
 
+  def inspect
+    "#{@edge1.inspect} #{@edge2.inspect} #{@is_actuator_hinge}"
+  end
+
   def hash
     self.class.hash ^ @edge1.hash ^ @edge2.hash
   end
