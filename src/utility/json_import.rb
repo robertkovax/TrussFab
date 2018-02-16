@@ -10,7 +10,7 @@ module JsonImport
       lowest_z = Float::INFINITY
       json_objects['nodes'].each do |node|
         z = node['z'].to_f.mm
-        lowest_z = z if z < lowest_z
+        lowest_z = [lowest_z, z].min
       end
       lowest_z
     end
@@ -128,7 +128,7 @@ module JsonImport
       triangles
     end
 
-    def build_points(json_objects, position, z_offset)
+    def build_points(json_objects, position, z_height)
       first = true
       translation = Geom::Transformation.new
       points = {}
@@ -138,7 +138,7 @@ module JsonImport
         z = node['z'].to_f.mm
         point = Geom::Point3d.new(x, y, z)
         if first
-          position.z = -z_offset
+          position.z = -z_height
           translation = point.vector_to(position)
           first = false
         end
