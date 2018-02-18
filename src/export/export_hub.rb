@@ -26,13 +26,13 @@ class ExportSubHub < ExportHub
 
     @elongations.each do |elongation|
       gap_type_string = "none"
-      connector_type_string = "none"
+      connector_type_string = "bottle"
 
       if elongation.hinge_connection == A_HINGE
         gap_type_string = "a"
-        connector_type_string = "bottle"
       elsif elongation.hinge_connection == B_HINGE
         gap_type_string = "b"
+        connector_type_string = "none"
       elsif elongation.hinge_connection == A_B_HINGE
         raise RuntimeError, 'Subhub can not be connected to both a and b hinge at same edge.'
       end
