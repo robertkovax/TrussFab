@@ -123,8 +123,8 @@ class ScadExport
         direction = node.position.vector_to(other_node.position).normalize
 
         hinge_connection = NO_HINGE
-        hinge_connection = A_HINGE unless a_hinges.empty?
-        hinge_connection = B_HINGE unless b_hinges.empty?
+        hinge_connection = B_HINGE unless a_hinges.empty?
+        hinge_connection = A_HINGE unless b_hinges.empty?
         hinge_connection = A_B_HINGE unless a_hinges.empty? || b_hinges.empty?
 
         if export_hub.is_a?(ExportSubHub) && hinge_connection == A_B_HINGE
