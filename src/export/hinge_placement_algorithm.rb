@@ -238,6 +238,11 @@ class HingePlacementAlgorithm
         max_l1 = [max_l1, hinge.l1].max
       end
 
+      # also set l1 distance for node if it contains a subhub
+      node_hubs = @hubs[node]
+      minimum_subhub_l1 = PRESETS::MINIMUM_L1
+      max_l1 = [max_l1, minimum_subhub_l1.mm].max if node_hubs.size > 1
+
       @node_l1[node] = max_l1
     end
 
@@ -492,6 +497,33 @@ class HingePlacementAlgorithm
 
             if edge.nodes.any? { |node| node.pod_directions.size > 0 }
               raise 'Hinge is connected to edge that has a pod.'
+            end
+
+            elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length
+            target_elongation = l1 + l2 + l3_min
+
+            next unless elongation < target_elongation
+
+            total_elongation = edge.first_elongation_length + edge.second_elongation_length
+            relaxation.stretch_to(edge, edge.length - total_elongation + 2*target_elongation + 10.mm)
+            is_finished = false
+          end
+        end
+      end
+
+      @hubs.each do |node, hubs|
+        l1 = @node_l1[node]
+
+        i = 0
+        hubs.each do |hub|
+          is_main_hub = i == 0
+          i += 1
+
+          next if is_main_hub
+
+          hub.each do |edge|
+            if edge.link_type == 'actuator'
+              next
             end
 
             elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length
