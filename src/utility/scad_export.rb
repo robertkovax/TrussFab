@@ -48,18 +48,23 @@ class ScadExport
       #   1) no other hinge connects to it OR
       #   2) is not connecting to a subhub
 
+      is_hinge_connecting_a = !other_a_hinges.empty?
+      is_sub_hub_connecting_a = false
       is_hinge_connecting_b = !other_b_hinges.empty?
       is_sub_hub_connecting_b = false
 
-      hub_hinges = hubs[node]
+      node_hubs = hubs[node]
+      node_subhubs = node_hubs.drop(1)
 
-      if hub_hinges.size > 1 && hub_hinges[0].include?(hinge.edge2)
-        p 'found!'
-        p hinge
+      if node_subhubs.any? { |edges| edges.include?(hinge.edge1) }
+        is_sub_hub_connecting_a = true
+      end
+
+      if node_subhubs.any? { |edges| edges.include?(hinge.edge2) }
         is_sub_hub_connecting_b = true
       end
 
-      a_gap = !other_a_hinges.empty?
+      a_gap = is_hinge_connecting_a || is_sub_hub_connecting_a
       b_gap = is_hinge_connecting_b || is_sub_hub_connecting_b
       a_with_connector = true
       b_with_connector = !b_gap # only adding connector when there is no gap
