@@ -98,7 +98,7 @@ class ScadExport
     export_hinges
   end
 
-  def self.create_export_hubs(hubs, hinges, l1, l2, node, hub_id)
+  def self.create_export_hubs(hubs, hinges, l1, l2, l3_min, node, hub_id)
     export_hubs = []
     i = 0
 
@@ -137,6 +137,10 @@ class ScadExport
 
         l3 = elongation - l1 - l2
 
+        if export_hub.is_a?(ExportSubHub) && l3 < l3_min
+          raise RuntimeError, 'L3 distance for hub is too small.'
+        end
+
         export_elongation = ExportElongation.new(hub_id, other_node.id, hinge_connection, l1.to_mm, l2.to_mm, l3.to_mm, direction)
         export_hub.add_elongation(export_elongation)
       end
@@ -168,7 +172,7 @@ class ScadExport
       l1 = 0.0.mm if l1.nil?
 
       hinges = hinge_algorithm.hinges[node]
-      export_hubs.concat(create_export_hubs(hubs, hinges, l1, l2, node, hub_id))
+      export_hubs.concat(create_export_hubs(hubs, hinges, l1, l2, l3_min, node, hub_id))
     end
 
     export_hinges.each do |hinge|
