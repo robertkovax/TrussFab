@@ -299,7 +299,9 @@ class Simulation
     # Callbacks
     @dialog.add_action_callback('change_piston') do |_context, id, value|
       actuator = @pistons[id.to_i]
-      actuator.joint.controller = (value.to_f - 0.4) * (actuator.max - actuator.min)
+      if actuator.joint.valid?
+        actuator.joint.controller = (value.to_f - 0.4) * (actuator.max - actuator.min)
+      end
     end
 
     @dialog.add_action_callback('test_piston') do |_context, id|
@@ -311,7 +313,7 @@ class Simulation
       @breaking_force_invh = (@breaking_force > 1.0e-6) ? (0.5.fdiv(@breaking_force)) : 0.0
       Graph.instance.edges.each_value { |edge|
         link = edge.thingy
-        if link.is_a?(Link)
+        if link.is_a?(Link) && link.joint.valid?
           link.joint.breaking_force = @breaking_force
         end
       }
@@ -369,10 +371,13 @@ class Simulation
       link = @pistons[hash[:id]]
       joint = link.joint
 
-      joint.rate = hash[:speed]
-      joint.controller = (hash[:expanding] ? link.max : link.min)
-
-      cur_disp = joint.cur_distance - joint.start_distance
+      if joint.valid?
+        joint.rate = hash[:speed]
+        joint.controller = (hash[:expanding] ? link.max : link.min)
+        cur_disp = joint.cur_distance - joint.start_distance
+      else
+        cur_disp = 0.0
+      end
 
       if (cur_disp - link.max).abs < 0.005 && hash[:expanding]
         #
@@ -610,7 +615,7 @@ class Simulation
   #
 
   def add_force_to_node(node, force)
-    node.thingy.body.add_force(force)
+    node.thingy.body.apply_force(force)
   end
 
   # This is called when simulation starts and assigns unique materials to bottles
@@ -715,11 +720,14 @@ class Simulation
   end
 
   def get_directed_force(link)
-    pt1 = link.first_node.thingy.entity.bounds.center
-    pt2 = link.second_node.thingy.entity.bounds.center
-    dir = pt1.vector_to(pt2).normalize
-    tension = link.joint.get_linear_tension
-    tension.dot(dir)
+    if link.joint.valid?
+      pt1 = link.first_node.thingy.entity.bounds.center
+      pt2 = link.second_node.thingy.entity.bounds.center
+      dir = pt1.vector_to(pt2).normalize
+      link.joint.linear_tension.dot(dir)
+    else
+      0.0
+    end
   end
 
   def whiten_all_bottles
@@ -779,7 +787,11 @@ class Simulation
       pt2 = link.second_node.thingy.entity.bounds.center
       dir = pt1.vector_to(pt2).normalize
       position = Geom.linear_combination(0.5, pt1, 0.5, pt2)
-      tension = link.joint.get_linear_tension.dot(dir)
+      if link.joint.valid?
+        tension = link.joint.linear_tension.dot(dir)
+      else
+        tension = 0.0
+      end
       update_force_label(link, tension, position)
     end
   end

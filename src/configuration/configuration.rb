@@ -106,11 +106,11 @@ module Configuration
 
   # Simulation Properties
   WORLD_GRAVITY         = -9.8 # in m/s/s
-  WORLD_SOLVER_MODEL    = 8 # 1 - 64
+  WORLD_SOLVER_MODEL    = 4 # 1 - 64
   WORLD_TIMESTEP        = 1.0 / 200 # in seconds
   WORLD_NUM_ITERATIONS  = ((1.0 / 60) / WORLD_TIMESTEP).to_i
   JOINT_SOLVER_MODEL    = 0 # 0 or 2
-  JOINT_STIFFNESS       = 0.9 # ratio (0.0 - 1.0)
+  JOINT_STIFFNESS       = 0.999 # ratio (0.0 - 1.0)
   JOINT_BREAKING_FORCE  = 3000 # (in Newtons)
   BODY_STATIC_FRICITON  = 0.9
   BODY_KINETIC_FRICITON = 0.5

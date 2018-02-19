@@ -81,7 +81,7 @@ class Hub < PhysicsThingy
 
   def add_force
     return if @body.nil?
-    @body.add_force(Geom::Vector3d.new(0, 0, -@mass))
+    @body.apply_force(0, 0, -@mass)
   end
 
   def create_body(world)
