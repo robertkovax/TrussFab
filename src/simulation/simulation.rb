@@ -285,6 +285,41 @@ class Simulation
     }
   end
 
+  def move_joint(expand)
+    link = nil
+    Graph.instance.edges.each_value { |edge|
+      if edge.thingy.is_a?(ActuatorLink)
+        link = edge.thingy
+      end
+    }
+    return if link.nil?
+    joint = link.joint
+
+    joint.rate = link.rate
+    joint.controller = expand ? link.max : link.min
+  end
+
+  def expand_actuator
+    move_joint(true)
+  end
+
+  def retract_actuator
+    move_joint(false)
+  end
+
+  def stop_actuator
+    link = nil
+    Graph.instance.edges.each_value { |edge|
+      if edge.thingy.is_a?(ActuatorLink)
+        link = edge.thingy
+      end
+    }
+    return if link.nil?
+    joint = link.joint
+
+    joint.rate = 0
+  end
+
   def piston_dialog
     get_all_pistons
     return if @pistons.empty?
@@ -556,6 +591,32 @@ class Simulation
     Sketchup.set_status_text("Frame: #{@frame}   Time: #{sprintf("%.2f", @world.elapsed_time)} s   FPS: #{@fps}   Threads: #{@world.cur_threads_count}", SB_PROMPT)
     @last_frame = @frame
     @last_time = now
+  end
+
+  def open_automatic_movement_dialog
+    @movement_dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
+    file_content = File.read(File.join(File.dirname(__FILE__), '../ui/html/cycle_designer.erb'))
+    template = ERB.new(file_content)
+    @movement_dialog.set_html(template.result(binding))
+    @movement_dialog.set_size(300, Configuration::UI_HEIGHT)
+    @movement_dialog.add_action_callback('expand_actuator') do |_context|
+      expand_actuator
+    end
+    @movement_dialog.add_action_callback('retract_actuator') do |_context|
+      retract_actuator
+    end
+    @movement_dialog.add_action_callback('stop_actuator') do |_context|
+      stop_actuator
+    end
+    @movement_dialog.show
+  end
+
+  def close_automatic_movement_dialog
+    unless @movement_dialog.nil?
+      if @movement_dialog.visible?
+        @movement_dialog.close
+      end
+    end
   end
 
   #

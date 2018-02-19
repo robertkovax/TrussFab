@@ -21,6 +21,7 @@ class SimulationTool < Tool
     @simulation.piston_dialog
     @simulation.chart_dialog
     @simulation.open_sensor_dialog
+    @simulation.open_automatic_movement_dialog
     Sketchup.active_model.active_view.animation = @simulation
     @simulation.start
   end
@@ -31,6 +32,7 @@ class SimulationTool < Tool
     @simulation.close_piston_dialog
     @simulation.close_chart
     @simulation.close_sensor_dialog
+    @simulation.close_automatic_movement_dialog
     @simulation = nil
     super
     view.invalidate
