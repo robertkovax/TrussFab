@@ -285,11 +285,13 @@ class Simulation
     }
   end
 
-  def move_joint(expand)
+  def move_joint(id, expand)
     link = nil
     Graph.instance.edges.each_value { |edge|
       if edge.thingy.is_a?(ActuatorLink)
-        link = edge.thingy
+        if edge.id == id
+          link = edge.thingy
+        end
       end
     }
     return if link.nil?
@@ -299,19 +301,21 @@ class Simulation
     joint.controller = expand ? link.max : link.min
   end
 
-  def expand_actuator
-    move_joint(true)
+  def expand_actuator(id)
+    move_joint(id, true)
   end
 
-  def retract_actuator
-    move_joint(false)
+  def retract_actuator(id)
+    move_joint(id, false)
   end
 
-  def stop_actuator
+  def stop_actuator(id)
     link = nil
     Graph.instance.edges.each_value { |edge|
       if edge.thingy.is_a?(ActuatorLink)
-        link = edge.thingy
+        if edge.id == id
+          link = edge.thingy
+        end
       end
     }
     return if link.nil?
@@ -599,14 +603,14 @@ class Simulation
     template = ERB.new(file_content)
     @movement_dialog.set_html(template.result(binding))
     @movement_dialog.set_size(300, Configuration::UI_HEIGHT)
-    @movement_dialog.add_action_callback('expand_actuator') do |_context|
-      expand_actuator
+    @movement_dialog.add_action_callback('expand_actuator') do |_context, id|
+      expand_actuator(id)
     end
-    @movement_dialog.add_action_callback('retract_actuator') do |_context|
-      retract_actuator
+    @movement_dialog.add_action_callback('retract_actuator') do |_context, id|
+      retract_actuator(id)
     end
-    @movement_dialog.add_action_callback('stop_actuator') do |_context|
-      stop_actuator
+    @movement_dialog.add_action_callback('stop_actuator') do |_context, id|
+      stop_actuator(id)
     end
     @movement_dialog.show
   end
