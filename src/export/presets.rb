@@ -1,6 +1,9 @@
 module PRESETS
   DEFAULT_HOLE_SIZE = 3.2 # where the screw goes through
 
+  ACTUATOR_CONNECTOR_HOLE_SIZE_SMALL = (6.5 / 2).mm
+  ACTUATOR_CONNECTOR_HOLE_SIZE_BIG = (10.5 / 2).mm
+
   # the angle for the triangle in the gap
   DEFAULT_GAP_ANGLE_SIMPLE = 45
   DEFAULT_GAP_ANGLE_DOUBLE = 70
@@ -16,6 +19,8 @@ module PRESETS
 
   # the default l2
   L2 = 40.mm # gap sized derived from this value
+
+  L3_MIN = 10.mm
 
   SIMPLE_HINGE_OPENSCAD = {
     l2: L2,
@@ -37,22 +42,16 @@ module PRESETS
     cut_out_hex_d_b: DEFAULT_CUT_OUT_HEX_D
   }.freeze
 
-  ACTUATOR_HINGE_OPENSCAD = SIMPLE_HINGE_OPENSCAD.dup
-  ACTUATOR_HINGE_OPENSCAD[:alpha] = 40
-  ACTUATOR_HINGE_OPENSCAD[:gap_angle_a] = DEFAULT_GAP_ANGLE_DOUBLE
-  ACTUATOR_HINGE_OPENSCAD[:gap_angle_b] = DEFAULT_GAP_ANGLE_DOUBLE
-
-  ACTUATOR_HINGE_OPENSCAD_HOLE_SIZE_SMALL = (6.5 / 2).mm
-  ACTUATOR_HINGE_OPENSCAD_HOLE_SIZE_BIG = (10.5 / 2).mm
+  DOUBLE_HINGE_OPENSCAD = SIMPLE_HINGE_OPENSCAD.dup
+  DOUBLE_HINGE_OPENSCAD[:alpha] = 40 # add a default
+  DOUBLE_HINGE_OPENSCAD[:gap_angle_a] = DEFAULT_GAP_ANGLE_DOUBLE # overwrite
+  DOUBLE_HINGE_OPENSCAD[:gap_angle_b] = DEFAULT_GAP_ANGLE_DOUBLE # overwrite
 
   # caps are currently not used
   CAP_RUBY = SIMPLE_HINGE_OPENSCAD.select do |key, _|
     key.to_s.start_with?('connector_end', 'cut_out', 'round_size')
   end
   CAP_RUBY['hole_size'] = DEFAULT_HOLE_SIZE
-
-  SIMPLE_HINGE_RUBY = SIMPLE_HINGE_OPENSCAD.dup
-  SIMPLE_HINGE_RUBY['l3_min'] = 10.mm
 
   SUBHUB_OPENSCAD = SIMPLE_HINGE_OPENSCAD.select do |key, _|
     key.to_s.start_with?('connector_end', 'gap_epsilon', 'round_size')

@@ -10,9 +10,9 @@ class ScadExport
   # we choose the first node to get the big hole size for the actuator
   def self.get_appropriate_actuator_hole_size(edge, node)
     if edge.first_node?(node)
-      PRESETS::ACTUATOR_HINGE_OPENSCAD_HOLE_SIZE_BIG
+      PRESETS::ACTUATOR_CONNECTOR_HOLE_SIZE_BIG
     else
-      PRESETS::ACTUATOR_HINGE_OPENSCAD_HOLE_SIZE_SMALL
+      PRESETS::ACTUATOR_CONNECTOR_HOLE_SIZE_SMALL
     end
   end
 
@@ -172,7 +172,7 @@ class ScadExport
     export_hubs = []
 
     l2 = PRESETS::L2
-    l3_min = PRESETS::SIMPLE_HINGE_RUBY['l3_min']
+    l3_min = PRESETS::L3_MIN
 
     hinge_algorithm.hinges.each do |node, hinges|
       l1 = hinge_algorithm.node_l1[node]

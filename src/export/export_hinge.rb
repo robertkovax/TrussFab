@@ -16,7 +16,7 @@ class ExportHinge
     if type == :simple
       @params = PRESETS::SIMPLE_HINGE_OPENSCAD.clone
     elsif type == :double
-      @params = PRESETS::ACTUATOR_HINGE_OPENSCAD.clone
+      @params = PRESETS::DOUBLE_HINGE_OPENSCAD.clone
     else
       raise 'specify hinge type'
     end
