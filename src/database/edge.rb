@@ -180,7 +180,7 @@ class Edge < GraphObject
   end
 
   def inspect
-    "Edge " + @id.to_s
+    "Edge #{@id} (#{@first_node.id}, #{@second_node.id})"
   end
 
   def reset
