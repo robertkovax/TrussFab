@@ -87,9 +87,11 @@ class ScadExport
 
         # For now, we never really though of as the 'actuator hinge' as two seperate hinges.
         # It only happens in the following steps that the ones hinges get's split into two.
-        first_hinge = ExportHinge.new(node.id, a_other_node.id.to_s, "V" + b_other_node.id.to_s, l1.to_mm, l2.to_mm, a_l3.to_mm, l1.to_mm, l2.to_mm, b_l3.to_mm,
+        double_hinge_id = IdManager.instance.generate_next_tag_id('double_hinge')
+
+        first_hinge = ExportHinge.new(node.id, a_other_node.id.to_s, "V" + double_hinge_id.to_s, l1.to_mm, l2.to_mm, a_l3.to_mm, l1.to_mm, l2.to_mm, b_l3.to_mm,
                                       PRESETS::ACTUATOR_HINGE_OPENSCAD_ANGLE, a_gap, true, a_with_connector, false, params_first)
-        second_hinge = ExportHinge.new(node.id, "V" + b_other_node.id.to_s, b_other_node.id.to_s, l1.to_mm, l2.to_mm, a_l3.to_mm, l1.to_mm, l2.to_mm, b_l3.to_mm,
+        second_hinge = ExportHinge.new(node.id, "V" + double_hinge_id.to_s, b_other_node.id.to_s, l1.to_mm, l2.to_mm, a_l3.to_mm, l1.to_mm, l2.to_mm, b_l3.to_mm,
                                        PRESETS::ACTUATOR_HINGE_OPENSCAD_ANGLE, true, b_gap, false, b_with_connector, params_second)
 
         export_hinges.push(first_hinge)
