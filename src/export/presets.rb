@@ -61,7 +61,7 @@ end
 # returns the preset as paramets to use in a openscad function call
 def get_defaults_for_openscad(preset)
   lines = preset.map do |key, value|
-    "#{key}=#{value.to_mm}"
+    "#{key}=#{value.to_mm.round(10)}"
   end
   lines.join(",\n")
 end
