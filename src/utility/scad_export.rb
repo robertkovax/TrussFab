@@ -90,15 +90,17 @@ class ScadExport
             get_appropriate_actuator_hole_size(hinge.edge2, node)
         end
 
+        double_hinge_id = IdManager.instance.generate_next_tag_id('double_hinge')
+
         first_hinge_params_others = { a_gap: a_gap, b_gap: true, a_with_connector: a_with_connector, b_with_connector: false }
         first_hinge_params = first_hinge_params_others.merge(hinge_params_lengths)
         first_hinge_params = first_hinge_params.merge(additional_first_params)
-        first_hinge = ExportHinge.new(node.id, a_other_node.id.to_s, "V" + b_other_node.id.to_s, :double, first_hinge_params)
+        first_hinge = ExportHinge.new(node.id, a_other_node.id.to_s, "V" + double_hinge_id.to_s, :double, first_hinge_params)
 
         second_hinge_params_others = { a_gap: true, b_gap: b_gap, a_with_connector: false, b_with_connector: b_with_connector }
         second_hinge_params = second_hinge_params_others.merge(hinge_params_lengths)
         second_hinge_params = second_hinge_params.merge(additional_second_params)
-        second_hinge = ExportHinge.new(node.id, "V" + b_other_node.id.to_s, b_other_node.id.to_s, :double, second_hinge_params)
+        second_hinge = ExportHinge.new(node.id, "V" + double_hinge_id.to_s, b_other_node.id.to_s, :double, second_hinge_params)
 
         export_hinges.push(first_hinge)
         export_hinges.push(second_hinge)

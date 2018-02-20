@@ -15,7 +15,8 @@ class Edge < GraphObject
     @second_node.add_incident(self)
     @model_name = model_name
     @link_type = link_type
-    super(id)
+    edge_id = id.nil? ? IdManager.instance.generate_next_tag_id('edge') : id
+    super(edge_id)
   end
 
   def link_type=(type)
@@ -54,7 +55,7 @@ class Edge < GraphObject
   end
 
   def create_joints(world)
-    @thingy.create_joints(world, first_node, second_node)
+    @thingy.create_joints(world, @first_node, @second_node)
   end
 
   def position
@@ -70,11 +71,11 @@ class Edge < GraphObject
   end
 
   def nodes
-    [first_node, second_node]
+    [@first_node, @second_node]
   end
 
   def fixed?
-    first_node.fixed? && second_node.fixed?
+    first_node.fixed? || second_node.fixed?
   end
 
   def exchange_node(current_node, new_node)
@@ -143,8 +144,8 @@ class Edge < GraphObject
   end
 
   def incidents
-    first_connected = first_node.incidents - [self]
-    second_connected = second_node.incidents - [self]
+    first_connected = @first_node.incidents - [self]
+    second_connected = @second_node.incidents - [self]
     first_connected + second_connected
   end
 

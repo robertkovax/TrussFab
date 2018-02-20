@@ -474,63 +474,56 @@ class HingePlacementAlgorithm
     pod_groups + (groups - pod_groups)
   end
 
+  # return all edges that need to be elongated and the node at which the elongation should occur
+  def get_elongation_tuple
+    result = []
+
+    @hinges.each do |node, hinges|
+      hinges.each do |hinge|
+        result.push([node, hinge.edge1])
+        result.push([node, hinge.edge2])
+      end
+    end
+
+    @hubs.each do |node, hubs|
+      hubs.drop(1).each do |hub_edges|
+        hub_edges.each do |edge|
+          result.push([node, edge])
+        end
+      end
+    end
+
+    result.reject! { |_, edge| edge.link_type == 'actuator' }
+
+    result
+  end
+
   def elongate_edges
     l2 = PRESETS::L2
     l3_min = PRESETS::L3_MIN
+
+    elongation_tuple = get_elongation_tuple
 
     loop do
       relaxation = Relaxation.new
 
       is_finished = true
 
-      @hinges.each do |node, hinges|
+      elongation_tuple.each do |node, edge|
         l1 = @node_l1[node]
 
-        hinges.each do |hinge|
-          [hinge.edge1, hinge.edge2].each do |edge|
-            next if edge.link_type == 'actuator'
-
-            if edge.nodes.any? { |node| node.pod_directions.size > 0 }
-              raise 'Hinge is connected to edge that has a pod.'
-            end
-
-            elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length
-            target_elongation = l1 + l2 + l3_min
-
-            next unless elongation < target_elongation
-
-            total_elongation = edge.first_elongation_length + edge.second_elongation_length
-            relaxation.stretch_to(edge, edge.length - total_elongation + 2*target_elongation + 10.mm)
-            is_finished = false
-          end
+        if edge.nodes.any? { |node| node.pod_directions.size > 0 }
+          raise 'Hinge is connected to edge that has a pod.'
         end
-      end
 
-      @hubs.each do |node, hubs|
-        l1 = @node_l1[node]
+        elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length
+        target_elongation = l1 + l2 + l3_min
 
-        i = 0
-        hubs.each do |hub|
-          is_main_hub = i == 0
-          i += 1
+        next unless elongation < target_elongation
 
-          next if is_main_hub
-
-          hub.each do |edge|
-            if edge.link_type == 'actuator'
-              next
-            end
-
-            elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length
-            target_elongation = l1 + l2 + l3_min
-
-            next unless elongation < target_elongation
-
-            total_elongation = edge.first_elongation_length + edge.second_elongation_length
-            relaxation.stretch_to(edge, edge.length - total_elongation + 2*target_elongation + 10.mm)
-            is_finished = false
-          end
-        end
+        total_elongation = edge.first_elongation_length + edge.second_elongation_length
+        relaxation.stretch_to(edge, edge.length - total_elongation + 2*target_elongation + 10.mm)
+        is_finished = false
       end
 
       break if is_finished
