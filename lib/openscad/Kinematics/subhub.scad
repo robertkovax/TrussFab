@@ -4,8 +4,44 @@ use <util.scad>
 // some small value
 fix_rounding_issue = 0.001;
 
+function _get_middle(vectors, i, dim) = i == len(vectors) ? 0 : _get_middle(vectors, i + 1, dim) + vectors[i][dim] / len(vectors);
+
+function get_middle(vectors) = [_get_middle(vectors, 0, 0), _get_middle(vectors, 0, 1), _get_middle(vectors, 0, 2)];
+
+function ppp(v) = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+
+function push_outwards(point, middle) =  point + (middle - point) * - 24 / ppp((middle - point));
+
+
+// 2. try
+//function dif(point, middle) = middle - point;
+//
+//function is_x_fucked(p, m) = abs(dif(p, m)[0]) > abs(dif(p, m)[1]) && abs(dif(p, m)[0]) > abs(dif(p, m)[2]) ? 1: 0;
+//function is_y_fucked(p, m) = abs(dif(p, m)[1]) > abs(dif(p, m)[2]) && abs(dif(p, m)[1]) > abs(dif(p, m)[0]) ? 1: 0;
+//function is_z_fucked(p, m) = abs(dif(p, m)[2]) > abs(dif(p, m)[1]) && abs(dif(p, m)[2]) > abs(dif(p, m)[0]) ? 1: 0;
+//
+//function g_s(x, y) = x - y > 0 ? 1 : -1;
+//
+//HOW_MUCH = 30;
+//
+//function push_outwards(p, m) = [ p[0] + (is_x_fucked(p, m) ? HOW_MUCH * g_s(p[0], m[0]) : 0), p[1] + (is_y_fucked(p, m) ? HOW_MUCH * g_s(p[1], m[1]) : 0), p[2] + (is_z_fucked(p, m) ? HOW_MUCH * g_s(p[2], m[2]) : 0)];
+
+
+function push_all(vectors, i,  middle) = i == len(vectors) ? [] : concat([push_outwards(vectors[i], middle)], push_all(vectors, i + 1, middle));
+
+//function cap_pushing(old, new) = old[
+
 module construct_intersection_poly(vectors) {
-  points = concat([[0, 0, 0]], vectors);
+
+  middle = get_middle(vectors);
+
+  pushed = push_all(vectors, 0, middle);
+
+  echo(pushed);
+
+
+
+  points = concat([[0, 0, 0]], pushed);
 
   // NB: The order of the faces must be clock-wise (looking from the outside towards the face)
 
@@ -55,6 +91,18 @@ module construct_cylinder_at_position(vector, distance, h, r) {
   cylinder(h=h, r=r, center=true);
 }
 
+module construct_cube_at_position(vector, distance, x, y, z) {
+  translating_vector = vector * distance  + vector * z / 2;
+  start_position_vector = [0, 0, 1]; // starting position of the vector
+
+  q = getQuatWithCrossproductCheck(start_position_vector,vector);
+  qmat = quat_to_mat4(q);
+
+  translate(translating_vector)
+  multmatrix(qmat) // rotation for connection vector
+  cube(size=[x, y, z], center=true);
+}
+
 // construct to later substract
 module construct_a_gap(vector, l1, l2, gap_epsilon, gap_extra_round_size, round_size) {
   union() {
@@ -95,6 +143,7 @@ module construct_screw_hole(vector, l1, l2, l3, connector_end_extra_height, hole
   construct_cylinder_at_position(vector, 0, l1 + l2 + l3 + connector_end_extra_height + fix_rounding_issue, hole_size);
 }
 
+
 module draw_subhub(
   normal_vectors, // array of vectors
   gap_types, // array o
@@ -112,6 +161,18 @@ module draw_subhub(
   connector_end_extra_height
   ) {
   vectors = 1.5 * (l1 + l2) * normal_vectors;
+
+  middle = get_middle(normal_vectors);
+
+
+  echo(middle);
+//  vv = normal_vectors[0] * 100;
+//    echo(vv);
+//  rotate(a=[0, 10, 0], v=vv)
+//  construct_cube_at_position(normal_vectors[0], 50, 20, 20, 30);
+
+//  cylinder(h=20, r=10);
+//  cube(size=[20, 20, 30], center=true);
 
   difference() {
     union() {
