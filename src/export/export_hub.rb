@@ -54,7 +54,7 @@ class ExportSubHub < ExportHub
     file = File.new(filename, 'w')
 
     export_string = ["// adjust filepath to LibSTLExport if necessary",
-      "use <#{ProjectHelper.library_directory}/openscad/Hinge/subhub.scad>",
+      "use <#{ProjectHelper.library_directory}/openscad/Kinematics/subhub.scad>",
       "draw_subhub(",
     ].join("\n") + "\n" + params + default_params + "\n);\n"
 

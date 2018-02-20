@@ -16,7 +16,7 @@ class ExportCap
     defaults = format_hash_for_openscad_params(PRESETS::CAP_RUBY)
     export_string = [
       "// adjust filepath to LibSTLExport if neccessary",
-      "use <#{ProjectHelper.library_directory}/openscad/Hinge/cap.scad>",
+      "use <#{ProjectHelper.library_directory}/openscad/Kinematics/cap.scad>",
       "draw_hinge_cap(",
       "  cap_height=#{@length},",
       "  label=\"#{identifier}\",",

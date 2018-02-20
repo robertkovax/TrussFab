@@ -34,7 +34,7 @@ class ExportHinge
     params = format_hash_for_openscad_params(@params)
     export_string = [
       "// adjust filepath to LibSTLExport if necessary",
-      "use <#{ProjectHelper.library_directory}/openscad/Hinge/simple_hinge.scad>",
+      "use <#{ProjectHelper.library_directory}/openscad/Kinematics/hinge.scad>",
       "draw_hinge(",
       "  a_label=\"#{@a_other_hub_id}\",",
       "  b_label=\"#{@b_other_hub_id}\",",
