@@ -92,8 +92,8 @@ module construct_bottle_connector(vector, l1, l2, l3, round_size, connector_end_
 }
 
 // construct to later substract
-module construct_screw_hole(vector, l1, l2, hole_size) {
-  construct_cylinder_at_position(vector, l1 / 2, l2 * 2, hole_size);
+module construct_screw_hole(vector, l1, l2, l3, connector_end_extra_height, hole_size) {
+  construct_cylinder_at_position(vector, 0, l1 + l2 + l3 + connector_end_extra_height + fix_rounding_issue, hole_size);
 }
 
 module draw_subhub(
@@ -131,11 +131,11 @@ module draw_subhub(
     union() {
       for (i=[0:len(normal_vectors)]) {
         if (gap_types[i] == "a") {
-          construct_screw_hole(normal_vectors[i], l1, l2, hole_size);
+          construct_screw_hole(normal_vectors[i], l1, l2, l3[i], connector_end_extra_height, hole_size);
           construct_a_gap(normal_vectors[i], l1, l2, gap_epsilon, gap_extra_round_size, round_size);
         }
         if (gap_types[i] == "b") {
-          construct_screw_hole(normal_vectors[i], l1, l2, hole_size);
+          construct_screw_hole(normal_vectors[i], l1, l2, l3[i], connector_end_extra_height, hole_size);
           construct_b_gap(normal_vectors[i], l1, l2, gap_epsilon, gap_extra_round_size, round_size);
         }
       }
@@ -145,23 +145,53 @@ module draw_subhub(
 
 // for dev only
 
-l1 = 30;
-l2 = 40;
+//l1 = 30;
+//l2 = 40;
+//
+//normal_vectors = [[-0.9948266171932849, -0.00015485714145741815, 0.1015872912476312],
+//[-0.3984857593670732, -0.28854789426039135, 0.8706027867515364],
+//[-0.4641256842132446, -0.883604515803502, 0.06189029734333352]];
+//
+//gap_types = ["b", "a", undef];
+//connector_types = [undef, "bottle", "bottle"];
+//
+//l3 = [undef, 10, 10];
+//
+//gap_epsilon=0.8000000000000002;
+//gap_extra_round_size = 3;
+//
+//draw_subhub(normal_vectors, gap_types, connector_types, l1, l2, l3, 12, 3, gap_epsilon, gap_extra_round_size,
+//connector_end_round=15.0,
+//connector_end_heigth=3.7,
+//connector_end_extra_round=9.95,
+//connector_end_extra_height=3.9999999999999996);
 
-normal_vectors = [[-0.9948266171932849, -0.00015485714145741815, 0.1015872912476312],
-[-0.3984857593670732, -0.28854789426039135, 0.8706027867515364],
-[-0.4641256842132446, -0.883604515803502, 0.06189029734333352]];
 
-gap_types = ["b", "a", undef];
-connector_types = [undef, "bottle", "bottle"];
-
-l3 = [undef, 10, 10];
-
-gap_epsilon=0.8000000000000002;
-gap_extra_round_size = 3;
-
-draw_subhub(normal_vectors, gap_types, connector_types, l1, l2, l3, 12, 3, gap_epsilon, gap_extra_round_size,
+draw_subhub(
+normal_vectors = [
+[0.9906250734578931, -0.02591247775002514, -0.13412869690486925],
+[0.6035773980223504, -0.13727568779890292, 0.7853978037503716],
+[0.5134913486004344, -0.8229693719656428, 0.242998040566138]],
+gap_types = [
+"b",
+"a",
+"a"],
+connector_types = [
+"none",
+"bottle",
+"bottle"],
+l1 = 40.0,
+l3 = [
+14.036058111910798,
+14.36289336298551,
+14.851815572367414],
+round_size=12.0,
+gap_epsilon=0.8000000000000002,
 connector_end_round=15.0,
 connector_end_heigth=3.7,
-connector_end_extra_round=9.95,
-connector_end_extra_height=3.9999999999999996);
+connector_end_extra_round=11.45,
+connector_end_extra_height=7.0,
+gap_extra_round_size=3.0,
+hole_size=3.2000000000000006,
+l2=40.0);
+
