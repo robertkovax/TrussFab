@@ -16,7 +16,8 @@ class Node < GraphObject
     @adjacent_triangles = []    # connected triangles
     @pod_directions = {}
     @pod_constraints = {}
-    super(id)
+    node_id = id.nil? ? IdManager.instance.generate_next_tag_id('node') : id
+    super(node_id)
   end
 
   # Moves the nodes and all connected components

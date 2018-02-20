@@ -15,7 +15,8 @@ class Edge < GraphObject
     @second_node.add_incident(self)
     @model_name = model_name
     @link_type = link_type
-    super(id)
+    edge_id = id.nil? ? IdManager.instance.generate_next_tag_id('edge') : id
+    super(edge_id)
   end
 
   def link_type=(type)
