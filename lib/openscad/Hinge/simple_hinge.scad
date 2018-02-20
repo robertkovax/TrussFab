@@ -13,6 +13,9 @@ large_number_to_cut_off = 100;
 // some small constant to remove leftovers
 rounding_fix_epsilon = 0.001;
 
+// all credits Robert Kovacs
+function calc_extra_width_for_hinging(gap_angle, radius) = radius / cos(90 - gap_angle) - radius;
+
 function label_offset(l2, i, gap_epsilon) = l2 * (i/4) + ((l2/4) - text_size) / 2 + gap_epsilon / 4;
 
 module add_text(text) {
@@ -58,9 +61,6 @@ module cut_out_b_gap(l1, l2, gap_angle, gap_width, gap_epsilon) {
      }
    }
  }
-
-
-function calc_extra_width_for_hinging(gap_angle, radius) = radius / cos(gap_angle/2) - radius;
 
 // cuts out parts at the top of both hinge parts
 module cut_out_top_part(alpha, a_l1, a_l2, b_l1, b_l2, depth) {
