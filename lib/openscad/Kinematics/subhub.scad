@@ -1,12 +1,11 @@
 use <../Util/maths.scad>
-use <../Util/lists.scad>
 use <util.scad>
 
 // some small value
 fix_rounding_issue = 0.001;
 
 module construct_intersection_poly(vectors) {
-  points = concat_lists([[0, 0, 0]], vectors);
+  points = concat([[0, 0, 0]], vectors);
 
   // NB: The order of the faces must be clock-wise (looking from the outside towards the face)
 
@@ -18,7 +17,7 @@ module construct_intersection_poly(vectors) {
   side_last = [[0, 1, len(vectors)]];
 
   // concat all together
-  faces = concat_lists(top, concat_lists(side_all_but_not_last, side_last));
+  faces = concat(top, concat(side_all_but_not_last, side_last));
 
   // TODO: make it properly. the hull solved out problem of finding a convex hull around some points. we constructurd the poins
   hull() {
