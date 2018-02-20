@@ -63,11 +63,11 @@ module PRESETS
 end
 
 # returns the preset as paramets to use in a openscad function call
-def get_defaults_for_openscad(preset)
-  preset = preset.sort_by { |k, _| k.to_s }
-  lines = preset.map do |key, value|
+def format_hash_for_openscad_params(hash)
+  hash = hash.sort_by { |k, _| k.to_s }
+  lines = hash.map do |key, value|
     new_value = value.is_a?(Length) ? value.to_mm.round(10) : value
-    "#{key}=#{new_value}"
+    "  #{key}=#{new_value}"
   end
   lines.join(",\n")
 end

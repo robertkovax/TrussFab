@@ -49,15 +49,14 @@ class ExportSubHub < ExportHub
              "l1 = #{@l1},\n" +
              "l3 = [\n" + l3_array.join(",\n") + "],\n"
 
-    # TODO: rename get_defaults_for_openscad
-    default_params = get_defaults_for_openscad(PRESETS::SUBHUB_OPENSCAD)
+    default_params = format_hash_for_openscad_params(PRESETS::SUBHUB_OPENSCAD)
     filename = "#{path}/SubHub_#{@id}.scad"
     file = File.new(filename, 'w')
 
     export_string = ["// adjust filepath to LibSTLExport if necessary",
       "use <#{ProjectHelper.library_directory}/openscad/Hinge/subhub.scad>",
       "draw_subhub(",
-    ].join("\n") + "\n" + params + default_params + ");\n"
+    ].join("\n") + "\n" + params + default_params + "\n);\n"
 
     file.write(export_string)
     file.close

@@ -31,15 +31,15 @@ class ExportHinge
   def write_to_file(path)
     filename = "#{path}/Hinge_#{@hub_id}.#{@a_other_hub_id}_#{@hub_id}.#{@b_other_hub_id}.scad"
     file = File.new(filename, 'w')
-    params = get_defaults_for_openscad(@params)
+    params = format_hash_for_openscad_params(@params)
     export_string = [
       "// adjust filepath to LibSTLExport if necessary",
       "use <#{ProjectHelper.library_directory}/openscad/Hinge/simple_hinge.scad>",
       "draw_hinge(",
-      "a_label=\"#{@a_other_hub_id}\",",
-      "b_label=\"#{@b_other_hub_id}\",",
-      "id_label=\"#{'N' + @hub_id.to_s}\","
-    ].join("\n") + "\n" + params + ");\n"
+      "  a_label=\"#{@a_other_hub_id}\",",
+      "  b_label=\"#{@b_other_hub_id}\",",
+      "  id_label=\"#{'N' + @hub_id.to_s}\","
+    ].join("\n") + "\n" + params + "\n);\n"
     file.write(export_string)
     file.close
     export_string
