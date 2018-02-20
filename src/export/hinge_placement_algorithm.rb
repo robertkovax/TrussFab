@@ -205,16 +205,11 @@ class HingePlacementAlgorithm
         violating_hinges = shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] >= 3 && hinge_connects_to_groups(group_edge_map, hinge, 2) }
         violating_hinges.concat(shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] >= 3 && hinge_connects_to_groups(group_edge_map, hinge, 1) })
         violating_hinges.concat(shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] >= 3 })
+        violating_hinges.concat(shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] == 2 && hinge.is_actuator_hinge && hinge.edge1.link_type != 'actuator' && hinge.edge2.link_type != 'actuator' })
         violating_hinges.concat(shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] == 2 && hinge_connects_to_groups(group_edge_map, hinge, 2) })
         violating_hinges.concat(shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] == 1 && hinge_connects_to_groups(group_edge_map, hinge, 2) })
 
         break if violating_hinges.empty?
-
-        #violating_hinges.sort! { |a,b| shared_hinges_count[b] <=> shared_hinges_count[a] }
-
-        # move the hinges that connect to at least one group to the front
-        #violating_and_connecting_group = violating_hinges.select { |hinge| group_edge_map.values.any? { |edges| edges.include? hinge.edge1 } || group_edge_map.values.any? { |edges| edges.include? hinge.edge2 } }
-        #violating_hinges = violating_and_connecting_group + (violating_hinges - violating_and_connecting_group)
 
         new_hinges.delete(violating_hinges.first)
       end
