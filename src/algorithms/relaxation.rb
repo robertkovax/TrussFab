@@ -66,10 +66,10 @@ class Relaxation
     (1..@max_iterations).each do
       # pick a random edge
       edge = @edges.to_a.sample
-      # only adapt edge if we have still stuff to do
+      # only adapt edge if we still have stuff to do
       deviation = deviation_to_optiomal_length(edge)
       next if deviation.abs < CONVERGENCE_DEVIATION
-      # add neighbors if we have still edges left to add
+      # add neighbors if we still have edges left to add
       add_edges(edge.incidents) unless @edges.length == number_connected_edges
       adapt_edge(edge, deviation * @damping_factor)
       count += 1
@@ -138,7 +138,7 @@ class Relaxation
     @new_start_positions[edge_id] = edge.first_node.position
   end
 
-  # delta is dampened to prevent undesired behavior like length jumping between
+  # delta is damped to prevent undesired behavior like length jumping between
   # two extreme cases it will adapt to the desired length over a larger number
   # of iterations
   def adapt_edge(edge, delta)

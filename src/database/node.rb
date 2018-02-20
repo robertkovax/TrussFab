@@ -3,6 +3,7 @@ require 'src/thingies/hub.rb'
 require 'src/thingies/hub_entities/pod.rb'
 
 class Node < GraphObject
+  attr_accessor :original_position
   attr_reader :position, :incidents, :pod_directions, :pod_constraints, :adjacent_triangles
 
   POD_ANGLE_THRESHOLD = 0.2
@@ -10,26 +11,29 @@ class Node < GraphObject
   def initialize(position, id: nil)
     @deleting = false
     @position = position
+    @original_position = position
     @incidents = []             # connected edges
     @adjacent_triangles = []    # connected triangles
     @pod_directions = {}
     @pod_constraints = {}
-    super(id)
+    node_id = id.nil? ? IdManager.instance.generate_next_tag_id('node') : id
+    super(node_id)
   end
 
+  # Moves the nodes and all connected components
+  # this is very slow. Only do this if necessary (i.e. not in simulation)
   def move(position)
     update_position(position)
-    @thingy.update_position(position)
     @incidents.each(&:move)
+    @adjacent_triangles.each(&:move)
+    @thingy.entity.move!(Geom::Transformation.new(position))
   end
 
+  # This only updates the position variable, e.g. to let the MouseInput know
+  # where the Node is
   def update_position(position)
     @position = position
-  end
-
-  def transform(transformation)
-    @position = transformation * @position
-    @thingy.transform(transformation)
+    @thingy.position = position
   end
 
   def distance(point)

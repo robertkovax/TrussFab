@@ -121,6 +121,8 @@ class Link < PhysicsThingy
       @second_elongation_length =
       Configuration::MINIMUM_ELONGATION
 
+    length = @first_node.position.distance(@second_node.position)
+
     model_length = length - @first_elongation_length - @second_elongation_length
     shortest_model = @model.longest_model_shorter_than(model_length)
 
