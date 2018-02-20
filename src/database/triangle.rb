@@ -13,7 +13,8 @@ class Triangle < GraphObject
     second_node.add_adjacent_triangle(self)
     third_node.add_adjacent_triangle(self)
     @deleted = false
-    super(id)
+    triangle_id = id.nil? ? IdManager.instance.generate_next_tag_id('triangle') : id
+    super(triangle_id)
   end
 
   def normal_towards_user
