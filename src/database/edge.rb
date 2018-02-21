@@ -16,7 +16,7 @@ class Edge < GraphObject
     @second_node.add_incident(self)
     @model_name = model_name
     @link_type = link_type
-    @automatic_movement_group = 0
+    @automatic_movement_group = -1
     super(id)
   end
 

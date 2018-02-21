@@ -5,7 +5,7 @@ require 'src/simulation/simulation.rb'
 class SimulationTool < Tool
   def initialize(ui)
     super(ui)
-    @mouse_input = MouseInput.new(snap_to_nodes: true, snap_to_edges: true)
+    @mouse_input = MouseInput.new(snap_to_nodes: true, snap_to_edges: true, should_highlight: false)
     @move_mouse_input = nil
 
     @node = nil
@@ -69,7 +69,7 @@ class SimulationTool < Tool
     return if obj.nil?
     if obj.is_a?(Node)
       @moving = true
-      @node = node
+      @node = obj
       @start_position = @end_position = @mouse_input.position
     elsif obj.thingy.is_a?(ActuatorLink)
       @simulation.toggle_piston_group(obj)

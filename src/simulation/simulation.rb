@@ -456,8 +456,8 @@ class Simulation
 
   def move_joint(id, expand)
     link = nil
-    Graph.instance.edges.each_value { |edge|
-      if edge.thingy.is_a?(ActuatorLink)
+    @auto_piston_group.each { |edges|
+      edges.each { |edge|
         if edge.automatic_movement_group == id
           link = edge.thingy
           unless link.nil?
@@ -467,7 +467,7 @@ class Simulation
             joint.controller = expand ? link.max : link.min
           end
         end
-      end
+      }
     }
   end
 
@@ -481,8 +481,8 @@ class Simulation
 
   def stop_actuator(id)
     link = nil
-    Graph.instance.edges.each_value { |edge|
-      if edge.thingy.is_a?(ActuatorLink)
+    @auto_piston_group.each { |edges|
+      edges.each { |edge|
         if edge.automatic_movement_group == id
           link = edge.thingy
           unless link.nil?
@@ -490,23 +490,26 @@ class Simulation
             joint.rate = 0
           end
         end
-      end
+      }
     }
   end
 
   def toggle_piston_group(edge)
-    if @auto_piston_group.include?(edge)
-      edge.automatic_movement_group += 1
-    else
-      @auto_piston_group.push(edge)
+    # we don't want to create more groups than we have pistons
+    return if edge.automatic_movement_group >= @pistons.length
+    edge.automatic_movement_group += 1
+    if @auto_piston_group[edge.automatic_movement_group].nil?
+      @auto_piston_group[edge.automatic_movement_group] = []
+      @movement_dialog.execute_script("update_pistons(#{edge.automatic_movement_group})")
     end
-    p edge.automatic_movement_group
-    @movement_dialog.execute_script("update_pistons(#{edge.automatic_movement_group})")
+    @auto_piston_group[edge.automatic_movement_group - 1].delete(edge) unless edge.automatic_movement_group == 0
+    @auto_piston_group[edge.automatic_movement_group].push(edge)
+    p "Assigned Group #{edge.automatic_movement_group} for #{edge}"
   end
 
   def reset_piston_group
     Graph.instance.edges.each_value { |edge|
-      edge.automatic_movement_group = 0
+      edge.automatic_movement_group = -1
     }
   end
 
