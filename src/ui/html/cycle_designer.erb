@@ -18,18 +18,7 @@ var svg = d3.select("svg"),
     g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 var datas = [];
-var piston_ids = <%= @pistons.keys %>;
-piston_ids.forEach(function(piston_id, i) {
-    var high = 0.9 + 0.1 * i;
-    var low = 0.1 + 0.1 * i;
-    datas[piston_id] = [[1, high, 1, piston_id],
-                [2, low, 2, piston_id],
-                [3, low, 3, piston_id],
-                [4, high, 4, piston_id],
-                [5, high, 5, piston_id]];
-});
-
-var paths = {};
+var paths = new Map();
 var dots = {};
 
 var x = d3.scaleLinear()
@@ -107,17 +96,30 @@ var brush = d3.brushX()
     .extent([[0, 0], [width, height]])
     .on("start brush", brushed);
 
-function addPath(path_data, color, id) {
-    return g.append("path")
-    .datum(path_data)
-    .attr("fill", "none")
-    .attr("stroke", color)
-    .attr("stroke-linejoin", "round")
-    .attr("stroke-linecap", "round")
-    .attr("stroke-width", 3)
-    .attr("d", line)
-    .attr("id", id)
-    .call(dragLine);
+function addData(piston_id) {
+    var high = 0.9 + 0.1 * datas.length;
+    var low = 0.1 + 0.1 * datas.length;
+    datas[piston_id] = [[1, high, 1, piston_id],
+                [2, low, 2, piston_id],
+                [3, low, 3, piston_id],
+                [4, high, 4, piston_id],
+                [5, high, 5, piston_id]];
+    return datas[piston_id];
+}
+
+function addPath(color, id) {
+    path_data = addData(id);
+    paths[id] = g.append("path")
+            .datum(path_data)
+            .attr("fill", "none")
+            .attr("stroke", color)
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-width", 3)
+            .attr("d", line)
+            .attr("id", id)
+            .call(dragLine);
+    dots[id] = addDots(path_data, id);
 }
 
 function addDots(dot_data, id) {
@@ -134,22 +136,15 @@ function addDots(dot_data, id) {
 }
 
 var colors = ['#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
-          '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
-          '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
-          '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
-          '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC',
-          '#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399',
-          '#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680',
-          '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
-          '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3',
-          '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'];
-
-piston_ids.forEach(function(piston_id, i) {
-    paths[piston_id] = addPath(datas[piston_id], colors[i], piston_id);
-});
-piston_ids.forEach(function(piston_id) {
-    dots[piston_id] = addDots(datas[piston_id], piston_id);
-});
+              '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
+              '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
+              '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
+              '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC',
+              '#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399',
+              '#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680',
+              '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
+              '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3',
+              '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'];
 
 g.append("line")
 .attr("x1", x(1))
@@ -255,6 +250,12 @@ function retract(id) {
 
 function stop(id) {
     sketchup.stop_actuator(id);
+};
+
+function update_pistons(id) {
+    if(!paths.has(id)) {
+        addPath(colors[datas.length], id);
+    }
 };
 
 </script>

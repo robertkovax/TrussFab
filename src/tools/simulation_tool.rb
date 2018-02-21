@@ -5,7 +5,7 @@ require 'src/simulation/simulation.rb'
 class SimulationTool < Tool
   def initialize(ui)
     super(ui)
-    @mouse_input = MouseInput.new(snap_to_nodes: true)
+    @mouse_input = MouseInput.new(snap_to_nodes: true, snap_to_edges: true)
     @move_mouse_input = nil
 
     @node = nil
@@ -65,11 +65,15 @@ class SimulationTool < Tool
 
   def onLButtonDown(_flags, x, y, view)
     update(view, x, y)
-    node = @mouse_input.snapped_object
-    return if node.nil?
-    @moving = true
-    @node = node
-    @start_position = @end_position = @mouse_input.position
+    obj = @mouse_input.snapped_object
+    return if obj.nil?
+    if obj.is_a?(Node)
+      @moving = true
+      @node = node
+      @start_position = @end_position = @mouse_input.position
+    elsif obj.thingy.is_a?(ActuatorLink)
+      @simulation.toggle_piston_group(obj)
+    end
   end
 
   def onMouseMove(_flags, x, y, view)

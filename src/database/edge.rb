@@ -6,6 +6,7 @@ require 'src/models/model_storage.rb'
 require 'src/simulation/thingy_rotation.rb'
 
 class Edge < GraphObject
+  attr_accessor :automatic_movement_group
   attr_reader :first_node, :second_node, :link_type
 
   def initialize(first_node, second_node, model_name: 'hard', id: nil, link_type: 'bottle_link')
@@ -15,6 +16,7 @@ class Edge < GraphObject
     @second_node.add_incident(self)
     @model_name = model_name
     @link_type = link_type
+    @automatic_movement_group = 0
     super(id)
   end
 

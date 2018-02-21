@@ -52,6 +52,7 @@ class Simulation
     @saved_transformations = {}
     @sensors = []
     @pistons = {}
+    @auto_piston_group = []
     @bottle_dat = {}
 
     # time keeping
@@ -173,6 +174,7 @@ class Simulation
     model.commit_operation
 
     reset_tested_pistons
+    reset_piston_group
   end
 
   def create_joints
@@ -283,45 +285,6 @@ class Simulation
     Graph.instance.edges.each { |id, edge|
       @pistons[id] = edge.thingy if edge.thingy.is_a?(ActuatorLink)
     }
-  end
-
-  def move_joint(id, expand)
-    link = nil
-    Graph.instance.edges.each_value { |edge|
-      if edge.thingy.is_a?(ActuatorLink)
-        if edge.id == id
-          link = edge.thingy
-        end
-      end
-    }
-    return if link.nil?
-    joint = link.joint
-
-    joint.rate = link.rate
-    joint.controller = expand ? link.max : link.min
-  end
-
-  def expand_actuator(id)
-    move_joint(id, true)
-  end
-
-  def retract_actuator(id)
-    move_joint(id, false)
-  end
-
-  def stop_actuator(id)
-    link = nil
-    Graph.instance.edges.each_value { |edge|
-      if edge.thingy.is_a?(ActuatorLink)
-        if edge.id == id
-          link = edge.thingy
-        end
-      end
-    }
-    return if link.nil?
-    joint = link.joint
-
-    joint.rate = 0
   end
 
   def piston_dialog
@@ -462,6 +425,92 @@ class Simulation
   end
 
   #
+  # Automatic Piston Movement Methods
+  #
+
+  def open_automatic_movement_dialog
+    @movement_dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
+    file_content = File.read(File.join(File.dirname(__FILE__), '../ui/html/cycle_designer.erb'))
+    template = ERB.new(file_content)
+    @movement_dialog.set_html(template.result(binding))
+    @movement_dialog.set_size(300, Configuration::UI_HEIGHT)
+    @movement_dialog.add_action_callback('expand_actuator') do |_context, id|
+      expand_actuator(id)
+    end
+    @movement_dialog.add_action_callback('retract_actuator') do |_context, id|
+      retract_actuator(id)
+    end
+    @movement_dialog.add_action_callback('stop_actuator') do |_context, id|
+      stop_actuator(id)
+    end
+    @movement_dialog.show
+  end
+
+  def close_automatic_movement_dialog
+    unless @movement_dialog.nil?
+      if @movement_dialog.visible?
+        @movement_dialog.close
+      end
+    end
+  end
+
+  def move_joint(id, expand)
+    link = nil
+    Graph.instance.edges.each_value { |edge|
+      if edge.thingy.is_a?(ActuatorLink)
+        if edge.automatic_movement_group == id
+          link = edge.thingy
+          unless link.nil?
+            joint = link.joint
+
+            joint.rate = link.rate
+            joint.controller = expand ? link.max : link.min
+          end
+        end
+      end
+    }
+  end
+
+  def expand_actuator(id)
+    move_joint(id, true)
+  end
+
+  def retract_actuator(id)
+    move_joint(id, false)
+  end
+
+  def stop_actuator(id)
+    link = nil
+    Graph.instance.edges.each_value { |edge|
+      if edge.thingy.is_a?(ActuatorLink)
+        if edge.automatic_movement_group == id
+          link = edge.thingy
+          unless link.nil?
+            joint = link.joint
+            joint.rate = 0
+          end
+        end
+      end
+    }
+  end
+
+  def toggle_piston_group(edge)
+    if @auto_piston_group.include?(edge)
+      edge.automatic_movement_group += 1
+    else
+      @auto_piston_group.push(edge)
+    end
+    p edge.automatic_movement_group
+    @movement_dialog.execute_script("update_pistons(#{edge.automatic_movement_group})")
+  end
+
+  def reset_piston_group
+    Graph.instance.edges.each_value { |edge|
+      edge.automatic_movement_group = 0
+    }
+  end
+
+  #
   # Animation methods
   #
 
@@ -595,32 +644,6 @@ class Simulation
     Sketchup.set_status_text("Frame: #{@frame}   Time: #{sprintf("%.2f", @world.elapsed_time)} s   FPS: #{@fps}   Threads: #{@world.cur_threads_count}", SB_PROMPT)
     @last_frame = @frame
     @last_time = now
-  end
-
-  def open_automatic_movement_dialog
-    @movement_dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
-    file_content = File.read(File.join(File.dirname(__FILE__), '../ui/html/cycle_designer.erb'))
-    template = ERB.new(file_content)
-    @movement_dialog.set_html(template.result(binding))
-    @movement_dialog.set_size(300, Configuration::UI_HEIGHT)
-    @movement_dialog.add_action_callback('expand_actuator') do |_context, id|
-      expand_actuator(id)
-    end
-    @movement_dialog.add_action_callback('retract_actuator') do |_context, id|
-      retract_actuator(id)
-    end
-    @movement_dialog.add_action_callback('stop_actuator') do |_context, id|
-      stop_actuator(id)
-    end
-    @movement_dialog.show
-  end
-
-  def close_automatic_movement_dialog
-    unless @movement_dialog.nil?
-      if @movement_dialog.visible?
-        @movement_dialog.close
-      end
-    end
   end
 
   #
