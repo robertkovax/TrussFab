@@ -3,19 +3,18 @@ require 'src/simulation/simulation.rb'
 require 'src/algorithms/rigidity_tester.rb'
 
 class Hinge
-  attr_accessor :edge1, :edge2, :is_actuator_hinge
+  attr_accessor :edge1, :edge2, :is_double_hinge
 
   def initialize(edge1, edge2)
     raise 'Edges have to be different.' if edge1 == edge2
     @edge1 = edge1
     @edge2 = edge2
-    # For historical reasons this is still called 'actuator hinge'.
-    # Actionally it is an 'double hinge' and gets used in other scenarios as well (e.g. subhubs).
-    @is_actuator_hinge = false
+    # 'double hinge' is used for connecting actuators or edges in a triangle with an actuator
+    @is_double_hinge = false
   end
 
   def inspect
-    "#{@edge1.inspect} #{@edge2.inspect} #{@is_actuator_hinge}"
+    "#{@edge1.inspect} #{@edge2.inspect} #{@is_double_hinge}"
   end
 
   def hash
@@ -70,7 +69,7 @@ class Hinge
     b = p1_y - m * p1_x
 
     length = m * angle + b
-    min_length = @is_actuator_hinge ? PRESETS::MINIMUM_ACTUATOR_L1 : PRESETS::MINIMUM_L1
+    min_length = @is_double_hinge ? PRESETS::MINIMUM_ACTUATOR_L1 : PRESETS::MINIMUM_L1
     length = [min_length, length].max
 
     length.mm
@@ -174,7 +173,7 @@ class HingePlacementAlgorithm
         next if same_group
 
         new_hinge = Hinge.new(e1, e2)
-        new_hinge.is_actuator_hinge = tri.contains_actuator?
+        new_hinge.is_double_hinge = tri.contains_actuator?
         hinges.add(new_hinge)
       end
     end
@@ -205,7 +204,7 @@ class HingePlacementAlgorithm
         violating_hinges = shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] >= 3 && hinge_connects_to_groups(group_edge_map, hinge, 2) }
         violating_hinges.concat(shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] >= 3 && hinge_connects_to_groups(group_edge_map, hinge, 1) })
         violating_hinges.concat(shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] >= 3 })
-        violating_hinges.concat(shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] == 2 && hinge.is_actuator_hinge && hinge.edge1.link_type != 'actuator' && hinge.edge2.link_type != 'actuator' })
+        violating_hinges.concat(shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] == 2 && hinge.is_double_hinge && hinge.edge1.link_type != 'actuator' && hinge.edge2.link_type != 'actuator' })
         violating_hinges.concat(shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] == 2 && hinge_connects_to_groups(group_edge_map, hinge, 2) })
         violating_hinges.concat(shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] == 1 && hinge_connects_to_groups(group_edge_map, hinge, 2) })
 
@@ -404,7 +403,7 @@ class HingePlacementAlgorithm
     # Draw hinge visualization
     mid_point = Geom::Point3d.linear_combination(0.5, mid_point2, 0.5, mid_point1)
 
-    if hinge.is_actuator_hinge
+    if hinge.is_double_hinge
       mid_point = Geom::Point3d.linear_combination(0.75, mid_point, 0.25, node.position)
     end
 
