@@ -4,60 +4,39 @@ use <util.scad>
 // some small value
 fix_rounding_issue = 0.001;
 
+function norm_v(v) = v / norm(v);
+
 function _get_middle(vectors, i, dim) = i == len(vectors) ? 0 : _get_middle(vectors, i + 1, dim) + vectors[i][dim] / len(vectors);
 
 function get_middle(vectors) = [_get_middle(vectors, 0, 0), _get_middle(vectors, 0, 1), _get_middle(vectors, 0, 2)];
 
-function ppp(v) = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+function otto2_s(uv, nv, d) = d / (uv * nv);
 
-function push_outwards(point, middle) =  point + (middle - point) * - 24 / ppp((middle - point));
+function otto2_p_m(uv, nv, d) = otto2_s(uv, nv, d) * uv;
 
+function otto2_offset(uv, nv, d) = norm_v(d * nv - otto2_p_m(uv, nv, d));
 
-// 2. try
-//function dif(point, middle) = middle - point;
-//
-//function is_x_fucked(p, m) = abs(dif(p, m)[0]) > abs(dif(p, m)[1]) && abs(dif(p, m)[0]) > abs(dif(p, m)[2]) ? 1: 0;
-//function is_y_fucked(p, m) = abs(dif(p, m)[1]) > abs(dif(p, m)[2]) && abs(dif(p, m)[1]) > abs(dif(p, m)[0]) ? 1: 0;
-//function is_z_fucked(p, m) = abs(dif(p, m)[2]) > abs(dif(p, m)[1]) && abs(dif(p, m)[2]) > abs(dif(p, m)[0]) ? 1: 0;
-//
-//function g_s(x, y) = x - y > 0 ? 1 : -1;
-//
-//HOW_MUCH = 30;
-//
-//function push_outwards(p, m) = [ p[0] + (is_x_fucked(p, m) ? HOW_MUCH * g_s(p[0], m[0]) : 0), p[1] + (is_y_fucked(p, m) ? HOW_MUCH * g_s(p[1], m[1]) : 0), p[2] + (is_z_fucked(p, m) ? HOW_MUCH * g_s(p[2], m[2]) : 0)];
+function otto2_translate_point(uv, nv, d, factor) = [factor * otto2_offset(uv, nv, d) + [0, 0, 0], factor * otto2_offset(uv, nv, d) + (d * nv)];
+
+function _otto2_each(vectors, middle, l12, factor, i) = i == len(vectors) ? [] : concat([otto2_translate_point(norm_v(middle), norm_v(vectors[i]), l12, factor)], _otto2_each(vectors, middle, l12, factor, i + 1));
+
+function otto2_each(vectors, l12, factor) = _otto2_each(vectors, get_middle(vectors), l12, factor, 0);
 
 
-function push_all(vectors, i,  middle) = i == len(vectors) ? [] : concat([push_outwards(vectors[i], middle)], push_all(vectors, i + 1, middle));
-
-//function cap_pushing(old, new) = old[
-
-module construct_intersection_poly(vectors) {
-
-  middle = get_middle(vectors);
-
-  pushed = push_all(vectors, 0, middle);
-
-  echo(pushed);
-
-
-
-  points = concat([[0, 0, 0]], pushed);
-
-  // NB: The order of the faces must be clock-wise (looking from the outside towards the face)
-
-  // the top face depends on the number of input vector (points)
-  top = [[for(i=[1:len(vectors)]) i ]];
-  // always triangles, first get the easy sides
-  side_all_but_not_last = [for(i=[1:len(vectors) - 1]) [i + 1, i, 0]];
-  // the last to connect to the first one
-  side_last = [[0, 1, len(vectors)]];
-
-  // concat all together
-  faces = concat(top, concat(side_all_but_not_last, side_last));
-
-  // TODO: make it properly. the hull solved out problem of finding a convex hull around some points. we constructurd the poins
-  hull() {
-    polyhedron( points, faces );
+module construct_intersection_poly(vectors, flag=true) {
+  hull() {    
+    for(p = vectors) {
+  
+      if (flag) {
+        translate(p[0])
+        sphere(r = 0.00001, center=true);
+      } else {
+        sphere(r = 0.00001, center=true);
+      }
+    
+      translate(p[1])
+      sphere(r = 0.00001, center=true);
+    }
   }
 }
 
@@ -73,9 +52,14 @@ module construct_spheres(outer_radius, inner_radius) {
 }
 
 module construct_base_model(vectors, l1, l2) {
-  intersection() {
-    construct_intersection_poly(vectors);
-    construct_spheres(outer_radius=l1 + l2, inner_radius=l1);
+  difference() {
+    intersection() {
+      pushed1 = otto2_each(vectors, (l1 + l2) * 2, 12);
+      construct_intersection_poly(pushed1);
+      construct_spheres(outer_radius=l1 + l2, inner_radius=l1);
+    }
+    pushed2 = otto2_each(vectors, (l1 + l2) * 2, -24);
+    construct_intersection_poly(pushed2, false);
   }
 }
 
@@ -160,7 +144,7 @@ module draw_subhub(
   connector_end_extra_round,
   connector_end_extra_height
   ) {
-  vectors = 1.5 * (l1 + l2) * normal_vectors;
+  vectors = 2 * (l1 + l2) * normal_vectors;
 
   middle = get_middle(normal_vectors);
 
@@ -229,9 +213,9 @@ module draw_subhub(
 
 draw_subhub(
 normal_vectors = [
-[0.9906250734578931, -0.02591247775002514, -0.13412869690486925],
-[0.6035773980223504, -0.13727568779890292, 0.7853978037503716],
-[0.5134913486004344, -0.8229693719656428, 0.242998040566138]],
+- [0.9906250734578931, -0.02591247775002514, -0.13412869690486925],
+- [0.6035773980223504, -0.13727568779890292, 0.7853978037503716],
+- [0.5134913486004344, -0.8229693719656428, 0.242998040566138]],
 gap_types = [
 "b",
 "a",
