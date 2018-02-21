@@ -106,7 +106,7 @@ module Configuration
 
   # Simulation Properties
   WORLD_GRAVITY         = -9.8 # in m/s/s
-  WORLD_SOLVER_MODEL    = 4 # 1 - 64
+  WORLD_SOLVER_MODEL    = 8 # 1 - 64
   WORLD_TIMESTEP        = 1.0 / 200 # in seconds
   WORLD_NUM_ITERATIONS  = ((1.0 / 60) / WORLD_TIMESTEP).to_i
   JOINT_SOLVER_MODEL    = 0 # 0 or 2
@@ -121,7 +121,7 @@ module Configuration
   # PointToPointActuator Properties
   ACTUATOR_RATE         = 1.0 # in m/s
   ACTUATOR_POWER        = 0.0 # in Newtons (0 indicates max)
-  ACTUATOR_REDUCTION    = 0.01 # ratio (0.0 - 1.0)
+  ACTUATOR_REDUCTION    = 0.0 # ratio (0.0 - 1.0)
   ACTUATOR_MIN          = -0.2 # in meters
   ACTUATOR_MAX          = 0.2 # in meters
   ACTUATOR_INIT_DIST    = 0.4
@@ -132,16 +132,6 @@ module Configuration
     Sketchup::Color.new(255, 255, 255),
     Sketchup::Color.new(255, 0, 0)
   ]
-=begin
-  TENSION_COLORS = [
-    Sketchup::Color.new(0, 255, 255),
-    Sketchup::Color.new(0, 0, 255),
-    Sketchup::Color.new(0, 255, 255),
-    Sketchup::Color.new(0, 255, 0),
-    Sketchup::Color.new(255, 255, 0),
-    Sketchup::Color.new(255, 0, 0)
-  ]
-=end
   TENSION_SENSITIVITY = 1.0
 
   # Mass (in kilograms)
