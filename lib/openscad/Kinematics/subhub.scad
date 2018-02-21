@@ -22,16 +22,24 @@ function _otto2_each(vectors, middle, l12, factor, i) = i == len(vectors) ? [] :
 
 function otto2_each(vectors, l12, factor) = _otto2_each(vectors, get_middle(vectors), l12, factor, 0);
 
+function line_intersection_3d_a(p1, p2, v1, v2) = ((p2 - p1) * v2) / (v1 * v2);
+
+function line_intersection_3d(p1, p2, v1, v2) = p1 + line_intersection_3d_a(p1, p2, v1, v2) * v1;
+
 
 module construct_intersection_poly(vectors, flag=true) {
-  hull() {    
+  middle_point = get_middle([vectors[0][1], vectors[1][1], vectors[2][1]]);
+  hull() {
     for(p = vectors) {
   
       if (flag) {
         translate(p[0])
         sphere(r = 0.00001, center=true);
       } else {
-        sphere(r = 0.00001, center=true);
+
+        i = line_intersection_3d([0, 0, 0], p[1], middle_point, p[0]);
+        translate(i)
+        sphere(r = 0.00001, center=true);        
       }
     
       translate(p[1])
@@ -58,7 +66,7 @@ module construct_base_model(vectors, l1, l2) {
       construct_intersection_poly(pushed1);
       construct_spheres(outer_radius=l1 + l2, inner_radius=l1);
     }
-    pushed2 = otto2_each(vectors, (l1 + l2) * 2, -24);
+    pushed2 = otto2_each(vectors, (l1 + l2) * 2, -12);
     construct_intersection_poly(pushed2, false);
   }
 }
