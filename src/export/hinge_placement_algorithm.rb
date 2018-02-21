@@ -339,6 +339,7 @@ class HingePlacementAlgorithm
           remaining_hinges = sorted_hinges - new_hinges
           cur_hinge = remaining_hinges[0]
           align_first_hinge(hinges, cur_hinge)
+          first = true
           next
         end
 
@@ -539,8 +540,10 @@ class HingePlacementAlgorithm
       elongation_tuple.each do |node, edge|
         l1 = @node_l1[node]
 
-        if edge.nodes.any? { |node| node.pod_directions.size > 0 }
-          raise 'Hinge is connected to edge that has a pod.'
+        # if pods are fixed and edge can not be elongated, raise error
+        edge_contains_pods = edge.nodes.any? { |node| node.pod_directions.size > 0 }
+        if edge_contains_pods && !Relaxation.fixation_ignored?
+          #raise 'Hinge is connected to edge that has a pod.'
         end
 
         elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length
