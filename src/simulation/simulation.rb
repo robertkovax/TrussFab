@@ -44,8 +44,8 @@ class Simulation
     @ground_group = nil
     @root_dir = File.join(__dir__, '..')
     @world = nil
-    @re_show_edges = false
-    @re_show_profiles = false
+    @re_show_edges = true
+    @re_show_profiles = true
 
     # collections
     @edges = []
@@ -148,10 +148,8 @@ class Simulation
       hide_triangle_surfaces
       add_ground
       assign_unique_materials
-      @re_show_edges = re['EdgeDisplayMode']
-      @re_show_profiles = re['DrawSilhouettes']
-      re['EdgeDisplayMode'] = false
-      re['DrawSilhouettes'] = false
+      re['EdgeDisplayMode'] = @re_show_edges
+      re['DrawSilhouettes'] = @re_show_profiles
     rescue Exception => err
       model.abort_operation
       raise err
