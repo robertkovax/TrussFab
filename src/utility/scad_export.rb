@@ -72,7 +72,7 @@ class ScadExport
       params_first = PRESETS::ACTUATOR_HINGE_OPENSCAD.dup
       params_second = PRESETS::ACTUATOR_HINGE_OPENSCAD.dup
 
-      if hinge.is_actuator_hinge
+      if hinge.is_double_hinge
         if hinge.edge1.link_type == "actuator"
           a_with_connector = false
           params_first['hole_size_a'] =
