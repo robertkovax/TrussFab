@@ -60,7 +60,7 @@ class SimulationTool < Tool
     @force.text = ''
     @force = nil
   end
-
+=begin
   def onLButtonDown(_flags, x, y, view)
     update(view, x, y)
     node = @mouse_input.snapped_object
@@ -95,5 +95,5 @@ class SimulationTool < Tool
       @force.point = point
     end
   end
-
+=end
 end

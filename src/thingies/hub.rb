@@ -102,9 +102,6 @@ class Hub < PhysicsThingy
 
   def reset_physics
     super
-    pods.each do |pod|
-      pod.body = nil
-    end
   end
 
   private

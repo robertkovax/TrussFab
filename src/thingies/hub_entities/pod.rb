@@ -2,7 +2,6 @@ require 'src/simulation/simulation.rb'
 
 class Pod < Thingy
 
-  attr_accessor :body
   attr_reader :position, :direction
 
   attr_reader :node
