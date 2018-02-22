@@ -1,5 +1,5 @@
-var ctx = document.getElementById('forceChart');
-var forceChart = new Chart(ctx, {
+const ctx = document.getElementById('forceChart');
+const forceChart = new Chart(ctx, {
   type: 'line',
   data: {
     labels: [],

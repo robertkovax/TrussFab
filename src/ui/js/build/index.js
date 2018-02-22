@@ -1,10 +1,3 @@
-$(document).ready(function () {
-  sketchup.documentReady();
-  $('button').click(function () {
-    buttonClicked(this.id);
-  });
-});
-
 /* FUNCTIONS CALLED BY RUBY */
 
 function deselectAllTools() {
@@ -18,3 +11,8 @@ function selectTool(id) {
 function buttonClicked(id) {
   sketchup.buttonClicked(id);
 }
+
+$(() => {
+  sketchup.documentReady();
+  $('button').click(event => buttonClicked(event.target.id));
+});
