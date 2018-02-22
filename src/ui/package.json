@@ -1,5 +1,6 @@
 {
   "name": "trussfab-ui",
+  "private": true,
   "version": "0.1.0",
   "description": "UI for TrussFab",
   "main": "",
@@ -24,14 +25,8 @@
     "trailingComma": "es5"
   },
   "eslintConfig": {
-    "extends": [
-      "airbnb-base",
-      "prettier"
-    ],
-    "plugins": [
-      "import",
-      "prettier"
-    ],
+    "extends": ["airbnb-base", "prettier"],
+    "plugins": ["import", "prettier"],
     "env": {
       "jquery": true,
       "browser": true

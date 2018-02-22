@@ -6,17 +6,17 @@ class UserInteraction
   end
 
   def deselect_tool
-    @dialog.execute_script('deselect_all_tools()')
+    @dialog.execute_script('deselectAllTools()')
   end
 
   def open_dialog
     @dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
-    file = File.join(File.dirname(__FILE__), '/html/user_interaction.html')
+    file = File.join(File.dirname(__FILE__), '/html/index.html')
     @dialog.set_file(file)
     @dialog.set_size(Configuration::UI_WIDTH, Configuration::UI_HEIGHT)
     @dialog.show
-    @dialog.add_action_callback('document_ready') { register_callbacks }
-    @dialog.add_action_callback('button_clicked') do |_context, button_id|
+    @dialog.add_action_callback('documentReady') { register_callbacks }
+    @dialog.add_action_callback('buttonClicked') do |_context, button_id|
       model = Sketchup.active_model
       # Deactivate Current tool
       model.select_tool nil
@@ -30,7 +30,7 @@ class UserInteraction
       Graph.instance.cleanup
       # Now, select the new tool
       model.select_tool(@tools[button_id])
-      @dialog.execute_script("select_tool('#{button_id}')")
+      @dialog.execute_script("selectTool('#{button_id}')")
     end
   end
 
