@@ -10,9 +10,9 @@ class ScadExport
   # we choose the first node to get the big hole size for the actuator
   def self.get_appropriate_actuator_hole_size(edge, node)
     if edge.first_node?(node)
-      PRESETS::ACTUATOR_HINGE_OPENSCAD_HOLE_SIZE_BIG
+      PRESETS::ACTUATOR_CONNECTOR_HOLE_SIZE_BIG
     else
-      PRESETS::ACTUATOR_HINGE_OPENSCAD_HOLE_SIZE_SMALL
+      PRESETS::ACTUATOR_CONNECTOR_HOLE_SIZE_SMALL
     end
   end
 
@@ -69,36 +69,45 @@ class ScadExport
       a_with_connector = true
       b_with_connector = !b_gap # only adding connector when there is no gap
 
-      params_first = PRESETS::ACTUATOR_HINGE_OPENSCAD.dup
-      params_second = PRESETS::ACTUATOR_HINGE_OPENSCAD.dup
+      hinge_params_lengths = { l1: l1, a_l3: a_l3, b_l3: b_l3 }
+      # I don't know why but it has to be converted here
+      hinge_params_lengths.update(hinge_params_lengths) { |_, v| v.to_mm }
 
+      # For now, we never really though of as the 'actuator hinge' as two seperate hinges.
+      # It only happens in the following steps that the ones hinges get's split into two.
       if hinge.is_actuator_hinge
+        additional_first_params = {}
+        additional_second_params = {}
         if hinge.edge1.link_type == "actuator"
           a_with_connector = false
-          params_first['hole_size_a'] =
+          additional_first_params[:hole_size_a] =
             get_appropriate_actuator_hole_size(hinge.edge1, node)
         end
 
         if hinge.edge2.link_type == "actuator"
           b_with_connector = false
-          params_second['hole_size_b'] =
+          additional_second_params[:hole_size_b] =
             get_appropriate_actuator_hole_size(hinge.edge2, node)
         end
 
-        # For now, we never really though of as the 'actuator hinge' as two seperate hinges.
-        # It only happens in the following steps that the ones hinges get's split into two.
         double_hinge_id = IdManager.instance.generate_next_tag_id('double_hinge')
 
-        first_hinge = ExportHinge.new(node.id, a_other_node.id.to_s, "V" + double_hinge_id.to_s, l1.to_mm, l2.to_mm, a_l3.to_mm, l1.to_mm, l2.to_mm, b_l3.to_mm,
-                                      PRESETS::ACTUATOR_HINGE_OPENSCAD_ANGLE, a_gap, true, a_with_connector, false, params_first)
-        second_hinge = ExportHinge.new(node.id, "V" + double_hinge_id.to_s, b_other_node.id.to_s, l1.to_mm, l2.to_mm, a_l3.to_mm, l1.to_mm, l2.to_mm, b_l3.to_mm,
-                                       PRESETS::ACTUATOR_HINGE_OPENSCAD_ANGLE, true, b_gap, false, b_with_connector, params_second)
+        first_hinge_params_others = { a_gap: a_gap, b_gap: true, a_with_connector: a_with_connector, b_with_connector: false }
+        first_hinge_params = first_hinge_params_others.merge(hinge_params_lengths)
+        first_hinge_params = first_hinge_params.merge(additional_first_params)
+        first_hinge = ExportHinge.new(node.id, a_other_node.id.to_s, "V" + double_hinge_id.to_s, :double, first_hinge_params)
+
+        second_hinge_params_others = { a_gap: true, b_gap: b_gap, a_with_connector: false, b_with_connector: b_with_connector }
+        second_hinge_params = second_hinge_params_others.merge(hinge_params_lengths)
+        second_hinge_params = second_hinge_params.merge(additional_second_params)
+        second_hinge = ExportHinge.new(node.id, "V" + double_hinge_id.to_s, b_other_node.id.to_s, :double, second_hinge_params)
 
         export_hinges.push(first_hinge)
         export_hinges.push(second_hinge)
       else
-        export_hinge = ExportHinge.new(node.id, a_other_node.id, b_other_node.id, l1.to_mm, l2.to_mm, a_l3.to_mm, l1.to_mm, l2.to_mm, b_l3.to_mm,
-                                       hinge.angle, a_gap, b_gap, a_with_connector, b_with_connector, PRESETS::SIMPLE_HINGE_OPENSCAD)
+        export_hinge_params_other = { a_gap: a_gap, b_gap: b_gap, a_with_connector: a_with_connector, b_with_connector: b_with_connector, alpha: hinge.angle }
+        export_hinges_params = export_hinge_params_other.merge(hinge_params_lengths)
+        export_hinge = ExportHinge.new(node.id, a_other_node.id, b_other_node.id, :simple, export_hinges_params)
         export_hinges.push(export_hinge)
       end
     end
@@ -165,7 +174,7 @@ class ScadExport
     export_hubs = []
 
     l2 = PRESETS::L2
-    l3_min = PRESETS::SIMPLE_HINGE_RUBY['l3_min']
+    l3_min = PRESETS::L3_MIN
 
     hinge_algorithm.hinges.each do |node, hinges|
       l1 = hinge_algorithm.node_l1[node]
