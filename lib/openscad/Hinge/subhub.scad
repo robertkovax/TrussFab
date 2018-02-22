@@ -2,6 +2,9 @@ use <../Util/maths.scad>
 use <../Util/lists.scad>
 use <util.scad>
 
+// some small value
+fix_rounding_issue = 0.001;
+
 module construct_intersection_poly(vectors) {
   points = concat_lists([[0, 0, 0]], vectors);
 
@@ -54,21 +57,28 @@ module construct_cylinder_at_position(vector, distance, h, r) {
 }
 
 // construct to later substract
-module construct_a_gap(vector, gap_height, gap_epsilon, gap_extra_round_size, round_size) {
+module construct_a_gap(vector, l1, l2, gap_epsilon, gap_extra_round_size, round_size) {
   union() {
     for (i = [0:1]) {
-      gap_distance_from_origin = hinge_a_y_gap(l1, gap_height, gap_epsilon, i);
-      construct_cylinder_at_position(vector, gap_distance_from_origin, gap_height, round_size + 3);
+      first = i == 0;
+      gap_offset = hinge_a_y_gap_offset(l1, l2, gap_epsilon, first);
+      gap_height = hinge_a_y_gap_height(l2, gap_epsilon, first);
+      if (first) {
+        construct_cylinder_at_position(vector, 0, gap_height + gap_offset, round_size + gap_extra_round_size);
+      } else {
+        construct_cylinder_at_position(vector, gap_offset, gap_height, round_size + gap_extra_round_size);
+      }
     }
   }
 }
 
 // construct to later substract
-module construct_b_gap(vector, gap_height, gap_epsilon, gap_extra_round_size, round_size) {
+module construct_b_gap(vector, l1, l2, gap_epsilon, gap_extra_round_size, round_size) {
   union() {
     for (i = [0:1]) {
-      gap_distance_from_origin = hinge_b_y_gap(l1, gap_height, gap_epsilon, i);
-      construct_cylinder_at_position(vector, gap_distance_from_origin, gap_height, round_size + gap_extra_round_size);
+      gap_offset = hinge_b_y_gap_offset(l1, l2, gap_epsilon, i==0) ;
+      gap_height = hinge_b_y_gap_height(l2, gap_epsilon, i==0);
+      construct_cylinder_at_position(vector, gap_offset, gap_height + fix_rounding_issue, round_size + gap_extra_round_size);
     }
   }
 }
@@ -86,7 +96,7 @@ module construct_screw_hole(vector, l1, l2, hole_size) {
   construct_cylinder_at_position(vector, l1 / 2, l2 * 2, hole_size);
 }
 
-module construct_hubless(
+module draw_subhub(
   normal_vectors, // array of vectors
   gap_types, // array o
   connector_types,
@@ -95,7 +105,6 @@ module construct_hubless(
   l3, // array of l3
   round_size,
   hole_size,
-  gap_height,
   gap_epsilon,
   gap_extra_round_size,
   connector_end_round,
@@ -123,11 +132,11 @@ module construct_hubless(
       for (i=[0:len(normal_vectors)]) {
         if (gap_types[i] == "a") {
           construct_screw_hole(normal_vectors[i], l1, l2, hole_size);
-          construct_a_gap(normal_vectors[i], gap_height, gap_epsilon, gap_extra_round_size, round_size);
+          construct_a_gap(normal_vectors[i], l1, l2, gap_epsilon, gap_extra_round_size, round_size);
         }
         if (gap_types[i] == "b") {
           construct_screw_hole(normal_vectors[i], l1, l2, hole_size);
-          construct_b_gap(normal_vectors[i], gap_height, gap_epsilon, gap_extra_round_size, round_size);
+          construct_b_gap(normal_vectors[i], l1, l2, gap_epsilon, gap_extra_round_size, round_size);
         }
       }
     }
@@ -137,23 +146,22 @@ module construct_hubless(
 // for dev only
 
 l1 = 30;
-l2 = 40 + 0.8 * 2;
+l2 = 40;
 
 normal_vectors = [[-0.9948266171932849, -0.00015485714145741815, 0.1015872912476312],
 [-0.3984857593670732, -0.28854789426039135, 0.8706027867515364],
-[-0.4641256842132446, -0.883604515803502, 0.06189029734333352],
-[-0.026760578914151064, -0.01836892195863407, -0.9994730882431289]];
+[-0.4641256842132446, -0.883604515803502, 0.06189029734333352]];
 
-gap_types = ["b", "a", undef, undef];
-connector_types = [undef, "bottle", "bottle", "bottle"];
+gap_types = ["b", "a", undef];
+connector_types = [undef, "bottle", "bottle"];
 
-l3 = [undef, 10, 10, 10];
+l3 = [undef, 10, 10];
 
 gap_epsilon=0.8000000000000002;
 gap_extra_round_size = 3;
 
-construct_hubless(normal_vectors, gap_types, connector_types, l1, l2, l3, 12, 3, 10, gap_epsilon, gap_extra_round_size,
-                  connector_end_round=15.0,
+draw_subhub(normal_vectors, gap_types, connector_types, l1, l2, l3, 12, 3, gap_epsilon, gap_extra_round_size,
+connector_end_round=15.0,
 connector_end_heigth=3.7,
 connector_end_extra_round=9.95,
 connector_end_extra_height=3.9999999999999996);

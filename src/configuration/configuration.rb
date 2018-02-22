@@ -97,7 +97,7 @@ module Configuration
   GROUND_COLOR          = Sketchup::Color.new(240, 240, 240)
   GROUND_ALPHA          = 0.2
   GROUND_SIZE           = 10000 # in inches
-  GROUND_HEIGHT         = -2.0 # in inches
+  GROUND_HEIGHT         = 0.01 # in inches
   GROUND_THICKNESS      = 20.0 # in inches
 
   # Behavioural Constants
@@ -124,6 +124,7 @@ module Configuration
   ACTUATOR_REDUCTION    = 0.0 # ratio (0.0 - 1.0)
   ACTUATOR_MIN          = -0.2 # in meters
   ACTUATOR_MAX          = 0.2 # in meters
+  ACTUATOR_INIT_DIST    = 0.4
 
   # Tension
   TENSION_COLORS = [

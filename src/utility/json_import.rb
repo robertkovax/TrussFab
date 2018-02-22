@@ -6,9 +6,18 @@ require 'src/simulation/thingy_rotation.rb'
 module JsonImport
   class << self
 
+    def distance_to_ground(json_objects)
+      lowest_z = Float::INFINITY
+      json_objects['nodes'].each do |node|
+        z = node['z'].to_f.mm
+        lowest_z = [lowest_z, z].min
+      end
+      lowest_z
+    end
+
     def at_position(path, position)
       json_objects = load_json(path)
-      points = build_points(json_objects, position)
+      points = build_points(json_objects, position, distance_to_ground(json_objects))
       edges, nodes = build_edges(json_objects, points)
       triangles = create_triangles(edges)
       add_joints(json_objects, edges, nodes) unless json_objects['joints'].nil?
@@ -20,7 +29,7 @@ module JsonImport
       json_objects = load_json(path)
 
       # retrieve points from json
-      json_points = build_points(json_objects, Geom::Point3d.new(0, 0, 0))
+      json_points = build_points(json_objects, Geom::Point3d.new(0, 0, 0), 0)
 
       # get center and direction of the triangle to snap to from our graph
       # and the triangle to snap on from json
@@ -119,7 +128,7 @@ module JsonImport
       triangles
     end
 
-    def build_points(json_objects, position)
+    def build_points(json_objects, position, z_height)
       first = true
       translation = Geom::Transformation.new
       points = {}
@@ -129,6 +138,7 @@ module JsonImport
         z = node['z'].to_f.mm
         point = Geom::Point3d.new(x, y, z)
         if first
+          position.z = -z_height
           translation = point.vector_to(position)
           first = false
         end
@@ -145,6 +155,12 @@ module JsonImport
         first_position = positions[edge_json['n1']]
         second_position = positions[edge_json['n2']]
         link_type = edge_json['type'].nil? ? 'bottle_link' : edge_json['type']
+
+        # For backward compatibility with SU2016 JSON files
+        if link_type == 'LinkTypes::BOTTLE_LINK'
+          link_type = 'bottle_link'
+        end
+
         model_name = edge_json['model'].nil? ? 'hard' : edge_json['model']
         edge = Graph.instance.create_edge_from_points(first_position,
                                                       second_position,

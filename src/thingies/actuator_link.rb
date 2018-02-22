@@ -19,6 +19,7 @@ class ActuatorLink < Link
     @power = Configuration::ACTUATOR_POWER
     @min = Configuration::ACTUATOR_MIN
     @max = Configuration::ACTUATOR_MAX
+    @initial_length = 0
 
     persist_entity
   end
@@ -47,11 +48,14 @@ class ActuatorLink < Link
 
     bd1 = first_node.thingy.body
     bd2 = second_node.thingy.body
-    @joint = TrussFab::PointToPointActuator.new(world, bd1, bd1.group.bounds.center, bd2.group.bounds.center, nil)
+    pt1 = bd1.group.bounds.center
+    pt2 = bd2.group.bounds.center
+    @joint = TrussFab::PointToPointActuator.new(world, bd1, bd2, pt1, pt2, nil)
+    #@joint = TrussFab::PointToPointGasSpring.new(world, bd1, bd2, pt1, pt2, nil)
     @joint.solver_model = Configuration::JOINT_SOLVER_MODEL
     @joint.stiffness = Configuration::JOINT_STIFFNESS
     @joint.breaking_force = Configuration::JOINT_BREAKING_FORCE
-    @joint.connect(bd2)
+    @initial_length = @joint.is_a?(TrussFab::PointToPointActuator) ? @joint.cur_distance : @joint.cur_length
     update_piston
   end
 
@@ -78,10 +82,16 @@ class ActuatorLink < Link
   end
 
   def update_piston
-    return unless @joint
-    @joint.rate = @rate
-    @joint.reduction_ratio = @reduction
-    @joint.power = @power
+    if @joint && @joint.valid?
+      @joint.rate = @rate
+      @joint.reduction_ratio = @reduction
+      @joint.power = @power
+      #@joint.extended_length = @initial_length
+      #@joint.stroke_length = 0.2
+      #@joint.extended_force = 100
+      #@joint.threshold = 0.015
+      #@joint.damp = 10
+    end
   end
 
   #
