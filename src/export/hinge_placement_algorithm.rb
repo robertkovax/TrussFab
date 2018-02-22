@@ -195,23 +195,50 @@ class HingePlacementAlgorithm
 
       loop do
         # save how many hinges each hinge shares an edge with around the current node
-        # if it is more than 2, one of them needs to be removed
-        shared_hinges_count = {}
+        # if it is more than one hinge at either connection, hinges need to be removed
+        shared_a_hinge_count = {}
+        shared_b_hinge_count = {}
+
         new_hinges.each do |hinge|
-          shared_hinges = new_hinges.select { |other_hinge| hinge != other_hinge && (hinge.edges & other_hinge.edges).size > 0 }
-          shared_hinges_count[hinge] = shared_hinges.size
+          shared_hinges_a = new_hinges.select { |other_hinge| hinge != other_hinge && other_hinge.edges.include?(hinge.edge1) }
+          shared_a_hinge_count[hinge] = shared_hinges_a.size
+
+          shared_hinges_b = new_hinges.select { |other_hinge| hinge != other_hinge && other_hinge.edges.include?(hinge.edge2) }
+          shared_b_hinge_count[hinge] = shared_hinges_b.size
         end
 
-        violating_hinges = shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] >= 3 && hinge_connects_to_groups(group_edge_map, hinge, 2) }
-        violating_hinges.concat(shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] >= 3 && hinge_connects_to_groups(group_edge_map, hinge, 1) })
-        violating_hinges.concat(shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] >= 3 })
-        violating_hinges.concat(shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] == 2 && hinge.is_actuator_hinge && hinge.edge1.link_type != 'actuator' && hinge.edge2.link_type != 'actuator' })
-        violating_hinges.concat(shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] == 2 && hinge_connects_to_groups(group_edge_map, hinge, 2) })
-        violating_hinges.concat(shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] == 1 && hinge_connects_to_groups(group_edge_map, hinge, 2) })
+        valid_result = new_hinges.all? { |hinge| shared_a_hinge_count[hinge] <= 1 && shared_b_hinge_count[hinge] <= 1 }
+        break if valid_result
 
-        break if violating_hinges.empty?
+        # assign values to hinges that states how likely it is to be removed
+        # the higher number the number, the more problematic is a hinge
+        hinge_values = []
+        new_hinges.each do |hinge|
+          val = 0
+          val += shared_a_hinge_count[hinge] - 1 if shared_a_hinge_count[hinge] > 1
+          val += shared_b_hinge_count[hinge] - 1 if shared_b_hinge_count[hinge] > 1
+          val += 1 if hinge.is_actuator_hinge
+          val += 1 if hinge_connects_to_groups(group_edge_map, hinge, 2)
 
-        new_hinges.delete(violating_hinges.first)
+          hinge_values.push([hinge, val])
+        end
+
+        hinge_values.sort! { |a, b| b[1] <=> a[1] }
+        new_hinges.delete(hinge_values.first[0])
+      end
+
+      # check that all subhubs are only connected to at most one hinge
+      # remove hinges if there are more than one, starting with double hinges
+      hubs[node].drop(1).each do |edges|
+        edges.each do |edge|
+          edge_hinges = new_hinges.select { |hinge| hinge.edges.include?(edge) }
+          edge_hinges.sort_by! { |hinge| hinge.is_actuator_hinge ? 0 : 1 }
+
+          while edge_hinges.size > 1
+            new_hinges.delete(edge_hinges.first)
+            edge_hinges.delete(edge_hinges.first)
+          end
+        end
       end
 
       hinge_map[node] = new_hinges
@@ -312,6 +339,7 @@ class HingePlacementAlgorithm
           remaining_hinges = sorted_hinges - new_hinges
           cur_hinge = remaining_hinges[0]
           align_first_hinge(hinges, cur_hinge)
+          first = true
           next
         end
 
@@ -512,8 +540,10 @@ class HingePlacementAlgorithm
       elongation_tuple.each do |node, edge|
         l1 = @node_l1[node]
 
-        if edge.nodes.any? { |node| node.pod_directions.size > 0 }
-          raise 'Hinge is connected to edge that has a pod.'
+        # if pods are fixed and edge can not be elongated, raise error
+        edge_contains_pods = edge.nodes.any? { |node| node.pod_directions.size > 0 }
+        if edge_contains_pods && !Relaxation.fixation_ignored?
+          #raise 'Hinge is connected to edge that has a pod.'
         end
 
         elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length
