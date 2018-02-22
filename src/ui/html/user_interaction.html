@@ -1,58 +1,94 @@
 <!DOCTYPE html>
 <html lang="de">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../css/ui.css" type="text/css">
-    <script type="text/javascript" src="../js/jquery-1.11.3.min.js"></script>
-    <script type="text/javascript" src="../js/userinteraction.js"></script>
-    <script type="text/javascript" src="../js/Chart.min.js"></script>
-    <title>TrussFab</title>
-  </head>
-  <body>
-    <h2>Creation</h2>
-    <button class="tool" id="tetrahedron_tool"><img src="../../../assets/icons/tetrahedron.png" alt="tetra">tetra</button>
-    <button class="tool" id="octahedron_tool"><img src="../../../assets/icons/octahedron.png" alt="octa">octa</button>
-    <button class="tool" id="bottle_link_tool"><img src="../../../assets/icons/single.png" alt="bottle">bottle</button>
-    <button hidden="true" class="tool"><img src="../../../assets/icons/wheel.png" alt="wheel">wheel</button>
-    <button hidden="true" class="tool"><img src="../../../assets/icons/triangle.png" alt="triangle">triangle</button>
-    <h2 hidden="true">Structures</h2>
-    <button hidden="true" class="tool"><img src="../../../assets/icons/beam.png" alt="beam">beam</button>
-    <button hidden="true" class="tool"><img src="../../../assets/icons/block.png" alt="block">block</button>
-    <button hidden="true" class="tool"><img src="../../../assets/icons/dome.png" alt="dome">dome</button>
-    <button hidden="true" class="tool"><img src="../../../assets/icons/fill.png" alt="fill">fill</button>
-    <h2>Modification</h2>
-    <button class="tool" id="grow_tool"><img src="../../../assets/icons/grow.png" alt="grow">grow</button>
-    <button class="tool" id="shrink_tool"><img src="../../../assets/icons/shrink.png" alt="shrink">shrink</button>
-    <button class="tool" id="deform_tool"><img src="../../../assets/icons/deform.png" alt="deform">deform</button>
-    <button class="tool" id="automatic_actuators_tool"><img src="../../../assets/icons/deform.png" alt="deform">auto. actu.</button>
-    <button class="tool" id="genetic_actuator_placement_tool"><img src="../../../assets/icons/deform.png" alt="genetic placment">Genetic Placement</button>
-    <button hidden="true" class="tool"><img src="../../../assets/icons/connect.png" alt="connect">connect</button>
-    <button class="tool" id="delete_tool"><img src="../../../assets/icons/delete.png" alt="">delete</button>
-    <h2>Physics Simulation</h2>
-    <button class="tool" id="dynamic_tetrahedron_tool"><img src="../../../assets/icons/tetrahedron.png" alt="dynamic tetra">dyn tetra</button>
-    <button class="tool" id="dynamic_octahedron_tool"><img src="../../../assets/icons/octahedron.png" alt="dynamic octa">dyn octa</button>
-    <button class="tool" id="simulation_tool"><img src="../../../assets/icons/animate.png" width="54px" alt="simulate">simulate</button>
-    <button class="tool" id="ball_joint_simulation_tool"><img src="../../../assets/icons/animate.png" width="54px" alt="balljoint simulate">ball simulate</button>
-    <button class="tool" id="actuator_tool"><img src="../../../assets/icons/animate.png" width="54px" alt="actuator">actuator</button>
 
-    <h2>Add-Ons</h2>
-    <button class="tool" id="pod_tool"><img src="../../../assets/icons/pod.png" alt="pod">pod</button>
-    <button class="tool" id="cover_tool"><img src="../../../assets/icons/cover.png" alt="cover">cover</button>
-    <button class="tool" id="hinge_analysis_tool"><img src="../../../assets/icons/wheel.png" alt="hinge analysis">hinge analysis</button>
-    <button class="tool" id="sensor_tool"><img src="../../../assets/icons/sensor.png" alt="sensor">sensor</button>
-    <h2 hidden="true">Conversion</h2>
-    <button hidden="true" class="tool"><img src="../../../assets/icons/surface.png" alt="surface">surface</button>
-    <button hidden="true" class="tool"><img src="../../../assets/icons/volume.png" alt="volume">volume</button>
-    <h2>Stability Check</h2>
-    <button class="tool" id="rigidity_test_tool"><img src="../../../assets/icons/force.png" alt="rigidity test">rigidity test</button>
-    <button class="tool" id="add_weight_tool"><img src="../../../assets/icons/force.png" alt="add test load">add test load</button>
-    <button hidden="true" class="tool"><img src="../../../assets/icons/stability.png" alt="check stability">check stability</button>
-    <h2>Misc</h2>
-    <button class="tool" id="bottle_count_tool"><img src="../../../assets/icons/stability.png" alt="print bottle counts">bottle counts</button>
-    <h2>Import/Export</h2>
-    <button class="halfWidth" id="import_file_tool">Import</button>
-    <button class="halfWidth" id="export_file_tool">Export</button>
-    <button class="fabricate" id="fabricate_tool"><img src="../../../assets/icons/fabricate.png" alt="fabricate it"><br>fabricate it!</button>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../css/ui.css" type="text/css">
+  <script type="text/javascript" src="../node_modules/jquery/dist/jquery.min.js"></script>
+  <script type="text/javascript" src="../js/build/userinteraction.js"></script>
+  <script type="text/javascript" src="../node_modules/chart.js/dist/Chart.min.js"></script>
+  <title>TrussFab</title>
+</head>
+
+<body>
+  <h2>Creation</h2>
+  <button class="tool" id="tetrahedron_tool">
+    <img src="../../../assets/icons/tetrahedron.png" alt="tetra">tetra</button>
+  <button class="tool" id="octahedron_tool">
+    <img src="../../../assets/icons/octahedron.png" alt="octa">octa</button>
+  <button class="tool" id="bottle_link_tool">
+    <img src="../../../assets/icons/single.png" alt="bottle">bottle</button>
+  <button hidden="true" class="tool">
+    <img src="../../../assets/icons/wheel.png" alt="wheel">wheel</button>
+  <button hidden="true" class="tool">
+    <img src="../../../assets/icons/triangle.png" alt="triangle">triangle</button>
+  <h2 hidden="true">Structures</h2>
+  <button hidden="true" class="tool">
+    <img src="../../../assets/icons/beam.png" alt="beam">beam</button>
+  <button hidden="true" class="tool">
+    <img src="../../../assets/icons/block.png" alt="block">block</button>
+  <button hidden="true" class="tool">
+    <img src="../../../assets/icons/dome.png" alt="dome">dome</button>
+  <button hidden="true" class="tool">
+    <img src="../../../assets/icons/fill.png" alt="fill">fill</button>
+  <h2>Modification</h2>
+  <button class="tool" id="grow_tool">
+    <img src="../../../assets/icons/grow.png" alt="grow">grow</button>
+  <button class="tool" id="shrink_tool">
+    <img src="../../../assets/icons/shrink.png" alt="shrink">shrink</button>
+  <button class="tool" id="deform_tool">
+    <img src="../../../assets/icons/deform.png" alt="deform">deform</button>
+  <button class="tool" id="automatic_actuators_tool">
+    <img src="../../../assets/icons/deform.png" alt="deform">auto. actu.</button>
+  <button class="tool" id="genetic_actuator_placement_tool">
+    <img src="../../../assets/icons/deform.png" alt="genetic placment">Genetic Placement</button>
+  <button hidden="true" class="tool">
+    <img src="../../../assets/icons/connect.png" alt="connect">connect</button>
+  <button class="tool" id="delete_tool">
+    <img src="../../../assets/icons/delete.png" alt="">delete</button>
+  <h2>Physics Simulation</h2>
+  <button class="tool" id="dynamic_tetrahedron_tool">
+    <img src="../../../assets/icons/tetrahedron.png" alt="dynamic tetra">dyn tetra</button>
+  <button class="tool" id="dynamic_octahedron_tool">
+    <img src="../../../assets/icons/octahedron.png" alt="dynamic octa">dyn octa</button>
+  <button class="tool" id="simulation_tool">
+    <img src="../../../assets/icons/animate.png" width="54px" alt="simulate">simulate</button>
+  <button class="tool" id="ball_joint_simulation_tool">
+    <img src="../../../assets/icons/animate.png" width="54px" alt="balljoint simulate">ball simulate</button>
+  <button class="tool" id="actuator_tool">
+    <img src="../../../assets/icons/animate.png" width="54px" alt="actuator">actuator</button>
+
+  <h2>Add-Ons</h2>
+  <button class="tool" id="pod_tool">
+    <img src="../../../assets/icons/pod.png" alt="pod">pod</button>
+  <button class="tool" id="cover_tool">
+    <img src="../../../assets/icons/cover.png" alt="cover">cover</button>
+  <button class="tool" id="hinge_analysis_tool">
+    <img src="../../../assets/icons/wheel.png" alt="hinge analysis">hinge analysis</button>
+  <button class="tool" id="sensor_tool">
+    <img src="../../../assets/icons/sensor.png" alt="sensor">sensor</button>
+  <h2 hidden="true">Conversion</h2>
+  <button hidden="true" class="tool">
+    <img src="../../../assets/icons/surface.png" alt="surface">surface</button>
+  <button hidden="true" class="tool">
+    <img src="../../../assets/icons/volume.png" alt="volume">volume</button>
+  <h2>Stability Check</h2>
+  <button class="tool" id="rigidity_test_tool">
+    <img src="../../../assets/icons/force.png" alt="rigidity test">rigidity test</button>
+  <button class="tool" id="add_weight_tool">
+    <img src="../../../assets/icons/force.png" alt="add test load">add test load</button>
+  <button hidden="true" class="tool">
+    <img src="../../../assets/icons/stability.png" alt="check stability">check stability</button>
+  <h2>Misc</h2>
+  <button class="tool" id="bottle_count_tool">
+    <img src="../../../assets/icons/stability.png" alt="print bottle counts">bottle counts</button>
+  <h2>Import/Export</h2>
+  <button class="halfWidth" id="import_file_tool">Import</button>
+  <button class="halfWidth" id="export_file_tool">Export</button>
+  <button class="fabricate" id="fabricate_tool">
+    <img src="../../../assets/icons/fabricate.png" alt="fabricate it">
+    <br>fabricate it!</button>
+</body>
+
 </html>
