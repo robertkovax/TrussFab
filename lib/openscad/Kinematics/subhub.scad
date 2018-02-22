@@ -86,13 +86,16 @@ function get_all_points_for_proper_cutout(normal_middle_vector, vector, gap_offs
 ];
 
 
-module construct_points_for_cutout(normal_middle_vector, vector, gap_offset, gap_height, round_size, gap_cut_out_play) {
+module construct_points_for_cutout(normal_middle_vector, vector, gap_offset, gap_height, round_size, gap_cut_out_play, add_zero_point=false) {
   p1 = translate_vector_in_regard_to_other(normal_middle_vector, vector, gap_offset, - 1* round_size - gap_cut_out_play);
   the_point_1_0 = vector * gap_offset;
   p1_a_v = norm_v(p1[0]);
   n_m_v = cross(p1_a_v, p1[1]);
   points = get_all_points_for_proper_cutout(normal_middle_vector, vector, gap_offset, gap_height, round_size, n_m_v, gap_cut_out_play);
   hull() {
+    if (add_zero_point) {
+      sphere(r = 0.0001, center=true);              
+    }
     for (p = points) {
       translate(p)
       sphere(r = 0.0001, center=true);              
@@ -108,7 +111,7 @@ module construct_a_gap(vector, l1, l2, gap_epsilon, gap_extra_round_size, round_
       gap_offset = hinge_a_y_gap_offset(l1, l2, gap_epsilon, first);
       gap_height = hinge_a_y_gap_height(l2, gap_epsilon, first);
       
-      construct_points_for_cutout(normal_middle_vector, vector, gap_offset, gap_height, round_size, gap_cut_out_play);
+      construct_points_for_cutout(normal_middle_vector, vector, gap_offset, gap_height, round_size, gap_cut_out_play, first);
       
       if (first) {
         construct_cylinder_at_position(vector, 0, gap_height + gap_offset, round_size + gap_extra_round_size);
