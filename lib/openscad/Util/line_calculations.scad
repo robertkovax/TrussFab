@@ -16,7 +16,7 @@ function get_line_intersection_2d(m1, t1, m2, t2) =
 function _get_line_intersection_3d_a(p1, p2, v1, v2) = ((p2 - p1) * v2) / (v1 * v2);
 
 function get_line_intersection_3d(p1, p2, v1, v2) =
-  p1 + _line_intersection_3d_a(p1, p2, v1, v2) * v1;
+  p1 + _get_line_intersection_3d_a(p1, p2, v1, v2) * v1;
 
 
 // the middle / average between vectors
