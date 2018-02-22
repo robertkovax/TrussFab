@@ -1,3 +1,4 @@
 .idea
 *assets*
 anton_demo.rb
+src/ui/node_modules
