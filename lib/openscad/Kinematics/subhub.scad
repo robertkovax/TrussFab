@@ -66,7 +66,7 @@ module construct_base_model(vectors, l1, l2, round_size, bottom_radius_play, sph
       for(i = [0 : len(vectors)]) {
         v = vectors[i];
         translate(pushed_out[i][0])
-        construct_cylinder_at_position(norm_v(v), 0, l12, round_size -0.5);
+        construct_cylinder_at_position(norm_v(v), 0, l12, sphere_vector_push_out);
       }
       construct_intersection_poly(pulled_in, false);
     }
@@ -87,10 +87,10 @@ function get_all_points_for_proper_cutout(normal_middle_vector, vector, gap_offs
 
 
 module construct_points_for_cutout(normal_middle_vector, vector, gap_offset, gap_height, round_size, gap_cut_out_play) {
-  p1 = translate_vector_in_regard_to_other(normal_middle_vector, vector, gap_offset, - round_size - gap_cut_out_play);
+  p1 = translate_vector_in_regard_to_other(normal_middle_vector, vector, gap_offset, - 1* round_size - gap_cut_out_play);
   the_point_1_0 = vector * gap_offset;
   p1_a_v = norm_v(p1[0]);
-  n_m_v = cross(p1_a_v, vector);
+  n_m_v = cross(p1_a_v, p1[1]);
   points = get_all_points_for_proper_cutout(normal_middle_vector, vector, gap_offset, gap_height, round_size, n_m_v, gap_cut_out_play);
   hull() {
     for (p = points) {
@@ -163,7 +163,7 @@ module draw_subhub(
   connector_end_extra_height,
   gap_cut_out_play=0,
   bottom_radius_play=3,
-  sphere_vector_push_out=12,
+  sphere_vector_push_out=21,
   sphere_vector_pull_in=-17
   ) {
   vectors = vector_l12_distance_factor * (l1 + l2) * normal_vectors;
