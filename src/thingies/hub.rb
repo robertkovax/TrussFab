@@ -96,7 +96,7 @@ class Hub < PhysicsThingy
 
   def add_sensor_symbol
     point = Geom::Point3d.new(@position)
-    model = ModelStorage.instance.models['sensor_hub']
+    model = ModelStorage.instance.models['sensor']
     transform = Geom::Transformation.new(point)
     @sensor_symbol = Sketchup.active_model.active_entities.add_instance(model.definition, transform)
     @sensor_symbol.transform!(Geom::Transformation.scaling(point, 0.2))
@@ -106,6 +106,7 @@ class Hub < PhysicsThingy
     if @is_sensor
       @is_sensor = false
       @sensor_symbol.erase!
+      @sensor_symbol = nil
     else
       @is_sensor = true
       add_sensor_symbol

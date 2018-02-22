@@ -69,7 +69,10 @@ class Link < PhysicsThingy
 
   def add_sensor_symbol
     point = mid_point
-    model = ModelStorage.instance.models['sensor_bottle']
+    model = ModelStorage.instance.models['sensor']
+    # s**t ton of transformation to align the image exactly with the bottle direction, which is
+    # not really needed anymore, because the object is now 3D. Will leave it here anyways, because
+    # I don't want to throw away all this work :(
     transform = Geom::Transformation.new(point)
     @sensor_symbol = Sketchup.active_model.active_entities.add_instance(model.definition, transform)
     image_normal = Geom::Vector3d.new(0, 0, 1)
@@ -81,13 +84,14 @@ class Link < PhysicsThingy
     image_normal.transform!(rotation)
     rotation2 = Geom::Transformation.rotation(point, image_normal.cross(link_dir), second_angle)
     @sensor_symbol.transform!(rotation2)
-    @sensor_symbol.transform!(Geom::Transformation.scaling(point, 0.3))
+    @sensor_symbol.transform!(Geom::Transformation.scaling(point, 0.2))
   end
 
   def toggle_sensor_state
     if @is_sensor
       @is_sensor = false
       @sensor_symbol.erase!
+      @sensor_symbol = nil
     else
       @is_sensor = true
       add_sensor_symbol
@@ -98,12 +102,16 @@ class Link < PhysicsThingy
     @is_sensor
   end
 
-  def reset_sensor_symbol_position
+  def move_sensor_symbol(position)
     unless @sensor_symbol.nil?
       old_pos = @sensor_symbol.transformation.origin
-      movement_vec = old_pos.vector_to(mid_point)
+      movement_vec = old_pos.vector_to(position)
       @sensor_symbol.transform!(movement_vec)
     end
+  end
+
+  def reset_sensor_symbol_position
+    move_sensor_symbol(mid_point)
   end
 
   #
@@ -134,11 +142,7 @@ class Link < PhysicsThingy
     elong2.entity.move!(t2)
     bottle.entity.move!(t3)
 
-    unless @sensor_symbol.nil?
-      old_pos = @sensor_symbol.transformation.origin
-      movement_vec = old_pos.vector_to(pt3)
-      @sensor_symbol.transform!(movement_vec)
-    end
+    move_sensor_symbol(pt3)
   end
 
   def create_joints(world, first_node, second_node)
