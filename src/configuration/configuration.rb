@@ -124,6 +124,7 @@ module Configuration
   ACTUATOR_REDUCTION    = 0.0 # ratio (0.0 - 1.0)
   ACTUATOR_MIN          = -0.2 # in meters
   ACTUATOR_MAX          = 0.2 # in meters
+  ACTUATOR_INIT_DIST    = 0.4
 
   # Tension
   TENSION_COLORS = [

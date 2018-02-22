@@ -419,7 +419,7 @@ class HingePlacementAlgorithm
     @simulation.setup
     @simulation.disable_gravity
     piston = edge.thingy.joint
-    piston.controller = edge.thingy.max
+    piston.controller = edge.thingy.max if piston
     @simulation.start
     @simulation.update_world_headless_by(2)
   end
