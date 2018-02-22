@@ -88,11 +88,12 @@ class Link < PhysicsThingy
     # The link object in between will not be part of physics simulation.
     bd1 = first_node.thingy.body
     bd2 = second_node.thingy.body
-    @joint = TrussFab::PointToPoint.new(world, bd1, bd1.group.bounds.center, bd2.group.bounds.center, nil)
+    pt1 = bd1.group.bounds.center
+    pt2 = bd2.group.bounds.center
+    @joint = TrussFab::PointToPoint.new(world, bd1, bd2, pt1, pt2, nil)
     @joint.solver_model = Configuration::JOINT_SOLVER_MODEL
     @joint.stiffness = Configuration::JOINT_STIFFNESS
     @joint.breaking_force = Configuration::JOINT_BREAKING_FORCE
-    @joint.connect(bd2)
   end
 
   def reset_physics
