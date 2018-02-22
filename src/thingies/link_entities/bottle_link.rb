@@ -1,5 +1,5 @@
 class BottleLink < Thingy
-  attr_reader :model
+  attr_reader :model, :direction
 
   def initialize(position, direction, model,
                  id: nil, material: 'bottle_material')

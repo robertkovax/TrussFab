@@ -14,6 +14,7 @@ class Hub < PhysicsThingy
     @id_label = nil
     @mass = 0
     @arrow = nil
+    @sensor_symbol = nil
     @is_sensor = false
     update_id_label
     persist_entity
@@ -37,6 +38,11 @@ class Hub < PhysicsThingy
     end
   end
 
+  def move_addons(position)
+    move_force_arrow(position)
+    move_sensor_symbol(position)
+  end
+
   def move_force_arrow(position)
     return if @arrow.nil?
     old_pos = @arrow.transformation.origin
@@ -44,9 +50,26 @@ class Hub < PhysicsThingy
     @arrow.transform!(movement_vec)
   end
 
+  def move_sensor_symbol(position)
+    return if @sensor_symbol.nil?
+    old_pos = @sensor_symbol.transformation.origin
+    movement_vec = old_pos.vector_to(position)
+    @sensor_symbol.transform!(movement_vec)
+  end
+
+  def reset_addon_positions
+    reset_force_arrow_position
+    reset_sensor_symbol_position
+  end
+
   def reset_force_arrow_position
     return if @arrow.nil?
     move_force_arrow(@position)
+  end
+
+  def reset_sensor_symbol_position
+    return if @sensor_symbol.nil?
+    move_sensor_symbol(@position)
   end
 
   def pods
@@ -60,6 +83,7 @@ class Hub < PhysicsThingy
   def delete
     @id_label.erase!
     @arrow.erase! unless @arrow.nil?
+    @sensor_symbol.erase! unless @sensor_symbol.nil?
     super
   end
 
@@ -67,11 +91,25 @@ class Hub < PhysicsThingy
     @position = position
     @entity.move!(Geom::Transformation.new(position))
     @id_label.point = position
-    move_force_arrow(position)
+    move_addons(position)
+  end
+
+  def add_sensor_symbol
+    point = Geom::Point3d.new(@position)
+    model = ModelStorage.instance.models['sensor_hub']
+    transform = Geom::Transformation.new(point)
+    @sensor_symbol = Sketchup.active_model.active_entities.add_instance(model.definition, transform)
+    @sensor_symbol.transform!(Geom::Transformation.scaling(point, 0.2))
   end
 
   def toggle_sensor_state
-    @is_sensor = !@is_sensor
+    if @is_sensor
+      @is_sensor = false
+      @sensor_symbol.erase!
+    else
+      @is_sensor = true
+      add_sensor_symbol
+    end
   end
 
   def is_sensor?

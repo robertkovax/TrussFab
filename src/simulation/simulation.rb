@@ -166,6 +166,7 @@ class Simulation
       show_triangle_surfaces if @triangles_hidden
       reset_force_labels
       reset_force_arrows
+      reset_sensor_symbols
     rescue Exception => err
       model.abort_operation
       raise err
@@ -497,15 +498,21 @@ class Simulation
     end
   end
 
-  def update_force_arrows
+  def update_hub_addons
     Graph.instance.nodes.values.each do |node|
-      node.thingy.move_force_arrow(node.position)
+      node.thingy.move_addons(node.position)
     end
   end
 
   def reset_force_arrows
     Graph.instance.nodes.values.each do |node|
-      node.thingy.reset_force_arrow_position
+      node.thingy.reset_addon_positions
+    end
+  end
+
+  def reset_sensor_symbols
+    Graph.instance.edges.each_value do |edge|
+      edge.thingy.reset_sensor_symbol_position
     end
   end
 
@@ -516,7 +523,7 @@ class Simulation
     model.start_operation('Simulation', true)
 
     update_world
-    update_force_arrows
+    update_hub_addons
     update_entities
 
     model.commit_operation
