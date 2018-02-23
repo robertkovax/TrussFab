@@ -43,3 +43,5 @@ function _otto2_offset(b_v, a_v, d) = norm_v(d * a_v - _otto2_p_m(b_v, a_v, d));
 // @return: [the translation vector (or in other words, the point [0, 0, 0] translated), the translated vector]
 function translate_vector_in_regard_to_other(b_v, a_v, d, factor) =
   [factor * _otto2_offset(b_v, a_v, d) + [0, 0, 0], factor * _otto2_offset(b_v, a_v, d) + (d * a_v)];
+
+function deg_between_3d_vectors(v1, v2) =  acos((v1 * v2)/(norm(v1) * norm(v2)));
