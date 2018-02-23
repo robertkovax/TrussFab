@@ -67,7 +67,7 @@ module cut_out_top_part(alpha, l1, l2, depth) {
   SKIM = 1;
   CUT_OFF_TOP = 100;
 
-  l12 = l1 + l2;
+  l12 = l1 + l2 + 4; // print alittle bit more on the top
 
   // line parallel to the x axis to cut off later
   t1 = l12;
@@ -315,5 +315,4 @@ connector_end_extra_height=3.9999999999999996,
 cut_out_hex_height_a=5.0,
 cut_out_hex_height_b=5.0,
 cut_out_hex_d_a=10.6,
-cut_out_hex_d_b=10.6,
-gap_angle=70.0);
+cut_out_hex_d_b=10.6);
