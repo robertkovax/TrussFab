@@ -38,6 +38,11 @@ class UserInteraction
     @dialog.close
   end
 
+  def refresh
+    file = File.join(File.dirname(__FILE__), '/html/index.html')
+    @dialog.set_file(file)
+  end
+
   private
 
   def register_callbacks

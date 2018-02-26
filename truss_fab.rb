@@ -47,6 +47,10 @@ module TrussFab
       @ui.close_dialog
     end
 
+    def refresh_ui
+      @ui.refresh
+    end
+
     def reload
       @reloader.reload
     end
