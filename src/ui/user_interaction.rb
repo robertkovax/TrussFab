@@ -10,10 +10,23 @@ class UserInteraction
   end
 
   def open_dialog
-    @dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
+    props = {
+      :resizable => false,
+      :width => 400,
+      :height => 1000,
+      :left => 0,
+      :top => 100,
+      :min_width => 400,
+      :min_height =>1000,
+      :max_width => 400,
+      :max_height => 1000
+    }
+
+    @dialog = UI::HtmlDialog.new(props)
     file = File.join(File.dirname(__FILE__), '/html/index.html')
     @dialog.set_file(file)
-    @dialog.set_size(Configuration::UI_WIDTH, Configuration::UI_HEIGHT)
+    # @dialog.set_siSkeze(Configuration::UI_WIDTH, Configuration::UI_HEIGHT)
+    # @dialog.set_position(0, 0)
     @dialog.show
     @dialog.add_action_callback('documentReady') { register_callbacks }
     @dialog.add_action_callback('buttonClicked') do |_context, button_id|
