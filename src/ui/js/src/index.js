@@ -14,5 +14,5 @@ function buttonClicked(id) {
 
 $(() => {
   sketchup.documentReady();
-  $('button').click(event => buttonClicked(event.target.id));
+  $('button').click(event => buttonClicked(event.currentTarget.id));
 });

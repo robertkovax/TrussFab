@@ -1,3 +1,5 @@
+'use strict';
+
 /* FUNCTIONS CALLED BY RUBY */
 
 function deselectAllTools() {
@@ -5,14 +7,16 @@ function deselectAllTools() {
 }
 
 function selectTool(id) {
-  $(`#${id}`).addClass('active');
+  $('#' + id).addClass('active');
 }
 
 function buttonClicked(id) {
   sketchup.buttonClicked(id);
 }
 
-$(() => {
+$(function () {
   sketchup.documentReady();
-  $('button').click(event => buttonClicked(event.target.id));
+  $('button').click(function (event) {
+    return buttonClicked(event.currentTarget.id);
+  });
 });

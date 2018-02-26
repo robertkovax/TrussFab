@@ -29,7 +29,7 @@ class UserInteraction
     # @dialog.set_position(0, 0)
     @dialog.show
     @dialog.add_action_callback('documentReady') { register_callbacks }
-    @dialog.add_action_callback('buttonClicked') do |_context, button_id|
+    @dialog.add_action_callback('buttonClicked') do |_, button_id|
       model = Sketchup.active_model
       # Deactivate Current tool
       model.select_tool nil
