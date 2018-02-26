@@ -68,16 +68,16 @@ module construct_spheres(outer_radius, inner_radius) {
   }
 }
 
-module construct_base_model(vectors, l1, l2, round_size, bottom_radius_play, sphere_vector_push_out, spere_vector_pull_in) {
+module construct_base_model(vectors, l1, l2, round_size, bottom_radius_play, edge_sphere_push_out, edge_sphere_pull_in) {
   l12 = l1 + l2;
  
-  push_out = get_distance_to_pull_put(vectors, round_size);
-  pull_in = [ for(i = [0 : len(vectors) - 1]) push_out[i] > round_size ? (-push_out[i] - 1) : -round_size - 1];  echo(round_size);
-  echo(push_out);
-  echo(pull_in);
+  push_out_distances =  edge_sphere_push_out != undef ? edge_sphere_push_out : get_distance_to_pull_put(vectors, round_size);
+  pull_in_distances = edge_sphere_pull_in != undef ? edge_sphere_pull_in :  [ for(i = [0 : len(vectors) - 1]) push_out_distances[i] > round_size ? (-push_out_distances[i] - 1) : -round_size - 1];  echo(round_size);
+    
+  echo(push_out_distances, pull_in_distances);
   
-  pushed_out = push_or_pull_each_vector(vectors, l12 * vector_l12_distance_factor, push_out);
-  pulled_in = push_or_pull_each_vector(vectors, l12 * vector_l12_distance_factor, pull_in);
+  pushed_out = push_or_pull_each_vector(vectors, l12 * vector_l12_distance_factor, push_out_distances);
+  pulled_in = push_or_pull_each_vector(vectors, l12 * vector_l12_distance_factor, pull_in_distances);
 
   difference() {
     intersection() {
@@ -88,7 +88,7 @@ module construct_base_model(vectors, l1, l2, round_size, bottom_radius_play, sph
       for(i = [0 : len(vectors)]) {
         v = vectors[i];
         translate(pushed_out[i][0])
-        construct_cylinder_at_position(norm_v(v), 0, l12, push_out[i] - 0);
+        construct_cylinder_at_position(norm_v(v), 0, l12, push_out_distances[i] - 0);
       }
       construct_intersection_poly(pulled_in, false);
     }
@@ -187,8 +187,8 @@ module draw_subhub(
   connector_end_extra_height,
   gap_cut_out_play=1,
   bottom_radius_play=3,
-  sphere_vector_push_out=12,
-  sphere_vector_pull_in=-12
+  edge_sphere_push_out=undef,
+  edge_sphere_pull_in=undef
   ) {
   vectors = vector_l12_distance_factor * (l1 + l2) * normal_vectors;
 
@@ -203,7 +203,7 @@ module draw_subhub(
 
   difference() {
     union() {
-      construct_base_model(vectors, l1, l2, round_size, bottom_radius_play, sphere_vector_push_out, sphere_vector_pull_in);
+      construct_base_model(vectors, l1, l2, round_size, bottom_radius_play, edge_sphere_push_out, edge_sphere_pull_in);
 
       for (i=[0:len(normal_vectors)]) {
         if (gap_types[i] != undef) {
@@ -264,5 +264,7 @@ connector_end_extra_round=11.45,
 connector_end_extra_height=7.0,
 gap_extra_round_size=0.1,
 hole_size=3.2,
+edge_sphere_push_out=[15,15, 5],
+edge_sphere_pull_in=[-200,-15, -15],
 l2=40.0);
 
