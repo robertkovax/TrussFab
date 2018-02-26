@@ -34,7 +34,7 @@ module PRESETS
     gap_epsilon: 0.8.mm, # margin of the gap (due to printing issues)
     connector_end_round: (30.0 / 2).mm,
     connector_end_heigth: 3.7.mm,
-    connector_end_extra_round: (22.9 / 2).mm, # to better connect the bottles
+    connector_end_extra_round: (19.95 / 2).mm, # to better connect the bottles
     connector_end_extra_height: 7.mm,
     cut_out_hex_height_a: DEFAULT_CUT_OUT_HEX_HEIGHT,
     cut_out_hex_height_b: DEFAULT_CUT_OUT_HEX_HEIGHT,
