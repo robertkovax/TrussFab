@@ -1,47 +1,63 @@
-var id = document.currentScript.getAttribute('id');
+function createChart(context, id) {
+  const canvas = $('<canvas width=600 height=300 />');
+  $(context).append(canvas);
 
-var ctx = document.getElementById('forceChart_' + id);
-charts[id] = new Chart(ctx, {
-  type: 'line',
-  data: {
-    labels: [],
-    datasets: [
-      {
-        label: 'Force',
-        data: [],
-        backgroundColor: ['rgba(255, 99, 132, 0.2)'],
-        borderColor: ['rgba(255,99,132,1)'],
-        borderWidth: 1,
-      },
-    ],
-  },
-  options: {
-    scales: {
-      yAxes: [
+  if (window.window.charts == null) window.charts = {};
+
+  window.charts[id] = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [
         {
-          ticks: {
-            beginAtZero: true,
-            suggestedMin: -5,
-            suggestedMax: 5,
-          },
+          label: 'Force',
+          data: [],
+          backgroundColor: ['rgba(255, 99, 132, 0.2)'],
+          borderColor: ['rgba(255,99,132,1)'],
+          borderWidth: 1,
         },
       ],
     },
-  },
-});
+    options: {
+      scales: {
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+              suggestedMin: -5,
+              suggestedMax: 5,
+            },
+          },
+        ],
+      },
+    },
+  });
+}
 
 function addData(id, label, data) {
-  charts[id].data.labels.push(label);
-  charts[id].data.datasets.forEach(dataset => {
+  window.charts[id].data.labels.push(label);
+  window.charts[id].data.datasets.forEach(dataset => {
     dataset.data.push(data);
   });
-  charts[id].update();
+  window.charts[id].update();
 }
 
 function shiftData(id) {
-  charts[id].data.labels.shift();
-  charts[id].data.datasets.forEach(dataset => {
+  window.charts[id].data.labels.shift();
+  window.charts[id].data.datasets.forEach(dataset => {
     dataset.data.shift();
   });
-  //charts[id].update({ duration: 0 } );
+  //window.charts[id].update({ duration: 0 } );
+}
+
+function updateSpeed(id, value) {
+  document.getElementById('speed_' + id).innerHTML = value;
+}
+
+function updateAcceleration(id, value) {
+  document.getElementById('acceleration_' + id).innerHTML = value;
+}
+
+function addChartData(id, label, force) {
+  addData(id, label, force);
 }

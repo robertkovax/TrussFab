@@ -16,7 +16,7 @@ class ComponentProperties
       case type
       when 'ActuatorLink'
         actuator = Graph.instance.edges[id].thingy
-        add_piston_menu(context_menu, actuator, 'erb/piston_dialog.erb')
+        add_piston_menu(context_menu, actuator, 'html/piston.erb')
       end
 
       # type_name = entity.get_attribute(Configuration::DICTIONARY_NAME, :type)

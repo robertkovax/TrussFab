@@ -1,6 +1,6 @@
 ProjectHelper.require_multiple('src/tools/*.rb')
 
-class UserInteraction
+class Sidebar
   def initialize
     @tools = {}
   end
@@ -34,7 +34,7 @@ class UserInteraction
     }
 
     @dialog = UI::HtmlDialog.new(props)
-    file = File.join(File.dirname(__FILE__), '/html/index.html')
+    file = File.join(File.dirname(__FILE__), '../html/sidebar.html')
     @dialog.set_file(file)
     # @dialog.set_siSkeze(Configuration::UI_WIDTH, Configuration::UI_HEIGHT)
     @dialog.set_position(0, 0)

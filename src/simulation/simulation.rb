@@ -1,5 +1,5 @@
 require 'src/utility/geometry.rb'
-require 'src/ui/force_chart.rb'
+require 'src/ui/dialogs/force_chart.rb'
 require 'erb'
 
 class Simulation
@@ -680,7 +680,7 @@ class Simulation
     collect_sensors
     return if @sensors.empty?
     @sensor_dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
-    file_content = File.read(File.join(File.dirname(__FILE__), '../ui/erb/sensor_overview.erb'))
+    file_content = File.read(File.join(File.dirname(__FILE__), '../ui/html/sensor_overview.erb'))
     template = ERB.new(file_content)
     @sensor_dialog.set_html(template.result(binding))
     @sensor_dialog.set_size(300, Configuration::UI_HEIGHT)

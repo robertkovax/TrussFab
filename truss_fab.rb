@@ -28,14 +28,14 @@ require ext_fpath
 # Require the main files
 require 'src/configuration/configuration'
 require 'src/utility/project_helper'
-require 'src/ui/user_interaction'
+require 'src/ui/dialogs/sidebar'
 require 'src/ui/component_properties'
 require 'reloader'
 
 module TrussFab
 
   @reloader = Reloader.new
-  @ui = UserInteraction.new
+  @ui = Sidebar.new
 
   class << self
 
