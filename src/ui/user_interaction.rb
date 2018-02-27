@@ -37,7 +37,7 @@ class UserInteraction
     file = File.join(File.dirname(__FILE__), '/html/index.html')
     @dialog.set_file(file)
     # @dialog.set_siSkeze(Configuration::UI_WIDTH, Configuration::UI_HEIGHT)
-    # @dialog.set_position(0, 0)
+    @dialog.set_position(0, 0)
     @dialog.show
     @dialog.add_action_callback('documentReady') { register_callbacks }
     @dialog.add_action_callback('buttonClicked') do |_, button_id|

@@ -1,11 +1,13 @@
-const ctx = document.getElementById('forceChart');
-const forceChart = new Chart(ctx, {
+var id = document.currentScript.getAttribute('id');
+
+var ctx = document.getElementById('forceChart_' + id);
+charts[id] = new Chart(ctx, {
   type: 'line',
   data: {
     labels: [],
     datasets: [
       {
-        label: 'Force of Actuator',
+        label: 'Force',
         data: [],
         backgroundColor: ['rgba(255, 99, 132, 0.2)'],
         borderColor: ['rgba(255,99,132,1)'],
@@ -28,18 +30,18 @@ const forceChart = new Chart(ctx, {
   },
 });
 
-function addData(label, data) {
-  forceChart.data.labels.push(label);
-  forceChart.data.datasets.forEach(dataset => {
+function addData(id, label, data) {
+  charts[id].data.labels.push(label);
+  charts[id].data.datasets.forEach(dataset => {
     dataset.data.push(data);
   });
-  forceChart.update();
+  charts[id].update();
 }
 
-function shiftData() {
-  forceChart.data.labels.shift();
-  forceChart.data.datasets.forEach(dataset => {
+function shiftData(id) {
+  charts[id].data.labels.shift();
+  charts[id].data.datasets.forEach(dataset => {
     dataset.data.shift();
   });
-  //forceChart.update({ duration: 0 } );
+  //charts[id].update({ duration: 0 } );
 }
