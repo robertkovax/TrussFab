@@ -1,41 +1,69 @@
-button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 2px !important;
+body {
+  padding: 2px;
+}
+
+#accordion button {
+  /* display: flex !important; */
+  /* flex-direction: column; */
+  /* align-items: flex-start; */
+  /* justify-content: center; */
+  /* vertical-align: top !important; */
+  /* justify-content: flex-start !important; */
+  margin: 0px !important;
+  width: 70px;
+  height: 85px;
+  margin: 2px 0 !important;
+  font-size: 12px;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 button img {
-  height: 50px;
-  width: 50px;
+  height: 40px;
+  width: 40px;
+  margin-bottom: 5px;
 }
 
-button.fabricate {
-    vertical-align: top;
-    /* width: auto; */
-    width: 95%;
-    margin: 0 5px;
-    /* margin-left: -2px; */
-    /* margin-right: -2px; */
+.card-block,
+.card-header {
+  padding-left: 2px !important;
+  padding-right: 2px !important;
 }
 
-button.fabricate img {
-    height: auto;
-    width: auto;
+.card-header,
+.card-block h6 {
+  margin-left: 2px;
 }
 
-body {
-  padding: 2px;
+.card-block button + h6 {
+  margin-top: 20px;
 }
 
 footer {
   position: absolute;
   left: 0%;
   top: 800px;
-  display: flex;
-  align-items: flex-end;
+  display: flex !important;
+  flex-wrap: wrap;
+  padding: 2px;
 }
 
+button.fabricate {
+  width: 90%; /* just some value to make it wrap so the grow prop comes into play */
+  flex-grow: 2;
+  /* margin-left: 0; */
+  /* margin-right: 0; */
+}
+
+footer button {
+  flex-grow: 1;
+  margin: 2px !important;
+}
+
+button.fabricate img {
+  height: auto;
+  width: auto;
+}
 
 /* body {
     font-family: "Segoe UI", sans-serif;
