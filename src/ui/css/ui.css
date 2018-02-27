@@ -22,6 +22,19 @@ button img {
   height: 40px;
   width: 40px;
   margin-bottom: 5px;
+  filter: invert(0);
+  -webkit-filter: invert(0);
+
+  -webkit-transition: filter 0.2s ease-in-out;
+  -webkit-transition: -webkit-filter 0.2s ease-in-out;
+  transition: filter 0.2s ease-in-out;
+  transition: -webkit-filter 0.2s ease-in-out;
+}
+
+/* CSS magic to change colors of the icons */
+button:hover img {
+  -webkit-filter: invert(1);
+  filter: invert(1);
 }
 
 .card-block,
