@@ -32,7 +32,8 @@ button img {
 }
 
 /* CSS magic to change colors of the icons */
-button:hover img {
+button:hover img,
+button.active img {
   -webkit-filter: invert(1);
   filter: invert(1);
 }
