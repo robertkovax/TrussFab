@@ -135,7 +135,7 @@ class ScadExport
         b_hinges = hinges.select { |hinge| hinge.edge2 == edge }
 
         if a_hinges.size > 1 || b_hinges.size > 1
-          raise 'More than one A or B hinge around an edge.'
+          raise 'More than one A or B hinge around an edge at node ' + node.id.to_s
         end
 
         elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length

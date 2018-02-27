@@ -27,13 +27,13 @@ class Hinge
   end
 
   def common_edge(other)
-    common_edges = [edge1, edge2] & [other.edge1, other.edge2]
+    common_edges = edges & other.edges
     raise 'Too many or no common edges.' if common_edges.size != 1
     common_edges[0]
   end
 
   def connected_with?(other)
-    common_edges = [edge1, edge2] & [other.edge1, other.edge2]
+    common_edges = edges & other.edges
     common_edges.size > 0
   end
 
@@ -179,8 +179,6 @@ class HingePlacementAlgorithm
       end
     end
 
-    # TODO: make hinges a hub, if a pod exists at node and there is no other hub
-
     # place all hinges to the node which they rotate around
     hinge_map = Hash.new { |h, k| h[k] = [] }
     hinges.each do |hinge|
@@ -313,48 +311,66 @@ class HingePlacementAlgorithm
   # make sure that edge1 is the unconnected one if there is one
   def align_first_hinge(hinges, cur_hinge)
     other_edges = (hinges - [cur_hinge]).flat_map { |hinge| [hinge.edge1, hinge.edge2] }
-    cur_hinge.swap_edges unless other_edges.include? cur_hinge.edge2
+
+    is_edge1_connected = other_edges.include? cur_hinge.edge1
+    is_edge2_connected = other_edges.include? cur_hinge.edge2
+
+    raise 'Hinge is not connected to any other hinge' if !is_edge1_connected && !is_edge2_connected
+
+    if is_edge1_connected && !is_edge2_connected
+      cur_hinge.swap_edges
+    end
   end
 
-  # orders hinges so that they form a chain
-  # also always puts the edge connected to the former hinge as edge1
+  # get the hinge that is connected to the least number of other hinges
+  # this will be the start of the chain
+  def get_first_hinge(hinges)
+    sorted_hinges = hinges.sort { |h1, h2| h1.num_connected_hinges(hinges) <=> h2.num_connected_hinges(hinges) }
+    sorted_hinges[0]
+  end
+
+  # orders hinges so that they form a chain:
+  # the result will be arrays of hinges, where edge2 of a hinge and edge1
+  # of the following hinge match, if they are connected
   def order_hinges(hinge_map)
     result = Hash.new { |h,k| h[k] = [] }
 
     hinge_map.each do |node, hinges|
-      sorted_hinges = hinges.sort { |h1, h2| h1.num_connected_hinges(hinges) <=> h2.num_connected_hinges(hinges) }
-      cur_hinge = sorted_hinges[0]
-      align_first_hinge(hinges, cur_hinge)
+      cur_hinge = get_first_hinge(hinges)
+      if cur_hinge.num_connected_hinges(hinges) > 0
+        align_first_hinge(hinges, cur_hinge)
+      end
 
       new_hinges = []
-      first = true
 
       while new_hinges.size < hinges.size
         new_hinges.push(cur_hinge)
 
         break if new_hinges.size == hinges.size
 
-        next_hinge_possibilities = hinges.select { |hinge| hinge.connected_with?(cur_hinge) && !new_hinges.include?(hinge) }
+        # check which hinges can connect to the current hinge B part
+        next_hinge_possibilities = hinges.select { |hinge| hinge.edges.include?(cur_hinge.edge2) && !new_hinges.include?(hinge) }
+        if next_hinge_possibilities.size > 1
+          raise 'More than one next hinge can be connected at node ' + node.id.to_s
+        end
+
         if next_hinge_possibilities.empty?
-          remaining_hinges = sorted_hinges - new_hinges
-          cur_hinge = remaining_hinges[0]
-          align_first_hinge(hinges, cur_hinge)
-          first = true
+          remaining_hinges = hinges - new_hinges
+          cur_hinge = get_first_hinge(remaining_hinges)
+          if cur_hinge.num_connected_hinges(remaining_hinges) > 0
+            align_first_hinge(remaining_hinges, cur_hinge)
+          end
+
           next
         end
 
-        if !first && next_hinge_possibilities.size > 1
-          raise 'More than one next hinge possible around hinge at node ' + node.id.to_s
-        elsif first && next_hinge_possibilities.size > 2
-          raise 'More than two next hinges possible around starting hinge at node ' + node.id.to_s
-        end
+        next_hinge = next_hinge_possibilities[0]
 
-        if cur_hinge.common_edge(next_hinge_possibilities[0]) != next_hinge_possibilities[0].edge1
-          next_hinge_possibilities[0].swap_edges
+        # make sure that B part of current hinge connects to A part of next hinge
+        if cur_hinge.edge2 != next_hinge.edge1
+          next_hinge.swap_edges
         end
-        cur_hinge = next_hinge_possibilities[0]
-
-        first = false
+        cur_hinge = next_hinge
       end
 
       result[node] = new_hinges
