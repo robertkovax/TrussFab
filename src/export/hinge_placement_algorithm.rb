@@ -6,10 +6,16 @@ class Hinge
   attr_accessor :edge1, :edge2, :is_actuator_hinge
 
   def initialize(edge1, edge2)
-    raise RuntimeError, 'Edges have to be different.' if edge1 == edge2
+    raise 'Edges have to be different.' if edge1 == edge2
     @edge1 = edge1
     @edge2 = edge2
+    # For historical reasons this is still called 'actuator hinge'.
+    # Actionally it is an 'double hinge' and gets used in other scenarios as well (e.g. subhubs).
     @is_actuator_hinge = false
+  end
+
+  def inspect
+    "#{@edge1.inspect} #{@edge2.inspect} #{@is_actuator_hinge}"
   end
 
   def hash
@@ -21,13 +27,13 @@ class Hinge
   end
 
   def common_edge(other)
-    common_edges = [edge1, edge2] & [other.edge1, other.edge2]
-    raise RuntimeError, 'Too many or no common edges.' if common_edges.size != 1
+    common_edges = edges & other.edges
+    raise 'Too many or no common edges.' if common_edges.size != 1
     common_edges[0]
   end
 
   def connected_with?(other)
-    common_edges = [edge1, edge2] & [other.edge1, other.edge2]
+    common_edges = edges & other.edges
     common_edges.size > 0
   end
 
@@ -40,9 +46,7 @@ class Hinge
   end
 
   def swap_edges
-    temp = @edge1
-    @edge1 = @edge2
-    @edge2 = temp
+    @edge1, @edge2 = @edge2, @edge1
   end
 
   def angle
@@ -50,29 +54,13 @@ class Hinge
     val = 180 / Math::PI * val
     val = 180 - val if val > 90
 
-    raise RuntimeError, 'Angle between edges not between 0° and 90°.' unless val > 0 and val <= 90
+    raise 'Angle between edges not between 0° and 90°.' unless val > 0 && val <= 90
 
     val
   end
 
   def l1
-    p1_x = 30
-    p1_y = 60
-
-    p2_x = 90
-    p2_y = 20
-
-    m = (p2_y - p1_y) / (p2_x - p1_x)
-    b = p1_y - m * p1_x
-
-    length = m * angle + b
-    length = [PRESETS::MINIMUM_L1, length].max
-
-    if @is_actuator_hinge
-      length = [PRESETS::MINIMUM_ACTUATOR_L1, length].max
-    end
-
-    length.mm
+    @is_actuator_hinge ? PRESETS::MINIMUM_ACTUATOR_L1 : PRESETS::MINIMUM_L1
   end
 end
 
@@ -81,7 +69,7 @@ class HingePlacementAlgorithm
 
   attr_accessor :hubs, :hinges, :node_l1
 
-  def initialize()
+  def initialize
     # maps from a node to an array of all subhubs around this node, ordered by size of the subhub
     @hubs = nil
     # maps from a node to an array of all hinges around this node
@@ -96,14 +84,12 @@ class HingePlacementAlgorithm
     nodes = Graph.instance.nodes.values
     edges = Graph.instance.edges.values
 
-    edges.each do |edge|
-      edge.reset
-    end
+    edges.each(&:reset)
 
     actuators = edges.select { |e| e.link_type == 'actuator' }
 
     # Maps from a triangle to all triangles rotating with it around a common axis
-    rotation_partners = Hash.new { |h,k| h[k] = Set.new }
+    rotation_partners = Hash.new { |h, k| h[k] = Set.new }
 
     actuators.each do |actuator|
       edges_without_actuator = actuator.connected_component.reject { |e| e == actuator }
@@ -131,9 +117,8 @@ class HingePlacementAlgorithm
       group2_edges = Set.new pair[1].flat_map { |tri| tri.edges }
 
       common_edges = group1_edges & group2_edges
-      if common_edges.size > 1
-        raise RuntimeError, 'More than one common edge.'
-      end
+
+      raise 'More than one common edge.' if common_edges.size > 1
 
       if common_edges.size > 0 && common_edges.to_a[0].link_type != 'actuator'
         group_rotations[pair[1]].add(pair[0])
@@ -142,8 +127,8 @@ class HingePlacementAlgorithm
     end
 
     hinges = Set.new
-    hubs = Hash.new { |h,k| h[k] = [] }
-    group_edge_map = Hash.new
+    hubs = Hash.new { |h, k| h[k] = [] }
+    group_edge_map = {}
 
     # generate hubs for all groups with size > 1
     processed_edges = Set.new
@@ -156,7 +141,11 @@ class HingePlacementAlgorithm
 
       group_nodes.each do |node|
         hub_edges = group_edges.select { |edge| edge.nodes.include? node }
-        hubs[node].push(hub_edges)
+        if hub_edges.size == 2
+          hinges.add(Hinge.new(hub_edges[0], hub_edges[1]))
+        else
+          hubs[node].push(hub_edges)
+        end
       end
 
       processed_edges = processed_edges.merge(group_edges)
@@ -168,19 +157,17 @@ class HingePlacementAlgorithm
     triangles.each do |tri|
       tri.edges.combination(2).each do |e1, e2|
         same_group = static_groups.any? { |group| group_edge_map[group].include?(e1) && group_edge_map[group].include?(e2) }
-        unless same_group
-          new_hinge = Hinge.new(e1, e2)
-          new_hinge.is_actuator_hinge = tri.contains_actuator?
 
-          hinges.add(new_hinge)
-        end
+        next if same_group
+
+        new_hinge = Hinge.new(e1, e2)
+        new_hinge.is_actuator_hinge = tri.contains_actuator?
+        hinges.add(new_hinge)
       end
     end
 
-    # TODO: make hinges a hub, if a pod exists at node and there is no other hub
-
     # place all hinges to the node which they rotate around
-    hinge_map = Hash.new { |h,k| h[k] = [] }
+    hinge_map = Hash.new { |h, k| h[k] = [] }
     hinges.each do |hinge|
       node = hinge.edge1.shared_node(hinge.edge2)
       hinge_map[node].push(hinge)
@@ -193,26 +180,53 @@ class HingePlacementAlgorithm
 
       loop do
         # save how many hinges each hinge shares an edge with around the current node
-        # if it is more than 2, one of them needs to be removed
-        shared_hinges_count = Hash.new
+        # if it is more than one hinge at either connection, hinges need to be removed
+        shared_a_hinge_count = {}
+        shared_b_hinge_count = {}
+
         new_hinges.each do |hinge|
-          shared_hinges = new_hinges.select { |other_hinge| hinge != other_hinge && (hinge.edges & other_hinge.edges).size > 0 }
-          shared_hinges_count[hinge] = shared_hinges.size
+          shared_hinges_a = new_hinges.select { |other_hinge| hinge != other_hinge && other_hinge.edges.include?(hinge.edge1) }
+          shared_a_hinge_count[hinge] = shared_hinges_a.size
+
+          shared_hinges_b = new_hinges.select { |other_hinge| hinge != other_hinge && other_hinge.edges.include?(hinge.edge2) }
+          shared_b_hinge_count[hinge] = shared_hinges_b.size
         end
 
-        violating_hinges = shared_hinges_count.keys.select { |hinge| shared_hinges_count[hinge] >= 3 }
+        valid_result = new_hinges.all? { |hinge| shared_a_hinge_count[hinge] <= 1 && shared_b_hinge_count[hinge] <= 1 }
+        break if valid_result
 
-        if violating_hinges.empty?
-          break
+        # assign values to hinges that states how likely it is to be removed
+        # the higher number the number, the more problematic is a hinge
+        hinge_values = []
+        new_hinges.each do |hinge|
+          connects_actuator = hinge.edge1.link_type == 'actuator' || hinge.edge2.link_type == 'actuator'
+
+          val = 0
+          val += shared_a_hinge_count[hinge] - 1 if shared_a_hinge_count[hinge] > 1
+          val += shared_b_hinge_count[hinge] - 1 if shared_b_hinge_count[hinge] > 1
+          val += 1 if hinge.is_actuator_hinge && !connects_actuator
+          val -= 1 if hinge.is_actuator_hinge && connects_actuator
+          val += 1 if hinge_connects_to_groups(group_edge_map, hinge, 2)
+
+          hinge_values.push([hinge, val])
         end
 
-        violating_hinges.sort! { |a,b| shared_hinges_count[b] <=> shared_hinges_count[a] }
+        hinge_values.sort! { |a, b| b[1] <=> a[1] }
+        new_hinges.delete(hinge_values.first[0])
+      end
 
-        # move the hinges that connect to at least one group to the front
-        violating_and_connecting_group = violating_hinges.select { |hinge| group_edge_map.values.any? { |edges| edges.include? hinge.edge1 } || group_edge_map.values.any? { |edges| edges.include? hinge.edge2 } }
-        violating_hinges = violating_and_connecting_group + (violating_hinges - violating_and_connecting_group)
+      # check that all subhubs are only connected to at most one hinge
+      # remove hinges if there are more than one, starting with double hinges
+      hubs[node].drop(1).each do |edges|
+        edges.each do |edge|
+          edge_hinges = new_hinges.select { |hinge| hinge.edges.include?(edge) }
+          edge_hinges.sort_by! { |hinge| hinge.is_actuator_hinge ? 0 : 1 }
 
-        new_hinges.delete(violating_hinges.first)
+          while edge_hinges.size > 1
+            new_hinges.delete(edge_hinges.first)
+            edge_hinges.delete(edge_hinges.first)
+          end
+        end
       end
 
       hinge_map[node] = new_hinges
@@ -225,7 +239,7 @@ class HingePlacementAlgorithm
     @hinges = hinge_map
 
     # stores the l1 value per node (since it needs to be constant across a node)
-    @node_l1 = Hash.new
+    @node_l1 = {}
 
     @hinges.each do |node, hinges|
       max_l1 = 0.0.mm
@@ -233,6 +247,11 @@ class HingePlacementAlgorithm
       hinges.each do |hinge|
         max_l1 = [max_l1, hinge.l1].max
       end
+
+      # also set l1 distance for node if it contains a subhub
+      node_hubs = @hubs[node]
+      minimum_subhub_l1 = PRESETS::MINIMUM_L1
+      max_l1 = [max_l1, minimum_subhub_l1.mm].max if node_hubs.size > 1
 
       @node_l1[node] = max_l1
     end
@@ -266,50 +285,82 @@ class HingePlacementAlgorithm
     end
   end
 
+  def hinge_connects_to_groups(group_edge_map, hinge, num_groups = 1)
+    include_edge1 = group_edge_map.select { |k, edges| edges.include? hinge.edge1 }.keys
+    include_edge2 = group_edge_map.select { |k, edges| edges.include? hinge.edge2 }.keys
+
+    if num_groups == 1
+      return include_edge1.size > 0 || include_edge2.size > 0
+    elsif num_groups == 2
+      return include_edge1.size > 0 && include_edge2.size > 0 && !include_edge1[0].eql?(include_edge2[0])
+    end
+
+    raise 'Hinge can connect to maximally two groups.'
+  end
+
   # make sure that edge1 is the unconnected one if there is one
   def align_first_hinge(hinges, cur_hinge)
     other_edges = (hinges - [cur_hinge]).flat_map { |hinge| [hinge.edge1, hinge.edge2] }
-    cur_hinge.swap_edges unless other_edges.include? cur_hinge.edge2
+
+    is_edge1_connected = other_edges.include? cur_hinge.edge1
+    is_edge2_connected = other_edges.include? cur_hinge.edge2
+
+    raise 'Hinge is not connected to any other hinge' if !is_edge1_connected && !is_edge2_connected
+
+    if is_edge1_connected && !is_edge2_connected
+      cur_hinge.swap_edges
+    end
   end
 
-  # orders hinges so that they form a chain
-  # also always puts the edge connected to the former hinge as edge1
+  # get the hinge that is connected to the least number of other hinges
+  # this will be the start of the chain
+  def get_first_hinge(hinges)
+    sorted_hinges = hinges.sort { |h1, h2| h1.num_connected_hinges(hinges) <=> h2.num_connected_hinges(hinges) }
+    sorted_hinges[0]
+  end
+
+  # orders hinges so that they form a chain:
+  # the result will be arrays of hinges, where edge2 of a hinge and edge1
+  # of the following hinge match, if they are connected
   def order_hinges(hinge_map)
     result = Hash.new { |h,k| h[k] = [] }
 
     hinge_map.each do |node, hinges|
-      sorted_hinges = hinges.sort { |h1, h2| h1.num_connected_hinges(hinges) <=> h2.num_connected_hinges(hinges) }
-      cur_hinge = sorted_hinges[0]
-      align_first_hinge(hinges, cur_hinge)
+      cur_hinge = get_first_hinge(hinges)
+      if cur_hinge.num_connected_hinges(hinges) > 0
+        align_first_hinge(hinges, cur_hinge)
+      end
 
       new_hinges = []
-      first = true
 
       while new_hinges.size < hinges.size
         new_hinges.push(cur_hinge)
 
         break if new_hinges.size == hinges.size
 
-        next_hinge_possibilities = hinges.select { |hinge| hinge.connected_with?(cur_hinge) && !new_hinges.include?(hinge) }
+        # check which hinges can connect to the current hinge B part
+        next_hinge_possibilities = hinges.select { |hinge| hinge.edges.include?(cur_hinge.edge2) && !new_hinges.include?(hinge) }
+        if next_hinge_possibilities.size > 1
+          raise 'More than one next hinge can be connected at node ' + node.id.to_s
+        end
+
         if next_hinge_possibilities.empty?
-          remaining_hinges = sorted_hinges - new_hinges
-          cur_hinge = remaining_hinges[0]
-          align_first_hinge(hinges, cur_hinge)
+          remaining_hinges = hinges - new_hinges
+          cur_hinge = get_first_hinge(remaining_hinges)
+          if cur_hinge.num_connected_hinges(remaining_hinges) > 0
+            align_first_hinge(remaining_hinges, cur_hinge)
+          end
+
           next
         end
 
-        if !first && next_hinge_possibilities.size > 1
-          raise RuntimeError, 'More than one next hinge possible around hinge at node ' + node.id.to_s
-        elsif first && next_hinge_possibilities.size > 2
-          raise RuntimeError, 'More than two next hinges possible around starting hinge at node ' + node.id.to_s
-        end
+        next_hinge = next_hinge_possibilities[0]
 
-        if cur_hinge.common_edge(next_hinge_possibilities[0]) != next_hinge_possibilities[0].edge1
-          next_hinge_possibilities[0].swap_edges
+        # make sure that B part of current hinge connects to A part of next hinge
+        if cur_hinge.edge2 != next_hinge.edge1
+          next_hinge.swap_edges
         end
-        cur_hinge = next_hinge_possibilities[0]
-
-        first = false
+        cur_hinge = next_hinge
       end
 
       result[node] = new_hinges
@@ -330,9 +381,7 @@ class HingePlacementAlgorithm
     loop do
       unvisited_tris = triangles - visited_triangles
 
-      if unvisited_tris.empty?
-        break
-      end
+      break if unvisited_tris.empty?
 
       triangle = unvisited_tris.to_a.sample
       new_group = Set.new
@@ -359,9 +408,7 @@ class HingePlacementAlgorithm
   end
 
   def color_group(group)
-    if group.length == 1
-      return
-    end
+    return if group.length == 1
 
     group_color = "%06x" % (rand * 0xffffff)
 
@@ -406,7 +453,7 @@ class HingePlacementAlgorithm
     @simulation.setup
     @simulation.disable_gravity
     piston = edge.thingy.joint
-    piston.controller = edge.thingy.max
+    piston.controller = edge.thingy.max if piston
     @simulation.start
     @simulation.update_world_headless_by(2)
   end
@@ -461,43 +508,61 @@ class HingePlacementAlgorithm
     pod_groups + (groups - pod_groups)
   end
 
+  # return all edges that need to be elongated and the node at which the elongation should occur
+  def get_elongation_tuple
+    result = []
+
+    @hinges.each do |node, hinges|
+      hinges.each do |hinge|
+        result.push([node, hinge.edge1])
+        result.push([node, hinge.edge2])
+      end
+    end
+
+    @hubs.each do |node, hubs|
+      hubs.drop(1).each do |hub_edges|
+        hub_edges.each do |edge|
+          result.push([node, edge])
+        end
+      end
+    end
+
+    result.reject! { |_, edge| edge.link_type == 'actuator' }
+
+    result
+  end
+
   def elongate_edges
-    l2 = PRESETS::SIMPLE_HINGE_RUBY['l2']
-    l3_min = PRESETS::SIMPLE_HINGE_RUBY['l3_min']
+    l2 = PRESETS::L2
+    l3_min = PRESETS::L3_MIN
+
+    elongation_tuple = get_elongation_tuple
 
     loop do
       relaxation = Relaxation.new
 
       is_finished = true
 
-      @hinges.each do |node, hinges|
+      elongation_tuple.each do |node, edge|
         l1 = @node_l1[node]
 
-        hinges.each do |hinge|
-          [hinge.edge1, hinge.edge2].each do |edge|
-            if edge.link_type == 'actuator'
-              next
-            end
-
-            if edge.nodes.any? { |node| node.pod_directions.size > 0 }
-              raise RuntimeError, 'Hinge is connected to edge that has a pod.'
-            end
-
-            elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length
-            target_elongation = l1 + l2 + l3_min
-
-            if elongation < target_elongation
-              total_elongation = edge.first_elongation_length + edge.second_elongation_length
-              relaxation.stretch_to(edge, edge.length - total_elongation + 2*target_elongation + 10.mm)
-              is_finished = false
-            end
-          end
+        # if pods are fixed and edge can not be elongated, raise error
+        edge_contains_pods = edge.nodes.any? { |node| node.pod_directions.size > 0 }
+        if edge_contains_pods && !Relaxation.fixation_ignored?
+          #raise 'Hinge is connected to edge that has a pod.'
         end
+
+        elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length
+        target_elongation = l1 + l2 + l3_min
+
+        next unless elongation < target_elongation
+
+        total_elongation = edge.first_elongation_length + edge.second_elongation_length
+        relaxation.stretch_to(edge, edge.length - total_elongation + 2*target_elongation + 10.mm)
+        is_finished = false
       end
 
-      if is_finished
-        break
-      end
+      break if is_finished
 
       relaxation.relax
     end

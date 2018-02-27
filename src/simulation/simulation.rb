@@ -44,6 +44,8 @@ class Simulation
     @ground_group = nil
     @root_dir = File.join(__dir__, '..')
     @world = nil
+    @re_show_edges = false
+    @re_show_profiles = false
 
     # collections
     @edges = []
@@ -141,11 +143,16 @@ class Simulation
 
     # Setup stuff
     model = Sketchup.active_model
+    re = model.rendering_options
     model.start_operation('Starting Simulation', true)
     begin
       hide_triangle_surfaces
       add_ground
       assign_unique_materials
+      @re_show_edges = re['EdgeDisplayMode']
+      @re_show_profiles = re['DrawSilhouettes']
+      #re['EdgeDisplayMode'] = false
+      #re['DrawSilhouettes'] = false
     rescue Exception => err
       model.abort_operation
       raise err
@@ -156,6 +163,7 @@ class Simulation
   # Called when deactivates
   def reset
     model = Sketchup.active_model
+    re = model.rendering_options
 
     destroy_world
 
@@ -167,6 +175,8 @@ class Simulation
       show_triangle_surfaces if @triangles_hidden
       reset_force_labels
       reset_force_arrows
+      re['EdgeDisplayMode'] = @re_show_edges
+      re['DrawSilhouettes'] = @re_show_profiles
     rescue Exception => err
       model.abort_operation
       raise err
@@ -289,7 +299,7 @@ class Simulation
 
   def piston_dialog
     get_all_pistons
-    return if @pistons.empty?
+    #return if @pistons.empty?
 
     @dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
     file_content = File.read(File.join(File.dirname(__FILE__), '../ui/html/piston_slider.erb'))
@@ -301,7 +311,9 @@ class Simulation
     # Callbacks
     @dialog.add_action_callback('change_piston') do |_context, id, value|
       actuator = @pistons[id.to_i]
-      actuator.joint.controller = (value.to_f - 0.4) * (actuator.max - actuator.min)
+      if actuator.joint && actuator.joint.valid?
+        actuator.joint.controller = (value.to_f - Configuration::ACTUATOR_INIT_DIST) * (actuator.max - actuator.min)
+      end
     end
 
     @dialog.add_action_callback('test_piston') do |_context, id|
@@ -313,7 +325,7 @@ class Simulation
       @breaking_force_invh = (@breaking_force > 1.0e-6) ? (0.5.fdiv(@breaking_force)) : 0.0
       Graph.instance.edges.each_value { |edge|
         link = edge.thingy
-        if link.is_a?(Link)
+        if link.is_a?(Link) && link.joint && link.joint.valid?
           link.joint.breaking_force = @breaking_force
         end
       }
@@ -371,10 +383,13 @@ class Simulation
       link = @pistons[hash[:id]]
       joint = link.joint
 
-      joint.rate = hash[:speed]
-      joint.controller = (hash[:expanding] ? link.max : link.min)
-
-      cur_disp = joint.cur_distance - joint.start_distance
+      if joint && joint.valid?
+        joint.rate = hash[:speed]
+        joint.controller = (hash[:expanding] ? link.max : link.min)
+        cur_disp = joint.cur_distance - joint.start_distance
+      else
+        cur_disp = 0.0
+      end
 
       if (cur_disp - link.max).abs < 0.005 && hash[:expanding]
         #
@@ -714,7 +729,7 @@ class Simulation
   #
 
   def add_force_to_node(node, force)
-    node.thingy.body.add_force(force)
+    node.thingy.body.apply_force(force)
   end
 
   # This is called when simulation starts and assigns unique materials to bottles
@@ -819,11 +834,14 @@ class Simulation
   end
 
   def get_directed_force(link)
-    pt1 = link.first_node.thingy.entity.bounds.center
-    pt2 = link.second_node.thingy.entity.bounds.center
-    dir = pt1.vector_to(pt2).normalize
-    tension = link.joint.get_linear_tension
-    tension.dot(dir)
+    if link.joint && link.joint.valid?
+      pt1 = link.first_node.thingy.entity.bounds.center
+      pt2 = link.second_node.thingy.entity.bounds.center
+      dir = pt1.vector_to(pt2).normalize
+      link.joint.linear_tension.dot(dir)
+    else
+      0.0
+    end
   end
 
   def whiten_all_bottles
@@ -883,7 +901,11 @@ class Simulation
       pt2 = link.second_node.thingy.entity.bounds.center
       dir = pt1.vector_to(pt2).normalize
       position = Geom.linear_combination(0.5, pt1, 0.5, pt2)
-      tension = link.joint.get_linear_tension.dot(dir)
+      if link.joint && link.joint.valid?
+        tension = link.joint.linear_tension.dot(dir)
+      else
+        tension = 0.0
+      end
       update_force_label(link, tension, position)
     end
   end

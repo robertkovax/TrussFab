@@ -101,4 +101,5 @@ class SimulationTool < Tool
       @force.point = point
     end
   end
+
 end

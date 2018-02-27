@@ -155,6 +155,12 @@ module JsonImport
         first_position = positions[edge_json['n1']]
         second_position = positions[edge_json['n2']]
         link_type = edge_json['type'].nil? ? 'bottle_link' : edge_json['type']
+
+        # For backward compatibility with SU2016 JSON files
+        if link_type == 'LinkTypes::BOTTLE_LINK'
+          link_type = 'bottle_link'
+        end
+
         model_name = edge_json['model'].nil? ? 'hard' : edge_json['model']
         edge = Graph.instance.create_edge_from_points(first_position,
                                                       second_position,
