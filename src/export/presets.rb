@@ -5,8 +5,8 @@ module PRESETS
   ACTUATOR_CONNECTOR_HOLE_SIZE_BIG = (10.5 / 2).mm
 
   # the angle for the triangle in the gap
-  DEFAULT_GAP_ANGLE_SIMPLE = 45
-  DEFAULT_GAP_ANGLE_DOUBLE = 70
+  DEFAULT_GAP_ANGLE_SIMPLE = 42
+  DEFAULT_GAP_ANGLE_DOUBLE = 60
 
   # currently removed, but works with appropiate values
   DEFAULT_CUT_OUT_HEX_HEIGHT = 0.0.mm
@@ -14,8 +14,8 @@ module PRESETS
 
   # defines what the minimum l1 distance is for hinges
   # values are in mm and are converted to Length class later
-  MINIMUM_L1 = 35.mm
-  MINIMUM_ACTUATOR_L1 = 40.mm
+  MINIMUM_L1 = 48.mm
+  MINIMUM_ACTUATOR_L1 = 48.mm
 
   # the default l2
   L2 = 40.mm # gap sized derived from this value
@@ -34,7 +34,7 @@ module PRESETS
     gap_epsilon: 0.8.mm, # margin of the gap (due to printing issues)
     connector_end_round: (30.0 / 2).mm,
     connector_end_heigth: 3.7.mm,
-    connector_end_extra_round: (19.95 / 2).mm, # to better connect the bottles
+    connector_end_extra_round: (19.90 / 2).mm, # to better connect the bottles
     connector_end_extra_height: 7.mm,
     cut_out_hex_height_a: DEFAULT_CUT_OUT_HEX_HEIGHT,
     cut_out_hex_height_b: DEFAULT_CUT_OUT_HEX_HEIGHT,
