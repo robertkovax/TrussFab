@@ -14,8 +14,8 @@ module PRESETS
 
   # defines what the minimum l1 distance is for hinges
   # values are in mm and are converted to Length class later
-  MINIMUM_L1 = 35
-  MINIMUM_ACTUATOR_L1 = 40
+  MINIMUM_L1 = 35.mm
+  MINIMUM_ACTUATOR_L1 = 40.mm
 
   # the default l2
   L2 = 40.mm # gap sized derived from this value
