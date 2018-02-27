@@ -60,20 +60,7 @@ class Hinge
   end
 
   def l1
-    p1_x = 30
-    p1_y = 60
-
-    p2_x = 90
-    p2_y = 20
-
-    m = (p2_y - p1_y) / (p2_x - p1_x)
-    b = p1_y - m * p1_x
-
-    length = m * angle + b
-    min_length = @is_actuator_hinge ? PRESETS::MINIMUM_ACTUATOR_L1 : PRESETS::MINIMUM_L1
-    length = [min_length, length].max
-
-    length.mm
+    @is_actuator_hinge ? PRESETS::MINIMUM_ACTUATOR_L1 : PRESETS::MINIMUM_L1
   end
 end
 
