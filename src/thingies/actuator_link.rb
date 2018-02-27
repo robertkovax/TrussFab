@@ -62,6 +62,7 @@ class ActuatorLink < Link
   def update_link_transformations
     pt1 = @first_node.thingy.entity.bounds.center
     pt2 = @second_node.thingy.entity.bounds.center
+    pt3 = Geom::Point3d.linear_combination(0.5, pt1, 0.5, pt2)
     dir = pt2 - pt1
     return if (dir.length.to_f < 1.0e-6)
     dir.normalize!
@@ -71,6 +72,8 @@ class ActuatorLink < Link
     t2 = Geom::Transformation.new(pt2 - ot, dir.reverse)
     @first_cylinder.entity.move!(t1)
     @second_cylinder.entity.move!(t2)
+
+    move_sensor_symbol(pt3)
   end
 
   def reset_physics

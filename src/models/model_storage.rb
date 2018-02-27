@@ -4,6 +4,7 @@ require 'src/models/bottle_model.rb'
 require 'src/models/actuator_model.rb'
 require 'src/models/pod_model.rb'
 require 'src/models/force_arrow_model.rb'
+require 'src/models/sensor_model.rb'
 
 class ModelStorage
   include Singleton
@@ -37,6 +38,10 @@ class ModelStorage
 
     if @models['force_arrow'].nil? || !@models['force_arrow'].valid?
       @models['force_arrow'] = ForceArrowModel.new
+    end
+
+    if @models['sensor'].nil? || !@models['sensor'].valid?
+      @models['sensor'] = SensorModel.new
     end
   end
 end

@@ -34,7 +34,9 @@ class DeleteTool < Tool
     @mouse_input.update_positions(view, x, y)
     object = @mouse_input.snapped_object
     return if object.nil?
+    Sketchup.active_model.start_operation('Delete Object', true)
     object.delete
+    Sketchup.active_model.commit_operation
     view.invalidate
   end
 end

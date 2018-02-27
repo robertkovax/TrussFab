@@ -4,14 +4,24 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript" src="<%= @root_dir %>/ui/js/Chart.min.js"></script>
+    <script type='text/javascript' >
+      var charts = {};
+    </script>
     <title>SensorOverview</title>
 </head>
 <body>
 <% for sensor in @sensors %>
-    Hub <%= sensor.id %>:<br>
-    Speed: <label id="speed_<%=sensor.id%>"><%= 0.0 %></label> m/s<br>
-    Acceleration: <label id="acceleration_<%=sensor.id%>"><%= 0.0 %></label>m/s/s
-    <br><br>
+    <% if sensor.is_a?(Hub) %>
+        Hub <%= sensor.id %>:<br>
+        Speed: <label id="speed_<%=sensor.id%>"><%= 0.0 %></label> m/s<br>
+        Acceleration: <label id="acceleration_<%=sensor.id%>"><%= 0.0 %></label>m/s/s
+        <br><br>
+    <% elsif sensor.is_a?(Link) %>
+        Edge <%= sensor.id %>:<br>
+        <canvas id="forceChart_<%=sensor.id%>" width="600" height="300"></canvas>
+        <script type="text/javascript" src="<%= @root_dir %>/ui/js/force_chart.js" id="<%= sensor.id %>"></script>
+    <% end %>
 <% end %>
 
 <script type="text/javascript">
@@ -21,6 +31,10 @@ function updateSpeed(id, value) {
 
 function updateAcceleration(id, value) {
     document.getElementById("acceleration_"+id).innerHTML = value;
+}
+
+function addChartData(id, label, force) {
+    addData(id, label, force);
 }
 </script>
 </body>
