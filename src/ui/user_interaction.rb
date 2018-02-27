@@ -72,6 +72,9 @@ class UserInteraction
   def register_callbacks
     return if @dialog.nil?
     build_tool(TetrahedronTool, 'tetrahedron_tool')
+    build_tool(TetrahedronTool, 'assets_1_tool') # TODO
+    build_tool(TetrahedronTool, 'assets_2_tool') # TODO
+    build_tool(TetrahedronTool, 'assetse_leg_tool') # TODO
     build_tool(DynamicTetrahedronTool, 'dynamic_tetrahedron_tool')
     build_tool(OctahedronTool, 'octahedron_tool')
     build_tool(DynamicOctahedronTool, 'dynamic_octahedron_tool')
@@ -85,8 +88,12 @@ class UserInteraction
     build_tool(PodTool, 'pod_tool')
     build_tool(SensorTool, 'sensor_tool')
     build_tool(SimulationTool, 'simulation_tool')
+    build_tool(SimulationTool, 'optimise_force_tool') # TODO
     build_tool(AddWeightTool, 'add_weight_tool')
+    build_tool(AddWeightTool, 'add_force_tool') # TODO
     build_tool(ActuatorTool, 'actuator_tool')
+    build_tool(ActuatorTool, 'sprink_tool') # TODO
+    build_tool(ActuatorTool, 'damp_tool') # TODO
     build_tool(CoverTool, 'cover_tool')
     build_tool(FabricateTool, 'fabricate_tool')
     build_tool(BottleCountTool, 'bottle_count_tool')
