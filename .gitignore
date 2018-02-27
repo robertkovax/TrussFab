@@ -1,4 +1,4 @@
 .idea
-*assets*
+assets/export
 anton_demo.rb
 src/ui/node_modules
