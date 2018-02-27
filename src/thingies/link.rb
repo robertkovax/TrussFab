@@ -8,7 +8,7 @@ require 'src/thingies/physics_thingy.rb'
 class Link < PhysicsThingy
   attr_accessor :joint
   attr_reader :first_elongation_length, :second_elongation_length,
-    :position, :second_position, :loc_up_vec, :first_node, :second_node
+    :position, :second_position, :loc_up_vec, :first_node, :second_node, :sensor_symbol
 
   def initialize(first_node, second_node, model_name, id: nil)
     super(id)
@@ -28,7 +28,14 @@ class Link < PhysicsThingy
     @first_elongation = nil
     @second_elongation = nil
 
+    @sensor_symbol = nil
+
     create_sub_thingies
+  end
+
+  def delete
+    @sensor_symbol.erase! unless @sensor_symbol.nil?
+    super
   end
 
   def check_if_valid
@@ -54,6 +61,59 @@ class Link < PhysicsThingy
     mid_point
   end
 
+  def mid_point
+    p1 = @position
+    p2 = @second_position
+    Geom::Point3d.linear_combination(0.5, p1, 0.5, p2)
+  end
+
+  def add_sensor_symbol
+    point = mid_point
+    model = ModelStorage.instance.models['sensor']
+    # s**t ton of transformation to align the image exactly with the bottle direction, which is
+    # not really needed anymore, because the object is now 3D. Will leave it here anyways, because
+    # I don't want to throw away all this work :(
+    transform = Geom::Transformation.new(point)
+    @sensor_symbol = Sketchup.active_model.active_entities.add_instance(model.definition, transform)
+    image_normal = Geom::Vector3d.new(0, 0, 1)
+    floor_normal = Geom::Vector3d.new(0, 0, 1)
+    link_dir = @position.vector_to(@second_position)
+    second_angle = link_dir.angle_between(floor_normal)
+    rotation = Geom::Transformation.rotation(point, link_dir, link_dir.angle_between(link_dir.cross(floor_normal)))
+    @sensor_symbol.transform!(rotation)
+    image_normal.transform!(rotation)
+    rotation2 = Geom::Transformation.rotation(point, image_normal.cross(link_dir), second_angle)
+    @sensor_symbol.transform!(rotation2)
+    @sensor_symbol.transform!(Geom::Transformation.scaling(point, 0.2))
+  end
+
+  def toggle_sensor_state
+    if @is_sensor
+      @is_sensor = false
+      @sensor_symbol.erase!
+      @sensor_symbol = nil
+    else
+      @is_sensor = true
+      add_sensor_symbol
+    end
+  end
+
+  def is_sensor?
+    @is_sensor
+  end
+
+  def move_sensor_symbol(position)
+    unless @sensor_symbol.nil?
+      old_pos = @sensor_symbol.transformation.origin
+      movement_vec = old_pos.vector_to(position)
+      @sensor_symbol.transform!(movement_vec)
+    end
+  end
+
+  def reset_sensor_symbol_position
+    move_sensor_symbol(mid_point)
+  end
+
   #
   # Physics methods
   #
@@ -61,6 +121,7 @@ class Link < PhysicsThingy
   def update_link_transformations
     pt1 = @first_node.thingy.entity.bounds.center
     pt2 = @second_node.thingy.entity.bounds.center
+    pt3 = Geom::Point3d.linear_combination(0.5, pt1, 0.5, pt2)
     dir = pt2 - pt1
 
     return if (dir.length.to_f < 1.0e-6)
@@ -80,6 +141,8 @@ class Link < PhysicsThingy
     elong1.entity.move!(t1)
     elong2.entity.move!(t2)
     bottle.entity.move!(t3)
+
+    move_sensor_symbol(pt3)
   end
 
   def create_joints(world, first_node, second_node)

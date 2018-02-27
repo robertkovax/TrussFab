@@ -56,6 +56,7 @@ class Simulation
     @pistons = {}
     @auto_piston_group = []
     @bottle_dat = {}
+    @charts = {}
 
     # time keeping
     @frame = 0
@@ -75,7 +76,7 @@ class Simulation
     @breaking_force = Configuration::JOINT_BREAKING_FORCE
     @breaking_force_invh = (@breaking_force > 1.0e-6) ? (0.5.fdiv(@breaking_force)) : 0.0
 
-    @max_actuator_tensions = 0.0
+    @max_actuator_tensions = {}
     @max_speed = 0
     @highest_force_mode = false
   end
@@ -175,6 +176,7 @@ class Simulation
       show_triangle_surfaces if @triangles_hidden
       reset_force_labels
       reset_force_arrows
+      reset_sensor_symbols
       re['EdgeDisplayMode'] = @re_show_edges
       re['DrawSilhouettes'] = @re_show_profiles
     rescue Exception => err
@@ -272,17 +274,6 @@ class Simulation
       node.thingy.arrow.erase! unless node.thingy.arrow.nil?
       node.thingy.arrow = nil
     end
-  end
-
-  def chart_dialog
-    return if @pistons.empty?
-    @chart = ForceChart.new()
-    @chart.open_dialog
-  end
-
-  def close_chart
-    return if @chart.nil?
-    @chart.close
   end
 
   #
@@ -627,15 +618,21 @@ class Simulation
     end
   end
 
-  def update_force_arrows
+  def update_hub_addons
     Graph.instance.nodes.values.each do |node|
-      node.thingy.move_force_arrow(node.position)
+      node.thingy.move_addons(node.position)
     end
   end
 
   def reset_force_arrows
     Graph.instance.nodes.values.each do |node|
-      node.thingy.reset_force_arrow_position
+      node.thingy.reset_addon_positions
+    end
+  end
+
+  def reset_sensor_symbols
+    Graph.instance.edges.each_value do |edge|
+      edge.thingy.reset_sensor_symbol_position
     end
   end
 
@@ -646,16 +643,14 @@ class Simulation
     model.start_operation('Simulation', true)
 
     update_world
-    update_force_arrows
+    update_hub_addons
     update_entities
 
     model.commit_operation
 
     if @frame % 5 == 0
       #shift_chart_data if @frame > 100
-      log_max_actuator_tensions(' ')
-      send_sensor_speed_to_dialog
-      send_sensor_acceleration_to_dialog
+      send_sensor_data_to_dialog
       test_pistons
     end
 
@@ -701,26 +696,25 @@ class Simulation
   end
 
   def collect_sensors
-    Graph.instance.nodes.values.each do |node|
-      if node.thingy.is_sensor?
-        @sensors.push(node.thingy)
+    Graph.instance.nodes_and_edges.each do |obj|
+      if obj.thingy.is_sensor?
+        @sensors.push(obj.thingy)
       end
     end
   end
 
-  def send_sensor_speed_to_dialog
+  def send_sensor_data_to_dialog
     return unless @sensor_dialog
     @sensors.each do |sensor|
-      speed = sensor.body.get_velocity.length.to_f
-      @sensor_dialog.execute_script("updateSpeed('#{sensor.id}', '#{speed.round(2)} ')")
-    end
-  end
-
-  def send_sensor_acceleration_to_dialog
-    return unless @sensor_dialog
-    @sensors.each do |sensor|
-      accel = sensor.body.get_acceleration.length.to_f
-      @sensor_dialog.execute_script("updateAcceleration('#{sensor.id}', '#{accel.round(2)} ')")
+      if sensor.is_a?(Hub)
+        speed = sensor.body.get_velocity.length.to_f
+        @sensor_dialog.execute_script("updateSpeed('#{sensor.id}', '#{speed.round(2)} ')")
+        accel = sensor.body.get_acceleration.length.to_f
+        @sensor_dialog.execute_script("updateAcceleration('#{sensor.id}', '#{accel.round(2)} ')")
+      elsif sensor.is_a?(Link)
+        @sensor_dialog.execute_script("addChartData(#{sensor.id}, ' ', #{@max_actuator_tensions[sensor.id]})")
+        @max_actuator_tensions[sensor.id] = 0
+      end
     end
   end
 
@@ -851,23 +845,24 @@ class Simulation
   end
 
   # Returns total tension applied to actuators along their directions
-  def compute_net_actuator_tension
-    net_lin_tension = 0.0
-    Graph.instance.edges.each_value do |edge|
-      link = edge.thingy
-      if link.is_a?(ActuatorLink)
-        net_lin_tension += get_directed_force(link)
-      end
+  def compute_net_actuator_tension(edge)
+    link = edge.thingy
+    if link.is_a?(Link)
+      net_lin_tension = get_directed_force(link)
     end
     net_lin_tension
   end
 
   # Updates the net maximum tension variable
   def rec_max_actuator_tensions
-    return unless @chart
-    net_lin_tension = compute_net_actuator_tension()
-    if net_lin_tension.abs > @max_actuator_tensions.abs
-      @max_actuator_tensions = net_lin_tension
+    return unless @sensor_dialog
+    Graph.instance.edges.each_value do |edge|
+      next unless edge.thingy.is_sensor?
+      net_lin_tension = compute_net_actuator_tension(edge)
+      @max_actuator_tensions[edge.id] = net_lin_tension if @max_actuator_tensions[edge.id].nil?
+      if net_lin_tension.abs > @max_actuator_tensions[edge.id].abs
+        @max_actuator_tensions[edge.id] = net_lin_tension
+      end
     end
   end
 
@@ -877,6 +872,11 @@ class Simulation
     return unless @chart
     @chart.addData(label, @max_actuator_tensions)
     @max_actuator_tensions = 0.0
+  end
+
+  def add_chart_data(label, force)
+    return unless @chart
+    @chart.addData(label, force)
   end
 
   def shift_chart_data
