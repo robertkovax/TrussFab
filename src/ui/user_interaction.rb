@@ -10,16 +10,27 @@ class UserInteraction
   end
 
   def open_dialog
+    num_icons_in_row = 4
+    icon_width = 70
+    general_spacing = 2
+    width =
+      num_icons_in_row * icon_width +
+      num_icons_in_row * general_spacing * 2 +
+      general_spacing * 2 +
+      general_spacing * 2
+
+    height = 740
+
     props = {
       :resizable => false,
-      :width => 400,
-      :height => 1000,
+      :width => width,
+      :height => height,
       :left => 0,
       :top => 100,
-      :min_width => 400,
-      :min_height =>1000,
-      :max_width => 400,
-      :max_height => 1000
+      :min_width => width,
+      :min_height =>height,
+      :max_width => width,
+      :max_height => height
     }
 
     @dialog = UI::HtmlDialog.new(props)

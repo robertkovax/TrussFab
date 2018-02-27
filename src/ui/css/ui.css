@@ -55,7 +55,7 @@ button:hover img {
 footer {
   position: absolute;
   left: 0%;
-  top: 800px;
+  top: 600px;
   display: flex !important;
   flex-wrap: wrap;
   padding: 2px;
