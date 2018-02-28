@@ -12,7 +12,8 @@ class ActuatorLink < Link
     @second_cylinder = nil
     @joint = nil
 
-    super(first_node, second_node, 'actuator', id: id)
+    model = ModelStorage.instance.models['actuator']
+    super(first_node, second_node, model, id: id)
 
     @reduction = Configuration::ACTUATOR_REDUCTION
     @rate = Configuration::ACTUATOR_RATE

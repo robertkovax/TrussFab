@@ -8,12 +8,13 @@ require 'src/simulation/thingy_rotation.rb'
 class Edge < GraphObject
   attr_reader :first_node, :second_node, :link_type
 
-  def initialize(first_node, second_node, model_name: 'hard', id: nil, link_type: 'bottle_link')
+  def initialize(first_node, second_node, model_name: 'hard', bottle_type: Configuration::BIG_BIG_BOTTLE_NAME, id: nil, link_type: 'bottle_link')
     @first_node = first_node
     @second_node = second_node
     @first_node.add_incident(self)
     @second_node.add_incident(self)
-    @model_name = model_name
+    @bottle_models = ModelStorage.instance.models[model_name]
+    @bottle_type = bottle_type
     @link_type = link_type
     edge_id = id.nil? ? IdManager.instance.generate_next_tag_id('edge') : id
     super(edge_id)
@@ -160,6 +161,20 @@ class Edge < GraphObject
   end
 
   def move
+    if @link_type == 'bottle_link'
+      update_bottles = true
+
+      model = @bottle_models.models[@bottle_type]
+
+      if update_bottles
+        model_length = length - @thingy.first_elongation_length - @thingy.second_elongation_length
+        model = @bottle_models.longest_model_shorter_than(model_length)
+        @bottle_type = model.name
+      end
+
+      @thingy.set_model(model)
+    end
+
     @thingy.update_positions(@first_node.position, @second_node.position)
   end
 
@@ -194,7 +209,7 @@ class Edge < GraphObject
     when 'bottle_link'
       Link.new(@first_node,
                @second_node,
-               @model_name,
+               @bottle_models.models[@bottle_type],
                id: id)
     when 'actuator'
       ActuatorLink.new(@first_node,
