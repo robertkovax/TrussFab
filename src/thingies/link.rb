@@ -6,7 +6,7 @@ require 'src/thingies/physics_thingy.rb'
 
 
 class Link < PhysicsThingy
-  attr_accessor :joint
+  attr_accessor :joint, :model
   attr_reader :first_elongation_length, :second_elongation_length,
     :position, :second_position, :loc_up_vec, :first_node, :second_node, :sensor_symbol
 
@@ -111,10 +111,6 @@ class Link < PhysicsThingy
     move_sensor_symbol(mid_point)
   end
 
-  def set_model(model)
-    @model = model
-  end
-
   #
   # Physics methods
   #
@@ -182,8 +178,6 @@ class Link < PhysicsThingy
   end
 
   def create_sub_thingies
-    raise 'No model generated for link.' if @model.nil?
-
     @first_elongation_length =
       @second_elongation_length =
       Configuration::MINIMUM_ELONGATION

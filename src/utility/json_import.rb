@@ -161,7 +161,7 @@ module JsonImport
           link_type = 'bottle_link'
         end
 
-        bottle_type = edge_json['bottle_type'].nil? ? Configuration::BIG_BIG_BOTTLE_NAME : edge_json['bottle_type']
+        bottle_type = edge_json['bottle_type'].nil? ? '' : edge_json['bottle_type']
         model_name = edge_json['model'].nil? ? 'hard' : edge_json['model']
         edge = Graph.instance.create_edge_from_points(first_position,
                                                       second_position,

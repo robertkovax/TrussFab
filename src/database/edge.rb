@@ -6,7 +6,17 @@ require 'src/models/model_storage.rb'
 require 'src/simulation/thingy_rotation.rb'
 
 class Edge < GraphObject
-  attr_reader :first_node, :second_node, :link_type
+  attr_reader :first_node, :second_node, :link_type, :bottle_type
+
+  @@retain_bottle_types = false
+
+  def self.enable_bottle_freeze
+    @@retain_bottle_types = true
+  end
+
+  def self.disable_bottle_freeze
+    @@retain_bottle_types = false
+  end
 
   def initialize(first_node, second_node, model_name: 'hard', bottle_type: Configuration::BIG_BIG_BOTTLE_NAME, id: nil, link_type: 'bottle_link')
     @first_node = first_node
@@ -160,19 +170,18 @@ class Edge < GraphObject
     end
   end
 
+  def update_bottle_type
+    model_length = length - 2 * Configuration::MINIMUM_ELONGATION
+    model = @bottle_models.longest_model_shorter_than(model_length)
+    @bottle_type = model.name
+  end
+
   def move
     if @link_type == 'bottle_link'
-      update_bottles = true
+      update_bottle_type unless @@retain_bottle_types
 
       model = @bottle_models.models[@bottle_type]
-
-      if update_bottles
-        model_length = length - @thingy.first_elongation_length - @thingy.second_elongation_length
-        model = @bottle_models.longest_model_shorter_than(model_length)
-        @bottle_type = model.name
-      end
-
-      @thingy.set_model(model)
+      @thingy.model = model
     end
 
     @thingy.update_positions(@first_node.position, @second_node.position)
@@ -207,6 +216,8 @@ class Edge < GraphObject
   def create_thingy(id)
     case @link_type
     when 'bottle_link'
+      update_bottle_type if @bottle_type.empty?
+
       Link.new(@first_node,
                @second_node,
                @bottle_models.models[@bottle_type],
