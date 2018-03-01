@@ -205,7 +205,7 @@ class HingePlacementAlgorithm
           val += shared_a_hinge_count[hinge] - 1 if shared_a_hinge_count[hinge] > 1
           val += shared_b_hinge_count[hinge] - 1 if shared_b_hinge_count[hinge] > 1
           val += 1 if hinge.is_actuator_hinge && !connects_actuator
-          val -= 1 if hinge.is_actuator_hinge && connects_actuator
+          #val -= 1 if hinge.is_actuator_hinge && connects_actuator
           val += 1 if hinge_connects_to_groups(group_edge_map, hinge, 2)
 
           hinge_values.push([hinge, val])
