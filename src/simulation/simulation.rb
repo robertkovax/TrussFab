@@ -44,8 +44,8 @@ class Simulation
     @ground_group = nil
     @root_dir = File.join(__dir__, '..')
     @world = nil
-    @re_show_edges = false
-    @re_show_profiles = false
+    @re_show_edges = true
+    @re_show_profiles = true
 
     # collections
     @edges = []
@@ -189,7 +189,7 @@ class Simulation
 
   def create_joints
     Graph.instance.edges.each_value do |edge|
-      edge.create_joints(@world)
+      edge.create_joints(@world, @breaking_force)
     end
   end
 
@@ -335,6 +335,16 @@ class Simulation
         @paused = true
       end
       model.commit_operation
+    end
+
+    @dialog.add_action_callback('restart_simulation') do |_context|
+      @sensors.each do |sensor|
+        @sensor_dialog.execute_script("resetChart(#{sensor.id})") unless @sensor_dialog.nil?
+      end
+      reset
+      @dialog.execute_script("reset_sliders()")
+      setup
+      start
     end
 
     @dialog.add_action_callback('change_highest_force_mode') do |_context, param|

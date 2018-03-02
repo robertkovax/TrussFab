@@ -21,7 +21,8 @@ Maximum Speed (0 for continuous acceleration):
 <br>
 <input type="number" value="<%= @max_speed %>" step="0.1" onchange="set_max_speed(this.value)"> m/s
 <br><br>
-<button class="tool" onclick="play_pause_simulation()">Play/Pause Simulation</button><br>
+<button class="tool" onclick="play_pause_simulation()">Play/Pause Simulation</button>
+<button class="tool" onclick="restart_simulation()">Restart Simulation</button><br>
 Highest Force Mode:
 <input id="force_mode_checkbox" type="checkbox" onChange="change_highest_force_mode()">
 
@@ -46,9 +47,19 @@ Highest Force Mode:
         sketchup.play_pause_simulation()
     };
 
+    function restart_simulation() {
+        sketchup.restart_simulation()
+    };
+
     function change_highest_force_mode() {
         sketchup.change_highest_force_mode(force_mode_checkbox.checked)
     };
+
+    function reset_sliders() {
+        <% for piston_id in @pistons.keys %>
+            document.getElementById("<%= piston_id %>").value = "0.5";
+        <% end %>
+    }
 </script>
 </body>
 </html>

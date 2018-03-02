@@ -54,8 +54,8 @@ class Edge < GraphObject
     node == @first_node
   end
 
-  def create_joints(world)
-    @thingy.create_joints(world, @first_node, @second_node)
+  def create_joints(world, breaking_force)
+    @thingy.create_joints(world, @first_node, @second_node, breaking_force)
   end
 
   def position
