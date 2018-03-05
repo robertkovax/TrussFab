@@ -75,21 +75,23 @@ class ComponentProperties
     # pistons
     @dialog.add_action_callback('set_damping') do |dialog, param|
       @actuator.reduction = param.to_f
-      @actuator.update_piston
+      @actuator.update_link_properties
     end
     @dialog.add_action_callback('set_rate') do |dialog, param|
       @actuator.rate = param.to_f
-      @actuator.update_piston
+      @actuator.update_link_properties
     end
     @dialog.add_action_callback('set_power') do |dialog, param|
       @actuator.power = param.to_f
-      @actuator.update_piston
+      @actuator.update_link_properties
     end
     @dialog.add_action_callback('set_min') do |dialog, param|
       @actuator.min = param.to_f
+      @actuator.update_link_properties
     end
     @dialog.add_action_callback('set_max') do |dialog, param|
       @actuator.max = param.to_f
+      @actuator.update_link_properties
     end
   end
 end

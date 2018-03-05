@@ -22,6 +22,9 @@ class Link < PhysicsThingy
     @second_node = second_node
 
     @model = ModelStorage.instance.models[model_name]
+    if @model.nil?
+      raise "#{model_name} does not have a model yet"
+    end
     @first_elongation_length = nil
     @second_elongation_length = nil
 
