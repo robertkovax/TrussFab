@@ -126,6 +126,17 @@ module Configuration
   ACTUATOR_MAX          = 0.2 # in meters
   ACTUATOR_INIT_DIST    = 0.4
 
+  # PointToPointGasSpring Properties
+  SPRING_STROKE_LENGTH = 0.2
+  SPRING_EXTENDED_FORCE = 20
+  SPRING_THRESHOLD = 0.015
+  SPRING_DAMP = 10
+
+  #GenericPointToPoint Properties
+  GENERIC_LINK_FORCE = 10
+  GENERIC_LINK_MIN_DISTANCE = -0.2
+  GENERIC_LINK_MAX_DISTANCE = 0.2
+
   # Tension
   TENSION_COLORS = [
     Sketchup::Color.new(0, 0, 255),

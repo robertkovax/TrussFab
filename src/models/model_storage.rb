@@ -36,6 +36,14 @@ class ModelStorage
       @models['actuator'] = ActuatorModel.new
     end
 
+    if @models['generic'].nil? || !@models['generic'].valid?
+      @models['generic'] = ActuatorModel.new
+    end
+
+    if @models['spring'].nil? || !@models['spring'].valid?
+      @models['spring'] = ActuatorModel.new
+    end
+
     if @models['force_arrow'].nil? || !@models['force_arrow'].valid?
       @models['force_arrow'] = ForceArrowModel.new
     end

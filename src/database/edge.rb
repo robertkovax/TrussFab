@@ -2,6 +2,8 @@ require 'set'
 require 'src/database/graph_object.rb'
 require 'src/thingies/link.rb'
 require 'src/thingies/actuator_link.rb'
+require 'src/thingies/spring_link.rb'
+require 'src/thingies/generic_link.rb'
 require 'src/models/model_storage.rb'
 require 'src/simulation/thingy_rotation.rb'
 
@@ -200,6 +202,14 @@ class Edge < GraphObject
       ActuatorLink.new(@first_node,
                        @second_node,
                        id: id)
+    when 'spring'
+      SpringLink.new(@first_node,
+                     @second_node,
+                     id: id)
+    when 'generic'
+      GenericLink.new(@first_node,
+                      @second_node,
+                      id: id)
     else
       raise "Unkown link type: #{@link_type}"
     end

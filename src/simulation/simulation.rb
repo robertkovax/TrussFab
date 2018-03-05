@@ -54,6 +54,7 @@ class Simulation
     @saved_transformations = {}
     @sensors = []
     @pistons = {}
+    @generic_links = {}
     @bottle_dat = {}
     @charts = {}
 
@@ -286,9 +287,17 @@ class Simulation
     }
   end
 
+  def get_all_generic_links
+    # get all generic links from actuator edges
+    @generic_links.clear
+    Graph.instance.edges.each { |id, edge|
+      @generic_links[id] = edge.thingy if edge.thingy.is_a?(GenericLink)
+    }
+  end
+
   def piston_dialog
     get_all_pistons
-    #return if @pistons.empty?
+    get_all_generic_links
 
     @dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
     file_content = File.read(File.join(File.dirname(__FILE__), '../ui/html/piston_slider.erb'))
@@ -339,6 +348,18 @@ class Simulation
 
     @dialog.add_action_callback('change_highest_force_mode') do |_context, param|
       @highest_force_mode = param
+    end
+
+    @dialog.add_action_callback('apply_force') do |_context|
+      @generic_links.each_value do |generic_link|
+        generic_link.force = 50
+      end
+    end
+
+    @dialog.add_action_callback('release_force') do |_context|
+      @generic_links.each_value do |generic_link|
+        generic_link.force = 10
+      end
     end
   end
 

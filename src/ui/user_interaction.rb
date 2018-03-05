@@ -58,6 +58,8 @@ class UserInteraction
     build_tool(SimulationTool, 'simulation_tool')
     build_tool(AddWeightTool, 'add_weight_tool')
     build_tool(ActuatorTool, 'actuator_tool')
+    build_tool(SpringTool, 'spring_tool')
+    build_tool(GenericPhysicsLinkTool, 'generic_physics_link_tool')
     build_tool(CoverTool, 'cover_tool')
     build_tool(FabricateTool, 'fabricate_tool')
     build_tool(BottleCountTool, 'bottle_count_tool')
