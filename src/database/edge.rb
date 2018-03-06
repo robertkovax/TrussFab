@@ -6,6 +6,7 @@ require 'src/thingies/spring_link.rb'
 require 'src/thingies/generic_link.rb'
 require 'src/models/model_storage.rb'
 require 'src/simulation/thingy_rotation.rb'
+require 'src/configuration/configuration'
 
 class Edge < GraphObject
   attr_reader :first_node, :second_node, :link_type, :bottle_type
@@ -226,7 +227,7 @@ class Edge < GraphObject
 
       Link.new(@first_node,
                @second_node,
-               'hard',
+               Configuration::STANDARD_BOTTLES,
                bottle_name: @bottle_type,
                id: id)
     when 'actuator'

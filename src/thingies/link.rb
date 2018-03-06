@@ -3,6 +3,7 @@ require 'src/thingies/link_entities/bottle_link.rb'
 require 'src/thingies/link_entities/line.rb'
 require 'src/simulation/simulation.rb'
 require 'src/thingies/physics_thingy.rb'
+require 'src/configuration/configuration'
 
 
 class Link < PhysicsThingy
@@ -21,14 +22,18 @@ class Link < PhysicsThingy
     @first_node = first_node
     @second_node = second_node
 
-    @model = ModelStorage.instance.models[model_name]
-    if @model.nil?
-      raise "#{model_name} does not have a model yet"
-    end
+    @model = nil
 
-    if model_name == 'hard'
+    # extract specific bottle model for bottle links
+    if model_name == Configuration::STANDARD_BOTTLES
       raise 'No bottle type supplied.' if bottle_name.empty?
       @model = ModelStorage.instance.models[model_name].models[bottle_name]
+    else
+      @model = ModelStorage.instance.models[model_name]
+    end
+
+    if @model.nil?
+      raise "#{model_name} does not have a model yet"
     end
 
     @first_elongation_length = nil
