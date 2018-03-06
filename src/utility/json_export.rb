@@ -39,7 +39,8 @@ class JsonExport
         id: id,
         n1: edge.first_node.id,
         n2: edge.second_node.id,
-        type: edge.link_type
+        type: edge.link_type,
+        bottle_type: edge.bottle_type
       }
     end
   end

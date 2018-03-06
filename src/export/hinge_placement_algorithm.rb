@@ -533,6 +533,8 @@ class HingePlacementAlgorithm
   end
 
   def elongate_edges
+    Edge.enable_bottle_freeze
+
     l2 = PRESETS::L2
     l3_min = PRESETS::L3_MIN
 
@@ -547,10 +549,10 @@ class HingePlacementAlgorithm
         l1 = @node_l1[node]
 
         # if pods are fixed and edge can not be elongated, raise error
-        edge_contains_pods = edge.nodes.any? { |node| node.pod_directions.size > 0 }
-        if edge_contains_pods && !Relaxation.fixation_ignored?
+        #edge_contains_pods = edge.nodes.any? { |node| node.pod_directions.size > 0 }
+        #if edge_contains_pods
           #raise 'Hinge is connected to edge that has a pod.'
-        end
+        #end
 
         elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length
         target_elongation = l1 + l2 + l3_min
@@ -566,6 +568,8 @@ class HingePlacementAlgorithm
 
       relaxation.relax
     end
+
+    Edge.disable_bottle_freeze
   end
 
 end

@@ -8,14 +8,25 @@ require 'src/models/model_storage.rb'
 require 'src/simulation/thingy_rotation.rb'
 
 class Edge < GraphObject
-  attr_reader :first_node, :second_node, :link_type
+  attr_reader :first_node, :second_node, :link_type, :bottle_type
 
-  def initialize(first_node, second_node, model_name: 'hard', id: nil, link_type: 'bottle_link')
+  @@retain_bottle_types = false
+
+  def self.enable_bottle_freeze
+    @@retain_bottle_types = true
+  end
+
+  def self.disable_bottle_freeze
+    @@retain_bottle_types = false
+  end
+
+  def initialize(first_node, second_node, model_name: 'hard', bottle_type: Configuration::BIG_BIG_BOTTLE_NAME, id: nil, link_type: 'bottle_link')
     @first_node = first_node
     @second_node = second_node
     @first_node.add_incident(self)
     @second_node.add_incident(self)
-    @model_name = model_name
+    @bottle_models = ModelStorage.instance.models['hard']
+    @bottle_type = bottle_type
     @link_type = link_type
     edge_id = id.nil? ? IdManager.instance.generate_next_tag_id('edge') : id
     super(edge_id)
@@ -165,7 +176,20 @@ class Edge < GraphObject
     end
   end
 
+  def update_bottle_type
+    model_length = length - 2 * Configuration::MINIMUM_ELONGATION
+    model = @bottle_models.longest_model_shorter_than(model_length)
+    @bottle_type = model.name
+  end
+
   def move
+    if @link_type == 'bottle_link'
+      update_bottle_type unless @@retain_bottle_types
+
+      model = @bottle_models.models[@bottle_type]
+      @thingy.model = model
+    end
+
     @thingy.update_positions(@first_node.position, @second_node.position)
   end
 
@@ -198,9 +222,12 @@ class Edge < GraphObject
   def create_thingy(id)
     case @link_type
     when 'bottle_link'
+      update_bottle_type if @bottle_type.empty?
+
       Link.new(@first_node,
                @second_node,
-               @model_name,
+               'hard',
+               bottle_name: @bottle_type,
                id: id)
     when 'actuator'
       ActuatorLink.new(@first_node,
