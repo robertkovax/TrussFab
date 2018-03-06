@@ -26,7 +26,8 @@ class Link < PhysicsThingy
       raise "#{model_name} does not have a model yet"
     end
 
-    unless bottle_name.empty?
+    if model_name == 'hard'
+      raise 'No bottle type supplied.' if bottle_name.empty?
       @model = ModelStorage.instance.models[model_name].models[bottle_name]
     end
 
