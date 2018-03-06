@@ -453,7 +453,9 @@ class HingePlacementAlgorithm
     @simulation.setup
     @simulation.disable_gravity
     piston = edge.thingy.joint
-    piston.controller = 0.05 #edge.thingy.max if piston
+    # don't extend all the way in order not to break structure
+    # TODO: find a better way to extend actuator without breaking structure
+    piston.controller = edge.thingy.max / 4.0 if piston
     @simulation.start
     @simulation.update_world_headless_by(2)
   end
@@ -549,10 +551,10 @@ class HingePlacementAlgorithm
         l1 = @node_l1[node]
 
         # if pods are fixed and edge can not be elongated, raise error
-        #edge_contains_pods = edge.nodes.any? { |node| node.pod_directions.size > 0 }
-        #if edge_contains_pods
-          #raise 'Hinge is connected to edge that has a pod.'
-        #end
+        edge_contains_pods = edge.nodes.any? { |node| node.pod_directions.size > 0 }
+        if edge_contains_pods
+          raise 'Hinge is connected to edge that has a pod.'
+        end
 
         elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length
         target_elongation = l1 + l2 + l3_min
