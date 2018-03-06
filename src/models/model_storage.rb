@@ -2,6 +2,8 @@ require 'src/models/ball_hub_model.rb'
 require 'src/models/connector_model.rb'
 require 'src/models/bottle_model.rb'
 require 'src/models/actuator_model.rb'
+require 'src/models/spring_model.rb'
+require 'src/models/generic_link_model.rb'
 require 'src/models/pod_model.rb'
 require 'src/models/force_arrow_model.rb'
 require 'src/models/sensor_model.rb'
@@ -37,11 +39,11 @@ class ModelStorage
     end
 
     if @models['generic'].nil? || !@models['generic'].valid?
-      @models['generic'] = ActuatorModel.new
+      @models['generic'] = SpringModel.new
     end
 
     if @models['spring'].nil? || !@models['spring'].valid?
-      @models['spring'] = ActuatorModel.new
+      @models['spring'] = GenericLinkModel.new
     end
 
     if @models['force_arrow'].nil? || !@models['force_arrow'].valid?

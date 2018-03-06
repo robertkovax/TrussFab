@@ -55,7 +55,6 @@ class PhysicsLink < Link
     @joint.solver_model = Configuration::JOINT_SOLVER_MODEL
     @joint.stiffness = Configuration::JOINT_STIFFNESS
     @joint.breaking_force = Configuration::JOINT_BREAKING_FORCE
-    p @joint.class
     @initial_length = case
     when @joint.class <= TrussFab::PointToPointActuator
       @joint.cur_distance
