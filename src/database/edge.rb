@@ -28,6 +28,10 @@ class Edge < GraphObject
     end
   end
 
+  def is_dynamic?
+    thingy.is_a?(PhysicsLink)
+  end
+
   def distance(point)
     # offset to take ball_hub_radius into account
     first_point = position.offset(direction, Configuration::BALL_HUB_RADIUS / 2)
