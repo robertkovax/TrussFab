@@ -12,6 +12,7 @@ class GenericLink < PhysicsLink
     @force = Configuration::GENERIC_LINK_FORCE
     @min_distance = Configuration::GENERIC_LINK_MIN_DISTANCE
     @max_distance = Configuration::GENERIC_LINK_MAX_DISTANCE
+    @limits_enabled = true
 
     persist_entity
   end
@@ -25,13 +26,19 @@ class GenericLink < PhysicsLink
       @joint.force = @force
       @joint.min_distance = @min_distance
       @joint.max_distance = @max_distance
+      @joint.limits_enabled = @limits_enabled
     end
   end
 
   def force=(force)
     @force = force
-    @joint.force = force
-    p @joint.force
-    @joint.update_info
+    unless @joint.nil?
+      @joint.force = force
+      @joint.update_info
+    end
+  end
+
+  def force
+    @force
   end
 end
