@@ -68,6 +68,7 @@ class Relaxation
       edge = @edges.to_a.sample
       # only adapt edge if we still have stuff to do
       deviation = deviation_to_optiomal_length(edge)
+      deviation = 0.0 if edge.is_dynamic?
       next if deviation.abs < CONVERGENCE_DEVIATION
       # add neighbors if we still have edges left to add
       add_edges(edge.incidents) unless @edges.length == number_connected_edges
