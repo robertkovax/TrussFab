@@ -136,8 +136,6 @@ module Configuration
 
   #GenericPointToPoint Properties
   GENERIC_LINK_FORCE = 10
-  GENERIC_LINK_MIN_DISTANCE = -0.2
-  GENERIC_LINK_MAX_DISTANCE = 0.2
 
   # Tension
   TENSION_COLORS = [

@@ -486,6 +486,12 @@ class Simulation
     Graph.instance.nodes.each_value do |node|
       node.thingy.add_force
     end
+    Graph.instance.edges.each_value do |edge|
+      link = edge.thingy
+      if link.is_a?(GenericLink)
+        link.update_force_as_linear_spring
+      end
+    end
   end
 
   def update_world_by(time_step)
