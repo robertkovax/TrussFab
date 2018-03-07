@@ -1,7 +1,7 @@
 require 'src/tools/physics_link_tool.rb'
 
-class ActuatorTool < PhysicsLinkTool
+class GenericPhysicsLinkTool < PhysicsLinkTool
   def initialize(ui)
-    super(ui, 'actuator')
+    super(ui, 'generic')
   end
 end

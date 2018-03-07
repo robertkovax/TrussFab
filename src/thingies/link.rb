@@ -3,14 +3,15 @@ require 'src/thingies/link_entities/bottle_link.rb'
 require 'src/thingies/link_entities/line.rb'
 require 'src/simulation/simulation.rb'
 require 'src/thingies/physics_thingy.rb'
+require 'src/configuration/configuration'
 
 
 class Link < PhysicsThingy
-  attr_accessor :joint
+  attr_accessor :joint, :model
   attr_reader :first_elongation_length, :second_elongation_length,
     :position, :second_position, :loc_up_vec, :first_node, :second_node, :sensor_symbol
 
-  def initialize(first_node, second_node, model_name, id: nil)
+  def initialize(first_node, second_node, model_name, bottle_name: '', id: nil)
     super(id)
 
     @position = first_node.position
@@ -21,7 +22,20 @@ class Link < PhysicsThingy
     @first_node = first_node
     @second_node = second_node
 
-    @model = ModelStorage.instance.models[model_name]
+    @model = nil
+
+    # extract specific bottle model for bottle links
+    if model_name == Configuration::STANDARD_BOTTLES
+      raise 'No bottle type supplied.' if bottle_name.empty?
+      @model = ModelStorage.instance.models[model_name].models[bottle_name]
+    else
+      @model = ModelStorage.instance.models[model_name]
+    end
+
+    if @model.nil?
+      raise "#{model_name} does not have a model yet"
+    end
+
     @first_elongation_length = nil
     @second_elongation_length = nil
 
@@ -51,10 +65,6 @@ class Link < PhysicsThingy
 
   def length
     @position.distance(@second_position)
-  end
-
-  def mid_point
-    Geom::Point3d.linear_combination(0.5, @position, 0.5, @second_position)
   end
 
   def joint_position
@@ -187,12 +197,9 @@ class Link < PhysicsThingy
 
     length = @first_node.position.distance(@second_node.position)
 
-    model_length = length - @first_elongation_length - @second_elongation_length
-    shortest_model = @model.longest_model_shorter_than(model_length)
-
     @first_elongation_length =
       @second_elongation_length =
-      (length - shortest_model.length) / 2
+      (length - @model.length) / 2
 
     direction = @position.vector_to(@second_position)
 
@@ -207,7 +214,7 @@ class Link < PhysicsThingy
     link_position = @position.offset(@first_elongation.direction)
 
     add(@first_elongation,
-        BottleLink.new(link_position, direction, shortest_model),
+        BottleLink.new(link_position, direction, @model),
         Line.new(@position, @second_position, LINK_LINE),
         @second_elongation)
   end

@@ -43,30 +43,30 @@ class Graph
     node
   end
 
-  def create_edge_from_points(first_position, second_position, model_name: 'hard', link_type: 'bottle_link')
+  def create_edge_from_points(first_position, second_position, model_name: 'hard', bottle_type: Configuration::BIG_BIG_BOTTLE_NAME, link_type: 'bottle_link')
     first_node = create_node(first_position)
     second_node = create_node(second_position)
-    create_edge(first_node, second_node, model_name: model_name, link_type: link_type)
+    create_edge(first_node, second_node, model_name: model_name, bottle_type: bottle_type, link_type: link_type)
   end
 
-  def create_edge(first_node, second_node, model_name: 'hard', link_type: 'bottle_link')
+  def create_edge(first_node, second_node, model_name: 'hard', bottle_type: Configuration::BIG_BIG_BOTTLE_NAME, link_type: 'bottle_link')
     nodes = [first_node, second_node]
     edge = find_edge(nodes)
     return edge unless edge.nil?
-    edge = Edge.new(first_node, second_node, model_name: model_name, link_type: link_type)
+    edge = Edge.new(first_node, second_node, model_name: model_name, bottle_type: bottle_type, link_type: link_type)
     create_possible_surfaces(edge)
     @edges[edge.id] = edge
     BottleCounter.update_status_text
     edge
   end
 
-  def create_surface_from_points(first_position, second_position, third_position, model_name: 'hard', link_type: 'bottle_link')
+  def create_surface_from_points(first_position, second_position, third_position, model_name: 'hard', bottle_type: Configuration::BIG_BIG_BOTTLE_NAME, link_type: 'bottle_link')
     first_node = create_node(first_position)
     second_node = create_node(second_position)
     third_node = create_node(third_position)
-    create_edge(first_node, second_node, model_name: model_name, link_type: link_type)
-    create_edge(second_node, third_node, model_name: model_name, link_type: link_type)
-    create_edge(first_node, third_node, model_name: model_name, link_type: link_type)
+    create_edge(first_node, second_node, model_name: model_name, bottle_type: bottle_type, link_type: link_type)
+    create_edge(second_node, third_node, model_name: model_name, bottle_type: bottle_type, link_type: link_type)
+    create_edge(first_node, third_node, model_name: model_name, bottle_type: bottle_type, link_type: link_type)
   end
 
   def create_surface(first_node, second_node, third_node)

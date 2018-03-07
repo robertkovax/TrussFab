@@ -106,6 +106,18 @@ module ProjectHelper
       material.alpha = 1
     end
 
+    unless materials['spring_material']
+      material = materials.add('spring_material')
+      material.color = Configuration::SPRING_COLOR
+      material.alpha = 1
+    end
+
+    unless materials['generic_link_material']
+      material = materials.add('generic_link_material')
+      material.color = Configuration::GENERIC_LINK_COLOR
+      material.alpha = 1
+    end
+
     unless materials['surface_material']
       material = materials.add('surface_material')
       material.color = Configuration::SURFACE_COLOR

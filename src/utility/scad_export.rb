@@ -35,13 +35,13 @@ class ScadExport
       a_l3 = elongation1 - l1 - l2
       b_l3 = elongation2 - l1 - l2
 
-      if (a_l3 < l3_min || b_l3 < l3_min) && hinge.edge1.link_type != 'actuator' && hinge.edge2.link_type != 'actuator'
+      if (a_l3 < l3_min || b_l3 < l3_min) && !hinge.edge1.is_dynamic? && !hinge.edge2.is_dynamic?
         raise "Hinge l3 distance too small: #{a_l3.to_mm}, #{b_l3.to_mm}, #{l3_min.to_mm}."
       end
 
       # actuator edges don't have elongations, so just set l3 to 0
-      a_l3 = 0.0.mm if hinge.edge1.link_type == 'actuator'
-      b_l3 = 0.0.mm if hinge.edge2.link_type == 'actuator'
+      a_l3 = 0.0.mm if hinge.edge1.is_dynamic?
+      b_l3 = 0.0.mm if hinge.edge2.is_dynamic?
 
       # a parts always have connectors
       # b parts only if
@@ -78,13 +78,13 @@ class ScadExport
       if hinge.is_actuator_hinge
         additional_first_params = {}
         additional_second_params = {}
-        if hinge.edge1.link_type == "actuator"
+        if hinge.edge1.is_dynamic?
           a_with_connector = false
           additional_first_params[:hole_size_a] =
             get_appropriate_actuator_hole_size(hinge.edge1, node)
         end
 
-        if hinge.edge2.link_type == "actuator"
+        if hinge.edge2.is_dynamic?
           b_with_connector = false
           additional_second_params[:hole_size_b] =
             get_appropriate_actuator_hole_size(hinge.edge2, node)
