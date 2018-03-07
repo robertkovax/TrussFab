@@ -44,8 +44,8 @@ class Simulation
     @ground_group = nil
     @root_dir = File.join(__dir__, '..')
     @world = nil
-    @re_show_edges = true
-    @re_show_profiles = true
+    @show_edges = true
+    @show_profiles = true
 
     # collections
     @edges = []
@@ -144,16 +144,14 @@ class Simulation
 
     # Setup stuff
     model = Sketchup.active_model
-    re = model.rendering_options
+    rendering_options = model.rendering_options
     model.start_operation('Starting Simulation', true)
     begin
       hide_triangle_surfaces
       add_ground
       assign_unique_materials
-      @re_show_edges = re['EdgeDisplayMode']
-      @re_show_profiles = re['DrawSilhouettes']
-      #re['EdgeDisplayMode'] = false
-      #re['DrawSilhouettes'] = false
+      @show_edges = rendering_options['EdgeDisplayMode']
+      @show_profiles = rendering_options['DrawSilhouettes']
     rescue Exception => err
       model.abort_operation
       raise err
@@ -164,7 +162,7 @@ class Simulation
   # Called when deactivates
   def reset
     model = Sketchup.active_model
-    re = model.rendering_options
+    rendering_options = model.rendering_options
 
     destroy_world
 
@@ -177,8 +175,8 @@ class Simulation
       reset_force_labels
       reset_force_arrows
       reset_sensor_symbols
-      re['EdgeDisplayMode'] = @re_show_edges
-      re['DrawSilhouettes'] = @re_show_profiles
+      rendering_options['EdgeDisplayMode'] = @show_edges
+      rendering_options['DrawSilhouettes'] = @show_profiles
     rescue Exception => err
       model.abort_operation
       raise err
