@@ -4,7 +4,7 @@ require 'src/thingies/hub_entities/pod.rb'
 
 class Node < GraphObject
   attr_accessor :original_position
-  attr_reader :position, :incidents, :pod_directions, :pod_constraints, :adjacent_triangles
+  attr_reader :position, :incidents, :adjacent_triangles
 
   POD_ANGLE_THRESHOLD = 0.2
 
@@ -14,8 +14,6 @@ class Node < GraphObject
     @original_position = position
     @incidents = []             # connected edges
     @adjacent_triangles = []    # connected triangles
-    @pod_directions = {}
-    @pod_constraints = {}
     node_id = id.nil? ? IdManager.instance.generate_next_tag_id('node') : id
     super(node_id)
   end
@@ -48,8 +46,27 @@ class Node < GraphObject
     @thingy.pods
   end
 
+  def pod_export_info
+    export_pods = []
+
+    pods.each do |pod|
+      pod_info = {}
+      pod_info['direction'] = pod.direction
+      pod_info['is_fixed'] = pod.is_fixed
+      export_pods.push(pod_info)
+    end
+
+    export_pods
+  end
+
+  def pod(id)
+    possible_pods = pods.select { |pod| pod.id == id }
+    raise "Node #{@id} does not have exactly one pod" if possible_pods.size != 1
+    possible_pods.first
+  end
+
   def fixed?
-    @pod_constraints.values.any?
+    pods.any? { |pod| pod.is_fixed }
   end
 
   def frozen?
@@ -115,11 +132,12 @@ class Node < GraphObject
     end
     @incidents -= merged_incidents
 
+    # TODO: fix merging of pods
     new_pods = {}
-    @pod_directions.each do |id, direction|
-      constraint = @pod_constraints[id]
-      new_pods[id] = other_node.add_pod(direction, constraint: constraint, id: id)
-    end
+    #@pod_directions.each do |id, direction|
+    #  constraint = @pod_constraints[id]
+    #  new_pods[id] = other_node.add_pod(direction, constraint: true, id: id)
+    #end
 
     merged_adjacent_triangles = []
     @adjacent_triangles.each do |triangle|
@@ -139,37 +157,28 @@ class Node < GraphObject
   end
 
   def find_pod(direction)
-    id, = @pod_directions.find do |_id, other_direction|
-      direction.angle_between(other_direction) <= POD_ANGLE_THRESHOLD
+    id, = pods.find do |pod|
+      direction.angle_between(pod.direction) <= POD_ANGLE_THRESHOLD
     end
     @thingy.pods.find { |pod| pod.id == id }
   end
 
-  def add_pod(direction = nil, constraint: true, id: nil)
+  def add_pod(direction = nil, is_fixed: true, id: nil)
     id = IdManager.instance.generate_next_id if id.nil?
     direction = direction.nil? ? Geometry::Z_AXIS.reverse : direction.normalize
     existing_pod = find_pod(direction)
     unless existing_pod.nil?
-      @pod_constraints[existing_pod.id] |= constraint
       return existing_pod
     end
-    @pod_directions[id] = direction
-    @pod_constraints[id] = constraint
-    @thingy.add_pod(self, @pod_directions[id], id: id)
+    @thingy.add_pod(direction, id: id, is_fixed: is_fixed)
   end
 
   def delete_pod(id)
-    delete_pod_information(id)
     @thingy.delete_sub_thingy(id)
   end
 
-  def delete_pod_information(id)
-    @pod_directions.delete(id)
-    @pod_constraints.delete(id)
-  end
-
   def pod?(id)
-    !@pod_directions[id].nil?
+    pods.any? { |pod| pod.id == id }
   end
 
   def delete

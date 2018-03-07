@@ -2,19 +2,19 @@ require 'src/simulation/simulation.rb'
 
 class Pod < Thingy
 
+  attr_accessor :is_fixed
+
   attr_reader :position, :direction
 
-  attr_reader :node
-
-  def initialize(node, position, direction,
+  def initialize(position, direction, is_fixed: true,
                  id: nil, material: 'elongation_material')
     super(id, material: material)
     @position = position
     @direction = direction
     @model = ModelStorage.instance.models['pod']
-    @node = node
     @direction.length = @model.length
     @entity = create_entity
+    @is_fixed = is_fixed
     persist_entity
   end
 
@@ -27,12 +27,10 @@ class Pod < Thingy
 
   def update_position(position)
     @position = position
-    delete_entity
-    @entity = create_entity
+    @entity.move!(Geom::Transformation.new(position))
   end
 
   def delete
-    @node.delete_pod_information(@id)
     super
   end
 
