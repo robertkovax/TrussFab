@@ -336,6 +336,7 @@ class Simulation
         update_force_labels
         @paused = true
       end
+      @movement_dialog.execute_script("pause_unpause();")
       model.commit_operation
     end
 

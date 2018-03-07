@@ -11,6 +11,8 @@
 <script src="https://d3js.org/d3.v4.js"></script>
 <script>
 
+var paused = false;
+
 var svg = d3.select("svg"),
     margin = {top: 194, right: 50, bottom: 214, left: 50},
     width = +svg.attr("width") - margin.left - margin.right,
@@ -160,6 +162,7 @@ g.append("g")
     .call(d3.axisBottom(x));
 
 function updateData() {
+    if(paused) { return; };
     var line = d3.select("line");
     var old_x = x.invert(line.attr('x1'));
     var new_x = x(1);
@@ -250,6 +253,10 @@ function retract(id) {
 
 function stop(id) {
     sketchup.stop_actuator(id);
+};
+
+function pause_unpause() {
+    paused = !paused;
 };
 
 function update_pistons(id) {
