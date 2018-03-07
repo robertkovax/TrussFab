@@ -155,7 +155,7 @@ class Link < PhysicsThingy
     move_sensor_symbol(pt3)
   end
 
-  def create_joints(world, first_node, second_node)
+  def create_joints(world, first_node, second_node, breaking_force)
     # Associated nodes are to be connected with one joint:
     #   Node A connected to Node B by PointToPoint constraint.
     # The link object in between will not be part of physics simulation.
@@ -166,7 +166,7 @@ class Link < PhysicsThingy
     @joint = TrussFab::PointToPoint.new(world, bd1, bd2, pt1, pt2, nil)
     @joint.solver_model = Configuration::JOINT_SOLVER_MODEL
     @joint.stiffness = Configuration::JOINT_STIFFNESS
-    @joint.breaking_force = Configuration::JOINT_BREAKING_FORCE
+    @joint.breaking_force = breaking_force
   end
 
   def reset_physics
