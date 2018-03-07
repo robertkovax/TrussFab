@@ -8,7 +8,6 @@ class ActuatorLink < PhysicsLink
 
   def initialize(first_node, second_node, id: nil)
     super(first_node, second_node, 'actuator', id: id)
-    p @initial_length
 
     @reduction = Configuration::ACTUATOR_REDUCTION
     @rate = Configuration::ACTUATOR_RATE
