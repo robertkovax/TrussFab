@@ -12,6 +12,8 @@
 <script>
 
 var paused = false;
+var max_x = 5;
+var min_x = 1;
 
 var svg = d3.select("svg"),
     margin = {top: 194, right: 50, bottom: 214, left: 50},
@@ -29,10 +31,6 @@ var x = d3.scaleLinear()
 
 var y = d3.scaleLinear()
     .range([height, 0]);
-
-var line = d3.line()
-    .x(function(d) {return x(d[0])})
-    .y(function(d) {return y(d[1])});
 
 let drag = d3.drag()
     .on('start', dragstarted)
@@ -94,6 +92,21 @@ let dragLine = d3.drag()
         closestRight.distance = Infinity;
     });
 
+let scrub = d3.drag()
+    .on("drag", function(d, i) {
+        var new_x = d3.event.x;
+        if(new_x > x(max_x)) { new_x = x(max_x); }
+        if(new_x < x(min_x)) { new_x = x(min_x); }
+        d3.select(this)
+        .attr('x1', new_x)
+        .attr('x2', new_x);
+    })
+
+// the red vertical line indicating the current progression in the cycle
+var line = d3.line()
+    .x(function(d) {return x(d[0])})
+    .y(function(d) {return y(d[1])});
+
 var brush = d3.brushX()
     .extent([[0, 0], [width, height]])
     .on("start brush", brushed);
@@ -149,13 +162,14 @@ var colors = ['#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
               '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'];
 
 g.append("line")
-.attr("x1", x(1))
+.attr("x1", x(min_x))
 .attr("y1", 0)
-.attr("x2", x(1))
+.attr("x2", x(min_x))
 .attr("y2", 100)
 .style("stroke-width", 2)
 .style("stroke", "red")
-.style("fill", "none");
+.style("fill", "none")
+.call(scrub);
 
 g.append("g")
     .attr("transform", "translate(0," + height + ")")
@@ -165,8 +179,8 @@ function updateData() {
     if(paused) { return; };
     var line = d3.select("line");
     var old_x = x.invert(line.attr('x1'));
-    var new_x = x(1);
-    if (old_x <= 5) {
+    var new_x = x(min_x);
+    if (old_x <= max_x) {
         var new_x = x(old_x + 0.01);
     }
     d3.selectAll("circle").each(function(circle) {
@@ -219,14 +233,12 @@ function distanceBetweenTwoPoints(x1, y1, x2, y2) {
 }
 
 function movePoint(point, x_pos, y_pos, id) {
-    var min = 1;
-    var max = 5;
     var next = getCircleWithID(point[2] + 1, dots[id]);
-    if(!next.empty()) { max = next.data()[0][0] - 0.05; };
+    if(!next.empty()) { max_x = next.data()[0][0] - 0.05; };
     var prev = getCircleWithID(point[2] - 1, dots[id]);
-    if(!prev.empty()) { min = prev.data()[0][0] + 0.05; };
+    if(!prev.empty()) { min_x = prev.data()[0][0] + 0.05; };
 
-    var new_x = Math.min(Math.max(min, x.invert(x_pos)), max);
+    var new_x = Math.min(Math.max(min_x, x.invert(x_pos)), max_x);
     point[0] = new_x;
     return new_x;
 }
