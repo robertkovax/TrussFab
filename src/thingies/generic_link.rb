@@ -48,6 +48,7 @@ class GenericLink < PhysicsLink
   end
 
   def update_force_as_linear_spring
-    self.force = 500 * (@initial_length - @joint.cur_distance) - 50*(@joint.cur_velocity)
+    return unless @joint.valid? # joint becomes invalid when it breaks
+    self.force = 3000 * (@initial_length - @joint.cur_distance) - 50*(@joint.cur_velocity)
   end
 end
