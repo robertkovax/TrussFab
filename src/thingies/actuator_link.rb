@@ -21,7 +21,6 @@ class ActuatorLink < PhysicsLink
   #
   # Physics methods
   #
-
   def update_link_properties
     if @joint && @joint.valid?
       @joint.rate = @rate
