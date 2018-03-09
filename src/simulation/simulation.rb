@@ -492,7 +492,7 @@ class Simulation
 
   def update_forces
     Graph.instance.nodes.each_value do |node|
-      node.thingy.add_force
+      node.thingy.apply_force
     end
   end
 
