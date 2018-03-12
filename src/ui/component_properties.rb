@@ -5,11 +5,11 @@ class ComponentProperties
 
   def add_menu_handler
     UI.add_context_menu_handler do |context_menu|
-      sel = Sketchup.active_model.selection
-      if sel.empty? || !sel.single_object?
-        next
-      end
-      entity = sel.first
+      selection = Sketchup.active_model.selection
+
+      next if selection.empty? || !selection.single_object?
+      
+      entity = selection.first
       type = entity.get_attribute('attributes', :type)
       id = entity.get_attribute('attributes', :id)
 
