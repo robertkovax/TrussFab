@@ -83,8 +83,8 @@ class Triangle < GraphObject
     end
   end
 
-  def contains_actuator?
-    edges.any? { |e| e.link_type == 'actuator' }
+  def is_dynamic?
+    edges.any? { |e| e.is_dynamic? }
   end
 
   def complete?

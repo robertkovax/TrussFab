@@ -161,10 +161,12 @@ module JsonImport
           link_type = 'bottle_link'
         end
 
+        bottle_type = edge_json['bottle_type'].nil? ? '' : edge_json['bottle_type']
         model_name = edge_json['model'].nil? ? 'hard' : edge_json['model']
         edge = Graph.instance.create_edge_from_points(first_position,
                                                       second_position,
                                                       model_name: model_name,
+                                                      bottle_type: bottle_type,
                                                       link_type: link_type)
 
         edges[edge_json['id']] = edge

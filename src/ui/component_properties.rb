@@ -16,20 +16,42 @@ class ComponentProperties
       case type
       when 'ActuatorLink'
         actuator = Graph.instance.edges[id].thingy
-        add_piston_menu(context_menu, actuator, 'html/piston.erb')
+        @actuator = actuator
+        add_actuator_menu(context_menu,
+                          'erb/piston_dialog.erb',
+                          'TrussFab Piston Properties')
+      when 'SpringLink'
+        spring = Graph.instance.edges[id].thingy
+        @spring = spring
+        add_spring_menu(context_menu,
+                        'erb/spring_dialog.erb',
+                        'TrussFab Spring Properties')
+      when 'GenericLink'
+        generic_link = Graph.instance.edges[id].thingy
+        @generic_link = generic_link
+        add_generic_link_menu(context_menu,
+                              'erb/generic_link_dialog.erb',
+                              'TrussFab Generic Link Properties')
       end
-
-      # type_name = entity.get_attribute(Configuration::DICTIONARY_NAME, :type)
-      # id = entity.get_attribute(Configuration::DICTIONARY_NAME, :id)
 
     end
   end
 
-  def add_piston_menu(context_menu, actuator, erb_file)
-    context_menu.add_item("TrussFab Piston Properties") {
-      @actuator = actuator
-      @title = "TrussFab Piston Properties"
-      show_dialog(erb_file, @title, Configuration::UI_WIDTH, 400)
+  def add_actuator_menu(context_menu, erb_file, title)
+    context_menu.add_item(title) {
+      show_actuator_dialog(erb_file, title, Configuration::UI_WIDTH, 400)
+    }
+  end
+
+  def add_spring_menu(context_menu, erb_file, title)
+    context_menu.add_item(title) {
+      show_spring_dialog(erb_file, title, Configuration::UI_WIDTH, 400)
+    }
+  end
+
+  def add_generic_link_menu(context_menu, erb_file, title)
+    context_menu.add_item(title) {
+      show_generic_link_dialog(erb_file, title, Configuration::UI_WIDTH, 400)
     }
   end
 
@@ -37,14 +59,6 @@ class ComponentProperties
                   name,
                   width = Configuration::UI_WIDTH,
                   height = Configuration::UI_HEIGHT)
-
-    #close old window
-    unless @dialog.nil?
-      if @dialog.visible?
-        @dialog.close
-      end
-    end
-
     properties = {
       :dialog_title => name,
       :scrollable => false,
@@ -54,15 +68,38 @@ class ComponentProperties
       :style => UI::HtmlDialog::STYLE_DIALOG
     }.freeze
 
-    @dialog = UI::HtmlDialog.new(properties)
-    @dialog.set_size(width, height)
+    dialog = UI::HtmlDialog.new(properties)
+    dialog.set_size(width, height)
 
     @location = File.dirname(__FILE__)
-    @dialog.set_html(render(file))
+    dialog.set_html(render(file))
 
-    @dialog.show
+    dialog.show
+    dialog
+  end
 
-    register_callbacks
+  def show_actuator_dialog(file,
+                           name,
+                           width = Configuration::UI_WIDTH,
+                           height = Configuration::UI_HEIGHT)
+    dialog = show_dialog(file, name, width, height)
+    register_actuator_callbacks(@actuator, dialog)
+  end
+
+  def show_spring_dialog(file,
+                         name,
+                         width = Configuration::UI_WIDTH,
+                         height = Configuration::UI_HEIGHT)
+    dialog = show_dialog(file, name, width, height)
+    register_spring_callbacks(@spring, dialog)
+  end
+
+  def show_generic_link_dialog(file,
+                               name,
+                               width = Configuration::UI_WIDTH,
+                               height = Configuration::UI_HEIGHT)
+    dialog = show_dialog(file, name, width, height)
+    register_generic_link_callbacks(@generic_link, dialog)
   end
 
   def render(path)
@@ -71,25 +108,63 @@ class ComponentProperties
     t.result(binding)
   end
 
-  def register_callbacks
+  def register_actuator_callbacks(actuator, dialog)
     # pistons
-    @dialog.add_action_callback('set_damping') do |dialog, param|
-      @actuator.reduction = param.to_f
-      @actuator.update_piston
+    dialog.add_action_callback('set_damping') do |dialog, param|
+      actuator.reduction = param.to_f
+      actuator.update_link_properties
     end
-    @dialog.add_action_callback('set_rate') do |dialog, param|
-      @actuator.rate = param.to_f
-      @actuator.update_piston
+    dialog.add_action_callback('set_rate') do |dialog, param|
+      actuator.rate = param.to_f
+      actuator.update_link_properties
     end
-    @dialog.add_action_callback('set_power') do |dialog, param|
-      @actuator.power = param.to_f
-      @actuator.update_piston
+    dialog.add_action_callback('set_power') do |dialog, param|
+      actuator.power = param.to_f
+      actuator.update_link_properties
     end
-    @dialog.add_action_callback('set_min') do |dialog, param|
-      @actuator.min = param.to_f
+    dialog.add_action_callback('set_min') do |dialog, param|
+      actuator.min = param.to_f
+      actuator.update_link_properties
     end
-    @dialog.add_action_callback('set_max') do |dialog, param|
-      @actuator.max = param.to_f
+    dialog.add_action_callback('set_max') do |dialog, param|
+      actuator.max = param.to_f
+      actuator.update_link_properties
+    end
+  end
+
+  def register_spring_callbacks(spring, dialog)
+    # pistons
+    dialog.add_action_callback('set_stroke_length') do |dialog, param|
+      spring.stroke_length = param.to_f
+      spring.update_link_properties
+    end
+    dialog.add_action_callback('set_extended_force') do |dialog, param|
+      spring.extended_force = param.to_f
+      spring.update_link_properties
+    end
+    dialog.add_action_callback('set_threshold') do |dialog, param|
+      spring.threshold = param.to_f
+      spring.update_link_properties
+    end
+    dialog.add_action_callback('set_damping') do |dialog, param|
+      spring.damp = param.to_f
+      spring.update_link_properties
+    end
+  end
+
+  def register_generic_link_callbacks(link, dialog)
+    # pistons
+    dialog.add_action_callback('set_force') do |dialog, param|
+      link.force = param.to_f
+      link.update_link_properties
+    end
+    dialog.add_action_callback('set_min') do |dialog, param|
+      link.min_distance = param.to_f
+      link.update_link_properties
+    end
+    dialog.add_action_callback('set_max') do |dialog, param|
+      link.max_distance = param.to_f
+      link.update_link_properties
     end
   end
 end

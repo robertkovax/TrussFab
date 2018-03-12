@@ -87,6 +87,8 @@ module Configuration
   STANDARD_COLOR            = Sketchup::Color.new(0.5, 0.5, 0.5)
   BOTTLE_COLOR              = Sketchup::Color.new(114, 183,  99)
   ACTUATOR_COLOR            = Sketchup::Color.new(1.0, 1.0, 1.0)
+  SPRING_COLOR              = Sketchup::Color.new(1.0, 0.64, 0.0)
+  GENERIC_LINK_COLOR        = Sketchup::Color.new(0.72, 1.0, 0.0)
   HIGHLIGHT_COLOR           = Sketchup::Color.new(1.0, 1.0, 1.0)
   SURFACE_COLOR             = Sketchup::Color.new(1.0, 1.0, 1.0)
   SURFACE_HIGHLIGHT_COLOR   = Sketchup::Color.new(0.5, 0.5, 0.5)
@@ -125,6 +127,17 @@ module Configuration
   ACTUATOR_MIN          = -0.2 # in meters
   ACTUATOR_MAX          = 0.2 # in meters
   ACTUATOR_INIT_DIST    = 0.4
+
+  # PointToPointGasSpring Properties
+  SPRING_STROKE_LENGTH = 0.2
+  SPRING_EXTENDED_FORCE = 20
+  SPRING_THRESHOLD = 0.015
+  SPRING_DAMP = 10
+
+  #GenericPointToPoint Properties
+  GENERIC_LINK_FORCE = 10
+  GENERIC_LINK_MIN_DISTANCE = -0.2
+  GENERIC_LINK_MAX_DISTANCE = 0.2
 
   # Tension
   TENSION_COLORS = [

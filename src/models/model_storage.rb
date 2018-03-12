@@ -2,8 +2,11 @@ require 'src/models/ball_hub_model.rb'
 require 'src/models/connector_model.rb'
 require 'src/models/bottle_model.rb'
 require 'src/models/actuator_model.rb'
+require 'src/models/spring_model.rb'
+require 'src/models/generic_link_model.rb'
 require 'src/models/pod_model.rb'
 require 'src/models/force_arrow_model.rb'
+require 'src/models/weight_indicator_model.rb'
 require 'src/models/sensor_model.rb'
 
 class ModelStorage
@@ -36,8 +39,20 @@ class ModelStorage
       @models['actuator'] = ActuatorModel.new
     end
 
+    if @models['generic'].nil? || !@models['generic'].valid?
+      @models['generic'] = SpringModel.new
+    end
+
+    if @models['spring'].nil? || !@models['spring'].valid?
+      @models['spring'] = GenericLinkModel.new
+    end
+
     if @models['force_arrow'].nil? || !@models['force_arrow'].valid?
       @models['force_arrow'] = ForceArrowModel.new
+    end
+
+    if @models['weight_indicator'].nil? || !@models['weight_indicator'].valid?
+      @models['weight_indicator'] = WeightIndicatorModel.new
     end
 
     if @models['sensor'].nil? || !@models['sensor'].valid?
