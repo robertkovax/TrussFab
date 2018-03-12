@@ -1,6 +1,6 @@
 class ActuatorMenu
   def initialize
-    @HTML_FILE = '../html/actuator-menu.html'
+    @HTML_FILE = '../html/actuator_menu.html'
   end
 
   def open_dialog

@@ -31,3 +31,14 @@ button {
 button + button {
   margin-top: 2px;
 }
+
+input[type='range'] {
+  margin-top: 60px;
+  margin-right: -100px;
+  transform: rotate(270deg);
+  -moz-transform: rotate(270deg);
+}
+
+#manual {
+  margin-left: -40px;
+}
