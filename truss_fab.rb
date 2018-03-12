@@ -28,27 +28,36 @@ require ext_fpath
 # Require the main files
 require 'src/configuration/configuration'
 require 'src/utility/project_helper'
+
+# ui files
+require 'src/ui/dialogs/actuator_menu'
 require 'src/ui/dialogs/sidebar'
 require 'src/ui/component_properties'
+
+# reloader helper
 require 'reloader'
 
 module TrussFab
 
   @reloader = Reloader.new
-  @ui = Sidebar.new
+  @sidebar = Sidebar.new
+  @actuator_menu = ActuatorMenu.new
 
   class << self
 
     def start
-      @ui.open_dialog
+      @sidebar.open_dialog
+      @actuator_menu.open_dialog
     end
 
     def stop
-      @ui.close_dialog
+      @sidebar.close_dialog
+      @actuator_menu.close_dialog
     end
 
     def refresh_ui
-      @ui.refresh
+      @sidebar.refresh
+      @actuator_menu.refresh
     end
 
     def reload

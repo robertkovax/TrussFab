@@ -11,15 +11,16 @@ class Sidebar
   end
 
   def open_dialog
-    num_icons_in_row = 4
-    icon_width = 70
-    general_spacing = 2
-    width =
-      num_icons_in_row * icon_width +
-      num_icons_in_row * general_spacing * 2 +
-      general_spacing * 2 +
-      general_spacing * 2
+    # num_icons_in_row = 4
+    # icon_width = 70
+    # general_spacing = 2
+    # width =
+    #   num_icons_in_row * icon_width +
+    #   num_icons_in_row * general_spacing * 2 +
+    #   general_spacing * 2 +
+    #   general_spacing * 2
 
+    width = 240
     height = 740
 
     props = {
