@@ -19,4 +19,11 @@ $(function () {
   $('button').click(function (event) {
     return buttonClicked(event.currentTarget.id);
   });
+
+  // this forces that always one card is not collapsed
+  $('.card-header a').click(function (e) {
+    if (!$(this).hasClass('collapsed')) {
+      e.stopPropagation();
+    }
+  });
 });
