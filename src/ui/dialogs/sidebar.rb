@@ -3,6 +3,7 @@ ProjectHelper.require_multiple('src/tools/*.rb')
 class Sidebar
   def initialize
     @tools = {}
+    @HTML_FILE = '../html/sidebar.html'
   end
 
   def deselect_tool
@@ -34,7 +35,7 @@ class Sidebar
     }
 
     @dialog = UI::HtmlDialog.new(props)
-    file = File.join(File.dirname(__FILE__), '../html/sidebar.html')
+    file = File.join(File.dirname(__FILE__), @HTML_FILE)
     @dialog.set_file(file)
     # @dialog.set_siSkeze(Configuration::UI_WIDTH, Configuration::UI_HEIGHT)
     @dialog.set_position(0, 0)
@@ -63,7 +64,7 @@ class Sidebar
   end
 
   def refresh
-    file = File.join(File.dirname(__FILE__), '/html/index.html')
+    file = File.join(File.dirname(__FILE__), @HTML_FILE)
     @dialog.set_file(file)
   end
 

@@ -45,9 +45,10 @@ class Reloader
     src_path = File.join(__dir__, 'src')
     file_pattern_js = File.join(src_path, '**', '*.js')
     file_pattern_html = File.join(src_path, '**', '*.html')
+    file_pattern_erb = File.join(src_path, '**', '*.erb')
     file_pattern_css = File.join(src_path, '**', '*.css')
 
-    Dir.glob([file_pattern_js, file_pattern_html, file_pattern_css]).reject {|fn| fn.include? 'node_modules'}
+    Dir.glob([file_pattern_js, file_pattern_html, file_pattern_erb, file_pattern_css]).reject {|fn| fn.include? 'node_modules'}
   end
 
   def find_changed_frontend_file
