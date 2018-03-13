@@ -551,9 +551,9 @@ class HingePlacementAlgorithm
         l1 = @node_l1[node]
 
         # if pods are fixed and edge can not be elongated, raise error
-        edge_contains_pods = edge.nodes.any? { |node| node.pod_directions.size > 0 }
-        if edge_contains_pods
-          raise 'Hinge is connected to edge that has a pod.'
+        edge_fixed = edge.nodes.any? { |node| node.fixed? }
+        if edge_fixed
+          raise "#{edge.inspect} is fixed, e.g. by a pod, but needs to be elongated since a hinge connects to it."
         end
 
         elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length

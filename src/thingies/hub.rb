@@ -21,8 +21,8 @@ class Hub < PhysicsThingy
     persist_entity
   end
 
-  def add_pod(node, direction, id: nil)
-    pod = Pod.new(node, @position, direction, id: id)
+  def add_pod(direction, id: nil, is_fixed: true)
+    pod = Pod.new(@position, direction, id: id, is_fixed: is_fixed)
     add(pod)
     pod
   end
@@ -62,6 +62,7 @@ class Hub < PhysicsThingy
     move_force_arrow(position)
     move_weight_indicator(position)
     move_sensor_symbol(position)
+    pods.each { |pod| pod.update_position(position) }
   end
 
   def move_force_arrow(position)
@@ -80,6 +81,7 @@ class Hub < PhysicsThingy
     reset_force_arrow_position
     reset_weight_indicator_position
     reset_sensor_symbol_position
+    pods.each { |pod| pod.update_position(@position) }
   end
 
   def reset_force_arrow_position
@@ -166,7 +168,7 @@ class Hub < PhysicsThingy
     @body.kinetic_friction = Configuration::BODY_KINETIC_FRICITON
     @body.elasticity = Configuration::BODY_ELASTICITY
     @body.softness = Configuration::BODY_SOFTNESS
-    @body.static = pods?
+    @body.static = pods.any? { |pod| pod.is_fixed }
     @body
   end
 
