@@ -178,6 +178,11 @@ class Link < PhysicsThingy
   # Subthingy methods
   #
 
+  def connect_to_hub
+    @first_elongation.show
+    @second_elongation.show
+  end
+
   def disconnect_from_hub(is_first_joint)
     if is_first_joint
       @first_elongation.hide
