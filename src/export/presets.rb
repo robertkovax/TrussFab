@@ -20,7 +20,7 @@ module PRESETS
   # the default l2
   L2 = 40.mm # gap sized derived from this value
 
-  L3_MIN = 10.mm
+  L3_MIN = 6.mm
 
   SIMPLE_HINGE_OPENSCAD = {
     l2: L2,
