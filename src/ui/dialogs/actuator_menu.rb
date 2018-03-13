@@ -32,7 +32,6 @@ class ActuatorMenu
     # @dialog.set_siSkeze(Configuration::UI_WIDTH, Configuration::UI_HEIGHT)
     @dialog.set_position(left, top)
     @dialog.show
-    @dialog.add_action_callback('documentReady') { register_callbacks }
 
     register_callbacks
 
@@ -53,6 +52,14 @@ class ActuatorMenu
     puts 'register callbacks called'
     @dialog.add_action_callback('toggle_simulation') do |_context|
       @simulation_tool.toggle
+    end
+
+    @dialog.add_action_callback('restart_simulation') do |_context|
+      @simulation_tool.restart
+    end
+
+    @dialog.add_action_callback('toggle_pause_simulation') do |_context|
+      @simulation_tool.toggle_pause
     end
   end
 end

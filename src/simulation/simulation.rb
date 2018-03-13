@@ -333,28 +333,9 @@ class Simulation
     end
 
     @dialog.add_action_callback('play_pause_simulation') do |_context|
-      model = Sketchup.active_model
-      model.start_operation('Toggle Force Labeles', true)
-      if @paused
-        reset_force_labels
-        start
-      else
-        update_force_labels
-        @paused = true
-      end
-      @movement_dialog.execute_script("pause_unpause();")
-      model.commit_operation
+
     end
 
-    @dialog.add_action_callback('restart_simulation') do |_context|
-      @sensors.each do |sensor|
-        @sensor_dialog.execute_script("resetChart(#{sensor.id})") unless @sensor_dialog.nil?
-      end
-      reset
-      @dialog.execute_script("reset_sliders()")
-      setup
-      start
-    end
 
     @dialog.add_action_callback('change_highest_force_mode') do |_context, param|
       @highest_force_mode = param
@@ -583,6 +564,30 @@ class Simulation
 
   def stopped?
     @stopped
+  end
+
+  def toggle_pause
+    model = Sketchup.active_model
+    model.start_operation('Toggle Force Labeles', true)
+    if @paused
+      reset_force_labels
+      start
+    else
+      update_force_labels
+      @paused = true
+    end
+    # @movement_dialog.execute_script("pause_unpause();")
+    model.commit_operation
+  end
+
+  def restart
+    @sensors.each do |sensor|
+      @sensor_dialog.execute_script("resetChart(#{sensor.id})") unless @sensor_dialog.nil?
+    end
+    reset
+    @dialog.execute_script("reset_sliders()")
+    setup
+    start
   end
 
   def reset_positions

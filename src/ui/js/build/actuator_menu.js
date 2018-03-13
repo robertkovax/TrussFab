@@ -19,8 +19,15 @@ function onInput(id, newValue) {
 }
 
 function toggleSimulation() {
-  console.log('start simulation');
   sketchup.toggle_simulation();
+}
+
+function togglePauseSimulation() {
+  sketchup.toggle_pause_simulation();
+}
+
+function restartSimulation() {
+  sketchup.restart_simulation();
 }
 
 function onClick(id) {
@@ -62,8 +69,8 @@ function release_force() {
 }
 
 $(function () {
-  $('.start-button').click(function () {
-    return toggleSimulation();
-  });
+  $('.start-button').click(toggleSimulation);
+  $('.pause-button').click(togglePauseSimulation);
+  $('.restart-button').click(restartSimulation);
   // startSimulation();
 });

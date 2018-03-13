@@ -42,6 +42,16 @@ class SimulationTool < Tool
     end
   end
 
+  def toggle_pause
+    return if @simulation.nil?
+    @simulation.toggle_pause
+  end
+
+  def restart
+    return if @simulation.nil?
+    @simulation.restart
+  end
+
   def apply_force(view)
     return unless @moving
     @start_position = @node.thingy.body.get_position(1)
