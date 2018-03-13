@@ -18,9 +18,9 @@ function onInput(id, newValue) {
   // sketchup.change_piston(id, newValue);
 }
 
-function startSimulation() {
+function toggleSimulation() {
   console.log('start simulation');
-  sketchup.start_simulation();
+  sketchup.toggle_simulation();
 }
 
 function onClick(id) {
@@ -62,6 +62,6 @@ function release_force() {
 }
 
 $(() => {
-  $('.start-button').click(() => startSimulation());
+  $('.start-button').click(() => toggleSimulation());
   // startSimulation();
 });

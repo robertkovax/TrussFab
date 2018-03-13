@@ -581,6 +581,10 @@ class Simulation
     halt
   end
 
+  def stopped?
+    @stopped
+  end
+
   def reset_positions
     @saved_transformations.each do |entity, transformation|
       entity.move!(transformation) if entity.valid?
@@ -958,5 +962,7 @@ class Simulation
   def reset_force_labels
     @force_labels.each { |link, label| label.text = "" }
   end
+
+
 
 end # Simulation

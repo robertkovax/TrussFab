@@ -25,15 +25,21 @@ class SimulationTool < Tool
     @simulation.start
   end
 
-  def deactivate(view)
-    view.animation = nil
+  def deactivate
+    @simulation.stop
     @simulation.reset
     @simulation.close_piston_dialog
     @simulation.close_sensor_dialog
     @simulation.close_automatic_movement_dialog
     @simulation = nil
-    super
-    view.invalidate
+  end
+
+  def toggle
+    if @simulation.nil? || @simulation.stopped?
+      activate
+    else
+      deactivate
+    end
   end
 
   def apply_force(view)
