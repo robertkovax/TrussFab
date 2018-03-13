@@ -1,8 +1,12 @@
 require 'src/tools/tool.rb'
 require 'src/utility/mouse_input.rb'
 require 'src/simulation/simulation.rb'
+require 'src/configuration/configuration.rb'
 
 class SimulationTool < Tool
+
+  attr_reader :simulation
+
   def initialize(ui = nil)
     super(ui)
     @mouse_input = MouseInput.new(snap_to_nodes: true, snap_to_edges: true, should_highlight: false)
@@ -114,6 +118,50 @@ class SimulationTool < Tool
       @force.text = force_value
       @force.point = point
     end
+  end
+
+  # Simulation Getters
+  def get_pistons
+    @simulation.pistons
+  end
+
+  def get_breaking_force
+    @simulation.breaking_force
+  end
+
+  def get_max_speed
+    @simulation.max_speed
+  end
+
+ def change_piston_value(id, value)
+    actuator = @simulation.pistons[id.to_i]
+    if actuator.joint && actuator.joint.valid?
+      actuator.joint.controller = (value.to_f - Configuration::ACTUATOR_INIT_DIST) * (actuator.max - actuator.min)
+    end
+  end
+
+  def test_piston(id)
+    @simulation.moving_pistons.push({:id=>id.to_i, :expanding=>true, :speed=>0.2})
+  end
+
+  def set_breaking_force(param)
+    breaking_force = param.to_f
+    breaking_force_invh = (breaking_force > 1.0e-6) ? (0.5.fdiv(breaking_force)) : 0.0
+    Graph.instance.edges.each_value { |edge|
+      link = edge.thingy
+      if link.is_a?(Link) && link.joint && link.joint.valid?
+        link.joint.breaking_force = breaking_force
+      end
+    }
+    @simulation.breaking_force = breaking_force
+  end
+
+  def set_max_speed(param)
+    @simulation.max_speed = param.to_f
+  end
+
+  def change_highest_force_mode(param)
+    @simulation.highest_force_mode = param
   end
 
 end

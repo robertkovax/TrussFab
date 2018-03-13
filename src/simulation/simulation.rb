@@ -3,6 +3,10 @@ require 'src/ui/dialogs/force_chart.rb'
 require 'erb'
 
 class Simulation
+
+  attr_reader :pistons, :moving_pistons
+  attr_accessor :breaking_force, :max_speed, :highest_force_mode
+
   class << self
 
     def create_body(world, entity, collision_type = :box)
@@ -306,41 +310,7 @@ class Simulation
     @dialog.show
 
     # Callbacks
-    @dialog.add_action_callback('change_piston') do |_context, id, value|
-      actuator = @pistons[id.to_i]
-      if actuator.joint && actuator.joint.valid?
-        actuator.joint.controller = (value.to_f - Configuration::ACTUATOR_INIT_DIST) * (actuator.max - actuator.min)
-      end
-    end
-
-    @dialog.add_action_callback('test_piston') do |_context, id|
-      @moving_pistons.push({:id=>id.to_i, :expanding=>true, :speed=>0.2})
-    end
-
-    @dialog.add_action_callback('set_breaking_force') do |_context, param|
-      @breaking_force = param.to_f
-      @breaking_force_invh = (@breaking_force > 1.0e-6) ? (0.5.fdiv(@breaking_force)) : 0.0
-      Graph.instance.edges.each_value { |edge|
-        link = edge.thingy
-        if link.is_a?(Link) && link.joint && link.joint.valid?
-          link.joint.breaking_force = @breaking_force
-        end
-      }
-    end
-
-    @dialog.add_action_callback('set_max_speed') do |_context, param|
-      @max_speed = param.to_f
-    end
-
-    @dialog.add_action_callback('play_pause_simulation') do |_context|
-
-    end
-
-
-    @dialog.add_action_callback('change_highest_force_mode') do |_context, param|
-      @highest_force_mode = param
-    end
-
+  
     @dialog.add_action_callback('apply_force') do |_context|
       @generic_links.each_value do |generic_link|
         generic_link.force = 50

@@ -1,21 +1,44 @@
 'use strict';
 
-function addActuator(id) {
-  console.log('test');
-  var slider = $('<input id="' + id + '" type="range" min="0" max="1" value="0.5" step="0.01">');
+function showManualActuatorSettings(pistons, breakingForce, maxSpeed) {
+  $('#manual').empty();
+  pistons.forEach(function (pistonId) {
+    var pistonElement = $('<input type="range" min="0" max="1" value="0.5" step="0.01">');
+    pistonElement.on('input', function (event) {
+      return changePistonValue(pistonId, event.currentTarget.value);
+    });
+    $('#manual').append(pistonElement);
 
-  slider.on('change', function () {
-    onInput(id, this.value);
+    var pistonTestButton = $('<button>Test</button>');
+
+    pistonTestButton.click(function () {
+      return testPiston(pistonId);
+    });
+
+    $('#manual').append(pistonTestButton);
   });
 
-  $('#manual').append(slider);
-}
+  var breakingForceElement = $('<input type="number" min = "0" value="' + breakingForce + '" step="1"> N');
+  breakingForceElement.on('change', function (event) {
+    return setBreakingForce(event.currentTarget.value);
+  });
 
-function removeActuator(id) {}
+  $('#manual').append(breakingForceElement);
 
-function onInput(id, newValue) {
-  console.log(id, newValue);
-  // sketchup.change_piston(id, newValue);
+  var maxSpeedElement = $('<input type="number" min = "0" value="' + maxSpeed + '" step="1"> m/s');
+  maxSpeedElement.on('change', function (event) {
+    return setMaxSpeed(event.currentTarget.value);
+  });
+
+  $('#manual').append(maxSpeedElement);
+
+  var highestForceModeElement = $('<input id="force_mode_checkbox" type="checkbox"">');
+
+  highestForceModeElement.on('change', function (event) {
+    return changeHighestForceMode(event.currentTarget.checked);
+  });
+
+  $('#manual').append(highestForceModeElement);
 }
 
 function toggleSimulation() {
@@ -30,28 +53,24 @@ function restartSimulation() {
   sketchup.restart_simulation();
 }
 
-function onClick(id) {
+function changePistonValue(id, newValue) {
+  sketchup.change_piston_value(id, newValue);
+}
+
+function testPiston(id) {
   sketchup.test_piston(id);
 }
 
-function set_breaking_force(value) {
+function setBreakingForce(value) {
   sketchup.set_breaking_force(value);
 }
 
-function set_max_speed(value) {
+function setMaxSpeed(value) {
   sketchup.set_max_speed(value);
 }
 
-function play_pause_simulation() {
-  sketchup.play_pause_simulation();
-}
-
-function restart_simulation() {
-  sketchup.restart_simulation();
-}
-
-function change_highest_force_mode() {
-  sketchup.change_highest_force_mode(force_mode_checkbox.checked);
+function changeHighestForceMode(checked) {
+  sketchup.change_highest_force_mode(checked);
 }
 
 // function reset_sliders() {

@@ -51,9 +51,17 @@ class ActuatorMenu
   def register_callbacks
     puts 'register callbacks called'
     @dialog.add_action_callback('toggle_simulation') do |_context|
-      @simulation_tool.toggle
+      if @simulation_tool.simulation.nil? || @simulation_tool.simulation.stopped?
+        @simulation_tool.activate
+        pistons = @simulation_tool.get_pistons
+        breaking_force = @simulation_tool.get_breaking_force
+        max_speed = @simulation_tool.get_max_speed
+        @dialog.execute_script("showManualActuatorSettings(#{pistons.keys}, #{breaking_force}, #{max_speed})")
+      else
+        @simulation_tool.deactivate
+      end
     end
-
+    
     @dialog.add_action_callback('restart_simulation') do |_context|
       @simulation_tool.restart
     end
@@ -61,5 +69,26 @@ class ActuatorMenu
     @dialog.add_action_callback('toggle_pause_simulation') do |_context|
       @simulation_tool.toggle_pause
     end
+
+    @dialog.add_action_callback('change_piston_value') do |_context, id, new_value|
+      @simulation_tool.change_piston_value(id, new_value)
+    end
+
+    @dialog.add_action_callback('test_piston') do |_context, id|
+      @simulation_tool.test_piston(id)
+    end
+
+    @dialog.add_action_callback('set_breaking_force') do |_context, value|
+      @simulation_tool.set_breaking_force(value)
+    end
+
+    @dialog.add_action_callback('set_max_speed') do |_context, value|
+      @simulation_tool.set_max_speed(value)
+    end
+
+    @dialog.add_action_callback('change_highest_force_mode') do |_context, checked|
+      @simulation_tool.change_highest_force_mode(checked)
+    end
+
   end
 end
