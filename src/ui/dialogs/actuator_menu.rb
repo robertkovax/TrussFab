@@ -55,6 +55,8 @@ class ActuatorMenu
 
     Sketchup.active_model.select_tool(@simulation_tool)
 
+    # TODO UPate clyce
+
     pistons = @simulation_tool.get_pistons
     breaking_force = @simulation_tool.get_breaking_force
     max_speed = @simulation_tool.get_max_speed

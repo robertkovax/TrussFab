@@ -1,11 +1,13 @@
 'use strict';
 
+console.log('cycl desinger called');
+
 var paused = false;
 var max_x = 5;
 var min_x = 1;
 
 var svg = d3.select('svg'),
-    margin = { top: 194, right: 50, bottom: 214, left: 50 },
+    margin = { top: 10, right: 10, bottom: 10, left: 10 },
     width = +svg.attr('width') - margin.left - margin.right,
     height = +svg.attr('height') - margin.top - margin.bottom,
     g = svg.append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
