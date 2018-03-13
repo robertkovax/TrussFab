@@ -44,8 +44,8 @@ class Simulation
     @ground_group = nil
     @root_dir = File.join(__dir__, '..')
     @world = nil
-    @re_show_edges = false
-    @re_show_profiles = false
+    @show_edges = true
+    @show_profiles = true
 
     # collections
     @edges = []
@@ -144,16 +144,14 @@ class Simulation
 
     # Setup stuff
     model = Sketchup.active_model
-    re = model.rendering_options
+    rendering_options = model.rendering_options
     model.start_operation('Starting Simulation', true)
     begin
       hide_triangle_surfaces
       add_ground
       assign_unique_materials
-      @re_show_edges = re['EdgeDisplayMode']
-      @re_show_profiles = re['DrawSilhouettes']
-      #re['EdgeDisplayMode'] = false
-      #re['DrawSilhouettes'] = false
+      @show_edges = rendering_options['EdgeDisplayMode']
+      @show_profiles = rendering_options['DrawSilhouettes']
     rescue Exception => err
       model.abort_operation
       raise err
@@ -164,7 +162,7 @@ class Simulation
   # Called when deactivates
   def reset
     model = Sketchup.active_model
-    re = model.rendering_options
+    rendering_options = model.rendering_options
 
     destroy_world
 
@@ -177,8 +175,8 @@ class Simulation
       reset_force_labels
       reset_force_arrows
       reset_sensor_symbols
-      re['EdgeDisplayMode'] = @re_show_edges
-      re['DrawSilhouettes'] = @re_show_profiles
+      rendering_options['EdgeDisplayMode'] = @show_edges
+      rendering_options['DrawSilhouettes'] = @show_profiles
     rescue Exception => err
       model.abort_operation
       raise err
@@ -190,7 +188,7 @@ class Simulation
 
   def create_joints
     Graph.instance.edges.each_value do |edge|
-      edge.create_joints(@world)
+      edge.create_joints(@world, @breaking_force)
     end
   end
 
@@ -346,6 +344,16 @@ class Simulation
       model.commit_operation
     end
 
+    @dialog.add_action_callback('restart_simulation') do |_context|
+      @sensors.each do |sensor|
+        @sensor_dialog.execute_script("resetChart(#{sensor.id})") unless @sensor_dialog.nil?
+      end
+      reset
+      @dialog.execute_script("reset_sliders()")
+      setup
+      start
+    end
+
     @dialog.add_action_callback('change_highest_force_mode') do |_context, param|
       @highest_force_mode = param
     end
@@ -484,7 +492,7 @@ class Simulation
 
   def update_forces
     Graph.instance.nodes.each_value do |node|
-      node.thingy.add_force
+      node.thingy.apply_force
     end
   end
 

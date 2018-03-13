@@ -56,6 +56,7 @@ class UserInteraction
     build_tool(PodTool, 'pod_tool')
     build_tool(SensorTool, 'sensor_tool')
     build_tool(SimulationTool, 'simulation_tool')
+    build_tool(AddForceTool, 'add_force_tool')
     build_tool(AddWeightTool, 'add_weight_tool')
     build_tool(ActuatorTool, 'actuator_tool')
     build_tool(SpringTool, 'spring_tool')
