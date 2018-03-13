@@ -13,6 +13,7 @@ class Hub < PhysicsThingy
     @entity = create_entity
     @id_label = nil
     @mass = 0
+    @force = Geom::Vector3d.new(0, 0, 0)
     @arrow = nil
     @sensor_symbol = nil
     @is_sensor = false
@@ -38,28 +39,47 @@ class Hub < PhysicsThingy
     end
   end
 
+  def add_weight_indicator
+    point = Geom::Point3d.new(@position)
+    point.z += 1
+    if @weight_indicator.nil?
+      model = ModelStorage.instance.models['weight_indicator']
+      transform = Geom::Transformation.new(point)
+      @weight_indicator = Sketchup.active_model.active_entities.add_instance(model.definition, transform)
+    else
+      @weight_indicator.transform!(Geom::Transformation.scaling(point, 1.5))
+    end
+  end
+
+  def move_addon(object, position, offset = Geom::Vector3d.new(0, 0, 0))
+    return if object.nil?
+    old_pos = object.transformation.origin
+    movement_vec = old_pos.vector_to(position + offset)
+    object.transform!(movement_vec)
+  end
+
   def move_addons(position)
     move_force_arrow(position)
+    move_weight_indicator(position)
     move_sensor_symbol(position)
     pods.each { |pod| pod.update_position(position) }
   end
 
   def move_force_arrow(position)
-    return if @arrow.nil?
-    old_pos = @arrow.transformation.origin
-    movement_vec = old_pos.vector_to(position + Geom::Vector3d.new(0, 0, 1))
-    @arrow.transform!(movement_vec)
+    move_addon(@arrow, position, Geom::Vector3d.new(0, 0, 1))
+  end
+
+  def move_weight_indicator(position)
+    move_addon(@weight_indicator, position, Geom::Vector3d.new(0, 0, 1))
   end
 
   def move_sensor_symbol(position)
-    return if @sensor_symbol.nil?
-    old_pos = @sensor_symbol.transformation.origin
-    movement_vec = old_pos.vector_to(position)
-    @sensor_symbol.transform!(movement_vec)
+    move_addon(@sensor_symbol, position)
   end
 
   def reset_addon_positions
     reset_force_arrow_position
+    reset_weight_indicator_position
     reset_sensor_symbol_position
     pods.each { |pod| pod.update_position(@position) }
   end
@@ -67,6 +87,11 @@ class Hub < PhysicsThingy
   def reset_force_arrow_position
     return if @arrow.nil?
     move_force_arrow(@position)
+  end
+
+  def reset_weight_indicator_position
+    return if @weight_indicator.nil?
+    move_weight_indicator(@position)
   end
 
   def reset_sensor_symbol_position
@@ -122,20 +147,23 @@ class Hub < PhysicsThingy
   #
   # Physics methods
   #
-
-  def add_mass(mass)
-    @mass += mass
+  def add_weight(weight)
+    @mass = @mass + weight
   end
 
-  def add_force
+  def add_force(force)
+    @force = @force + force
+  end
+
+  def apply_force
     return if @body.nil?
-    @body.apply_force(0, 0, -@mass)
+    @body.apply_force(@force)
   end
 
   def create_body(world)
     @body = Simulation.create_body(world, @entity, :box) # spheres will have it rolling
     @body.collidable = true
-    @body.mass = Configuration::HUB_MASS
+    @body.mass = @mass == 0 ? Configuration::HUB_MASS : @mass
     @body.static_friction = Configuration::BODY_STATIC_FRICITON
     @body.kinetic_friction = Configuration::BODY_KINETIC_FRICITON
     @body.elasticity = Configuration::BODY_ELASTICITY

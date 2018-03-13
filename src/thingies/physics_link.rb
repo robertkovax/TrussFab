@@ -34,7 +34,7 @@ class PhysicsLink < Link
   # Physics methods
   #
 
-  def create_joints(world, first_node, second_node)
+  def create_joints(world, first_node, second_node, breaking_force)
     first_direction = mid_point.vector_to(first_node.position)
     second_direction = mid_point.vector_to(second_node.position)
 
@@ -54,7 +54,7 @@ class PhysicsLink < Link
     end
     @joint.solver_model = Configuration::JOINT_SOLVER_MODEL
     @joint.stiffness = Configuration::JOINT_STIFFNESS
-    @joint.breaking_force = Configuration::JOINT_BREAKING_FORCE
+    @joint.breaking_force = breaking_force
     @initial_length = case
     when @joint.class <= TrussFab::PointToPointActuator
       @joint.cur_distance
