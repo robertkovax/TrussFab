@@ -179,8 +179,8 @@ class Link < PhysicsThingy
   #
 
   def connect_to_hub
-    @first_elongation.show
-    @second_elongation.show
+    @first_elongation.show if @first_elongation
+    @second_elongation.show if @second_elongation
   end
 
   def disconnect_from_hub(is_first_joint)
