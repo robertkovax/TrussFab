@@ -160,6 +160,9 @@ class Simulation
       model.abort_operation
       raise err
     end
+
+    get_all_pistons
+
     model.commit_operation
   end
 
@@ -298,38 +301,6 @@ class Simulation
     }
   end
 
-  def piston_dialog
-    get_all_pistons
-    get_all_generic_links
-
-    @dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
-    file_content = File.read(File.join(File.dirname(__FILE__), '../ui/html/piston_slider.erb'))
-    template = ERB.new(file_content)
-    @dialog.set_html(template.result(binding))
-    @dialog.set_size(300, Configuration::UI_HEIGHT)
-    @dialog.show
-
-    # Callbacks
-  
-    @dialog.add_action_callback('apply_force') do |_context|
-      @generic_links.each_value do |generic_link|
-        generic_link.force = 50
-      end
-    end
-
-    @dialog.add_action_callback('release_force') do |_context|
-      @generic_links.each_value do |generic_link|
-        generic_link.force = 10
-      end
-    end
-  end
-
-  def close_piston_dialog
-    if @dialog && @dialog.visible?
-      @dialog.close
-    end
-  end
-
   def schedule_piston_for_testing(edge)
     @moving_pistons.push({:id=>edge.id.to_i, :expanding=>true, :speed=>0.4})
   end
@@ -390,7 +361,6 @@ class Simulation
   # => to a given point
   def test_pistons_for(seconds, node, point)
     closest_distance = Float::INFINITY
-    get_all_pistons
     steps = (seconds.to_f / Configuration::WORLD_TIMESTEP).to_i
     steps.times do
       @world.advance
@@ -555,7 +525,6 @@ class Simulation
       @sensor_dialog.execute_script("resetChart(#{sensor.id})") unless @sensor_dialog.nil?
     end
     reset
-    @dialog.execute_script("reset_sliders()")
     setup
     start
   end

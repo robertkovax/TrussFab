@@ -22,7 +22,6 @@ class SimulationTool < Tool
   def activate
     @simulation = Simulation.new
     @simulation.setup
-    @simulation.piston_dialog
     @simulation.open_sensor_dialog
     @simulation.open_automatic_movement_dialog
     Sketchup.active_model.active_view.animation = @simulation
@@ -32,7 +31,6 @@ class SimulationTool < Tool
   def deactivate
     @simulation.stop
     @simulation.reset
-    @simulation.close_piston_dialog
     @simulation.close_sensor_dialog
     @simulation.close_automatic_movement_dialog
     @simulation = nil

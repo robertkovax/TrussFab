@@ -3,7 +3,7 @@
 function showManualActuatorSettings(pistons, breakingForce, maxSpeed) {
   $('#manual').empty();
   pistons.forEach(function (pistonId) {
-    var pistonElement = $('<input type="range" min="0" max="1" value="0.5" step="0.01">');
+    var pistonElement = $('<input class="piston" type="range" min="0" max="1" value="0.5" step="0.01">');
     pistonElement.on('input', function (event) {
       return changePistonValue(pistonId, event.currentTarget.value);
     });
@@ -50,6 +50,8 @@ function togglePauseSimulation() {
 }
 
 function restartSimulation() {
+  $('.piston').val(0.5); // resetting
+
   sketchup.restart_simulation();
 }
 
