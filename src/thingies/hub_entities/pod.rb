@@ -25,9 +25,20 @@ class Pod < Thingy
     Geometry.dist_point_to_segment(point, [first_point, second_point])
   end
 
+  def translation
+    Geom::Transformation.translation(@position)
+  end
+
+  def rotation
+    rotation_angle = Geometry.rotation_angle_between(Geometry::Z_AXIS, @direction)
+    rotation_axis = Geometry.perpendicular_rotation_axis(Geometry::Z_AXIS, @direction)
+    Geom::Transformation.rotation(@position, rotation_axis, rotation_angle)
+  end
+
   def update_position(position)
     @position = position
-    @entity.move!(Geom::Transformation.new(position))
+    transformation = rotation * translation
+    @entity.move!(transformation)
   end
 
   def delete
@@ -37,12 +48,6 @@ class Pod < Thingy
   private
 
   def create_entity
-    translation = Geom::Transformation.translation(@position)
-
-    rotation_angle = Geometry.rotation_angle_between(Geometry::Z_AXIS, @direction)
-    rotation_axis = Geometry.perpendicular_rotation_axis(Geometry::Z_AXIS, @direction)
-    rotation = Geom::Transformation.rotation(@position, rotation_axis, rotation_angle)
-
     transformation = rotation * translation
 
     entity = Sketchup.active_model.active_entities.add_instance(@model.definition, transformation)
