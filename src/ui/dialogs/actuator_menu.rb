@@ -1,6 +1,8 @@
+require 'src/tools/simulation_tool.rb'
+
 class ActuatorMenu
   def initialize
-    @HTML_FILE = '../html/actuator_menu.html'
+    @HTML_FILE = '../html/actuator_menu.erb'
   end
 
   def open_dialog
@@ -30,6 +32,8 @@ class ActuatorMenu
     @dialog.show
     @dialog.add_action_callback('documentReady') { register_callbacks }
 
+    register_callbacks
+
   end
 
   def close_dialog
@@ -44,7 +48,10 @@ class ActuatorMenu
   private
 
   def register_callbacks
-  # TODO
+    puts 'register callbacks called'
+    @dialog.add_action_callback('start_simulation') do |_context| 
+      sim_tool = SimulationTool.new
+      sim_tool.activate
+    end
   end
-
 end

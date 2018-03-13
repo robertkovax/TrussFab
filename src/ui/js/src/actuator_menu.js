@@ -1,4 +1,5 @@
 function addActuator(id) {
+  console.log('test');
   const slider = $(
     `<input id="${id}" type="range" min="0" max="1" value="0.5" step="0.01">`
   );
@@ -12,13 +13,14 @@ function addActuator(id) {
 
 function removeActuator(id) {}
 
-$(() => {
-  $('.start-button').click(() => addActuator(1));
-});
-
 function onInput(id, newValue) {
   console.log(id, newValue);
   // sketchup.change_piston(id, newValue);
+}
+
+function startSimulation() {
+  console.log('start simulation');
+  sketchup.start_simulation();
 }
 
 function onClick(id) {
@@ -58,3 +60,8 @@ function apply_force() {
 function release_force() {
   sketchup.release_force();
 }
+
+$(() => {
+  $('.start-button').click(() => startSimulation());
+  // startSimulation();
+});

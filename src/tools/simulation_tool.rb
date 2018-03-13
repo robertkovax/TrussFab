@@ -3,7 +3,7 @@ require 'src/utility/mouse_input.rb'
 require 'src/simulation/simulation.rb'
 
 class SimulationTool < Tool
-  def initialize(ui)
+  def initialize(ui = nil)
     super(ui)
     @mouse_input = MouseInput.new(snap_to_nodes: true, snap_to_edges: true, should_highlight: false)
     @move_mouse_input = nil

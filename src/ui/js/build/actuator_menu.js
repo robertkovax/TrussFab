@@ -1,6 +1,7 @@
 'use strict';
 
 function addActuator(id) {
+  console.log('test');
   var slider = $('<input id="' + id + '" type="range" min="0" max="1" value="0.5" step="0.01">');
 
   slider.on('change', function () {
@@ -12,15 +13,14 @@ function addActuator(id) {
 
 function removeActuator(id) {}
 
-$(function () {
-  $('.start-button').click(function () {
-    return addActuator(1);
-  });
-});
-
 function onInput(id, newValue) {
   console.log(id, newValue);
   // sketchup.change_piston(id, newValue);
+}
+
+function startSimulation() {
+  console.log('start simulation');
+  sketchup.start_simulation();
 }
 
 function onClick(id) {
@@ -60,3 +60,10 @@ function apply_force() {
 function release_force() {
   sketchup.release_force();
 }
+
+$(function () {
+  $('.start-button').click(function () {
+    return startSimulation();
+  });
+  // startSimulation();
+});
