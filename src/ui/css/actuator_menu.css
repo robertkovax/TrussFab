@@ -42,3 +42,8 @@ input[type='range'] {
 #manual {
   margin-left: -40px;
 }
+
+.selected {
+  fill: red;
+  stroke: brown;
+}

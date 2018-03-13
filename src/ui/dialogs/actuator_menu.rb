@@ -1,6 +1,8 @@
 require 'src/tools/simulation_tool.rb'
 
 class ActuatorMenu
+  attr_accessor :sidebar_menu
+
   def initialize
     @HTML_FILE = '../html/actuator_menu.erb'
     @simulation_tool = SimulationTool.new
@@ -34,7 +36,7 @@ class ActuatorMenu
     @dialog.show
 
     register_callbacks
-
+    @dialog
   end
 
   def close_dialog
@@ -48,15 +50,26 @@ class ActuatorMenu
 
   private
 
+  def start_simulation_setup_scripts
+    @sidebar_menu.deselect_tool
+
+    Sketchup.active_model.select_tool(@simulation_tool)
+
+    pistons = @simulation_tool.get_pistons
+    breaking_force = @simulation_tool.get_breaking_force
+    max_speed = @simulation_tool.get_max_speed
+    @dialog.execute_script("showManualActuatorSettings(#{pistons.keys}, #{breaking_force}, #{max_speed})")
+
+    @dialog.execute_script("showManualActuatorSettings(#{pistons.keys}, #{breaking_force}, #{max_speed})")
+
+  end
+
   def register_callbacks
     puts 'register callbacks called'
     @dialog.add_action_callback('toggle_simulation') do |_context|
       if @simulation_tool.simulation.nil? || @simulation_tool.simulation.stopped?
         @simulation_tool.activate
-        pistons = @simulation_tool.get_pistons
-        breaking_force = @simulation_tool.get_breaking_force
-        max_speed = @simulation_tool.get_max_speed
-        @dialog.execute_script("showManualActuatorSettings(#{pistons.keys}, #{breaking_force}, #{max_speed})")
+        start_simulation_setup_scripts
       else
         @simulation_tool.deactivate
       end

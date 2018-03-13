@@ -16,14 +16,13 @@ class SimulationTool < Tool
     @start_position = nil
     @end_position = nil
     @moving = false
-    @force = nil
+  @force = nil
   end
 
   def activate
     @simulation = Simulation.new
     @simulation.setup
     @simulation.open_sensor_dialog
-    @simulation.open_automatic_movement_dialog
     Sketchup.active_model.active_view.animation = @simulation
     @simulation.start
   end
@@ -88,7 +87,7 @@ class SimulationTool < Tool
       @node = obj
       @start_position = @end_position = @mouse_input.position
     elsif obj.thingy.is_a?(ActuatorLink)
-      @simulation.toggle_piston_group(obj)
+      toggle_piston_group(obj)
     end
   end
 
@@ -160,6 +159,32 @@ class SimulationTool < Tool
 
   def change_highest_force_mode(param)
     @simulation.highest_force_mode = param
+  end
+
+  def toggle_piston_group(edge)
+    colors = ['#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
+              '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
+              '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
+              '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
+              '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC',
+              '#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399',
+              '#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680',
+              '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
+              '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3',
+              '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'];
+    # we don't want to create more groups than we have pistons
+    return if edge.automatic_movement_group >= @simulation.pistons.length
+    edge.automatic_movement_group += 1
+    if @simulation.auto_piston_group[edge.automatic_movement_group].nil?
+      @simulation.auto_piston_group[edge.automatic_movement_group] = []
+      @movement_dialog.execute_script("update_pistons(#{edge.automatic_movement_group})")
+    end
+    @simulation.auto_piston_group[edge.automatic_movement_group - 1].delete(edge) unless edge.automatic_movement_group == 0
+    @simulation.auto_piston_group[edge.automatic_movement_group].push(edge)
+    link = edge.thingy
+    mat = @bottle_dat[link][3]
+    mat.color = colors[edge.automatic_movement_group]
+    p "Assigned Group #{edge.automatic_movement_group} for #{edge}"
   end
 
 end

@@ -40,23 +40,26 @@ require 'reloader'
 module TrussFab
 
   @reloader = Reloader.new
-  @sidebar = Sidebar.new
+  @sidebar_menu = Sidebar.new
   @actuator_menu = ActuatorMenu.new
 
   class << self
 
     def start
-      @sidebar.open_dialog
+      @sidebar_menu.open_dialog
       @actuator_menu.open_dialog
+
+      @sidebar_menu.actuator_menu = @actuator_menu
+      @actuator_menu.sidebar_menu = @sidebar_menu
     end
 
     def stop
-      @sidebar.close_dialog
+      @sidebar_menu.close_dialog
       @actuator_menu.close_dialog
     end
 
     def refresh_ui
-      @sidebar.refresh
+      @sidebar_menu.refresh
       @actuator_menu.refresh
     end
 

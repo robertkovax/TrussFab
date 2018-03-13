@@ -1,6 +1,8 @@
 ProjectHelper.require_multiple('src/tools/*.rb')
 
 class Sidebar
+  attr_accessor :actuator_menu
+
   def initialize
     @tools = {}
     @HTML_FILE = '../html/sidebar.html'
@@ -8,6 +10,7 @@ class Sidebar
 
   def deselect_tool
     @dialog.execute_script('deselectAllTools()')
+    Sketchup.active_model.select_tool(nil)
   end
 
   def open_dialog
@@ -58,6 +61,7 @@ class Sidebar
       model.select_tool(@tools[button_id])
       @dialog.execute_script("selectTool('#{button_id}')")
     end
+    @dialog
   end
 
   def close_dialog
