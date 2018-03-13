@@ -1,7 +1,5 @@
 'use strict';
 
-console.log('cycl desinger called');
-
 var paused = false;
 var max_x = 5;
 var min_x = 1;
@@ -94,7 +92,7 @@ function addData(piston_id) {
 }
 
 function addPath(color, id) {
-  path_data = addData(id);
+  var path_data = addData(id);
   paths[id] = g.append('path').datum(path_data).attr('fill', 'none').attr('stroke', color).attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round').attr('stroke-width', 3).attr('d', line).attr('id', id).call(dragLine);
   dots[id] = addDots(path_data, id);
 }
@@ -126,7 +124,7 @@ function updateData() {
   d3.selectAll('circle').each(function (circle) {
     if (circle != d3.selectAll('circle')[0]) {
       var diff = Math.abs(new_x - x(circle[0]));
-      if (diff < 0.5) {
+      if (diff < 0.2) {
         if (circle[2] == 1) {
           retract(circle[3]);
         } else if (circle[2] == 3) {

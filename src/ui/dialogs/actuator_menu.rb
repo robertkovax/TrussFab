@@ -5,7 +5,7 @@ class ActuatorMenu
 
   def initialize
     @HTML_FILE = '../html/actuator_menu.erb'
-    @simulation_tool = SimulationTool.new
+    @simulation_tool = SimulationTool.new(self)
 
   end
 
@@ -31,7 +31,7 @@ class ActuatorMenu
     @dialog = UI::HtmlDialog.new(props)
     file = File.join(File.dirname(__FILE__), @HTML_FILE)
     @dialog.set_file(file)
-    # @dialog.set_siSkeze(Configuration::UI_WIDTH, Configuration::UI_HEIGHT)
+    # @dialog.set_size(Configuration::UI_WIDTH, Configuration::UI_HEIGHT)
     @dialog.set_position(left, top)
     @dialog.show
 
@@ -46,6 +46,10 @@ class ActuatorMenu
   def refresh
     file = File.join(File.dirname(__FILE__), @HTML_FILE)
     @dialog.set_file(file)
+  end
+
+  def update_piston_group(movement_group)
+    @dialog.execute_script("update_pistons(#{movement_group})")
   end
 
   private
@@ -70,13 +74,12 @@ class ActuatorMenu
     puts 'register callbacks called'
     @dialog.add_action_callback('toggle_simulation') do |_context|
       if @simulation_tool.simulation.nil? || @simulation_tool.simulation.stopped?
-        @simulation_tool.activate
         start_simulation_setup_scripts
       else
-        @simulation_tool.deactivate
+        Sketchup.active_model.select_tool(nil)
       end
     end
-    
+
     @dialog.add_action_callback('restart_simulation') do |_context|
       @simulation_tool.restart
     end
@@ -105,5 +108,16 @@ class ActuatorMenu
       @simulation_tool.change_highest_force_mode(checked)
     end
 
+    @dialog.add_action_callback('stop_actuator') do |_context|
+      p 'TODO: Stop actuator'
+    end
+
+    @dialog.add_action_callback('expand_actuator') do |_context|
+      p 'TODO: expand_actuator'
+    end
+
+    @dialog.add_action_callback('retract_actuator') do |_context|
+      p 'TODO: retract_actuator'
+    end
   end
 end

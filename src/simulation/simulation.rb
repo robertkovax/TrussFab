@@ -4,7 +4,7 @@ require 'erb'
 
 class Simulation
 
-  attr_reader :pistons, :moving_pistons
+  attr_reader :pistons, :moving_pistons, :bottle_dat
   attr_accessor :breaking_force, :max_speed, :highest_force_mode, :auto_piston_group
 
   class << self
@@ -61,6 +61,7 @@ class Simulation
     @generic_links = {}
     @bottle_dat = {}
     @charts = {}
+    @auto_piston_group = []
 
     # time keeping
     @frame = 0

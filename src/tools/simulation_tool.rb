@@ -7,7 +7,7 @@ class SimulationTool < Tool
 
   attr_reader :simulation
 
-  def initialize(ui = nil)
+  def initialize(ui)
     super(ui)
     @mouse_input = MouseInput.new(snap_to_nodes: true, snap_to_edges: true, should_highlight: false)
     @move_mouse_input = nil
@@ -16,7 +16,7 @@ class SimulationTool < Tool
     @start_position = nil
     @end_position = nil
     @moving = false
-  @force = nil
+    @force = nil
   end
 
   def activate
@@ -27,7 +27,7 @@ class SimulationTool < Tool
     @simulation.start
   end
 
-  def deactivate
+  def deactivate(ui)
     @simulation.stop
     @simulation.reset
     @simulation.close_sensor_dialog
@@ -130,7 +130,7 @@ class SimulationTool < Tool
     @simulation.max_speed
   end
 
- def change_piston_value(id, value)
+  def change_piston_value(id, value)
     actuator = @simulation.pistons[id.to_i]
     if actuator.joint && actuator.joint.valid?
       actuator.joint.controller = (value.to_f - Configuration::ACTUATOR_INIT_DIST) * (actuator.max - actuator.min)
@@ -177,12 +177,12 @@ class SimulationTool < Tool
     edge.automatic_movement_group += 1
     if @simulation.auto_piston_group[edge.automatic_movement_group].nil?
       @simulation.auto_piston_group[edge.automatic_movement_group] = []
-      @movement_dialog.execute_script("update_pistons(#{edge.automatic_movement_group})")
+      @ui.update_piston_group(edge.automatic_movement_group)
     end
     @simulation.auto_piston_group[edge.automatic_movement_group - 1].delete(edge) unless edge.automatic_movement_group == 0
     @simulation.auto_piston_group[edge.automatic_movement_group].push(edge)
     link = edge.thingy
-    mat = @bottle_dat[link][3]
+    mat = @simulation.bottle_dat[link][3]
     mat.color = colors[edge.automatic_movement_group]
     p "Assigned Group #{edge.automatic_movement_group} for #{edge}"
   end
