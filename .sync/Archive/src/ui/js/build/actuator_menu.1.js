@@ -75,6 +75,12 @@ function changeHighestForceMode(checked) {
   sketchup.change_highest_force_mode(checked);
 }
 
+// function reset_sliders() {
+//   <% for piston_id in @pistons.keys %>
+//       document.getElementById("<%= piston_id %>").value = "0.5";
+//   <% end %>
+// }
+
 function apply_force() {
   sketchup.apply_force();
 }
@@ -87,4 +93,5 @@ $(function () {
   $('.start-button').click(toggleSimulation);
   $('.pause-button').click(togglePauseSimulation);
   $('.restart-button').click(restartSimulation);
+  // startSimulation();
 });

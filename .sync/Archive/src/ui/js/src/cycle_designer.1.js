@@ -2,16 +2,8 @@ var paused = false;
 var max_x = 5;
 var min_x = 1;
 
-
-const tabBarHeight = d3.select('#actuators-tab').node().getBoundingClientRect().height;
-const bodyHeight = d3.select('body').node().getBoundingClientRect().height;
-
-const schedulingElement = d3.select('#scheduling');
-const schedulingElementHeight = bodyHeight - tabBarHeight - 4; // magic number 4, padding?
-const schedulingElementWidth = schedulingElement.node().getBoundingClientRect().width;
-
-const svg = schedulingElement.append("svg").attr("width", schedulingElementWidth).attr("height", schedulingElementHeight);
-const margin = {top : 10, right : 10, bottom : 20, left : 10};
+const svg = d3.select("#scheduling").append("svg").attr("width", 50).attr("height", 50)
+const margin = {top : 10, right : 10, bottom : 10, left : 10};
 const width = +svg.attr('width') - margin.left - margin.right;
 const height = +svg.attr('height') - margin.top - margin.bottom;
 const g = svg.append('g').attr('transform', 'translate(' + margin.left + ',' +

@@ -1,0 +1,49 @@
+html {
+  height: 100%;
+}
+
+body {
+  display: flex; /* or inline-flex */
+  flex-direction: row;
+  /* align-items: stretch; */
+  height: 100%;
+}
+
+.simulation-control {
+  display: flex;
+  flex-direction: column;
+  padding-right: 2px;
+  border-right: 1px solid #ddd;
+  /* height: 100%; */
+}
+
+.acutator-settings {
+  margin-left: 2px;
+  width: 100%;
+}
+
+button {
+  padding: 5px;
+  margin: 0;
+  width: inherit;
+}
+
+button + button {
+  margin-top: 2px;
+}
+
+input[type='range'] {
+  margin-top: 60px;
+  margin-right: -100px;
+  transform: rotate(270deg);
+  -moz-transform: rotate(270deg);
+}
+
+#manual {
+  margin-left: -40px;
+}
+
+.selected {
+  fill: red;
+  stroke: brown;
+}
