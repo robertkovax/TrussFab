@@ -13,8 +13,8 @@ class ActuatorMenu
     width = 500
     height = 200
 
-    left = sidebar_menu_width
-    top = sidebar_menu_height - height
+    left = 240
+    top = 740 - height
 
     props = {
       :resizable => false,

@@ -47,7 +47,8 @@ module TrussFab
 
     def start
       @sidebar_menu.open_dialog
-      @actuator_menu.open_dialog
+
+      @actuator_menu.open_dialog(@sidebar_menu.width, @sidebar_menu.height)
 
       @sidebar_menu.actuator_menu = @actuator_menu
       @actuator_menu.sidebar_menu = @sidebar_menu

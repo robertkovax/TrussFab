@@ -58,8 +58,8 @@ button:disabled:hover {
 /* button for footer */
 footer {
   position: absolute;
-  left: 0%;
-  top: 612px;
+  left: 0;
+  bottom: 0;
   display: flex !important;
   flex-wrap: wrap;
   padding: 2px;

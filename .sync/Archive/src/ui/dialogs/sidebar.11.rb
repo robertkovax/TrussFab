@@ -1,8 +1,6 @@
 ProjectHelper.require_multiple('src/tools/*.rb')
 
 class Sidebar
-  attr_reader :width, :height
-
   attr_accessor :actuator_menu
 
   def initialize
@@ -20,21 +18,26 @@ class Sidebar
     icon_width = 54
     body_padding = 4
     magic_distance = 4 * 9
+    # general_spacing = 2
+    # width =
+    #   num_icons_in_row * icon_width +
+    #   num_icons_in_row * general_spacing * 2 +
+    #   general_spacing * 2 +
+    #   general_spacing * 2
 
-
-    @width = num_icons_in_row * icon_width + body_padding + magic_distance
-    @height = 740
+    width = num_icons_in_row * icon_width + body_padding + magic_distance
+    height = 740
 
     props = {
       :resizable => false,
-      :width => @width,
-      :height => @height,
+      :width => width,
+      :height => height,
       :left => 0,
       :top => 100,
-      :min_width => @width,
-      :min_height => @height,
-      :max_width => @width,
-      :max_height => @height
+      :min_width => width,
+      :min_height =>height,
+      :max_width => width,
+      :max_height => height
     }
 
     @dialog = UI::HtmlDialog.new(props)
