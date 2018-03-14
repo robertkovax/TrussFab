@@ -280,8 +280,14 @@ class HingePlacementAlgorithm
       end
     end
 
+    group_nr = 0
     static_groups.reverse.each do |group|
-      color_group(group)
+      if group.length == 1
+        color_triangle(group)
+        next
+      end
+      color_group(group, group_nr)
+      group_nr += 1
     end
 
     hinge_layer = Sketchup.active_model.layers.at(Configuration::HINGE_VIEW)
@@ -410,10 +416,25 @@ class HingePlacementAlgorithm
     end
   end
 
-  def color_group(group)
-    return if group.length == 1
-
-    group_color = "%06x" % (rand * 0xffffff)
+  def color_group(group, group_nr)
+    case group_nr
+      when 0
+        group_color = "fbb4ae" # red
+      when 1
+        group_color = "b3cde3" # blue
+      when 2
+        group_color = "decbe4" # purple
+      when 3
+        group_color = "fed9a6" # orange
+      when 4
+        group_color = "ffffcc" # yellow
+      when 5
+        group_color = "e5d8bd" # brown
+      when 6
+        group_color = "fddaec" # pink
+      else
+        group_color = "%06x" % (rand * 0xffffff)
+    end
 
     group.each do |triangle|
       triangle.edges.each do |edge|
