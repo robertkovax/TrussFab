@@ -1,64 +1,6 @@
 function showManualActuatorSettings(pistons, breakingForce, maxSpeed) {
+  $('#manual').empty();
   const elements = [];
-
-
-
-  const form = $('<div class="form-row"/>');
-
-  const breakingForceElement = $(
-    `<div class="col-4">
-      <div class="input-group input-group-sm">
-         <div class="input-group-prepend">
-          <span class="input-group-text">Breaking Force</span>
-        </div>
-        <input class="form-control form-control-sm" type="number" min = "0" value="${breakingForce}" step="1">
-        <div class="input-group-append">
-          <span class="input-group-text">N</span>
-        </div>
-      </div>
-    </div>`
-  );
-  breakingForceElement.find('input').on('change', event =>
-    setBreakingForce(event.currentTarget.value)
-  );
-
-  form.append(breakingForceElement);
-
-  const maxSpeedElement = $(
-    `<div class="col-4">
-      <div class="input-group input-group-sm">
-         <div class="input-group-prepend">
-          <span class="input-group-text">Max. Speed</span>
-        </div>
-        <input class="form-control form-control-sm" type="number" min = "0" value="${maxSpeed}" step="1">
-        <div class="input-group-append">
-          <span class="input-group-text">m/s</span>
-        </div>
-      </div>
-    </div>`
-  );
-  maxSpeedElement.find('input').on('change', event => setMaxSpeed(event.currentTarget.value));
-
-  form.append(maxSpeedElement);
-
-  const highestForceModeElement = $(
-    `<div class="col-auto">
-      <div class="form-check">
-        <input class="form-check-input" id="force_mode_checkbox" type="checkbox">
-        <label class="form-check-label" for="force_mode_checkbox">Highest Force Mode</label>
-      </div>
-    </div>`
-  );
-
-  highestForceModeElement.on('change', event =>
-    changeHighestForceMode(event.currentTarget.checked)
-  );
-
-  form.append(highestForceModeElement);
-
-  elements.push($('<form />').append(form));
-
-
   pistons.forEach(pistonId => {
     const pistonElement = $(
       `<input class="piston" type="range" min="0" max="1" value="0.5" step="0.01">`
@@ -66,19 +8,40 @@ function showManualActuatorSettings(pistons, breakingForce, maxSpeed) {
     pistonElement.on('input', event =>
       changePistonValue(pistonId, event.currentTarget.value)
     );
-    elements.push(pistonElement);
+    $('#manual').append(pistonElement);
 
     const pistonTestButton = $(`<button>Test</button>`);
 
     pistonTestButton.click(() => testPiston(pistonId));
 
-    elements.push(pistonTestButton);
+    $('#manual').append(pistonTestButton);
   });
 
-  $('#manual')
-    .empty()
-    .append(elements);
+  const breakingForceElement = $(
+    `<input type="number" min = "0" value="${breakingForce}" step="1"> N`
+  );
+  breakingForceElement.on('change', event =>
+    setBreakingForce(event.currentTarget.value)
+  );
 
+  $('#manual').append(breakingForceElement);
+
+  const maxSpeedElement = $(
+    `<input type="number" min = "0" value="${maxSpeed}" step="1"> m/s`
+  );
+  maxSpeedElement.on('change', event => setMaxSpeed(event.currentTarget.value));
+
+  $('#manual').append(maxSpeedElement);
+
+  const highestForceModeElement = $(
+    `<input id="force_mode_checkbox" type="checkbox"">`
+  );
+
+  highestForceModeElement.on('change', event =>
+    changeHighestForceMode(event.currentTarget.checked)
+  );
+
+  $('#manual').append(highestForceModeElement);
 }
 
 function toggleStartStopSimulationButton() {

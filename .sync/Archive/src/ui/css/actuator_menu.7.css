@@ -40,19 +40,11 @@ input[type='range'] {
   -moz-transform: rotate(270deg);
 }
 
-/*#manual {
+#manual {
   margin-left: -40px;
 }
-*/
+
 .selected {
   fill: red;
   stroke: brown;
-}
-
-.input-group-text, input {
-  font-size: 10px !important;
-}
-
-#manual {
-  padding-top: 2px;
 }

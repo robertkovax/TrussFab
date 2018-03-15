@@ -28,11 +28,11 @@ function showManualActuatorSettings(pistons, breakingForce, maxSpeed) {
     `<div class="col-4">
       <div class="input-group input-group-sm">
          <div class="input-group-prepend">
-          <span class="input-group-text">Max. Speed</span>
+          <span class="input-group-text">Breaking Force</span>
         </div>
         <input class="form-control form-control-sm" type="number" min = "0" value="${maxSpeed}" step="1">
         <div class="input-group-append">
-          <span class="input-group-text">m/s</span>
+          <span class="input-group-text">N</span>
         </div>
       </div>
     </div>`

@@ -1,48 +1,35 @@
 function showManualActuatorSettings(pistons, breakingForce, maxSpeed) {
   const elements = [];
 
+  const form = $('<div class="form-row align-items-center"/>');
+      // <label>Breaking Force</label>
 
-
-  const form = $('<div class="form-row"/>');
 
   const breakingForceElement = $(
-    `<div class="col-4">
-      <div class="input-group input-group-sm">
-         <div class="input-group-prepend">
-          <span class="input-group-text">Breaking Force</span>
-        </div>
-        <input class="form-control form-control-sm" type="number" min = "0" value="${breakingForce}" step="1">
-        <div class="input-group-append">
-          <span class="input-group-text">N</span>
-        </div>
-      </div>
+    `<div class="col-sm-3 my1">
+      <input class="form-control" type="number" min = "0" value="${breakingForce}" step="1">
     </div>`
   );
-  breakingForceElement.find('input').on('change', event =>
+  breakingForceElement.on('change', event =>
     setBreakingForce(event.currentTarget.value)
   );
 
   form.append(breakingForceElement);
 
+      // <label>Breaking Force</label>
+
+
   const maxSpeedElement = $(
-    `<div class="col-4">
-      <div class="input-group input-group-sm">
-         <div class="input-group-prepend">
-          <span class="input-group-text">Max. Speed</span>
-        </div>
-        <input class="form-control form-control-sm" type="number" min = "0" value="${maxSpeed}" step="1">
-        <div class="input-group-append">
-          <span class="input-group-text">m/s</span>
-        </div>
-      </div>
+    `<div class="col-sm-3 my1">
+    <input class="form-control" type="number" min = "0" value="${maxSpeed}" step="1">
     </div>`
   );
-  maxSpeedElement.find('input').on('change', event => setMaxSpeed(event.currentTarget.value));
+  maxSpeedElement.on('change', event => setMaxSpeed(event.currentTarget.value));
 
   form.append(maxSpeedElement);
 
   const highestForceModeElement = $(
-    `<div class="col-auto">
+    `<div class="col-auto my1">
       <div class="form-check">
         <input class="form-check-input" id="force_mode_checkbox" type="checkbox">
         <label class="form-check-label" for="force_mode_checkbox">Highest Force Mode</label>

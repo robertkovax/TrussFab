@@ -4,40 +4,34 @@ function showManualActuatorSettings(pistons, breakingForce, maxSpeed) {
 
 
   const form = $('<div class="form-row"/>');
+      // <label>Breaking Force</label>
+
 
   const breakingForceElement = $(
-    `<div class="col-4">
-      <div class="input-group input-group-sm">
-         <div class="input-group-prepend">
-          <span class="input-group-text">Breaking Force</span>
-        </div>
+    `<div class="col-auto">
+      <div class="input-group">
         <input class="form-control form-control-sm" type="number" min = "0" value="${breakingForce}" step="1">
         <div class="input-group-append">
-          <span class="input-group-text">N</span>
+          <span class="">N</span>
         </div>
       </div>
     </div>`
   );
-  breakingForceElement.find('input').on('change', event =>
+  breakingForceElement.on('change', event =>
     setBreakingForce(event.currentTarget.value)
   );
 
   form.append(breakingForceElement);
 
+      // <label>Breaking Force</label>
+
+
   const maxSpeedElement = $(
-    `<div class="col-4">
-      <div class="input-group input-group-sm">
-         <div class="input-group-prepend">
-          <span class="input-group-text">Max. Speed</span>
-        </div>
-        <input class="form-control form-control-sm" type="number" min = "0" value="${maxSpeed}" step="1">
-        <div class="input-group-append">
-          <span class="input-group-text">m/s</span>
-        </div>
-      </div>
+    `<div class="col-auto">
+    <input class="form-control form-control-sm" type="number" min = "0" value="${maxSpeed}" step="1">
     </div>`
   );
-  maxSpeedElement.find('input').on('change', event => setMaxSpeed(event.currentTarget.value));
+  maxSpeedElement.on('change', event => setMaxSpeed(event.currentTarget.value));
 
   form.append(maxSpeedElement);
 

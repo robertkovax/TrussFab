@@ -4,9 +4,11 @@ function showManualActuatorSettings(pistons, breakingForce, maxSpeed) {
 
 
   const form = $('<div class="form-row"/>');
+      // <label>Breaking Force</label>
+
 
   const breakingForceElement = $(
-    `<div class="col-4">
+    `<div class="col-5">
       <div class="input-group input-group-sm">
          <div class="input-group-prepend">
           <span class="input-group-text">Breaking Force</span>
@@ -18,26 +20,21 @@ function showManualActuatorSettings(pistons, breakingForce, maxSpeed) {
       </div>
     </div>`
   );
-  breakingForceElement.find('input').on('change', event =>
+  breakingForceElement.on('change', event =>
     setBreakingForce(event.currentTarget.value)
   );
 
   form.append(breakingForceElement);
 
+      // <label>Breaking Force</label>
+
+
   const maxSpeedElement = $(
-    `<div class="col-4">
-      <div class="input-group input-group-sm">
-         <div class="input-group-prepend">
-          <span class="input-group-text">Max. Speed</span>
-        </div>
-        <input class="form-control form-control-sm" type="number" min = "0" value="${maxSpeed}" step="1">
-        <div class="input-group-append">
-          <span class="input-group-text">m/s</span>
-        </div>
-      </div>
+    `<div class="col-5">
+    <input class="form-control form-control-sm" type="number" min = "0" value="${maxSpeed}" step="1">
     </div>`
   );
-  maxSpeedElement.find('input').on('change', event => setMaxSpeed(event.currentTarget.value));
+  maxSpeedElement.on('change', event => setMaxSpeed(event.currentTarget.value));
 
   form.append(maxSpeedElement);
 
@@ -45,7 +42,7 @@ function showManualActuatorSettings(pistons, breakingForce, maxSpeed) {
     `<div class="col-auto">
       <div class="form-check">
         <input class="form-check-input" id="force_mode_checkbox" type="checkbox">
-        <label class="form-check-label" for="force_mode_checkbox">Highest Force Mode</label>
+        <label class="form-check-label" for="force_mode_checkbox">Highest Force<br>Mode</label>
       </div>
     </div>`
   );

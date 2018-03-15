@@ -10,7 +10,7 @@ class ActuatorMenu
   end
 
   def open_dialog(sidebar_menu_width , sidebar_menu_height)
-    width = 600
+    width = 1200
     height = 200
 
     left = sidebar_menu_width

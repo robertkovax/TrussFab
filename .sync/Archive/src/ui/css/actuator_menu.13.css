@@ -49,10 +49,6 @@ input[type='range'] {
   stroke: brown;
 }
 
-.input-group-text, input {
-  font-size: 10px !important;
-}
-
-#manual {
-  padding-top: 2px;
+.input-group {
+  font-size: 12px !important;
 }

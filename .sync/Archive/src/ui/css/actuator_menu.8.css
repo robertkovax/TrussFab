@@ -48,11 +48,3 @@ input[type='range'] {
   fill: red;
   stroke: brown;
 }
-
-.input-group-text, input {
-  font-size: 10px !important;
-}
-
-#manual {
-  padding-top: 2px;
-}

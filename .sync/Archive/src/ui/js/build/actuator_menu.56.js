@@ -12,7 +12,7 @@ function showManualActuatorSettings(pistons, breakingForce, maxSpeed) {
 
   form.append(breakingForceElement);
 
-  var maxSpeedElement = $('<div class="col-4">\n      <div class="input-group input-group-sm">\n         <div class="input-group-prepend">\n          <span class="input-group-text">Max. Speed</span>\n        </div>\n        <input class="form-control form-control-sm" type="number" min = "0" value="' + maxSpeed + '" step="1">\n        <div class="input-group-append">\n          <span class="input-group-text">m/s</span>\n        </div>\n      </div>\n    </div>');
+  var maxSpeedElement = $('<div class="col-4">\n      <div class="input-group input-group-sm">\n         <div class="input-group-prepend">\n          <span class="input-group-text">Breaking Force</span>\n        </div>\n        <input class="form-control form-control-sm" type="number" min = "0" value="' + maxSpeed + '" step="1">\n        <div class="input-group-append">\n          <span class="input-group-text">N</span>\n        </div>\n      </div>\n    </div>');
   maxSpeedElement.find('input').on('change', function (event) {
     return setMaxSpeed(event.currentTarget.value);
   });

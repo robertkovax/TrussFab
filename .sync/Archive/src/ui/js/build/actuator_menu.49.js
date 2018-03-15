@@ -4,16 +4,21 @@ function showManualActuatorSettings(pistons, breakingForce, maxSpeed) {
   var elements = [];
 
   var form = $('<div class="form-row"/>');
+  // <label>Breaking Force</label>
 
-  var breakingForceElement = $('<div class="col-4">\n      <div class="input-group input-group-sm">\n         <div class="input-group-prepend">\n          <span class="input-group-text">Breaking Force</span>\n        </div>\n        <input class="form-control form-control-sm" type="number" min = "0" value="' + breakingForce + '" step="1">\n        <div class="input-group-append">\n          <span class="input-group-text">N</span>\n        </div>\n      </div>\n    </div>');
-  breakingForceElement.find('input').on('change', function (event) {
+
+  var breakingForceElement = $('<div class="col-auto">\n      <div class="input-group">\n        <input class="form-control form-control-sm" type="number" min = "0" value="' + breakingForce + '" step="1">\n        <div class="input-group-append">\n          <span class="input-group-text">N</span>\n        </div>\n      </div>\n    </div>');
+  breakingForceElement.on('change', function (event) {
     return setBreakingForce(event.currentTarget.value);
   });
 
   form.append(breakingForceElement);
 
-  var maxSpeedElement = $('<div class="col-4">\n      <div class="input-group input-group-sm">\n         <div class="input-group-prepend">\n          <span class="input-group-text">Max. Speed</span>\n        </div>\n        <input class="form-control form-control-sm" type="number" min = "0" value="' + maxSpeed + '" step="1">\n        <div class="input-group-append">\n          <span class="input-group-text">m/s</span>\n        </div>\n      </div>\n    </div>');
-  maxSpeedElement.find('input').on('change', function (event) {
+  // <label>Breaking Force</label>
+
+
+  var maxSpeedElement = $('<div class="col-auto">\n    <input class="form-control form-control-sm" type="number" min = "0" value="' + maxSpeed + '" step="1">\n    </div>');
+  maxSpeedElement.on('change', function (event) {
     return setMaxSpeed(event.currentTarget.value);
   });
 
