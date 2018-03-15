@@ -53,7 +53,7 @@ function toggleStartStopSimulationButton() {
   }
 }
 
-function togglePauseUnpauseSimulationButton() {
+function togglePauseUnpauseSimulationButotn() {
   if ($('.pause-button').text() === 'Pause') {
     $('.pause-button').text('Unpause');
   } else {
@@ -69,7 +69,6 @@ function toggleSimulation() {
 function togglePauseSimulation(event) {
   if (event.currentTarget.disabled == null) event.stopPropagation();
 
-  togglePauseUnpauseSimulationButton();
   sketchup.toggle_pause_simulation();
 }
 

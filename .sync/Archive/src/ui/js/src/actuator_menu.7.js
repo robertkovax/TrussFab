@@ -55,29 +55,16 @@ function toggleStartStopSimulationButton() {
   }
 }
 
-function togglePauseUnpauseSimulationButton() {
-  if ($('.pause-button').text() === 'Pause') {
-    $('.pause-button').text('Unpause');
-  } else {
-    $('.pause-button').text('Pause');
-  }
-}
-
 function toggleSimulation() {
   toggleStartStopSimulationButton();
   sketchup.toggle_simulation();
 }
 
-function togglePauseSimulation(event) {
-  if (event.currentTarget.disabled == null) event.stopPropagation();
-  
-  togglePauseUnpauseSimulationButton();
+function togglePauseSimulation() {
   sketchup.toggle_pause_simulation();
 }
 
-function restartSimulation(event) {
-  if (event.currentTarget.disabled == null) event.stopPropagation();
-  
+function restartSimulation() {
   $('.piston').val(0.5); // resetting
 
   sketchup.restart_simulation();
@@ -112,14 +99,9 @@ function release_force() {
 }
 
 $(() => {
-  $('.pause-button')
-    .attr('disabled', true)
-    .click(togglePauseSimulation);
-
-  $('.restart-button')
-    .attr('disabled', true)
-    .click(restartSimulation);
-  
+  $('.pause-button').attr('disabled', true);
+  $('.restart-button').attr('disabled', true);
   $('.start-button').click(toggleSimulation);
-
+  $('.pause-button').click(togglePauseSimulation);
+  $('.restart-button').click(restartSimulation);
 });

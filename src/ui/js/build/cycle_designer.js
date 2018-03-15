@@ -8,7 +8,7 @@ var tabBarHeight = d3.select('#actuators-tab').node().getBoundingClientRect().he
 var bodyHeight = d3.select('body').node().getBoundingClientRect().height;
 
 var schedulingElement = d3.select('#scheduling');
-var schedulingElementHeight = bodyHeight - tabBarHeight - 4; // magic number 4, padding?
+var schedulingElementHeight = bodyHeight - tabBarHeight - 6; // magic number 4, padding?
 var schedulingElementWidth = schedulingElement.node().getBoundingClientRect().width;
 
 var svg = schedulingElement.append("svg").attr("width", schedulingElementWidth).attr("height", schedulingElementHeight);

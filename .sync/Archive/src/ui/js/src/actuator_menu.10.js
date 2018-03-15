@@ -55,29 +55,17 @@ function toggleStartStopSimulationButton() {
   }
 }
 
-function togglePauseUnpauseSimulationButton() {
-  if ($('.pause-button').text() === 'Pause') {
-    $('.pause-button').text('Unpause');
-  } else {
-    $('.pause-button').text('Pause');
-  }
-}
-
 function toggleSimulation() {
   toggleStartStopSimulationButton();
   sketchup.toggle_simulation();
 }
 
-function togglePauseSimulation(event) {
-  if (event.currentTarget.disabled == null) event.stopPropagation();
-  
-  togglePauseUnpauseSimulationButton();
+function togglePauseSimulation() {
   sketchup.toggle_pause_simulation();
 }
 
 function restartSimulation(event) {
   if (event.currentTarget.disabled == null) event.stopPropagation();
-  
   $('.piston').val(0.5); // resetting
 
   sketchup.restart_simulation();

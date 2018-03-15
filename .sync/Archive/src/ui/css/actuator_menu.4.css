@@ -26,7 +26,6 @@ button {
   padding: 5px;
   margin: 0;
   width: inherit;
-  width: 60px;
 }
 
 button + button {
