@@ -185,9 +185,9 @@ class Link < PhysicsThingy
 
   def disconnect_from_hub(is_first_joint)
     if is_first_joint
-      @first_elongation.hide
+      @first_elongation.hide if @first_elongation
     else
-      @second_elongation.hide
+      @second_elongation.hide if @second_elongation
     end
   end
 
