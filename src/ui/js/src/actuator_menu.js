@@ -70,6 +70,8 @@ function showManualActuatorSettings(pistons, breakingForce, maxSpeed) {
   $('#manual').empty().append(elements);
 }
 
+function resetManualActuatorSettings() { $("#manual").empty(); }
+
 function toggleStartStopSimulationButton() {
   if ($('.start-button').text() === 'Start') {
     $('.start-button').text('Stop');
@@ -107,7 +109,11 @@ function restartSimulation(event) {
   if (event.currentTarget.disabled == null)
     event.stopPropagation();
 
-  $('.piston').val(0.5); // resetting
+  // reset piston sliders
+  $('.piston').val(0.5);
+
+  // restarting the simulation also unpauses it
+  $('.pause-button').text('Pause');
 
   sketchup.restart_simulation();
 }

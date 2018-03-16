@@ -65,9 +65,10 @@ class ActuatorMenu
     breaking_force = @simulation_tool.get_breaking_force
     max_speed = @simulation_tool.get_max_speed
     @dialog.execute_script("showManualActuatorSettings(#{pistons.keys}, #{breaking_force}, #{max_speed})")
+  end
 
-    @dialog.execute_script("showManualActuatorSettings(#{pistons.keys}, #{breaking_force}, #{max_speed})")
-
+  def stop_simulation
+    @dialog.execute_script("resetManualActuatorSettings();")
   end
 
   def register_callbacks
@@ -76,6 +77,7 @@ class ActuatorMenu
       if @simulation_tool.simulation.nil? || @simulation_tool.simulation.stopped?
         start_simulation_setup_scripts
       else
+        stop_simulation
         Sketchup.active_model.select_tool(nil)
       end
     end

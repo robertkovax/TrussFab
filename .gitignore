@@ -2,4 +2,5 @@
 *assets/exports/*
 anton_demo.rb
 src/ui/node_modules
+*src/ui/js/build/*
 */.sync/*
