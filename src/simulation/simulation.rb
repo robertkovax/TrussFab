@@ -105,6 +105,11 @@ class Simulation
     @reset_positions_on_end = state
   end
 
+  def breaking_force=(breaking_force)
+    @breaking_force = breaking_force
+    @breaking_force_invh = (breaking_force > 1.0e-6) ? (0.5.fdiv(breaking_force)) : 0.0
+  end
+
   #
   # Setup and resetting of the world
   #

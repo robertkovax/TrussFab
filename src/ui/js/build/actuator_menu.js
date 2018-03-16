@@ -21,7 +21,7 @@ function showManualActuatorSettings(pistons, breakingForce, maxSpeed) {
 
   var highestForceModeElement = $('<div class="col-auto">\n      <div class="form-check">\n        <input class="form-check-input" id="force_mode_checkbox" type="checkbox">\n        <label class="form-check-label" for="force_mode_checkbox">Highest Force Mode</label>\n      </div>\n    </div>');
 
-  highestForceModeElement.on('change', function (event) {
+  highestForceModeElement.find('input').on('change', function (event) {
     return changeHighestForceMode(event.currentTarget.checked);
   });
 
