@@ -309,8 +309,8 @@ function scrubLine(d) {
 
 // setup logic
 
-function high(piston_id) { return 0.9 + 0.1 * piston_id; }
-function low(piston_id) { return 0.1 + 0.1 * piston_id; }
+function high(piston_id) { return 0.4 + 0.05 * piston_id; }
+function low(piston_id) { return 0.1 + 0.05 * piston_id; }
 function midPoint(piston_id) { return (high(piston_id) + low(piston_id)) / 2; }
 
 function addData(piston_id) {
