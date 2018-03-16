@@ -264,12 +264,12 @@ class HingePlacementAlgorithm
 
     # shorten elongations for all edges that are not part of the main hub
     nodes.each do |node|
-      main_hub = hubs[node][0]
+      main_hub = @hubs[node][0]
 
-      node_edges = edges.select { |edge| edge.nodes.include? node && edge.link_type != 'actuator' }
+      node_edges = edges.select { |edge| edge.nodes.include?(node) && edge.link_type != 'actuator' }
       node_edges.each do |edge|
         if main_hub.nil? || !main_hub.include?(edge)
-          add_elongation(edge, node)
+          disconnect_edge_from_hub(edge, node)
         end
       end
     end
@@ -283,6 +283,9 @@ class HingePlacementAlgorithm
     static_groups.reverse.each do |group|
       color_group(group)
     end
+
+    hinge_layer = Sketchup.active_model.layers.at(Configuration::HINGE_VIEW)
+    hinge_layer.visible = true
   end
 
   def hinge_connects_to_groups(group_edge_map, hinge, num_groups = 1)
@@ -419,11 +422,11 @@ class HingePlacementAlgorithm
     end
   end
 
-  def add_elongation(rotating_edge, node)
+  def disconnect_edge_from_hub(rotating_edge, node)
     if rotating_edge.first_node?(node)
-      rotating_edge.thingy.shorten_elongation(true)
+      rotating_edge.thingy.disconnect_from_hub(true)
     else
-      rotating_edge.thingy.shorten_elongation(false)
+      rotating_edge.thingy.disconnect_from_hub(false)
     end
   end
 
@@ -551,9 +554,9 @@ class HingePlacementAlgorithm
         l1 = @node_l1[node]
 
         # if pods are fixed and edge can not be elongated, raise error
-        edge_contains_pods = edge.nodes.any? { |node| node.pod_directions.size > 0 }
-        if edge_contains_pods
-          raise 'Hinge is connected to edge that has a pod.'
+        edge_fixed = edge.nodes.any? { |node| node.fixed? }
+        if edge_fixed
+          raise "#{edge.inspect} is fixed, e.g. by a pod, but needs to be elongated since a hinge connects to it."
         end
 
         elongation = edge.first_node?(node) ? edge.first_elongation_length : edge.second_elongation_length

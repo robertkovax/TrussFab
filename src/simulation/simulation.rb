@@ -84,6 +84,13 @@ class Simulation
     @max_actuator_tensions = {}
     @max_speed = 0
     @highest_force_mode = false
+
+    hinge_layer = Sketchup.active_model.layers.at(Configuration::HINGE_VIEW)
+    hinge_layer.visible = false
+
+    Graph.instance.edges.each_value do |edge|
+      edge.thingy.connect_to_hub
+    end
   end
 
   #

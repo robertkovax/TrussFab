@@ -1,4 +1,5 @@
 .idea
-assets/export
+*assets/exports/*
 anton_demo.rb
 src/ui/node_modules
+*/.sync/*

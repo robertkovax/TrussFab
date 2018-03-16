@@ -2,19 +2,19 @@ require 'src/simulation/simulation.rb'
 
 class Pod < Thingy
 
+  attr_accessor :is_fixed
+
   attr_reader :position, :direction
 
-  attr_reader :node
-
-  def initialize(node, position, direction,
+  def initialize(position, direction, is_fixed: true,
                  id: nil, material: 'elongation_material')
     super(id, material: material)
     @position = position
     @direction = direction
     @model = ModelStorage.instance.models['pod']
-    @node = node
     @direction.length = @model.length
     @entity = create_entity
+    @is_fixed = is_fixed
     persist_entity
   end
 
@@ -25,26 +25,29 @@ class Pod < Thingy
     Geometry.dist_point_to_segment(point, [first_point, second_point])
   end
 
+  def translation
+    Geom::Transformation.translation(@position)
+  end
+
+  def rotation
+    rotation_angle = Geometry.rotation_angle_between(Geometry::Z_AXIS, @direction)
+    rotation_axis = Geometry.perpendicular_rotation_axis(Geometry::Z_AXIS, @direction)
+    Geom::Transformation.rotation(@position, rotation_axis, rotation_angle)
+  end
+
   def update_position(position)
     @position = position
-    delete_entity
-    @entity = create_entity
+    transformation = rotation * translation
+    @entity.move!(transformation)
   end
 
   def delete
-    @node.delete_pod_information(@id)
     super
   end
 
   private
 
   def create_entity
-    translation = Geom::Transformation.translation(@position)
-
-    rotation_angle = Geometry.rotation_angle_between(Geometry::Z_AXIS, @direction)
-    rotation_axis = Geometry.perpendicular_rotation_axis(Geometry::Z_AXIS, @direction)
-    rotation = Geom::Transformation.rotation(@position, rotation_axis, rotation_angle)
-
     transformation = rotation * translation
 
     entity = Sketchup.active_model.active_entities.add_instance(@model.definition, transformation)
