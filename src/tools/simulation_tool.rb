@@ -186,4 +186,15 @@ class SimulationTool < Tool
     p "Assigned Group #{edge.automatic_movement_group} for #{edge}"
   end
 
+  def expand_actuator(group_id)
+    @simulation.expand_actuator(group_id)
+  end
+
+  def retract_actuator(group_id)
+    @simulation.retract_actuator(group_id)
+  end
+
+  def stop_actuator(group_id)
+    @simulation.stop_actuator(group_id)
+  end
 end

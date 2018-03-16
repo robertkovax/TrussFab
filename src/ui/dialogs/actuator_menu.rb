@@ -110,16 +110,16 @@ class ActuatorMenu
       @simulation_tool.change_highest_force_mode(checked)
     end
 
-    @dialog.add_action_callback('stop_actuator') do |_context|
-      p 'TODO: Stop actuator'
+    @dialog.add_action_callback('expand_actuator') do |_context, id|
+      @simulation_tool.expand_actuator(id)
     end
 
-    @dialog.add_action_callback('expand_actuator') do |_context|
-      p 'TODO: expand_actuator'
+    @dialog.add_action_callback('retract_actuator') do |_context, id|
+      @simulation_tool.retract_actuator(id)
     end
 
-    @dialog.add_action_callback('retract_actuator') do |_context|
-      p 'TODO: retract_actuator'
+    @dialog.add_action_callback('stop_actuator') do |_context, id|
+      @simulation_tool.stop_actuator(id)
     end
   end
 end

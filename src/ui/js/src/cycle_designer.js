@@ -103,7 +103,7 @@ function updateData() {
         return;
       }
       var diff = Math.abs(new_x - x(circle.x));
-      if (diff < 0.2) {
+      if (diff < 0.4) {
         var nextCircle =
             getCircleWithID(circle.id + 1, dots[circle.piston_id]).data()[0];
         console.log(nextCircle);
