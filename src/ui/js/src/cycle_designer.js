@@ -65,7 +65,7 @@ g.append('line')
     .attr('y1', 0)
     .attr('x2', x(min_x))
     .attr('y2', 100)
-    .style('stroke-width', 2)
+    .style('stroke-width', 3)
     .style('stroke', 'red')
     .style('fill', 'none')
     .call(scrub);
@@ -85,17 +85,7 @@ g.append('g')
     .attr('transform', 'translate(0,' + height + ')')
     .call(d3.axisBottom(x));
 
-function updateData() {
-  if (paused) {
-    return;
-  }
-  var timelineStep = 0.01;
-  var timeLine = d3.select('line');
-  var old_x = x.invert(timeLine.attr('x1'));
-  var new_x = x(min_x);
-  if (old_x <= max_x) {
-    var new_x = x(old_x + timelineStep);
-  }
+function movePistons(new_x) {
   d3.selectAll('circle').each(function(circle) {
     if (circle != d3.selectAll('circle').x) {
       if (circle.id == 5) {
@@ -103,10 +93,9 @@ function updateData() {
         return;
       }
       var diff = Math.abs(new_x - x(circle.x));
-      if (diff < 0.4) {
+      if (diff < 1) {
         var nextCircle =
             getCircleWithID(circle.id + 1, dots[circle.piston_id]).data()[0];
-        console.log(nextCircle);
         switch (circle.state) {
         case STATES.HIGH:
           if (nextCircle.state == STATES.LOW) {
@@ -125,8 +114,29 @@ function updateData() {
       }
     }
   });
-  timeLine.attr('x1', new_x);
-  timeLine.attr('x2', new_x);
+}
+
+function moveTimeline(timeline, new_x) {
+  timeline.attr('x1', new_x);
+  timeline.attr('x2', new_x);
+}
+
+function updateData() {
+  if (!started) {
+    return;
+  }
+  var timelineStep = 0.01;
+  var timeline = d3.select('line');
+  var old_x = x.invert(timeline.attr('x1'));
+  var new_x = x(min_x);
+  if (old_x <= max_x) {
+    var new_x = x(old_x + timelineStep);
+  }
+
+  movePistons(new_x);
+  if (!paused) {
+    moveTimeline(timeline, new_x);
+  }
 }
 
 setInterval(function() { updateData(); }, 10);
@@ -288,11 +298,11 @@ function dragDotEnded(d) { d3.select(this).classed('active', false); }
 
 function scrubLine(d) {
   var new_x = d3.event.x;
-  if (new_x > x(max_x)) {
-    new_x = x(max_x);
+  if (new_x > x(max_x + 0.2)) {
+    new_x = x(max_x + 0.2);
   }
-  if (new_x < x(min_x)) {
-    new_x = x(min_x);
+  if (new_x < x(min_x - 0.2)) {
+    new_x = x(min_x - 0.2);
   }
   d3.select(this).attr('x1', new_x).attr('x2', new_x);
 }
@@ -382,7 +392,6 @@ function retract(id) { sketchup.retract_actuator(id); }
 function stop(id) { sketchup.stop_actuator(id); }
 
 function update_pistons(id) {
-  console.log("Updating pistons");
   if (!paths.has(id)) {
     addPath(colors[datas.length], id);
   }
