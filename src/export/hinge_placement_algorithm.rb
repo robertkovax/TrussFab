@@ -419,19 +419,21 @@ class HingePlacementAlgorithm
   def color_group(group, group_nr)
     case group_nr
       when 0
-        group_color = "fbb4ae" # red
+        group_color = "1f78b4" # dark blue
       when 1
-        group_color = "b3cde3" # blue
+        group_color = "1b9e77" # turquoise
       when 2
-        group_color = "decbe4" # purple
+        group_color = "e31a1c" # dark red
       when 3
-        group_color = "fed9a6" # orange
+        group_color = "ff7f00" # dark orange
       when 4
-        group_color = "ffffcc" # yellow
+        group_color = "984ea3" # purple
       when 5
-        group_color = "e5d8bd" # brown
+        group_color = "a6cee3" # light blue
       when 6
-        group_color = "fddaec" # pink
+        group_color = "e78ac3" # pink
+      when 7
+        group_color = "fdbf6f" # light orange
       else
         group_color = "%06x" % (rand * 0xffffff)
     end
