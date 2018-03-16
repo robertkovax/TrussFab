@@ -17,12 +17,14 @@ class SimulationTool < Tool
     @end_position = nil
     @moving = false
     @force = nil
+    @auto_piston_group = []
   end
 
   def activate
     @simulation = Simulation.new
     @simulation.setup
     @simulation.open_sensor_dialog
+    @simulation.auto_piston_group = @auto_piston_group
     Sketchup.active_model.active_view.animation = @simulation
     @simulation.start
   end
@@ -183,6 +185,8 @@ class SimulationTool < Tool
     link = edge.thingy
     mat = @simulation.bottle_dat[link][3]
     mat.color = colors[edge.automatic_movement_group]
+    # persist the piston gropu array
+    @auto_piston_group = @simulation.auto_piston_group
     p "Assigned Group #{edge.automatic_movement_group} for #{edge}"
   end
 

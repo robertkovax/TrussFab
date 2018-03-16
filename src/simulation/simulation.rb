@@ -204,7 +204,6 @@ class Simulation
     model.commit_operation
 
     reset_tested_pistons
-    reset_piston_group
   end
 
   def create_joints
