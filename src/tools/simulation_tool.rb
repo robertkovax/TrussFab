@@ -143,7 +143,6 @@ class SimulationTool < Tool
 
   def set_breaking_force(param)
     breaking_force = param.to_f
-    breaking_force_invh = (breaking_force > 1.0e-6) ? (0.5.fdiv(breaking_force)) : 0.0
     Graph.instance.edges.each_value { |edge|
       link = edge.thingy
       if link.is_a?(Link) && link.joint && link.joint.valid?

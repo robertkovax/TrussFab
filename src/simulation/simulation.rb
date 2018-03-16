@@ -84,6 +84,13 @@ class Simulation
     @max_actuator_tensions = {}
     @max_speed = 0
     @highest_force_mode = false
+
+    hinge_layer = Sketchup.active_model.layers.at(Configuration::HINGE_VIEW)
+    hinge_layer.visible = false
+
+    Graph.instance.edges.each_value do |edge|
+      edge.thingy.connect_to_hub
+    end
   end
 
   #
@@ -96,6 +103,11 @@ class Simulation
 
   def reset_positions_on_end=(state)
     @reset_positions_on_end = state
+  end
+
+  def breaking_force=(breaking_force)
+    @breaking_force = breaking_force
+    @breaking_force_invh = (breaking_force > 1.0e-6) ? (0.5.fdiv(breaking_force)) : 0.0
   end
 
   #

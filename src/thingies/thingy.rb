@@ -48,7 +48,7 @@ class Thingy
 
   def show
     @entity.hidden = false if @entity && @entity.valid?
-    @sub_thingies.each(&:hide)
+    @sub_thingies.each(&:show)
   end
 
   def color

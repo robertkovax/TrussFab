@@ -32,6 +32,20 @@ class ComponentProperties
         add_generic_link_menu(context_menu,
                               'erb/generic_link_dialog.erb',
                               'TrussFab Generic Link Properties')
+      when 'Pod'
+        @pod = nil
+        Graph.instance.nodes.values.each do |node|
+          if node.pod?(id)
+            @pod = node.pod(id)
+            break
+          end
+        end
+
+        raise 'Pod not found' if @pod.nil?
+
+        add_pod_menu(context_menu,
+                     'erb/pod_dialog.erb',
+                     'TrussFab Pod Properties')
       end
 
     end
@@ -52,6 +66,12 @@ class ComponentProperties
   def add_generic_link_menu(context_menu, erb_file, title)
     context_menu.add_item(title) {
       show_generic_link_dialog(erb_file, title, Configuration::UI_WIDTH, 400)
+    }
+  end
+
+  def add_pod_menu(context_menu, erb_file, title)
+    context_menu.add_item(title) {
+      show_pod_dialog(erb_file, title, Configuration::UI_WIDTH, 400)
     }
   end
 
@@ -100,6 +120,14 @@ class ComponentProperties
                                height = Configuration::UI_HEIGHT)
     dialog = show_dialog(file, name, width, height)
     register_generic_link_callbacks(@generic_link, dialog)
+  end
+
+  def show_pod_dialog(file,
+                      name,
+                      width = Configuration::UI_WIDTH,
+                      height = Configuration::UI_HEIGHT)
+    dialog = show_dialog(file, name, width, height)
+    register_pod_callbacks(@pod, dialog)
   end
 
   def render(path)
@@ -165,6 +193,12 @@ class ComponentProperties
     dialog.add_action_callback('set_max') do |dialog, param|
       link.max_distance = param.to_f
       link.update_link_properties
+    end
+  end
+
+  def register_pod_callbacks(pod, dialog)
+    dialog.add_action_callback('set_fixed') do |dialog, param|
+      pod.is_fixed = param
     end
   end
 end

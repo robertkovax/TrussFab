@@ -217,9 +217,9 @@ module JsonImport
     def add_pods(json_objects, nodes)
       json_objects['nodes'].each do |node_json|
         node = nodes[node_json['id']]
-        next if node_json['pod_directions'].nil? || node_json['pod_directions'].empty?
-        node_json['pod_directions'].values.each do |direction|
-          node.add_pod(string_to_vector3d(direction))
+        next if node_json['pods'].nil? || node_json['pods'].empty?
+        node_json['pods'].each do |pod_info|
+          node.add_pod(string_to_vector3d(pod_info['direction']), is_fixed: pod_info['is_fixed'])
         end
       end
     end

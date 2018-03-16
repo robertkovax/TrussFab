@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="de">
+<link rel="stylesheet" href="../css/ui.css" type="text/css">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PodMenu</title>
+</head>
+<body onload="init_checkbox()">
+Fixed:
+<input type="checkbox" id="fixed" onchange="set_fixed(this.checked)">
+
+<script type="text/javascript">
+    function init_checkbox() {
+        var checkbox = document.getElementById("fixed");
+        checkbox.checked = <%= @pod.is_fixed %>
+    }
+
+    function set_fixed(newValue) {
+        sketchup.set_fixed(newValue);
+    }
+</script>
+</body>
+</html>
