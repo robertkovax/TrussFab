@@ -8,7 +8,7 @@ body {
 
 /* sidebar buttons */
 
-button {
+button:not(.btn-link) {
   width: 100%;
   padding: 7px;
   border: 1px solid #c5c5c5;
@@ -30,7 +30,7 @@ button img {
   height: 50px;
 }
 
-button:not([disabled]):hover {
+button:not(.btn-link):not([disabled]):hover {
   border-color: #bbbbbb;
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
   background: linear-gradient(#fefefe, #ececec);

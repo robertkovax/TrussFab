@@ -1,8 +1,7 @@
 /* styling in the accordion */
 .card-block,
 .card-header {
-  padding-left: 2px !important;
-  padding-right: 2px !important;
+  padding: 0 2px !important;
 }
 
 .card-header,
@@ -14,19 +13,29 @@
   margin-top: 20px;
 }
 
+.card + .card {
+  margin-top: 2px;
+}
+
 h2 {
   font-size: 15px;
   margin-top: 10px;
   margin-bottom: 5px;
 }
 
-h5 a,
-h5 a:hover,
-h5 a:visited,
-h5 a:active {
+/*for the accordion headers */
+
+button.btn-link {
   color: inherit !important;
   text-decoration: none !important;
+;}
+
+
+h5 {
+  text-align: center;
 }
+
+/*for the button for the tools*/
 
 button.tool {
   vertical-align: top;
@@ -62,11 +71,10 @@ footer {
   bottom: 0;
   display: flex !important;
   flex-wrap: wrap;
-  padding: 2px;
-}
+  padding: 2px;}
 
 button.fabricate {
-  width: 90%; /* just some value to make it wrap so the grow prop comes into play */
+  width: 90% !important; /* just some value to make it wrap so the grow prop comes into play */
   flex-grow: 2;
   /* margin-left: 0; */
   /* margin-right: 0; */
@@ -78,7 +86,7 @@ button.fabricate img {
 }
 
 footer button {
-  width: 40%; /* some value <50% */
+  width: 40% !important; /* some value <50% */
   flex-grow: 1;
   margin: 2px !important;
 }
