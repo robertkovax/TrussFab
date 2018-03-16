@@ -94,6 +94,7 @@ function togglePauseUnpauseSimulationButton() {
 
 function toggleSimulation() {
   toggleStartStopSimulationButton();
+  startStopCycle();
   sketchup.toggle_simulation();
 }
 
@@ -102,6 +103,7 @@ function togglePauseSimulation(event) {
     event.stopPropagation();
 
   togglePauseUnpauseSimulationButton();
+  pauseUnpauseCycle();
   sketchup.toggle_pause_simulation();
 }
 
@@ -129,7 +131,6 @@ function setBreakingForce(value) { sketchup.set_breaking_force(value); }
 function setMaxSpeed(value) { sketchup.set_max_speed(value); }
 
 function changeHighestForceMode(checked) {
-  console.log(checked)
   sketchup.change_highest_force_mode(checked);
 }
 
