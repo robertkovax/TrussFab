@@ -68,6 +68,7 @@ class UserInteraction
     build_tool(HingeAnalysisTool, 'hinge_analysis_tool')
     build_tool(AutomaticActuatorsTool, 'automatic_actuators_tool')
     build_tool(GeneticActuatorPlacementTool, 'genetic_actuator_placement_tool')
+    build_tool(FindLimitsTool, 'find_limits_tool')
   end
 
   def build_tool(tool_class, tool_id)

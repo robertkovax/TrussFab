@@ -100,6 +100,17 @@ class Simulation
     @reset_positions_on_end = state
   end
 
+  def breaking_force=(breaking_force)
+    @breaking_force = breaking_force.to_f
+    @breaking_force_invh = (@breaking_force > 1.0e-6) ? (0.5.fdiv(@breaking_force)) : 0.0
+    Graph.instance.edges.each_value { |edge|
+      link = edge.thingy
+      if link.is_a?(Link) && link.joint && link.joint.valid?
+        link.joint.breaking_force = @breaking_force
+      end
+    }
+  end
+
   #
   # Setup and resetting of the world
   #
@@ -182,6 +193,7 @@ class Simulation
       reset_force_labels
       reset_force_arrows
       reset_sensor_symbols
+      reset_generic_links
       rendering_options['EdgeDisplayMode'] = @show_edges
       rendering_options['DrawSilhouettes'] = @show_profiles
     rescue Exception => err
@@ -324,14 +336,7 @@ class Simulation
     end
 
     @dialog.add_action_callback('set_breaking_force') do |_context, param|
-      @breaking_force = param.to_f
-      @breaking_force_invh = (@breaking_force > 1.0e-6) ? (0.5.fdiv(@breaking_force)) : 0.0
-      Graph.instance.edges.each_value { |edge|
-        link = edge.thingy
-        if link.is_a?(Link) && link.joint && link.joint.valid?
-          link.joint.breaking_force = @breaking_force
-        end
-      }
+      self.breaking_force = param
     end
 
     @dialog.add_action_callback('set_max_speed') do |_context, param|
@@ -367,13 +372,13 @@ class Simulation
 
     @dialog.add_action_callback('apply_force') do |_context|
       @generic_links.each_value do |generic_link|
-        generic_link.force = 50
+        generic_link.force = generic_link.force + 10
       end
     end
 
     @dialog.add_action_callback('release_force') do |_context|
       @generic_links.each_value do |generic_link|
-        generic_link.force = 10
+        # generic_link.force = generic_link.initial_force
       end
     end
   end
@@ -390,6 +395,12 @@ class Simulation
 
   def reset_tested_pistons
     @moving_pistons.clear
+  end
+
+  def reset_generic_links
+    @generic_links.each_value do |generic_link|
+      generic_link.force = generic_link.initial_force
+    end
   end
 
   def get_closest_node_to_point(point)
