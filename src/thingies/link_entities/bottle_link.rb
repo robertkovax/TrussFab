@@ -8,15 +8,14 @@ class BottleLink < Thingy
     @direction = direction
     @model = model
     @entity = create_entity
+    change_color(@material)
     persist_entity
   end
 
   def change_color(color)
-    material = color
-
     @entity.definition.entities.each do |ent|
       if ent.material != color
-        ent.material = material
+        ent.material = color
       end
     end
   end
