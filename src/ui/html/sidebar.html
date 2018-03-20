@@ -28,7 +28,7 @@
       <div class="card-header" role="tab" id="headingOne">
         <h5 class="mb-0">
           <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-            Statics
+            Shape
           </button>
         </h5>
       </div>
@@ -130,18 +130,22 @@
       </div>
       <div id="collapseTwo" class="collapse" role="tabpanel" aria-labelledby="headingTwo" data-parent="#accordion">
         <div class="card-block">
-          <h6>Insert At</h6>
+          <h6>Actuator</h6>
           <button type="button" class="tool" id="actuator_tool">
             <img src="../assets/icons/actuator.png" width="54px" alt="actuator">
-            <div>actuator</div>
+            <div>manual</div>
           </button>
-          <button type="button" class="tool" id="sprink_tool">
+          <button type="button" class="tool" id="genetic_actuator_placement_tool">
+            <img src="../assets/icons/auto_actuator.png" alt="genetic placment">
+            <div>genetic</div>
+          </button>
+          <!-- <button type="button" class="tool" id="spring_tool">
             <img src="../assets/icons/actuator.png" width="54px" alt="actuator">
-            <div>sprink</div>
+            <div>spring</div>
           </button>
           <button type="button" class="tool" id="damp_tool">
             <img src="../assets/icons/actuator.png" width="54px" alt="actuator">
-            <div>damp</div>
+            <div>damp</div> -->
           </button>
           <h6>Assets</h6>
           <button type="button" class="tool" id="assets_1_tool">
@@ -156,93 +160,56 @@
             <img src="../assets/icons/fill.png" alt="leg">
             <div>Leg</div>
           </button>
-          <h6>Automatic</h6>
+          <!-- <h6>Automatic</h6> -->
           <!-- <button type="button" class="tool" id="automatic_actuators_tool">
             <img src="../assets/icons/deform.png" alt="deform">
             <div>auto. actu.</div>
           </button> -->
-          <button type="button" class="tool" id="genetic_actuator_placement_tool">
-            <img src="../assets/icons/auto_actuator.png" alt="genetic placment">
-            <div>Genetic
-              <br>Placement</div>
-          </button>
-          <button type="button" class="tool" id="hinge_analysis_tool">
+          <!-- <button type="button" class="tool" id="hinge_analysis_tool">
             <img src="../assets/icons/hinge.png" alt="hinge analysis">
             <div>hinges</div>
-          </button>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-header" role="tab" id="headingThree">
-        <h5 class="mb-0">
-          <button class="btn btn-link" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
-            Forces
-          </button>
-        </h5>
-      </div>
-      <div id="collapseThree" class="collapse" role="tabpanel" aria-labelledby="headingThree" data-parent="#accordion">
-        <div class="card-block">
-          <!-- <h6>Physics Simulation</h6>
-          <button type="button" class="tool" id="dynamic_tetrahedron_tool">
-            <img src="../assets/icons/tetrahedron.png" alt="dynamic tetra">
-            <div>dyn tetra</div>
-          </button>
-          <button type="button" class="tool" id="dynamic_octahedron_tool">
-            <img src="../assets/icons/octahedron.png" alt="dynamic octa">
-            <div>dyn octa</div>
-          </button> -->
-          <!-- <button type="button" class="tool" id="simulation_tool">
-            <img src="../assets/icons/animate.png" width="54px" alt="simulate">
-            <div>simulate</div>
-          </button>
-          <button type="button" class="tool" id="ball_joint_simulation_tool">
-            <img src="../assets/icons/animate.png" width="54px" alt="balljoint simulate">
-            <div>ball simulate</div>
           </button> -->
 
-          <h6>Add</h6>
+          <h6>Check Forces</h6>
           <!-- <button type="button" class="tool" id="rigidity_test_tool">
             <img src="../assets/icons/force.png" alt="rigidity test">
             <div>rigidity test</div>
           </button> -->
           <button type="button" class="tool" id="add_weight_tool">
             <img src="../assets/icons/force.png" alt="add test load">
-            <div> add weight</div>
+            <div>load</div>
           </button>
           <!-- TODO: -->
           <button type="button" class="tool" id="add_force_tool">
             <img src="../assets/icons/arrow_down.png" alt="add test load">
-            <div> add force</div>
+            <div>force</div>
           </button>
           <button type="button" hidden="true" class="tool">
             <img src="../assets/icons/stability.png" alt="check stability">
             <div>check stability</div>
           </button>
-          <h6>Observe</h6>
+          <!-- <h6>Observe</h6>
           <button type="button" class="tool" id="sensor_tool">
             <img src="../assets/icons/sensor.png" alt="sensor">
             <div>sensor</div>
-          </button>
-          <h6>Optimise Force</h6>
+          </button> -->
+          <h6>Optimize Force</h6>
           <button type="button" class="tool" id="optimise_force_tool">
             <img src="../assets/icons/line_max.png" alt="sensor">
             <div>sensor</div>
           </button>
-          <h6>Advanced</h6>
-
         </div>
       </div>
     </div>
   </div>
   <!-- Accordion End -->
   <footer>
+    <button type="button" id="export_file_tool">Save</button>
+    <button type="button" id="import_file_tool">Load</button>
     <button type="button" class="fabricate" id="fabricate_tool">
       <img src="../assets/icons/fabricate.png" alt="fabricate it">
       <div>Export Hubs & Hinges</div>
     </button>
-    <button type="button" class="halfWidth" id="import_file_tool">Load</button>
-    <button type="button" class="halfWidth" id="export_file_tool">Save</button>
   </footer>
 </body>
 
