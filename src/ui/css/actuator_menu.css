@@ -13,13 +13,14 @@ body {
   display: flex;
   flex-direction: column;
   padding-top: 2px;
-  padding-right: 2px;
+  padding-right: 4px;
   border-right: 1px solid #ddd;
+  height: auto;
 }
 
 .acutator-settings {
   margin-top: 2px;
-  margin-left: 4px;
+  margin-left: 6px;
   width: 100%;
 }
 
@@ -34,12 +35,12 @@ button + button {
   margin-top: 2px;
 }
 
-input[type='range'] {
+/* input[type='range'] {
   margin-top: 60px;
   margin-right: -100px;
   transform: rotate(270deg);
   -moz-transform: rotate(270deg);
-}
+} */
 
 /*#manual {
   margin-left: -40px;

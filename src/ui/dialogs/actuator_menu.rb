@@ -6,32 +6,31 @@ class ActuatorMenu
   def initialize
     @HTML_FILE = '../html/actuator_menu.erb'
     @simulation_tool = SimulationTool.new(self)
+    @width = 600
+    @height = 300
 
   end
 
   def open_dialog(sidebar_menu_width , sidebar_menu_height)
-    width = 600
-    height = 300
 
     left = sidebar_menu_width
-    top = sidebar_menu_height - height
+    top = sidebar_menu_height - @height
 
     props = {
       :resizable => false,
-      :width => width,
-      :height => height,
+      :width => @width,
+      :height => @height,
       :left => left,
       :top => top,
-      :min_width => width,
-      :min_height =>height,
-      :max_width => width,
-      :max_height => height
+      :min_width => @width,
+      :min_height => @height,
+      :max_width => @width,
+      :max_height => @height
     }
 
     @dialog = UI::HtmlDialog.new(props)
     file = File.join(File.dirname(__FILE__), @HTML_FILE)
     @dialog.set_file(file)
-    # @dialog.set_size(Configuration::UI_WIDTH, Configuration::UI_HEIGHT)
     @dialog.set_position(left, top)
     @dialog.show
 
@@ -46,6 +45,10 @@ class ActuatorMenu
   def refresh
     file = File.join(File.dirname(__FILE__), @HTML_FILE)
     @dialog.set_file(file)
+  end
+
+  def set_dialog_size(width, height)
+    @dialog.set_size(width, height)
   end
 
   def update_piston_group(movement_group)
@@ -120,6 +123,10 @@ class ActuatorMenu
 
     @dialog.add_action_callback('stop_actuator') do |_context, id|
       @simulation_tool.stop_actuator(id)
+    end
+
+    @dialog.add_action_callback('set_dialog_size') do |_, width, height|
+      set_dialog_size(width, height)
     end
   end
 end
