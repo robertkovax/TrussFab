@@ -12,10 +12,11 @@ class BottleLink < Thingy
   end
 
   def change_color(color)
+    material = color
+
     @entity.definition.entities.each do |ent|
       if ent.material != color
-        ent.material = color
-        ent.material.alpha = 1.0
+        ent.material = material
       end
     end
   end
