@@ -421,13 +421,13 @@ class HingePlacementAlgorithm
       when 0
         group_color = "1f78b4" # dark blue
       when 1
-        group_color = "1b9e77" # turquoise
-      when 2
         group_color = "e31a1c" # dark red
-      when 3
+      when 2
         group_color = "ff7f00" # dark orange
-      when 4
+      when 3
         group_color = "984ea3" # purple
+      when 4
+        group_color = "a65628" # brown
       when 5
         group_color = "a6cee3" # light blue
       when 6
