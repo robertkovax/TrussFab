@@ -77,9 +77,7 @@ class Sidebar
   def register_callbacks
     return if @dialog.nil?
     build_tool(TetrahedronTool, 'tetrahedron_tool')
-    build_tool(TetrahedronTool, 'assets_1_tool') # TODO
-    build_tool(TetrahedronTool, 'assets_2_tool') # TODO
-    build_tool(TetrahedronTool, 'assetse_leg_tool') # TODO
+    build_tool(AssetsLegTool, 'assets_leg_tool')
     build_tool(DynamicTetrahedronTool, 'dynamic_tetrahedron_tool')
     build_tool(OctahedronTool, 'octahedron_tool')
     build_tool(DynamicOctahedronTool, 'dynamic_octahedron_tool')
