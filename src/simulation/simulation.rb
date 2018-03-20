@@ -669,6 +669,15 @@ class Simulation
     node.thingy.body.apply_force(force)
   end
 
+  # returns true if any of the joints in the structure broke
+  def broken?
+    broken = false
+    Graph.instance.edges.each_value do |edge|
+      broken = true unless edge.thingy.joint.valid?
+    end
+    broken
+  end
+
   # This is called when simulation starts and assigns unique materials to bottles
   # Note: this must be wrapped in operation
   def assign_unique_materials

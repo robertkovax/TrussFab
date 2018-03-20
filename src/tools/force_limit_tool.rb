@@ -12,6 +12,9 @@ class FindLimitsTool < Tool
 
     @moving = false
     @force = 0
+    @previous_force = 0
+    @min_force = 0
+    @max_force = 0
     @edge = nil
     @threshold = 0.01
     @steps = 0
@@ -25,6 +28,7 @@ class FindLimitsTool < Tool
     @simulation.reset unless @simulation.nil?
     @simulation = nil
     super
+    @steps = @force = @previous_force = @min_force = @max_force = 0
     view.invalidate
   end
 
@@ -43,24 +47,62 @@ class FindLimitsTool < Tool
     find_limits
   end
 
-  def find_limits
-    @simulation = Simulation.new
+  def setup_simulation
     @simulation.setup
     @simulation.breaking_force = 0 #disable breaking_force
-    # Sketchup.active_model.active_view.animation = @simulation
-    @simulation.update_world_headless_by(3) #settle down
-    settled_distance = @edge.thingy.joint.cur_distance
-    while (@edge.thingy.joint.cur_distance - settled_distance).abs < @threshold && @steps < 500
-      apply_force
-      @steps = @steps + 1
-    end
-    p @force
-    p @steps
+    @simulation.update_world_headless_by(1) #settle down
+    @force = 0
   end
 
-  def apply_force
-    @force = @force - 10
+  def reset_simulation
+    @simulation.reset
+    @simulation.setup
+    @simulation.breaking_force = 0
+    @simulation.update_world_headless_by(1) #settle down again
+    @simulation.breaking_force = Configuration::JOINT_BREAKING_FORCE
+    @force = -Configuration::JOINT_BREAKING_FORCE
+  end
+
+  def find_limits
+    @simulation = Simulation.new
+    setup_simulation
+    settled_distance = @edge.thingy.joint.cur_distance
+    #Find min force until it moves
+    while (@edge.thingy.joint.cur_distance - settled_distance).abs < @threshold && @steps < 500
+      apply_force_increasing
+      @steps += 1
+    end
+    @min_force = @force
+
+    #Find max force before it breaks
+    reset_simulation
+    @new_force = 0
+
+    broke_previously = false
+    for i in 0..50
+      reset_simulation
+      apply_force_binary_search(!broke_previously)
+      broke_previously = @simulation.broken?
+    end
+    @max_force = @force
+
+    p @min_force
+    p @max_force
+  end
+
+  def apply_force_increasing
+    @force -= 10
     @edge.thingy.force = @force
     @simulation.update_world_headless_by(0.2)
+  end
+
+  def apply_force_binary_search(increasing)
+    if increasing
+      @new_force = (@new_force + @force) / 2
+    else
+      @force = (@new_force + @force) / 2
+    end
+    @edge.thingy.force = (@new_force + @force) / 2
+    @simulation.update_world_headless_by(0.1)
   end
 end

@@ -40,9 +40,6 @@ class GenericLink < PhysicsLink
     unless @joint.nil? || !@joint.valid?
       @joint.force = force
       @joint.update_info
-      p @force
-    else
-      p 'joint is broken'
     end
   end
 
