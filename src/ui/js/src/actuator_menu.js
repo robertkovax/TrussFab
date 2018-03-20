@@ -52,21 +52,31 @@ function showManualActuatorSettings(pistons, breakingForce, maxSpeed) {
 
   elements.push($('<form />').append(form));
 
-  pistons.forEach(pistonId => {
+  const pistonContainer = $('<div class="piston-container form-row"/>');
+
+  pistons.forEach((pistonId, index) => {
+    const divOuter = $('<div class="col-4" />');
+    const divInner = $('<div />');
+
+    divInner.append(`<span>Actuator ${index + 1}`);
+
     const pistonElement = $(
       `<input class="piston" type="range" min="0" max="1" value="0.5" step="0.01">`
     );
     pistonElement.on('input', event =>
       changePistonValue(pistonId, event.currentTarget.value)
     );
-    elements.push(pistonElement);
+    divInner.append(pistonElement);
 
     const pistonTestButton = $(`<button>Test</button>`);
 
     pistonTestButton.click(() => testPiston(pistonId));
 
-    elements.push(pistonTestButton);
+    divInner.append(pistonTestButton);
+    pistonContainer.append(divOuter.append(divInner));
   });
+
+  elements.push(pistonContainer);
 
   $('#manual')
     .empty()

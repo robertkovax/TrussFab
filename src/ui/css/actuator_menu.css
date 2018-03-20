@@ -59,3 +59,25 @@ input {
 #manual {
   padding-top: 2px;
 }
+
+#actuators-tab-content form {
+  padding-top: 4px;
+}
+
+.piston-container {
+  padding: 2px 0;
+}
+
+.piston-container div div {
+  border: 1px dashed lightgray;
+  margin: 2px;
+  padding: 4px;
+}
+
+.piston-container input[type='range'] {
+  width: 100%;
+}
+
+.piston-container button {
+  margin-left: 0;
+}
