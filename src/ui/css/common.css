@@ -21,13 +21,14 @@ button:not(.btn-link) {
       endColorstr='#ececec'
     );
   zoom: 1;
-  font-size: 12px !important;
+  font-size: 11px !important;
   margin: 0px 2px 8px 2px;
 }
 
 button img {
-  width: 50px;
-  height: 50px;
+  width: 45px;
+  height: 45px;
+  margin: 2.5px !important;
 }
 
 button:not(.btn-link):not([disabled]):hover {

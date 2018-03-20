@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50">
+     <path fill="transparent" stroke="black" stroke-width="2" d="
+              M 28 38
+              l -10 10
+              l -5 -5
+              l 10 -10
+              l -5 -5
+              l -10 10
+              l -5 -5
+              l 10 -10
+              l -6 -6
+              l 26 -13
+              h 14.1421356237
+              v 7
+              h -14.1421356237
+              v 7
+              h 14.1421356237
+              v 7
+              h -14.1421356237
+              v 9
+              z
+            "></path>
+</svg>
