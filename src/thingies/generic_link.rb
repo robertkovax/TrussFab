@@ -9,10 +9,15 @@ class GenericLink < PhysicsLink
   def initialize(first_node, second_node, id: nil)
     super(first_node, second_node, 'generic', id: id)
 
+    pt1 = first_node.thingy.position
+    pt2 = second_node.thingy.position
+    length = pt1.distance(pt2).to_m
+
     @force = Configuration::GENERIC_LINK_FORCE
-    @min_distance = Configuration::GENERIC_LINK_MIN_DISTANCE
-    @max_distance = Configuration::GENERIC_LINK_MAX_DISTANCE
+    @min_distance = length + Configuration::GENERIC_LINK_MIN_DISTANCE
+    @max_distance = length + Configuration::GENERIC_LINK_MAX_DISTANCE
     @limits_enabled = false
+    @extended_force = Configuration::GENERIC_LINK_FORCE
 
     persist_entity
   end
@@ -24,8 +29,10 @@ class GenericLink < PhysicsLink
   def update_link_properties
     if @joint && @joint.valid?
       @joint.force = @force
+      @joint.extended_force = @extended_force
       @joint.min_distance = @min_distance
       @joint.max_distance = @max_distance
+      @joint.limits_enabled = @limits_enabled
     end
   end
 
