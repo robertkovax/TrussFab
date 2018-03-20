@@ -14,7 +14,9 @@ function buttonClicked(id) {
 
 $(() => {
   sketchup.documentReady();
-  $('button').click(event => buttonClicked(event.currentTarget.id));
+  $('footer button, .tool').click(event =>
+    buttonClicked(event.currentTarget.id)
+  );
 
   // this forces that always one card is not collapsed
   // $('.card-header a').click(function(e) {
