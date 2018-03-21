@@ -109,11 +109,11 @@ module Configuration
   # Simulation Properties
   WORLD_GRAVITY         = -9.8 # in m/s/s
   WORLD_SOLVER_MODEL    = 8 # 1 - 64
-  WORLD_TIMESTEP        = 1.0 / 200 # in seconds
+  WORLD_TIMESTEP        = 1.0 / 60 # in seconds
   WORLD_NUM_ITERATIONS  = ((1.0 / 60) / WORLD_TIMESTEP).to_i
   JOINT_SOLVER_MODEL    = 0 # 0 or 2
-  JOINT_STIFFNESS       = 0.9 # ratio (0.0 - 1.0)
-  JOINT_BREAKING_FORCE  = 3000 # (in Newtons)
+  JOINT_STIFFNESS       = 0.95 # ratio (0.0 - 1.0)
+  JOINT_BREAKING_FORCE  = 1000 # (in Newtons)
   BODY_STATIC_FRICITON  = 0.9
   BODY_KINETIC_FRICITON = 0.5
   BODY_ELASTICITY       = 0.1
@@ -153,8 +153,8 @@ module Configuration
   #  for all the linked pods and links.
   ELONGATION_MASS   = 0.0
   LINK_MASS         = 0.2
-  PISTON_MASS       = 0.1
-  HUB_MASS          = 0.7
+  PISTON_MASS       = 0.3
+  HUB_MASS          = 0.14
   POD_MASS          = 0.1
 
 end

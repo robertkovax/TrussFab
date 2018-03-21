@@ -56,18 +56,24 @@ class Thingy
   end
 
   def material=(material)
+    Sketchup.active_model.start_operation("Thingy: Change Material", true)
     @entity.material = material if @entity && @entity.valid?
     @sub_thingies.each { |thingy| thingy.material = material }
+    Sketchup.active_model.commit_operation
   end
 
   def highlight(highlight_material = @highlight_material)
+    Sketchup.active_model.start_operation("Thingy: Highlight", true)
     @entity.material = highlight_material if @entity && @entity.valid?
     @sub_thingies.each { |thingy| thingy.highlight(highlight_material) }
+    Sketchup.active_model.commit_operation
   end
 
   def un_highlight
+    Sketchup.active_model.start_operation("Thingy: Unhighlight", true)
     @entity.material = @material if @entity && @entity.valid?
     @sub_thingies.each(&:un_highlight)
+    Sketchup.active_model.commit_operation
   end
 
   def delete_entity

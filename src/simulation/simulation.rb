@@ -159,6 +159,8 @@ class Simulation
 
     # create joints for each edge
     create_joints
+    get_all_pistons
+    get_all_generic_links
 
     # Setup stuff
     model = Sketchup.active_model
@@ -372,13 +374,13 @@ class Simulation
 
     @dialog.add_action_callback('apply_force') do |_context|
       @generic_links.each_value do |generic_link|
-        generic_link.force = generic_link.force + 10
+        generic_link.force = -350
       end
     end
 
     @dialog.add_action_callback('release_force') do |_context|
       @generic_links.each_value do |generic_link|
-        # generic_link.force = generic_link.initial_force
+        generic_link.force = generic_link.initial_force
       end
     end
   end
