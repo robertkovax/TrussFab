@@ -83,10 +83,6 @@ function showManualActuatorSettings(pistons, breakingForce, maxSpeed) {
     .append(elements);
 }
 
-function resetManualActuatorSettings() {
-  $('#manual').empty();
-}
-
 function toggleStartStopSimulationButton() {
   if ($('.start-button').text() === 'Start') {
     $('.start-button').text('Stop');
@@ -106,6 +102,15 @@ function togglePauseUnpauseSimulationButton() {
   } else {
     $('.pause-button').text('Pause');
   }
+}
+
+// called in Ruby when the simulation is stopped via ESC and the dialog is out of focous
+function cleanupUiAfterStoppingSimulation() {
+  $('#manual').empty();
+
+  toggleStartStopSimulationButton();
+  expandCollaps(true);
+  startStopCycle();
 }
 
 function expandCollaps(showStartButton) {
@@ -186,4 +191,13 @@ $(() => {
   $('.start-button').click(toggleSimulation);
 
   expandCollaps(true);
+
+  // stop simulation when dialog is in focus and ESC pressed
+  $(document).keyup(e => {
+    if (e.keyCode === 27) {
+      if ($('.start-button').text() === 'Stop') {
+        toggleSimulation();
+      }
+    }
+  });
 });

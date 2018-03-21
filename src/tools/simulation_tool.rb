@@ -35,6 +35,7 @@ class SimulationTool < Tool
     @simulation.close_sensor_dialog
     @simulation.close_automatic_movement_dialog
     @simulation = nil
+    @ui.stop_simulation
   end
 
   def toggle
