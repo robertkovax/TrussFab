@@ -1,0 +1,121 @@
+{
+  "distance_unit": "mm",
+  "force_unit": "N",
+  "nodes": [
+    {
+      "id": 1,
+      "x": 1994.7491808355405,
+      "y": 2191.9528160295486,
+      "z": 0.0,
+      "pods": [
+
+      ]
+    },
+    {
+      "id": 2,
+      "x": 2682.7255088355405,
+      "y": 2191.9528160295486,
+      "z": 0.0,
+      "pods": [
+
+      ]
+    },
+    {
+      "id": 3,
+      "x": 2338.7373448355406,
+      "y": 2787.7577932798836,
+      "z": 0.0,
+      "pods": [
+
+      ]
+    },
+    {
+      "id": 4,
+      "x": 2338.7373448355406,
+      "y": 2390.5544751129937,
+      "z": 561.7303195712119,
+      "pods": [
+
+      ]
+    },
+    {
+      "id": 5,
+      "x": 2338.7373448355406,
+      "y": 2390.5544751129923,
+      "z": -561.7303195712119,
+      "pods": [
+
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": 1,
+      "n1": 1,
+      "n2": 2,
+      "type": "bottle_link",
+      "bottle_type": "Big Big Double Bottle (60cm)"
+    },
+    {
+      "id": 2,
+      "n1": 2,
+      "n2": 3,
+      "type": "bottle_link",
+      "bottle_type": "Big Big Double Bottle (60cm)"
+    },
+    {
+      "id": 3,
+      "n1": 3,
+      "n2": 1,
+      "type": "bottle_link",
+      "bottle_type": "Big Big Double Bottle (60cm)"
+    },
+    {
+      "id": 4,
+      "n1": 1,
+      "n2": 4,
+      "type": "bottle_link",
+      "bottle_type": "Big Big Double Bottle (60cm)"
+    },
+    {
+      "id": 5,
+      "n1": 2,
+      "n2": 4,
+      "type": "actuator",
+      "bottle_type": "Big Big Double Bottle (60cm)"
+    },
+    {
+      "id": 6,
+      "n1": 3,
+      "n2": 4,
+      "type": "bottle_link",
+      "bottle_type": "Big Big Double Bottle (60cm)"
+    },
+    {
+      "id": 7,
+      "n1": 3,
+      "n2": 5,
+      "type": "bottle_link",
+      "bottle_type": "Big Big Double Bottle (60cm)"
+    },
+    {
+      "id": 9,
+      "n1": 1,
+      "n2": 5,
+      "type": "actuator",
+      "bottle_type": "Big Big Double Bottle (60cm)"
+    },
+    {
+      "id": 10,
+      "n1": 5,
+      "n2": 2,
+      "type": "bottle_link",
+      "bottle_type": "Big Big Double Bottle (60cm)"
+    }
+  ],
+  "standard_surface": [
+    3,
+    4,
+    1
+  ]
+}
