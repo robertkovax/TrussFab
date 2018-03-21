@@ -4,7 +4,7 @@ class ActuatorMenu
   attr_accessor :sidebar_menu
 
   def initialize
-    @HTML_FILE = '../html/actuator_menu.erb'
+    @HTML_FILE = '../html/actuator_menu.html'
     @simulation_tool = SimulationTool.new(self)
     @width = 600
     @height = 300
