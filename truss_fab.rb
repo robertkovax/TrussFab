@@ -32,7 +32,7 @@ require 'src/utility/project_helper'
 # ui files
 require 'src/ui/dialogs/actuator_menu'
 require 'src/ui/dialogs/sidebar'
-require 'src/ui/component_properties'
+require 'src/ui/dialogs/component_properties'
 
 # reloader helper
 require 'reloader'

@@ -18,19 +18,19 @@ class ComponentProperties
         actuator = Graph.instance.edges[id].thingy
         @actuator = actuator
         add_actuator_menu(context_menu,
-                          'erb/piston_dialog.erb',
+                          '../html/context_menu_piston.erb',
                           'TrussFab Piston Properties')
       when 'SpringLink'
         spring = Graph.instance.edges[id].thingy
         @spring = spring
         add_spring_menu(context_menu,
-                        'erb/spring_dialog.erb',
+                        '../html/context_menu_spring.erb',
                         'TrussFab Spring Properties')
       when 'GenericLink'
         generic_link = Graph.instance.edges[id].thingy
         @generic_link = generic_link
         add_generic_link_menu(context_menu,
-                              'erb/generic_link_dialog.erb',
+                              '../html/context_menu_generic_link.erb',
                               'TrussFab Generic Link Properties')
       when 'Pod'
         @pod = nil
@@ -44,7 +44,7 @@ class ComponentProperties
         raise 'Pod not found' if @pod.nil?
 
         add_pod_menu(context_menu,
-                     'erb/pod_dialog.erb',
+                     '../html/context_menu_pod.erb',
                      'TrussFab Pod Properties')
       end
 
