@@ -43,11 +43,11 @@ class ExportSubHub < ExportHub
       l3_array << elongation.l3.to_s
     end
 
-    params = "normal_vectors = [\n" + vector_array.join(",\n") + "],\n" +
-             "gap_types = [\n" + gap_type_array.join(",\n") + "],\n" +
-             "connector_types = [\n" + connector_type_array.join(",\n") + "],\n" +
-             "l1 = #{@l1},\n" +
-             "l3 = [\n" + l3_array.join(",\n") + "],\n"
+    params = "  normal_vectors = [\n" + vector_array.join(",\n") + "],\n" +
+             "  gap_types = [\n" + gap_type_array.join(",\n") + "],\n" +
+             "  connector_types = [\n" + connector_type_array.join(",\n") + "],\n" +
+             "  l1 = #{@l1},\n" +
+             "  l3 = [\n" + l3_array.join(",\n") + "],\n"
 
     default_params = format_hash_for_openscad_params(PRESETS::SUBHUB_OPENSCAD)
     filename = "#{path}/SubHub_#{@id}.scad"
