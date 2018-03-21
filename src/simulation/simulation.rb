@@ -453,7 +453,7 @@ class Simulation
       edges.each { |edge|
         if edge.automatic_movement_group == id
           link = edge.thingy
-          unless link.nil?
+          unless link.nil? || !link.valid?
             joint = link.joint
             joint.rate = 0
           end
