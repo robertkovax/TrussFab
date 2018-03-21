@@ -56,6 +56,8 @@ class ExportSubHub < ExportHub
     export_string = ["// adjust filepath to LibSTLExport if necessary",
       "use <#{ProjectHelper.library_directory}/openscad/Kinematics/subhub.scad>",
       "draw_subhub(",
+      "//  edge_sphere_push_out=[10, 10, 10],",
+      "//  edge_sphere_pull_in=[-200, -15, -15],",
     ].join("\n") + "\n" + params + default_params + "\n);\n"
 
     file.write(export_string)
