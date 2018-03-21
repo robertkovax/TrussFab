@@ -19,9 +19,13 @@ $(() => {
   );
 
   // this forces that always one card is not collapsed
-  // $('.card-header a').click(function(e) {
-  //   if (!$(this).hasClass('collapsed')) {
-  //     e.stopPropagation();
-  //   }
-  // });
+  $('.card').click(function(e) {
+    if (
+      $(this)
+        .find('.collapse')
+        .hasClass('show')
+    ) {
+      e.stopPropagation();
+    }
+  });
 });
