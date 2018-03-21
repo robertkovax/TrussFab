@@ -216,6 +216,9 @@ class Edge < GraphObject
 
   def reset
     recreate_thingy
+    if @link_type == 'bottle_link'
+      @thingy.change_color(Configuration::BOTTLE_COLOR)
+    end
   end
 
   private
