@@ -131,24 +131,16 @@ class HingePlacementAlgorithm
     group_edge_map = {}
 
     # generate hubs for all groups with size > 1
-    processed_edges = Set.new
     static_groups.each do |group|
       group_nodes = Set.new group.flat_map { |tri| tri.nodes }
       group_edges = Set.new group.flat_map { |tri| tri.edges }
-      group_edges = group_edges - processed_edges
 
       group_edge_map[group] = group_edges
 
       group_nodes.each do |node|
         hub_edges = group_edges.select { |edge| edge.nodes.include? node }
-        if hub_edges.size == 2
-          hinges.add(Hinge.new(hub_edges[0], hub_edges[1]))
-        else
-          hubs[node].push(hub_edges)
-        end
+        hubs[node].push(hub_edges)
       end
-
-      processed_edges = processed_edges.merge(group_edges)
     end
 
     # put hinges everywhere possible
