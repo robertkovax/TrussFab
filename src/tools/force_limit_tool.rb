@@ -16,7 +16,8 @@ class FindLimitsTool < Tool
     @min_force = 0
     @max_force = 0
     @edge = nil
-    @threshold = 0.01
+    @threshold = 0.02
+    @piston_position = 0
     @steps = 0
   end
 
@@ -49,8 +50,10 @@ class FindLimitsTool < Tool
 
   def setup_simulation
     @simulation.setup
+    # Sketchup.active_model.active_view.animation = @simulation
+    # @simulation.start
     @simulation.breaking_force = 0 #disable breaking_force
-    @simulation.update_world_headless_by(1) #settle down
+    @simulation.update_world_headless_by(5) #settle down
     @force = 0
   end
 
@@ -58,17 +61,17 @@ class FindLimitsTool < Tool
     @simulation.reset
     @simulation.setup
     @simulation.breaking_force = 0
-    @simulation.update_world_headless_by(1) #settle down again
+    @simulation.update_world_headless_by(5) #settle down again
     @simulation.breaking_force = Configuration::JOINT_BREAKING_FORCE
-    @force = -Configuration::JOINT_BREAKING_FORCE
   end
 
   def find_limits
     @simulation = Simulation.new
     setup_simulation
     settled_distance = @edge.thingy.joint.cur_distance
+    @piston_position = settled_distance
     #Find min force until it moves
-    while (@edge.thingy.joint.cur_distance - settled_distance).abs < @threshold && @steps < 500
+    while (@piston_position - settled_distance).abs < @threshold && @steps < 5000
       apply_force_increasing
       @steps += 1
     end
@@ -77,32 +80,39 @@ class FindLimitsTool < Tool
     #Find max force before it breaks
     reset_simulation
     @new_force = 0
+    @force = -Configuration::JOINT_BREAKING_FORCE
 
     broke_previously = false
     for i in 0..50
+      break if @force == @new_force
       reset_simulation
-      apply_force_binary_search(!broke_previously)
+      apply_force_binary_search(!broke_previously, i == 0)
       broke_previously = @simulation.broken?
     end
     @max_force = @force
 
     p @min_force
     p @max_force
+    @simulation.reset
+    @simulation = nil
   end
 
   def apply_force_increasing
     @force -= 10
     @edge.thingy.force = @force
-    @simulation.update_world_headless_by(0.2)
+    @simulation.update_world_headless_by(1)
+    @piston_position = @edge.thingy.joint.cur_distance
   end
 
-  def apply_force_binary_search(increasing)
-    if increasing
-      @new_force = (@new_force + @force) / 2
-    else
-      @force = (@new_force + @force) / 2
+  def apply_force_binary_search(increasing, first)
+    unless first
+      if increasing
+        @new_force = (@new_force + @force) / 2.0
+      else
+        @force = (@new_force + @force) / 2.0
+      end
     end
-    @edge.thingy.force = (@new_force + @force) / 2
-    @simulation.update_world_headless_by(0.1)
+    @edge.thingy.force = (@new_force + @force) / 2.0
+    @simulation.update_world_headless_by(0.2)
   end
 end
