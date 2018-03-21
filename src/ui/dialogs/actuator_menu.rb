@@ -75,7 +75,6 @@ class ActuatorMenu
   end
 
   def register_callbacks
-    puts 'register callbacks called'
     @dialog.add_action_callback('toggle_simulation') do |_context|
       if @simulation_tool.simulation.nil? || @simulation_tool.simulation.stopped?
         start_simulation_setup_scripts

@@ -187,7 +187,6 @@ class SimulationTool < Tool
     mat.color = colors[edge.automatic_movement_group]
     # persist the piston gropu array
     @auto_piston_group = @simulation.auto_piston_group
-    p "Assigned Group #{edge.automatic_movement_group} for #{edge}"
   end
 
   def expand_actuator(group_id)
