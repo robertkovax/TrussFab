@@ -2,13 +2,24 @@ import * as d3 from 'd3';
 
 import colors from './colors';
 
-var paused = true;
-var started = false;
-var max_x = 5;
-var min_x = 1;
+let paused = true;
+let started = false;
+const MAX_X = 5;
+const MIN_X = 1;
 
-var STATES = Object.freeze({ LOW: 0, HIGH: 1 });
-var state = STATES.HIGH;
+let STATES = Object.freeze({ LOW: 0, HIGH: 1 });
+let state = STATES.HIGH;
+
+const datas = [];
+const paths = new Map();
+const dots = {};
+
+const margin = {
+  top: 10,
+  right: 10,
+  bottom: 20,
+  left: 10,
+};
 
 const tabBarHeight = d3
   .select('#actuators-tab')
@@ -29,64 +40,52 @@ const svg = schedulingElement
   .append('svg')
   .attr('width', schedulingElementWidth)
   .attr('height', schedulingElementHeight);
-const margin = {
-  top: 10,
-  right: 10,
-  bottom: 20,
-  left: 10,
-};
-const width = +svg.attr('width') - margin.left - margin.right;
-const height = +svg.attr('height') - margin.top - margin.bottom;
+
+const width = svg.attr('width') - margin.left - margin.right;
+const height = svg.attr('height') - margin.top - margin.bottom;
+
 const g = svg
   .append('g')
-  .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
-var datas = [];
-var paths = new Map();
-var dots = {};
+  .attr('transform', `translate(${margin.left},${margin.top})`);
 
 // converts data to pixels or pixels to data (using {x, y}.invert())
-var x = d3
+const x = d3
   .scaleLinear()
   .domain([0, 10])
   .range([0, width]);
-var y = d3.scaleLinear().range([height, 0]);
+const y = d3.scaleLinear().range([height, 0]);
 
 // creates a line using the x and y conversion functions
-var line = d3
+const line = d3
   .line()
-  .x(function(d) {
-    return x(d.x);
-  })
-  .y(function(d) {
-    return y(d.y);
-  });
+  .x(d => x(d.x))
+  .y(d => y(d.y));
 
-var brush = d3
+const brush = d3
   .brushX()
   .extent([[0, 0], [width, height]])
   .on('start brush', brushed);
 
-let dragDot = d3
+const dragDot = d3
   .drag()
   .on('start', dragDotStarted)
   .on('drag', draggingDot)
   .on('end', dragDotEnded);
 
-let dragLine = d3
+const dragLine = d3
   .drag()
   .on('start', dragLineStarted)
   .on('drag', draggingLine)
   .on('end', dragLineEnded);
 
-let scrub = d3.drag().on('drag', scrubLine);
+const scrub = d3.drag().on('drag', scrubLine);
 
 // the red vertical line that indicates time
 g
   .append('line')
-  .attr('x1', x(min_x))
+  .attr('x1', x(MIN_X))
   .attr('y1', 0)
-  .attr('x2', x(min_x))
+  .attr('x2', x(MIN_X))
   .attr('y2', 100)
   .style('stroke-width', 3)
   .style('stroke', 'red')
@@ -95,35 +94,35 @@ g
 
 g
   .append('g')
-  .attr('transform', 'translate(0,' + height + ')')
+  .attr('transform', `translate(0,${height})`)
   .call(d3.axisBottom(x));
 
-function movePistons(new_x) {
-  d3.selectAll('circle').each(function(circle) {
+function movePistons(newX) {
+  d3.selectAll('circle').each(circle => {
     if (circle != d3.selectAll('circle').x) {
-      if (circle.id == 5) {
+      if (circle.id === 5) {
         // we don't care about the last circle
         return;
       }
-      var diff = Math.abs(new_x - x(circle.x));
+      const diff = Math.abs(newX - x(circle.x));
       if (diff < 1) {
-        var nextCircle = getCircleWithID(
+        const nextCircle = getCircleWithID(
           circle.id + 1,
-          dots[circle.piston_id]
+          dots[circle.pistonId]
         ).data()[0];
         switch (circle.state) {
           case STATES.HIGH:
             if (nextCircle.state == STATES.LOW) {
-              retract(circle.piston_id);
+              retract(circle.pistonId);
             } else {
-              stop(circle.piston_id);
+              stop(circle.pistonId);
             }
             break;
           case STATES.LOW:
             if (nextCircle.state == STATES.LOW) {
-              stop(circle.piston_id);
+              stop(circle.pistonId);
             } else {
-              expand(circle.piston_id);
+              expand(circle.pistonId);
             }
         }
       }
@@ -131,42 +130,40 @@ function movePistons(new_x) {
   });
 }
 
-function moveTimeline(timeline, new_x) {
-  timeline.attr('x1', new_x);
-  timeline.attr('x2', new_x);
+function moveTimeline(timeline, newX) {
+  timeline.attr('x1', newX);
+  timeline.attr('x2', newX);
 }
 
 function updateData() {
   if (!started) {
     return;
   }
-  var timelineStep = 0.01;
-  var timeline = d3.select('line');
-  var old_x = x.invert(timeline.attr('x1'));
-  var new_x = x(min_x);
-  if (old_x <= max_x) {
-    var new_x = x(old_x + timelineStep);
+  const timelineStep = 0.01;
+  const timeline = d3.select('line');
+  const oldX = x.invert(timeline.attr('x1'));
+  let newX = x(MIN_X);
+  if (oldX <= MAX_X) {
+    newX = x(oldX + timelineStep);
   }
 
-  movePistons(new_x);
+  movePistons(newX);
   if (!paused) {
-    moveTimeline(timeline, new_x);
+    moveTimeline(timeline, newX);
   }
 }
 
-setInterval(function() {
+setInterval(() => {
   updateData();
 }, 10);
 
 function getCircleWithID(id, selection) {
-  return selection.filter(function(circle, i) {
-    return circle.id == id;
-  });
+  return selection.filter(circle => circle.id === id);
 }
 
 function distanceBetweenTwoPoints(x1, y1, x2, y2) {
-  var a = x1 - x2;
-  var b = y1 - y2;
+  const a = x1 - x2;
+  const b = y1 - y2;
 
   return Math.sqrt(a * a + b * b);
 }
@@ -189,9 +186,9 @@ function pauseUnpauseCycle() {
 }
 
 function resetTimeline() {
-  var timeLine = d3.select('line');
-  timeLine.attr('x1', x(min_x));
-  timeLine.attr('x2', x(min_x));
+  const timeLine = d3.select('line');
+  timeLine.attr('x1', x(MIN_X));
+  timeLine.attr('x2', x(MIN_X));
 }
 
 // Event handling
@@ -205,57 +202,58 @@ function beforebrushed() {
 }
 
 function brushed() {
-  var extent = d3.event.selection.map(x.invert, x);
-  dot.classed('selected', function(d) {
+  const extent = d3.event.selection.map(x.invert, x);
+  // what is 'dot'?
+  dot.classed('selected', d => {
     return extent[0] <= d.x && d.x <= extent[1];
   });
 }
 
-var closestLeft = { point: null, distance: Infinity, id: 0 };
-var closestRight = { point: null, distance: Infinity, id: 0 };
+const closestLeft = { point: null, distance: Infinity, id: 0 };
+const closestRight = { point: null, distance: Infinity, id: 0 };
 
 // returns the new x position of the moved point in "data space"
-function movePoint(point, x_pos, y_pos, piston_id) {
-  var prev_x = 0;
-  var next_x = 0;
+function movePoint(point, xPos, yPos, pistonId) {
+  let prevX = 0;
+  let nextX = 0;
 
-  var next = getCircleWithID(point.id + 1, dots[piston_id]);
+  const next = getCircleWithID(point.id + 1, dots[pistonId]);
   if (!next.empty()) {
-    next_x = next.data()[0].x - 0.01;
+    nextX = next.data()[0].x - 0.01;
   } else {
     // this most probably means that we want to move the last point
-    next_x = max_x;
+    nextX = MAX_X;
   }
 
-  var prev = getCircleWithID(point.id - 1, dots[piston_id]);
+  const prev = getCircleWithID(point.id - 1, dots[pistonId]);
   if (!prev.empty()) {
-    prev_x = prev.data()[0].x + 0.01;
+    prevX = prev.data()[0].x + 0.01;
   } else {
     // this most probably means that we want to move the first point
-    prev_x = min_x;
+    prevX = MIN_X;
   }
 
-  var new_x = Math.min(Math.max(prev_x, x.invert(x_pos)), next_x);
-  var new_y = 0;
+  const newX = Math.min(Math.max(prevX, x.invert(xPos)), nextX);
+  let newY = 0;
 
-  if (y_pos > y(midPoint(point.piston_id))) {
-    new_y = low(point.piston_id);
+  if (yPos > y(midPoint(point.pistonId))) {
+    newY = low(point.pistonId);
     point.state = STATES.LOW;
   } else {
-    new_y = high(point.piston_id);
+    newY = high(point.pistonId);
     point.state = STATES.HIGH;
   }
 
-  point.x = new_x;
-  point.y = new_y;
-  return { x: new_x, y: new_y };
+  point.x = newX;
+  point.y = newY;
+  return { x: newX, y: newY };
 }
 
 function dragLineStarted(d, i) {
-  var dots = d3.select(this).datum();
-  var coords = d3.mouse(this);
-  dots.forEach(function(dot) {
-    var distance = distanceBetweenTwoPoints(
+  const dots = d3.select(this).datum();
+  const coords = d3.mouse(this);
+  dots.forEach(dot => {
+    const distance = distanceBetweenTwoPoints(
       coords[0],
       coords[1],
       x(dot.x),
@@ -277,54 +275,52 @@ function dragLineStarted(d, i) {
   });
 }
 
-function draggingLine(d, i) {
-  var new_pos_left = movePoint(
+function draggingLine() {
+  const newPostLeft = movePoint(
     closestLeft.point,
     x(closestLeft.point.x) + d3.event.dx,
     y(closestLeft.point.y) + d3.event.dy,
-    closestLeft.point.piston_id
+    closestLeft.point.pistonId
   );
-  var new_x_left = new_pos_left.x;
-  var new_y_left = new_pos_left.y;
+  const newXLeft = newPostLeft.x;
+  const newYLeft = newPostLeft.y;
 
-  var leftPoint = d3.select(this).datum()[closestLeft.id];
+  // ?
+  const leftPoint = d3.select(this).datum()[closestLeft.id];
 
   dots[d3.select(this).attr('id')]
-    .filter(function(d, i) {
-      return i === closestLeft.point.id - 1;
-    })
-    .attr('cx', x(new_x_left))
-    .attr('cy', y(new_y_left));
+    .filter((d, i) => i === closestLeft.point.id - 1)
+    .attr('cx', x(newXLeft))
+    .attr('cy', y(newYLeft));
 
-  var new_pos_right = movePoint(
+  const newPostRight = movePoint(
     closestRight.point,
     x(closestRight.point.x) + d3.event.dx,
     y(closestRight.point.y) + d3.event.dy,
-    closestRight.point.piston_id
+    closestRight.point.pistonId
   );
-  var new_x_right = new_pos_right.x;
-  var new_y_right = new_pos_right.y;
+  const newXRight = newPostRight.x;
+  const newYRight = newPostRight.y;
 
-  var rightPoint = d3.select(this).datum()[closestRight.id];
+  // ?
+  const rightPoint = d3.select(this).datum()[closestRight.id];
 
   dots[d3.select(this).attr('id')]
-    .filter(function(d, i) {
-      return i === closestRight.point.id - 1;
-    })
-    .attr('cx', x(new_x_right))
-    .attr('cy', y(new_y_right));
+    .filter((d, i) => i === closestRight.point.id - 1)
+    .attr('cx', x(newXRight))
+    .attr('cy', y(newYRight));
 
   d3.select(this).attr('d', line);
 }
 
-function dragLineEnded(d) {
+function dragLineEnded() {
   closestLeft.point = null;
   closestLeft.distance = Infinity;
   closestRight.point = null;
   closestRight.distance = Infinity;
 }
 
-function dragDotStarted(d) {
+function dragDotStarted() {
   d3
     .select(this)
     .raise()
@@ -332,91 +328,93 @@ function dragDotStarted(d) {
 }
 
 function draggingDot(d) {
-  var coords = d3.mouse(this);
-  var new_x = movePoint(d, coords[0], coords[1], d.piston_id).x;
+  const coords = d3.mouse(this);
+  const newX = movePoint(d, coords[0], coords[1], d.pistonId).x;
   d3
     .select(this)
-    .attr('cx', x(new_x))
+    .attr('cx', x(newX))
     .attr('cy', y(d.y));
-  paths[d.piston_id].attr('d', line);
+  paths[d.pistonId].attr('d', line);
 }
 
-function dragDotEnded(d) {
+function dragDotEnded() {
   d3.select(this).classed('active', false);
 }
 
-function scrubLine(d) {
-  var new_x = d3.event.x;
-  if (new_x > x(max_x + 0.2)) {
-    new_x = x(max_x + 0.2);
+function scrubLine() {
+  let newX = d3.event.x;
+  if (newX > x(MAX_X + 0.2)) {
+    newX = x(MAX_X + 0.2);
   }
-  if (new_x < x(min_x - 0.2)) {
-    new_x = x(min_x - 0.2);
+  if (newX < x(MIN_X - 0.2)) {
+    newX = x(MIN_X - 0.2);
   }
   d3
     .select(this)
-    .attr('x1', new_x)
-    .attr('x2', new_x);
+    .attr('x1', newX)
+    .attr('x2', newX);
 }
 
 // setup logic
 
-function high(piston_id) {
-  return 0.4 + 0.05 * piston_id;
-}
-function low(piston_id) {
-  return 0.1 + 0.05 * piston_id;
-}
-function midPoint(piston_id) {
-  return (high(piston_id) + low(piston_id)) / 2;
+function high(pistonId) {
+  return 0.4 + 0.05 * pistonId;
 }
 
-function addData(piston_id) {
-  datas[piston_id] = [
+function low(pistonId) {
+  return 0.1 + 0.05 * pistonId;
+}
+
+function midPoint(pistonId) {
+  return (high(pistonId) + low(pistonId)) / 2;
+}
+
+function addData(pistonId) {
+  datas[pistonId] = [
     {
       x: 1,
-      y: high(piston_id),
+      y: high(pistonId),
       id: 1,
-      piston_id: piston_id,
+      pistonId,
       state: STATES.HIGH,
     },
     {
       x: 2,
-      y: low(piston_id),
+      y: low(pistonId),
       id: 2,
-      piston_id: piston_id,
+      pistonId,
       state: STATES.LOW,
     },
     {
       x: 3,
-      y: low(piston_id),
+      y: low(pistonId),
       id: 3,
-      piston_id: piston_id,
+      pistonId,
       state: STATES.LOW,
     },
     {
       x: 4,
-      y: high(piston_id),
+      y: high(pistonId),
       id: 4,
-      piston_id: piston_id,
+      pistonId,
       state: STATES.HIGH,
     },
     {
       x: 5,
-      y: high(piston_id),
+      y: high(pistonId),
       id: 5,
-      piston_id: piston_id,
+      pistonId,
       state: STATES.HIGH,
     },
   ];
-  return datas[piston_id];
+  return datas[pistonId];
 }
 
 function addPath(color, id) {
-  var path_data = addData(id);
+  const pathData = addData(id);
   paths[id] = g
     .append('path')
-    .datum(path_data)
+    .datum(pathData)
     .attr('fill', 'none')
     .attr('stroke', color)
     .attr('stroke-linejoin', 'round')
@@ -425,26 +423,34 @@ function addPath(color, id) {
     .attr('d', line)
     .attr('id', id)
     .call(dragLine);
-  dots[id] = addDots(path_data, id);
+  dots[id] = addDots(pathData, id);
 }
 
-function addDots(dot_data, id) {
+function addDots(dotData, id) {
   return g
     .append('g')
     .attr('fill-opacity', 1)
     .selectAll('circle')
-    .data(dot_data)
+    .data(dotData)
     .enter()
     .append('circle')
     .attr('id', id)
-    .attr('cx', function(d) {
+    .attr('cx', d => {
       return x(d.x);
     })
-    .attr('cy', function(d) {
+    .attr('cy', d => {
       return y(d.y);
     })
     .attr('r', 3.5)
     .call(dragDot);
+}
+
+// called by Sketchup
+
+function update_pistons(id) {
+  if (!paths.has(id)) {
+    addPath(colors[datas.length], id);
+  }
 }
 
 // Sketchup Logic
@@ -461,11 +467,6 @@ function stop(id) {
   sketchup.stop_actuator(id);
 }
 
-function update_pistons(id) {
-  if (!paths.has(id)) {
-    addPath(colors[datas.length], id);
-  }
-}
 // expose functions to global scope
 
 window.startStopCycle = startStopCycle;
