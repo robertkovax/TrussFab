@@ -1,52 +1,26 @@
 import * as d3 from 'd3';
 
 import colors from './colors';
+import { getCircleWithID, distanceBetweenTwoPoints } from './util';
+import { buildSVG } from './setup';
 
-let paused = true;
-let started = false;
 const MAX_X = 5;
 const MIN_X = 1;
 
-let STATES = Object.freeze({ LOW: 0, HIGH: 1 });
-let state = STATES.HIGH;
+const STATES = Object.freeze({ LOW: 0, HIGH: 1 });
+const state = STATES.HIGH;
 
-const datas = [];
+let paused = true;
+let started = false;
+
+// the pistons in the simulaiton
+const pistons = [];
+// the lines in the graph
 const paths = new Map();
-const dots = {};
+// the dots in the graph
+const dots = new Map();
 
-const margin = {
-  top: 10,
-  right: 10,
-  bottom: 20,
-  left: 10,
-};
-
-const tabBarHeight = d3
-  .select('#actuators-tab')
-  .node()
-  .getBoundingClientRect().height;
-
-const bodyHeight = d3
-  .select('body')
-  .node()
-  .getBoundingClientRect().height;
-
-const schedulingElement = d3.select('#scheduling');
-const schedulingElementHeight = bodyHeight - tabBarHeight - 6; // magic number 4, padding?
-const schedulingElementWidth = schedulingElement.node().getBoundingClientRect()
-  .width;
-
-const svg = schedulingElement
-  .append('svg')
-  .attr('width', schedulingElementWidth)
-  .attr('height', schedulingElementHeight);
-
-const width = svg.attr('width') - margin.left - margin.right;
-const height = svg.attr('height') - margin.top - margin.bottom;
-
-const g = svg
-  .append('g')
-  .attr('transform', `translate(${margin.left},${margin.top})`);
+const { g, height, width } = buildSVG();
 
 // converts data to pixels or pixels to data (using {x, y}.invert())
 const x = d3
@@ -100,15 +74,15 @@ g
 function movePistons(newX) {
   d3.selectAll('circle').each(circle => {
     if (circle != d3.selectAll('circle').x) {
-      if (circle.id === 5) {
-        // we don't care about the last circle
-        return;
-      }
+      // we don't care about the last circle
+      if (circle.id === 5) return;
+
       const diff = Math.abs(newX - x(circle.x));
       if (diff < 1) {
+        console.log(dots.get(circle.pistonId));
         const nextCircle = getCircleWithID(
           circle.id + 1,
-          dots[circle.pistonId]
+          dots.get(circle.pistonId)
         );
         switch (circle.state) {
           case STATES.HIGH:
@@ -153,21 +127,6 @@ function playTimeline() {
 setInterval(() => {
   playTimeline();
 }, 10);
-
-function getCircleWithID(id, selection) {
-  const circles = selection.filter(circle => circle.id === id).data();
-  if (!circles.empty()) {
-    return circles.data()[0];
-  }
-  return null;
-}
-
-function distanceBetweenTwoPoints(x1, y1, x2, y2) {
-  const a = x1 - x2;
-  const b = y1 - y2;
-
-  return Math.sqrt(a * a + b * b);
-}
 
 // Play/Pause Logic
 
@@ -218,7 +177,7 @@ function movePoint(point, xPos, yPos, pistonId) {
   let prevX = 0;
   let nextX = 0;
 
-  const next = getCircleWithID(point.id + 1, dots[pistonId]);
+  const next = getCircleWithID(point.id + 1, dots.get(pistonId));
   if (next !== null) {
     nextX = next.x - 0.01;
   } else {
@@ -226,7 +185,7 @@ function movePoint(point, xPos, yPos, pistonId) {
     nextX = MAX_X;
   }
 
-  const prev = getCircleWithID(point.id - 1, dots[pistonId]);
+  const prev = getCircleWithID(point.id - 1, dots.get(pistonId));
   if (prev !== null) {
     prevX = prev.x + 0.01;
   } else {
@@ -251,9 +210,9 @@ function movePoint(point, xPos, yPos, pistonId) {
 }
 
 function dragLineStarted(d, i) {
-  const dots = d3.select(this).datum();
+  const otherDots = d3.select(this).datum();
   const coords = d3.mouse(this);
-  dots.forEach(dot => {
+  otherDots.forEach(dot => {
     const distance = distanceBetweenTwoPoints(
       coords[0],
       coords[1],
@@ -289,7 +248,11 @@ function draggingLine() {
   // ?
   const leftPoint = d3.select(this).datum()[closestLeft.id];
 
-  dots[d3.select(this).attr('id')]
+  // not sure if line id
+  const lineId = d3.select(this).attr('id');
+
+  dots
+    .get(lineId)
     .filter((d, i) => i === closestLeft.point.id - 1)
     .attr('cx', x(newXLeft))
     .attr('cy', y(newYLeft));
@@ -306,7 +269,8 @@ function draggingLine() {
   // ?
   const rightPoint = d3.select(this).datum()[closestRight.id];
 
-  dots[d3.select(this).attr('id')]
+  dots
+    .get(lineId)
     .filter((d, i) => i === closestRight.point.id - 1)
     .attr('cx', x(newXRight))
     .attr('cy', y(newYRight));
@@ -370,7 +334,7 @@ function midPoint(pistonId) {
 }
 
 function addData(pistonId) {
-  datas[pistonId] = [
+  pistons[pistonId] = [
     {
       x: 1,
       y: high(pistonId),
@@ -407,11 +371,11 @@ function addData(pistonId) {
       state: STATES.HIGH,
     },
   ];
-  return datas[pistonId];
+  return pistons[pistonId];
 }
 
 // the dots can be dragged
-function addDots(dotData, id) {
+function addDot(dotData, id) {
   return g
     .append('g')
     .attr('fill-opacity', 1)
@@ -440,14 +404,15 @@ function addPath(color, id) {
     .attr('d', line)
     .attr('id', id)
     .call(dragLine);
-  dots[id] = addDots(pathData, id);
+  const newDot = addDot(pathData, id);
+  dots.set(id, newDot);
 }
 
 // called by Sketchup
 
 function update_pistons(id) {
   if (!paths.has(id)) {
-    addPath(colors[datas.length], id);
+    addPath(colors[pistons.length], id);
   }
 }
 
@@ -462,6 +427,7 @@ function retract(id) {
 }
 
 function stop(id) {
+  console.log(id);
   sketchup.stop_actuator(id);
 }
 
