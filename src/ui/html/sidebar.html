@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="../css/common.css" type="text/css">
+  <link rel="stylesheet" href="../css/sidebar.css" type="text/css">
+  <title>TrussFab</title>
+</head>
+
+<body>
+  <div id="accordion" role="tablist" aria-multiselectable="true">
+    <div class="card">
+      <div class="card-header" role="tab" id="headingOne">
+        <h5 class="mb-0">
+          <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+            Shape
+          </button>
+        </h5>
+      </div>
+      <div id="collapseOne" class="collapse show" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
+        <div class="card-block">
+          <h6>Create</h6>
+          <button type="button" class="tool" id="tetrahedron_tool">
+            <img src="../assets/icons/tetrahedron.png" alt="tetra">
+            <div>tetra</div>
+          </button>
+          <button type="button" class="tool" id="octahedron_tool">
+            <img src="../assets/icons/octahedron.png" alt="octa">
+            <div>octa</div>
+          </button>
+          <button type="button" class="tool" id="bottle_link_tool">
+            <img src="../assets/icons/single.png" alt="bottle">
+            <div>bottle</div>
+          </button>
+          <!-- <button type="button" hidden="true" class="tool">
+            <img src="../assets/icons/wheel.png" alt="wheel">
+            <div>wheel</div>
+          </button>
+          <button type="button" hidden="true" class="tool">
+            <img src="../assets/icons/triangle.png" alt="triangle">
+            <div>triangle</div>
+          </button> -->
+          <!-- <h6 hidden="true">Structures</h6>
+          <button type="button" hidden="true" class="tool">
+            <img src="../assets/icons/beam.png" alt="beam">
+            <div>beam</div>
+          </button>
+          <button type="button" hidden="true" class="tool">
+            <img src="../assets/icons/block.png" alt="block">
+            <div>block</div>
+          </button>
+          <button type="button" hidden="true" class="tool">
+            <img src="../assets/icons/dome.png" alt="dome">
+            <div>dome</div>
+          </button>
+          <button type="button" hidden="true" class="tool">
+            <img src="../assets/icons/fill.png" alt="fill">
+            <div>fill</div>
+          </button> -->
+          <h6>Modify</h6>
+          <button type="button" class="tool" id="grow_tool">
+            <img src="../assets/icons/grow.png" alt="grow">
+            <div>grow</div>
+          </button>
+          <button type="button" class="tool" id="shrink_tool">
+            <img src="../assets/icons/shrink.png" alt="shrink">
+            <div>shrink</div>
+          </button>
+          <button type="button" class="tool" id="deform_tool">
+            <img src="../assets/icons/deform.png" alt="deform">
+            <div>deform</div>
+          </button>
+          <!-- <button type="button" hidden="true" class="tool">
+            <img src="../assets/icons/connect.png" alt="connect">
+            <div>connect</div>
+          </button> -->
+          <button type="button" class="tool" id="delete_tool">
+            <img src="../assets/icons/delete.png" alt="">
+            <div>delete</div>
+          </button>
+
+          <h6>Add-Ons</h6>
+          <button type="button" class="tool" id="pod_tool">
+            <img src="../assets/icons/pod.png" alt="pod">
+            <div>pod</div>
+          </button>
+          <button type="button" class="tool" id="cover_tool">
+            <img src="../assets/icons/cover.png" alt="cover">
+            <div>cover</div>
+          </button>
+          <!-- <h6 hidden="true">Conversion</h6> -->
+          <!-- <button type="button" hidden="true" class="tool">
+            <img src="../assets/icons/surface.png" alt="surface">
+            <div>surface</div>
+          </button> -->
+          <!-- <button type="button" hidden="true" class="tool">
+            <img src="../assets/icons/volume.png" alt="volume">
+            <div>volume</div>
+          </button> -->
+          <!-- <h6>Misc</h6>
+          <button type="button" class="tool" id="bottle_count_tool">
+            <img src="../assets/icons/stability.png" alt="print bottle counts">
+            <div>bottle counts</div>
+          </button> -->
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header" role="tab" id="headingTwo">
+        <h5 class="mb-0">
+          <button class="btn btn-link" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+            Motion
+          </button>
+        </h5>
+      </div>
+      <div id="collapseTwo" class="collapse" role="tabpanel" aria-labelledby="headingTwo" data-parent="#accordion">
+        <div class="card-block">
+          <h6>Actuator</h6>
+          <button type="button" class="tool" id="actuator_tool">
+            <img src="../assets/icons/actuator.png" width="54px" alt="actuator">
+            <div>manual</div>
+          </button>
+          <button type="button" class="tool" id="genetic_actuator_placement_tool">
+            <img src="../assets/icons/auto_actuator.png" alt="genetic placment">
+            <div>automatic</div>
+          </button>
+          <!-- <button type="button" class="tool" id="spring_tool">
+            <img src="../assets/icons/actuator.png" width="54px" alt="actuator">
+            <div>spring</div>
+          </button>
+          <button type="button" class="tool" id="damp_tool">
+            <img src="../assets/icons/actuator.png" width="54px" alt="actuator">
+            <div>damp</div> -->
+          </button>
+          <h6>Assets</h6>
+          <button type="button" class="tool" id="dynamic_tetrahedron_tool">
+            <img src="../assets/icons/fill.png" alt="dynamic tetrahedron">
+            <div>tetra+act</div>
+          </button>
+          <button type="button" class="tool" id="dynamic_octahedron_tool">
+            <img src="../assets/icons/fill.png" alt="dynamic octrahedron">
+            <div>octa+act</div>
+          </button>
+          <button type="button" class="tool" id="assets_leg_tool">
+            <img src="../assets/icons/fill.png" alt="leg">
+            <div>leg</div>
+          </button>
+          <!-- <h6>Automatic</h6> -->
+          <!-- <button type="button" class="tool" id="automatic_actuators_tool">
+            <img src="../assets/icons/deform.png" alt="deform">
+            <div>auto. actu.</div>
+          </button> -->
+          <!-- <button type="button" class="tool" id="hinge_analysis_tool">
+            <img src="../assets/icons/hinge.png" alt="hinge analysis">
+            <div>hinges</div>
+          </button> -->
+
+          <h6>Check Forces</h6>
+          <!-- <button type="button" class="tool" id="rigidity_test_tool">
+            <img src="../assets/icons/force.png" alt="rigidity test">
+            <div>rigidity test</div>
+          </button> -->
+          <button type="button" class="tool" id="add_weight_tool">
+            <img src="../assets/icons/force.png" alt="add test load">
+            <div>load</div>
+          </button>
+          <!-- TODO: -->
+          <button type="button" class="tool" id="add_force_tool">
+            <img src="../assets/icons/arrow_down.png" alt="add test load">
+            <div>force</div>
+          </button>
+          <button type="button" hidden="true" class="tool" id="check_stability_tool">
+            <img src="../assets/icons/stability.png" alt="check stability">
+            <div>check stability</div>
+          </button>
+          <!-- <h6>Observe</h6>
+          <button type="button" class="tool" id="sensor_tool">
+            <img src="../assets/icons/sensor.png" alt="sensor">
+            <div>sensor</div>
+          </button> -->
+          <h6>Optimize Force</h6>
+          <button type="button" class="tool" id="optimize_force_tool">
+            <img src="../assets/icons/line_max.png" alt="sensor">
+            <div>sensor</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Accordion End -->
+  <footer>
+    <button type="button" id="export_file_tool">Save</button>
+    <button type="button" id="import_file_tool">Load</button>
+    <button type="button" class="fabricate" id="fabricate_tool">
+      <img src="../assets/icons/fabricate.png" alt="fabricate it">
+      <div>Export Hubs & Hinges</div>
+    </button>
+  </footer>
+  <script src="../node_modules/d3/build/d3.min.js"></script>
+  <script src="../node_modules/jquery/dist/jquery.slim.min.js"></script>
+  <script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/build/sidebar.js"></script>
+</body>
+
+</html>

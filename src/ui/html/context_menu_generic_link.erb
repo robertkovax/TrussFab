@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="de">
+<link rel="stylesheet" href="../css/ui.css" type="text/css">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piston Menu</title>
+</head>
+<body>
+Force:
+<br>
+<input type="number" min="0.0" value="<%= @generic_link.force %>" step="0.1" onchange="set_force(this.value)"> N
+<br><br>
+Minimum Position:
+<br>
+<input type="number" value="<%= @generic_link.min_distance %>" step="0.1" onchange="set_min(this.value)"> m
+<br><br>
+Maximum Position:
+<br>
+<input type="number" value="<%= @generic_link.max_distance %>" step="0.1" onchange="set_max(this.value)"> m
+<script type="text/javascript">
+    function set_force(newValue) {
+        sketchup.set_force(newValue);
+    }
+    function set_min(newValue) {
+        sketchup.set_min(newValue);
+    }
+    function set_max(newValue) {
+        sketchup.set_max(newValue);
+    }
+</script>
+</body>
+</html>

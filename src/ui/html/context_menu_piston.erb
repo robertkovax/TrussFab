@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piston Menu</title>
+</head>
+<body>
+Damping:
+<br>
+<input type="number" min="0.0" max="1.0" value="<%= @actuator.reduction %>" step="0.1" onchange="set_damping(this.value)">
+<br><br>
+Speed:
+<br>
+<input type="number" min="0.0" value="<%= @actuator.rate %>" step="0.1" onchange="set_rate(this.value)"> m/s
+<br><br>
+Power (0.0 means maximum power):
+<br>
+<input type="number" min="0.0" value="<%= @actuator.power %>" step="0.1" onchange="set_power(this.value)"> W
+<br><br>
+Minimum Position:
+<br>
+<input type="number" value="<%= @actuator.min %>" step="0.1" onchange="set_min(this.value)"> m
+<br><br>
+Maximum Position:
+<br>
+<input type="number" value="<%= @actuator.max %>" step="0.1" onchange="set_max(this.value)"> m
+<script type="text/javascript">
+    function set_damping(newValue) {
+        sketchup.set_damping(newValue);
+    }
+    function set_rate(newValue) {
+        sketchup.set_rate(newValue);
+    }
+    function set_power(newValue) {
+        sketchup.set_power(newValue);
+    }
+    function set_min(newValue) {
+        sketchup.set_min(newValue);
+    }
+    function set_max(newValue) {
+        sketchup.set_max(newValue);
+    }
+</script>
+</body>
+</html>

@@ -1,3 +1,6 @@
 .idea
 *assets/exports/*
 anton_demo.rb
+*/.sync/*
+
+node_modules
