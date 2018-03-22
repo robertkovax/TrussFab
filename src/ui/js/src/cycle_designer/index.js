@@ -109,7 +109,7 @@ function movePistons(newX) {
         const nextCircle = getCircleWithID(
           circle.id + 1,
           dots[circle.pistonId]
-        ).data()[0];
+        );
         switch (circle.state) {
           case STATES.HIGH:
             if (nextCircle.state == STATES.LOW) {
@@ -130,35 +130,36 @@ function movePistons(newX) {
   });
 }
 
-function moveTimeline(timeline, newX) {
-  timeline.attr('x1', newX);
-  timeline.attr('x2', newX);
-}
+function playTimeline() {
+  if (!started) return;
 
-function updateData() {
-  if (!started) {
-    return;
-  }
   const timelineStep = 0.01;
   const timeline = d3.select('line');
   const oldX = x.invert(timeline.attr('x1'));
+
   let newX = x(MIN_X);
   if (oldX <= MAX_X) {
     newX = x(oldX + timelineStep);
   }
 
   movePistons(newX);
+
   if (!paused) {
-    moveTimeline(timeline, newX);
+    timeline.attr('x1', newX);
+    timeline.attr('x2', newX);
   }
 }
 
 setInterval(() => {
-  updateData();
+  playTimeline();
 }, 10);
 
 function getCircleWithID(id, selection) {
-  return selection.filter(circle => circle.id === id);
+  const circles = selection.filter(circle => circle.id === id).data();
+  if (!circles.empty()) {
+    return circles.data()[0];
+  }
+  return null;
 }
 
 function distanceBetweenTwoPoints(x1, y1, x2, y2) {
@@ -218,16 +219,16 @@ function movePoint(point, xPos, yPos, pistonId) {
   let nextX = 0;
 
   const next = getCircleWithID(point.id + 1, dots[pistonId]);
-  if (!next.empty()) {
-    nextX = next.data()[0].x - 0.01;
+  if (next !== null) {
+    nextX = next.x - 0.01;
   } else {
     // this most probably means that we want to move the last point
     nextX = MAX_X;
   }
 
   const prev = getCircleWithID(point.id - 1, dots[pistonId]);
-  if (!prev.empty()) {
-    prevX = prev.data()[0].x + 0.01;
+  if (prev !== null) {
+    prevX = prev.x + 0.01;
   } else {
     // this most probably means that we want to move the first point
     prevX = MIN_X;
@@ -360,7 +361,6 @@ function scrubLine() {
 function high(pistonId) {
   return 0.4 + 0.05 * pistonId;
 }
-
 function low(pistonId) {
   return 0.1 + 0.05 * pistonId;
 }
@@ -410,6 +410,23 @@ function addData(pistonId) {
   return datas[pistonId];
 }
 
+// the dots can be dragged
+function addDots(dotData, id) {
+  return g
+    .append('g')
+    .attr('fill-opacity', 1)
+    .selectAll('circle')
+    .data(dotData)
+    .enter()
+    .append('circle')
+    .attr('id', id)
+    .attr('cx', d => x(d.x))
+    .attr('cy', d => y(d.y))
+    .attr('r', 3.5)
+    .call(dragDot);
+}
+
+// the lines that connect the dots
 function addPath(color, id) {
   const pathData = addData(id);
   paths[id] = g
@@ -424,25 +441,6 @@ function addPath(color, id) {
     .attr('id', id)
     .call(dragLine);
   dots[id] = addDots(pathData, id);
-}
-
-function addDots(dotData, id) {
-  return g
-    .append('g')
-    .attr('fill-opacity', 1)
-    .selectAll('circle')
-    .data(dotData)
-    .enter()
-    .append('circle')
-    .attr('id', id)
-    .attr('cx', d => {
-      return x(d.x);
-    })
-    .attr('cy', d => {
-      return y(d.y);
-    })
-    .attr('r', 3.5)
-    .call(dragDot);
 }
 
 // called by Sketchup
