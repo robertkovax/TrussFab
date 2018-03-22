@@ -3,18 +3,24 @@ import * as d3 from 'd3';
 import colors from './colors';
 import { getCircleWithID, distanceBetweenTwoPoints } from './util';
 import { buildSVG } from './setup';
+import {
+  addInitalPistonDataToGraph,
+  midPoint,
+  STATES,
+  low,
+  high,
+} from './data';
 
-const MAX_X = 5;
-const MIN_X = 1;
+const timelineStep = 0.005;
+const timelineIntervall = 10;
 
-const STATES = Object.freeze({ LOW: 0, HIGH: 1 });
-const state = STATES.HIGH;
+let timeSteps = 4;
 
 let paused = true;
 let started = false;
 
 // the pistons in the simulaiton
-const pistons = [];
+const pistons = new Map();
 // the lines in the graph
 const paths = new Map();
 // the dots in the graph
@@ -25,7 +31,7 @@ const { g, height, width } = buildSVG();
 // converts data to pixels or pixels to data (using {x, y}.invert())
 const x = d3
   .scaleLinear()
-  .domain([0, 10])
+  .domain([0, timeSteps - 1])
   .range([0, width]);
 const y = d3.scaleLinear().range([height, 0]);
 
@@ -57,9 +63,9 @@ const scrub = d3.drag().on('drag', scrubLine);
 // the red vertical line that indicates time
 g
   .append('line')
-  .attr('x1', x(MIN_X))
+  .attr('x1', x(0))
   .attr('y1', 0)
-  .attr('x2', x(MIN_X))
+  .attr('x2', x(0))
   .attr('y2', 100)
   .style('stroke-width', 3)
   .style('stroke', 'red')
@@ -69,31 +75,31 @@ g
 g
   .append('g')
   .attr('transform', `translate(0,${height})`)
-  .call(d3.axisBottom(x));
+  .call(d3.axisBottom(x).ticks(timeSteps - 1));
 
 function movePistons(newX) {
   d3.selectAll('circle').each(circle => {
     if (circle != d3.selectAll('circle').x) {
       // we don't care about the last circle
-      if (circle.id === 5) return;
+      // TODO
+      if (circle.id === timeSteps) return;
 
       const diff = Math.abs(newX - x(circle.x));
       if (diff < 1) {
-        console.log(dots.get(circle.pistonId));
         const nextCircle = getCircleWithID(
           circle.id + 1,
           dots.get(circle.pistonId)
         );
         switch (circle.state) {
           case STATES.HIGH:
-            if (nextCircle.state == STATES.LOW) {
+            if (nextCircle.state === STATES.LOW) {
               retract(circle.pistonId);
             } else {
               stop(circle.pistonId);
             }
             break;
           case STATES.LOW:
-            if (nextCircle.state == STATES.LOW) {
+            if (nextCircle.state === STATES.LOW) {
               stop(circle.pistonId);
             } else {
               expand(circle.pistonId);
@@ -107,26 +113,25 @@ function movePistons(newX) {
 function playTimeline() {
   if (!started) return;
 
-  const timelineStep = 0.01;
-  const timeline = d3.select('line');
-  const oldX = x.invert(timeline.attr('x1'));
+  const currentTimeIndicator = d3.select('line');
+  const oldX = x.invert(currentTimeIndicator.attr('x1'));
 
-  let newX = x(MIN_X);
-  if (oldX <= MAX_X) {
+  let newX = x(0);
+  if (oldX < timeSteps) {
     newX = x(oldX + timelineStep);
   }
 
   movePistons(newX);
 
   if (!paused) {
-    timeline.attr('x1', newX);
-    timeline.attr('x2', newX);
+    currentTimeIndicator.attr('x1', newX);
+    currentTimeIndicator.attr('x2', newX);
   }
 }
 
 setInterval(() => {
   playTimeline();
-}, 10);
+}, timelineIntervall);
 
 // Play/Pause Logic
 
@@ -147,8 +152,8 @@ function pauseUnpauseCycle() {
 
 function resetTimeline() {
   const timeLine = d3.select('line');
-  timeLine.attr('x1', x(MIN_X));
-  timeLine.attr('x2', x(MIN_X));
+  timeLine.attr('x1', x(0));
+  timeLine.attr('x2', x(0));
 }
 
 // Event handling
@@ -182,7 +187,7 @@ function movePoint(point, xPos, yPos, pistonId) {
     nextX = next.x - 0.01;
   } else {
     // this most probably means that we want to move the last point
-    nextX = MAX_X;
+    nextX = timeSteps;
   }
 
   const prev = getCircleWithID(point.id - 1, dots.get(pistonId));
@@ -190,7 +195,7 @@ function movePoint(point, xPos, yPos, pistonId) {
     prevX = prev.x + 0.01;
   } else {
     // this most probably means that we want to move the first point
-    prevX = MIN_X;
+    prevX = 0;
   }
 
   const newX = Math.min(Math.max(prevX, x.invert(xPos)), nextX);
@@ -308,70 +313,16 @@ function dragDotEnded() {
 
 function scrubLine() {
   let newX = d3.event.x;
-  if (newX > x(MAX_X + 0.2)) {
-    newX = x(MAX_X + 0.2);
+  if (newX > x(timeSteps + 0.2)) {
+    newX = x(timeSteps + 0.2);
   }
-  if (newX < x(MIN_X - 0.2)) {
-    newX = x(MIN_X - 0.2);
+  if (newX < x(0 - 0.2)) {
+    newX = x(0 - 0.2);
   }
   d3
     .select(this)
     .attr('x1', newX)
     .attr('x2', newX);
-}
-
-// setup logic
-
-function high(pistonId) {
-  return 0.4 + 0.05 * pistonId;
-}
-function low(pistonId) {
-  return 0.1 + 0.05 * pistonId;
-}
-
-function midPoint(pistonId) {
-  return (high(pistonId) + low(pistonId)) / 2;
-}
-
-function addData(pistonId) {
-  pistons[pistonId] = [
-    {
-      x: 1,
-      y: high(pistonId),
-      id: 1,
-      pistonId,
-      state: STATES.HIGH,
-    },
-    {
-      x: 2,
-      y: low(pistonId),
-      id: 2,
-      pistonId,
-      state: STATES.LOW,
-    },
-    {
-      x: 3,
-      y: low(pistonId),
-      id: 3,
-      pistonId,
-      state: STATES.LOW,
-    },
-    {
-      x: 4,
-      y: high(pistonId),
-      id: 4,
-      pistonId,
-      state: STATES.HIGH,
-    },
-    {
-      x: 5,
-      y: high(pistonId),
-      id: 5,
-      pistonId,
-      state: STATES.HIGH,
-    },
-  ];
-  return pistons[pistonId];
 }
 
 // the dots can be dragged
@@ -392,7 +343,8 @@ function addDot(dotData, id) {
 
 // the lines that connect the dots
 function addPath(color, id) {
-  const pathData = addData(id);
+  const pathData = addInitalPistonDataToGraph(timeSteps, id);
+  pistons.set(id, pathData);
   paths[id] = g
     .append('path')
     .datum(pathData)
@@ -412,7 +364,7 @@ function addPath(color, id) {
 
 function update_pistons(id) {
   if (!paths.has(id)) {
-    addPath(colors[pistons.length], id);
+    addPath(colors[pistons.size], id);
   }
 }
 
@@ -427,7 +379,6 @@ function retract(id) {
 }
 
 function stop(id) {
-  console.log(id);
   sketchup.stop_actuator(id);
 }
 
