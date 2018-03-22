@@ -466,5 +466,8 @@ function update_pistons(id) {
     addPath(colors[datas.length], id);
   }
 }
+// expose functions to global scope
 
 window.startStopCycle = startStopCycle;
+window.pauseUnpauseCycle = pauseUnpauseCycle;
+window.update_pistons = update_pistons;
