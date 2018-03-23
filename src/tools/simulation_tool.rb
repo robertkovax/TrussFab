@@ -175,7 +175,8 @@ class SimulationTool < Tool
               '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3',
               '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'];
     # we don't want to create more groups than we have pistons
-    return if edge.automatic_movement_group >= @simulation.pistons.length
+    # NB: automatic_movement_group is initialized with -1 so we have add one to compare to size
+    return if edge.automatic_movement_group + 1 >= @simulation.pistons.length
     edge.automatic_movement_group += 1
     if @simulation.auto_piston_group[edge.automatic_movement_group].nil?
       @simulation.auto_piston_group[edge.automatic_movement_group] = []
