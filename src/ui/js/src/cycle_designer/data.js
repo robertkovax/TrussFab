@@ -35,7 +35,7 @@ function addInitalPistonDataToGraph(timeSteps, pistonId) {
     y: lowHightFlat[index] ? high(pistonId) : low(pistonId),
     id: index,
     pistonId,
-    state: lowHightFlat[index] ? STATES.high : STATES.low,
+    state: lowHightFlat[index] ? STATES.HIGH : STATES.LOW,
   }));
 }
 

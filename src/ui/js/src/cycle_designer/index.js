@@ -304,7 +304,7 @@ function draggingDot(d) {
     .select(this)
     .attr('cx', x(newX))
     .attr('cy', y(d.y));
-  paths[d.pistonId].attr('d', line);
+  paths.get(d.pistonId).attr('d', line);
 }
 
 function dragDotEnded() {
@@ -345,7 +345,8 @@ function addDot(dotData, id) {
 function addPath(color, id) {
   const pathData = addInitalPistonDataToGraph(timeSteps, id);
   pistons.set(id, pathData);
-  paths[id] = g
+
+  const newPath = g
     .append('path')
     .datum(pathData)
     .attr('fill', 'none')
@@ -356,6 +357,9 @@ function addPath(color, id) {
     .attr('d', line)
     .attr('id', id)
     .call(dragLine);
+
+  paths.set(id, newPath);
+
   const newDot = addDot(pathData, id);
   dots.set(id, newDot);
 }
