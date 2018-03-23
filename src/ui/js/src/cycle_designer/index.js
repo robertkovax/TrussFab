@@ -11,10 +11,10 @@ import {
   high,
 } from './data';
 
-const timelineStep = 0.005;
+const timelineStepSize = 0.005;
 const timelineIntervall = 10;
 
-let timeSteps = 4;
+let numTimeSteps = 4;
 
 let paused = true;
 let started = false;
@@ -31,7 +31,7 @@ const { g, height, width } = buildSVG();
 // converts data to pixels or pixels to data (using {x, y}.invert())
 const x = d3
   .scaleLinear()
-  .domain([0, timeSteps - 1])
+  .domain([0, numTimeSteps - 1])
   .range([0, width]);
 const y = d3.scaleLinear().range([height, 0]);
 
@@ -75,15 +75,15 @@ g
 g
   .append('g')
   .attr('transform', `translate(0,${height})`)
-  .call(d3.axisBottom(x).ticks(timeSteps - 1));
+  .call(d3.axisBottom(x).ticks(numTimeSteps - 1));
 
 function movePistons(newX) {
   d3.selectAll('circle').each(circle => {
     if (circle != d3.selectAll('circle').x) {
       // we don't care about the last circle
-      // TODO
-      if (circle.id === timeSteps) return;
+      if (circle.id === numTimeSteps - 1) return;
 
+      // check if we are very close to a circle
       const diff = Math.abs(newX - x(circle.x));
       if (diff < 1) {
         const nextCircle = getCircleWithID(
@@ -117,8 +117,8 @@ function playTimeline() {
   const oldX = x.invert(currentTimeIndicator.attr('x1'));
 
   let newX = x(0);
-  if (oldX < timeSteps) {
-    newX = x(oldX + timelineStep);
+  if (oldX < numTimeSteps - 1) {
+    newX = x(oldX + timelineStepSize);
   }
 
   movePistons(newX);
@@ -187,7 +187,7 @@ function movePoint(point, xPos, yPos, pistonId) {
     nextX = next.x - 0.01;
   } else {
     // this most probably means that we want to move the last point
-    nextX = timeSteps;
+    nextX = numTimeSteps;
   }
 
   const prev = getCircleWithID(point.id - 1, dots.get(pistonId));
@@ -313,8 +313,8 @@ function dragDotEnded() {
 
 function scrubLine() {
   let newX = d3.event.x;
-  if (newX > x(timeSteps + 0.2)) {
-    newX = x(timeSteps + 0.2);
+  if (newX > x(numTimeSteps + 0.2)) {
+    newX = x(numTimeSteps + 0.2);
   }
   if (newX < x(0 - 0.2)) {
     newX = x(0 - 0.2);
@@ -343,7 +343,7 @@ function addDot(dotData, id) {
 
 // the lines that connect the dots
 function addPath(color, id) {
-  const pathData = addInitalPistonDataToGraph(timeSteps, id);
+  const pathData = addInitalPistonDataToGraph(numTimeSteps, id);
   pistons.set(id, pathData);
 
   const newPath = g
