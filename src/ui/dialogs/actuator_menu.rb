@@ -8,7 +8,6 @@ class ActuatorMenu
     @simulation_tool = SimulationTool.new(self)
     @width = 600
     @height = 300
-
   end
 
   def open_dialog(sidebar_menu_width , sidebar_menu_height)
@@ -53,6 +52,10 @@ class ActuatorMenu
 
   def update_piston_group(movement_group)
     @dialog.execute_script("update_pistons(#{movement_group})")
+  end
+
+  def add_piston(id)
+    @dialog.execute_script("addPiston(#{id})")
   end
 
   def stop_simulation
