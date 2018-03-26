@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="de">
+<link rel="stylesheet" href="../css/ui.css" type="text/css">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring Menu</title>
+</head>
+<body>
+
+Stroke Length:
+<br>
+<input type="number" min="0.0" value="<%= @spring.stroke_length %>" step="0.1" onchange="set_stroke_length(this.value)"> m
+<br><br>
+
+Extended Force:
+<br>
+<input type="number" value="<%= @spring.extended_force %>" step="0.1" onchange="set_extended_force(this.value)"> N
+<br><br>
+
+Threshold:
+<br>
+<input type="number" value="<%= @spring.threshold %>" step="0.1" onchange="set_threshold(this.value)">
+<br><br>
+
+Damping:
+<br>
+<input type="number" min="0.0" value="<%= @spring.damp %>" step="0.1" onchange="set_damping(this.value)">
+<br><br>
+
+<script type="text/javascript">
+    function set_stroke_length(newValue) {
+        sketchup.set_stroke_length(newValue);
+    }
+    function set_extended_force(newValue) {
+        sketchup.set_extended_force(newValue);
+    }
+    function set_threshold(newValue) {
+        sketchup.set_threshold(newValue);
+    }
+    function set_damping(newValue) {
+        sketchup.set_damping(newValue);
+    }
+</script>
+</body>
+</html>

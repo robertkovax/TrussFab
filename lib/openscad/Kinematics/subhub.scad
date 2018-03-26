@@ -37,7 +37,7 @@ function push_or_pull_each_vector(vectors, l12, factors) =
   _push_or_pull_each_vector(vectors, get_average_vector(vectors), l12, factors, 0);
 
 module construct_intersection_poly(vectors, flag=true) {
-  average_point = get_average_vector([vectors[0][1], vectors[1][1], vectors[2][1]]);
+  average_point = norm_v(get_average_vector([vectors[0][1], vectors[1][1], vectors[2][1]]));
   hull() {
     for(p = vectors) {
   

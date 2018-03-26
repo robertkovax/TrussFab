@@ -1,8 +1,12 @@
 require 'src/utility/geometry.rb'
-require 'src/ui/force_chart.rb'
+require 'src/ui/dialogs/force_chart.rb'
 require 'erb'
 
 class Simulation
+
+  attr_reader :pistons, :moving_pistons, :bottle_dat
+  attr_accessor :breaking_force, :max_speed, :highest_force_mode, :auto_piston_group
+
   class << self
 
     def create_body(world, entity, collision_type = :box)
@@ -57,6 +61,7 @@ class Simulation
     @generic_links = {}
     @bottle_dat = {}
     @charts = {}
+    @auto_piston_group = []
 
     # time keeping
     @frame = 0
@@ -176,6 +181,9 @@ class Simulation
       model.abort_operation
       raise err
     end
+
+    get_all_pistons
+
     model.commit_operation
   end
 
@@ -314,83 +322,6 @@ class Simulation
     }
   end
 
-  def piston_dialog
-    get_all_pistons
-    get_all_generic_links
-
-    @dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
-    file_content = File.read(File.join(File.dirname(__FILE__), '../ui/html/piston_slider.erb'))
-    template = ERB.new(file_content)
-    @dialog.set_html(template.result(binding))
-    @dialog.set_size(300, Configuration::UI_HEIGHT)
-    @dialog.show
-
-    # Callbacks
-    @dialog.add_action_callback('change_piston') do |_context, id, value|
-      actuator = @pistons[id.to_i]
-      if actuator.joint && actuator.joint.valid?
-        actuator.joint.controller = (value.to_f - Configuration::ACTUATOR_INIT_DIST) * (actuator.max - actuator.min)
-      end
-    end
-
-    @dialog.add_action_callback('test_piston') do |_context, id|
-      @moving_pistons.push({:id=>id.to_i, :expanding=>true, :speed=>0.2})
-    end
-
-    @dialog.add_action_callback('set_breaking_force') do |_context, param|
-      self.breaking_force = param
-    end
-
-    @dialog.add_action_callback('set_max_speed') do |_context, param|
-      @max_speed = param.to_f
-    end
-
-    @dialog.add_action_callback('play_pause_simulation') do |_context|
-      model = Sketchup.active_model
-      model.start_operation('Toggle Force Labels', true, false, true)
-      if @paused
-        reset_force_labels
-        start
-      else
-        update_force_labels
-        @paused = true
-      end
-      model.commit_operation
-    end
-
-    @dialog.add_action_callback('restart_simulation') do |_context|
-      @sensors.each do |sensor|
-        @sensor_dialog.execute_script("resetChart(#{sensor.id})") unless @sensor_dialog.nil?
-      end
-      reset
-      @dialog.execute_script("reset_sliders()")
-      setup
-      start
-    end
-
-    @dialog.add_action_callback('change_highest_force_mode') do |_context, param|
-      @highest_force_mode = param
-    end
-
-    @dialog.add_action_callback('apply_force') do |_context|
-      @generic_links.each_value do |generic_link|
-        generic_link.force = 430
-      end
-    end
-
-    @dialog.add_action_callback('release_force') do |_context|
-      @generic_links.each_value do |generic_link|
-        generic_link.force = generic_link.initial_force
-      end
-    end
-  end
-
-  def close_piston_dialog
-    if @dialog && @dialog.visible?
-      @dialog.close
-    end
-  end
-
   def schedule_piston_for_testing(edge)
     @moving_pistons.push({:id=>edge.id.to_i, :expanding=>true, :speed=>0.4})
   end
@@ -457,7 +388,6 @@ class Simulation
   # => to a given point
   def test_pistons_for(seconds, node, point)
     closest_distance = Float::INFINITY
-    get_all_pistons
     steps = (seconds.to_f / Configuration::WORLD_TIMESTEP).to_i
     steps.times do
       @world.advance
@@ -478,6 +408,84 @@ class Simulation
   end
 
   #
+  # Automatic Piston Movement Methods
+  #
+
+  def open_automatic_movement_dialog
+    @movement_dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
+    file_content = File.read(File.join(File.dirname(__FILE__), '../ui/html/cycle_designer.erb'))
+    template = ERB.new(file_content)
+    @movement_dialog.set_html(template.result(binding))
+    @movement_dialog.set_size(300, Configuration::UI_HEIGHT)
+    @movement_dialog.add_action_callback('expand_actuator') do |_context, id|
+      expand_actuator(id)
+    end
+    @movement_dialog.add_action_callback('retract_actuator') do |_context, id|
+      retract_actuator(id)
+    end
+    @movement_dialog.add_action_callback('stop_actuator') do |_context, id|
+      stop_actuator(id)
+    end
+    @movement_dialog.show
+  end
+
+  def close_automatic_movement_dialog
+    unless @movement_dialog.nil?
+      if @movement_dialog.visible?
+        @movement_dialog.close
+      end
+    end
+  end
+
+  def move_joint(id, expand)
+    link = nil
+    @auto_piston_group.each { |edges|
+      edges.each { |edge|
+        if edge.automatic_movement_group == id
+          link = edge.thingy
+          unless link.nil? || !link.joint.valid?
+            joint = link.joint
+
+            joint.rate = link.rate
+            joint.controller = expand ? link.max : link.min
+          end
+        end
+      }
+    }
+  end
+
+  def expand_actuator(id)
+    move_joint(id, true)
+  end
+
+  def retract_actuator(id)
+    move_joint(id, false)
+  end
+
+  def stop_actuator(id)
+    link = nil
+    @auto_piston_group.each { |edges|
+      edges.each { |edge|
+        if edge.automatic_movement_group == id
+          link = edge.thingy
+          unless link.nil?
+            joint = link.joint
+            joint.rate = 0
+          end
+        end
+      }
+    }
+  end
+
+
+
+  def reset_piston_group
+    Graph.instance.edges.each_value { |edge|
+      edge.automatic_movement_group = -1
+    }
+  end
+
+  #
   # Animation methods
   #
 
@@ -495,6 +503,35 @@ class Simulation
     return if @stopped
     @stopped = true
     halt
+  end
+
+  def stopped?
+    @stopped
+  end
+
+  def toggle_pause
+    model = Sketchup.active_model
+    model.start_operation('Toggle Force Labeles', true)
+    if @paused
+      # reset_force_labels
+      start
+    else
+      # note(tim): I'm not sure if we want to do this on pause. There should
+      # probable be another mode that shows the force labels. Leaving this out
+      # for now.
+      # update_force_labels
+      @paused = true
+    end
+    model.commit_operation
+  end
+
+  def restart
+    @sensors.each do |sensor|
+      @sensor_dialog.execute_script("resetChart(#{sensor.id})") unless @sensor_dialog.nil?
+    end
+    reset
+    setup
+    start
   end
 
   def reset_positions
@@ -636,7 +673,7 @@ class Simulation
     collect_sensors
     return if @sensors.empty?
     @sensor_dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
-    file_content = File.read(File.join(File.dirname(__FILE__), '../ui/erb/sensor_overview.erb'))
+    file_content = File.read(File.join(File.dirname(__FILE__), '../ui/html/sensor_overview.erb'))
     template = ERB.new(file_content)
     @sensor_dialog.set_html(template.result(binding))
     @sensor_dialog.set_size(300, Configuration::UI_HEIGHT)
@@ -896,5 +933,7 @@ class Simulation
   def reset_force_labels
     @force_labels.each { |link, label| label.text = "" }
   end
+
+
 
 end # Simulation

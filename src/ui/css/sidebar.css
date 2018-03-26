@@ -1,0 +1,94 @@
+/* styling in the accordion */
+.card-block,
+.card-header {
+  padding: 0 2px !important;
+}
+
+.card-header,
+.card-block h6 {
+  margin-left: 2px;
+}
+
+.card-block button + h6 {
+  margin-top: 20px;
+}
+
+.card + .card {
+  margin-top: 2px;
+}
+
+h2 {
+  font-size: 15px;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+/*for the accordion headers */
+
+button.btn-link {
+  color: inherit !important;
+  text-decoration: none !important;
+  width: 100%;
+}
+
+h5 {
+  text-align: center;
+}
+
+/*for the button for the tools*/
+
+button.tool {
+  vertical-align: top;
+  width: 54px;
+  padding: 0px 0px 2px 0px;
+}
+
+button.tool.active {
+  background: linear-gradient(#ccc, #eee);
+  filter: progid:DXImageTransform.Microsoft.gradient(
+      startColorstr='#bbbbbb',
+      endColorstr='#dddddd'
+    );
+}
+
+button.tool.active:hover {
+  box-shadow: none;
+}
+
+button:disabled,
+button:disabled:hover {
+  border: none;
+  box-shadow: none;
+  cursor: not-allowed;
+  filter: none;
+  background: darkgrey;
+}
+
+/* button for footer */
+footer {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: flex !important;
+  flex-wrap: wrap;
+  padding: 2px;
+  width: 100%;
+}
+
+button.fabricate {
+  width: 90% !important; /* just some value to make it wrap so the grow prop comes into play */
+  flex-grow: 2;
+  /* margin-left: 0; */
+  /* margin-right: 0; */
+}
+
+button.fabricate img {
+  height: auto;
+  width: auto;
+}
+
+footer button {
+  width: 40% !important; /* some value <50% */
+  flex-grow: 1;
+  margin: 2px !important;
+}

@@ -3,7 +3,7 @@ require 'src/utility/mouse_input.rb'
 require 'src/simulation/simulation.rb'
 require 'src/configuration/configuration.rb'
 
-class FindLimitsTool < Tool
+class ForceLimitTool < Tool
 
   def initialize(ui)
     super(ui)

@@ -4,19 +4,20 @@ require 'set'
 class MouseInput
   attr_reader :position, :snapped_object
 
-  def initialize(snap_to_nodes: false, snap_to_edges: false, snap_to_surfaces: false, snap_to_pods: false, snap_to_covers: false)
+  def initialize(snap_to_nodes: false, snap_to_edges: false, snap_to_surfaces: false, snap_to_pods: false, snap_to_covers: false, should_highlight: true)
     @snap_to_nodes = snap_to_nodes
     @snap_to_edges = snap_to_edges
     @snap_to_surfaces = snap_to_surfaces
     @snap_to_pods = snap_to_pods
     @snap_to_covers = snap_to_covers
     @position = nil
+    @should_highlight = should_highlight
     soft_reset
   end
 
   def soft_reset
     @position = nil
-    unless @snapped_object.nil? || @snapped_object.deleted?
+    unless @snapped_object.nil? || @snapped_object.deleted? || !@should_highlight
       @snapped_object.un_highlight
     end
     @snapped_object = nil
@@ -34,7 +35,9 @@ class MouseInput
     @position = input_point.position
 
     snap_to_object
-    @snapped_object.highlight unless @snapped_object.nil?
+    unless @snapped_object.nil? || !@should_highlight
+      @snapped_object.highlight
+    end
     @position = @snapped_object.position if @snapped_object
 
     # For some reason, we don't have to find the intersection on the plane if
