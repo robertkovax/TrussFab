@@ -112,7 +112,7 @@ module Configuration
   WORLD_TIMESTEP        = 1.0 / 60 # in seconds
   WORLD_NUM_ITERATIONS  = ((1.0 / 60) / WORLD_TIMESTEP).to_i
   JOINT_SOLVER_MODEL    = 0 # 0 or 2
-  JOINT_STIFFNESS       = 0.95 # ratio (0.0 - 1.0)
+  JOINT_STIFFNESS       = 0.9 # ratio (0.0 - 1.0)
   JOINT_BREAKING_FORCE  = 1000 # (in Newtons)
   BODY_STATIC_FRICITON  = 0.9
   BODY_KINETIC_FRICITON = 0.5

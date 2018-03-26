@@ -4,19 +4,19 @@ require 'src/configuration/configuration.rb'
 class GenericLink < PhysicsLink
 
   attr_accessor :min_distance, :max_distance
-  attr_reader :joint, :first_cylinder, :second_cylinder, :initial_force
+  attr_reader :joint, :first_cylinder, :second_cylinder, :initial_force, :default_length
 
   def initialize(first_node, second_node, id: nil)
     super(first_node, second_node, 'generic', id: id)
 
     pt1 = first_node.thingy.position
     pt2 = second_node.thingy.position
-    length = pt1.distance(pt2).to_m
+    @default_length = pt1.distance(pt2).to_m
 
     @force = 0#Configuration::GENERIC_LINK_FORCE
     @initial_force = 0#Configuration::GENERIC_LINK_FORCE
-    @min_distance = length + Configuration::GENERIC_LINK_MIN_DISTANCE
-    @max_distance = length + Configuration::GENERIC_LINK_MAX_DISTANCE
+    @min_distance = @default_length + Configuration::GENERIC_LINK_MIN_DISTANCE
+    @max_distance = @default_length + Configuration::GENERIC_LINK_MAX_DISTANCE
     @limits_enabled = true
 
     persist_entity

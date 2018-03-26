@@ -19,6 +19,7 @@ class ModelStorage
   end
 
   def setup_models
+    Sketchup.active_model.start_operation('Setup Models', true)
     if @models['ball_hub'].nil? || !@models['ball_hub'].valid?
       @models['ball_hub'] = BallHubModel.new
     end
@@ -58,5 +59,6 @@ class ModelStorage
     if @models['sensor'].nil? || !@models['sensor'].valid?
       @models['sensor'] = SensorModel.new
     end
+    Sketchup.active_model.commit_operation
   end
 end

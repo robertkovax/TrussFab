@@ -42,7 +42,11 @@ class FindLimitsTool < Tool
   def onLButtonDown(_flags, x, y, view)
     update(view, x, y)
     edge = @mouse_input.snapped_object
-    return if edge.nil?
+    if edge.nil? || !edge.thingy.is_a?(GenericLink)
+      p 'Edge is invalid. Should be a GenericLink'
+      return
+    end
+
     @moving = true
     @edge = edge
     find_limits
@@ -50,8 +54,6 @@ class FindLimitsTool < Tool
 
   def setup_simulation
     @simulation.setup
-    # Sketchup.active_model.active_view.animation = @simulation
-    # @simulation.start
     @simulation.breaking_force = 0 #disable breaking_force
     @simulation.update_world_headless_by(5) #settle down
     @force = 0
@@ -70,9 +72,11 @@ class FindLimitsTool < Tool
     setup_simulation
     settled_distance = @edge.thingy.joint.cur_distance
     @piston_position = settled_distance
+    #should we apply positive or negative force?
+    positive_direction = settled_distance < @edge.thingy.default_length
     #Find min force until it moves
     while (@piston_position - settled_distance).abs < @threshold && @steps < 5000
-      apply_force_increasing
+      apply_force_increasing(positive_direction)
       @steps += 1
     end
     @min_force = @force
@@ -80,7 +84,8 @@ class FindLimitsTool < Tool
     #Find max force before it breaks
     reset_simulation
     @new_force = 0
-    @force = -Configuration::JOINT_BREAKING_FORCE
+    @force = Configuration::JOINT_BREAKING_FORCE
+    @force *= positive_direction ? 1 : -1
 
     broke_previously = false
     for i in 0..50
@@ -91,14 +96,18 @@ class FindLimitsTool < Tool
     end
     @max_force = @force
 
-    p @min_force
-    p @max_force
+    p "Minimum Visual Actuation Force: #{@min_force} N"
+    p "Maximum Force Before Breaking: #{@max_force} N"
     @simulation.reset
     @simulation = nil
   end
 
-  def apply_force_increasing
-    @force -= 10
+  def apply_force_increasing(positive_direction)
+    if positive_direction
+      @force += 10
+    else
+      @force -= 10
+    end
     @edge.thingy.force = @force
     @simulation.update_world_headless_by(1)
     @piston_position = @edge.thingy.joint.cur_distance

@@ -36,23 +36,23 @@ class Graph
 
   # nodes should never be created without a corresponding edge, therefore private
   private def create_node(position)
-  Sketchup.active_model.start_operation('create node', true)
   node = find_close_node(position)
   return node unless node.nil?
   node = Node.new(position)
   @nodes[node.id] = node
-  Sketchup.active_model.commit_operation
   node
 end
 
 def create_edge_from_points(first_position, second_position, model_name: 'hard', bottle_type: Configuration::BIG_BIG_BOTTLE_NAME, link_type: 'bottle_link')
+  Sketchup.active_model.start_operation('create edge', true, false, true)
   first_node = create_node(first_position)
   second_node = create_node(second_position)
-  create_edge(first_node, second_node, model_name: model_name, bottle_type: bottle_type, link_type: link_type)
+  edge = create_edge(first_node, second_node, model_name: model_name, bottle_type: bottle_type, link_type: link_type)
+  Sketchup.active_model.commit_operation
+  edge
 end
 
 def create_edge(first_node, second_node, model_name: 'hard', bottle_type: Configuration::BIG_BIG_BOTTLE_NAME, link_type: 'bottle_link')
-  Sketchup.active_model.start_operation('create edge', true)
   nodes = [first_node, second_node]
   edge = find_edge(nodes)
   return edge unless edge.nil?
@@ -60,27 +60,26 @@ def create_edge(first_node, second_node, model_name: 'hard', bottle_type: Config
   create_possible_surfaces(edge)
   @edges[edge.id] = edge
   BottleCounter.update_status_text
-  Sketchup.active_model.commit_operation
   edge
 end
 
 def create_surface_from_points(first_position, second_position, third_position, model_name: 'hard', bottle_type: Configuration::BIG_BIG_BOTTLE_NAME, link_type: 'bottle_link')
+  Sketchup.active_model.start_operation('create surface', true, false, true)
   first_node = create_node(first_position)
   second_node = create_node(second_position)
   third_node = create_node(third_position)
   create_edge(first_node, second_node, model_name: model_name, bottle_type: bottle_type, link_type: link_type)
   create_edge(second_node, third_node, model_name: model_name, bottle_type: bottle_type, link_type: link_type)
   create_edge(first_node, third_node, model_name: model_name, bottle_type: bottle_type, link_type: link_type)
+  Sketchup.active_model.commit_operation
 end
 
 def create_surface(first_node, second_node, third_node)
-  Sketchup.active_model.start_operation('create surface', true)
   nodes = [first_node, second_node, third_node]
   surface = find_surface(nodes)
   return surface unless surface.nil?
   surface = Triangle.new(first_node, second_node, third_node)
   @surfaces[surface.id] = surface
-  Sketchup.active_model.commit_operation
   surface
 end
 
@@ -89,9 +88,11 @@ def create_possible_surfaces(edge)
   second_node = edge.second_node
   first_other_nodes = first_node.adjacent_nodes
   second_other_nodes = second_node.adjacent_nodes
+  Sketchup.active_model.start_operation('create possible surfaces', true, false, true)
   (first_other_nodes & second_other_nodes).each do |node|
     create_surface(first_node, second_node, node)
   end
+  Sketchup.active_model.commit_operation
 end
 
 #

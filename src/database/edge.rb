@@ -168,6 +168,7 @@ class Edge < GraphObject
   end
 
   def delete
+    Sketchup.active_model.start_operation('Edge: Delete', true, false, true)
     super
     @first_node.delete_incident(self)
     @second_node.delete_incident(self)
@@ -175,6 +176,7 @@ class Edge < GraphObject
     adjacent_triangles.each do |tri|
       tri.delete
     end
+    Sketchup.active_model.commit_operation
   end
 
   def update_bottle_type
@@ -184,6 +186,7 @@ class Edge < GraphObject
   end
 
   def move
+    Sketchup.active_model.start_operation('Edge: Move', true, false, true)
     if @link_type == 'bottle_link'
       update_bottle_type unless @@retain_bottle_types
 
@@ -192,6 +195,7 @@ class Edge < GraphObject
     end
 
     @thingy.update_positions(@first_node.position, @second_node.position)
+    Sketchup.active_model.commit_operation
   end
 
   def next_longer_length
@@ -215,16 +219,19 @@ class Edge < GraphObject
   end
 
   def reset
+    Sketchup.active_model.start_operation('Edge: Reset', true, false, true)
     recreate_thingy
     if @link_type == 'bottle_link'
       @thingy.change_color(Configuration::BOTTLE_COLOR)
     end
+    Sketchup.active_model.commit_operation
   end
 
   private
 
   def create_thingy(id)
-    case @link_type
+    Sketchup.active_model.start_operation('Edge: Create', true, false, true)
+    thingy = case @link_type
     when 'bottle_link'
       update_bottle_type if @bottle_type.empty?
 
@@ -248,5 +255,7 @@ class Edge < GraphObject
     else
       raise "Unkown link type: #{@link_type}"
     end
+    Sketchup.active_model.commit_operation
+    thingy
   end
 end

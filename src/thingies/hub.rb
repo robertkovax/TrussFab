@@ -6,6 +6,7 @@ class Hub < PhysicsThingy
   attr_accessor :position, :body, :mass, :arrow
 
   def initialize(position, id: nil, incidents: nil, material: 'hub_material')
+    Sketchup.active_model.start_operation('Hub: Create', true)
     super(id, material: material)
     @model = ModelStorage.instance.models['ball_hub']
     @color = color unless color.nil?
@@ -20,6 +21,7 @@ class Hub < PhysicsThingy
     @incidents = incidents
     update_id_label
     persist_entity
+    Sketchup.active_model.commit_operation
   end
 
   def add_pod(direction, id: nil, is_fixed: true)
@@ -115,15 +117,17 @@ class Hub < PhysicsThingy
   end
 
   def delete
+    Sketchup.active_model.start_operation('Hub: Delete', true, false, true)
     @id_label.erase!
     @arrow.erase! unless @arrow.nil?
     @sensor_symbol.erase! unless @sensor_symbol.nil?
     @weight_indicator.erase! unless @weight_indicator.nil?
+    Sketchup.active_model.commit_operation
     super
   end
 
   def update_position(position)
-    Sketchup.active_model.start_operation('Hub: Update Position')
+    Sketchup.active_model.start_operation('Hub: Update Position', true, false, true)
     @position = position
     @entity.move!(Geom::Transformation.new(position))
     @id_label.point = position
@@ -135,8 +139,10 @@ class Hub < PhysicsThingy
     point = Geom::Point3d.new(@position)
     model = ModelStorage.instance.models['sensor']
     transform = Geom::Transformation.new(point)
+    Sketchup.active_model.start_operation('Hub: Add Sensor Symbol', true, false, true)
     @sensor_symbol = Sketchup.active_model.active_entities.add_instance(model.definition, transform)
     @sensor_symbol.transform!(Geom::Transformation.scaling(point, 0.2))
+    Sketchup.active_model.commit_operation
   end
 
   def toggle_sensor_state
@@ -198,19 +204,23 @@ class Hub < PhysicsThingy
     return @entity if @entity
     position = Geom::Transformation.translation(@position)
     transformation = position * @model.scaling
+    Sketchup.active_model.start_operation('Hub: Create Entity', true, false, true)
     entity = Sketchup.active_model.entities.add_instance(@model.definition, transformation)
     entity.layer = Configuration::HUB_VIEW
     entity.material = @material
+    Sketchup.active_model.commit_operation
     entity
   end
 
   def update_id_label
     label_position = @position
+    Sketchup.active_model.start_operation('Hub: Update ID Label', true, false, true)
     if @id_label.nil?
       @id_label = Sketchup.active_model.entities.add_text("    #{@id} ", label_position)
       @id_label.layer = Sketchup.active_model.layers[Configuration::HUB_ID_VIEW]
     else
       @id_label.point = label_position
     end
+    Sketchup.active_model.commit_operation
   end
 end

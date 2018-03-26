@@ -13,7 +13,7 @@ class BottleLink < Thingy
   end
 
   def change_color(color)
-    Sketchup.active_model.start_operation('Bottle Link: Change color', true)
+    Sketchup.active_model.start_operation('Bottle Link: Change color', true, false, true)
     @entity.definition.entities.each do |ent|
       if ent.material != color
         ent.material = color
@@ -33,7 +33,7 @@ class BottleLink < Thingy
   private
 
   def create_entity
-    Sketchup.active_model.start_operation('Bottle Link: Create', true)
+    Sketchup.active_model.start_operation('Bottle Link: Create', true, false, true)
     return @entity if @entity
     translation = Geom::Transformation.translation(@position)
 

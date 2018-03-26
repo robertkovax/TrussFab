@@ -15,13 +15,17 @@ class Surface < Thingy
   end
 
   def highlight(highlight_material = @highlight_material)
+    Sketchup.active_model.start_operation('Surface: highlight', true, false, true)
     super(highlight_material)
     @entity.back_material = highlight_material if @entity && @entity.valid?
+    Sketchup.active_model.commit_operation
   end
 
   def un_highlight
+    Sketchup.active_model.start_operation('Surface: unhighlight', true, false, true)
     @entity.back_material = @material if @entity && @entity.valid?
     super
+    Sketchup.active_model.commit_operation
   end
 
   def delete_edges(position)
@@ -63,6 +67,7 @@ class Surface < Thingy
   private
 
   def create_entity
+    Sketchup.active_model.start_operation('Create Surface', true, false, true)
     entity = Sketchup.active_model.entities.add_face(@first_position, @second_position, @third_position)
     entity.layer = Configuration::TRIANGLE_SURFACES_VIEW
     entity.material = entity.back_material = @material
@@ -70,6 +75,7 @@ class Surface < Thingy
       # hide outline of surfaces, enable line link layer for lines instead of bottles
       edge.hidden = true
     end
+    Sketchup.active_model.commit_operation
     entity
   end
 end

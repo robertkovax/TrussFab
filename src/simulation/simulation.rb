@@ -347,7 +347,7 @@ class Simulation
 
     @dialog.add_action_callback('play_pause_simulation') do |_context|
       model = Sketchup.active_model
-      model.start_operation('Toggle Force Labeles', true)
+      model.start_operation('Toggle Force Labels', true, false, true)
       if @paused
         reset_force_labels
         start
@@ -374,7 +374,7 @@ class Simulation
 
     @dialog.add_action_callback('apply_force') do |_context|
       @generic_links.each_value do |generic_link|
-        generic_link.force = -350
+        generic_link.force = 430
       end
     end
 
@@ -553,6 +553,8 @@ class Simulation
   end
 
   def update_entities
+    model = Sketchup.active_model
+    model.start_operation('Update Entities', true, false, true)
     @world.update_group_transformations
     Graph.instance.edges.each do |id, edge|
       link = edge.thingy
@@ -561,37 +563,45 @@ class Simulation
     Graph.instance.nodes.values.each do |node|
       node.update_position(node.thingy.body.get_position(1))
     end
+    model.commit_operation
   end
 
   def update_hub_addons
+    model = Sketchup.active_model
+    model.start_operation('Update Hub Addons', true, false, true)
     Graph.instance.nodes.values.each do |node|
       node.thingy.move_addons(node.position)
     end
+    model.commit_operation
   end
 
   def reset_force_arrows
+    model = Sketchup.active_model
+    model.start_operation('Reset Force Arrows', true, false, true)
     Graph.instance.nodes.values.each do |node|
       node.thingy.reset_addon_positions
     end
+    model.commit_operation
   end
 
   def reset_sensor_symbols
+    model = Sketchup.active_model
+    model.start_operation('Reset Sensor Symbols', true, false, true)
     Graph.instance.edges.each_value do |edge|
       edge.thingy.reset_sensor_symbol_position
     end
+    model.commit_operation
   end
 
   def nextFrame(view)
     model = view.model
     return @running unless (@running && !@paused)
 
-    model.start_operation('Simulation', true)
+    model.start_operation('Simulation', true, false, true)
 
     update_world
     update_hub_addons
     update_entities
-
-    model.commit_operation
 
     if @frame % 5 == 0
       #shift_chart_data if @frame > 100
@@ -604,6 +614,7 @@ class Simulation
     update_status_text
 
     view.show_frame
+    model.commit_operation
     @running
   end
 
@@ -848,6 +859,7 @@ class Simulation
   # Adds a label with the force value for each edge in the graph
   # Note: this must be wrapped in operation
   def update_force_labels
+    Sketchup.active_model.start_operation('update force label', true, false, true)
     Graph.instance.edges.each_value do |edge|
       link = edge.thingy
       next unless link.is_a?(Link) # this might unnecessary
@@ -862,6 +874,7 @@ class Simulation
       end
       update_force_label(link, tension, position)
     end
+    Sketchup.active_model.commit_operation
   end
 
   # Adds a label with the force value for a single edge
