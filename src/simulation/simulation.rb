@@ -5,7 +5,7 @@ require 'erb'
 class Simulation
 
   attr_reader :pistons, :moving_pistons, :bottle_dat
-  attr_accessor :breaking_force, :max_speed, :highest_force_mode, :auto_piston_group
+  attr_accessor :breaking_force, :max_speed, :highest_force_mode, :peak_force_mode, :auto_piston_group
 
   class << self
 
@@ -82,8 +82,10 @@ class Simulation
     @breaking_force_invh = (@breaking_force > 1.0e-6) ? (0.5.fdiv(@breaking_force)) : 0.0
 
     @max_actuator_tensions = {}
+    @max_link_tensions = {}
     @max_speed = 0
     @highest_force_mode = false
+    @peak_force_mode = false
 
     hinge_layer = Sketchup.active_model.layers.at(Configuration::HINGE_VIEW)
     hinge_layer.visible = false
@@ -513,13 +515,12 @@ class Simulation
     model = Sketchup.active_model
     model.start_operation('Toggle Force Labeles', true)
     if @paused
-      # reset_force_labels
+      reset_force_labels
       start
     else
       # note(tim): I'm not sure if we want to do this on pause. There should
-      # probable be another mode that shows the force labels. Leaving this out
-      # for now.
-      # update_force_labels
+      # probable be another mode that shows the force labels.
+      update_force_labels
       @paused = true
     end
     model.commit_operation
@@ -560,6 +561,7 @@ class Simulation
       @world.advance
       # We need to record this every time the world updates, otherwise, we might skip the crucial forces involved
       rec_max_actuator_tensions
+      rec_max_link_tensions
       if @highest_force_mode
         visualize_highest_tension
       else
@@ -581,6 +583,7 @@ class Simulation
       @world.advance
       # We need to record this every time the world updates, otherwise, we might skip the crucial forces involved
       rec_max_actuator_tensions
+      rec_max_link_tensions
       if @highest_force_mode
         visualize_highest_tension
       else
@@ -719,6 +722,12 @@ class Simulation
     node.thingy.body.apply_force(force)
   end
 
+  def apply_force
+    @generic_links.each_value do |generic_link|
+      generic_link.force = Configuration::GENERIC_LINK_FORCE
+    end
+  end
+
   # returns true if any of the joints in the structure broke
   def broken?
     broken = false
@@ -792,7 +801,11 @@ class Simulation
     @bottle_dat.each { |link, dat|
       mat = dat[3]
       if mat && mat.valid?
-        force = get_directed_force(link)
+        if @peak_force_mode
+          force = @max_link_tensions[link.id]
+        else
+          force = get_directed_force(link)
+        end
         r = (@breaking_force + force * Configuration::TENSION_SENSITIVITY) * @breaking_force_invh
         mat.color = Geometry.blend_colors(Configuration::TENSION_COLORS, r)
       end
@@ -804,7 +817,14 @@ class Simulation
     lowest_force_tuple = [nil, Float::INFINITY]
     highest_force_tuple = [nil, -Float::INFINITY]
     @bottle_dat.each { |link, dat|
-      force = get_directed_force(link)
+      force = 0
+
+      if @peak_force_mode && !@max_link_tensions[link.id].nil?
+        force = @max_link_tensions[link.id]
+      else
+        force = get_directed_force(link)
+      end
+
       if force < lowest_force_tuple[1]
         lowest_force_tuple = [link, force]
       elsif force > highest_force_tuple[1]
@@ -820,9 +840,12 @@ class Simulation
     mat = dat[3]
     if mat && mat.valid?
       force = get_directed_force(link)
-      if(@highest_force_mode)
+      if @highest_force_mode && !@peak_force_mode
         force = @breaking_force/2.0 if (force < @breaking_force/2.0 && force > 0)
         force = -@breaking_force/2.0 if (force > -@breaking_force/2.0 && force < 0)
+      end
+      if @peak_force_mode
+        force = @max_link_tensions[link.id]
       end
       r = (@breaking_force + force * Configuration::TENSION_SENSITIVITY) * @breaking_force_invh
       mat.color = Geometry.blend_colors(Configuration::TENSION_COLORS, r)
@@ -868,6 +891,17 @@ class Simulation
     end
   end
 
+  def rec_max_link_tensions
+    return unless @peak_force_mode
+    Graph.instance.edges.each_value do |edge|
+      net_lin_tension = compute_net_actuator_tension(edge)
+      @max_link_tensions[edge.id] = net_lin_tension if @max_link_tensions[edge.id].nil?
+      if net_lin_tension.abs > @max_link_tensions[edge.id].abs
+        @max_link_tensions[edge.id] = net_lin_tension
+      end
+    end
+  end
+
   # Outs the net maximum tension of all actuators to the chart
   # and resets the @max_actuator_tensions variable
   def log_max_actuator_tensions(label)
@@ -905,7 +939,11 @@ class Simulation
       dir = pt1.vector_to(pt2).normalize
       position = Geom.linear_combination(0.5, pt1, 0.5, pt2)
       if link.joint && link.joint.valid?
-        tension = link.joint.linear_tension.dot(dir)
+        if @peak_force_mode
+          tension = @max_link_tensions[link.id]
+        else
+          tension = link.joint.linear_tension.dot(dir)
+        end
       else
         tension = 0.0
       end

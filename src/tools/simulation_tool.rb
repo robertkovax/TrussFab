@@ -165,6 +165,14 @@ class SimulationTool < Tool
     @simulation.highest_force_mode = param
   end
 
+  def change_peak_force_mode(param)
+    @simulation.peak_force_mode = param
+  end
+
+  def pressurize_generic_link
+    @simulation.apply_force
+  end
+
   def toggle_piston_group(edge)
     colors = ['#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
               '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',

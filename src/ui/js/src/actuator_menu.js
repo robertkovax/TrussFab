@@ -39,6 +39,7 @@ function showManualActuatorSettings(pistons, breakingForce, maxSpeed) {
 
   form.append(maxSpeedElement);
 
+  const col = $(`<div class="col-auto"/>)`);
   const highestForceModeElement = $(`<div class="col-auto">
       <div class="form-check">
         <input class="form-check-input" id="force_mode_checkbox" type="checkbox">
@@ -46,17 +47,35 @@ function showManualActuatorSettings(pistons, breakingForce, maxSpeed) {
       </div>
     </div>`);
 
-  const applyForceElement = $(`<div class="col-auto">
-    <div class="form-check">
-      <select class="form-check-input" id="apply_force_button" type="button">
-      <label class="form-check-label" for="apply_force_button"Apply Force</label>
-    </div>
-  </div>`);
-
   highestForceModeElement.find('input').on(
       'change', event => changeHighestForceMode(event.currentTarget.checked));
 
-  form.append(highestForceModeElement);
+  col.append(highestForceModeElement);
+
+  const peakForceModeElement = $(`<div class="col-auto">
+  	  <div class="form-check">
+        <input class="form-check-input" id="peak_force_mode_checkbox" type="checkbox">
+        <label class="form-check-label" for="peak_force_mode_checkbox">Peak Force Mode</label>
+      </div>
+    </div>`);
+
+  peakForceModeElement.find('input').on(
+      'change', event => changePeakForceMode(event.currentTarget.checked));
+
+  col.append(peakForceModeElement);
+
+  const applyForceElement = $(`<div class="col-auto">
+    <div class="form-check">
+      <button class="form-check-input" id="apply_force_button">
+      <label class="form-check-label" for="apply_force_button">Apply Force</label>
+    </div>
+  </div>`);
+
+  applyForceElement.find('button').on('click', event => applyForce());
+
+  col.append(applyForceElement);
+
+  form.append(col);
 
   elements.push($('<form />').append(form));
 
@@ -170,7 +189,11 @@ function changeHighestForceMode(checked) {
   sketchup.change_highest_force_mode(checked);
 }
 
-function apply_force() { sketchup.apply_force(); }
+function changePeakForceMode(checked) {
+  sketchup.change_peak_force_mode(checked);
+}
+
+function applyForce() { sketchup.apply_force(); }
 
 function release_force() { sketchup.release_force(); }
 

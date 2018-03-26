@@ -136,7 +136,7 @@ module Configuration
   SPRING_DAMP = 10
 
   #GenericPointToPoint Properties
-  GENERIC_LINK_FORCE = 10
+  GENERIC_LINK_FORCE = 100
   GENERIC_LINK_MIN_DISTANCE = -0.2
   GENERIC_LINK_MAX_DISTANCE = 0.2
 

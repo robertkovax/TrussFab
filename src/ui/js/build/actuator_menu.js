@@ -19,13 +19,32 @@ function showManualActuatorSettings(pistons, breakingForce, maxSpeed) {
 
   form.append(maxSpeedElement);
 
+  var col = $('<div class="col-auto"/>)');
   var highestForceModeElement = $('<div class="col-auto">\n      <div class="form-check">\n        <input class="form-check-input" id="force_mode_checkbox" type="checkbox">\n        <label class="form-check-label" for="force_mode_checkbox">Highest Force Mode</label>\n      </div>\n    </div>');
 
   highestForceModeElement.find('input').on('change', function (event) {
     return changeHighestForceMode(event.currentTarget.checked);
   });
 
-  form.append(highestForceModeElement);
+  col.append(highestForceModeElement);
+
+  var peakForceModeElement = $('<div class="col-auto">\n  \t  <div class="form-check">\n        <input class="form-check-input" id="peak_force_mode_checkbox" type="checkbox">\n        <label class="form-check-label" for="peak_force_mode_checkbox">Peak Force Mode</label>\n      </div>\n    </div>');
+
+  peakForceModeElement.find('input').on('change', function (event) {
+    return changePeakForceMode(event.currentTarget.checked);
+  });
+
+  col.append(peakForceModeElement);
+
+  var applyForceElement = $('<div class="col-auto">\n    <div class="form-check">\n      <button class="form-check-input" id="apply_force_button">\n      <label class="form-check-label" for="apply_force_button">Apply Force</label>\n    </div>\n  </div>');
+
+  applyForceElement.find('button').on('click', function (event) {
+    return applyForce();
+  });
+
+  col.append(applyForceElement);
+
+  form.append(col);
 
   elements.push($('<form />').append(form));
 
@@ -79,7 +98,8 @@ function togglePauseUnpauseSimulationButton() {
   }
 }
 
-// called in Ruby when the simulation is stopped via ESC and the dialog is out of focous
+// called in Ruby when the simulation is stopped via ESC and the dialog is out
+// of focous
 function cleanupUiAfterStoppingSimulation() {
   $('#manual').empty();
 
@@ -143,7 +163,11 @@ function changeHighestForceMode(checked) {
   sketchup.change_highest_force_mode(checked);
 }
 
-function apply_force() {
+function changePeakForceMode(checked) {
+  sketchup.change_peak_force_mode(checked);
+}
+
+function applyForce() {
   sketchup.apply_force();
 }
 
