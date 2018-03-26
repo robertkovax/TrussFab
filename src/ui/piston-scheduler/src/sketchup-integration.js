@@ -1,17 +1,17 @@
 function toggleSimulation() {
-  sketchup.toggle_simulation();
+  window.sketchup.toggle_simulation();
 }
 
 function togglePauseSimulation() {
-  sketchup.toggle_pause_simulation();
+  window.sketchup.toggle_pause_simulation();
 }
 
 function restartSimulation() {
-  sketchup.restart_simulation();
+  window.sketchup.restart_simulation();
 }
 
 function changePistonValue(id, newValue, duration) {
-  sketchup.move_joint(id, newValue, duration);
+  window.sketchup.move_joint(id, newValue, duration);
 }
 
 export {

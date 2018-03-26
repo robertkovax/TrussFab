@@ -5,6 +5,7 @@ import logo from './logo.svg';
 import './App.css';
 import { toggleDiv } from './util';
 import { getInterpolationForTime } from './serious-math';
+import { toggleSimulation } from './sketchup-integration';
 
 const xAxis = 300;
 const yAxis = 50;
@@ -190,6 +191,8 @@ class App extends Component {
   };
 
   toggelSimulation = () => {
+    toggleSimulation();
+
     const { simulationPaused } = this.state;
 
     if (simulationPaused) {
@@ -251,6 +254,109 @@ class App extends Component {
       .attr('x2', newX);
   };
 
+  renderControlls = () => {
+    return (
+      <div className="col-4">
+        <div className="row no-gutters">
+          <div className="col">
+            <button onClick={this.toggelSimulation}>
+              <img src="../../assets/icons/block.png" />
+            </button>
+          </div>
+          <div className="col">
+            <button>
+              <img src="../../assets/icons/block.png" />
+            </button>
+          </div>
+          <div className="col">
+            <button>
+              <img src="../../assets/icons/block.png" />
+            </button>
+          </div>
+        </div>
+        <button>Reset Model</button>
+        <form>
+          <div className="form-check">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              value=""
+              id="defaultCheck1"
+            />
+            <label className="form-check-label" for="defaultCheck1">
+              Default checkbox
+            </label>
+          </div>
+          <div className="form-check">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              value=""
+              id="defaultCheck1"
+            />
+            <label className="form-check-label" for="defaultCheck1">
+              Default checkbox
+            </label>
+          </div>
+          <div className="form-check">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              value=""
+              id="defaultCheck1"
+            />
+            <label className="form-check-label" for="defaultCheck1">
+              Default checkbox
+            </label>
+          </div>
+          <div className="form-group row">
+            <label for="inputEmail3" className="col-sm-9 col-form-label">
+              Cycle Length
+            </label>
+            <div className="col-sm-3">
+              <input
+                type="number"
+                className="form-control form-control-sm"
+                id="inputEmail3"
+                placeholder="6"
+                value={this.state.seconds}
+                onChange={event =>
+                  this.setState({ seconds: event.target.value })
+                }
+              />
+            </div>
+          </div>
+          <div className="form-group row">
+            <label for="inputEmail3" className="col-sm-9 col-form-label">
+              Breaking Force
+            </label>
+            <div className="col-sm-3">
+              <input
+                type="number"
+                className="form-control form-control-sm"
+                id="inputEmail3"
+                placeholder="300"
+              />
+            </div>
+          </div>
+          <div className="form-group row">
+            <label for="inputEmail3" className="col-sm-9 col-form-label">
+              Stiffness
+            </label>
+            <div className="col-sm-3">
+              <input
+                type="number"
+                className="form-control form-control-sm"
+                id="inputEmail3"
+                placeholder="Email"
+              />
+            </div>
+          </div>
+        </form>
+      </div>
+    );
+  };
+
   render() {
     const pistons = this.state.pistons.map(x => (
       <div>
@@ -301,21 +407,16 @@ class App extends Component {
       </div>
     ));
     return (
-      <div className="App">
-        Seconds
-        <input
-          type="number"
-          value={this.state.seconds}
-          onChange={event => this.setState({ seconds: event.target.value })}
-        />
-        <button onClick={this.toggelSimulation}>
-          {this.state.simulationPaused ? 'Start' : 'Pause'}
-        </button>
-        {!this.state.simulationPaused && (
-          <span>{(this.state.timelineCurrentTime / 1000).toFixed(1)}s</span>
-        )}
-        {pistons}
-        {/* <button onClick={this.addPiston}>Add Piston</button> */}
+      <div className="row no-gutters">
+        {this.renderControlls()}
+        <div className="col-8">
+          <div className="App">
+            {!this.state.simulationPaused && (
+              <span>{(this.state.timelineCurrentTime / 1000).toFixed(1)}s</span>
+            )}
+            {pistons}
+          </div>
+        </div>
       </div>
     );
   }
