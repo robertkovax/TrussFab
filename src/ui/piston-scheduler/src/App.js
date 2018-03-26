@@ -25,7 +25,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    window.update_pistons = this.addPiston;
+    window.addPiston = this.addPiston;
   }
 
   addPiston = id => {
