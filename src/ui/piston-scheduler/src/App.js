@@ -1,10 +1,10 @@
-import React, { Component } from "react";
-import * as d3 from "d3";
+import React, { Component } from 'react';
+import * as d3 from 'd3';
 
-import logo from "./logo.svg";
-import "./App.css";
-import { toggleDiv } from "./util";
-import { getInterpolationForTime } from "./serious-math";
+import logo from './logo.svg';
+import './App.css';
+import { toggleDiv } from './util';
+import { getInterpolationForTime } from './serious-math';
 
 const xAxis = 300;
 const yAxis = 50;
@@ -20,19 +20,25 @@ class App extends Component {
       timeSelection: new Map(),
       simulationPaused: true,
       timlineInterval: null,
-      timelineCurrentTime: 0
+      timelineCurrentTime: 0,
     };
   }
 
-  addPiston = () => {
-    const id = this.state.pistons.length;
+  componentDidMount() {
+    window.update_pistons = this.addPiston;
+  }
+
+  addPiston = id => {
+    console.log('id', id);
+
+    // const id = this.state.pistons.length;
     const oldKeyframes = this.state.keyframes;
     this.setState({
       pistons: this.state.pistons.concat(id),
       keyframes: oldKeyframes.set(id, [
         { time: 0, value: 1 },
-        { time: this.state.seconds, value: 1 }
-      ]) // init
+        { time: this.state.seconds, value: 1 },
+      ]), // init
     });
   };
 
@@ -42,8 +48,6 @@ class App extends Component {
     const time = parseFloat(
       event.currentTarget.previousSibling.previousSibling.previousSibling.value
     );
-    console.log("time", time);
-    console.log("value", value);
 
     const oldKeyframes = this.state.keyframes;
     const oldKeyframesPiston = oldKeyframes.get(pistonId) || [];
@@ -62,7 +66,7 @@ class App extends Component {
     });
 
     const viewBox = `0 0 ${xAxis} ${yAxis}`;
-    const pointsString = points.map(p => p.join(",")).join("\n");
+    const pointsString = points.map(p => p.join(',')).join('\n');
 
     const oldKeyframesMap = this.state.keyframes;
 
@@ -71,7 +75,7 @@ class App extends Component {
         keyframes: oldKeyframesMap.set(
           id,
           oldKeyframesMap.get(id).filter((_, index) => index !== keyframeIndex)
-        )
+        ),
       });
     };
 
@@ -86,7 +90,7 @@ class App extends Component {
     ));
 
     return (
-      <div style={{ position: "relative" }}>
+      <div style={{ position: 'relative' }}>
         <svg viewBox={viewBox} className="chart" id={`svg-${id}`}>
           <polyline
             fill="none"
@@ -97,22 +101,22 @@ class App extends Component {
           {circles}
         </svg>
         <span
-          style={{ position: "absolute", bottom: 0, left: 0, fontSize: 10 }}
+          style={{ position: 'absolute', bottom: 0, left: 0, fontSize: 10 }}
         >
           0s
         </span>
         <span
           style={{
-            position: "absolute",
+            position: 'absolute',
             bottom: 0,
             right: xAxis / 2,
-            fontSize: 10
+            fontSize: 10,
           }}
         >
           {this.state.seconds / 2}s
         </span>
         <span
-          style={{ position: "absolute", bottom: 0, right: 0, fontSize: 10 }}
+          style={{ position: 'absolute', bottom: 0, right: 0, fontSize: 10 }}
         >
           {this.state.seconds}s
         </span>
@@ -132,28 +136,28 @@ class App extends Component {
         timeSelection: oldTimeSelection.set(
           id,
           (newX / xAxis * self.state.seconds).toFixed(1)
-        )
+        ),
       });
 
       d3
         .select(this)
-        .attr("x1", newX)
-        .attr("x2", newX);
+        .attr('x1', newX)
+        .attr('x2', newX);
     }
 
-    const scrub = d3.drag().on("drag", scrubLine);
+    const scrub = d3.drag().on('drag', scrubLine);
 
     d3
-      .select("#svg-" + id)
-      .append("line")
-      .classed("timeSelection", true)
-      .attr("x1", xAxis / 2)
-      .attr("y1", 0)
-      .attr("x2", xAxis / 2)
-      .attr("y2", yAxis)
-      .style("stroke-width", 3)
-      .style("stroke", "red")
-      .style("fill", "none")
+      .select('#svg-' + id)
+      .append('line')
+      .classed('timeSelection', true)
+      .attr('x1', xAxis / 2)
+      .attr('y1', 0)
+      .attr('x2', xAxis / 2)
+      .attr('y2', yAxis)
+      .style('stroke-width', 3)
+      .style('stroke', 'red')
+      .style('fill', 'none')
       .call(scrub);
   };
 
@@ -176,12 +180,12 @@ class App extends Component {
     const newX = timelineCurrentTimeSeconds * xAxis / this.state.seconds;
 
     d3
-      .selectAll("line.timeline")
-      .attr("x1", newX)
-      .attr("x2", newX);
+      .selectAll('line.timeline')
+      .attr('x1', newX)
+      .attr('x2', newX);
 
     this.setState({
-      timelineCurrentTime
+      timelineCurrentTime,
     });
   };
 
@@ -196,20 +200,20 @@ class App extends Component {
       this.setState({ timlineInterval });
 
       d3
-        .selectAll("svg")
-        .append("line")
-        .classed("timeline", true)
-        .attr("x1", 0)
-        .attr("y1", 0)
-        .attr("x2", 0)
-        .attr("y2", yAxis)
-        .style("stroke-width", 1)
-        .style("stroke", "#D3D3D3")
-        .style("fill", "none");
+        .selectAll('svg')
+        .append('line')
+        .classed('timeline', true)
+        .attr('x1', 0)
+        .attr('y1', 0)
+        .attr('x2', 0)
+        .attr('y2', yAxis)
+        .style('stroke-width', 1)
+        .style('stroke', '#D3D3D3')
+        .style('fill', 'none');
     } else {
       clearInterval(this.state.timlineInterval);
 
-      d3.selectAll("line.timeline").remove();
+      d3.selectAll('line.timeline').remove();
     }
 
     this.setState({ simulationPaused: !simulationPaused });
@@ -221,12 +225,12 @@ class App extends Component {
 
   removeTimeSelectionForNewKeyFrame = id => {
     d3
-      .select("#svg-" + id)
-      .select("line.timeSelection")
+      .select('#svg-' + id)
+      .select('line.timeSelection')
       .remove();
     const oldTimeSelection = this.state.timeSelection;
     this.setState({
-      timeSelection: oldTimeSelection.set(id, this.state.seconds / 2)
+      timeSelection: oldTimeSelection.set(id, this.state.seconds / 2),
     });
   };
 
@@ -241,10 +245,10 @@ class App extends Component {
     const newX = value / this.state.seconds * xAxis;
 
     const line = d3
-      .select("#svg-" + id)
-      .select("line")
-      .attr("x1", newX)
-      .attr("x2", newX);
+      .select('#svg-' + id)
+      .select('line')
+      .attr('x1', newX)
+      .attr('x2', newX);
   };
 
   render() {
@@ -252,9 +256,9 @@ class App extends Component {
       <div>
         <div
           style={{
-            display: "flex",
-            alignContent: "flex-start",
-            alignItems: "flex-start"
+            display: 'flex',
+            alignContent: 'flex-start',
+            alignItems: 'flex-start',
           }}
         >
           <div>Piston {x}</div>
@@ -269,7 +273,7 @@ class App extends Component {
             new keyframe
           </button>
         </div>
-        <div id={`add-kf-${x}`} style={{ display: "none" }}>
+        <div id={`add-kf-${x}`} style={{ display: 'none' }}>
           Time:
           <input
             type="number"
@@ -305,13 +309,13 @@ class App extends Component {
           onChange={event => this.setState({ seconds: event.target.value })}
         />
         <button onClick={this.toggelSimulation}>
-          {this.state.simulationPaused ? "Start" : "Pause"}
+          {this.state.simulationPaused ? 'Start' : 'Pause'}
         </button>
         {!this.state.simulationPaused && (
           <span>{(this.state.timelineCurrentTime / 1000).toFixed(1)}s</span>
         )}
         {pistons}
-        <button onClick={this.addPiston}>Add Piston</button>
+        {/* <button onClick={this.addPiston}>Add Piston</button> */}
       </div>
     );
   }

@@ -5,4 +5,6 @@ import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 
 ReactDOM.render(<App />, document.getElementById('root'));
+
+window.update_pistons = () => console.log('test');
 registerServiceWorker();

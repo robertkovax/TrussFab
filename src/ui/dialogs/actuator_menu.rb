@@ -4,7 +4,7 @@ class ActuatorMenu
   attr_accessor :sidebar_menu
 
   def initialize
-    @HTML_FILE = '../html/actuator_menu.html'
+    @HTML_FILE = '../piston-scheduler/build/index.html'
     @simulation_tool = SimulationTool.new(self)
     @width = 600
     @height = 300
@@ -112,12 +112,16 @@ class ActuatorMenu
       @simulation_tool.change_highest_force_mode(checked)
     end
 
-    @dialog.add_action_callback('expand_actuator') do |_context, id|
-      @simulation_tool.expand_actuator(id)
-    end
+    # @dialog.add_action_callback('expand_actuator') do |_context, id|
+    #   @simulation_tool.expand_actuator(id)
+    # end
 
-    @dialog.add_action_callback('retract_actuator') do |_context, id|
-      @simulation_tool.retract_actuator(id)
+    # @dialog.add_action_callback('retract_actuator') do |_context, id|
+    #   @simulation_tool.retract_actuator(id)
+    # end
+
+    @dialog.add_action_callback('move_joint') do |_context, id, next_value, duration|
+      @simulation_tool.move_joint(id, next_value, duration)
     end
 
     @dialog.add_action_callback('stop_actuator') do |_context, id|

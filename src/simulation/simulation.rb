@@ -422,21 +422,33 @@ class Simulation
     end
   end
 
-  def move_joint(id, expand)
+  def move_joint(id, next_position, duration)
     link = nil
-    @auto_piston_group.each { |edges|
-      edges.each { |edge|
-        if edge.automatic_movement_group == id
-          link = edge.thingy
-          unless link.nil? || !link.joint.valid?
-            joint = link.joint
 
-            joint.rate = link.rate
-            joint.controller = expand ? link.max : link.min
-          end
-        end
-      }
+    @pistons.each_value {|piston|
+      if piston.id == id
+        joint = piston.joint
+
+        current_postion = joint.controller
+        position_distance = (current_postion - next_position).abs
+        joint.rate = position_distance / duration
+        joint.controller = next_position
+      end
     }
+
+    # @auto_piston_group.each { |edges|
+    #   edges.each { |edge|
+    #     if edge.automatic_movement_group == id
+    #       link = edge.thingy
+    #       unless link.nil? || !link.joint.valid?
+    #         joint = link.joint
+
+    #         joint.rate = link.rate
+    #         joint.controller = expand ? link.max : link.min
+    #       end
+    #     end
+    #   }
+    # }
   end
 
   def expand_actuator(id)

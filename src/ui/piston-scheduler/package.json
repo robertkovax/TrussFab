@@ -2,6 +2,7 @@
   "name": "piston-scheduler",
   "version": "0.1.0",
   "private": true,
+  "homepage": "./",
   "dependencies": {
     "d3": "^5.0.0",
     "everpolate": "^0.0.3",
@@ -14,6 +15,5 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
-  },
-  "homepage": "https://vis.one/piston-scheduler"
+  }
 }
