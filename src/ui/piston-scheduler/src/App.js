@@ -5,7 +5,7 @@ import logo from './logo.svg';
 import './App.css';
 import { toggleDiv } from './util';
 import { getInterpolationForTime } from './serious-math';
-import { toggleSimulation } from './sketchup-integration';
+import { toggleSimulation, moveJoint } from './sketchup-integration';
 
 const xAxis = 300;
 const yAxis = 50;
@@ -37,8 +37,8 @@ class App extends Component {
     this.setState({
       pistons: this.state.pistons.concat(id),
       keyframes: oldKeyframes.set(id, [
-        { time: 0, value: 1 },
-        { time: this.state.seconds, value: 1 },
+        { time: 0, value: 0.5 },
+        { time: this.state.seconds, value: 0.5 },
       ]), // init
     });
   };
@@ -173,9 +173,24 @@ class App extends Component {
     const timelineCurrentTimeSeconds = timelineCurrentTime / 1000;
 
     this.state.keyframes.forEach((value, key) => {
-      const bla = getInterpolationForTime(timelineCurrentTimeSeconds, value);
-      console.log(key, bla[0]);
-      // TODO move actuators
+      const keyframes = value;
+
+      for (let i = 0; i < keyframes.length; i++) {
+        const x = keyframes[i];
+        if (timelineCurrentTime === x.time * 1000) {
+          let duration;
+          let newValue;
+          // check if last one
+          if (i === keyframes.length - 1) {
+            newValue = keyframes[0].value;
+            duration = this.state.seconds - x.time; // value until end
+          } else {
+            newValue = keyframes[i + 1].value;
+            duration = keyframes[i + 1].time - x.time; // next
+          }
+          moveJoint(key, newValue, duration);
+        }
+      }
     });
 
     const newX = timelineCurrentTimeSeconds * xAxis / this.state.seconds;

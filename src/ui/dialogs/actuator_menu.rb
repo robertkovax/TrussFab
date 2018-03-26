@@ -74,7 +74,7 @@ class ActuatorMenu
     pistons = @simulation_tool.get_pistons
     breaking_force = @simulation_tool.get_breaking_force
     max_speed = @simulation_tool.get_max_speed
-    @dialog.execute_script("showManualActuatorSettings(#{pistons.keys}, #{breaking_force}, #{max_speed})")
+    # @dialog.execute_script("showManualActuatorSettings(#{pistons.keys}, #{breaking_force}, #{max_speed})")
   end
 
   def register_callbacks

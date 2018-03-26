@@ -10,7 +10,7 @@ function restartSimulation() {
   window.sketchup.restart_simulation();
 }
 
-function changePistonValue(id, newValue, duration) {
+function moveJoint(id, newValue, duration) {
   window.sketchup.move_joint(id, newValue, duration);
 }
 
@@ -18,5 +18,5 @@ export {
   toggleSimulation,
   togglePauseSimulation,
   restartSimulation,
-  changePistonValue,
+  moveJoint,
 };

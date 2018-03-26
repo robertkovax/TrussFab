@@ -199,6 +199,10 @@ class SimulationTool < Tool
     @simulation.retract_actuator(group_id)
   end
 
+  def move_joint(id, new_value, duration)
+    @simulation.move_joint(id, new_value, duration)
+  end
+
   def stop_actuator(group_id)
     @simulation.stop_actuator(group_id)
   end
