@@ -29,6 +29,7 @@ class App extends Component {
       timelineCurrentTime: 0,
       startedSimulationCycle: false,
       startedSimulationOnce: false,
+      simulationIsPausedAfterOnce: false,
     };
   }
 
@@ -177,12 +178,15 @@ class App extends Component {
       if (this.state.startedSimulationOnce) {
         this._removeInterval();
         this._removeLines();
-        toggleSimulation();
+        // toggleSimulation();
+        togglePauseSimulation();
+
         this.setState({
           startedSimulationOnce: false,
           startedSimulationCycle: false,
           simulationPaused: true,
           timelineCurrentTime: 0,
+          simulationIsPausedAfterOnce: true,
         });
       } else {
         timelineCurrentTime = 0;
@@ -201,13 +205,13 @@ class App extends Component {
           let newValue;
           // check if last one
           if (i === keyframes.length - 1) {
-            newValue = keyframes[0].value;
-            duration = this.state.seconds - x.time; // value until end
+            // newValue = keyframes[0].value;
+            // duration = this.state.seconds - x.time; // value until end
           } else {
             newValue = keyframes[i + 1].value;
             duration = keyframes[i + 1].time - x.time; // next
+            moveJoint(key, newValue, duration);
           }
-          moveJoint(key, newValue, duration);
         }
       }
     });
@@ -231,7 +235,9 @@ class App extends Component {
     this._removeInterval();
     this._addInterval();
 
-    toggleSimulation();
+    if (this.state.simulationIsPausedAfterOnce) restartSimulation();
+    else toggleSimulation();
+
     if (playOnce) {
       this.setState({
         startedSimulationOnce: true,
