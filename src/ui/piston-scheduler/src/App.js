@@ -5,7 +5,12 @@ import logo from './logo.svg';
 import './App.css';
 import { toggleDiv } from './util';
 import { getInterpolationForTime } from './serious-math';
-import { toggleSimulation, moveJoint } from './sketchup-integration';
+import {
+  toggleSimulation,
+  moveJoint,
+  restartSimulation,
+  togglePauseSimulation,
+} from './sketchup-integration';
 
 const xAxis = 300;
 const yAxis = 50;
@@ -22,6 +27,7 @@ class App extends Component {
       simulationPaused: true,
       timlineInterval: null,
       timelineCurrentTime: 0,
+      startedSimulation: false,
     };
   }
 
@@ -206,11 +212,15 @@ class App extends Component {
   };
 
   toggelSimulation = () => {
-    toggleSimulation();
-
-    const { simulationPaused } = this.state;
+    const { simulationPaused, startedSimulation } = this.state;
 
     if (simulationPaused) {
+      if (startedSimulation) {
+        togglePauseSimulation();
+      } else {
+        toggleSimulation();
+        this.setState({ startedSimulation: true });
+      }
       const timlineInterval = setInterval(
         this.playOneTimelineStep,
         timelineStepSeconds
@@ -229,16 +239,27 @@ class App extends Component {
         .style('stroke', '#D3D3D3')
         .style('fill', 'none');
     } else {
+      togglePauseSimulation();
       clearInterval(this.state.timlineInterval);
 
-      d3.selectAll('line.timeline').remove();
+      // d3.selectAll('line.timeline').remove();
     }
 
     this.setState({ simulationPaused: !simulationPaused });
   };
 
-  resetSimulation = () => {
-    return;
+  stopSimulation = () => {
+    const { startedSimulation } = this.state;
+    if (!startedSimulation) return;
+    this.setState({
+      simulationPaused: true,
+      timelineCurrentTime: 0,
+      startedSimulation: false,
+    });
+    toggleSimulation();
+
+    d3.selectAll('line.timeline').remove();
+    clearInterval(this.state.timlineInterval);
   };
 
   removeTimeSelectionForNewKeyFrame = id => {
@@ -275,21 +296,26 @@ class App extends Component {
         <div className="row no-gutters">
           <div className="col">
             <button onClick={this.toggelSimulation}>
-              <img src="../../assets/icons/block.png" />
+              <img
+                src={
+                  this.state.simulationPaused
+                    ? '../../assets/font-awesome-selected-files/play.svg'
+                    : '../../assets/font-awesome-selected-files/pause.svg'
+                }
+              />
             </button>
           </div>
           <div className="col">
-            <button>
-              <img src="../../assets/icons/block.png" />
+            <button onClick={this.stopSimulation}>
+              <img src="../../assets/font-awesome-selected-files/stop.svg" />
             </button>
           </div>
           <div className="col">
-            <button>
-              <img src="../../assets/icons/block.png" />
+            <button onClick={this.resetSimulation}>
+              <img src="../../assets/noun-icons/circle_noun_4994_cc.svg" />
             </button>
           </div>
         </div>
-        <button>Reset Model</button>
         <form>
           <div className="form-check">
             <input
@@ -426,7 +452,7 @@ class App extends Component {
         {this.renderControlls()}
         <div className="col-8">
           <div className="App">
-            {!this.state.simulationPaused && (
+            {this.state.startedSimulation && (
               <span>{(this.state.timelineCurrentTime / 1000).toFixed(1)}s</span>
             )}
             {pistons}
