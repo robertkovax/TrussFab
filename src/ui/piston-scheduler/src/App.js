@@ -264,6 +264,9 @@ class App extends Component {
     if (this.state.simulationIsPausedAfterOnce) restartSimulation();
     else toggleSimulation();
 
+    // TODO
+    setBreakingForce(this.state.breakingForce);
+
     if (playOnce) {
       this.setState({
         startedSimulationOnce: true,
@@ -400,6 +403,7 @@ class App extends Component {
   };
 
   renderControlls = () => {
+    const { startedSimulationCycle, startedSimulationOnce } = this.state;
     return (
       <div
         className="col-4"
@@ -519,7 +523,9 @@ class App extends Component {
                 value={this.state.breakingForce}
                 onChange={event => {
                   this.setState({ breakingForce: event.target.value });
-                  setBreakingForce(event.target.value);
+                  if (startedSimulationCycle || startedSimulationOnce) {
+                    setBreakingForce(event.target.value);
+                  }
                 }}
               />
               <div class="input-group-append">
@@ -573,7 +579,7 @@ class App extends Component {
               this.addTimeSelectionForNewKeyFrame(x);
             }}
           >
-            new keyframe
+            +
           </button>
         </div>
         <div id={`add-kf-${x}`} style={{ display: 'none' }}>
@@ -608,9 +614,9 @@ class App extends Component {
         {this.renderControlls()}
         <div className="col-8">
           <div className="App">
-            {this.state.startedSimulation && (
+            {/* {this.state.startedSimulation && (
               <span>{(this.state.timelineCurrentTime / 1000).toFixed(1)}s</span>
-            )}
+            )} */}
             {pistons}
           </div>
         </div>
