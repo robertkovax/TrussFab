@@ -86,7 +86,7 @@ module Configuration
 
   # Colors
   STANDARD_COLOR            = Sketchup::Color.new(0.5, 0.5, 0.5)
-  BOTTLE_COLOR              = Sketchup::Color.new(114, 183,  99)
+  BOTTLE_COLOR              = Sketchup::Color.new(1.0, 1.0, 1.0)
   ACTUATOR_COLOR            = Sketchup::Color.new(1.0, 1.0, 1.0)
   SPRING_COLOR              = Sketchup::Color.new(1.0, 0.64, 0.0)
   GENERIC_LINK_COLOR        = Sketchup::Color.new(0.72, 1.0, 0.0)
@@ -97,8 +97,8 @@ module Configuration
   ELONGATION_COLOR          = Sketchup::Color.new(0.69, 0.75, 0.81)
 
   # Ground Stuff
-  GROUND_COLOR          = Sketchup::Color.new(240, 240, 240)
-  GROUND_ALPHA          = 0.2
+  GROUND_COLOR          = Sketchup::Color.new(1.0, 1.0, 1.0)
+  GROUND_ALPHA          = 0.0
   GROUND_SIZE           = 10000 # in inches
   GROUND_HEIGHT         = 0.01 # in inches
   GROUND_THICKNESS      = 20.0 # in inches
