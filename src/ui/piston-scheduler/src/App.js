@@ -10,6 +10,12 @@ import {
   moveJoint,
   restartSimulation,
   togglePauseSimulation,
+  setBreakingForce,
+  setMaxSpeed,
+  changeHighestForceMode,
+  setStiffness,
+  changeWeakForceMode,
+  changeDisplayValues,
 } from './sketchup-integration';
 
 const xAxis = 300;
@@ -44,7 +50,7 @@ class App extends Component {
   }
 
   addPiston = id => {
-    console.log('id', id);
+    console.log('new piston added', id);
 
     // const id = this.state.pistons.length;
     const oldKeyframes = this.state.keyframes;
@@ -349,8 +355,9 @@ class App extends Component {
     if (
       !(startedSimulationOnce || startedSimulationCycle) &&
       !simulationIsPausedAfterOnce
-    )
+    ) {
       return;
+    }
     this.setState({
       simulationPaused: true,
       timelineCurrentTime: 0,
@@ -394,8 +401,15 @@ class App extends Component {
 
   renderControlls = () => {
     return (
-      <div className="col-4">
-        <div className="row no-gutters">
+      <div
+        className="col-4"
+        style={{
+          borderRight: '1px solid lightgrey',
+          height: '100%',
+          paddingRight: '3px',
+        }}
+      >
+        <div className="row no-gutters control-buttons">
           <div className="col">
             <button onClick={() => this.toggelSimulation(true)}>
               <img
@@ -434,12 +448,13 @@ class App extends Component {
               value=""
               id="defaultCheck1"
               value={this.state.highestForceMode}
-              onChange={event =>
-                this.setState({ highestForceMode: event.target.value })
-              }
+              onChange={event => {
+                this.setState({ highestForceMode: event.target.value });
+                changeHighestForceMode(event.target.value);
+              }}
             />
             <label className="form-check-label" for="defaultCheck1">
-              Default checkbox
+              Highest Force
             </label>
           </div>
           <div className="form-check">
@@ -449,12 +464,13 @@ class App extends Component {
               value=""
               id="defaultCheck1"
               value={this.state.weakForceMode}
-              onChange={event =>
-                this.setState({ weakForceMode: event.target.value })
-              }
+              onChange={event => {
+                this.setState({ weakForceMode: event.target.value });
+                changeWeakForceMode(event.target.value);
+              }}
             />
             <label className="form-check-label" for="defaultCheck1">
-              Default checkbox
+              Weak Force
             </label>
           </div>
           <div className="form-check">
@@ -464,12 +480,13 @@ class App extends Component {
               value=""
               id="defaultCheck1"
               value={this.state.displayVol}
-              onChange={event =>
-                this.setState({ displayVol: event.target.value })
-              }
+              onChange={event => {
+                this.setState({ displayVol: event.target.value });
+                changeDisplayValues(event.target.value);
+              }}
             />
             <label className="form-check-label" for="defaultCheck1">
-              Default checkbox
+              Display Values
             </label>
           </div>
           <div className="form-group row">
@@ -493,17 +510,23 @@ class App extends Component {
             <label for="inputEmail3" className="col-sm-6 col-form-label">
               Breaking Force
             </label>
-            <div className="col-sm-6">
+            <div className="input-group input-group-sm col-sm-6">
               <input
                 type="number"
                 className="form-control form-control-sm"
                 id="inputEmail3"
                 placeholder="300"
                 value={this.state.breakingForce}
-                onChange={event =>
-                  this.setState({ breakingForce: event.target.value })
-                }
+                onChange={event => {
+                  this.setState({ breakingForce: event.target.value });
+                  setBreakingForce(event.target.value);
+                }}
               />
+              <div class="input-group-append">
+                <span class="input-group-text" id="basic-addon2">
+                  N
+                </span>
+              </div>
             </div>
           </div>
           <div className="form-group row">
@@ -517,9 +540,10 @@ class App extends Component {
                 id="inputEmail3"
                 placeholder="Email"
                 value={this.state.stiffness}
-                onChange={event =>
-                  this.setState({ stiffness: event.target.value })
-                }
+                onChange={event => {
+                  this.setState({ stiffness: event.target.value });
+                  setStiffness(event.target.value);
+                }}
               />
             </div>
           </div>
@@ -538,7 +562,9 @@ class App extends Component {
             alignItems: 'flex-start',
           }}
         >
-          <div>Piston {x}</div>
+          <div
+            style={{ 'margin-top': yAxis / 3, marginLeft: 3, marginRight: 3 }}
+          >{`#${x}`}</div>
           {this.renderGraph(x)}
           <button
             id={`new-kf-${x}`}

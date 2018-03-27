@@ -1,7 +1,14 @@
 body {
   margin: 0;
-  padding: 0;
+  padding: 3px;
   font-family: sans-serif;
+  height: 100%;
+}
+
+html,
+#root,
+#root > div {
+  height: 100%;
 }
 
 .chart {
@@ -21,10 +28,20 @@ line {
 }
 
 svg {
-  padding: 5px;
+  padding: 0.5px;
+  /* padding-bottom: 3px; */
   margin-bottom: 10px;
 }
 
 span {
   background: white;
+}
+
+button {
+  margin: 0 !important;
+}
+
+.control-buttons .col:not(:last-child) {
+  margin-right: 3px !important;
+  margin-bottom: 3px !important;
 }
