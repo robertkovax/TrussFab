@@ -526,9 +526,26 @@ class App extends Component {
                 id="inputEmail3"
                 placeholder="6"
                 value={this.state.seconds}
-                onChange={event =>
-                  this.setState({ seconds: event.target.value })
-                }
+                onChange={event => {
+                  const newSeconds = event.target.value;
+                  // fix old values
+                  const newKeyframes = new Map();
+                  const oldKeyframes = this.state.keyframes;
+
+                  oldKeyframes.forEach((value, key) => {
+                    const updatedValues = value.map(oneKeyframe => {
+                      if (oneKeyframe.time === this.state.seconds) {
+                        return { value: oneKeyframe.value, time: newSeconds };
+                      } else return oneKeyframe;
+                    });
+                    newKeyframes.set(key, updatedValues);
+                  });
+
+                  this.setState({
+                    seconds: newSeconds,
+                    keyframes: newKeyframes,
+                  });
+                }}
               />
             </div>
           </div>
