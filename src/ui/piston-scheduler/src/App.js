@@ -27,7 +27,8 @@ class App extends Component {
       simulationPaused: true,
       timlineInterval: null,
       timelineCurrentTime: 0,
-      startedSimulation: false,
+      startedSimulationCycle: false,
+      startedSimulationOnce: false,
     };
   }
 
@@ -173,7 +174,19 @@ class App extends Component {
       this.state.timelineCurrentTime + timelineStepSeconds;
 
     if (timelineCurrentTime / 1000 > this.state.seconds) {
-      timelineCurrentTime = 0;
+      if (this.state.startedSimulationOnce) {
+        this._removeInterval();
+        this._removeLines();
+        toggleSimulation();
+        this.setState({
+          startedSimulationOnce: false,
+          startedSimulationCycle: false,
+          simulationPaused: true,
+          timelineCurrentTime: 0,
+        });
+      } else {
+        timelineCurrentTime = 0;
+      }
     }
 
     const timelineCurrentTimeSeconds = timelineCurrentTime / 1000;
@@ -211,54 +224,104 @@ class App extends Component {
     });
   };
 
-  toggelSimulation = () => {
-    const { simulationPaused, startedSimulation } = this.state;
+  _startSimulation = playOnce => {
+    this._removeLines();
+    this._addLines();
 
+    this._removeInterval();
+    this._addInterval();
+
+    toggleSimulation();
+    if (playOnce) {
+      this.setState({
+        startedSimulationOnce: true,
+        startedSimulationCycle: false,
+        simulationPaused: false,
+        timelineCurrentTime: 0,
+      });
+    } else {
+      this.setState({
+        startedSimulationCycle: true,
+        startedSimulationOnce: false,
+        simulationPaused: false,
+        timelineCurrentTime: 0,
+      });
+    }
+  };
+
+  _addInterval = () => {
+    const timlineInterval = setInterval(
+      this.playOneTimelineStep,
+      timelineStepSeconds
+    );
+    this.setState({ timlineInterval });
+  };
+
+  _removeInterval = () => {
+    clearInterval(this.state.timlineInterval);
+  };
+
+  _addLines = () => {
+    d3
+      .selectAll('svg')
+      .append('line')
+      .classed('timeline', true)
+      .attr('x1', 0)
+      .attr('y1', 0)
+      .attr('x2', 0)
+      .attr('y2', yAxis)
+      .style('stroke-width', 1)
+      .style('stroke', '#D3D3D3')
+      .style('fill', 'none');
+  };
+
+  _removeLines = () => d3.selectAll('line.timeline').remove();
+
+  _togglePause = () => {
+    const { simulationPaused } = this.state;
     if (simulationPaused) {
-      if (startedSimulation) {
-        togglePauseSimulation();
-      } else {
-        toggleSimulation();
-        this.setState({ startedSimulation: true });
-      }
-      const timlineInterval = setInterval(
-        this.playOneTimelineStep,
-        timelineStepSeconds
-      );
-      this.setState({ timlineInterval });
+      togglePauseSimulation();
+      this.setState({ simulationPaused: !simulationPaused });
 
-      d3
-        .selectAll('svg')
-        .append('line')
-        .classed('timeline', true)
-        .attr('x1', 0)
-        .attr('y1', 0)
-        .attr('x2', 0)
-        .attr('y2', yAxis)
-        .style('stroke-width', 1)
-        .style('stroke', '#D3D3D3')
-        .style('fill', 'none');
+      this._addLines();
+
+      this._addInterval();
     } else {
       togglePauseSimulation();
-      clearInterval(this.state.timlineInterval);
-
-      // d3.selectAll('line.timeline').remove();
+      this._removeInterval();
+      this.setState({ simulationPaused: !simulationPaused });
     }
+  };
 
-    this.setState({ simulationPaused: !simulationPaused });
+  toggelSimulation = playOnce => {
+    const { startedSimulationOnce, startedSimulationCycle } = this.state;
+
+    if (playOnce) {
+      if (startedSimulationOnce) {
+        this._togglePause();
+      } else {
+        this._startSimulation(playOnce);
+      }
+    } else {
+      if (startedSimulationCycle) {
+        this._togglePause();
+      } else {
+        this._startSimulation(playOnce);
+      }
+    }
   };
 
   stopSimulation = () => {
-    const { startedSimulation } = this.state;
-    if (!startedSimulation) return;
+    const { startedSimulationOnce, startedSimulationCycle } = this.state;
+    if (!(startedSimulationOnce || startedSimulationCycle)) return;
     this.setState({
       simulationPaused: true,
       timelineCurrentTime: 0,
-      startedSimulation: false,
+      startedSimulationOnce: false,
+      startedSimulationCycle: false,
     });
     toggleSimulation();
-
-    d3.selectAll('line.timeline').remove();
+    this._removeLines();
     clearInterval(this.state.timlineInterval);
   };
 
@@ -295,12 +358,13 @@ class App extends Component {
       <div className="col-4">
         <div className="row no-gutters">
           <div className="col">
-            <button onClick={this.toggelSimulation}>
+            <button onClick={() => this.toggelSimulation(true)}>
               <img
                 src={
-                  this.state.simulationPaused
-                    ? '../../assets/font-awesome-selected-files/play.svg'
-                    : '../../assets/font-awesome-selected-files/pause.svg'
+                  this.state.startedSimulationOnce &&
+                  !this.state.simulationPaused
+                    ? '../../assets/font-awesome-selected-files/pause.svg'
+                    : '../../assets/font-awesome-selected-files/play.svg'
                 }
               />
             </button>
@@ -311,8 +375,15 @@ class App extends Component {
             </button>
           </div>
           <div className="col">
-            <button onClick={this.resetSimulation}>
-              <img src="../../assets/noun-icons/circle_noun_4994_cc.svg" />
+            <button onClick={() => this.toggelSimulation(false)}>
+              <img
+                src={
+                  this.state.startedSimulationCycle &&
+                  !this.state.simulationPaused
+                    ? '../../assets/font-awesome-selected-files/pause.svg'
+                    : '../../assets/noun-icons/circle_noun_4994_cc.svg'
+                }
+              />
             </button>
           </div>
         </div>
@@ -399,6 +470,7 @@ class App extends Component {
   };
 
   render() {
+    console.log(this.state);
     const pistons = this.state.pistons.map(x => (
       <div>
         <div
