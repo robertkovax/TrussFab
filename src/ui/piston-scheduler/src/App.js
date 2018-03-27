@@ -30,6 +30,12 @@ class App extends Component {
       startedSimulationCycle: false,
       startedSimulationOnce: false,
       simulationIsPausedAfterOnce: false,
+      currentCycle: 0,
+      highestForceMode: false,
+      weakForceMode: false,
+      displayVol: false,
+      breakingForce: 300,
+      stiffness: 100,
     };
   }
 
@@ -171,8 +177,7 @@ class App extends Component {
   };
 
   playOneTimelineStep = () => {
-    let timelineCurrentTime =
-      this.state.timelineCurrentTime + timelineStepSeconds;
+    let { timelineCurrentTime } = this.state;
 
     if (timelineCurrentTime / 1000 > this.state.seconds) {
       if (this.state.startedSimulationOnce) {
@@ -186,10 +191,12 @@ class App extends Component {
           startedSimulationCycle: false,
           simulationPaused: true,
           timelineCurrentTime: 0,
+          currentCycle: 0,
           simulationIsPausedAfterOnce: true,
         });
       } else {
         timelineCurrentTime = 0;
+        this.setState({ currentCycle: this.state.currentCycle + 1 });
       }
     }
 
@@ -210,6 +217,19 @@ class App extends Component {
           } else {
             newValue = keyframes[i + 1].value;
             duration = keyframes[i + 1].time - x.time; // next
+
+            // some hack because the inital value of the piston is 0
+            // so we have to fix it here
+            if (
+              i === 0 &&
+              this.state.currentCycle === 0 &&
+              keyframes[0].value !== keyframes[1].value
+            ) {
+              console.log('fixing');
+              if (keyframes[0].value > keyframes[1].value)
+                newValue -= keyframes[0].value;
+              else newValue += keyframes[0].value;
+            }
             moveJoint(key, newValue, duration);
           }
         }
@@ -224,7 +244,7 @@ class App extends Component {
       .attr('x2', newX);
 
     this.setState({
-      timelineCurrentTime,
+      timelineCurrentTime: timelineCurrentTime + timelineStepSeconds,
     });
   };
 
@@ -244,6 +264,7 @@ class App extends Component {
         startedSimulationCycle: false,
         simulationPaused: false,
         timelineCurrentTime: 0,
+        currentCycle: 0,
       });
     } else {
       this.setState({
@@ -251,6 +272,7 @@ class App extends Component {
         startedSimulationOnce: false,
         simulationPaused: false,
         timelineCurrentTime: 0,
+        currentCycle: 0,
       });
     }
   };
@@ -318,13 +340,24 @@ class App extends Component {
   };
 
   stopSimulation = () => {
-    const { startedSimulationOnce, startedSimulationCycle } = this.state;
-    if (!(startedSimulationOnce || startedSimulationCycle)) return;
+    const {
+      startedSimulationOnce,
+      startedSimulationCycle,
+      simulationIsPausedAfterOnce,
+    } = this.state;
+
+    if (
+      !(startedSimulationOnce || startedSimulationCycle) &&
+      !simulationIsPausedAfterOnce
+    )
+      return;
     this.setState({
       simulationPaused: true,
       timelineCurrentTime: 0,
+      currentCycle: 0,
       startedSimulationOnce: false,
       startedSimulationCycle: false,
+      simulationIsPausedAfterOnce: false,
     });
     toggleSimulation();
     this._removeLines();
@@ -400,6 +433,10 @@ class App extends Component {
               type="checkbox"
               value=""
               id="defaultCheck1"
+              value={this.state.highestForceMode}
+              onChange={event =>
+                this.setState({ highestForceMode: event.target.value })
+              }
             />
             <label className="form-check-label" for="defaultCheck1">
               Default checkbox
@@ -411,6 +448,10 @@ class App extends Component {
               type="checkbox"
               value=""
               id="defaultCheck1"
+              value={this.state.weakForceMode}
+              onChange={event =>
+                this.setState({ weakForceMode: event.target.value })
+              }
             />
             <label className="form-check-label" for="defaultCheck1">
               Default checkbox
@@ -422,16 +463,20 @@ class App extends Component {
               type="checkbox"
               value=""
               id="defaultCheck1"
+              value={this.state.displayVol}
+              onChange={event =>
+                this.setState({ displayVol: event.target.value })
+              }
             />
             <label className="form-check-label" for="defaultCheck1">
               Default checkbox
             </label>
           </div>
           <div className="form-group row">
-            <label for="inputEmail3" className="col-sm-9 col-form-label">
+            <label for="inputEmail3" className="col-sm-6 col-form-label">
               Cycle Length
             </label>
-            <div className="col-sm-3">
+            <div className="col-sm-6">
               <input
                 type="number"
                 className="form-control form-control-sm"
@@ -445,28 +490,36 @@ class App extends Component {
             </div>
           </div>
           <div className="form-group row">
-            <label for="inputEmail3" className="col-sm-9 col-form-label">
+            <label for="inputEmail3" className="col-sm-6 col-form-label">
               Breaking Force
             </label>
-            <div className="col-sm-3">
+            <div className="col-sm-6">
               <input
                 type="number"
                 className="form-control form-control-sm"
                 id="inputEmail3"
                 placeholder="300"
+                value={this.state.breakingForce}
+                onChange={event =>
+                  this.setState({ breakingForce: event.target.value })
+                }
               />
             </div>
           </div>
           <div className="form-group row">
-            <label for="inputEmail3" className="col-sm-9 col-form-label">
+            <label for="inputEmail3" className="col-sm-6 col-form-label">
               Stiffness
             </label>
-            <div className="col-sm-3">
+            <div className="col-sm-6">
               <input
                 type="number"
                 className="form-control form-control-sm"
                 id="inputEmail3"
                 placeholder="Email"
+                value={this.state.stiffness}
+                onChange={event =>
+                  this.setState({ stiffness: event.target.value })
+                }
               />
             </div>
           </div>
@@ -476,7 +529,6 @@ class App extends Component {
   };
 
   render() {
-    console.log(this.state);
     const pistons = this.state.pistons.map(x => (
       <div>
         <div
