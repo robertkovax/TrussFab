@@ -37,11 +37,26 @@ span {
   background: white;
 }
 
-button {
+button:not(.add-new-kf) {
   margin: 0 !important;
 }
 
 .control-buttons .col:not(:last-child) {
   margin-right: 3px !important;
   margin-bottom: 3px !important;
+}
+
+.add-new-kf {
+  margin-left: 30px !important;
+  width: 30px !important;
+  position: relative;
+  bottom: 10px;
+}
+
+input[type='range'] {
+  position: relative;
+  top: 18px;
+  right: 9px;
+  transform: rotate(270deg);
+  width: 50px;
 }

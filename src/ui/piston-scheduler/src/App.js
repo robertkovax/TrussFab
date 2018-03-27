@@ -74,6 +74,9 @@ class App extends Component {
         { time: this.state.seconds, value: 0.5 },
       ]), // init
     });
+    setTimeout(() => {
+      this.addTimeSelectionForNewKeyFrame(id);
+    }, 100);
   };
 
   cleanupUiAfterStoppingSimulation = () => {
@@ -84,7 +87,7 @@ class App extends Component {
     const pistonId = parseInt(event.currentTarget.id);
     const value = event.currentTarget.previousSibling.value / 100;
     const time = parseFloat(
-      event.currentTarget.previousSibling.previousSibling.previousSibling.value
+      event.currentTarget.previousSibling.previousSibling.value
     );
 
     const oldKeyframes = this.state.keyframes;
@@ -163,7 +166,9 @@ class App extends Component {
   };
 
   addTimeSelectionForNewKeyFrame = id => {
+    console.log(id);
     const self = this;
+
     function scrubLine() {
       let newX = d3.event.x;
       newX = Math.min(Math.max(0, newX), xAxis);
@@ -611,40 +616,23 @@ class App extends Component {
             style={{ 'margin-top': yAxis / 3, marginLeft: 3, marginRight: 3 }}
           >{`#${x}`}</div>
           {this.renderGraph(x)}
-          <button
-            id={`new-kf-${x}`}
-            onClick={() => {
-              this.newKeyframeToggle(x);
-              this.addTimeSelectionForNewKeyFrame(x);
-            }}
-          >
-            +
-          </button>
-        </div>
-        <div id={`add-kf-${x}`} style={{ display: 'none' }}>
-          Time:
-          <input
-            type="number"
-            step="0.1"
-            min="0"
-            max={this.state.seconds}
-            value={this.state.timeSelection.get(x) || this.state.seconds / 2}
-            onChange={event =>
-              this.onTimeSelectionInputChange(x, event.currentTarget.value)
-            }
-          />
-          Position: <input type="range" />
-          <button onClick={this.addKeyframe} id={x}>
-            add keyframe
-          </button>
-          <button
-            onClick={() => {
-              this.newKeyframeToggle(x);
-              this.removeTimeSelectionForNewKeyFrame(x);
-            }}
-          >
-            cancel
-          </button>
+          <div id={`add-kf-${x}`}>
+            <input
+              hidden
+              type="number"
+              step="0.1"
+              min="0"
+              max={this.state.seconds}
+              value={this.state.timeSelection.get(x) || this.state.seconds / 2}
+              onChange={event =>
+                this.onTimeSelectionInputChange(x, event.currentTarget.value)
+              }
+            />
+            <input type="range" />
+            <button onClick={this.addKeyframe} className="add-new-kf" id={x}>
+              +
+            </button>
+          </div>
         </div>
       </div>
     ));
