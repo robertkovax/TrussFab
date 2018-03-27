@@ -3,6 +3,7 @@ body {
   padding: 3px;
   font-family: sans-serif;
   height: 100%;
+  font-size: 11px !important;
 }
 
 html,
@@ -59,4 +60,8 @@ input[type='range'] {
   right: 9px;
   transform: rotate(270deg);
   width: 50px;
+}
+
+.form-check-input {
+  margin-top: 0.1rem;
 }

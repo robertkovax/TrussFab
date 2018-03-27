@@ -11,7 +11,7 @@ function restartSimulation() {
 }
 
 function moveJoint(id, newValue, duration) {
-  window.sketchup.move_joint(id, newValue, duration);
+  window.sketchup.move_joint(id, newValue * 0.5, duration);
 }
 
 function setBreakingForce(value) {
@@ -26,7 +26,7 @@ function changeHighestForceMode(checked) {
   window.sketchup.change_highest_force_mode(checked);
 }
 
-function changeWeakForceMode(checked) {
+function changePeakForceMode(checked) {
   // todo
   // window.sketchup.change_highest_force_mode(checked);
 }
@@ -50,5 +50,5 @@ export {
   changeHighestForceMode,
   setStiffness,
   changeDisplayValues,
-  changeWeakForceMode,
+  changePeakForceMode,
 };

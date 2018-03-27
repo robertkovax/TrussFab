@@ -14,7 +14,7 @@ import {
   setMaxSpeed,
   changeHighestForceMode,
   setStiffness,
-  changeWeakForceMode,
+  changePeakForceMode,
   changeDisplayValues,
 } from './sketchup-integration';
 
@@ -38,7 +38,7 @@ class App extends Component {
       simulationIsPausedAfterOnce: false,
       currentCycle: 0,
       highestForceMode: false,
-      weakForceMode: false,
+      peakForceMode: false,
       displayVol: false,
       breakingForce: 300,
       stiffness: 100,
@@ -494,14 +494,14 @@ class App extends Component {
               type="checkbox"
               value=""
               id="defaultCheck1"
-              value={this.state.weakForceMode}
+              value={this.state.peakForceMode}
               onChange={event => {
-                this.setState({ weakForceMode: event.target.value });
-                changeWeakForceMode(event.target.value);
+                this.setState({ peakForceMode: event.target.value });
+                changePeakForceMode(event.target.value);
               }}
             />
             <label className="form-check-label" for="defaultCheck1">
-              Weak Force
+              Peak Force
             </label>
           </div>
           <div className="form-check">
@@ -520,11 +520,11 @@ class App extends Component {
               Display Values
             </label>
           </div>
-          <div className="form-group row">
+          <div className="form-group row no-gutters">
             <label for="inputEmail3" className="col-sm-6 col-form-label">
               Cycle Length
             </label>
-            <div className="col-sm-6">
+            <div className="input-group input-group-sm col-sm-6">
               <input
                 type="number"
                 className="form-control form-control-sm"
@@ -552,9 +552,14 @@ class App extends Component {
                   });
                 }}
               />
+              <div class="input-group-append">
+                <span class="input-group-text" id="basic-addon2">
+                  s
+                </span>
+              </div>
             </div>
           </div>
-          <div className="form-group row">
+          <div className="form-group row no-gutters">
             <label for="inputEmail3" className="col-sm-6 col-form-label">
               Breaking Force
             </label>
@@ -579,11 +584,11 @@ class App extends Component {
               </div>
             </div>
           </div>
-          <div className="form-group row">
+          <div className="form-group row no-gutters">
             <label for="inputEmail3" className="col-sm-6 col-form-label">
               Stiffness
             </label>
-            <div className="col-sm-6">
+            <div className="input-group input-group-sm col-sm-6">
               <input
                 type="number"
                 className="form-control form-control-sm"
@@ -595,6 +600,11 @@ class App extends Component {
                   setStiffness(event.target.value);
                 }}
               />
+              <div class="input-group-append">
+                <span class="input-group-text" id="basic-addon2">
+                  %
+                </span>
+              </div>
             </div>
           </div>
         </form>
