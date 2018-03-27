@@ -363,15 +363,10 @@ class App extends Component {
                 src={
                   this.state.startedSimulationOnce &&
                   !this.state.simulationPaused
-                    ? '../../assets/font-awesome-selected-files/pause.svg'
-                    : '../../assets/font-awesome-selected-files/play.svg'
+                    ? '../../assets/icons/pause.png'
+                    : '../../assets/icons/play.png'
                 }
               />
-            </button>
-          </div>
-          <div className="col">
-            <button onClick={this.stopSimulation}>
-              <img src="../../assets/font-awesome-selected-files/stop.svg" />
             </button>
           </div>
           <div className="col">
@@ -380,10 +375,15 @@ class App extends Component {
                 src={
                   this.state.startedSimulationCycle &&
                   !this.state.simulationPaused
-                    ? '../../assets/font-awesome-selected-files/pause.svg'
-                    : '../../assets/noun-icons/circle_noun_4994_cc.svg'
+                    ? '../../assets/icons/pause.png'
+                    : '../../assets/icons/cycle.png'
                 }
               />
+            </button>
+          </div>
+          <div className="col">
+            <button onClick={this.stopSimulation}>
+              <img src="../../assets/icons/stop.png" />
             </button>
           </div>
         </div>
