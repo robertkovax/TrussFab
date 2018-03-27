@@ -59,7 +59,7 @@ class ActuatorMenu
   end
 
   def stop_simulation
-    # @dialog.execute_script("cleanupUiAfterStoppingSimulation();")
+    @dialog.execute_script("cleanupUiAfterStoppingSimulation();")
   end
 
   private

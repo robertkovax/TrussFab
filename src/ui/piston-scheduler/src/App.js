@@ -47,6 +47,19 @@ class App extends Component {
 
   componentDidMount() {
     window.addPiston = this.addPiston;
+    window.cleanupUiAfterStoppingSimulation = this.cleanupUiAfterStoppingSimulation;
+
+    document.addEventListener('keyup', e => {
+      console.log(e);
+      // ESC
+      if (e.keyCode === 27) {
+        this.stopSimulation();
+      }
+    });
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keyup', this.stopSimulation);
   }
 
   addPiston = id => {
@@ -61,6 +74,10 @@ class App extends Component {
         { time: this.state.seconds, value: 0.5 },
       ]), // init
     });
+  };
+
+  cleanupUiAfterStoppingSimulation = () => {
+    this.resetState();
   };
 
   addKeyframe = event => {
@@ -348,6 +365,19 @@ class App extends Component {
     }
   };
 
+  resetState = () => {
+    this._removeLines();
+    clearInterval(this.state.timlineInterval);
+    this.setState({
+      simulationPaused: true,
+      timelineCurrentTime: 0,
+      currentCycle: 0,
+      startedSimulationOnce: false,
+      startedSimulationCycle: false,
+      simulationIsPausedAfterOnce: false,
+    });
+  };
+
   stopSimulation = () => {
     const {
       startedSimulationOnce,
@@ -361,17 +391,9 @@ class App extends Component {
     ) {
       return;
     }
-    this.setState({
-      simulationPaused: true,
-      timelineCurrentTime: 0,
-      currentCycle: 0,
-      startedSimulationOnce: false,
-      startedSimulationCycle: false,
-      simulationIsPausedAfterOnce: false,
-    });
+
     toggleSimulation();
-    this._removeLines();
-    clearInterval(this.state.timlineInterval);
+    this.resetState();
   };
 
   removeTimeSelectionForNewKeyFrame = id => {
