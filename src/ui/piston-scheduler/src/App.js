@@ -648,10 +648,16 @@ class App extends Component {
                 if (simulationIsRunning)
                   changePistonValue(x, parseFloat(event.target.value) / 100);
                 else {
-                  // this.toggelSimulation();
-                  // changePistonValue(x, parseFloat(event.target.value));
-                  // this._togglePause();
-                  // togglePauseSimulation();
+                  // // this.toggelSimulation();
+                  // toggleSimulation();
+                  // setTimeout(() => {
+                  //   changePistonValue(x, parseFloat(event.target.value));
+                  // }, 1000);
+                  // // this._togglePause();
+                  // setTimeout(() => {
+                  //   this.setState({ simulationIsPausedAfterOnce: true });
+                  //   // togglePauseSimulation();
+                  // }, 1000);
                 }
               }}
             />
