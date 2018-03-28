@@ -249,16 +249,16 @@ class App extends Component {
 
             // some hack because the inital value of the piston is 0
             // so we have to fix it here
-            if (
-              i === 0 &&
-              this.state.currentCycle === 0 &&
-              keyframes[0].value !== keyframes[1].value
-            ) {
-              console.log('fixing');
-              if (keyframes[0].value > keyframes[1].value)
-                newValue -= keyframes[0].value;
-              else newValue += keyframes[0].value;
-            }
+            // if (
+            //   i === 0 &&
+            //   this.state.currentCycle === 0 &&
+            //   keyframes[0].value !== keyframes[1].value
+            // ) {
+            //   console.log('fixing');
+            //   if (keyframes[0].value > keyframes[1].value)
+            //     newValue -= keyframes[0].value;
+            //   else newValue += keyframes[0].value;
+            // }
             moveJoint(key, newValue, duration);
           }
         }

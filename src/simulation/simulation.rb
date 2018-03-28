@@ -432,16 +432,15 @@ class Simulation
   def move_joint(id, next_position, duration)
     link = nil
 
-    # actuator.joint.controller = (value.to_f - Configuration::ACTUATOR_INIT_DIST) * (actuator.max - actuator.min)
-
     @pistons.each_value {|piston|
       if piston.id == id
         joint = piston.joint
+        next_position_normalized = (next_position.to_f - Configuration::ACTUATOR_INIT_DIST) * (piston.max - piston.min)
 
         current_postion = joint.controller
-        position_distance = (current_postion - next_position).abs
+        position_distance = (current_postion - next_position_normalized).abs
         joint.rate = position_distance / duration
-        joint.controller = next_position
+        joint.controller = next_position_normalized
       end
     }
 

@@ -11,7 +11,7 @@ function restartSimulation() {
 }
 
 function moveJoint(id, newValue, duration) {
-  window.sketchup.move_joint(id, newValue * 0.5, duration);
+  window.sketchup.move_joint(id, newValue, duration);
 }
 
 function setBreakingForce(value) {
