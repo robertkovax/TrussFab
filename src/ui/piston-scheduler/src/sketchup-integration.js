@@ -40,6 +40,10 @@ function setStiffness(value) {
   // todo
 }
 
+function changePistonValue(id, value) {
+  window.sketchup.change_piston_value(id, value);
+}
+
 export {
   toggleSimulation,
   togglePauseSimulation,
@@ -51,4 +55,5 @@ export {
   setStiffness,
   changeDisplayValues,
   changePeakForceMode,
+  changePistonValue,
 };

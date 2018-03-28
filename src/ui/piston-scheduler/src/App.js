@@ -16,6 +16,7 @@ import {
   setStiffness,
   changePeakForceMode,
   changeDisplayValues,
+  changePistonValue,
 } from './sketchup-integration';
 
 const xAxis = 300;
@@ -431,6 +432,7 @@ class App extends Component {
 
   renderControlls = () => {
     const { startedSimulationCycle, startedSimulationOnce } = this.state;
+    const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
     return (
       <div
         className="col-4"
@@ -572,7 +574,7 @@ class App extends Component {
                 value={this.state.breakingForce}
                 onChange={event => {
                   this.setState({ breakingForce: event.target.value });
-                  if (startedSimulationCycle || startedSimulationOnce) {
+                  if (simulationIsRunning) {
                     setBreakingForce(event.target.value);
                   }
                 }}
@@ -613,6 +615,8 @@ class App extends Component {
   };
 
   render() {
+    const { startedSimulationCycle, startedSimulationOnce } = this.state;
+    const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
     const pistons = this.state.pistons.map(x => (
       <div>
         <div
@@ -638,7 +642,19 @@ class App extends Component {
                 this.onTimeSelectionInputChange(x, event.currentTarget.value)
               }
             />
-            <input type="range" />
+            <input
+              type="range"
+              onChange={event => {
+                if (simulationIsRunning)
+                  changePistonValue(x, parseFloat(event.target.value));
+                else {
+                  // this.toggelSimulation();
+                  // changePistonValue(x, parseFloat(event.target.value));
+                  // this._togglePause();
+                  // togglePauseSimulation();
+                }
+              }}
+            />
             <button onClick={this.addKeyframe} className="add-new-kf" id={x}>
               +
             </button>

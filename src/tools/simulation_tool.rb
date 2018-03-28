@@ -134,10 +134,7 @@ class SimulationTool < Tool
   end
 
   def change_piston_value(id, value)
-    actuator = @simulation.pistons[id.to_i]
-    if actuator.joint && actuator.joint.valid?
-      actuator.joint.controller = (value.to_f - Configuration::ACTUATOR_INIT_DIST) * (actuator.max - actuator.min)
-    end
+    @simulation.change_piston_value(id, value)
   end
 
   def test_piston(id)
