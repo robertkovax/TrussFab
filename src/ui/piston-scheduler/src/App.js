@@ -118,7 +118,10 @@ class App extends Component {
     const keyframes = this.state.keyframes.get(id) || [];
 
     const points = keyframes.map(kf => {
-      return [kf.time * xAxis / this.state.seconds, (1 - kf.value) * yAxis];
+      return [
+        kf.time * xAxis / this.state.seconds,
+        (1 - kf.value) * (yAxis - 8) + 4,
+      ];
     });
 
     const viewBox = `0 0 ${xAxis} ${yAxis}`;
@@ -555,7 +558,10 @@ class App extends Component {
                 placeholder="6"
                 value={this.state.seconds}
                 onChange={event => {
-                  const newSeconds = event.target.value;
+                  const newSeconds = parseFloat(event.target.value);
+                  console.log('newSeconds', newSeconds);
+                  if (newSeconds == null || isNaN(newSeconds)) return;
+                  const ratio = newSeconds / this.state.seconds;
                   // fix old values
                   const newKeyframes = new Map();
                   const oldKeyframes = this.state.keyframes;
@@ -564,7 +570,11 @@ class App extends Component {
                     const updatedValues = value.map(oneKeyframe => {
                       if (oneKeyframe.time === this.state.seconds) {
                         return { value: oneKeyframe.value, time: newSeconds };
-                      } else return oneKeyframe;
+                      } else
+                        return {
+                          value: oneKeyframe.value,
+                          time: oneKeyframe.time * ratio,
+                        };
                     });
                     newKeyframes.set(key, updatedValues);
                   });

@@ -18,6 +18,8 @@ html,
   height: 50px;
   border-left: 1px dotted #555;
   border-bottom: 1px dotted #555;
+  border-top: 1px dotted white;
+  border-right: 1px dotted white;
 }
 
 circle {
@@ -29,7 +31,8 @@ line {
 }
 
 svg {
-  padding: 0.5px;
+  /* padding: 0.5px; */
+  /* padding-top: 3px; */
   /* padding-bottom: 3px; */
   margin-bottom: 10px;
 }
