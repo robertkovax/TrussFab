@@ -69,12 +69,11 @@ class ActuatorMenu
 
     Sketchup.active_model.select_tool(@simulation_tool)
 
-    # TODO UPate clyce
-
     pistons = @simulation_tool.get_pistons
     breaking_force = @simulation_tool.get_breaking_force
     max_speed = @simulation_tool.get_max_speed
-    # @dialog.execute_script("showManualActuatorSettings(#{pistons.keys}, #{breaking_force}, #{max_speed})")
+    stiffness = @simulation_tool.get_stiffness
+    @dialog.execute_script("initState(#{breaking_force}, #{stiffness})")
   end
 
   def register_callbacks
@@ -133,6 +132,10 @@ class ActuatorMenu
 
     @dialog.add_action_callback('set_dialog_size') do |_, width, height|
       set_dialog_size(width, height)
+    end
+
+    @dialog.add_action_callback('set_stiffness') do |_, stiffness|
+      @simulation_tool.set_stiffness(stiffness)
     end
   end
 end

@@ -11,9 +11,11 @@ import {
   restartSimulation,
   togglePauseSimulation,
   setBreakingForce,
+  getBreakingForce,
   setMaxSpeed,
   changeHighestForceMode,
   setStiffness,
+  getStiffness,
   changePeakForceMode,
   changeDisplayValues,
   changePistonValue,
@@ -41,9 +43,13 @@ class App extends Component {
       highestForceMode: false,
       peakForceMode: false,
       displayVol: false,
-      breakingForce: 300,
-      stiffness: 100,
+      breakingForce: 1000,
+      stiffness: 90,
     };
+  }
+
+  initState(breakingForce, stiffness) {
+  	this.setState({breakingForce, stiffness});
   }
 
   componentDidMount() {
@@ -340,14 +346,14 @@ class App extends Component {
   _togglePause = () => {
     const { simulationPaused } = this.state;
     if (simulationPaused) {
-      togglePauseSimulation();
+      // togglePauseSimulation();
       this.setState({ simulationPaused: !simulationPaused });
 
       this._addLines();
 
       this._addInterval();
     } else {
-      togglePauseSimulation();
+      // togglePauseSimulation();
       this._removeInterval();
       this.setState({ simulationPaused: !simulationPaused });
     }

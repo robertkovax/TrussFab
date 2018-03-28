@@ -4,7 +4,7 @@ require 'erb'
 
 class Simulation
 
-  attr_reader :pistons, :moving_pistons, :bottle_dat
+  attr_reader :pistons, :moving_pistons, :bottle_dat, :stiffness
   attr_accessor :breaking_force, :max_speed, :highest_force_mode, :auto_piston_group
 
   class << self
@@ -80,6 +80,7 @@ class Simulation
     # physics variables
     @breaking_force = Configuration::JOINT_BREAKING_FORCE
     @breaking_force_invh = (@breaking_force > 1.0e-6) ? (0.5.fdiv(@breaking_force)) : 0.0
+    @stiffness = Configuration::JOINT_STIFFNESS
 
     @max_actuator_tensions = {}
     @max_speed = 0
@@ -108,6 +109,13 @@ class Simulation
   def breaking_force=(breaking_force)
     @breaking_force = breaking_force
     @breaking_force_invh = (breaking_force > 1.0e-6) ? (0.5.fdiv(breaking_force)) : 0.0
+  end
+
+  def stiffness=(stiffness)
+    @stiffness = stiffness
+    @edges.each do |edge|
+      edge.thingy.joint.stiffness = stiffness
+    end
   end
 
   #
@@ -425,7 +433,7 @@ class Simulation
   def change_piston_value(id, value)
     actuator = @pistons[id.to_i]
     if actuator.joint && actuator.joint.valid?
-      actuator.joint.rate = 0.2
+      actuator.joint.rate = actuator.rate
       actuator.joint.controller = (value.to_f - Configuration::ACTUATOR_INIT_DIST) * (actuator.max - actuator.min)
     end
   end
@@ -436,11 +444,12 @@ class Simulation
     @pistons.each_value {|piston|
       if piston.id == id
         joint = piston.joint
-        next_position_normalized = (next_position.to_f - Configuration::ACTUATOR_INIT_DIST) * (piston.max - piston.min)
-
-        current_postion = joint.controller
+        next_position_normalized = piston.max * next_position.to_f + piston.min * (1 - next_position.to_f)
+        current_postion = joint.cur_distance - joint.start_distance
         position_distance = (current_postion - next_position_normalized).abs
-        joint.rate = position_distance / duration
+        rate = (position_distance / duration * 2)
+        joint.solver_model = 2
+        joint.rate = rate
         joint.controller = next_position_normalized
       end
     }

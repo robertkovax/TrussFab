@@ -133,6 +133,10 @@ class SimulationTool < Tool
     @simulation.max_speed
   end
 
+  def get_stiffness
+    @simulation.stiffness
+  end
+
   def change_piston_value(id, value)
     @simulation.change_piston_value(id, value)
   end
@@ -154,6 +158,17 @@ class SimulationTool < Tool
 
   def set_max_speed(param)
     @simulation.max_speed = param.to_f
+  end
+
+  def set_stiffness(param)
+    stiffness = param.to_f / 100
+    Graph.instance.edges.each_value { |edge|
+      link = edge.thingy
+      if link.is_a?(Link) && link.joint && link.joint.valid?
+        link.joint.stiffness = stiffness
+      end
+    }
+    @simulation.stiffness = stiffness
   end
 
   def change_highest_force_mode(param)
