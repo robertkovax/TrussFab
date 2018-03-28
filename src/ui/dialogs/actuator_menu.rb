@@ -62,6 +62,15 @@ class ActuatorMenu
     @dialog.execute_script("cleanupUiAfterStoppingSimulation();")
   end
 
+  def simulation_broke
+    #TODO! @dialog.execute_script("javascriptFunctionThatDrawsRedLineAtRightPosition();")
+    #make sure to only draw one line. Right now this would be triggered every frame after the
+    #object broke.
+    #Maybe have an instance variable in the simulation called @broken and the broken? function
+    #only triggers if it was false or something like that
+    p 'test'
+  end
+
   private
 
   def start_simulation_setup_scripts

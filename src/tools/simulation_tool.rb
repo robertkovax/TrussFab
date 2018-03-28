@@ -106,6 +106,9 @@ class SimulationTool < Tool
   end
 
   def draw(view)
+    if !simulation.nil? && @simulation.broken?
+      @ui.simulation_broke
+    end
     apply_force(view)
     return if @start_position.nil? || @end_position.nil?
     view.line_stipple = '_'
