@@ -646,7 +646,7 @@ class App extends Component {
               type="range"
               onChange={event => {
                 if (simulationIsRunning)
-                  changePistonValue(x, parseFloat(event.target.value));
+                  changePistonValue(x, parseFloat(event.target.value) / 100);
                 else {
                   // this.toggelSimulation();
                   // changePistonValue(x, parseFloat(event.target.value));
