@@ -65,3 +65,19 @@ input[type='range'] {
 .form-check-input {
   margin-top: 0.1rem;
 }
+
+.red-line {
+  width: 2px;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  right: 50px;
+}
+
+.broken-time-line {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background-color: red;
+}

@@ -45,16 +45,18 @@ class App extends Component {
       displayVol: false,
       breakingForce: 1000,
       stiffness: 90,
+      simluationBrokeAt: null,
     };
   }
 
   initState(breakingForce, stiffness) {
-  	this.setState({breakingForce, stiffness});
+    this.setState({ breakingForce, stiffness });
   }
 
   componentDidMount() {
     window.addPiston = this.addPiston;
     window.cleanupUiAfterStoppingSimulation = this.cleanupUiAfterStoppingSimulation;
+    window.simulationJustBroke = this.simulationJustBroke;
 
     document.addEventListener('keyup', e => {
       console.log(e);
@@ -68,6 +70,12 @@ class App extends Component {
   componentWillUnmount() {
     document.removeEventListener('keyup', this.stopSimulation);
   }
+
+  simulationJustBroke = () => {
+    if (this.state.simluationBrokeAt === null) {
+      this.setState({ simluationBrokeAt: this.state.timelineCurrentTime });
+    }
+  };
 
   addPiston = id => {
     console.log('new piston added', id);
@@ -139,6 +147,12 @@ class App extends Component {
 
     return (
       <div style={{ position: 'relative' }}>
+        {this.state.simluationBrokeAt !== null && (
+          <div
+            className="broken-time-line"
+            style={{ left: this.state.simluationBrokeAt / 1000 / 5 * xAxis }}
+          />
+        )}
         <svg viewBox={viewBox} className="chart" id={`svg-${id}`}>
           <polyline
             fill="none"
@@ -206,7 +220,7 @@ class App extends Component {
       .attr('x2', xAxis / 2)
       .attr('y2', yAxis)
       .style('stroke-width', 3)
-      .style('stroke', 'red')
+      .style('stroke', 'grey')
       .style('fill', 'none')
       .call(scrub);
   };
@@ -227,7 +241,7 @@ class App extends Component {
           simulationPaused: true,
           timelineCurrentTime: 0,
           currentCycle: 0,
-          simulationIsPausedAfterOnce: true,
+          simulationIsPasusedAfterOnce: true,
         });
       } else {
         timelineCurrentTime = 0;
@@ -387,6 +401,7 @@ class App extends Component {
       startedSimulationOnce: false,
       startedSimulationCycle: false,
       simulationIsPausedAfterOnce: false,
+      simluationBrokeAt: null,
     });
   };
 
@@ -623,7 +638,7 @@ class App extends Component {
   render() {
     const { startedSimulationCycle, startedSimulationOnce } = this.state;
     const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
-    const pistons = this.state.pistons.map(x => (
+    const pistons = this.state.pistons.map((x, index) => (
       <div>
         <div
           style={{
@@ -634,7 +649,8 @@ class App extends Component {
         >
           <div
             style={{ 'margin-top': yAxis / 3, marginLeft: 3, marginRight: 3 }}
-          >{`#${x}`}</div>
+          >{`#${index + 1}`}</div>
+          {/* >{`#${x}`}</div> */}
           {this.renderGraph(x)}
           <div id={`add-kf-${x}`}>
             <input

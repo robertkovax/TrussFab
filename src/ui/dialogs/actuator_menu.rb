@@ -63,7 +63,8 @@ class ActuatorMenu
   end
 
   def simulation_broke
-    #TODO! @dialog.execute_script("javascriptFunctionThatDrawsRedLineAtRightPosition();")
+    @dialog.execute_script("simulationJustBroke();")
+
     #make sure to only draw one line. Right now this would be triggered every frame after the
     #object broke.
     #Maybe have an instance variable in the simulation called @broken and the broken? function
