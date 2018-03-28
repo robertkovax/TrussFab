@@ -114,7 +114,11 @@ class Simulation
   def stiffness=(stiffness)
     @stiffness = stiffness
     @edges.each do |edge|
-      edge.thingy.joint.stiffness = stiffness
+      if edge.thingy.is_a?(ActuatorLink)
+        edge.thingy.joint.stiffness = 1.0
+      else
+        edge.thingy.joint.stiffness = stiffness
+      end
     end
   end
 
@@ -448,8 +452,8 @@ class Simulation
         current_postion = joint.cur_distance - joint.start_distance
         position_distance = (current_postion - next_position_normalized).abs
         rate = (position_distance / duration * 2)
-        joint.solver_model = 2
-        joint.rate = rate
+        joint.rate = rate > 0.001 ? rate : piston.rate #put it on "holding force"
+        p joint.rate
         joint.controller = next_position_normalized
       end
     }

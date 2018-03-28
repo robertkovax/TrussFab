@@ -346,14 +346,14 @@ class App extends Component {
   _togglePause = () => {
     const { simulationPaused } = this.state;
     if (simulationPaused) {
-      // togglePauseSimulation();
+      togglePauseSimulation();
       this.setState({ simulationPaused: !simulationPaused });
 
       this._addLines();
 
       this._addInterval();
     } else {
-      // togglePauseSimulation();
+      togglePauseSimulation();
       this._removeInterval();
       this.setState({ simulationPaused: !simulationPaused });
     }
