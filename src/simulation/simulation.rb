@@ -83,6 +83,7 @@ class Simulation
     @stiffness = Configuration::JOINT_STIFFNESS
 
     @max_actuator_tensions = {}
+    @max_link_tensions = {}
     @max_speed = 0
     @highest_force_mode = false
 
@@ -397,6 +398,43 @@ class Simulation
     closest_distance
   end
 
+  def check_pose(combination)
+    broken = false
+    highest_force = 0
+
+    Graph.instance.edges.each_value do |edge|
+      edge.thingy.joint.stiffness = 1
+    end
+    #move them to the proper position
+    combination.each do |id, pos|
+      actuator = @pistons[id]
+      actuator.joint.breaking_force = 0
+      actuator.joint.rate = 10
+      actuator.joint.controller = case pos
+      when -1
+        actuator.min
+      when 0
+        0
+      when 1
+        actuator.max
+      end
+    end
+
+    update_world_headless_by(3) #settle down
+
+    #record
+    @max_link_tensions.clear
+    update_world_headless_by(0.2, true)
+
+    Graph.instance.edges.each_value do |edge|
+      force = @max_link_tensions[edge.id]
+      if force.abs > highest_force.abs
+        highest_force = force
+      end
+    end
+    highest_force
+  end
+
   def print_piston_stats
     @moving_pistons.each do |hash|
       p "PISTON #{hash[:id]}"
@@ -586,10 +624,13 @@ class Simulation
     end
   end
 
-  def update_world_headless_by(time_step)
+  def update_world_headless_by(time_step, rec_max_tension = false)
     steps = (time_step.to_f / Configuration::WORLD_TIMESTEP).to_i
     steps.times do
       @world.advance
+      if(rec_max_tension)
+        rec_max_link_tensions
+      end
     end
   end
 
@@ -871,6 +912,16 @@ class Simulation
       @max_actuator_tensions[edge.id] = net_lin_tension if @max_actuator_tensions[edge.id].nil?
       if net_lin_tension.abs > @max_actuator_tensions[edge.id].abs
         @max_actuator_tensions[edge.id] = net_lin_tension
+      end
+    end
+  end
+
+  def rec_max_link_tensions
+    Graph.instance.edges.each_value do |edge|
+      net_lin_tension = compute_net_actuator_tension(edge)
+      @max_link_tensions[edge.id] = net_lin_tension if @max_link_tensions[edge.id].nil?
+      if net_lin_tension.abs > @max_link_tensions[edge.id].abs
+        @max_link_tensions[edge.id] = net_lin_tension
       end
     end
   end
