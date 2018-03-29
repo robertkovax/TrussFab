@@ -43,6 +43,9 @@ module Configuration
   DYNAMIC_TETRAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/dynamic_tetrahedron.json').freeze
   DYNAMIC_OCTAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/dynamic_octahedron.json').freeze
   ASSETS_LEG_PATH = (ProjectHelper.asset_directory + '/primitives/leg.json').freeze
+  ASSETS_BEND_PATH = (ProjectHelper.asset_directory + '/primitives/bend.json').freeze
+  ASSETS_PARALLEL_PATH = (ProjectHelper.asset_directory + '/primitives/parallel.json').freeze
+  ASSETS_HINGE_PATH = (ProjectHelper.asset_directory + '/primitives/asset_hinge.json').freeze
 
   BIG_BIG_BOTTLE_NAME = 'Big Big Double Bottle (60cm)'.freeze
   SMALL_BIG_BOTTLE_NAME = 'Small Big Double Bottle (53cm)'.freeze
@@ -110,11 +113,11 @@ module Configuration
   # Simulation Properties
   WORLD_GRAVITY         = -9.8 # in m/s/s
   WORLD_SOLVER_MODEL    = 8 # 1 - 64
-  WORLD_TIMESTEP        = 1.0 / 200 # in seconds
+  WORLD_TIMESTEP        = 1.0 / 60 # in seconds
   WORLD_NUM_ITERATIONS  = ((1.0 / 60) / WORLD_TIMESTEP).to_i
   JOINT_SOLVER_MODEL    = 0 # 0 or 2
   JOINT_STIFFNESS       = 0.9 # ratio (0.0 - 1.0)
-  JOINT_BREAKING_FORCE  = 3000 # (in Newtons)
+  JOINT_BREAKING_FORCE  = 1000 # (in Newtons)
   BODY_STATIC_FRICITON  = 0.9
   BODY_KINETIC_FRICITON = 0.5
   BODY_ELASTICITY       = 0.1
@@ -136,7 +139,7 @@ module Configuration
   SPRING_DAMP = 10
 
   #GenericPointToPoint Properties
-  GENERIC_LINK_FORCE = 10
+  GENERIC_LINK_FORCE = 100
   GENERIC_LINK_MIN_DISTANCE = -0.2
   GENERIC_LINK_MAX_DISTANCE = 0.2
 
@@ -154,8 +157,8 @@ module Configuration
   #  for all the linked pods and links.
   ELONGATION_MASS   = 0.0
   LINK_MASS         = 0.2
-  PISTON_MASS       = 0.1
-  HUB_MASS          = 0.7
+  PISTON_MASS       = 0.3
+  HUB_MASS          = 0.14
   POD_MASS          = 0.1
 
 end

@@ -16,16 +16,19 @@ module JsonImport
     end
 
     def at_position(path, position)
+      Sketchup.active_model.start_operation('Import', true)
       json_objects = load_json(path)
       points = build_points(json_objects, position, distance_to_ground(json_objects))
       edges, nodes = build_edges(json_objects, points)
       triangles = create_triangles(edges)
       add_joints(json_objects, edges, nodes) unless json_objects['joints'].nil?
       add_pods(json_objects, nodes)
+      Sketchup.active_model.commit_operation
       [triangles.values, edges.values]
     end
 
     def at_triangle(path, snap_triangle)
+      Sketchup.active_model.start_operation('Import', true)
       json_objects = load_json(path)
 
       # retrieve points from json
@@ -88,6 +91,7 @@ module JsonImport
       edges, nodes = build_edges(json_objects, json_points)
       triangles = create_triangles(edges)
       add_joints(json_objects, edges, nodes) unless json_objects['joints'].nil?
+      Sketchup.active_model.commit_operation
       [triangles.values, edges.values]
     end
 
@@ -189,21 +193,6 @@ module JsonImport
         else
           raise ArgumentError('No rotation vector given')
         end
-=begin
-        joint = case joint_json['type']
-        when 'hinge'
-          ThingyHinge.new(node, rotation)
-        when 'ball'
-          ThingyBallJoint.new(node, rotation)
-        else
-          raise "Unsupported joint type: #{joint_json['type']}"
-        end
-        if node == edge.first_node
-          edge.thingy.first_joint = joint
-        else
-          edge.thingy.second_joint = joint
-        end
-=end
       end
     end
 

@@ -18,10 +18,27 @@ class SimulationTool < Tool
     @moving = false
     @force = nil
     @auto_piston_group = []
+
+    # simulation parameters
+    @breaking_force = Configuration::JOINT_BREAKING_FORCE
+    @peak_force_mode = false
+    @highest_force_mode = false
+    @display_values = false
+    @stiffness = Configuration::JOINT_STIFFNESS
   end
+
+  def setup_simulation_parameters
+    return if @simulation.nil?
+    @simulation.breaking_force = @breaking_force
+    @simulation.peak_force_mode = @peak_force_mode
+    @simulation.highest_force_mode = @highest_force_mode
+    @simulation.stiffness = @stiffness
+  end
+
 
   def activate
     @simulation = Simulation.new
+    setup_simulation_parameters
     @simulation.setup
     @simulation.open_sensor_dialog
     @simulation.auto_piston_group = @auto_piston_group
@@ -106,9 +123,12 @@ class SimulationTool < Tool
   end
 
   def draw(view)
+    view.model.start_operation('SimTool: Draw', true, false, true)
+
     if !simulation.nil? && @simulation.broken?
       @ui.simulation_broke
     end
+
     apply_force(view)
     return if @start_position.nil? || @end_position.nil?
     view.line_stipple = '_'
@@ -116,11 +136,12 @@ class SimulationTool < Tool
     force_value = (@start_position.vector_to(@end_position).length * Configuration::DRAG_FACTOR).round(1).to_s
     point = Geometry.midpoint(@start_position, @end_position)
     if @force.nil?
-      @force = Sketchup.active_model.entities.add_text(force_value, point)
+      @force = view.model.entities.add_text(force_value, point)
     else
       @force.text = force_value
       @force.point = point
     end
+    view.model.commit_operation
   end
 
   # Simulation Getters
@@ -149,33 +170,31 @@ class SimulationTool < Tool
   end
 
   def set_breaking_force(param)
-    breaking_force = param.to_f
-    Graph.instance.edges.each_value { |edge|
-      link = edge.thingy
-      if link.is_a?(Link) && link.joint && link.joint.valid?
-        link.joint.breaking_force = breaking_force
-      end
-    }
-    @simulation.breaking_force = breaking_force
+    @breaking_force = param.to_f
+    setup_simulation_parameters
   end
 
   def set_max_speed(param)
-    @simulation.max_speed = param.to_f
+    @simulation.max_speed = param.to_f unless @simulation.nil?
   end
 
   def set_stiffness(param)
-    stiffness = param.to_f / 100
-    Graph.instance.edges.each_value { |edge|
-      link = edge.thingy
-      if link.is_a?(Link) && link.joint && link.joint.valid?
-        link.joint.stiffness = stiffness
-      end
-    }
-    @simulation.stiffness = stiffness
+    @stiffness = param.to_f / 100
+    setup_simulation_parameters
   end
 
   def change_highest_force_mode(param)
-    @simulation.highest_force_mode = param
+    @highest_force_mode = param
+    setup_simulation_parameters
+  end
+
+  def change_peak_force_mode(param)
+    @peak_force_mode = param
+    setup_simulation_parameters
+  end
+
+  def pressurize_generic_link
+    @simulation.apply_force unless @simulation.nil?
   end
 
   def toggle_piston_group(edge)
@@ -215,7 +234,7 @@ class SimulationTool < Tool
   end
 
   def move_joint(id, new_value, duration)
-    @simulation.move_joint(id, new_value, duration)
+    @simulation.move_joint(id, new_value, duration) unless @simulation.nil?
   end
 
   def stop_actuator(group_id)

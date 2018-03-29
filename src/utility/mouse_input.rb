@@ -26,6 +26,8 @@ class MouseInput
   # NB: In the old version, there was given a reference point to the InputPoint
   # but it was not clear why.
   def update_positions(view, x, y, point_on_plane_from_camera_normal: nil)
+    time1 = Time.now
+    Sketchup.active_model.start_operation('MouseInput: Update Pos', true, false, true)
     soft_reset
 
     input_point = Sketchup::InputPoint.new
@@ -41,12 +43,13 @@ class MouseInput
     # For some reason, we don't have to find the intersection on the plane if
     # it finds objects to snap on.
     if !point_on_plane_from_camera_normal.nil? && !@snapped_object
-      # pick a point on the plance of the camera normale
+      # pick a point on the plane of the camera normal
       normal = view.camera.direction
       plane = [point_on_plane_from_camera_normal, normal]
       pickray = view.pickray(x, y)
       @position = Geom.intersect_line_plane(pickray, plane)
     end
+    Sketchup.active_model.commit_operation
 
     @position
   end

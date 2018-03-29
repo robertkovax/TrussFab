@@ -78,6 +78,9 @@ class Sidebar
     return if @dialog.nil?
     build_tool(TetrahedronTool, 'tetrahedron_tool')
     build_tool(AssetsLegTool, 'assets_leg_tool')
+    build_tool(AssetsBendTool, 'assets_bend_tool')
+    build_tool(AssetsParallelTool, 'assets_parallel_tool')
+    build_tool(AssetsHingeTool, 'assets_hinge_tool')
     build_tool(DynamicTetrahedronTool, 'dynamic_tetrahedron_tool')
     build_tool(OctahedronTool, 'octahedron_tool')
     build_tool(DynamicOctahedronTool, 'dynamic_octahedron_tool')
@@ -105,6 +108,7 @@ class Sidebar
     build_tool(HingeAnalysisTool, 'hinge_analysis_tool')
     build_tool(AutomaticActuatorsTool, 'automatic_actuators_tool')
     build_tool(GeneticActuatorPlacementTool, 'genetic_actuator_placement_tool')
+    build_tool(ForceLimitTool, 'force_limit_tool')
   end
 
   def build_tool(tool_class, tool_id)

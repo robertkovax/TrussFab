@@ -63,12 +63,12 @@ class ActuatorMenu
   end
 
   def simulation_broke
-    #TODO! @dialog.execute_script("javascriptFunctionThatDrawsRedLineAtRightPosition();")
+    @dialog.execute_script("simulationJustBroke();")
+
     #make sure to only draw one line. Right now this would be triggered every frame after the
     #object broke.
     #Maybe have an instance variable in the simulation called @broken and the broken? function
     #only triggers if it was false or something like that
-    p 'test'
   end
 
   private
@@ -121,6 +121,14 @@ class ActuatorMenu
 
     @dialog.add_action_callback('change_highest_force_mode') do |_context, checked|
       @simulation_tool.change_highest_force_mode(checked)
+    end
+
+    @dialog.add_action_callback('change_peak_force_mode') do |_context, checked|
+      @simulation_tool.change_peak_force_mode(checked)
+    end
+
+    @dialog.add_action_callback('apply_force') do |_context|
+      @simulation_tool.pressurize_generic_link
     end
 
     # @dialog.add_action_callback('expand_actuator') do |_context, id|

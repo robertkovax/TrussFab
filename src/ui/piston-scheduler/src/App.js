@@ -45,16 +45,18 @@ class App extends Component {
       displayVol: false,
       breakingForce: 1000,
       stiffness: 90,
+      simluationBrokeAt: null,
     };
   }
 
   initState(breakingForce, stiffness) {
-  	this.setState({breakingForce, stiffness});
+    this.setState({ breakingForce, stiffness });
   }
 
   componentDidMount() {
     window.addPiston = this.addPiston;
     window.cleanupUiAfterStoppingSimulation = this.cleanupUiAfterStoppingSimulation;
+    window.simulationJustBroke = this.simulationJustBroke;
 
     document.addEventListener('keyup', e => {
       console.log(e);
@@ -68,6 +70,12 @@ class App extends Component {
   componentWillUnmount() {
     document.removeEventListener('keyup', this.stopSimulation);
   }
+
+  simulationJustBroke = () => {
+    if (this.state.simluationBrokeAt === null) {
+      this.setState({ simluationBrokeAt: this.state.timelineCurrentTime });
+    }
+  };
 
   addPiston = id => {
     console.log('new piston added', id);
@@ -110,7 +118,10 @@ class App extends Component {
     const keyframes = this.state.keyframes.get(id) || [];
 
     const points = keyframes.map(kf => {
-      return [kf.time * xAxis / this.state.seconds, (1 - kf.value) * yAxis];
+      return [
+        kf.time * xAxis / this.state.seconds,
+        (1 - kf.value) * (yAxis - 8) + 4,
+      ];
     });
 
     const viewBox = `0 0 ${xAxis} ${yAxis}`;
@@ -139,6 +150,12 @@ class App extends Component {
 
     return (
       <div style={{ position: 'relative' }}>
+        {this.state.simluationBrokeAt !== null && (
+          <div
+            className="broken-time-line"
+            style={{ left: this.state.simluationBrokeAt / 1000 / 5 * xAxis }}
+          />
+        )}
         <svg viewBox={viewBox} className="chart" id={`svg-${id}`}>
           <polyline
             fill="none"
@@ -206,7 +223,7 @@ class App extends Component {
       .attr('x2', xAxis / 2)
       .attr('y2', yAxis)
       .style('stroke-width', 3)
-      .style('stroke', 'red')
+      .style('stroke', 'grey')
       .style('fill', 'none')
       .call(scrub);
   };
@@ -227,7 +244,7 @@ class App extends Component {
           simulationPaused: true,
           timelineCurrentTime: 0,
           currentCycle: 0,
-          simulationIsPausedAfterOnce: true,
+          simulationIsPasusedAfterOnce: true,
         });
       } else {
         timelineCurrentTime = 0;
@@ -387,6 +404,7 @@ class App extends Component {
       startedSimulationOnce: false,
       startedSimulationCycle: false,
       simulationIsPausedAfterOnce: false,
+      simluationBrokeAt: null,
     });
   };
 
@@ -484,12 +502,11 @@ class App extends Component {
             <input
               className="form-check-input"
               type="checkbox"
-              value=""
-              id="defaultCheck1"
+              id="hihgestForceModeCheckbox"
               value={this.state.highestForceMode}
               onChange={event => {
-                this.setState({ highestForceMode: event.target.value });
-                changeHighestForceMode(event.target.value);
+                this.setState({ highestForceMode: event.target.checked });
+                changeHighestForceMode(event.target.checked);
               }}
             />
             <label className="form-check-label" for="defaultCheck1">
@@ -500,12 +517,11 @@ class App extends Component {
             <input
               className="form-check-input"
               type="checkbox"
-              value=""
-              id="defaultCheck1"
+              id="peakForceModeCheckbox"
               value={this.state.peakForceMode}
               onChange={event => {
-                this.setState({ peakForceMode: event.target.value });
-                changePeakForceMode(event.target.value);
+                this.setState({ peakForceMode: event.target.checked });
+                changePeakForceMode(event.target.checked);
               }}
             />
             <label className="form-check-label" for="defaultCheck1">
@@ -516,12 +532,11 @@ class App extends Component {
             <input
               className="form-check-input"
               type="checkbox"
-              value=""
-              id="defaultCheck1"
+              id="changeDisplayValuesCheckbox"
               value={this.state.displayVol}
               onChange={event => {
-                this.setState({ displayVol: event.target.value });
-                changeDisplayValues(event.target.value);
+                this.setState({ displayVol: event.target.checked });
+                changeDisplayValues(event.target.checked);
               }}
             />
             <label className="form-check-label" for="defaultCheck1">
@@ -540,7 +555,10 @@ class App extends Component {
                 placeholder="6"
                 value={this.state.seconds}
                 onChange={event => {
-                  const newSeconds = event.target.value;
+                  const newSeconds = parseFloat(event.target.value);
+                  console.log('newSeconds', newSeconds);
+                  if (newSeconds == null || isNaN(newSeconds)) return;
+                  const ratio = newSeconds / this.state.seconds;
                   // fix old values
                   const newKeyframes = new Map();
                   const oldKeyframes = this.state.keyframes;
@@ -549,7 +567,11 @@ class App extends Component {
                     const updatedValues = value.map(oneKeyframe => {
                       if (oneKeyframe.time === this.state.seconds) {
                         return { value: oneKeyframe.value, time: newSeconds };
-                      } else return oneKeyframe;
+                      } else
+                        return {
+                          value: oneKeyframe.value,
+                          time: oneKeyframe.time * ratio,
+                        };
                     });
                     newKeyframes.set(key, updatedValues);
                   });
@@ -623,7 +645,7 @@ class App extends Component {
   render() {
     const { startedSimulationCycle, startedSimulationOnce } = this.state;
     const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
-    const pistons = this.state.pistons.map(x => (
+    const pistons = this.state.pistons.map((x, index) => (
       <div>
         <div
           style={{
@@ -634,7 +656,8 @@ class App extends Component {
         >
           <div
             style={{ 'margin-top': yAxis / 3, marginLeft: 3, marginRight: 3 }}
-          >{`#${x}`}</div>
+          >{`#${index + 1}`}</div>
+          {/* >{`#${x}`}</div> */}
           {this.renderGraph(x)}
           <div id={`add-kf-${x}`}>
             <input

@@ -196,6 +196,6 @@ class Node < GraphObject
   private
 
   def create_thingy(id)
-    @thingy = Hub.new(@position, id: id)
+    @thingy = Hub.new(@position, id: id, incidents: incidents)
   end
 end
