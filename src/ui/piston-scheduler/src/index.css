@@ -84,3 +84,7 @@ input[type='range'] {
   width: 2px;
   background-color: red;
 }
+
+.some-padding-top {
+  margin-top: 3px;
+}
