@@ -89,7 +89,7 @@ module Configuration
 
   # Colors
   STANDARD_COLOR            = Sketchup::Color.new(0.5, 0.5, 0.5)
-  BOTTLE_COLOR              = Sketchup::Color.new(114, 183,  99)
+  BOTTLE_COLOR              = Sketchup::Color.new(1.0, 1.0, 1.0)# Sketchup::Color.new(114, 183,  99)
   ACTUATOR_COLOR            = Sketchup::Color.new(1.0, 1.0, 1.0)
   SPRING_COLOR              = Sketchup::Color.new(1.0, 0.64, 0.0)
   GENERIC_LINK_COLOR        = Sketchup::Color.new(0.72, 1.0, 0.0)
