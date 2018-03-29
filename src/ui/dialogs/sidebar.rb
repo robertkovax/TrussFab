@@ -26,15 +26,15 @@ class Sidebar
     @height = 660
 
     props = {
-      :resizable => false,
+      :resizable => true,
       :width => @width,
       :height => @height,
       :left => 0,
-      :top => 100,
-      :min_width => @width,
-      :min_height => @height,
-      :max_width => @width,
-      :max_height => @height
+      :top => 100
+      # :min_width => @width,
+      # :min_height => @height,
+      # :max_width => @width,
+      # :max_height => @height
     }
 
     @dialog = UI::HtmlDialog.new(props)
