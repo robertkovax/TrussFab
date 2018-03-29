@@ -19,9 +19,9 @@ class GeneticActuatorPlacementTool < Tool
     Sketchup.active_model.commit_operation
   end
 
-  def uncreate_actuator(edge)
+  def reset_actuator_type(edge, previous_link_type)
     Sketchup.active_model.start_operation('toggle actuator to edge', true)
-    edge.link_type = 'bottle_link'
+    edge.link_type = previous_link_type
     Sketchup.active_model.commit_operation
   end
 
@@ -46,6 +46,7 @@ class GeneticActuatorPlacementTool < Tool
     best_piston = nil
     Graph.instance.edges.each_value do |edge|
       next if edge.fixed?
+      previous_link_type = edge.link_type
       create_actuator(edge)
       simulation = Simulation.new
       simulation.setup
@@ -62,7 +63,7 @@ class GeneticActuatorPlacementTool < Tool
       simulation.reset
       simulation = nil
       model.commit_operation
-      uncreate_actuator(edge)
+      reset_actuator_type(edge, previous_link_type)
     end
     create_actuator(best_piston) unless best_piston.nil?
   end
