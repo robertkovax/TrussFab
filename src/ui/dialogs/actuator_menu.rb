@@ -6,7 +6,7 @@ class ActuatorMenu
   def initialize
     @HTML_FILE = '../piston-scheduler/build/index.html'
     @simulation_tool = SimulationTool.new(self)
-    @width = 600
+    @width = 440
     @height = 300
   end
 
@@ -16,15 +16,15 @@ class ActuatorMenu
     top = sidebar_menu_height - @height
 
     props = {
-      :resizable => false,
+      # :resizable => false,
       :width => @width,
       :height => @height,
       :left => left,
       :top => top,
       :min_width => @width,
-      :min_height => @height,
+      # :min_height => @height,
       :max_width => @width,
-      :max_height => @height
+      # :max_height => @height
     }
 
     @dialog = UI::HtmlDialog.new(props)

@@ -25,6 +25,8 @@ const xAxis = 300;
 const yAxis = 50;
 const timelineStepSeconds = 10;
 
+const DEV = false;
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -479,22 +481,177 @@ class App extends Component {
       .attr('x2', newX);
   };
 
+  renderForm = () => {
+    const { startedSimulationCycle, startedSimulationOnce } = this.state;
+    const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
+    return (
+      <form>
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            value=""
+            id="defaultCheck1"
+            value={this.state.highestForceMode}
+            onChange={event => {
+              this.setState({ highestForceMode: event.target.value });
+              changeHighestForceMode(event.target.value);
+            }}
+          />
+          <label className="form-check-label" for="defaultCheck1">
+            Highest Force
+          </label>
+        </div>
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            value=""
+            id="defaultCheck1"
+            value={this.state.peakForceMode}
+            onChange={event => {
+              this.setState({ peakForceMode: event.target.value });
+              changePeakForceMode(event.target.value);
+            }}
+          />
+          <label className="form-check-label" for="defaultCheck1">
+            Peak Force
+          </label>
+        </div>
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            value=""
+            id="defaultCheck1"
+            value={this.state.displayVol}
+            onChange={event => {
+              this.setState({ displayVol: event.target.value });
+              changeDisplayValues(event.target.value);
+            }}
+          />
+          <label className="form-check-label" for="defaultCheck1">
+            Display Values
+          </label>
+        </div>
+        <div className="form-group row no-gutters">
+          <label for="inputEmail3" className="col-sm-6 col-form-label">
+            Cycle Length
+          </label>
+          <div className="input-group input-group-sm col-sm-6">
+            <input
+              type="number"
+              className="form-control form-control-sm"
+              id="inputEmail3"
+              placeholder="6"
+              value={this.state.seconds}
+              onChange={event => {
+                const newSeconds = parseFloat(event.target.value);
+                console.log('newSeconds', newSeconds);
+                if (newSeconds == null || isNaN(newSeconds)) return;
+                const ratio = newSeconds / this.state.seconds;
+                // fix old values
+                const newKeyframes = new Map();
+                const oldKeyframes = this.state.keyframes;
+
+                oldKeyframes.forEach((value, key) => {
+                  const updatedValues = value.map(oneKeyframe => {
+                    if (oneKeyframe.time === this.state.seconds) {
+                      return { value: oneKeyframe.value, time: newSeconds };
+                    } else
+                      return {
+                        value: oneKeyframe.value,
+                        time: oneKeyframe.time * ratio,
+                      };
+                  });
+                  newKeyframes.set(key, updatedValues);
+                });
+
+                this.setState({
+                  seconds: newSeconds,
+                  keyframes: newKeyframes,
+                });
+              }}
+            />
+            <div class="input-group-append">
+              <span class="input-group-text" id="basic-addon2">
+                s
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className="form-group row no-gutters">
+          <label for="inputEmail3" className="col-sm-6 col-form-label">
+            Breaking Force
+          </label>
+          <div className="input-group input-group-sm col-sm-6">
+            <input
+              type="number"
+              className="form-control form-control-sm"
+              id="inputEmail3"
+              placeholder="300"
+              value={this.state.breakingForce}
+              onChange={event => {
+                this.setState({ breakingForce: event.target.value });
+                if (simulationIsRunning) {
+                  setBreakingForce(event.target.value);
+                }
+              }}
+            />
+            <div class="input-group-append">
+              <span class="input-group-text" id="basic-addon2">
+                N
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className="form-group row no-gutters">
+          <label for="inputEmail3" className="col-sm-6 col-form-label">
+            Stiffness
+          </label>
+          <div className="input-group input-group-sm col-sm-6">
+            <input
+              type="number"
+              className="form-control form-control-sm"
+              id="inputEmail3"
+              placeholder="Email"
+              value={this.state.stiffness}
+              onChange={event => {
+                this.setState({ stiffness: event.target.value });
+                setStiffness(event.target.value);
+              }}
+            />
+            <div class="input-group-append">
+              <span class="input-group-text" id="basic-addon2">
+                %
+              </span>
+            </div>
+          </div>
+        </div>
+      </form>
+    );
+  };
+
   renderControlls = () => {
     const { startedSimulationCycle, startedSimulationOnce } = this.state;
     const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
     return (
       <div
-        className="col-4"
+        className={DEV ? 'col-4' : ''}
         style={{
           borderRight: '1px solid lightgrey',
           height: '100%',
           paddingRight: '3px',
+          width: DEV ? '40px' : 'auto',
         }}
       >
-        <div className="row no-gutters control-buttons">
-          <div className="col">
+        <div
+          className={DEV ? 'row no-gutters control-buttons' : 'control-buttons'}
+        >
+          <div className={DEV ? 'col' : ''}>
             <button onClick={() => this.toggelSimulation(true)}>
               <img
+                style={DEV ? {} : { height: 25, width: 25 }}
                 src={
                   this.state.startedSimulationOnce &&
                   !this.state.simulationPaused
@@ -504,9 +661,10 @@ class App extends Component {
               />
             </button>
           </div>
-          <div className="col">
+          <div className={DEV ? 'col' : 'some-padding-top'}>
             <button onClick={() => this.toggelSimulation(false)}>
               <img
+                style={DEV ? {} : { height: 25, width: 25 }}
                 src={
                   this.state.startedSimulationCycle &&
                   !this.state.simulationPaused
@@ -516,156 +674,16 @@ class App extends Component {
               />
             </button>
           </div>
-          <div className="col">
+          <div className={DEV ? 'col' : 'some-padding-top'}>
             <button onClick={this.stopSimulation}>
-              <img src="../../assets/icons/stop.png" />
+              <img
+                style={DEV ? {} : { height: 25, width: 25 }}
+                src="../../assets/icons/stop.png"
+              />
             </button>
           </div>
         </div>
-        <form>
-          <div className="form-check">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              value=""
-              id="defaultCheck1"
-              value={this.state.highestForceMode}
-              onChange={event => {
-                this.setState({ highestForceMode: event.target.value });
-                changeHighestForceMode(event.target.value);
-              }}
-            />
-            <label className="form-check-label" for="defaultCheck1">
-              Highest Force
-            </label>
-          </div>
-          <div className="form-check">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              value=""
-              id="defaultCheck1"
-              value={this.state.peakForceMode}
-              onChange={event => {
-                this.setState({ peakForceMode: event.target.value });
-                changePeakForceMode(event.target.value);
-              }}
-            />
-            <label className="form-check-label" for="defaultCheck1">
-              Peak Force
-            </label>
-          </div>
-          <div className="form-check">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              value=""
-              id="defaultCheck1"
-              value={this.state.displayVol}
-              onChange={event => {
-                this.setState({ displayVol: event.target.value });
-                changeDisplayValues(event.target.value);
-              }}
-            />
-            <label className="form-check-label" for="defaultCheck1">
-              Display Values
-            </label>
-          </div>
-          <div className="form-group row no-gutters">
-            <label for="inputEmail3" className="col-sm-6 col-form-label">
-              Cycle Length
-            </label>
-            <div className="input-group input-group-sm col-sm-6">
-              <input
-                type="number"
-                className="form-control form-control-sm"
-                id="inputEmail3"
-                placeholder="6"
-                value={this.state.seconds}
-                onChange={event => {
-                  const newSeconds = parseFloat(event.target.value);
-                  console.log('newSeconds', newSeconds);
-                  if (newSeconds == null || isNaN(newSeconds)) return;
-                  const ratio = newSeconds / this.state.seconds;
-                  // fix old values
-                  const newKeyframes = new Map();
-                  const oldKeyframes = this.state.keyframes;
-
-                  oldKeyframes.forEach((value, key) => {
-                    const updatedValues = value.map(oneKeyframe => {
-                      if (oneKeyframe.time === this.state.seconds) {
-                        return { value: oneKeyframe.value, time: newSeconds };
-                      } else
-                        return {
-                          value: oneKeyframe.value,
-                          time: oneKeyframe.time * ratio,
-                        };
-                    });
-                    newKeyframes.set(key, updatedValues);
-                  });
-
-                  this.setState({
-                    seconds: newSeconds,
-                    keyframes: newKeyframes,
-                  });
-                }}
-              />
-              <div class="input-group-append">
-                <span class="input-group-text" id="basic-addon2">
-                  s
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="form-group row no-gutters">
-            <label for="inputEmail3" className="col-sm-6 col-form-label">
-              Breaking Force
-            </label>
-            <div className="input-group input-group-sm col-sm-6">
-              <input
-                type="number"
-                className="form-control form-control-sm"
-                id="inputEmail3"
-                placeholder="300"
-                value={this.state.breakingForce}
-                onChange={event => {
-                  this.setState({ breakingForce: event.target.value });
-                  if (simulationIsRunning) {
-                    setBreakingForce(event.target.value);
-                  }
-                }}
-              />
-              <div class="input-group-append">
-                <span class="input-group-text" id="basic-addon2">
-                  N
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="form-group row no-gutters">
-            <label for="inputEmail3" className="col-sm-6 col-form-label">
-              Stiffness
-            </label>
-            <div className="input-group input-group-sm col-sm-6">
-              <input
-                type="number"
-                className="form-control form-control-sm"
-                id="inputEmail3"
-                placeholder="Email"
-                value={this.state.stiffness}
-                onChange={event => {
-                  this.setState({ stiffness: event.target.value });
-                  setStiffness(event.target.value);
-                }}
-              />
-              <div class="input-group-append">
-                <span class="input-group-text" id="basic-addon2">
-                  %
-                </span>
-              </div>
-            </div>
-          </div>
-        </form>
+        {DEV && this.renderForm()}
       </div>
     );
   };
