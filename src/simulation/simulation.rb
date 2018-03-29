@@ -464,6 +464,7 @@ class Simulation
     @pistons.each_value {|piston|
       if piston.id == id
         joint = piston.joint
+        next if joint.nil? || !joint.valid?
         next_position_normalized = piston.max * next_position.to_f + piston.min * (1 - next_position.to_f)
         current_postion = joint.cur_distance - joint.start_distance
         position_distance = (current_postion - next_position_normalized).abs

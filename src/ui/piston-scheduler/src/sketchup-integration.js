@@ -27,8 +27,7 @@ function changeHighestForceMode(checked) {
 }
 
 function changePeakForceMode(checked) {
-  // todo
-  // window.sketchup.change_highest_force_mode(checked);
+  window.sketchup.change_peak_force_mode(checked);
 }
 
 function changeDisplayValues(checked) {
@@ -51,8 +50,8 @@ export {
   moveJoint,
   setBreakingForce,
   setMaxSpeed,
-  changeHighestForceMode,
   setStiffness,
+  changeHighestForceMode,
   changeDisplayValues,
   changePeakForceMode,
   changePistonValue,

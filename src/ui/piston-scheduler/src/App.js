@@ -502,12 +502,11 @@ class App extends Component {
             <input
               className="form-check-input"
               type="checkbox"
-              value=""
-              id="defaultCheck1"
+              id="hihgestForceModeCheckbox"
               value={this.state.highestForceMode}
               onChange={event => {
-                this.setState({ highestForceMode: event.target.value });
-                changeHighestForceMode(event.target.value);
+                this.setState({ highestForceMode: event.target.checked });
+                changeHighestForceMode(event.target.checked);
               }}
             />
             <label className="form-check-label" for="defaultCheck1">
@@ -518,12 +517,11 @@ class App extends Component {
             <input
               className="form-check-input"
               type="checkbox"
-              value=""
-              id="defaultCheck1"
+              id="peakForceModeCheckbox"
               value={this.state.peakForceMode}
               onChange={event => {
-                this.setState({ peakForceMode: event.target.value });
-                changePeakForceMode(event.target.value);
+                this.setState({ peakForceMode: event.target.checked });
+                changePeakForceMode(event.target.checked);
               }}
             />
             <label className="form-check-label" for="defaultCheck1">
@@ -534,12 +532,11 @@ class App extends Component {
             <input
               className="form-check-input"
               type="checkbox"
-              value=""
-              id="defaultCheck1"
+              id="changeDisplayValuesCheckbox"
               value={this.state.displayVol}
               onChange={event => {
-                this.setState({ displayVol: event.target.value });
-                changeDisplayValues(event.target.value);
+                this.setState({ displayVol: event.target.checked });
+                changeDisplayValues(event.target.checked);
               }}
             />
             <label className="form-check-label" for="defaultCheck1">

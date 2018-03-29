@@ -69,7 +69,6 @@ class ActuatorMenu
     #object broke.
     #Maybe have an instance variable in the simulation called @broken and the broken? function
     #only triggers if it was false or something like that
-    p 'test'
   end
 
   private
