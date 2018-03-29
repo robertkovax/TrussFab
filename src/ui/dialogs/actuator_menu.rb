@@ -21,9 +21,9 @@ class ActuatorMenu
       :height => @height,
       :left => left,
       :top => top,
-      :min_width => @width,
+      # :min_width => @width,
       # :min_height => @height,
-      :max_width => @width,
+      # :max_width => @width,
       # :max_height => @height
     }
 
