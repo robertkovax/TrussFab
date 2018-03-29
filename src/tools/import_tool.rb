@@ -3,9 +3,10 @@ require 'src/utility/mouse_input.rb'
 require 'src/utility/json_import.rb'
 require 'src/database/graph.rb'
 require 'src/configuration/configuration.rb'
+require 'src/thingies/actuator_link.rb'
 
 class ImportTool < Tool
-  def initialize(ui = nil)
+  def initialize(ui)
     super
     @mouse_input = MouseInput.new(snap_to_surfaces: true)
     @path = nil
@@ -34,6 +35,11 @@ class ImportTool < Tool
       if intersecting?(old_triangles, new_triangles)
         puts('New object intersects with old')
         delete_edges(new_edges)
+      end
+      new_edges.each do |edge|
+        if edge.thingy.is_a?(ActuatorLink)
+          @ui.actuator_menu.add_piston(edge.id) unless edge.nil?
+        end
       end
     else
       raise NotImplementedError

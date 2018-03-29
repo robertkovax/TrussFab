@@ -4,7 +4,7 @@ require 'erb'
 
 class Simulation
 
-  attr_reader :pistons, :moving_pistons, :bottle_dat
+  attr_reader :pistons, :moving_pistons, :bottle_dat, :stiffness
   attr_accessor :breaking_force, :max_speed, :highest_force_mode, :peak_force_mode, :auto_piston_group
 
   class << self
@@ -80,6 +80,7 @@ class Simulation
     # physics variables
     @breaking_force = Configuration::JOINT_BREAKING_FORCE
     @breaking_force_invh = (@breaking_force > 1.0e-6) ? (0.5.fdiv(@breaking_force)) : 0.0
+    @stiffness = Configuration::JOINT_STIFFNESS
 
     @max_actuator_tensions = {}
     @max_link_tensions = {}
@@ -116,6 +117,17 @@ class Simulation
         link.joint.breaking_force = @breaking_force
       end
     }
+  end
+
+  def stiffness=(stiffness)
+    @stiffness = stiffness
+    @edges.each do |edge|
+      if edge.thingy.is_a?(ActuatorLink)
+        edge.thingy.joint.stiffness = 0.99
+      else
+        edge.thingy.joint.stiffness = stiffness
+      end
+    end
   end
 
   #
@@ -439,21 +451,41 @@ class Simulation
     end
   end
 
-  def move_joint(id, expand)
-    link = nil
-    @auto_piston_group.each { |edges|
-      edges.each { |edge|
-        if edge.automatic_movement_group == id
-          link = edge.thingy
-          unless link.nil? || !link.joint.valid?
-            joint = link.joint
+  def change_piston_value(id, value)
+    actuator = @pistons[id.to_i]
+    if actuator.joint && actuator.joint.valid?
+      actuator.joint.rate = actuator.rate
+      actuator.joint.controller = (value.to_f - Configuration::ACTUATOR_INIT_DIST) * (actuator.max - actuator.min)
+    end
+  end
 
-            joint.rate = link.rate
-            joint.controller = expand ? link.max : link.min
-          end
-        end
-      }
+  def move_joint(id, next_position, duration)
+    link = nil
+    @pistons.each_value {|piston|
+      if piston.id == id
+        joint = piston.joint
+        next_position_normalized = piston.max * next_position.to_f + piston.min * (1 - next_position.to_f)
+        current_postion = joint.cur_distance - joint.start_distance
+        position_distance = (current_postion - next_position_normalized).abs
+        rate = (position_distance / duration * 2)
+        joint.rate = rate > 0.001 ? rate : piston.rate #put it on "holding force"
+        joint.controller = next_position_normalized
+      end
     }
+
+    # @auto_piston_group.each { |edges|
+    #   edges.each { |edge|
+    #     if edge.automatic_movement_group == id
+    #       link = edge.thingy
+    #       unless link.nil? || !link.joint.valid?
+    #         joint = link.joint
+
+    #         joint.rate = link.rate
+    #         joint.controller = expand ? link.max : link.min
+    #       end
+    #     end
+    #   }
+    # }
   end
 
   def expand_actuator(id)

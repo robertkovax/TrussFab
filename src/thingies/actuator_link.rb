@@ -23,6 +23,7 @@ class ActuatorLink < PhysicsLink
   #
   def update_link_properties
     if @joint && @joint.valid?
+      @joint.stiffness = 0.99
       @joint.rate = @rate
       @joint.reduction_ratio = @reduction
       @joint.power = @power

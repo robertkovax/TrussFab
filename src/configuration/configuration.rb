@@ -43,6 +43,9 @@ module Configuration
   DYNAMIC_TETRAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/dynamic_tetrahedron.json').freeze
   DYNAMIC_OCTAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/dynamic_octahedron.json').freeze
   ASSETS_LEG_PATH = (ProjectHelper.asset_directory + '/primitives/leg.json').freeze
+  ASSETS_BEND_PATH = (ProjectHelper.asset_directory + '/primitives/bend.json').freeze
+  ASSETS_PARALLEL_PATH = (ProjectHelper.asset_directory + '/primitives/parallel.json').freeze
+  ASSETS_HINGE_PATH = (ProjectHelper.asset_directory + '/primitives/asset_hinge.json').freeze
 
   BIG_BIG_BOTTLE_NAME = 'Big Big Double Bottle (60cm)'.freeze
   SMALL_BIG_BOTTLE_NAME = 'Small Big Double Bottle (53cm)'.freeze

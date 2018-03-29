@@ -4,11 +4,10 @@ class ActuatorMenu
   attr_accessor :sidebar_menu
 
   def initialize
-    @HTML_FILE = '../html/actuator_menu.html'
+    @HTML_FILE = '../piston-scheduler/build/index.html'
     @simulation_tool = SimulationTool.new(self)
     @width = 600
     @height = 300
-
   end
 
   def open_dialog(sidebar_menu_width , sidebar_menu_height)
@@ -55,8 +54,22 @@ class ActuatorMenu
     @dialog.execute_script("update_pistons(#{movement_group})")
   end
 
+  def add_piston(id)
+    @dialog.execute_script("addPiston(#{id})")
+  end
+
   def stop_simulation
     @dialog.execute_script("cleanupUiAfterStoppingSimulation();")
+  end
+
+  def simulation_broke
+    @dialog.execute_script("simulationJustBroke();")
+
+    #make sure to only draw one line. Right now this would be triggered every frame after the
+    #object broke.
+    #Maybe have an instance variable in the simulation called @broken and the broken? function
+    #only triggers if it was false or something like that
+    p 'test'
   end
 
   private
@@ -66,12 +79,11 @@ class ActuatorMenu
 
     Sketchup.active_model.select_tool(@simulation_tool)
 
-    # TODO UPate clyce
-
     pistons = @simulation_tool.get_pistons
     breaking_force = @simulation_tool.get_breaking_force
     max_speed = @simulation_tool.get_max_speed
-    @dialog.execute_script("showManualActuatorSettings(#{pistons.keys}, #{breaking_force}, #{max_speed})")
+    stiffness = @simulation_tool.get_stiffness
+    @dialog.execute_script("initState(#{breaking_force}, #{stiffness})")
   end
 
   def register_callbacks
@@ -120,12 +132,16 @@ class ActuatorMenu
       @simulation_tool.pressurize_generic_link
     end
 
-    @dialog.add_action_callback('expand_actuator') do |_context, id|
-      @simulation_tool.expand_actuator(id)
-    end
+    # @dialog.add_action_callback('expand_actuator') do |_context, id|
+    #   @simulation_tool.expand_actuator(id)
+    # end
 
-    @dialog.add_action_callback('retract_actuator') do |_context, id|
-      @simulation_tool.retract_actuator(id)
+    # @dialog.add_action_callback('retract_actuator') do |_context, id|
+    #   @simulation_tool.retract_actuator(id)
+    # end
+
+    @dialog.add_action_callback('move_joint') do |_context, id, next_value, duration|
+      @simulation_tool.move_joint(id, next_value, duration)
     end
 
     @dialog.add_action_callback('stop_actuator') do |_context, id|
@@ -134,6 +150,10 @@ class ActuatorMenu
 
     @dialog.add_action_callback('set_dialog_size') do |_, width, height|
       set_dialog_size(width, height)
+    end
+
+    @dialog.add_action_callback('set_stiffness') do |_, stiffness|
+      @simulation_tool.set_stiffness(stiffness)
     end
   end
 end
