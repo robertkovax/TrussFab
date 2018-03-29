@@ -162,7 +162,7 @@ class SimulationTool < Tool
   end
 
   def change_piston_value(id, value)
-    @simulation.change_piston_value(id, value)
+    @simulation.change_piston_value(id, value) unless @simulation.nil?
   end
 
   def test_piston(id)
