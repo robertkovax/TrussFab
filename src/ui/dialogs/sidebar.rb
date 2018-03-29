@@ -19,7 +19,7 @@ class Sidebar
     num_icons_in_row = 3
     icon_width = 54
     body_padding = 4
-    magic_distance = 4 * 9
+    magic_distance = 4 * 9 + 12
 
 
     @width = num_icons_in_row * icon_width + body_padding + magic_distance
@@ -30,7 +30,7 @@ class Sidebar
       :width => @width,
       :height => @height,
       :left => 0,
-      :top => 100
+      :top => 120
       # :min_width => @width,
       # :min_height => @height,
       # :max_width => @width,
@@ -41,7 +41,7 @@ class Sidebar
     file = File.join(File.dirname(__FILE__), @HTML_FILE)
     @dialog.set_file(file)
     # @dialog.set_siSkeze(Configuration::UI_WIDTH, Configuration::UI_HEIGHT)
-    @dialog.set_position(0, 0)
+    #@dialog.set_position(0, 0)
     @dialog.show
     @dialog.add_action_callback('documentReady') { register_callbacks }
     @dialog.add_action_callback('buttonClicked') do |_, button_id|

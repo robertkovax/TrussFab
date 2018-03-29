@@ -6,7 +6,7 @@ class ActuatorMenu
   def initialize
     @HTML_FILE = '../piston-scheduler/build/index.html'
     @simulation_tool = SimulationTool.new(self)
-    @width = 440
+    @width = 455
     @height = 300
   end
 
