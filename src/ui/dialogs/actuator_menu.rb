@@ -31,6 +31,7 @@ class ActuatorMenu
     file = File.join(File.dirname(__FILE__), @HTML_FILE)
     @dialog.set_file(file)
     @dialog.set_position(left, top)
+    @dialog.set_size(@width, @height)
     @dialog.show
 
     register_callbacks

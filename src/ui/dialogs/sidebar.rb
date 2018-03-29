@@ -1,7 +1,7 @@
 ProjectHelper.require_multiple('src/tools/*.rb')
 
 class Sidebar
-  attr_reader :width, :height
+  attr_reader :width, :height, :top, :left
 
   attr_accessor :actuator_menu
 
@@ -21,16 +21,18 @@ class Sidebar
     body_padding = 4
     magic_distance = 4 * 9 + 12
 
-
     @width = num_icons_in_row * icon_width + body_padding + magic_distance
     @height = 660
+
+    @top = 120
+    @left = 0
 
     props = {
       :resizable => true,
       :width => @width,
       :height => @height,
-      :left => 0,
-      :top => 120
+      :left => @left,
+      :top => @top
       # :min_width => @width,
       # :min_height => @height,
       # :max_width => @width,
@@ -40,8 +42,9 @@ class Sidebar
     @dialog = UI::HtmlDialog.new(props)
     file = File.join(File.dirname(__FILE__), @HTML_FILE)
     @dialog.set_file(file)
-    # @dialog.set_siSkeze(Configuration::UI_WIDTH, Configuration::UI_HEIGHT)
-    #@dialog.set_position(0, 0)
+    # @dialog.set_siSkeze(Configuration::UI_WIDsTH, Configuration::UI_HEIGHT)
+    @dialog.set_position(@left, @top)
+    @dialog.set_size(@width, @height)
     @dialog.show
     @dialog.add_action_callback('documentReady') { register_callbacks }
     @dialog.add_action_callback('buttonClicked') do |_, button_id|
