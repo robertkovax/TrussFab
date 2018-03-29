@@ -16,14 +16,14 @@ class Sidebar
   end
 
   def open_dialog
-    num_icons_in_row = 4
+    num_icons_in_row = 3
     icon_width = 54
     body_padding = 4
     magic_distance = 4 * 9
 
 
     @width = num_icons_in_row * icon_width + body_padding + magic_distance
-    @height = 740
+    @height = 660
 
     props = {
       :resizable => false,

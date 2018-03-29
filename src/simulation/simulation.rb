@@ -586,12 +586,12 @@ class Simulation
     model = Sketchup.active_model
     model.start_operation('Toggle Force Labeles', true)
     if @paused
-      reset_force_labels
+      # reset_force_labels
       start
     else
       # note(tim): I'm not sure if we want to do this on pause. There should
       # probable be another mode that shows the force labels.
-      update_force_labels
+      # update_force_labels
       @paused = true
     end
     model.commit_operation

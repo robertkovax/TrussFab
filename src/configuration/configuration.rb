@@ -100,8 +100,8 @@ module Configuration
   ELONGATION_COLOR          = Sketchup::Color.new(0.69, 0.75, 0.81)
 
   # Ground Stuff
-  GROUND_COLOR          = Sketchup::Color.new(240, 240, 240)
-  GROUND_ALPHA          = 0.2
+  GROUND_COLOR          = Sketchup::Color.new(1, 1, 1)
+  GROUND_ALPHA          = 0.0
   GROUND_SIZE           = 10000 # in inches
   GROUND_HEIGHT         = 0.01 # in inches
   GROUND_THICKNESS      = 20.0 # in inches
@@ -116,8 +116,8 @@ module Configuration
   WORLD_TIMESTEP        = 1.0 / 60 # in seconds
   WORLD_NUM_ITERATIONS  = ((1.0 / 60) / WORLD_TIMESTEP).to_i
   JOINT_SOLVER_MODEL    = 0 # 0 or 2
-  JOINT_STIFFNESS       = 0.9 # ratio (0.0 - 1.0)
-  JOINT_BREAKING_FORCE  = 1000 # (in Newtons)
+  JOINT_STIFFNESS       = 0.85 # ratio (0.0 - 1.0)
+  JOINT_BREAKING_FORCE  = 1500 # (in Newtons)
   BODY_STATIC_FRICITON  = 0.9
   BODY_KINETIC_FRICITON = 0.5
   BODY_ELASTICITY       = 0.1
@@ -125,9 +125,9 @@ module Configuration
   DRAG_FACTOR           = 10
 
   # PointToPointActuator Properties
-  ACTUATOR_RATE         = 1.0 # in m/s
+  ACTUATOR_RATE         = 0.5 # in m/s
   ACTUATOR_POWER        = 0.0 # in Newtons (0 indicates max)
-  ACTUATOR_REDUCTION    = 0.0 # ratio (0.0 - 1.0)
+  ACTUATOR_REDUCTION    = 0.1 # ratio (0.0 - 1.0)
   ACTUATOR_MIN          = -0.2 # in meters
   ACTUATOR_MAX          = 0.2 # in meters
   ACTUATOR_INIT_DIST    = 0.4

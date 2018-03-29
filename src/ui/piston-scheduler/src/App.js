@@ -33,7 +33,7 @@ class App extends Component {
     this.state = {
       pistons: [],
       keyframes: new Map(),
-      seconds: 5,
+      seconds: 8,
       timeSelection: new Map(),
       simulationPaused: true,
       timlineInterval: null,
@@ -45,7 +45,7 @@ class App extends Component {
       highestForceMode: false,
       peakForceMode: false,
       displayVol: false,
-      breakingForce: 1000,
+      breakingForce: 3000,
       stiffness: 90,
       simluationBrokeAt: null,
       simulationIsOnForValueTesting: false,
@@ -372,8 +372,10 @@ class App extends Component {
       .attr('y1', 0)
       .attr('x2', 0)
       .attr('y2', yAxis)
-      .style('stroke-width', 1)
-      .style('stroke', '#D3D3D3')
+      // .style('stroke-width', 1)
+      .style('stroke-width', 3)
+      // .style('stroke', '#D3D3D3')
+      .style('stroke', 'grey')
       .style('fill', 'none');
   };
 

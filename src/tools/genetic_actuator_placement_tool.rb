@@ -59,6 +59,9 @@ class GeneticActuatorPlacementTool < Tool
         closest_distance = distance
         best_piston = edge
       end
+      if distance < 50
+        return
+      end
       model.start_operation('reset simulation', true)
       simulation.reset
       simulation = nil
@@ -96,7 +99,7 @@ class GeneticActuatorPlacementTool < Tool
     return unless @moving
     @moving = false
     @desired_position = @mouse_input.position
-    test_pistons
+    # test_pistons
 
     view.invalidate
     reset
