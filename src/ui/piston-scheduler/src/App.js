@@ -189,6 +189,12 @@ class App extends Component {
     );
   };
 
+  _addAllTimeSelectionLines = () => {
+    this.state.pistons.forEach(x => this.addTimeSelectionForNewKeyFrame(x));
+  };
+
+  _removeAllTimeselection = () => d3.selectAll('line.timeSelection').remove();
+
   addTimeSelectionForNewKeyFrame = id => {
     console.log(id);
     const self = this;
@@ -307,6 +313,8 @@ class App extends Component {
     this._removeInterval();
     this._addInterval();
 
+    this._removeAllTimeselection();
+
     if (this.state.simulationIsPausedAfterOnce) restartSimulation();
     else toggleSimulation();
 
@@ -422,6 +430,7 @@ class App extends Component {
       return;
     }
 
+    this._addAllTimeSelectionLines();
     toggleSimulation();
     this.resetState();
   };
