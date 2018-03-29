@@ -25,12 +25,64 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
   <title>Actuator Scheduling</title>
+  <style>
+    .fix-button {
+      width: auto !important;
+      color: black !important;
+    }
+
+    .modal-header {
+      justify-content: center
+    }
+
+    h5 {
+      font-size: 1rem;
+    }
+
+    .modal-dialog {
+      margin: 40px;
+    }
+  </style>
 </head>
 
 <body>
   <noscript>
     You need to enable JavaScript to run this app.
   </noscript>
+  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">
+            Your Model Broke!
+          </h5>
+        </div>
+        <div class="modal-body">
+          <div style="margin: 0 auto; width: 130px;">
+            <input type="radio" id="contactChoice1" name="contact" value="email" checked="checked">
+            <label for="contactChoice1">Reduce Speed</label>
+            <br>
+            <input type="radio" id="contactChoice2" name="contact" value="phone">
+            <label for="contactChoice2">Reduce Movement</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div style="margin: 0 auto; width: 130px;">
+            <button type="button" class="btn btn-primary fix-button" style="margin-right: 10px !important" onclick="specialspecial()"
+              data-dismiss="modal">
+              Repair
+            </button>
+            <button type="button" class="btn btn-secondary fix-button" data-dismiss="modal">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    window.showModal = function () { $('#exampleModal').modal() }
+  </script>
   <div id="root" />
   <script src="../../node_modules/jquery/dist/jquery.slim.min.js"></script>
   <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

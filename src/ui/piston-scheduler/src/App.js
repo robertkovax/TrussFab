@@ -49,6 +49,7 @@ class App extends Component {
       stiffness: 90,
       simluationBrokeAt: null,
       simulationIsOnForValueTesting: false,
+      oldKeyframesUIST: null,
     };
   }
 
@@ -60,6 +61,7 @@ class App extends Component {
     window.addPiston = this.addPiston;
     window.cleanupUiAfterStoppingSimulation = this.cleanupUiAfterStoppingSimulation;
     window.simulationJustBroke = this.simulationJustBroke;
+    window.specialspecial = this.spacialUISTupdate;
 
     document.addEventListener('keyup', e => {
       console.log(e);
@@ -76,6 +78,7 @@ class App extends Component {
 
   simulationJustBroke = () => {
     if (this.state.simluationBrokeAt === null) {
+      window.showModal();
       this.setState({ simluationBrokeAt: this.state.timelineCurrentTime });
     }
   };
@@ -117,15 +120,17 @@ class App extends Component {
     this.setState({ keyframes });
   };
 
+  _mapPointsToChart = kf => {
+    return [
+      kf.time * xAxis / this.state.seconds,
+      (1 - kf.value) * (yAxis - 8) + 4,
+    ];
+  };
+
   renderGraph = id => {
     const keyframes = this.state.keyframes.get(id) || [];
 
-    const points = keyframes.map(kf => {
-      return [
-        kf.time * xAxis / this.state.seconds,
-        (1 - kf.value) * (yAxis - 8) + 4,
-      ];
-    });
+    const points = keyframes.map(this._mapPointsToChart);
 
     const viewBox = `0 0 ${xAxis} ${yAxis}`;
     const pointsString = points.map(p => p.join(',')).join('\n');
@@ -151,6 +156,11 @@ class App extends Component {
       />
     ));
 
+    const greyOutPoints =
+      this.state.oldKeyframesUIST &&
+      this.state.oldKeyframesUIST.get(id) &&
+      this.state.oldKeyframesUIST.get(id).map(this._mapPointsToChart);
+
     return (
       <div style={{ position: 'relative' }}>
         {this.state.simluationBrokeAt !== null && (
@@ -160,6 +170,14 @@ class App extends Component {
           />
         )}
         <svg viewBox={viewBox} className="chart" id={`svg-${id}`}>
+          {greyOutPoints && (
+            <polyline
+              fill="none"
+              stroke="#D3D3D3"
+              strokeWidth="2"
+              points={greyOutPoints}
+            />
+          )}
           <polyline
             fill="none"
             stroke="#0074d9"
@@ -415,6 +433,28 @@ class App extends Component {
     }
   };
 
+  spacialUISTupdate = () => {
+    console.log('called');
+    const index = 0;
+    const pistonId = this.state.pistons[index];
+    const oldKeyframe = this.state.keyframes.get(pistonId);
+    const oldKeyframesUIST = new Map();
+    oldKeyframesUIST.set(pistonId, oldKeyframe);
+
+    const keyframes = this.state.keyframes;
+
+    const newKeyframe = oldKeyframe.map(x => {
+      return {
+        value: x.value,
+        time: x.time * 2 < this.state.seconds ? x.time * 2 : this.state.seconds,
+      };
+    });
+
+    keyframes.set(pistonId, newKeyframe);
+
+    this.setState({ oldKeyframesUIST, keyframes });
+  };
+
   resetState = () => {
     this._removeLines();
     clearInterval(this.state.timlineInterval);
@@ -575,8 +615,8 @@ class App extends Component {
                 });
               }}
             />
-            <div class="input-group-append">
-              <span class="input-group-text" id="basic-addon2">
+            <div className="input-group-append">
+              <span className="input-group-text" id="basic-addon2">
                 s
               </span>
             </div>
@@ -600,8 +640,8 @@ class App extends Component {
                 }
               }}
             />
-            <div class="input-group-append">
-              <span class="input-group-text" id="basic-addon2">
+            <div className="input-group-append">
+              <span className="input-group-text" id="basic-addon2">
                 N
               </span>
             </div>
@@ -623,8 +663,8 @@ class App extends Component {
                 setStiffness(event.target.value);
               }}
             />
-            <div class="input-group-append">
-              <span class="input-group-text" id="basic-addon2">
+            <div className="input-group-append">
+              <span className="input-group-text" id="basic-addon2">
                 %
               </span>
             </div>
