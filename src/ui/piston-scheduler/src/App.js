@@ -46,6 +46,7 @@ class App extends Component {
       breakingForce: 1000,
       stiffness: 90,
       simluationBrokeAt: null,
+      simulationIsOnForValueTesting: false,
     };
   }
 
@@ -189,6 +190,12 @@ class App extends Component {
     );
   };
 
+  _addAllTimeSelectionLines = () => {
+    this.state.pistons.forEach(x => this.addTimeSelectionForNewKeyFrame(x));
+  };
+
+  _removeAllTimeselection = () => d3.selectAll('line.timeSelection').remove();
+
   addTimeSelectionForNewKeyFrame = id => {
     console.log(id);
     const self = this;
@@ -244,7 +251,7 @@ class App extends Component {
           simulationPaused: true,
           timelineCurrentTime: 0,
           currentCycle: 0,
-          simulationIsPasusedAfterOnce: true,
+          simulationIsPausedAfterOnce: true,
         });
       } else {
         timelineCurrentTime = 0;
@@ -307,8 +314,18 @@ class App extends Component {
     this._removeInterval();
     this._addInterval();
 
-    if (this.state.simulationIsPausedAfterOnce) restartSimulation();
-    else toggleSimulation();
+    this._removeAllTimeselection();
+
+    if (this.state.simulationIsPausedAfterOnce) {
+      restartSimulation();
+    } else {
+      if (this.state.simulationIsOnForValueTesting) {
+        restartSimulation();
+        this.setState({ simulationIsOnForValueTesting: false });
+      } else {
+        toggleSimulation();
+      }
+    }
 
     // TODO
     setBreakingForce(this.state.breakingForce);
@@ -415,6 +432,13 @@ class App extends Component {
       simulationIsPausedAfterOnce,
     } = this.state;
 
+    console.log('state', this.state);
+    if (this.state.simulationIsOnForValueTesting) {
+      toggleSimulation();
+      this.setState({ simulationIsOnForValueTesting: false });
+      return;
+    }
+
     if (
       !(startedSimulationOnce || startedSimulationCycle) &&
       !simulationIsPausedAfterOnce
@@ -422,6 +446,7 @@ class App extends Component {
       return;
     }
 
+    this._addAllTimeSelectionLines();
     toggleSimulation();
     this.resetState();
   };
@@ -674,19 +699,15 @@ class App extends Component {
             <input
               type="range"
               onChange={event => {
-                if (simulationIsRunning)
-                  changePistonValue(x, parseFloat(event.target.value) / 100);
-                else {
-                  // // this.toggelSimulation();
-                  // toggleSimulation();
-                  // setTimeout(() => {
-                  //   changePistonValue(x, parseFloat(event.target.value));
-                  // }, 1000);
-                  // // this._togglePause();
-                  // setTimeout(() => {
-                  //   this.setState({ simulationIsPausedAfterOnce: true });
-                  //   // togglePauseSimulation();
-                  // }, 1000);
+                const fixedValue = parseFloat(event.target.value) / 100;
+                if (simulationIsRunning) {
+                  changePistonValue(x, fixedValue);
+                } else {
+                  if (!this.state.simulationIsOnForValueTesting) {
+                    this.setState({ simulationIsOnForValueTesting: true });
+                    toggleSimulation();
+                  }
+                  changePistonValue(x, fixedValue);
                 }
               }}
             />
