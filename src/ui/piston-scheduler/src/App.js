@@ -434,25 +434,25 @@ class App extends Component {
   };
 
   spacialUISTupdate = () => {
-    console.log('called');
-    const index = 0;
-    const pistonId = this.state.pistons[index];
-    const oldKeyframe = this.state.keyframes.get(pistonId);
-    const oldKeyframesUIST = new Map();
-    oldKeyframesUIST.set(pistonId, oldKeyframe);
+    this.state.pistons.forEach(pistonId => {
+      const oldKeyframe = this.state.keyframes.get(pistonId);
+      const oldKeyframesUIST = new Map();
+      oldKeyframesUIST.set(pistonId, oldKeyframe);
 
-    const keyframes = this.state.keyframes;
+      const keyframes = this.state.keyframes;
 
-    const newKeyframe = oldKeyframe.map(x => {
-      return {
-        value: x.value,
-        time: x.time * 2 < this.state.seconds ? x.time * 2 : this.state.seconds,
-      };
+      const newKeyframe = oldKeyframe.map(x => {
+        return {
+          value: x.value,
+          time:
+            x.time * 2 < this.state.seconds ? x.time * 2 : this.state.seconds,
+        };
+      });
+
+      keyframes.set(pistonId, newKeyframe);
+
+      this.setState({ oldKeyframesUIST, keyframes });
     });
-
-    keyframes.set(pistonId, newKeyframe);
-
-    this.setState({ oldKeyframesUIST, keyframes });
   };
 
   resetState = () => {
