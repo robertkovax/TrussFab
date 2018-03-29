@@ -62,6 +62,7 @@ class App extends Component {
     window.cleanupUiAfterStoppingSimulation = this.cleanupUiAfterStoppingSimulation;
     window.simulationJustBroke = this.simulationJustBroke;
     window.specialspecial = this.spacialUISTupdate;
+    window.initState = this.initState;
 
     document.addEventListener('keyup', e => {
       console.log(e);
@@ -775,7 +776,10 @@ class App extends Component {
               }}
             />
             <button onClick={this.addKeyframe} className="add-new-kf" id={x}>
-              +
+              <img
+                style={DEV ? {} : { height: 15, width: 15 }}
+                src="../../assets/icons/rhombus.png"
+              />
             </button>
           </div>
         </div>

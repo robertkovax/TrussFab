@@ -52,7 +52,7 @@ button:not(.add-new-kf) {
 
 .add-new-kf {
   margin-left: 30px !important;
-  width: 30px !important;
+  width: auto !important;
   position: relative;
   bottom: 10px;
 }
