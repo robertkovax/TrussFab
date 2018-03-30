@@ -53,9 +53,9 @@ class App extends Component {
     };
   }
 
-  initState(breakingForce, stiffness) {
+  initState = (breakingForce, stiffness) => {
     this.setState({ breakingForce, stiffness });
-  }
+  };
 
   componentDidMount() {
     window.addPiston = this.addPiston;
