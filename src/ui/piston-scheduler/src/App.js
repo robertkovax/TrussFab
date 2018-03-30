@@ -23,7 +23,7 @@ import {
 
 const xAxis = 300;
 const yAxis = 50;
-const timelineStepSeconds = 10;
+const timelineStepSeconds = 100; // this affects how smooth the line should be
 
 const DEV = false;
 
