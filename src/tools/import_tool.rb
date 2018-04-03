@@ -53,7 +53,6 @@ class ImportTool < Tool
   end
 
   def intersecting?(old_triangles, new_triangles)
-    Sketchup.active_model.start_operation('check if objects are intersecting', true)
     old_triangles.each do |old_triangle|
       new_bounds = Geom::BoundingBox.new
       new_triangles.each do |new_triangle|
@@ -82,13 +81,12 @@ class ImportTool < Tool
         end
       end
     end
-    Sketchup.active_model.commit_operation
     puts('Add object on the ground')
     false
   end
 
   def delete_edges(edges)
-    Sketchup.active_model.start_operation('delete edges', true, false, true)
+    Sketchup.active_model.start_operation('delete edges', true)
     edges.each(&:delete)
     Sketchup.active_model.commit_operation
   end

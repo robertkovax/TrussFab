@@ -18,14 +18,12 @@ class PhysicsLinkModel
   end
 
   def create_cylinder(name, diameter)
-    Sketchup.active_model.start_operation('PhysicsLink: Create Cylinder')
     definition = Sketchup.active_model.definitions.add(name)
     circle_edgearray = definition.entities.add_circle(@center,
                                                       @up_vector,
                                                       diameter, 12)
     face = definition.entities.add_face(circle_edgearray)
     face.pushpull(-2 * @length / 3, false)
-    Sketchup.active_model.commit_operation
     definition
   end
 

@@ -80,7 +80,6 @@ class SimulationTool < Tool
     force = @start_position.vector_to(@end_position)
     force.length *= Configuration::DRAG_FACTOR unless force.length == 0
     @simulation.add_force_to_node(@node, force)
-    view.invalidate
   end
 
   def update(view, x, y)
@@ -123,14 +122,16 @@ class SimulationTool < Tool
   end
 
   def draw(view)
-    view.model.start_operation('SimTool: Draw', true, false, true)
-
     if !simulation.nil? && @simulation.broken?
       @ui.simulation_broke
     end
 
+    view.model.start_operation('SimTool: Apply Force', true)
     apply_force(view)
+    view.model.commit_operation
+
     return if @start_position.nil? || @end_position.nil?
+    view.model.start_operation('SimTool: Draw', true)
     view.line_stipple = '_'
     view.draw_lines(@start_position, @end_position)
     force_value = (@start_position.vector_to(@end_position).length * Configuration::DRAG_FACTOR).round(1).to_s

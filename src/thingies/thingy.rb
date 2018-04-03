@@ -32,28 +32,28 @@ class Thingy
   end
 
   def transform(transformation)
-    Sketchup.active_model.start_operation('Transform', true, false, true)
+    Sketchup.active_model.start_operation('Transform', true)
     @entity.transform!(transformation) if @entity && @entity.valid?
     @sub_thingies.each { |thingy| thingy.transform(transformation) }
     Sketchup.active_model.commit_operation
   end
 
   def change_color(color)
-    Sketchup.active_model.start_operation('Change Color', true, false, true)
+    Sketchup.active_model.start_operation('Change Color', true)
     @entity.material = color if @entity && @entity.valid?
     @sub_thingies.each { |thingy| thingy.change_color(color) }
     Sketchup.active_model.commit_operation
   end
 
   def hide
-    Sketchup.active_model.start_operation('Hide', true, false, true)
+    Sketchup.active_model.start_operation('Hide', true)
     @entity.hidden = true if @entity && @entity.valid?
     @sub_thingies.each(&:hide)
     Sketchup.active_model.commit_operation
   end
 
   def show
-    Sketchup.active_model.start_operation('Unhide', true, false, true)
+    Sketchup.active_model.start_operation('Unhide', true)
     @entity.hidden = false if @entity && @entity.valid?
     @sub_thingies.each(&:show)
     Sketchup.active_model.commit_operation
@@ -64,24 +64,20 @@ class Thingy
   end
 
   def material=(material)
-    Sketchup.active_model.start_operation("Thingy: Change Material", true, false, true)
+    Sketchup.active_model.start_operation("Thingy: Change Material", true)
     @entity.material = material if @entity && @entity.valid?
     @sub_thingies.each { |thingy| thingy.material = material }
     Sketchup.active_model.commit_operation
   end
 
   def highlight(highlight_material = @highlight_material)
-    Sketchup.active_model.start_operation("Thingy: Highlight", true, false, true)
     @entity.material = highlight_material if @entity && @entity.valid?
     @sub_thingies.each { |thingy| thingy.highlight(highlight_material) }
-    Sketchup.active_model.commit_operation
   end
 
   def un_highlight
-    Sketchup.active_model.start_operation("Thingy: Unhighlight", true, false, true)
     @entity.material = @material if @entity && @entity.valid?
     @sub_thingies.each(&:un_highlight)
-    Sketchup.active_model.commit_operation
   end
 
   def delete_entity
@@ -90,12 +86,10 @@ class Thingy
   end
 
   def delete
-    Sketchup.active_model.start_operation('Delete', true, false, true)
     delete_sub_thingies
     delete_entity
     @parent.remove(self) unless @parent.nil?
     @deleted = true
-    Sketchup.active_model.commit_operation
   end
 
   def deleted?
@@ -130,9 +124,7 @@ class Thingy
 
   def persist_entity(type: self.class.to_s, id: self.id)
     return if @entity.nil?
-    Sketchup.active_model.start_operation('Persist', true, false, true)
     @entity.set_attribute('attributes', :type, type)
     @entity.set_attribute('attributes', :id, id)
-    Sketchup.active_model.commit_operation
   end
 end

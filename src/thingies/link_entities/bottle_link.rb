@@ -13,13 +13,11 @@ class BottleLink < Thingy
   end
 
   def change_color(color)
-    Sketchup.active_model.start_operation('Bottle Link: Change color', true, false, true)
     @entity.definition.entities.each do |ent|
       if ent.material != color
         ent.material = color
       end
     end
-    Sketchup.active_model.commit_operation
   end
 
   def highlight(highlight_material = @highlight_material)
@@ -33,7 +31,6 @@ class BottleLink < Thingy
   private
 
   def create_entity
-    Sketchup.active_model.start_operation('Bottle Link: Create', true, false, true)
     return @entity if @entity
     translation = Geom::Transformation.translation(@position)
 
@@ -45,7 +42,6 @@ class BottleLink < Thingy
 
     entity = Sketchup.active_model.active_entities.add_instance(@model.definition, transformation)
     entity.layer = Configuration::COMPONENT_VIEW
-    Sketchup.active_model.commit_operation
     entity.make_unique
   end
 end

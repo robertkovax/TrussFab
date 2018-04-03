@@ -44,11 +44,9 @@ class Graph
 end
 
 def create_edge_from_points(first_position, second_position, model_name: 'hard', bottle_type: Configuration::BIG_BIG_BOTTLE_NAME, link_type: 'bottle_link')
-  Sketchup.active_model.start_operation('create edge', true, false, true)
   first_node = create_node(first_position)
   second_node = create_node(second_position)
   edge = create_edge(first_node, second_node, model_name: model_name, bottle_type: bottle_type, link_type: link_type)
-  Sketchup.active_model.commit_operation
   edge
 end
 
@@ -64,14 +62,12 @@ def create_edge(first_node, second_node, model_name: 'hard', bottle_type: Config
 end
 
 def create_surface_from_points(first_position, second_position, third_position, model_name: 'hard', bottle_type: Configuration::BIG_BIG_BOTTLE_NAME, link_type: 'bottle_link')
-  Sketchup.active_model.start_operation('create surface', true, false, true)
   first_node = create_node(first_position)
   second_node = create_node(second_position)
   third_node = create_node(third_position)
   create_edge(first_node, second_node, model_name: model_name, bottle_type: bottle_type, link_type: link_type)
   create_edge(second_node, third_node, model_name: model_name, bottle_type: bottle_type, link_type: link_type)
   create_edge(first_node, third_node, model_name: model_name, bottle_type: bottle_type, link_type: link_type)
-  Sketchup.active_model.commit_operation
 end
 
 def create_surface(first_node, second_node, third_node)
@@ -88,11 +84,9 @@ def create_possible_surfaces(edge)
   second_node = edge.second_node
   first_other_nodes = first_node.adjacent_nodes
   second_other_nodes = second_node.adjacent_nodes
-  Sketchup.active_model.start_operation('create possible surfaces', true, false, true)
   (first_other_nodes & second_other_nodes).each do |node|
     create_surface(first_node, second_node, node)
   end
-  Sketchup.active_model.commit_operation
 end
 
 #

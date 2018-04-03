@@ -22,7 +22,6 @@ class Elongation < Thingy
 
   def create_entity
     return @entity if @entity
-    Sketchup.active_model.start_operation('Create Elongation', true, false, true)
     scale = Geom::Transformation.scaling(@radius, @radius, length)
     translation = Geom::Transformation.translation(@position)
 
@@ -35,7 +34,6 @@ class Elongation < Thingy
     entity = Sketchup.active_model.entities.add_instance(@model.definition, transformation)
     entity.material = @material
     entity.layer = @layer
-    Sketchup.active_model.commit_operation
     entity
   end
 end

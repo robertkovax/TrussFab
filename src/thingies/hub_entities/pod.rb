@@ -50,10 +50,8 @@ class Pod < Thingy
   def create_entity
     transformation = rotation * translation
 
-    Sketchup.active_model.start_operation('Create Pod', true, false, true)
     entity = Sketchup.active_model.active_entities.add_instance(@model.definition, transformation)
     entity.material = @material
-    Sketchup.active_model.commit_operation
     entity
   end
 end

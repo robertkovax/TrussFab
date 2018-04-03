@@ -64,7 +64,6 @@ class App extends Component {
     window.specialspecial = this.spacialUISTupdate;
 
     document.addEventListener('keyup', e => {
-      console.log(e);
       // ESC
       if (e.keyCode === 27) {
         this.stopSimulation();
@@ -84,8 +83,6 @@ class App extends Component {
   };
 
   addPiston = id => {
-    console.log('new piston added', id);
-
     // const id = this.state.pistons.length;
     const oldKeyframes = this.state.keyframes;
     this.setState({
@@ -217,7 +214,6 @@ class App extends Component {
   _removeAllTimeselection = () => d3.selectAll('line.timeSelection').remove();
 
   addTimeSelectionForNewKeyFrame = id => {
-    console.log(id);
     const self = this;
 
     function scrubLine() {
@@ -434,7 +430,6 @@ class App extends Component {
   };
 
   spacialUISTupdate = () => {
-    console.log('called');
     const index = 0;
     const pistonId = this.state.pistons[index];
     const oldKeyframe = this.state.keyframes.get(pistonId);
@@ -476,7 +471,6 @@ class App extends Component {
       simulationIsPausedAfterOnce,
     } = this.state;
 
-    console.log('state', this.state);
     if (this.state.simulationIsOnForValueTesting) {
       toggleSimulation();
       this.setState({ simulationIsOnForValueTesting: false });
@@ -589,7 +583,6 @@ class App extends Component {
               value={this.state.seconds}
               onChange={event => {
                 const newSeconds = parseFloat(event.target.value);
-                console.log('newSeconds', newSeconds);
                 if (newSeconds == null || isNaN(newSeconds)) return;
                 const ratio = newSeconds / this.state.seconds;
                 // fix old values

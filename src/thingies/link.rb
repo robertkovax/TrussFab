@@ -78,7 +78,7 @@ class Link < PhysicsThingy
   end
 
   def add_sensor_symbol
-    Sketchup.active_model.start_operation('Add Sensor Symbol', true, false, true)
+    Sketchup.active_model.start_operation('Add Sensor Symbol', true)
     point = mid_point
     model = ModelStorage.instance.models['sensor']
     # s**t ton of transformation to align the image exactly with the bottle direction, which is
@@ -131,7 +131,6 @@ class Link < PhysicsThingy
   #
 
   def update_link_transformations
-    Sketchup.active_model.start_operation('Update Link Transformation', true, false, true)
     pt1 = @first_node.thingy.entity.bounds.center
     pt2 = @second_node.thingy.entity.bounds.center
     pt3 = Geom::Point3d.linear_combination(0.5, pt1, 0.5, pt2)
@@ -156,7 +155,6 @@ class Link < PhysicsThingy
     bottle.entity.move!(t3)
 
     move_sensor_symbol(pt3)
-    Sketchup.active_model.commit_operation
   end
 
   def create_joints(world, first_node, second_node, breaking_force)
@@ -183,20 +181,16 @@ class Link < PhysicsThingy
   #
 
   def connect_to_hub
-    Sketchup.active_model.start_operation('Link: Connect To Hub', true, false, true)
     @first_elongation.show if @first_elongation
     @second_elongation.show if @second_elongation
-    Sketchup.active_model.commit_operation
   end
 
   def disconnect_from_hub(is_first_joint)
-    Sketchup.active_model.start_operation('Link: Connect To Hub', true, false, true)
     if is_first_joint
       @first_elongation.hide if @first_elongation
     else
       @second_elongation.hide if @second_elongation
     end
-    Sketchup.active_model.commit_operation
   end
 
   def bottle_link
@@ -204,7 +198,6 @@ class Link < PhysicsThingy
   end
 
   def create_sub_thingies
-    Sketchup.active_model.start_operation('Link: Create Subthingies', true, false, true)
     @first_elongation_length =
       @second_elongation_length =
       Configuration::MINIMUM_ELONGATION
@@ -231,6 +224,5 @@ class Link < PhysicsThingy
         BottleLink.new(link_position, direction, @model),
         Line.new(@position, @second_position, LINK_LINE),
         @second_elongation)
-    Sketchup.active_model.commit_operation
   end
 end

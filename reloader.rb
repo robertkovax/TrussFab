@@ -42,7 +42,7 @@ class Reloader
   end
 
   def frontend_files
-    src_path = File.join(__dir__, 'src')
+    src_path = File.join(__dir__, 'src/ui')
     file_pattern_js = File.join(src_path, '**', '*.js')
     file_pattern_html = File.join(src_path, '**', '*.html')
     file_pattern_erb = File.join(src_path, '**', '*.erb')

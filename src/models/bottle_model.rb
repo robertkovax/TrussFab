@@ -48,7 +48,6 @@ class BottleModel
   private
 
   def create_model(specification)
-    Sketchup.active_model.start_operation('Bottle Model: Create', true, false, true)
     components = Sketchup.active_model.definitions # Sketchup Component Definitions
     name = specification[:NAME]
     if components[name]
@@ -57,7 +56,6 @@ class BottleModel
       definition = components.load specification[:PATH]
       model = Bottle.new(name, specification[:WEIGHT], definition, self)
     end
-    Sketchup.active_model.commit_operation
     model
   end
 end

@@ -16,19 +16,19 @@ module JsonImport
     end
 
     def at_position(path, position)
-      Sketchup.active_model.start_operation('Import', true)
+      # Sketchup.active_model.start_operation('Import', true)
       json_objects = load_json(path)
       points = build_points(json_objects, position, distance_to_ground(json_objects))
       edges, nodes = build_edges(json_objects, points)
       triangles = create_triangles(edges)
       add_joints(json_objects, edges, nodes) unless json_objects['joints'].nil?
       add_pods(json_objects, nodes)
-      Sketchup.active_model.commit_operation
+      # Sketchup.active_model.commit_operation
       [triangles.values, edges.values]
     end
 
     def at_triangle(path, snap_triangle)
-      Sketchup.active_model.start_operation('Import', true)
+      # Sketchup.active_model.start_operation('Import', true)
       json_objects = load_json(path)
 
       # retrieve points from json
@@ -91,7 +91,7 @@ module JsonImport
       edges, nodes = build_edges(json_objects, json_points)
       triangles = create_triangles(edges)
       add_joints(json_objects, edges, nodes) unless json_objects['joints'].nil?
-      Sketchup.active_model.commit_operation
+      # Sketchup.active_model.commit_operation
       [triangles.values, edges.values]
     end
 

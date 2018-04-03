@@ -506,7 +506,7 @@ class Simulation
         next_position_normalized = piston.max * next_position.to_f + piston.min * (1 - next_position.to_f)
         current_postion = joint.cur_distance - joint.start_distance
         position_distance = (current_postion - next_position_normalized).abs
-        rate = (position_distance / duration * 2)
+        rate = (position_distance / duration * 4)
         joint.rate = rate > 0.001 ? rate : piston.rate #put it on "holding force"
         joint.controller = next_position_normalized
       end
@@ -599,7 +599,7 @@ class Simulation
 
   def restart
     @sensors.each do |sensor|
-      @sensor_dialog.execute_script("resetChart(#{sensor.id})") unless @sensor_dialog.nil?
+      @sensor_dialog.reset_chart(sensor.id) unless @sensor_dialog.nil?
     end
     reset
     setup
@@ -633,11 +633,13 @@ class Simulation
       # We need to record this every time the world updates, otherwise, we might skip the crucial forces involved
       rec_max_actuator_tensions
       rec_max_link_tensions if @peak_force_mode
+      Sketchup.active_model.start_operation('Sim: Visualize force', true, false, true)
       if @highest_force_mode
         visualize_highest_tension
       else
         visualize_tensions
       end
+      Sketchup.active_model.commit_operation
     end
   end
 
@@ -658,17 +660,19 @@ class Simulation
       # We need to record this every time the world updates, otherwise, we might skip the crucial forces involved
       rec_max_actuator_tensions
       rec_max_link_tensions if @peak_force_mode
+      Sketchup.active_model.start_operation('Sim: Visualize force', true, false, true)
       if @highest_force_mode
         visualize_highest_tension
       else
         visualize_tensions
       end
+      Sketchup.active_model.commit_operation
     end
   end
 
   def update_entities
     model = Sketchup.active_model
-    model.start_operation('Update Entities', true, false, true)
+    model.start_operation('Update Entities', true)
     @world.update_group_transformations
     Graph.instance.edges.each do |id, edge|
       link = edge.thingy
@@ -681,37 +685,26 @@ class Simulation
   end
 
   def update_hub_addons
-    model = Sketchup.active_model
-    model.start_operation('Update Hub Addons', true, false, true)
     Graph.instance.nodes.values.each do |node|
       node.thingy.move_addons(node.position)
     end
-    model.commit_operation
   end
 
   def reset_force_arrows
-    model = Sketchup.active_model
-    model.start_operation('Reset Force Arrows', true, false, true)
     Graph.instance.nodes.values.each do |node|
       node.thingy.reset_addon_positions
     end
-    model.commit_operation
   end
 
   def reset_sensor_symbols
-    model = Sketchup.active_model
-    model.start_operation('Reset Sensor Symbols', true, false, true)
     Graph.instance.edges.each_value do |edge|
       edge.thingy.reset_sensor_symbol_position
     end
-    model.commit_operation
   end
 
   def nextFrame(view)
     model = view.model
     return @running unless (@running && !@paused)
-
-    model.start_operation('Simulation', true, false, true)
 
     update_world
     update_hub_addons
@@ -728,7 +721,6 @@ class Simulation
     update_status_text
 
     view.show_frame
-    model.commit_operation
     @running
   end
 
@@ -749,12 +741,13 @@ class Simulation
   def open_sensor_dialog
     collect_sensors
     return if @sensors.empty?
-    @sensor_dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
-    file_content = File.read(File.join(File.dirname(__FILE__), '../ui/html/sensor_overview.erb'))
-    template = ERB.new(file_content)
-    @sensor_dialog.set_html(template.result(binding))
-    @sensor_dialog.set_size(300, Configuration::UI_HEIGHT)
-    @sensor_dialog.show
+    @sensor_dialog = ForceChart.new(@sensors) #UI::HtmlDialog.new(Configuration::HTML_DIALOG)
+    @sensor_dialog.open_dialog
+    # file_content = File.read(File.join(File.dirname(__FILE__), '../ui/html/sensor_overview.erb'))
+    # template = ERB.new(file_content)
+    # @sensor_dialog.set_html(template.result(binding))
+    # @sensor_dialog.set_size(300, Configuration::UI_HEIGHT)
+    # @sensor_dialog.show
   end
 
   def close_sensor_dialog
@@ -778,11 +771,11 @@ class Simulation
     @sensors.each do |sensor|
       if sensor.is_a?(Hub)
         speed = sensor.body.get_velocity.length.to_f
-        @sensor_dialog.execute_script("updateSpeed('#{sensor.id}', '#{speed.round(2)} ')")
+        @sensor_dialog.update_speed(sensor.id, speed.round(2))
         accel = sensor.body.get_acceleration.length.to_f
-        @sensor_dialog.execute_script("updateAcceleration('#{sensor.id}', '#{accel.round(2)} ')")
+        @sensor_dialog.update_acceleration(sensor.id, accel.round(2))
       elsif sensor.is_a?(Link)
-        @sensor_dialog.execute_script("addChartData(#{sensor.id}, ' ', #{@max_actuator_tensions[sensor.id]})")
+        @sensor_dialog.add_chart_data(sensor.id, ' ', @max_actuator_tensions[sensor.id])
         @max_actuator_tensions[sensor.id] = 0
       end
     end
@@ -1004,7 +997,6 @@ class Simulation
   # Adds a label with the force value for each edge in the graph
   # Note: this must be wrapped in operation
   def update_force_labels
-    Sketchup.active_model.start_operation('update force label', true, false, true)
     Graph.instance.edges.each_value do |edge|
       link = edge.thingy
       next unless link.is_a?(Link) # this might unnecessary
@@ -1023,7 +1015,6 @@ class Simulation
       end
       update_force_label(link, tension, position)
     end
-    Sketchup.active_model.commit_operation
   end
 
   # Adds a label with the force value for a single edge

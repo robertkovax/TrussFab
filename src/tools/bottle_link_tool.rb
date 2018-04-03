@@ -26,7 +26,7 @@ class BottleLinkTool < Tool
       second_position = @mouse_input.update_positions(view, x, y, point_on_plane_from_camera_normal: @first_position)
 
       puts 'Create single bottle link'
-      Sketchup.active_model.start_operation('Build Bottle Link', true, false, true)
+      Sketchup.active_model.start_operation('Build Bottle Link', true)
       Graph.instance.create_edge_from_points(@first_position,
                                              second_position)
       Sketchup.active_model.commit_operation
