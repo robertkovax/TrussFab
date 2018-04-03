@@ -734,7 +734,7 @@ class App extends Component {
                 togglePane();
               }}
             >
-              {this.state.collapsed ? 'Show' : 'Hide'}
+              {this.state.collapsed ? 'show' : 'hide'}
             </button>
           </div>
         </div>
