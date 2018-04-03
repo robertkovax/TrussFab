@@ -794,14 +794,14 @@ class App extends Component {
     return (
       <div className="row no-gutters">
         {this.renderControlls()}
-        <div className="col-8">
+        {!this.state.collapsed && <div className="col-8">
           <div className="App">
             {/* {this.state.startedSimulation && (
               <span>{(this.state.timelineCurrentTime / 1000).toFixed(1)}s</span>
             )} */}
             {pistons}
           </div>
-        </div>
+        </div>}
       </div>
     );
   }
