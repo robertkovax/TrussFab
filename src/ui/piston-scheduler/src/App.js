@@ -6,6 +6,7 @@ import './App.css';
 import { toggleDiv } from './util';
 import { getInterpolationForTime } from './serious-math';
 import {
+  togglePane,
   toggleSimulation,
   moveJoint,
   restartSimulation,
@@ -23,7 +24,7 @@ import {
 
 const xAxis = 300;
 const yAxis = 50;
-const timelineStepSeconds = 10;
+const timelineStepSeconds = 100; // this affects how smooth the line should be
 
 const DEV = false;
 
@@ -50,18 +51,20 @@ class App extends Component {
       simluationBrokeAt: null,
       simulationIsOnForValueTesting: false,
       oldKeyframesUIST: null,
+      collapsed: true,
     };
   }
 
-  initState(breakingForce, stiffness) {
+  initState = (breakingForce, stiffness) => {
     this.setState({ breakingForce, stiffness });
-  }
+  };
 
   componentDidMount() {
     window.addPiston = this.addPiston;
     window.cleanupUiAfterStoppingSimulation = this.cleanupUiAfterStoppingSimulation;
     window.simulationJustBroke = this.simulationJustBroke;
     window.specialspecial = this.spacialUISTupdate;
+    window.initState = this.initState;
 
     document.addEventListener('keyup', e => {
       // ESC
@@ -430,24 +433,25 @@ class App extends Component {
   };
 
   spacialUISTupdate = () => {
-    const index = 0;
-    const pistonId = this.state.pistons[index];
-    const oldKeyframe = this.state.keyframes.get(pistonId);
-    const oldKeyframesUIST = new Map();
-    oldKeyframesUIST.set(pistonId, oldKeyframe);
+    this.state.pistons.forEach(pistonId => {
+      const oldKeyframe = this.state.keyframes.get(pistonId);
+      const oldKeyframesUIST = new Map();
+      oldKeyframesUIST.set(pistonId, oldKeyframe);
 
-    const keyframes = this.state.keyframes;
+      const keyframes = this.state.keyframes;
 
-    const newKeyframe = oldKeyframe.map(x => {
-      return {
-        value: x.value,
-        time: x.time * 2 < this.state.seconds ? x.time * 2 : this.state.seconds,
-      };
+      const newKeyframe = oldKeyframe.map(x => {
+        return {
+          value: x.value,
+          time:
+            x.time * 2 < this.state.seconds ? x.time * 2 : this.state.seconds,
+        };
+      });
+
+      keyframes.set(pistonId, newKeyframe);
+
+      this.setState({ oldKeyframesUIST, keyframes });
     });
-
-    keyframes.set(pistonId, newKeyframe);
-
-    this.setState({ oldKeyframesUIST, keyframes });
   };
 
   resetState = () => {
@@ -717,6 +721,16 @@ class App extends Component {
               />
             </button>
           </div>
+          <div className={DEV ? 'col' : 'some-padding-top'}>
+            <button
+              onClick={() => {
+                this.setState({ collapsed: !this.state.collapsed });
+                togglePane();
+              }}
+            >
+              {this.state.collapsed ? 'show' : 'hide'}
+            </button>
+          </div>
         </div>
         {DEV && this.renderForm()}
       </div>
@@ -768,7 +782,10 @@ class App extends Component {
               }}
             />
             <button onClick={this.addKeyframe} className="add-new-kf" id={x}>
-              +
+              <img
+                style={DEV ? {} : { height: 15, width: 15 }}
+                src="../../assets/icons/rhombus.png"
+              />
             </button>
           </div>
         </div>
