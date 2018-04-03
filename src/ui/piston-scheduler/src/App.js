@@ -6,6 +6,7 @@ import './App.css';
 import { toggleDiv } from './util';
 import { getInterpolationForTime } from './serious-math';
 import {
+  togglePane,
   toggleSimulation,
   moveJoint,
   restartSimulation,
@@ -50,6 +51,7 @@ class App extends Component {
       simluationBrokeAt: null,
       simulationIsOnForValueTesting: false,
       oldKeyframesUIST: null,
+      collapsed: true,
     };
   }
 
@@ -723,6 +725,16 @@ class App extends Component {
                 style={DEV ? {} : { height: 25, width: 25 }}
                 src="../../assets/icons/stop.png"
               />
+            </button>
+          </div>
+          <div className={DEV ? 'col' : 'some-padding-top'}>
+            <button
+              onClick={() => {
+                this.setState({ collapsed: !this.state.collapsed });
+                togglePane();
+              }}
+            >
+              {this.state.collapsed ? 'Show' : 'Hide'}
             </button>
           </div>
         </div>

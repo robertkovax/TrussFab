@@ -43,7 +43,12 @@ function changePistonValue(id, value) {
   window.sketchup.change_piston_value(id, value);
 }
 
+function togglePane() {
+  window.sketchup.animation_pane_toggle();
+}
+
 export {
+  togglePane,
   toggleSimulation,
   togglePauseSimulation,
   restartSimulation,

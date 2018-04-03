@@ -8,6 +8,9 @@ class ActuatorMenu
     @simulation_tool = SimulationTool.new(self)
     @width = 455
     @height = 300
+
+    @collapsed = true
+    @collapsed_width = 52
   end
 
   def open_dialog(sidebar_menu_width , sidebar_menu_height)
@@ -31,7 +34,7 @@ class ActuatorMenu
     file = File.join(File.dirname(__FILE__), @HTML_FILE)
     @dialog.set_file(file)
     @dialog.set_position(left, top)
-    @dialog.set_size(@width, @height)
+    @dialog.set_size(@collapsed_width, @height)
     @dialog.show
 
     register_callbacks
@@ -87,6 +90,15 @@ class ActuatorMenu
   end
 
   def register_callbacks
+    @dialog.add_action_callback('animation_pane_toggle') do |_|
+      if @collapsed
+        @dialog.set_size(@width, @height)
+      else
+        @dialog.set_size(@collapsed_width, @height)
+      end
+      @collapsed = !@collapsed
+    end
+
     @dialog.add_action_callback('toggle_simulation') do |_context|
       if @simulation_tool.simulation.nil? || @simulation_tool.simulation.stopped?
         start_simulation_setup_scripts
