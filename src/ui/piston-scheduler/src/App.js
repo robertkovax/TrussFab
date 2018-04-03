@@ -737,6 +737,14 @@ class App extends Component {
           <div className={DEV ? 'col' : 'some-padding-top'}>
             <button
               onClick={() => {
+                if (this.state.collapsed) {
+                  setTimeout(() => {
+                    this._addAllTimeSelectionLines();
+                  }, 100);
+                } else {
+                  this._removeAllTimeselection();
+                }
+
                 this.setState({ collapsed: !this.state.collapsed });
                 togglePane();
               }}
