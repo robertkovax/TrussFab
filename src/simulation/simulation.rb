@@ -89,7 +89,9 @@ class Simulation
     @peak_force_mode = false
 
     hinge_layer = Sketchup.active_model.layers.at(Configuration::HINGE_VIEW)
-    hinge_layer.visible = false
+    hinge_layer.visible = false unless hinge_layer.nil?
+
+    @sensor_output_csv = nil
 
     Graph.instance.edges.each_value do |edge|
       edge.thingy.connect_to_hub
@@ -169,6 +171,8 @@ class Simulation
     @world.update_timestep = Configuration::WORLD_TIMESTEP
     @world.solver_model = Configuration::WORLD_SOLVER_MODEL
 
+    @sensor_output_csv = File.new("#{File.expand_path('~')}/#{Time.now.to_s}.log", "w")
+
     # create bodies for nodes (all edges will not have physics components to them)
     Graph.instance.nodes.each_value do |obj|
       obj.thingy.create_body(@world)
@@ -208,6 +212,8 @@ class Simulation
     rendering_options = model.rendering_options
 
     destroy_world
+
+    @sensor_output_csv.close
 
     model.start_operation('Resetting Simulation', true)
     begin
@@ -506,8 +512,10 @@ class Simulation
         next_position_normalized = piston.max * next_position.to_f + piston.min * (1 - next_position.to_f)
         current_postion = joint.cur_distance - joint.start_distance
         position_distance = (current_postion - next_position_normalized).abs
-        rate = (position_distance / duration * 4)
-        joint.rate = rate > 0.001 ? rate : piston.rate #put it on "holding force"
+        scale = 60.0 / (@fps)
+        scale = 1 if scale == Float::INFINITY
+        rate = (position_distance / duration * scale)
+        joint.rate = rate > 0.01 ? rate : piston.rate #put it on "holding force"
         joint.controller = next_position_normalized
       end
     }
@@ -584,17 +592,17 @@ class Simulation
 
   def toggle_pause
     model = Sketchup.active_model
-    model.start_operation('Toggle Force Labeles', true)
     if @paused
       # reset_force_labels
       start
     else
       # note(tim): I'm not sure if we want to do this on pause. There should
-      # probable be another mode that shows the force labels.
-      # update_force_labels
+      # probably be another mode that shows the force labels.
+      model.start_operation('update force label', true)
+      update_force_labels
+      model.commit_operation
       @paused = true
     end
-    model.commit_operation
   end
 
   def restart
@@ -703,7 +711,6 @@ class Simulation
   end
 
   def nextFrame(view)
-    model = view.model
     return @running unless (@running && !@paused)
 
     update_world
@@ -741,13 +748,8 @@ class Simulation
   def open_sensor_dialog
     collect_sensors
     return if @sensors.empty?
-    @sensor_dialog = ForceChart.new(@sensors) #UI::HtmlDialog.new(Configuration::HTML_DIALOG)
+    @sensor_dialog = ForceChart.new(@sensors)
     @sensor_dialog.open_dialog
-    # file_content = File.read(File.join(File.dirname(__FILE__), '../ui/html/sensor_overview.erb'))
-    # template = ERB.new(file_content)
-    # @sensor_dialog.set_html(template.result(binding))
-    # @sensor_dialog.set_size(300, Configuration::UI_HEIGHT)
-    # @sensor_dialog.show
   end
 
   def close_sensor_dialog
@@ -776,6 +778,7 @@ class Simulation
         @sensor_dialog.update_acceleration(sensor.id, accel.round(2))
       elsif sensor.is_a?(Link)
         @sensor_dialog.add_chart_data(sensor.id, ' ', @max_actuator_tensions[sensor.id])
+        @sensor_output_csv.write(@max_actuator_tensions[sensor.id].to_s + "\n")
         @max_actuator_tensions[sensor.id] = 0
       end
     end

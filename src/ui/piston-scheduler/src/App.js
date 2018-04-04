@@ -26,7 +26,7 @@ const xAxis = 300;
 const yAxis = 50;
 const timelineStepSeconds = 100; // this affects how smooth the line should be
 
-const DEV = false;
+const DEV = true;
 
 class App extends Component {
   constructor(props) {

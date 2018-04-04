@@ -158,7 +158,7 @@ module Configuration
   ELONGATION_MASS   = 0.0
   LINK_MASS         = 0.2
   PISTON_MASS       = 0.3
-  HUB_MASS          = 0.14
+  HUB_MASS          = 0.12
   POD_MASS          = 0.1
 
 end

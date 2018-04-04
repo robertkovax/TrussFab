@@ -7,6 +7,7 @@ class ActuatorMenu
     @HTML_FILE = '../piston-scheduler/build/index.html'
     @simulation_tool = SimulationTool.new(self)
     @width = 455
+    @width = 640
     @height = 300
 
     @collapsed = true

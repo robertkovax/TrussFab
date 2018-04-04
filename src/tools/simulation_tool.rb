@@ -55,14 +55,6 @@ class SimulationTool < Tool
     @ui.stop_simulation
   end
 
-  def toggle
-    if @simulation.nil? || @simulation.stopped?
-      activate
-    else
-      deactivate
-    end
-  end
-
   def toggle_pause
     return if @simulation.nil?
     @simulation.toggle_pause

@@ -27,7 +27,7 @@ function addInitalPistonDataToGraph(timeSteps, pistonId) {
 
   // remove first element
   lowHightFlat.shift();
-  console.log('lowHightFlat', lowHightFlat);
+  // console.log('lowHightFlat', lowHightFlat);
 
   // then, create position of dots
   return Array.from(new Array(timeSteps), (_, index) => ({
