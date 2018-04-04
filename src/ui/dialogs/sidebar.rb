@@ -27,7 +27,7 @@ class Sidebar
 
     # @top = 120 # for windows
     @top = 80 # for mac
-    @left = 0
+    @left = 50
 
     props = {
       :resizable => true,
