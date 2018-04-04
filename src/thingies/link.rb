@@ -117,8 +117,8 @@ class Link < PhysicsThingy
   def move_sensor_symbol(position)
     unless @sensor_symbol.nil?
       old_pos = @sensor_symbol.transformation.origin
-      movement_vec = old_pos.vector_to(position)
-      @sensor_symbol.transform!(movement_vec)
+      movement_vec = Geom::Transformation.translation(old_pos.vector_to(position))
+      @sensor_symbol.move!(movement_vec * @sensor_symbol.transformation)
     end
   end
 

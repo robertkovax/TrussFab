@@ -59,8 +59,8 @@ class Hub < PhysicsThingy
   def move_addon(object, position, offset = Geom::Vector3d.new(0, 0, 0))
     return if object.nil?
     old_pos = object.transformation.origin
-    movement_vec = old_pos.vector_to(position + offset)
-    object.transform!(movement_vec)
+    movement_vec = Geom::Transformation.translation(old_pos.vector_to(position + offset))
+    object.move!(movement_vec * object.transformation)
   end
 
   def move_addons(position)

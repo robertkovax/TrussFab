@@ -118,23 +118,23 @@ class SimulationTool < Tool
       @ui.simulation_broke
     end
 
-    view.model.start_operation('SimTool: Apply Force', true)
+    Sketchup.active_model.start_operation('SimTool: Apply Force', true)
     apply_force(view)
-    view.model.commit_operation
+    Sketchup.active_model.commit_operation
 
     return if @start_position.nil? || @end_position.nil?
-    view.model.start_operation('SimTool: Draw', true)
+    Sketchup.active_model.start_operation('SimTool: Draw', true)
     view.line_stipple = '_'
     view.draw_lines(@start_position, @end_position)
     force_value = (@start_position.vector_to(@end_position).length * Configuration::DRAG_FACTOR).round(1).to_s
     point = Geometry.midpoint(@start_position, @end_position)
     if @force.nil?
-      @force = view.model.entities.add_text(force_value, point)
+      @force = Sketchup.active_model.entities.add_text(force_value, point)
     else
       @force.text = force_value
       @force.point = point
     end
-    view.model.commit_operation
+    Sketchup.active_model.commit_operation
   end
 
   # Simulation Getters

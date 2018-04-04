@@ -171,7 +171,7 @@ class Simulation
     @world.update_timestep = Configuration::WORLD_TIMESTEP
     @world.solver_model = Configuration::WORLD_SOLVER_MODEL
 
-    @sensor_output_csv = File.new("#{File.expand_path('~')}/#{Time.now.to_s}.log", "w")
+    @sensor_output_csv = File.new("#{File.expand_path('~')}/sensor_outpu.log", "w")
 
     # create bodies for nodes (all edges will not have physics components to them)
     Graph.instance.nodes.each_value do |obj|
@@ -641,7 +641,7 @@ class Simulation
       # We need to record this every time the world updates, otherwise, we might skip the crucial forces involved
       rec_max_actuator_tensions
       rec_max_link_tensions if @peak_force_mode
-      Sketchup.active_model.start_operation('Sim: Visualize force', true, false, true)
+      Sketchup.active_model.start_operation('Sim: Visualize force', true)
       if @highest_force_mode
         visualize_highest_tension
       else
@@ -668,7 +668,7 @@ class Simulation
       # We need to record this every time the world updates, otherwise, we might skip the crucial forces involved
       rec_max_actuator_tensions
       rec_max_link_tensions if @peak_force_mode
-      Sketchup.active_model.start_operation('Sim: Visualize force', true, false, true)
+      Sketchup.active_model.start_operation('Sim: Visualize force', true)
       if @highest_force_mode
         visualize_highest_tension
       else

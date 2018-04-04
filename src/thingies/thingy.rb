@@ -33,7 +33,7 @@ class Thingy
 
   def transform(transformation)
     Sketchup.active_model.start_operation('Transform', true)
-    @entity.transform!(transformation) if @entity && @entity.valid?
+    @entity.move!(transformation) if @entity && @entity.valid?
     @sub_thingies.each { |thingy| thingy.transform(transformation) }
     Sketchup.active_model.commit_operation
   end
