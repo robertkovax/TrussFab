@@ -19,12 +19,14 @@ class Sidebar
     num_icons_in_row = 3
     icon_width = 54
     body_padding = 4
-    magic_distance = 4 * 9 + 12
+    # magic_distance = 4 * 9 + 12 # for windows
+    magic_distance = 3 * 9 - 2 # for mac
 
     @width = num_icons_in_row * icon_width + body_padding + magic_distance
     @height = 660
 
-    @top = 120
+    # @top = 120 # for windows
+    @top = 80 # for mac
     @left = 0
 
     props = {

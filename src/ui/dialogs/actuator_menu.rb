@@ -11,12 +11,12 @@ class ActuatorMenu
     @height = 300
 
     @collapsed = true
-    @collapsed_width = 52
+    @collapsed_width = 53
   end
 
   def open_dialog(sidebar_menu_width , sidebar_menu_height)
 
-    left = sidebar_menu_width
+    left = sidebar_menu_width + 5
     top = sidebar_menu_height - @height
 
     props = {

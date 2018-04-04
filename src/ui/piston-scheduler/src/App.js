@@ -46,7 +46,7 @@ class App extends Component {
       highestForceMode: false,
       peakForceMode: false,
       displayVol: false,
-      breakingForce: 3000,
+      breakingForce: 1100,
       stiffness: 90,
       simluationBrokeAt: null,
       simulationIsOnForValueTesting: false,
@@ -88,8 +88,9 @@ class App extends Component {
   addPiston = id => {
     // const id = this.state.pistons.length;
     const oldKeyframes = this.state.keyframes;
+    const oldPistons = this.state.pistons;
     this.setState({
-      pistons: this.state.pistons.concat(id),
+      pistons: oldPistons.concat(id),
       keyframes: oldKeyframes.set(id, [
         { time: 0, value: 0.5 },
         { time: this.state.seconds, value: 0.5 },
@@ -160,6 +161,9 @@ class App extends Component {
       this.state.oldKeyframesUIST &&
       this.state.oldKeyframesUIST.get(id) &&
       this.state.oldKeyframesUIST.get(id).map(this._mapPointsToChart);
+    let greyOutPointsString = null;
+    if (greyOutPoints != null)
+      greyOutPointsString = greyOutPoints.map(p => p.join(',')).join('\n');
 
     return (
       <div style={{ position: 'relative' }}>
@@ -170,12 +174,13 @@ class App extends Component {
           />
         )}
         <svg viewBox={viewBox} className="chart" id={`svg-${id}`}>
-          {greyOutPoints && (
+          {greyOutPoints != null && (
             <polyline
+              className="grey-out-line"
               fill="none"
               stroke="#D3D3D3"
               strokeWidth="2"
-              points={greyOutPoints}
+              points={greyOutPointsString}
             />
           )}
           <polyline
@@ -433,39 +438,47 @@ class App extends Component {
   };
 
   spacialUISTupdate = () => {
+    const oldKeyframesUIST = new Map();
+    const keyframes = this.state.keyframes;
+
     this.state.pistons.forEach(pistonId => {
       const oldKeyframe = this.state.keyframes.get(pistonId);
-      const oldKeyframesUIST = new Map();
       oldKeyframesUIST.set(pistonId, oldKeyframe);
 
-      const keyframes = this.state.keyframes;
-
-      const newKeyframe = oldKeyframe.map(x => {
-        return {
-          value: x.value,
-          time:
-            x.time * 2 < this.state.seconds ? x.time * 2 : this.state.seconds,
-        };
-      });
+      const newKeyframe = oldKeyframe
+        .map(x => {
+          return {
+            value: x.value,
+            time:
+              x.time * 2 < this.state.seconds
+                ? x.time * 2
+                : x.time === this.state.seconds ? x.time : null,
+          };
+        })
+        .filter(x => x.time !== null);
 
       keyframes.set(pistonId, newKeyframe);
-
-      this.setState({ oldKeyframesUIST, keyframes });
     });
+    // finally update state
+    this.setState({ oldKeyframesUIST, keyframes });
   };
 
   resetState = () => {
     this._removeLines();
     clearInterval(this.state.timlineInterval);
-    this.setState({
-      simulationPaused: true,
-      timelineCurrentTime: 0,
-      currentCycle: 0,
-      startedSimulationOnce: false,
-      startedSimulationCycle: false,
-      simulationIsPausedAfterOnce: false,
-      simluationBrokeAt: null,
-    });
+    // some race condition with the 'broken sim' requires this
+    setTimeout(() => {
+      this.setState({
+        simulationPaused: true,
+        timelineCurrentTime: 0,
+        currentCycle: 0,
+        startedSimulationOnce: false,
+        startedSimulationCycle: false,
+        simulationIsPausedAfterOnce: false,
+        simluationBrokeAt: null,
+        oldKeyframesUIST: null,
+      });
+    }, 100);
   };
 
   stopSimulation = () => {
@@ -724,6 +737,14 @@ class App extends Component {
           <div className={DEV ? 'col' : 'some-padding-top'}>
             <button
               onClick={() => {
+                if (this.state.collapsed) {
+                  setTimeout(() => {
+                    this._addAllTimeSelectionLines();
+                  }, 100);
+                } else {
+                  this._removeAllTimeselection();
+                }
+
                 this.setState({ collapsed: !this.state.collapsed });
                 togglePane();
               }}
@@ -794,14 +815,16 @@ class App extends Component {
     return (
       <div className="row no-gutters">
         {this.renderControlls()}
-        <div className="col-8">
-          <div className="App">
-            {/* {this.state.startedSimulation && (
+        {!this.state.collapsed && (
+          <div className="col-8">
+            <div className="App">
+              {/* {this.state.startedSimulation && (
               <span>{(this.state.timelineCurrentTime / 1000).toFixed(1)}s</span>
             )} */}
-            {pistons}
+              {pistons}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     );
   }
