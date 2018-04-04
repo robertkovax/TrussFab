@@ -81,7 +81,7 @@ input[type='range'] {
   position: absolute;
   top: 0;
   height: 100%;
-  width: 2px;
+  width: 0px;
   background-color: red;
 }
 

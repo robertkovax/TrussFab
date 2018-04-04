@@ -26,7 +26,9 @@ const xAxis = 300;
 const yAxis = 50;
 const timelineStepSeconds = 100; // this affects how smooth the line should be
 
-const DEV = true;
+const FACTOR = 0.5;
+
+const DEV = false;
 
 class App extends Component {
   constructor(props) {
@@ -46,8 +48,8 @@ class App extends Component {
       highestForceMode: false,
       peakForceMode: false,
       displayVol: false,
-      breakingForce: 1100,
-      stiffness: 90,
+      breakingForce: 1000,
+      stiffness: 92, // get ignored if not changed
       simluationBrokeAt: null,
       simulationIsOnForValueTesting: false,
       oldKeyframesUIST: null,
@@ -65,6 +67,8 @@ class App extends Component {
     window.simulationJustBroke = this.simulationJustBroke;
     window.specialspecial = this.spacialUISTupdate;
     window.initState = this.initState;
+
+    setStiffness(this.state.stiffness);
 
     document.addEventListener('keyup', e => {
       // ESC
@@ -249,9 +253,11 @@ class App extends Component {
       .select('#svg-' + id)
       .append('line')
       .classed('timeSelection', true)
-      .attr('x1', xAxis / 2)
+      // .attr('x1', xAxis / 2) // for init in the middle
+      .attr('x1', 0)
       .attr('y1', 0)
-      .attr('x2', xAxis / 2)
+      // .attr('x2', xAxis / 2) // for init in the middle
+      .attr('x2', 0)
       .attr('y2', yAxis)
       .style('stroke-width', 3)
       .style('stroke', 'grey')
@@ -327,7 +333,7 @@ class App extends Component {
       .attr('x2', newX);
 
     this.setState({
-      timelineCurrentTime: timelineCurrentTime + timelineStepSeconds,
+      timelineCurrentTime: timelineCurrentTime + timelineStepSeconds * FACTOR,
     });
   };
 
@@ -513,8 +519,16 @@ class App extends Component {
       .remove();
     const oldTimeSelection = this.state.timeSelection;
     this.setState({
-      timeSelection: oldTimeSelection.set(id, this.state.seconds / 2),
+      timeSelection: oldTimeSelection.set(
+        id,
+        this.initialSecondsForTimeSelection()
+      ),
     });
+  };
+
+  initialSecondsForTimeSelection = () => {
+    return 0;
+    // return this.state.seconds / 2;
   };
 
   newKeyframeToggle = id => {
@@ -782,7 +796,10 @@ class App extends Component {
               step="0.1"
               min="0"
               max={this.state.seconds}
-              value={this.state.timeSelection.get(x) || this.state.seconds / 2}
+              value={
+                this.state.timeSelection.get(x) ||
+                this.initialSecondsForTimeSelection()
+              }
               onChange={event =>
                 this.onTimeSelectionInputChange(x, event.currentTarget.value)
               }

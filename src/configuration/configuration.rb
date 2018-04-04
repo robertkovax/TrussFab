@@ -103,7 +103,8 @@ module Configuration
   GROUND_COLOR          = Sketchup::Color.new(1, 1, 1)
   GROUND_ALPHA          = 0.0
   GROUND_SIZE           = 10000 # in inches
-  GROUND_HEIGHT         = 0.01 # in inches
+  # GROUND_HEIGHT         = 0.01 # in inches
+  GROUND_HEIGHT         = -0.55 # hotfix for assests beein stuck in the ground
   GROUND_THICKNESS      = 20.0 # in inches
 
   # Behavioural Constants
@@ -116,7 +117,7 @@ module Configuration
   WORLD_TIMESTEP        = 1.0 / 60 # in seconds
   WORLD_NUM_ITERATIONS  = ((1.0 / 60) / WORLD_TIMESTEP).to_i
   JOINT_SOLVER_MODEL    = 2 # 0 or 2
-  JOINT_STIFFNESS       = 0.85 # ratio (0.0 - 1.0)
+  JOINT_STIFFNESS       = 0.95 # ratio (0.0 - 1.0)
   JOINT_BREAKING_FORCE  = 1500 # (in Newtons)
   BODY_STATIC_FRICITON  = 0.9
   BODY_KINETIC_FRICITON = 0.5
