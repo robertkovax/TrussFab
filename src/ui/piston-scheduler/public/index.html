@@ -66,17 +66,16 @@
         <div class="modal-body">
           <div style="margin: 0 auto; width: 210px;">
             <div style="margin-bottom: 10px">The acceleration was too high. Repair by:</div>
-            <input style="margin-left: 40px" type="radio" id="contactChoice1" name="contact" value="email" checked="checked">
+            <input style="margin-left: 40px" type="radio" id="contactChoice1" name="how-to-fix" value="reduce-speed" checked="checked">
             <label style="margin-left: 3px" for="contactChoice1">reducing speed</label>
             <br>
-            <input style="margin-left: 40px" type="radio" id="contactChoice2" name="contact" value="phone">
+            <input style="margin-left: 40px" type="radio" id="contactChoice2" name="how-to-fix" value="reduce-movement">
             <label style="margin-bottom: 0px; margin-left: 3px" for="contactChoice2">reducing movement</label>
           </div>
         </div>
         <div class="modal-footer">
           <div style="margin: 0 auto; width: 130px;">
-            <button type="button" class="btn btn-primary fix-button" style="margin-right: 10px !important" onclick="specialspecial()"
-              data-dismiss="modal">
+            <button type="button" class="btn btn-primary fix-button" style="margin-right: 10px !important" data-dismiss="modal" id="repair-button">
               Repair
             </button>
             <button type="button" class="btn btn-secondary fix-button" data-dismiss="modal">
@@ -88,7 +87,15 @@
     </div>
   </div>
   <script>
-    window.showModal = function () { $('#exampleModal').modal() }
+    window.showModal = function () { $('#exampleModal').modal() };
+
+    document.getElementById('repair-button').addEventListener("click", () => {
+      if (document.querySelector('input[name="how-to-fix"]:checked').value === 'reduce-speed') {
+        window.fixBrokenModelByReducingSpeed();
+      } else {
+        window.fixBrokenModelByReducingMovement();
+      }
+    });
   </script>
   <div id="root" />
   <script src="../../node_modules/jquery/dist/jquery.slim.min.js"></script>

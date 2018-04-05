@@ -65,7 +65,8 @@ class App extends Component {
     window.addPiston = this.addPiston;
     window.cleanupUiAfterStoppingSimulation = this.cleanupUiAfterStoppingSimulation;
     window.simulationJustBroke = this.simulationJustBroke;
-    window.specialspecial = this.spacialUISTupdate;
+    window.fixBrokenModelByReducingSpeed = this.fixBrokenModelByReducingSpeed;
+    window.fixBrokenModelByReducingMovement = this.fixBrokenModelByReducingMovement;
     window.initState = this.initState;
 
     setStiffness(this.state.stiffness);
@@ -443,7 +444,31 @@ class App extends Component {
     }
   };
 
-  spacialUISTupdate = () => {
+  fixBrokenModelByReducingMovement = () => {
+    const oldKeyframesUIST = new Map();
+    const keyframes = this.state.keyframes;
+
+    this.state.pistons.forEach(pistonId => {
+      const oldKeyframe = this.state.keyframes.get(pistonId);
+      oldKeyframesUIST.set(pistonId, oldKeyframe);
+
+      const newKeyframe = oldKeyframe.map((x, keyframeIndex) => {
+        return {
+          value:
+            keyframeIndex === 0 || keyframeIndex === oldKeyframe.length - 1
+              ? x.value
+              : x.value * 0.8,
+          time: x.time,
+        };
+      });
+
+      keyframes.set(pistonId, newKeyframe);
+    });
+    // finally update state
+    this.setState({ oldKeyframesUIST, keyframes });
+  };
+
+  fixBrokenModelByReducingSpeed = () => {
     const oldKeyframesUIST = new Map();
     const keyframes = this.state.keyframes;
 
