@@ -75,7 +75,7 @@ module JsonImport
       transformation = rotation_around_center * transformation
 
       json_points.values.each do |point|
-        point.move!(transformation)
+        point.transform!(transformation)
       end
 
       json_triangle_ids = json_objects['standard_surface']
