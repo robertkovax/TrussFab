@@ -598,9 +598,9 @@ class Simulation
     else
       # note(tim): I'm not sure if we want to do this on pause. There should
       # probably be another mode that shows the force labels.
-      model.start_operation('update force label', true)
-      update_force_labels
-      model.commit_operation
+      # model.start_operation('update force label', true)
+      # update_force_labels
+      # model.commit_operation
       @paused = true
     end
   end
