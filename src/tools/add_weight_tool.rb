@@ -1,5 +1,5 @@
 class AddWeightTool < Tool
-  WEIGHT = 20 #in kg
+  WEIGHT = 5 #in kg
 
   def initialize(ui = nil)
     super

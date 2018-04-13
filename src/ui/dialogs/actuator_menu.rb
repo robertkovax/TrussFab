@@ -4,34 +4,38 @@ class ActuatorMenu
   attr_accessor :sidebar_menu
 
   def initialize
-    @HTML_FILE = '../html/actuator_menu.html'
+    @HTML_FILE = '../piston-scheduler/build/index.html'
     @simulation_tool = SimulationTool.new(self)
-    @width = 600
+    @width = 455
+    # @width = 640 # for dev
     @height = 300
 
+    @collapsed = true
+    @collapsed_width = 53
   end
 
   def open_dialog(sidebar_menu_width , sidebar_menu_height)
 
-    left = sidebar_menu_width
+    left = sidebar_menu_width + 5
     top = sidebar_menu_height - @height
 
     props = {
-      :resizable => false,
+      # :resizable => false,
       :width => @width,
       :height => @height,
       :left => left,
       :top => top,
-      :min_width => @width,
-      :min_height => @height,
-      :max_width => @width,
-      :max_height => @height
+      # :min_width => @width,
+      # :min_height => @height,
+      # :max_width => @width,
+      # :max_height => @height
     }
 
     @dialog = UI::HtmlDialog.new(props)
     file = File.join(File.dirname(__FILE__), @HTML_FILE)
     @dialog.set_file(file)
     @dialog.set_position(left, top)
+    @dialog.set_size(@collapsed_width, @height)
     @dialog.show
 
     register_callbacks
@@ -55,8 +59,21 @@ class ActuatorMenu
     @dialog.execute_script("update_pistons(#{movement_group})")
   end
 
+  def add_piston(id)
+    @dialog.execute_script("addPiston(#{id})")
+  end
+
   def stop_simulation
     @dialog.execute_script("cleanupUiAfterStoppingSimulation();")
+  end
+
+  def simulation_broke
+    @dialog.execute_script("simulationJustBroke();")
+
+    #make sure to only draw one line. Right now this would be triggered every frame after the
+    #object broke.
+    #Maybe have an instance variable in the simulation called @broken and the broken? function
+    #only triggers if it was false or something like that
   end
 
   private
@@ -66,15 +83,23 @@ class ActuatorMenu
 
     Sketchup.active_model.select_tool(@simulation_tool)
 
-    # TODO UPate clyce
-
     pistons = @simulation_tool.get_pistons
     breaking_force = @simulation_tool.get_breaking_force
     max_speed = @simulation_tool.get_max_speed
-    @dialog.execute_script("showManualActuatorSettings(#{pistons.keys}, #{breaking_force}, #{max_speed})")
+    stiffness = @simulation_tool.get_stiffness
+    @dialog.execute_script("initState(#{breaking_force}, #{stiffness})")
   end
 
   def register_callbacks
+    @dialog.add_action_callback('animation_pane_toggle') do |_|
+      if @collapsed
+        @dialog.set_size(@width, @height)
+      else
+        @dialog.set_size(@collapsed_width, @height)
+      end
+      @collapsed = !@collapsed
+    end
+
     @dialog.add_action_callback('toggle_simulation') do |_context|
       if @simulation_tool.simulation.nil? || @simulation_tool.simulation.stopped?
         start_simulation_setup_scripts
@@ -112,12 +137,24 @@ class ActuatorMenu
       @simulation_tool.change_highest_force_mode(checked)
     end
 
-    @dialog.add_action_callback('expand_actuator') do |_context, id|
-      @simulation_tool.expand_actuator(id)
+    @dialog.add_action_callback('change_peak_force_mode') do |_context, checked|
+      @simulation_tool.change_peak_force_mode(checked)
     end
 
-    @dialog.add_action_callback('retract_actuator') do |_context, id|
-      @simulation_tool.retract_actuator(id)
+    @dialog.add_action_callback('apply_force') do |_context|
+      @simulation_tool.pressurize_generic_link
+    end
+
+    # @dialog.add_action_callback('expand_actuator') do |_context, id|
+    #   @simulation_tool.expand_actuator(id)
+    # end
+
+    # @dialog.add_action_callback('retract_actuator') do |_context, id|
+    #   @simulation_tool.retract_actuator(id)
+    # end
+
+    @dialog.add_action_callback('move_joint') do |_context, id, next_value, duration|
+      @simulation_tool.move_joint(id, next_value, duration)
     end
 
     @dialog.add_action_callback('stop_actuator') do |_context, id|
@@ -126,6 +163,10 @@ class ActuatorMenu
 
     @dialog.add_action_callback('set_dialog_size') do |_, width, height|
       set_dialog_size(width, height)
+    end
+
+    @dialog.add_action_callback('set_stiffness') do |_, stiffness|
+      @simulation_tool.set_stiffness(stiffness)
     end
   end
 end

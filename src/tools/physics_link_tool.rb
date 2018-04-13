@@ -12,6 +12,7 @@ class PhysicsLinkTool < Tool
     super(ui)
     @mouse_input = MouseInput.new(snap_to_edges: true, snap_to_nodes: true)
     @link_type = link_type
+    @edge = nil
   end
 
   #
@@ -27,10 +28,11 @@ class PhysicsLinkTool < Tool
     obj = @mouse_input.snapped_object
     return if obj.nil?
     if obj.is_a?(Edge)
-      change_link_to_physics_link(view, obj)
+      @edge = change_link_to_physics_link(view, obj)
     else
-      create_new_physics_link(view, x, y)
+      @edge = create_new_physics_link(view, x, y)
     end
+    @edge
   end
 
   def onMouseMove(_flags, x, y, view)
@@ -44,8 +46,10 @@ class PhysicsLinkTool < Tool
   def change_link_to_physics_link(view, edge)
     Sketchup.active_model.start_operation("toggle edge to #{@link_type}", true)
     edge.link_type = @link_type
+    @edge = edge
     view.invalidate
     Sketchup.active_model.commit_operation
+    @edge
   end
 
   def create_new_physics_link(view, x, y)
@@ -56,11 +60,12 @@ class PhysicsLinkTool < Tool
 
       puts "Create single #{@link_type} link"
       Sketchup.active_model.start_operation("Create #{@link_type} link", true)
-      Graph.instance.create_edge_from_points(@first_position,
-                                             second_position,
-                                             link_type: @link_type)
+      @edge = Graph.instance.create_edge_from_points(@first_position,
+                                                     second_position,
+                                                     link_type: @link_type)
       Sketchup.active_model.commit_operation
       reset
+      return @edge
     end
   end
 

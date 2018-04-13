@@ -1,0 +1,151 @@
+{
+  "distance_unit": "mm",
+  "force_unit": "N",
+  "nodes": [
+    {
+      "id": 19,
+      "x": 3956.378474768006,
+      "y": 4372.876312606498,
+      "z": 1575.6736474893669,
+      "pods": [
+
+      ]
+    },
+    {
+      "id": 21,
+      "x": 3567.0138203175243,
+      "y": 3694.8120632692694,
+      "z": 1578.4316319800773,
+      "pods": [
+
+      ]
+    },
+    {
+      "id": 22,
+      "x": 4014.9332243619806,
+      "y": 3887.186552506728,
+      "z": 1058.1984364969276,
+      "pods": [
+
+      ]
+    },
+    {
+      "id": 23,
+      "x": 4655.619252398609,
+      "y": 3966.9140947762016,
+      "z": 1358.8527611594398,
+      "pods": [
+
+      ]
+    },
+    {
+      "id": 24,
+      "x": 4207.284420634898,
+      "y": 3779.201586163253,
+      "z": 1877.9491264619705,
+      "pods": [
+
+      ]
+    },
+    {
+      "id": 25,
+      "x": 4259.0503914663095,
+      "y": 3292.034709235631,
+      "z": 1361.6926864043635,
+      "pods": [
+
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": 49,
+      "n1": 21,
+      "n2": 19,
+      "type": "bottle_link",
+      "bottle_type": "Big Big Double Bottle (60cm)"
+    },
+    {
+      "id": 56,
+      "n1": 21,
+      "n2": 22,
+      "type": "bottle_link",
+      "bottle_type": "Small Big Double Bottle (53cm)"
+    },
+    {
+      "id": 58,
+      "n1": 19,
+      "n2": 22,
+      "type": "bottle_link",
+      "bottle_type": "Small Big Double Bottle (53cm)"
+    },
+    {
+      "id": 59,
+      "n1": 23,
+      "n2": 24,
+      "type": "bottle_link",
+      "bottle_type": "Small Big Double Bottle (53cm)"
+    },
+    {
+      "id": 60,
+      "n1": 24,
+      "n2": 25,
+      "type": "bottle_link",
+      "bottle_type": "Small Big Double Bottle (53cm)"
+    },
+    {
+      "id": 61,
+      "n1": 25,
+      "n2": 23,
+      "type": "bottle_link",
+      "bottle_type": "Big Big Double Bottle (60cm)"
+    },
+    {
+      "id": 62,
+      "n1": 24,
+      "n2": 21,
+      "type": "bottle_link",
+      "bottle_type": "Small Big Double Bottle (53cm)"
+    },
+    {
+      "id": 63,
+      "n1": 23,
+      "n2": 22,
+      "type": "bottle_link",
+      "bottle_type": "Small Big Double Bottle (53cm)"
+    },
+    {
+      "id": 64,
+      "n1": 25,
+      "n2": 22,
+      "type": "bottle_link",
+      "bottle_type": "Small Big Double Bottle (53cm)"
+    },
+    {
+      "id": 65,
+      "n1": 24,
+      "n2": 19,
+      "type": "bottle_link",
+      "bottle_type": "Small Big Double Bottle (53cm)"
+    },
+    {
+      "id": 66,
+      "n1": 23,
+      "n2": 19,
+      "type": "actuator",
+      "bottle_type": "Big Big Double Bottle (60cm)"
+    },
+    {
+      "id": 83,
+      "n1": 21,
+      "n2": 25,
+      "type": "actuator",
+      "bottle_type": "Big Big Double Bottle (60cm)"
+    }
+  ],
+  "standard_surface": [
+    19,
+    21,
+    22
+  ]
+}

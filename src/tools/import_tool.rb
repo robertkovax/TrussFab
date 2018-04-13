@@ -3,9 +3,10 @@ require 'src/utility/mouse_input.rb'
 require 'src/utility/json_import.rb'
 require 'src/database/graph.rb'
 require 'src/configuration/configuration.rb'
+require 'src/thingies/actuator_link.rb'
 
 class ImportTool < Tool
-  def initialize(ui = nil)
+  def initialize(ui)
     super
     @mouse_input = MouseInput.new(snap_to_surfaces: true)
     @path = nil
@@ -26,7 +27,12 @@ class ImportTool < Tool
   def import_from_json(path, graph_object, position)
     Sketchup.active_model.start_operation('import from JSON', true)
     if graph_object.is_a?(Triangle)
-      JsonImport.at_triangle(path, graph_object)
+      _, new_edges = JsonImport.at_triangle(path, graph_object)
+      new_edges.each do |edge|
+        if edge.thingy.is_a?(ActuatorLink)
+          @ui.actuator_menu.add_piston(edge.id) unless edge.nil?
+        end
+      end
     elsif graph_object.nil?
       return unless Graph.instance.find_close_node(position).nil?
       old_triangles = Graph.instance.surfaces.values
@@ -34,6 +40,11 @@ class ImportTool < Tool
       if intersecting?(old_triangles, new_triangles)
         puts('New object intersects with old')
         delete_edges(new_edges)
+      end
+      new_edges.each do |edge|
+        if edge.thingy.is_a?(ActuatorLink)
+          @ui.actuator_menu.add_piston(edge.id) unless edge.nil?
+        end
       end
     else
       raise NotImplementedError
@@ -63,7 +74,11 @@ class ImportTool < Tool
       if oent.valid?
         old_bounds = oent.bounds
         intersection = old_bounds.intersect(new_bounds)
-        return true if intersection.valid?
+
+        if intersection.valid?
+          Sketchup.active_model.commit_operation
+          return true
+        end
       end
     end
     puts('Add object on the ground')
@@ -71,6 +86,8 @@ class ImportTool < Tool
   end
 
   def delete_edges(edges)
+    Sketchup.active_model.start_operation('delete edges', true)
     edges.each(&:delete)
+    Sketchup.active_model.commit_operation
   end
 end

@@ -46,9 +46,18 @@ module TrussFab
   class << self
 
     def start
+      model = Sketchup.active_model
+      model.start_operation('TrussFab Setup', true)
+      ProjectHelper.setup_layers
+      ProjectHelper.setup_surface_materials
+      ModelStorage.instance.setup_models
+      model.commit_operation
+      # This removes all deleted nodes and edges from storage
+      Graph.instance.cleanup
+
       @sidebar_menu.open_dialog
 
-      @actuator_menu.open_dialog(@sidebar_menu.width, @sidebar_menu.height)
+      @actuator_menu.open_dialog(@sidebar_menu.width + @sidebar_menu.left, @sidebar_menu.height + @sidebar_menu.top)
 
       @sidebar_menu.actuator_menu = @actuator_menu
       @actuator_menu.sidebar_menu = @sidebar_menu

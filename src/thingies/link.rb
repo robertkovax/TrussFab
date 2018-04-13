@@ -78,6 +78,7 @@ class Link < PhysicsThingy
   end
 
   def add_sensor_symbol
+    Sketchup.active_model.start_operation('Add Sensor Symbol', true)
     point = mid_point
     model = ModelStorage.instance.models['sensor']
     # s**t ton of transformation to align the image exactly with the bottle direction, which is
@@ -95,6 +96,7 @@ class Link < PhysicsThingy
     rotation2 = Geom::Transformation.rotation(point, image_normal.cross(link_dir), second_angle)
     @sensor_symbol.transform!(rotation2)
     @sensor_symbol.transform!(Geom::Transformation.scaling(point, 0.2))
+    Sketchup.active_model.commit_operation
   end
 
   def toggle_sensor_state
@@ -115,8 +117,8 @@ class Link < PhysicsThingy
   def move_sensor_symbol(position)
     unless @sensor_symbol.nil?
       old_pos = @sensor_symbol.transformation.origin
-      movement_vec = old_pos.vector_to(position)
-      @sensor_symbol.transform!(movement_vec)
+      movement_vec = Geom::Transformation.translation(old_pos.vector_to(position))
+      @sensor_symbol.move!(movement_vec * @sensor_symbol.transformation)
     end
   end
 

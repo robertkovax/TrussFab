@@ -226,7 +226,7 @@ class Edge < GraphObject
   private
 
   def create_thingy(id)
-    case @link_type
+    thingy = case @link_type
     when 'bottle_link'
       update_bottle_type if @bottle_type.empty?
 
@@ -250,5 +250,6 @@ class Edge < GraphObject
     else
       raise "Unkown link type: #{@link_type}"
     end
+    thingy
   end
 end

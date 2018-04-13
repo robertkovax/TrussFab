@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css" type="text/css">
   <link rel="stylesheet" href="../css/common.css" type="text/css">
   <link rel="stylesheet" href="../css/sidebar.css" type="text/css">
-  <title>TrussFab</title>
+  <title>TrussFormer</title>
 </head>
 
 <body>
@@ -121,32 +121,56 @@
           <h6>Actuator</h6>
           <button type="button" class="tool" id="actuator_tool">
             <img src="../assets/icons/actuator.png" width="54px" alt="actuator">
-            <div>manual</div>
+            <div>actuator</div>
           </button>
+          <!-- <button type="button" class="tool" id="spring_tool">
+            <img src="../assets/icons/actuator.png" width="54px" alt="spring">
+            <div>spring</div>
+          </button>
+          <button type="button" class="tool" id="generic_physics_link_tool">
+            <img src="../assets/icons/actuator.png" width="54px" alt="generic">
+            <div>generic link</div>
+          </button> -->
           <button type="button" class="tool" id="genetic_actuator_placement_tool">
-            <img src="../assets/icons/auto_actuator.png" alt="genetic placment">
-            <div>automatic</div>
+            <img src="../assets/icons/auto_act_uist.png" alt="genetic placment">
+            <div>auto. act.</div>
           </button>
+          <!-- <button type="button" class="tool" id="pose_check_tool">
+            <img src="../assets/icons/act_dashed.png" alt="pose check">
+            <div>chk. pos.</div>
+          </button> -->
           <!-- <button type="button" class="tool" id="spring_tool">
             <img src="../assets/icons/actuator.png" width="54px" alt="actuator">
             <div>spring</div>
           </button>
           <button type="button" class="tool" id="damp_tool">
             <img src="../assets/icons/actuator.png" width="54px" alt="actuator">
-            <div>damp</div> -->
-          </button>
+            <div>damp</div>
+          </button> -->
           <h6>Assets</h6>
           <button type="button" class="tool" id="dynamic_tetrahedron_tool">
-            <img src="../assets/icons/fill.png" alt="dynamic tetrahedron">
-            <div>tetra+act</div>
+            <img src="../assets/icons/tetrahedron_actuator.png" alt="dynamic tetrahedron">
+            <div>1DOF tetra</div>
           </button>
           <button type="button" class="tool" id="dynamic_octahedron_tool">
-            <img src="../assets/icons/fill.png" alt="dynamic octrahedron">
-            <div>octa+act</div>
+            <img src="../assets/icons/octahedron_actuator.png" alt="dynamic octrahedron">
+            <div>1DOF octa</div>
+          </button>
+          <button type="button" class="tool" id="assets_parallel_tool">
+            <img src="../assets/icons/parallel.png" alt="parallel">
+            <div>2DOF octa</div>
           </button>
           <button type="button" class="tool" id="assets_leg_tool">
-            <img src="../assets/icons/fill.png" alt="leg">
+            <img src="../assets/icons/leg.png" alt="leg">
             <div>leg</div>
+          </button>
+          <button type="button" class="tool" id="assets_bend_tool">
+            <img src="../assets/icons/bend.png" alt="bend">
+            <div>bend</div>
+          </button>
+          <button type="button" class="tool" id="assets_hinge_tool">
+            <img src="../assets/icons/asset_hinge.png" alt="hinge">
+            <div>hinge</div>
           </button>
           <!-- <h6>Automatic</h6> -->
           <!-- <button type="button" class="tool" id="automatic_actuators_tool">
@@ -158,34 +182,38 @@
             <div>hinges</div>
           </button> -->
 
-          <h6>Check Forces</h6>
+          <h6>Loads</h6>
           <!-- <button type="button" class="tool" id="rigidity_test_tool">
             <img src="../assets/icons/force.png" alt="rigidity test">
             <div>rigidity test</div>
           </button> -->
           <button type="button" class="tool" id="add_weight_tool">
             <img src="../assets/icons/force.png" alt="add test load">
-            <div>load</div>
+            <div>weight</div>
           </button>
           <!-- TODO: -->
           <button type="button" class="tool" id="add_force_tool">
             <img src="../assets/icons/arrow_down.png" alt="add test load">
             <div>force</div>
           </button>
+          <!-- <button type="button" class="tool" id="force_limit_tool">
+            <img src="../assets/icons/line_max.png" alt="check force limits">
+            <div>force limits</div>
+          </button>
           <button type="button" hidden="true" class="tool" id="check_stability_tool">
             <img src="../assets/icons/stability.png" alt="check stability">
             <div>check stability</div>
-          </button>
-          <!-- <h6>Observe</h6>
-          <button type="button" class="tool" id="sensor_tool">
+          </button> -->
+          <!-- <h6>Observe</h6> -->
+          <!-- <button type="button" class="tool" id="sensor_tool">
             <img src="../assets/icons/sensor.png" alt="sensor">
             <div>sensor</div>
           </button> -->
-          <h6>Optimize Force</h6>
-          <button type="button" class="tool" id="optimize_force_tool">
-            <img src="../assets/icons/line_max.png" alt="sensor">
+          <!-- <h6>Optimize Force</h6> -->
+          <!-- <button type="button" class="tool" id="optimize_force_tool">
+            <img src="../assets/icons/line_sensor.png" alt="sensor">
             <div>sensor</div>
-          </button>
+          </button> -->
         </div>
       </div>
     </div>
@@ -196,10 +224,9 @@
     <button type="button" id="import_file_tool">Load</button>
     <button type="button" class="fabricate" id="fabricate_tool">
       <img src="../assets/icons/fabricate.png" alt="fabricate it">
-      <div>Export Hubs & Hinges</div>
+      <div>Export Hubs & Animation</div>
     </button>
   </footer>
-  <script src="../node_modules/d3/build/d3.min.js"></script>
   <script src="../node_modules/jquery/dist/jquery.slim.min.js"></script>
   <script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../js/build/sidebar.js"></script>

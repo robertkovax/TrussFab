@@ -5,7 +5,7 @@ require 'src/simulation/simulation.rb'
 class Hub < PhysicsThingy
   attr_accessor :position, :body, :mass, :arrow
 
-  def initialize(position, id: nil, material: 'hub_material')
+  def initialize(position, id: nil, incidents: nil, material: 'hub_material')
     super(id, material: material)
     @model = ModelStorage.instance.models['ball_hub']
     @color = color unless color.nil?
@@ -17,6 +17,7 @@ class Hub < PhysicsThingy
     @arrow = nil
     @sensor_symbol = nil
     @is_sensor = false
+    @incidents = incidents
     update_id_label
     persist_entity
   end
@@ -28,6 +29,7 @@ class Hub < PhysicsThingy
   end
 
   def add_force_arrow
+    Sketchup.active_model.start_operation('Hub: Add Force Arrow', true)
     point = Geom::Point3d.new(@position)
     point.z += 1
     if @arrow.nil?
@@ -37,9 +39,11 @@ class Hub < PhysicsThingy
     else
       @arrow.transform!(Geom::Transformation.scaling(point, 1.5))
     end
+    Sketchup.active_model.commit_operation
   end
 
   def add_weight_indicator
+    Sketchup.active_model.start_operation('Hub: Add Weight Indicator', true)
     point = Geom::Point3d.new(@position)
     point.z += 1
     if @weight_indicator.nil?
@@ -49,13 +53,14 @@ class Hub < PhysicsThingy
     else
       @weight_indicator.transform!(Geom::Transformation.scaling(point, 1.5))
     end
+    Sketchup.active_model.commit_operation
   end
 
   def move_addon(object, position, offset = Geom::Vector3d.new(0, 0, 0))
     return if object.nil?
     old_pos = object.transformation.origin
-    movement_vec = old_pos.vector_to(position + offset)
-    object.transform!(movement_vec)
+    movement_vec = Geom::Transformation.translation(old_pos.vector_to(position + offset))
+    object.move!(movement_vec * object.transformation)
   end
 
   def move_addons(position)
@@ -111,6 +116,7 @@ class Hub < PhysicsThingy
     @id_label.erase!
     @arrow.erase! unless @arrow.nil?
     @sensor_symbol.erase! unless @sensor_symbol.nil?
+    @weight_indicator.erase! unless @weight_indicator.nil?
     super
   end
 
@@ -125,8 +131,10 @@ class Hub < PhysicsThingy
     point = Geom::Point3d.new(@position)
     model = ModelStorage.instance.models['sensor']
     transform = Geom::Transformation.new(point)
+    Sketchup.active_model.start_operation('Hub: Add Sensor Symbol', true)
     @sensor_symbol = Sketchup.active_model.active_entities.add_instance(model.definition, transform)
     @sensor_symbol.transform!(Geom::Transformation.scaling(point, 0.2))
+    Sketchup.active_model.commit_operation
   end
 
   def toggle_sensor_state
@@ -161,9 +169,11 @@ class Hub < PhysicsThingy
   end
 
   def create_body(world)
+    num_physics_links = @incidents.count { |x| x.thingy.is_a?(PhysicsLink)}
+    weight = Configuration::HUB_MASS * @incidents.count + Configuration::PISTON_MASS * num_physics_links
     @body = Simulation.create_body(world, @entity, :box) # spheres will have it rolling
     @body.collidable = true
-    @body.mass = @mass == 0 ? Configuration::HUB_MASS : @mass
+    @body.mass = @mass == 0 ? weight : @mass + weight
     @body.static_friction = Configuration::BODY_STATIC_FRICITON
     @body.kinetic_friction = Configuration::BODY_KINETIC_FRICITON
     @body.elasticity = Configuration::BODY_ELASTICITY

@@ -4,8 +4,8 @@ require 'erb'
 
 class Simulation
 
-  attr_reader :pistons, :moving_pistons, :bottle_dat
-  attr_accessor :breaking_force, :max_speed, :highest_force_mode, :auto_piston_group
+  attr_reader :pistons, :moving_pistons, :bottle_dat, :stiffness
+  attr_accessor :breaking_force, :max_speed, :highest_force_mode, :peak_force_mode, :auto_piston_group
 
   class << self
 
@@ -80,13 +80,18 @@ class Simulation
     # physics variables
     @breaking_force = Configuration::JOINT_BREAKING_FORCE
     @breaking_force_invh = (@breaking_force > 1.0e-6) ? (0.5.fdiv(@breaking_force)) : 0.0
+    @stiffness = Configuration::JOINT_STIFFNESS
 
     @max_actuator_tensions = {}
+    @max_link_tensions = {}
     @max_speed = 0
     @highest_force_mode = false
+    @peak_force_mode = false
 
     hinge_layer = Sketchup.active_model.layers.at(Configuration::HINGE_VIEW)
-    hinge_layer.visible = false
+    hinge_layer.visible = false unless hinge_layer.nil?
+
+    @sensor_output_csv = nil
 
     Graph.instance.edges.each_value do |edge|
       edge.thingy.connect_to_hub
@@ -106,8 +111,26 @@ class Simulation
   end
 
   def breaking_force=(breaking_force)
-    @breaking_force = breaking_force
-    @breaking_force_invh = (breaking_force > 1.0e-6) ? (0.5.fdiv(breaking_force)) : 0.0
+    @breaking_force = breaking_force.to_f
+    @breaking_force_invh = (@breaking_force > 1.0e-6) ? (0.5.fdiv(@breaking_force)) : 0.0
+    Graph.instance.edges.each_value { |edge|
+      link = edge.thingy
+      if link.is_a?(Link) && link.joint && link.joint.valid?
+        link.joint.breaking_force = @breaking_force
+      end
+    }
+  end
+
+  def stiffness=(stiffness)
+    @stiffness = stiffness
+    Graph.instance.edges.each_value do |edge|
+      next if edge.thingy.joint.nil? || !edge.thingy.joint.valid?
+      if edge.thingy.is_a?(ActuatorLink)
+        edge.thingy.joint.stiffness = 0.99
+      else
+        edge.thingy.joint.stiffness = stiffness
+      end
+    end
   end
 
   #
@@ -148,6 +171,8 @@ class Simulation
     @world.update_timestep = Configuration::WORLD_TIMESTEP
     @world.solver_model = Configuration::WORLD_SOLVER_MODEL
 
+    @sensor_output_csv = File.new("#{File.expand_path('~')}/sensor_outpu.log", "w")
+
     # create bodies for nodes (all edges will not have physics components to them)
     Graph.instance.nodes.each_value do |obj|
       obj.thingy.create_body(@world)
@@ -158,6 +183,8 @@ class Simulation
 
     # create joints for each edge
     create_joints
+    get_all_pistons
+    get_all_generic_links
 
     # Setup stuff
     model = Sketchup.active_model
@@ -186,6 +213,8 @@ class Simulation
 
     destroy_world
 
+    @sensor_output_csv.close
+
     model.start_operation('Resetting Simulation', true)
     begin
       remove_ground
@@ -195,6 +224,7 @@ class Simulation
       reset_force_labels
       reset_force_arrows
       reset_sensor_symbols
+      reset_generic_links
       rendering_options['EdgeDisplayMode'] = @show_edges
       rendering_options['DrawSilhouettes'] = @show_profiles
     rescue Exception => err
@@ -321,6 +351,12 @@ class Simulation
     @moving_pistons.clear
   end
 
+  def reset_generic_links
+    @generic_links.each_value do |generic_link|
+      generic_link.force = generic_link.initial_force
+    end
+  end
+
   def get_closest_node_to_point(point)
     closest_distance = Float::INFINITY
     Graph.instance.nodes.values.each do |node|
@@ -385,6 +421,43 @@ class Simulation
     closest_distance
   end
 
+  def check_pose(combination)
+    broken = false
+    highest_force = 0
+
+    Graph.instance.edges.each_value do |edge|
+      edge.thingy.joint.stiffness = 0.999
+    end
+    #move them to the proper position
+    combination.each do |id, pos|
+      actuator = @pistons[id]
+      actuator.joint.breaking_force = 0
+      actuator.joint.rate = 10
+      actuator.joint.controller = case pos
+      when -1
+        actuator.min
+      when 0
+        0
+      when 1
+        actuator.max
+      end
+    end
+
+    update_world_headless_by(3) #settle down
+
+    #record
+    @max_link_tensions.clear
+    update_world_headless_by(0.2, true)
+
+    Graph.instance.edges.each_value do |edge|
+      force = @max_link_tensions[edge.id]
+      if force.abs > highest_force.abs
+        highest_force = force
+      end
+    end
+    highest_force
+  end
+
   def print_piston_stats
     @moving_pistons.each do |hash|
       p "PISTON #{hash[:id]}"
@@ -422,21 +495,44 @@ class Simulation
     end
   end
 
-  def move_joint(id, expand)
-    link = nil
-    @auto_piston_group.each { |edges|
-      edges.each { |edge|
-        if edge.automatic_movement_group == id
-          link = edge.thingy
-          unless link.nil? || !link.joint.valid?
-            joint = link.joint
+  def change_piston_value(id, value)
+    actuator = @pistons[id.to_i]
+    if actuator.joint && actuator.joint.valid?
+      actuator.joint.rate = actuator.rate
+      actuator.joint.controller = (value.to_f - Configuration::ACTUATOR_INIT_DIST) * (actuator.max - actuator.min)
+    end
+  end
 
-            joint.rate = link.rate
-            joint.controller = expand ? link.max : link.min
-          end
-        end
-      }
+  def move_joint(id, next_position, duration)
+    link = nil
+    @pistons.each_value {|piston|
+      if piston.id == id
+        joint = piston.joint
+        next if joint.nil? || !joint.valid?
+        next_position_normalized = piston.max * next_position.to_f + piston.min * (1 - next_position.to_f)
+        current_postion = joint.cur_distance - joint.start_distance
+        position_distance = (current_postion - next_position_normalized).abs
+        scale = 60.0 / (@fps)
+        scale = 1 if scale == Float::INFINITY
+        rate = (position_distance / duration * scale)
+        joint.rate = rate > 0.01 ? rate : piston.rate #put it on "holding force"
+        joint.controller = next_position_normalized
+      end
     }
+
+    # @auto_piston_group.each { |edges|
+    #   edges.each { |edge|
+    #     if edge.automatic_movement_group == id
+    #       link = edge.thingy
+    #       unless link.nil? || !link.joint.valid?
+    #         joint = link.joint
+
+    #         joint.rate = link.rate
+    #         joint.controller = expand ? link.max : link.min
+    #       end
+    #     end
+    #   }
+    # }
   end
 
   def expand_actuator(id)
@@ -496,23 +592,22 @@ class Simulation
 
   def toggle_pause
     model = Sketchup.active_model
-    model.start_operation('Toggle Force Labeles', true)
     if @paused
       # reset_force_labels
       start
     else
       # note(tim): I'm not sure if we want to do this on pause. There should
-      # probable be another mode that shows the force labels. Leaving this out
-      # for now.
+      # probably be another mode that shows the force labels.
+      # model.start_operation('update force label', true)
       # update_force_labels
+      # model.commit_operation
       @paused = true
     end
-    model.commit_operation
   end
 
   def restart
     @sensors.each do |sensor|
-      @sensor_dialog.execute_script("resetChart(#{sensor.id})") unless @sensor_dialog.nil?
+      @sensor_dialog.reset_chart(sensor.id) unless @sensor_dialog.nil?
     end
     reset
     setup
@@ -545,18 +640,24 @@ class Simulation
       @world.advance
       # We need to record this every time the world updates, otherwise, we might skip the crucial forces involved
       rec_max_actuator_tensions
+      rec_max_link_tensions if @peak_force_mode
+      Sketchup.active_model.start_operation('Sim: Visualize force', true)
       if @highest_force_mode
         visualize_highest_tension
       else
         visualize_tensions
       end
+      Sketchup.active_model.commit_operation
     end
   end
 
-  def update_world_headless_by(time_step)
+  def update_world_headless_by(time_step, rec_max_tension = false)
     steps = (time_step.to_f / Configuration::WORLD_TIMESTEP).to_i
     steps.times do
       @world.advance
+      if(rec_max_tension)
+        rec_max_link_tensions
+      end
     end
   end
 
@@ -566,15 +667,20 @@ class Simulation
       @world.advance
       # We need to record this every time the world updates, otherwise, we might skip the crucial forces involved
       rec_max_actuator_tensions
+      rec_max_link_tensions if @peak_force_mode
+      Sketchup.active_model.start_operation('Sim: Visualize force', true)
       if @highest_force_mode
         visualize_highest_tension
       else
         visualize_tensions
       end
+      Sketchup.active_model.commit_operation
     end
   end
 
   def update_entities
+    model = Sketchup.active_model
+    model.start_operation('Update Entities', true)
     @world.update_group_transformations
     Graph.instance.edges.each do |id, edge|
       link = edge.thingy
@@ -583,6 +689,7 @@ class Simulation
     Graph.instance.nodes.values.each do |node|
       node.update_position(node.thingy.body.get_position(1))
     end
+    model.commit_operation
   end
 
   def update_hub_addons
@@ -604,16 +711,11 @@ class Simulation
   end
 
   def nextFrame(view)
-    model = view.model
     return @running unless (@running && !@paused)
-
-    model.start_operation('Simulation', true)
 
     update_world
     update_hub_addons
     update_entities
-
-    model.commit_operation
 
     if @frame % 5 == 0
       #shift_chart_data if @frame > 100
@@ -646,12 +748,8 @@ class Simulation
   def open_sensor_dialog
     collect_sensors
     return if @sensors.empty?
-    @sensor_dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
-    file_content = File.read(File.join(File.dirname(__FILE__), '../ui/html/sensor_overview.erb'))
-    template = ERB.new(file_content)
-    @sensor_dialog.set_html(template.result(binding))
-    @sensor_dialog.set_size(300, Configuration::UI_HEIGHT)
-    @sensor_dialog.show
+    @sensor_dialog = ForceChart.new(@sensors)
+    @sensor_dialog.open_dialog
   end
 
   def close_sensor_dialog
@@ -675,11 +773,12 @@ class Simulation
     @sensors.each do |sensor|
       if sensor.is_a?(Hub)
         speed = sensor.body.get_velocity.length.to_f
-        @sensor_dialog.execute_script("updateSpeed('#{sensor.id}', '#{speed.round(2)} ')")
+        @sensor_dialog.update_speed(sensor.id, speed.round(2))
         accel = sensor.body.get_acceleration.length.to_f
-        @sensor_dialog.execute_script("updateAcceleration('#{sensor.id}', '#{accel.round(2)} ')")
+        @sensor_dialog.update_acceleration(sensor.id, accel.round(2))
       elsif sensor.is_a?(Link)
-        @sensor_dialog.execute_script("addChartData(#{sensor.id}, ' ', #{@max_actuator_tensions[sensor.id]})")
+        @sensor_dialog.add_chart_data(sensor.id, ' ', @max_actuator_tensions[sensor.id])
+        @sensor_output_csv.write(@max_actuator_tensions[sensor.id].to_s + "\n")
         @max_actuator_tensions[sensor.id] = 0
       end
     end
@@ -691,6 +790,22 @@ class Simulation
 
   def add_force_to_node(node, force)
     node.thingy.body.apply_force(force)
+  end
+
+  def apply_force
+    @generic_links.each_value do |generic_link|
+      generic_link.force = Configuration::GENERIC_LINK_FORCE
+    end
+  end
+
+  # returns true if any of the joints in the structure broke
+  def broken?
+    broken = false
+    Graph.instance.edges.each_value do |edge|
+      next if edge.thingy.joint.nil?
+      broken = true unless edge.thingy.joint.valid?
+    end
+    broken
   end
 
   # This is called when simulation starts and assigns unique materials to bottles
@@ -757,7 +872,11 @@ class Simulation
     @bottle_dat.each { |link, dat|
       mat = dat[3]
       if mat && mat.valid?
-        force = get_directed_force(link)
+        if @peak_force_mode
+          force = @max_link_tensions[link.id]
+        else
+          force = get_directed_force(link)
+        end
         r = (@breaking_force + force * Configuration::TENSION_SENSITIVITY) * @breaking_force_invh
         mat.color = Geometry.blend_colors(Configuration::TENSION_COLORS, r)
       end
@@ -769,7 +888,14 @@ class Simulation
     lowest_force_tuple = [nil, Float::INFINITY]
     highest_force_tuple = [nil, -Float::INFINITY]
     @bottle_dat.each { |link, dat|
-      force = get_directed_force(link)
+      force = 0
+
+      if @peak_force_mode && !@max_link_tensions[link.id].nil?
+        force = @max_link_tensions[link.id]
+      else
+        force = get_directed_force(link)
+      end
+
       if force < lowest_force_tuple[1]
         lowest_force_tuple = [link, force]
       elsif force > highest_force_tuple[1]
@@ -785,9 +911,12 @@ class Simulation
     mat = dat[3]
     if mat && mat.valid?
       force = get_directed_force(link)
-      if(@highest_force_mode)
+      if @highest_force_mode && !@peak_force_mode
         force = @breaking_force/2.0 if (force < @breaking_force/2.0 && force > 0)
         force = -@breaking_force/2.0 if (force > -@breaking_force/2.0 && force < 0)
+      end
+      if @peak_force_mode
+        force = @max_link_tensions[link.id]
       end
       r = (@breaking_force + force * Configuration::TENSION_SENSITIVITY) * @breaking_force_invh
       mat.color = Geometry.blend_colors(Configuration::TENSION_COLORS, r)
@@ -833,6 +962,16 @@ class Simulation
     end
   end
 
+  def rec_max_link_tensions
+    Graph.instance.edges.each_value do |edge|
+      net_lin_tension = compute_net_actuator_tension(edge)
+      @max_link_tensions[edge.id] = net_lin_tension if @max_link_tensions[edge.id].nil?
+      if net_lin_tension.abs > @max_link_tensions[edge.id].abs
+        @max_link_tensions[edge.id] = net_lin_tension
+      end
+    end
+  end
+
   # Outs the net maximum tension of all actuators to the chart
   # and resets the @max_actuator_tensions variable
   def log_max_actuator_tensions(label)
@@ -869,7 +1008,11 @@ class Simulation
       dir = pt1.vector_to(pt2).normalize
       position = Geom.linear_combination(0.5, pt1, 0.5, pt2)
       if link.joint && link.joint.valid?
-        tension = link.joint.linear_tension.dot(dir)
+        if @peak_force_mode
+          tension = @max_link_tensions[link.id]
+        else
+          tension = link.joint.linear_tension.dot(dir)
+        end
       else
         tension = 0.0
       end

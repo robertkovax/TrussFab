@@ -32,23 +32,31 @@ class Thingy
   end
 
   def transform(transformation)
-    @entity.transform!(transformation) if @entity && @entity.valid?
+    Sketchup.active_model.start_operation('Transform', true)
+    @entity.move!(transformation) if @entity && @entity.valid?
     @sub_thingies.each { |thingy| thingy.transform(transformation) }
+    Sketchup.active_model.commit_operation
   end
 
   def change_color(color)
+    Sketchup.active_model.start_operation('Change Color', true)
     @entity.material = color if @entity && @entity.valid?
     @sub_thingies.each { |thingy| thingy.change_color(color) }
+    Sketchup.active_model.commit_operation
   end
 
   def hide
+    Sketchup.active_model.start_operation('Hide', true)
     @entity.hidden = true if @entity && @entity.valid?
     @sub_thingies.each(&:hide)
+    Sketchup.active_model.commit_operation
   end
 
   def show
+    Sketchup.active_model.start_operation('Unhide', true)
     @entity.hidden = false if @entity && @entity.valid?
     @sub_thingies.each(&:show)
+    Sketchup.active_model.commit_operation
   end
 
   def color
@@ -56,8 +64,10 @@ class Thingy
   end
 
   def material=(material)
+    Sketchup.active_model.start_operation("Thingy: Change Material", true)
     @entity.material = material if @entity && @entity.valid?
     @sub_thingies.each { |thingy| thingy.material = material }
+    Sketchup.active_model.commit_operation
   end
 
   def highlight(highlight_material = @highlight_material)

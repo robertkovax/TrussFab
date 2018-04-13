@@ -19,12 +19,14 @@ class BottleLinkTool < Tool
   def onLButtonDown(_flags, x, y, view)
     # is it the first time the mouse goes down
     if @first_position.nil?
+      Sketchup.active_model.start_operation('Create Bottle Link', true)
       @first_position = @mouse_input.update_positions(view, x, y)
+      Sketchup.active_model.commit_operation
     else
       second_position = @mouse_input.update_positions(view, x, y, point_on_plane_from_camera_normal: @first_position)
 
       puts 'Create single bottle link'
-      Sketchup.active_model.start_operation('Create bottle link', true)
+      Sketchup.active_model.start_operation('Build Bottle Link', true)
       Graph.instance.create_edge_from_points(@first_position,
                                              second_position)
       Sketchup.active_model.commit_operation
