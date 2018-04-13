@@ -7,6 +7,6 @@ class ActuatorTool < PhysicsLinkTool
 
   def onLButtonDown(_flags, x, y, view)
     edge = super(_flags, x, y, view)
-    @ui.actuator_menu.add_piston(edge.id) unless edge.nil?
+    @ui.animation_pane.add_piston(edge.id) unless edge.nil?
   end
 end

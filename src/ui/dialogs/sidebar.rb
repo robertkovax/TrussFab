@@ -3,11 +3,11 @@ ProjectHelper.require_multiple('src/tools/*.rb')
 class Sidebar
   attr_reader :width, :height, :top, :left
 
-  attr_accessor :actuator_menu
+  attr_accessor :animation_pane
 
   def initialize
     @tools = {}
-    @HTML_FILE = '../html/sidebar.html'
+    @HTML_FILE = '../sidebar/index.html'
   end
 
   def deselect_tool
