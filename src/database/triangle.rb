@@ -46,7 +46,7 @@ class Triangle < GraphObject
     center.distance(point)
   end
 
-  def move
+  def update_thingy
     @thingy.update_positions(@first_node.position,
                              @second_node.position,
                              @third_node.position)

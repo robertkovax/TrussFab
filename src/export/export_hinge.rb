@@ -10,7 +10,6 @@ DISTANCES_PARAMS = ['l1', 'l2', 'a_l3', 'b_l3']
 class ExportHinge
   def initialize(hub_id, a_other_hub_id, b_other_hub_id, type, params)
     distances = params.select { |k, _| DISTANCES_PARAMS.include? k.to_s }
-    puts distances
     distances.each { |k, v| raise "#{k} must not be negative, was: #{v}" if v < 0 }
 
     if type == :simple

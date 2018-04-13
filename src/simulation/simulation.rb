@@ -623,7 +623,7 @@ class Simulation
       node.update_position(node.original_position)
     end
     Graph.instance.surfaces.each_value do |surface|
-      surface.move
+      surface.update_thingy
     end
   end
 

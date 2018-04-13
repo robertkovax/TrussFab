@@ -198,19 +198,5 @@ class ScadExport
     export_hubs.each do |hub|
       hub.write_to_file(path)
     end
-
-    hinge_algorithm.hubs.each do |node, hubs|
-      next if hubs.size <= 1
-      hinges_node = hinge_algorithm.hinges[node]
-      mainhub_hinges = hinges_node.select { |x| hubs[0].include?(x.edge1) || hubs[0].include?(x.edge2) }
-      subhub_hinges = hinges_node.select { |x| hubs[1].include?(x.edge1) || hubs[1].include?(x.edge2) }
-
-      p 'node w/ at least 1 subhub'
-      p "node: #{node.id}"
-      p "mainhub: #{hubs[0]}"
-      p "hinges for mainhub: #{mainhub_hinges}"
-      p "subhub: #{hubs[1]}"
-      p "hinges for subhub: #{subhub_hinges}"
-    end
   end
 end

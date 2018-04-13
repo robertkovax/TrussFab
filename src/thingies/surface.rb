@@ -38,6 +38,10 @@ class Surface < Thingy
   end
 
   def update_positions(first_position, second_position, third_position)
+    return if first_position == @first_position &&
+      second_position == @second_position &&
+      third_position == @third_position
+
     @first_position = first_position
     @second_position = second_position
     @third_position = third_position
