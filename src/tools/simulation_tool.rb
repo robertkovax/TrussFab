@@ -118,9 +118,9 @@ class SimulationTool < Tool
       @ui.simulation_broke
     end
 
-    Sketchup.active_model.start_operation('SimTool: Apply Force', true)
+    #Sketchup.active_model.start_operation('SimTool: Apply Force', true)
     apply_force(view)
-    Sketchup.active_model.commit_operation
+    #Sketchup.active_model.commit_operation
 
     return if @start_position.nil? || @end_position.nil?
     Sketchup.active_model.start_operation('SimTool: Draw', true)
