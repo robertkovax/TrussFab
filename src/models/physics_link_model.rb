@@ -24,6 +24,7 @@ class PhysicsLinkModel
                                                       diameter, 12)
     face = definition.entities.add_face(circle_edgearray)
     face.pushpull(-2 * @length / 3, false)
+    definition.entities.each{ |entity| entity.layer = Configuration::ACTUATOR_VIEW }
     definition
   end
 
