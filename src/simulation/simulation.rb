@@ -171,7 +171,9 @@ class Simulation
     @world.update_timestep = Configuration::WORLD_TIMESTEP
     @world.solver_model = Configuration::WORLD_SOLVER_MODEL
 
-    @sensor_output_csv = File.new("#{File.expand_path('~')}/sensor_outpu.log", "w")
+    if TrussFab.store_sensor_output?
+      @sensor_output_csv = File.new("#{File.expand_path('~')}/sensor_outpu.log", "w")
+    end
 
     # create bodies for nodes (all edges will not have physics components to them)
     Graph.instance.nodes.each_value do |obj|
@@ -213,7 +215,9 @@ class Simulation
 
     destroy_world
 
-    @sensor_output_csv.close
+    if TrussFab.store_sensor_output?
+      @sensor_output_csv.close
+    end
 
     model.start_operation('Resetting Simulation', true)
     begin
@@ -778,7 +782,9 @@ class Simulation
         @sensor_dialog.update_acceleration(sensor.id, accel.round(2))
       elsif sensor.is_a?(Link)
         @sensor_dialog.add_chart_data(sensor.id, ' ', @max_actuator_tensions[sensor.id])
-        @sensor_output_csv.write(@max_actuator_tensions[sensor.id].to_s + "\n")
+        if TrussFab.store_sensor_output?
+          @sensor_output_csv.write(@max_actuator_tensions[sensor.id].to_s + "\n")
+        end
         @max_actuator_tensions[sensor.id] = 0
       end
     end
