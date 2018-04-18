@@ -34,16 +34,6 @@ class Graph
   # Methods to to create one node, edge or surface
   #
 
-  # nodes should never be created without a corresponding edge, therefore private
-  private
-  def create_node(position)
-    node = find_close_node(position)
-    return node unless node.nil?
-    node = Node.new(position)
-    @nodes[node.id] = node
-    node
-  end
-
   def create_edge_from_points(first_position, second_position, model_name: 'hard', bottle_type: Configuration::BIG_BIG_BOTTLE_NAME, link_type: 'bottle_link')
     first_node = create_node(first_position)
     second_node = create_node(second_position)
@@ -187,5 +177,15 @@ class Graph
     return if hash.nil?
     hash.delete(object.id)
     BottleCounter.update_status_text
+  end
+
+  # nodes should never be created without a corresponding edge, therefore private
+  private
+  def create_node(position)
+    node = find_close_node(position)
+    return node unless node.nil?
+    node = Node.new(position)
+    @nodes[node.id] = node
+    node
   end
 end
