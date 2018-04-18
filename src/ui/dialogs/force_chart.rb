@@ -7,7 +7,7 @@ class ForceChart
 
   def open_dialog
     @dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
-    file_content = File.read(File.join(File.dirname(__FILE__), '../html/sensor_overview.erb'))
+    file_content = File.read(File.join(File.dirname(__FILE__), '../force-chart/sensor_overview.erb'))
     template = ERB.new(file_content)
     @dialog.set_html(template.result(binding))
     @dialog.set_size(300, Configuration::UI_HEIGHT)
