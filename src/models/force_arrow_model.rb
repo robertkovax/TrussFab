@@ -10,5 +10,4 @@ class ForceArrowModel
   def valid?
     @definition.valid?
   end
-
 end

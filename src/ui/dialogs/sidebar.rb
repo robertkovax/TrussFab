@@ -101,7 +101,6 @@ class Sidebar
     build_tool(SimulationTool, 'simulation_tool')
     build_tool(AddForceTool, 'add_force_tool')
     build_tool(AddWeightTool, 'add_weight_tool')
-    build_tool(AddWeightTool, 'add_force_tool') # TODO
     build_tool(ActuatorTool, 'actuator_tool')
     build_tool(SpringTool, 'spring_tool')
     build_tool(GenericPhysicsLinkTool, 'generic_physics_link_tool')
