@@ -172,7 +172,7 @@ class Simulation
     @world.solver_model = Configuration::WORLD_SOLVER_MODEL
 
     if TrussFab.store_sensor_output?
-      @sensor_output_csv = File.new("#{File.expand_path('~')}/sensor_outpu.log", "w")
+      @sensor_output_csv = File.new("#{File.expand_path('~')}/sensor_output.log", "w")
     end
 
     # create bodies for nodes (all edges will not have physics components to them)
