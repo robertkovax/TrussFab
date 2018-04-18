@@ -57,6 +57,10 @@ module ProjectHelper
       layers.add(Configuration::HUB_VIEW)
     end
 
+    unless layers[Configuration::ACTUATOR_VIEW]
+      layers.add(Configuration::ACTUATOR_VIEW)
+    end
+
     unless layers[Configuration::DRAW_TOOLTIPS_VIEW]
       layers.add(Configuration::DRAW_TOOLTIPS_VIEW)
     end

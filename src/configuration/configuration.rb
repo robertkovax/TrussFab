@@ -11,6 +11,7 @@ module Configuration
   FORCE_LABEL_VIEW = 'Force Labels'.freeze
   FORCE_VIEW = 'Forces'.freeze
   HINGE_VIEW = 'Hinge lines'.freeze
+  ACTUATOR_VIEW = 'Actuators'.freeze
 
   # UI Dialog Properties
   HTML_DIALOG = {
