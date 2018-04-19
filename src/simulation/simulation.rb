@@ -2,16 +2,21 @@ require 'src/utility/geometry.rb'
 require 'src/ui/dialogs/force_chart.rb'
 require 'erb'
 
+# Simulation, using MSPhysics
 class Simulation
-
-  attr_reader :pistons, :moving_pistons, :bottle_dat, :stiffness
-  attr_accessor :breaking_force, :max_speed, :highest_force_mode, :peak_force_mode, :auto_piston_group
+  attr_reader :pistons, :moving_pistons, :bottle_dat, :stiffness,
+              :breaking_force
+  attr_accessor :max_speed, :highest_force_mode,
+                :peak_force_mode, :auto_piston_group, :reset_positions_on_end
 
   class << self
-
     def create_body(world, entity, collision_type = :box)
       tr = entity.transformation
-      df = entity.respond_to?(:definition) ? entity.definition : entity.entities.parent
+      df = if entity.respond_to?(:definition)
+             entity.definition
+           else
+             entity.entities.parent
+           end
       bb = df.bounds
       cn = bb.center
       sx = X_AXIS.transform(tr).length.to_f
@@ -23,24 +28,21 @@ class Simulation
       cn.x *= sx
       cn.y *= sy
       cn.z *= sz
-      if tr.xaxis.cross(tr.yaxis).dot(tr.zaxis).to_f < 0.0
-        cn.x = -cn.x
-      end
+      cn.x = -cn.x if tr.xaxis.cross(tr.yaxis).dot(tr.zaxis).to_f < 0.0
       om = Geom::Transformation.new(cn)
       col = case collision_type
-      when :box
-        world.create_box_collision(sbx, sby, sbz, om)
-      when :sphere
-        world.create_scaled_sphere_collision(sbx, sby, sbz, om)
-      else
-        raise TypeError, "Invalid collision type '#{collision_type}'"
-      end
+            when :box
+              world.create_box_collision(sbx, sby, sbz, om)
+            when :sphere
+              world.create_scaled_sphere_collision(sbx, sby, sbz, om)
+            else
+              raise TypeError, "Invalid collision type '#{collision_type}'"
+            end
       body = TrussFab::Body.new(world, col, tr, entity)
       world.destroy_collision(col)
       body
     end
-
-  end # class << self
+  end
 
   def initialize
     # general
@@ -79,7 +81,8 @@ class Simulation
 
     # physics variables
     @breaking_force = Configuration::JOINT_BREAKING_FORCE
-    @breaking_force_invh = (@breaking_force > 1.0e-6) ? (0.5.fdiv(@breaking_force)) : 0.0
+    @breaking_force_invh =
+      @breaking_force > 1.0e-6 ? 0.5.fdiv(@breaking_force) : 0.0
     @stiffness = Configuration::JOINT_STIFFNESS
 
     @max_actuator_tensions = {}
@@ -102,34 +105,24 @@ class Simulation
   # Getter and Setter
   #
 
-  def reset_positions_on_end?
-    @reset_positions_on_end
-  end
-
-  def reset_positions_on_end=(state)
-    @reset_positions_on_end = state
-  end
-
   def breaking_force=(breaking_force)
     @breaking_force = breaking_force.to_f
-    @breaking_force_invh = (@breaking_force > 1.0e-6) ? (0.5.fdiv(@breaking_force)) : 0.0
-    Graph.instance.edges.each_value { |edge|
+    @breaking_force_invh =
+      @breaking_force > 1.0e-6 ? 0.5.fdiv(@breaking_force) : 0.0
+    Graph.instance.edges.each_value do |edge|
       link = edge.thingy
       if link.is_a?(Link) && link.joint && link.joint.valid?
         link.joint.breaking_force = @breaking_force
       end
-    }
+    end
   end
 
   def stiffness=(stiffness)
     @stiffness = stiffness
     Graph.instance.edges.each_value do |edge|
       next if edge.thingy.joint.nil? || !edge.thingy.joint.valid?
-      if edge.thingy.is_a?(ActuatorLink)
-        edge.thingy.joint.stiffness = 0.99
-      else
-        edge.thingy.joint.stiffness = stiffness
-      end
+      edge.thingy.joint.stiffness =
+        edge.thingy.is_a?(ActuatorLink) ? 0.99 : stiffness
     end
   end
 
@@ -142,16 +135,16 @@ class Simulation
       obj.original_position = obj.position
       e = obj.thingy.entity
       @saved_transformations[e] = e.transformation
-      obj.thingy.sub_thingies.each { |sub_obj|
+      obj.thingy.sub_thingies.each do |sub_obj|
         e2 = sub_obj.entity
         @saved_transformations[e2] = e2.transformation
-      }
+      end
     end
     Graph.instance.edges.each_value do |obj|
-      obj.thingy.sub_thingies.each { |sub_obj|
+      obj.thingy.sub_thingies.each do |sub_obj|
         e2 = sub_obj.entity
         @saved_transformations[e2] = e2.transformation
-      }
+      end
     end
   end
 
@@ -171,9 +164,11 @@ class Simulation
     @world.update_timestep = Configuration::WORLD_TIMESTEP
     @world.solver_model = Configuration::WORLD_SOLVER_MODEL
 
-    @sensor_output_csv = File.new("#{File.expand_path('~')}/sensor_outpu.log", "w")
+    @sensor_output_csv =
+      File.new("#{File.expand_path('~')}/sensor_outpu.log", 'w')
 
-    # create bodies for nodes (all edges will not have physics components to them)
+    # create bodies for node
+    # (all edges will not have physics components to them)
     Graph.instance.nodes.each_value do |obj|
       obj.thingy.create_body(@world)
     end
@@ -183,8 +178,8 @@ class Simulation
 
     # create joints for each edge
     create_joints
-    get_all_pistons
-    get_all_generic_links
+    collect_all_pistons
+    collect_all_generic_links
 
     # Setup stuff
     model = Sketchup.active_model
@@ -196,12 +191,12 @@ class Simulation
       assign_unique_materials
       @show_edges = rendering_options['EdgeDisplayMode']
       @show_profiles = rendering_options['DrawSilhouettes']
-    rescue Exception => err
+    rescue StandardError => err
       model.abort_operation
       raise err
     end
 
-    get_all_pistons
+    collect_all_pistons
 
     model.commit_operation
   end
@@ -227,7 +222,7 @@ class Simulation
       reset_generic_links
       rendering_options['EdgeDisplayMode'] = @show_edges
       rendering_options['DrawSilhouettes'] = @show_profiles
-    rescue Exception => err
+    rescue StandardError => err
       model.abort_operation
       raise err
     end
@@ -273,9 +268,9 @@ class Simulation
     ]
     face = @ground_group.entities.add_face(pts)
     face.pushpull(-Configuration::GROUND_THICKNESS)
-    @ground_group.entities.each { |e|
+    @ground_group.entities.each do |e|
       e.visible = false if e.is_a?(::Sketchup::Edge)
-    }
+    end
     body = Simulation.create_body(@world, @ground_group, :box)
     body.static = true
     body.collidable = true
@@ -298,11 +293,10 @@ class Simulation
   # Note: this must be wrapped in operation
   def show_triangle_surfaces
     Graph.instance.surfaces.each do |_, surface|
-      unless surface.thingy.entity.deleted?
-        surface.thingy.entity.hidden = false
-        # workaround to properly reset surface color
-        surface.un_highlight
-      end
+      next if surface.thingy.entity.deleted?
+      surface.thingy.entity.hidden = false
+      # workaround to properly reset surface color
+      surface.un_highlight
     end
     @triangles_hidden = false
   end
@@ -317,7 +311,7 @@ class Simulation
 
   # Note: this must be wrapped in operation
   def hide_force_arrows
-    Graph.instance.nodes.each do |id, node|
+    Graph.instance.nodes.each do |_, node|
       node.thingy.arrow.erase! unless node.thingy.arrow.nil?
       node.thingy.arrow = nil
     end
@@ -327,24 +321,24 @@ class Simulation
   # Piston Related Methods
   #
 
-  def get_all_pistons
+  def collect_all_pistons
     # get all pistons from actuator edges
     @pistons.clear
-    Graph.instance.edges.each { |id, edge|
+    Graph.instance.edges.each do |id, edge|
       @pistons[id] = edge.thingy if edge.thingy.is_a?(ActuatorLink)
-    }
+    end
   end
 
-  def get_all_generic_links
+  def collect_all_generic_links
     # get all generic links from actuator edges
     @generic_links.clear
-    Graph.instance.edges.each { |id, edge|
+    Graph.instance.edges.each do |id, edge|
       @generic_links[id] = edge.thingy if edge.thingy.is_a?(GenericLink)
-    }
+    end
   end
 
   def schedule_piston_for_testing(edge)
-    @moving_pistons.push({:id=>edge.id.to_i, :expanding=>true, :speed=>0.4})
+    @moving_pistons.push(id: edge.id.to_i, expanding: true, speed: 0.4)
   end
 
   def reset_tested_pistons
@@ -361,7 +355,6 @@ class Simulation
     closest_distance = Float::INFINITY
     Graph.instance.nodes.values.each do |node|
       if node.thingy.body.get_position(1).distance(point) < closest_distance
-        closest_node = node
         closest_distance = node.thingy.body.get_position(1).distance(point)
       end
     end
@@ -369,7 +362,7 @@ class Simulation
   end
 
   def test_pistons
-    @moving_pistons.map! { |hash|
+    @moving_pistons.map! do |hash|
       link = @pistons[hash[:id]]
       joint = link.joint
 
@@ -382,20 +375,20 @@ class Simulation
       end
 
       if (cur_disp - link.max).abs < 0.005 && hash[:expanding]
-        #
         @piston_world_time = @world.elapsed_time
         @piston_time = Time.now
         hash[:expanding] = false
       elsif (cur_disp - link.min).abs < 0.005 && !hash[:expanding]
         # increase speed everytime the piston reaches its minimum value
-        hash[:speed] += 0.05 unless (hash[:speed] >= @max_speed && @max_speed != 0)
+        hash[:speed] += 0.05 unless hash[:speed] >= @max_speed && @max_speed != 0
         hash[:expanding] = true
         # add the piston frequency as a label in the chart (every value between
         # two frequencies has the same frequency)
-        log_max_actuator_tensions((1 / (@world.elapsed_time - @piston_world_time).to_f).round(2))
+        log_max_actuator_tensions((1 / (@world.elapsed_time - @piston_world_time)
+                                  .to_f).round(2))
       end
       hash
-    }
+    end
   end
 
   def test_piston_for_hub_movement(node, point)
@@ -413,47 +406,42 @@ class Simulation
     steps.times do
       @world.advance
       distance = test_piston_for_hub_movement(node, point)
-      if distance < closest_distance
-        closest_distance = distance
-      end
+      closest_distance = distance if distance < closest_distance
     end
     reset_tested_pistons
     closest_distance
   end
 
   def check_pose(combination)
-    broken = false
     highest_force = 0
 
     Graph.instance.edges.each_value do |edge|
       edge.thingy.joint.stiffness = 0.999
     end
-    #move them to the proper position
+    # move them to the proper position
     combination.each do |id, pos|
       actuator = @pistons[id]
       actuator.joint.breaking_force = 0
       actuator.joint.rate = 10
       actuator.joint.controller = case pos
-      when -1
-        actuator.min
-      when 0
-        0
-      when 1
-        actuator.max
-      end
+                                  when -1
+                                    actuator.min
+                                  when 0
+                                    0
+                                  when 1
+                                    actuator.max
+                                  end
     end
 
-    update_world_headless_by(3) #settle down
+    update_world_headless_by(3) # settle down
 
-    #record
+    # record
     @max_link_tensions.clear
     update_world_headless_by(0.2, true)
 
     Graph.instance.edges.each_value do |edge|
       force = @max_link_tensions[edge.id]
-      if force.abs > highest_force.abs
-        highest_force = force
-      end
+      highest_force = force if force.abs > highest_force.abs
     end
     highest_force
   end
@@ -471,7 +459,8 @@ class Simulation
 
   def open_automatic_movement_dialog
     @movement_dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
-    file_content = File.read(File.join(File.dirname(__FILE__), '../ui/html/cycle_designer.erb'))
+    file_content = File.read(File.join(File.dirname(__FILE__),
+                                       '../ui/html/cycle_designer.erb'))
     template = ERB.new(file_content)
     @movement_dialog.set_html(template.result(binding))
     @movement_dialog.set_size(300, Configuration::UI_HEIGHT)
@@ -488,37 +477,34 @@ class Simulation
   end
 
   def close_automatic_movement_dialog
-    unless @movement_dialog.nil?
-      if @movement_dialog.visible?
-        @movement_dialog.close
-      end
-    end
+    return if @movement_dialog.nil?
+    @movement_dialog.close if @movement_dialog.visible?
   end
 
   def change_piston_value(id, value)
+    return unless actuator.joint && actuator.joint.valid?
     actuator = @pistons[id.to_i]
-    if actuator.joint && actuator.joint.valid?
-      actuator.joint.rate = actuator.rate
-      actuator.joint.controller = (value.to_f - Configuration::ACTUATOR_INIT_DIST) * (actuator.max - actuator.min)
-    end
+    actuator.joint.rate = actuator.rate
+    actuator.joint.controller =
+      (value.to_f - Configuration::ACTUATOR_INIT_DIST) * (actuator.max -
+                                                          actuator.min)
   end
 
   def move_joint(id, next_position, duration)
-    link = nil
-    @pistons.each_value {|piston|
-      if piston.id == id
-        joint = piston.joint
-        next if joint.nil? || !joint.valid?
-        next_position_normalized = piston.max * next_position.to_f + piston.min * (1 - next_position.to_f)
-        current_postion = joint.cur_distance - joint.start_distance
-        position_distance = (current_postion - next_position_normalized).abs
-        scale = 60.0 / (@fps)
-        scale = 1 if scale == Float::INFINITY
-        rate = (position_distance / duration * scale)
-        joint.rate = rate > 0.01 ? rate : piston.rate #put it on "holding force"
-        joint.controller = next_position_normalized
-      end
-    }
+    @pistons.each_value do |piston|
+      next unless piston.id == id
+      joint = piston.joint
+      next if joint.nil? || !joint.valid?
+      next_position_normalized = piston.max * next_position.to_f +
+                                 piston.min * (1 - next_position.to_f)
+      current_postion = joint.cur_distance - joint.start_distance
+      position_distance = (current_postion - next_position_normalized).abs
+      scale = 60.0 / (@fps)
+      scale = 1 if scale == Float::INFINITY
+      rate = (position_distance / duration * scale)
+      joint.rate = rate > 0.01 ? rate : piston.rate # put it on "holding force"
+      joint.controller = next_position_normalized
+    end
 
     # @auto_piston_group.each { |edges|
     #   edges.each { |edge|
@@ -545,25 +531,22 @@ class Simulation
 
   def stop_actuator(id)
     link = nil
-    @auto_piston_group.each { |edges|
-      edges.each { |edge|
-        if edge.automatic_movement_group == id
-          link = edge.thingy
-          unless link.nil?
-            joint = link.joint
-            joint.rate = 0
-          end
+    @auto_piston_group.each do |edges|
+      edges.each do |edge|
+        next unless edge.automatic_movement_group == id
+        link = edge.thingy
+        unless link.nil?
+          joint = link.joint
+          joint.rate = 0
         end
-      }
-    }
+      end
+    end
   end
 
-
-
   def reset_piston_group
-    Graph.instance.edges.each_value { |edge|
+    Graph.instance.edges.each_value do |edge|
       edge.automatic_movement_group = -1
-    }
+    end
   end
 
   #
@@ -591,13 +574,13 @@ class Simulation
   end
 
   def toggle_pause
-    model = Sketchup.active_model
     if @paused
       # reset_force_labels
       start
     else
       # note(tim): I'm not sure if we want to do this on pause. There should
       # probably be another mode that shows the force labels.
+      # model = Sketchup.active_model
       # model.start_operation('update force label', true)
       # update_force_labels
       # model.commit_operation
@@ -622,9 +605,7 @@ class Simulation
     Graph.instance.nodes.each_value do |node|
       node.update_position(node.original_position)
     end
-    Graph.instance.surfaces.each_value do |surface|
-      surface.move
-    end
+    Graph.instance.surfaces.each_value(&:move)
   end
 
   def update_forces
@@ -638,7 +619,8 @@ class Simulation
     steps.times do
       update_forces
       @world.advance
-      # We need to record this every time the world updates, otherwise, we might skip the crucial forces involved
+      # We need to record this every time the world updates, otherwise,
+      # we might skip the crucial forces involved
       rec_max_actuator_tensions
       rec_max_link_tensions if @peak_force_mode
       Sketchup.active_model.start_operation('Sim: Visualize force', true)
@@ -655,9 +637,7 @@ class Simulation
     steps = (time_step.to_f / Configuration::WORLD_TIMESTEP).to_i
     steps.times do
       @world.advance
-      if(rec_max_tension)
-        rec_max_link_tensions
-      end
+      rec_max_link_tensions if rec_max_tension
     end
   end
 
@@ -665,7 +645,8 @@ class Simulation
     Configuration::WORLD_NUM_ITERATIONS.times do
       update_forces
       @world.advance
-      # We need to record this every time the world updates, otherwise, we might skip the crucial forces involved
+      # We need to record this every time the world updates, otherwise,
+      # we might skip the crucial forces involved
       rec_max_actuator_tensions
       rec_max_link_tensions if @peak_force_mode
       Sketchup.active_model.start_operation('Sim: Visualize force', true)
@@ -682,7 +663,7 @@ class Simulation
     model = Sketchup.active_model
     model.start_operation('Update Entities', true)
     @world.update_group_transformations
-    Graph.instance.edges.each do |id, edge|
+    Graph.instance.edges.each do |_, edge|
       link = edge.thingy
       link.update_link_transformations
     end
@@ -711,14 +692,14 @@ class Simulation
   end
 
   def nextFrame(view)
-    return @running unless (@running && !@paused)
+    return @running unless @running && !@paused
 
     update_world
     update_hub_addons
     update_entities
 
-    if @frame % 5 == 0
-      #shift_chart_data if @frame > 100
+    if (@frame % 5).zero?
+      # shift_chart_data if @frame > 100
       send_sensor_data_to_dialog
       test_pistons
     end
@@ -736,7 +717,10 @@ class Simulation
     now = Time.now.to_f
     delta_time = now - @last_time
     @fps = (delta_frame / delta_time).to_i
-    Sketchup.set_status_text("Frame: #{@frame}   Time: #{sprintf("%.2f", @world.elapsed_time)} s   FPS: #{@fps}   Threads: #{@world.cur_threads_count}", SB_PROMPT)
+    Sketchup.set_status_text("Frame: #{@frame}   "\
+                             "Time: #{format('%.2f', @world.elapsed_time)} s  "\
+                             "FPS: #{@fps}   "\
+                             "Threads: #{@world.cur_threads_count}", SB_PROMPT)
     @last_frame = @frame
     @last_time = now
   end
@@ -753,18 +737,13 @@ class Simulation
   end
 
   def close_sensor_dialog
-    unless @sensor_dialog.nil?
-      if @sensor_dialog.visible?
-        @sensor_dialog.close
-      end
-    end
+    return if @sensor_dialog.nil?
+    @sensor_dialog.close if @sensor_dialog.visible?
   end
 
   def collect_sensors
     Graph.instance.nodes_and_edges.each do |obj|
-      if obj.thingy.is_sensor?
-        @sensors.push(obj.thingy)
-      end
+      @sensors.push(obj.thingy) if obj.thingy.is_sensor?
     end
   end
 
@@ -777,7 +756,8 @@ class Simulation
         accel = sensor.body.get_acceleration.length.to_f
         @sensor_dialog.update_acceleration(sensor.id, accel.round(2))
       elsif sensor.is_a?(Link)
-        @sensor_dialog.add_chart_data(sensor.id, ' ', @max_actuator_tensions[sensor.id])
+        @sensor_dialog.add_chart_data(sensor.id,
+                                      ' ', @max_actuator_tensions[sensor.id])
         @sensor_output_csv.write(@max_actuator_tensions[sensor.id].to_s + "\n")
         @max_actuator_tensions[sensor.id] = 0
       end
@@ -808,58 +788,65 @@ class Simulation
     broken
   end
 
-  # This is called when simulation starts and assigns unique materials to bottles
+  # This is called when simulation starts and
+  # assigns unique materials to bottles
   # Note: this must be wrapped in operation
   def assign_unique_materials
     mats = Sketchup.active_model.materials
     # First, store current mats of bottles and sub-bottles
-    Graph.instance.edges.each_value { |edge|
+    Graph.instance.edges.each_value do |edge|
       link = edge.thingy
       # Get the bottle of the link
       bottle = link.sub_thingies[1].entity
       persist_material(link, bottle)
-    }
+    end
     # Now, create new materials
-    @bottle_dat.each { |link, dat|
+    @bottle_dat.each do |link, dat|
       umat = mats.add('TFX')
       umat.color = Configuration::BOTTLE_COLOR
       dat[3] = umat
       dat[0].material = umat
-      dat[2].each { |e, m| e.material = nil }
+      dat[2].each { |e, _| e.material = nil }
       if link.is_a?(ActuatorLink)
         second_cylinder = link.sub_thingies[0].entity
         second_cylinder.material = dat[3]
       end
-    }
+    end
   end
 
   def persist_material(link, bottle)
-    bottle_entities = bottle.is_a?(::Sketchup::Group) ? bottle.entities : bottle.definition.entities
+    bottle_entities = if bottle.is_a?(::Sketchup::Group)
+                        bottle.entities
+                      else
+                        bottle.definition.entities
+                      end
     sub_mats = {}
-    bottle_entities.each { |entity|
-      if entity.is_a?(::Sketchup::Group) || entity.is_a?(::Sketchup::ComponentInstance)
+    bottle_entities.each do |entity|
+      if entity.is_a?(::Sketchup::Group) ||
+         entity.is_a?(::Sketchup::ComponentInstance)
         sub_mats[entity] = entity.material
       end
-    }
-    sub_mats
+    end
     @bottle_dat[link] = [bottle, bottle.material, sub_mats, nil]
   end
 
-  # This is called when simulation ends and restores original materials, deleting the created ones.
+  # This is called when simulation ends and restores original materials,
+  # deleting the created ones.
   # Note: this must be wrapped in operation
   def reset_materials
     mats = Sketchup.active_model.materials
-    @bottle_dat.each { |link, dat|
+    @bottle_dat.each do |_, dat|
       if dat[0].valid?
         dat[0].material = (dat[1] && dat[1].valid?) ? dat[1] : nil
-        dat[2].each { |e, m|
+        dat[2].each do |e, m|
           next unless e.valid?
           e.material = (m && m.valid?) ? m : nil
-        }
+        end
       end
-      # Note this works in SU2014+, use material.purge_unused at end for compatibility with prior SU versions
+      # Note this works in SU2014+, use material.purge_unused at end for
+      # compatibility with prior SU versions
       mats.remove(dat[3]) if dat[3] && dat[3].valid?
-    }
+    end
     @bottle_dat.clear
   end
 
@@ -869,39 +856,37 @@ class Simulation
   #   thus new materials are not created.
   # Note: this must be wrapped in operation
   def visualize_tensions
-    @bottle_dat.each { |link, dat|
+    @bottle_dat.each do |link, dat|
       mat = dat[3]
-      if mat && mat.valid?
-        if @peak_force_mode
-          force = @max_link_tensions[link.id]
-        else
-          force = get_directed_force(link)
-        end
-        r = (@breaking_force + force * Configuration::TENSION_SENSITIVITY) * @breaking_force_invh
-        mat.color = Geometry.blend_colors(Configuration::TENSION_COLORS, r)
-      end
-    }
+      next unless mat && mat.valid?
+      force = if @peak_force_mode
+                @max_link_tensions[link.id]
+              else
+                get_directed_force(link)
+              end
+      r = (@breaking_force + force * Configuration::TENSION_SENSITIVITY) *
+          @breaking_force_invh
+      mat.color = Geometry.blend_colors(Configuration::TENSION_COLORS, r)
+    end
   end
 
   def visualize_highest_tension
     whiten_all_bottles
     lowest_force_tuple = [nil, Float::INFINITY]
     highest_force_tuple = [nil, -Float::INFINITY]
-    @bottle_dat.each { |link, dat|
-      force = 0
-
-      if @peak_force_mode && !@max_link_tensions[link.id].nil?
-        force = @max_link_tensions[link.id]
-      else
-        force = get_directed_force(link)
-      end
+    @bottle_dat.each do |link, _|
+      force = if @peak_force_mode && !@max_link_tensions[link.id].nil?
+                @max_link_tensions[link.id]
+              else
+                get_directed_force(link)
+              end
 
       if force < lowest_force_tuple[1]
         lowest_force_tuple = [link, force]
       elsif force > highest_force_tuple[1]
         highest_force_tuple = [link, force]
       end
-    }
+    end
     color_single_link(lowest_force_tuple[0])
     color_single_link(highest_force_tuple[0])
   end
@@ -909,18 +894,17 @@ class Simulation
   def color_single_link(link)
     dat = @bottle_dat[link]
     mat = dat[3]
-    if mat && mat.valid?
-      force = get_directed_force(link)
-      if @highest_force_mode && !@peak_force_mode
-        force = @breaking_force/2.0 if (force < @breaking_force/2.0 && force > 0)
-        force = -@breaking_force/2.0 if (force > -@breaking_force/2.0 && force < 0)
-      end
-      if @peak_force_mode
-        force = @max_link_tensions[link.id]
-      end
-      r = (@breaking_force + force * Configuration::TENSION_SENSITIVITY) * @breaking_force_invh
-      mat.color = Geometry.blend_colors(Configuration::TENSION_COLORS, r)
+    return unless mat && mat.valid?
+    force = get_directed_force(link)
+    if @highest_force_mode && !@peak_force_mode
+      half_breaking_force = @breaking_force / 2.0
+      force = half_breaking_force if force < half_breaking_force && force > 0
+      force = -half_breaking_force if force > -half_breaking_force && force < 0
     end
+    force = @max_link_tensions[link.id] if @peak_force_mode
+    r = (@breaking_force + force * Configuration::TENSION_SENSITIVITY) *
+        @breaking_force_invh
+    mat.color = Geometry.blend_colors(Configuration::TENSION_COLORS, r)
   end
 
   def get_directed_force(link)
@@ -935,17 +919,15 @@ class Simulation
   end
 
   def whiten_all_bottles
-    @bottle_dat.each { |link, dat|
+    @bottle_dat.each do |_, dat|
       dat[3].color = Configuration::HIGHLIGHT_COLOR
-    }
+    end
   end
 
   # Returns total tension applied to actuators along their directions
   def compute_net_actuator_tension(edge)
     link = edge.thingy
-    if link.is_a?(Link)
-      net_lin_tension = get_directed_force(link)
-    end
+    net_lin_tension = get_directed_force(link) if link.is_a?(Link)
     net_lin_tension
   end
 
@@ -955,7 +937,9 @@ class Simulation
     Graph.instance.edges.each_value do |edge|
       next unless edge.thingy.is_sensor?
       net_lin_tension = compute_net_actuator_tension(edge)
-      @max_actuator_tensions[edge.id] = net_lin_tension if @max_actuator_tensions[edge.id].nil?
+      if @max_actuator_tensions[edge.id].nil?
+        @max_actuator_tensions[edge.id] = net_lin_tension
+      end
       if net_lin_tension.abs > @max_actuator_tensions[edge.id].abs
         @max_actuator_tensions[edge.id] = net_lin_tension
       end
@@ -965,7 +949,9 @@ class Simulation
   def rec_max_link_tensions
     Graph.instance.edges.each_value do |edge|
       net_lin_tension = compute_net_actuator_tension(edge)
-      @max_link_tensions[edge.id] = net_lin_tension if @max_link_tensions[edge.id].nil?
+      if @max_link_tensions[edge.id].nil?
+        @max_link_tensions[edge.id] = net_lin_tension
+      end
       if net_lin_tension.abs > @max_link_tensions[edge.id].abs
         @max_link_tensions[edge.id] = net_lin_tension
       end
@@ -1007,15 +993,15 @@ class Simulation
       pt2 = link.second_node.thingy.entity.bounds.center
       dir = pt1.vector_to(pt2).normalize
       position = Geom.linear_combination(0.5, pt1, 0.5, pt2)
-      if link.joint && link.joint.valid?
-        if @peak_force_mode
-          tension = @max_link_tensions[link.id]
-        else
-          tension = link.joint.linear_tension.dot(dir)
-        end
-      else
-        tension = 0.0
-      end
+      tension = if link.joint && link.joint.valid?
+                  if @peak_force_mode
+                    @max_link_tensions[link.id]
+                  else
+                    link.joint.linear_tension.dot(dir)
+                  end
+                else
+                  0.0
+                end
       update_force_label(link, tension, position)
     end
   end
@@ -1025,7 +1011,8 @@ class Simulation
   def update_force_label(link, force, position)
     if @force_labels[link].nil?
       model = Sketchup.active_model
-      force_label = model.entities.add_text("--------------- #{force.round(1)}", position)
+      force_label = model.entities.add_text("--------------- #{force.round(1)}",
+                                            position)
       force_label.layer = model.layers[Configuration::FORCE_LABEL_VIEW]
       @force_labels[link] = force_label
     else
@@ -1037,9 +1024,6 @@ class Simulation
   # Removes force labels
   # Note: this must be wrapped in operation
   def reset_force_labels
-    @force_labels.each { |link, label| label.text = "" }
+    @force_labels.each { |_, label| label.text = '' }
   end
-
-
-
-end # Simulation
+end
