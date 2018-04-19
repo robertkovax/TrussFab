@@ -12,7 +12,7 @@ class Hinge
     @edge2 = edge2
     # For historical reasons this is still called 'actuator hinge'.
     # Actionally it is an 'double hinge' and gets used in other scenarios as
-    #well (e.g. subhubs).
+    # well (e.g. subhubs).
     @is_actuator_hinge = false
   end
 
@@ -385,7 +385,7 @@ class HingePlacementAlgorithm
         end
         if next_hinge_possibilities.size > 1
           raise 'More than one next hinge can be connected at node ' +
-                 node.id.to_s
+                node.id.to_s
         end
 
         if next_hinge_possibilities.empty?
