@@ -39,14 +39,22 @@ module Configuration
 
   # Paths
   JSON_PATH = (ProjectHelper.asset_directory + '/exports/').freeze
-  TETRAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/tetrahedron.json').freeze
-  OCTAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/octahedron.json').freeze
-  DYNAMIC_TETRAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/dynamic_tetrahedron.json').freeze
-  DYNAMIC_OCTAHEDRON_PATH = (ProjectHelper.asset_directory + '/primitives/dynamic_octahedron.json').freeze
-  ASSETS_LEG_PATH = (ProjectHelper.asset_directory + '/primitives/leg.json').freeze
-  ASSETS_BEND_PATH = (ProjectHelper.asset_directory + '/primitives/bend.json').freeze
-  ASSETS_PARALLEL_PATH = (ProjectHelper.asset_directory + '/primitives/parallel.json').freeze
-  ASSETS_HINGE_PATH = (ProjectHelper.asset_directory + '/primitives/asset_hinge.json').freeze
+  TETRAHEDRON_PATH = (ProjectHelper.asset_directory +
+                     '/primitives/tetrahedron.json').freeze
+  OCTAHEDRON_PATH = (ProjectHelper.asset_directory +
+                    '/primitives/octahedron.json').freeze
+  DYNAMIC_TETRAHEDRON_PATH = (ProjectHelper.asset_directory +
+                             '/primitives/dynamic_tetrahedron.json').freeze
+  DYNAMIC_OCTAHEDRON_PATH = (ProjectHelper.asset_directory +
+                            '/primitives/dynamic_octahedron.json').freeze
+  ASSETS_LEG_PATH = (ProjectHelper.asset_directory +
+                    '/primitives/leg.json').freeze
+  ASSETS_BEND_PATH = (ProjectHelper.asset_directory +
+                     '/primitives/bend.json').freeze
+  ASSETS_PARALLEL_PATH = (ProjectHelper.asset_directory +
+                         '/primitives/parallel.json').freeze
+  ASSETS_HINGE_PATH = (ProjectHelper.asset_directory +
+                      '/primitives/asset_hinge.json').freeze
 
   BIG_BIG_BOTTLE_NAME = 'Big Big Double Bottle (60cm)'.freeze
   SMALL_BIG_BOTTLE_NAME = 'Small Big Double Bottle (53cm)'.freeze
@@ -59,31 +67,36 @@ module Configuration
     {
       NAME: BIG_BIG_BOTTLE_NAME,
       WEIGHT: 0.16,
-      PATH: ProjectHelper.component_directory + '/1-big-big-double-bottle(60cm).skp',
+      PATH: ProjectHelper.component_directory +
+        '/1-big-big-double-bottle(60cm).skp',
       MODEL: 'hard'
     },
     {
       NAME: SMALL_BIG_BOTTLE_NAME,
       WEIGHT: 0.14,
-      PATH: ProjectHelper.component_directory + '/2-small-big-double-bottle(53cm).skp',
+      PATH: ProjectHelper.component_directory +
+        '/2-small-big-double-bottle(53cm).skp',
       MODEL: 'hard'
     },
     {
       NAME: SMALL_SMALL_BOTTLE_NAME,
       WEIGHT: 0.11,
-      PATH: ProjectHelper.component_directory + '/3-small-small-double-bottle(46cm).skp',
+      PATH: ProjectHelper.component_directory +
+        '/3-small-small-double-bottle(46cm).skp',
       MODEL: 'hard'
     },
     {
       NAME: BIG_BOTTLE_NAME,
       WEIGHT: 0.078,
-      PATH: ProjectHelper.component_directory + '/4-big-single-bottle(30cm).skp',
+      PATH: ProjectHelper.component_directory +
+        '/4-big-single-bottle(30cm).skp',
       MODEL: 'hard'
     },
     {
       NAME: SMALL_BOTTLE_NAME,
       WEIGHT: 0.048,
-      PATH: ProjectHelper.component_directory + '/5-small-single-bottle(23cm).skp',
+      PATH: ProjectHelper.component_directory +
+        '/5-small-single-bottle(23cm).skp',
       MODEL: 'hard'
     }
   ].freeze
@@ -103,7 +116,7 @@ module Configuration
   # Ground Stuff
   GROUND_COLOR          = Sketchup::Color.new(1.0, 1.0, 1.0)
   GROUND_ALPHA          = 0.0
-  GROUND_SIZE           = 10000 # in inches
+  GROUND_SIZE           = 10_000 # in inches
   # GROUND_HEIGHT         = 0.01 # in inches
   GROUND_HEIGHT         = -0.55 # hotfix for assests beein stuck in the ground
   GROUND_THICKNESS      = 20.0 # in inches
@@ -140,7 +153,7 @@ module Configuration
   SPRING_THRESHOLD = 0.015
   SPRING_DAMP = 10
 
-  #GenericPointToPoint Properties
+  # GenericPointToPoint Properties
   GENERIC_LINK_FORCE = 100
   GENERIC_LINK_MIN_DISTANCE = -0.2
   GENERIC_LINK_MAX_DISTANCE = 0.2
@@ -150,7 +163,7 @@ module Configuration
     Sketchup::Color.new(0, 0, 255),
     Sketchup::Color.new(255, 255, 255),
     Sketchup::Color.new(255, 0, 0)
-  ]
+  ].freeze
   TENSION_SENSITIVITY = 1.0
 
   # Mass (in kilograms)
@@ -162,5 +175,4 @@ module Configuration
   PISTON_MASS       = 0.3
   HUB_MASS          = 0.12
   POD_MASS          = 0.1
-
 end
