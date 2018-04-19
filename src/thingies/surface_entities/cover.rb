@@ -1,3 +1,4 @@
+# Cover
 class Cover < Thingy
   attr_reader :pods
   def initialize(first_position, second_position, third_position, normal_vector,
@@ -64,10 +65,12 @@ class Cover < Thingy
     pm.add_polygon(1, 2, 5, 4)
     pm.add_polygon(2, 3, 6, 5)
     pm.add_polygon(3, 1, 4, 6)
-    smooth_flags = Geom::PolygonMesh::AUTO_SOFTEN | Geom::PolygonMesh::SMOOTH_SOFT_EDGES
+    smooth_flags = Geom::PolygonMesh::AUTO_SOFTEN |
+                   Geom::PolygonMesh::SMOOTH_SOFT_EDGES
     group = Sketchup.active_model.entities.add_group
     group.entities.add_faces_from_mesh(pm, smooth_flags, @material, @material)
-    group.layer = Sketchup.active_model.layers[Configuration::TRIANGLE_SURFACES_VIEW]
+    group.layer = Sketchup.active_model
+                          .layers[Configuration::TRIANGLE_SURFACES_VIEW]
     group
   end
 end

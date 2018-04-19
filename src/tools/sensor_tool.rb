@@ -12,7 +12,7 @@ class SensorTool < Tool
     @mouse_input.update_positions(view, x, y)
     obj = @mouse_input.snapped_object
     return if obj.nil?
-    if obj.thingy.is_sensor?
+    if obj.thingy.sensor?
       p "Removed sensor from #{obj.class.name} #{obj.id}"
     else
       p "Placed sensor at #{obj.class.name} #{obj.id}"

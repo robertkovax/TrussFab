@@ -743,7 +743,7 @@ class Simulation
 
   def collect_sensors
     Graph.instance.nodes_and_edges.each do |obj|
-      @sensors.push(obj.thingy) if obj.thingy.is_sensor?
+      @sensors.push(obj.thingy) if obj.thingy.sensor?
     end
   end
 
@@ -935,7 +935,7 @@ class Simulation
   def rec_max_actuator_tensions
     return unless @sensor_dialog
     Graph.instance.edges.each_value do |edge|
-      next unless edge.thingy.is_sensor?
+      next unless edge.thingy.sensor?
       net_lin_tension = compute_net_actuator_tension(edge)
       if @max_actuator_tensions[edge.id].nil?
         @max_actuator_tensions[edge.id] = net_lin_tension
