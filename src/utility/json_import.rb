@@ -3,9 +3,9 @@ require 'src/database/graph.rb'
 require 'src/utility/geometry.rb'
 require 'src/simulation/thingy_rotation.rb'
 
+# imports object from JSON
 module JsonImport
   class << self
-
     def distance_to_ground(json_objects)
       lowest_z = Float::INFINITY
       json_objects['nodes'].each do |node|
@@ -18,7 +18,9 @@ module JsonImport
     def at_position(path, position)
       # Sketchup.active_model.start_operation('Import', true)
       json_objects = load_json(path)
-      points = build_points(json_objects, position, distance_to_ground(json_objects))
+      points = build_points(json_objects,
+                            position,
+                            distance_to_ground(json_objects))
       edges, nodes = build_edges(json_objects, points)
       triangles = create_triangles(edges)
       add_joints(json_objects, edges, nodes) unless json_objects['joints'].nil?
@@ -42,15 +44,15 @@ module JsonImport
       snap_center = snap_triangle.center
 
       # snap to triangle (from json)
-      json_direction, json_triangle_points = json_triangle(json_objects, json_points)
+      json_direction, json_triangle_points = json_triangle(json_objects,
+                                                           json_points)
       json_center = Geometry.triangle_incenter(*json_triangle_points)
-
-
 
       # move all json points to snap triangle
       translation = Geom::Transformation.new(snap_center - json_center)
 
-      # rotate json points so that the snap triangle and json triangle are planar
+      # rotate json points so that the snap triangle
+      # and json triangle are planar
       rotation1 = Geometry.rotation_transformation(json_direction,
                                                    snap_direction,
                                                    json_center)
@@ -63,7 +65,9 @@ module JsonImport
 
       # get two corresponding vectors from snap and json triangle to align them
       ref_point_snap = snap_triangle.first_node.position
-      ref_point_json = json_triangle_points.min_by { |point| ref_point_snap.distance(point) }
+      ref_point_json = json_triangle_points.min_by do |point|
+        ref_point_snap.distance(point)
+      end
 
       vector_snap = snap_center.vector_to(ref_point_snap)
       vector_json = json_center.vector_to(ref_point_json)
@@ -84,9 +88,10 @@ module JsonImport
 
       json_triangle_ids.each do |id|
         # TODO: find corresponding points via construction
-        json_points[id] = snap_points.min_by { |point| point.distance(json_points[id])}
+        json_points[id] = snap_points.min_by do |point|
+          point.distance(json_points[id])
+        end
       end
-
 
       edges, nodes = build_edges(json_objects, json_points)
       triangles = create_triangles(edges)
@@ -113,19 +118,22 @@ module JsonImport
     end
 
     # create triangles from incidents
-    # we look at both first_node and second_node, since triangles with a missing link can occur
+    # we look at both first_node and second_node, since triangles with a missing
+    # link can occur
     def create_triangles(edges)
       triangles = {}
       edges.values.each do |edge|
         edge.first_node.incidents.each do |first_incident|
           edge.second_node.incidents.each do |second_incident|
-            next if first_incident == second_incident
-            if first_incident.opposite(edge.first_node) == second_incident.opposite(edge.second_node)
-              triangle = Graph.instance.create_surface(edge.first_node,
-                                                       edge.second_node,
-                                                       first_incident.opposite(edge.first_node))
-              triangles[triangle.id] = triangle
-            end
+            next if first_incident == second_incident ||
+                    (first_incident.opposite(edge.first_node) !=
+                    second_incident.opposite(edge.second_node))
+            triangle = Graph.instance
+                            .create_surface(edge.first_node,
+                                            edge.second_node,
+                                            first_incident
+                                            .opposite(edge.first_node))
+            triangles[triangle.id] = triangle
           end
         end
       end
@@ -161,9 +169,7 @@ module JsonImport
         link_type = edge_json['type'].nil? ? 'bottle_link' : edge_json['type']
 
         # For backward compatibility with SU2016 JSON files
-        if link_type == 'LinkTypes::BOTTLE_LINK'
-          link_type = 'bottle_link'
-        end
+        link_type = 'bottle_link' if link_type == 'LinkTypes::BOTTLE_LINK'
 
         bottle_type = edge_json['bottle_type'].nil? ? '' : edge_json['bottle_type']
         edge = Graph.instance.create_edge_from_points(first_position,
@@ -180,10 +186,7 @@ module JsonImport
 
     def add_joints(json_objects, edges, nodes)
       json_objects['joints'].each do |joint_json|
-        edge = edges[joint_json['edge_id']]
-        node = nodes[joint_json['node_id']]
-
-        rotation = if !joint_json['rotation_axis_id'].nil?
+        if !joint_json['rotation_axis_id'].nil?
           EdgeRotation.new(edges[joint_json['rotation_axis_id']])
         elsif !joint_json['rotation_plane_ids'].nil?
           plane_nodes = joint_json['rotation_plane_ids'].map { |id| nodes[id] }
@@ -198,7 +201,9 @@ module JsonImport
       string.delete!('(')
       string.delete!(')')
       string_parts = string.split(', ')
-      Geom::Vector3d.new(string_parts[0].to_f, string_parts[1].to_f, string_parts[2].to_f)
+      Geom::Vector3d.new(string_parts[0].to_f,
+                         string_parts[1].to_f,
+                         string_parts[2].to_f)
     end
 
     def add_pods(json_objects, nodes)
@@ -206,7 +211,8 @@ module JsonImport
         node = nodes[node_json['id']]
         next if node_json['pods'].nil? || node_json['pods'].empty?
         node_json['pods'].each do |pod_info|
-          node.add_pod(string_to_vector3d(pod_info['direction']), is_fixed: pod_info['is_fixed'])
+          node.add_pod(string_to_vector3d(pod_info['direction']),
+                       is_fixed: pod_info['is_fixed'])
         end
       end
     end
