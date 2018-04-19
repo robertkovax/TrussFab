@@ -116,7 +116,7 @@ class HingePlacementAlgorithm
       reset_simulation
     end
 
-    static_groups = find_rigid_substructures(edges.reject(&:is_dynamic?),
+    static_groups = find_rigid_substructures(edges.reject(&:dynamic?),
                                              rotation_partners)
     static_groups.select! { |group| group.size > 1 }
     static_groups.sort! { |a, b| b.size <=> a.size }
@@ -133,7 +133,7 @@ class HingePlacementAlgorithm
 
       raise 'More than one common edge.' if common_edges.size > 1
 
-      if !common_edges.empty? && common_edges.to_a[0].is_dynamic?
+      if !common_edges.empty? && common_edges.to_a[0].dynamic?
         group_rotations[pair[1]].add(pair[0])
         group_rotations[pair[0]].add(pair[1])
       end
@@ -177,7 +177,7 @@ class HingePlacementAlgorithm
         next if same_group
 
         new_hinge = Hinge.new(e1, e2)
-        new_hinge.is_actuator_hinge = tri.is_dynamic?
+        new_hinge.is_actuator_hinge = tri.dynamic?
         hinges.add(new_hinge)
       end
     end
@@ -224,7 +224,7 @@ class HingePlacementAlgorithm
         # the higher number the number, the more problematic is a hinge
         hinge_values = []
         new_hinges.each do |hinge|
-          connects_actuator = hinge.edge1.is_dynamic? || hinge.edge2.is_dynamic?
+          connects_actuator = hinge.edge1.dynamic? || hinge.edge2.dynamic?
 
           val = 0
           val += shared_a_hinge_count[hinge] - 1 if shared_a_hinge_count[hinge] > 1
@@ -420,7 +420,7 @@ class HingePlacementAlgorithm
     groups = []
 
     triangles = Set.new(edges.flat_map(&:adjacent_triangles))
-    triangles.reject!(&:is_dynamic?)
+    triangles.reject!(&:dynamic?)
 
     loop do
       unvisited_tris = triangles - visited_triangles
@@ -448,7 +448,7 @@ class HingePlacementAlgorithm
     visited_triangles.add(triangle)
     group.add(triangle)
 
-    triangle.adjacent_triangles.reject(&:is_dynamic?).each do |other_triangle|
+    triangle.adjacent_triangles.reject(&:dynamic?).each do |other_triangle|
       is_visited = visited_triangles.include?(other_triangle)
       is_rotating = rotation_partners[triangle].include?(other_triangle)
       next if is_visited || is_rotating
@@ -612,7 +612,7 @@ class HingePlacementAlgorithm
       end
     end
 
-    result.reject! { |_, edge| edge.is_dynamic? }
+    result.reject! { |_, edge| edge.dynamic? }
 
     result
   end

@@ -83,8 +83,8 @@ class Triangle < GraphObject
     end
   end
 
-  def is_dynamic?
-    edges.any? { |e| e.is_dynamic? }
+  def dynamic?
+    edges.any? { |e| e.dynamic? }
   end
 
   def complete?
