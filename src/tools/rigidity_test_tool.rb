@@ -1,10 +1,13 @@
 require 'src/tools/tool'
 require 'src/algorithms/rigidity_tester'
 
+# checks if an object can move
 class RigidityTestTool < Tool
   def initialize(ui)
     super(ui)
-    @mouse_input = MouseInput.new(snap_to_nodes: true, snap_to_edges: true, snap_to_surfaces: true)
+    @mouse_input = MouseInput.new(snap_to_nodes: true,
+                                  snap_to_edges: true,
+                                  snap_to_surfaces: true)
   end
 
   def onMouseMove(_flags, x, y, view)

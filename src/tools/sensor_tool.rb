@@ -1,3 +1,4 @@
+# Places a sensor on an edge or node
 class SensorTool < Tool
   def initialize(ui)
     super(ui)

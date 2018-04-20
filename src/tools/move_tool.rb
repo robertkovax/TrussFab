@@ -2,6 +2,7 @@ require 'src/tools/tool.rb'
 require 'src/algorithms/relaxation.rb'
 require 'src/utility/mouse_input.rb'
 
+# moves or deforms an object
 class MoveTool < Tool
   LINE_STIPPLE = '_'.freeze
 

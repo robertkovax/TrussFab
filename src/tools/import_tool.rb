@@ -5,8 +5,9 @@ require 'src/database/graph.rb'
 require 'src/configuration/configuration.rb'
 require 'src/thingies/actuator_link.rb'
 
+# Imports an object from a JSON file
 class ImportTool < Tool
-  def initialize(ui)
+  def initialize(_ui)
     super
     @mouse_input = MouseInput.new(snap_to_surfaces: true)
     @path = nil
@@ -71,14 +72,13 @@ class ImportTool < Tool
                        Configuration::INTERSECTION_OFFSET
       ))
       oent = old_triangle.thingy.entity
-      if oent.valid?
-        old_bounds = oent.bounds
-        intersection = old_bounds.intersect(new_bounds)
+      next unless oent.valid?
+      old_bounds = oent.bounds
+      intersection = old_bounds.intersect(new_bounds)
 
-        if intersection.valid?
-          Sketchup.active_model.commit_operation
-          return true
-        end
+      if intersection.valid?
+        Sketchup.active_model.commit_operation
+        return true
       end
     end
     puts('Add object on the ground')

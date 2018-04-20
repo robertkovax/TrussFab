@@ -83,10 +83,10 @@ class AnimationPane
 
     Sketchup.active_model.select_tool(@simulation_tool)
 
-    pistons = @simulation_tool.get_pistons
-    breaking_force = @simulation_tool.get_breaking_force
-    max_speed = @simulation_tool.get_max_speed
-    stiffness = @simulation_tool.get_stiffness
+    pistons = @simulation_tool.pistons
+    breaking_force = @simulation_tool.breaking_force
+    max_speed = @simulation_tool.max_speed
+    stiffness = @simulation_tool.stiffness
     @dialog.execute_script("initState(#{breaking_force}, #{stiffness})")
   end
 
@@ -126,11 +126,11 @@ class AnimationPane
     end
 
     @dialog.add_action_callback('set_breaking_force') do |_context, value|
-      @simulation_tool.set_breaking_force(value)
+      @simulation_tool.breaking_force = value
     end
 
     @dialog.add_action_callback('set_max_speed') do |_context, value|
-      @simulation_tool.set_max_speed(value)
+      @simulation_tool.max_speed = value
     end
 
     @dialog.add_action_callback('change_highest_force_mode') do |_context, checked|
@@ -166,7 +166,7 @@ class AnimationPane
     end
 
     @dialog.add_action_callback('set_stiffness') do |_, stiffness|
-      @simulation_tool.set_stiffness(stiffness)
+      @simulation_tool.stiffness = stiffness
     end
   end
 end

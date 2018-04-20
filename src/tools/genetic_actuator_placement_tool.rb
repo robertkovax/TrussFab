@@ -1,6 +1,9 @@
 require 'src/tools/tool'
 require 'src/database/graph.rb'
 
+# Automatically tries to find the best place for an actuator by exchanging all
+# edges with actuators and trying them out, checking which actuator brings the
+# selected node closest to the selected position
 class GeneticActuatorPlacementTool < Tool
   def initialize(ui)
     super(ui)
@@ -25,8 +28,7 @@ class GeneticActuatorPlacementTool < Tool
     Sketchup.active_model.commit_operation
   end
 
-  def activate
-  end
+  def activate; end
 
   def deactivate(view)
     super(view)
@@ -59,12 +61,9 @@ class GeneticActuatorPlacementTool < Tool
         closest_distance = distance
         best_piston = edge
       end
-      if distance < 50
-        return
-      end
+      break if distance < 50
       model.start_operation('reset simulation', true)
       simulation.reset
-      simulation = nil
       model.commit_operation
       reset_actuator_type(edge, previous_link_type)
     end
