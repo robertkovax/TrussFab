@@ -5,6 +5,7 @@ require 'src/database/triangle.rb'
 require 'src/utility/scad_export.rb'
 require 'src/utility/bottle_counter.rb'
 
+# Structure that contains all TrussObjects (i.e. Edges, Nodes and Surfaces)
 class Graph
   include Singleton
 
@@ -34,31 +35,56 @@ class Graph
   # Methods to to create one node, edge or surface
   #
 
-  def create_edge_from_points(first_position, second_position, model_name: 'hard', bottle_type: Configuration::BIG_BIG_BOTTLE_NAME, link_type: 'bottle_link')
+  def create_edge_from_points(first_position,
+                              second_position,
+                              bottle_type: Configuration::BIG_BIG_BOTTLE_NAME,
+                              link_type: 'bottle_link')
     first_node = create_node(first_position)
     second_node = create_node(second_position)
-    edge = create_edge(first_node, second_node, model_name: model_name, bottle_type: bottle_type, link_type: link_type)
+    edge = create_edge(first_node,
+                       second_node,
+                       bottle_type: bottle_type,
+                       link_type: link_type)
     edge
   end
 
-  def create_edge(first_node, second_node, model_name: 'hard', bottle_type: Configuration::BIG_BIG_BOTTLE_NAME, link_type: 'bottle_link')
+  def create_edge(first_node,
+                  second_node,
+                  bottle_type: Configuration::BIG_BIG_BOTTLE_NAME,
+                  link_type: 'bottle_link')
     nodes = [first_node, second_node]
     edge = find_edge(nodes)
     return edge unless edge.nil?
-    edge = Edge.new(first_node, second_node, model_name: model_name, bottle_type: bottle_type, link_type: link_type)
+    edge = Edge.new(first_node,
+                    second_node,
+                    bottle_type: bottle_type,
+                    link_type: link_type)
     create_possible_surfaces(edge)
     @edges[edge.id] = edge
     BottleCounter.update_status_text
     edge
   end
 
-  def create_surface_from_points(first_position, second_position, third_position, model_name: 'hard', bottle_type: Configuration::BIG_BIG_BOTTLE_NAME, link_type: 'bottle_link')
+  def create_surface_from_points(first_position,
+                                 second_position,
+                                 third_position,
+                                 bottle_type: Configuration::BIG_BIG_BOTTLE_NAME,
+                                 link_type: 'bottle_link')
     first_node = create_node(first_position)
     second_node = create_node(second_position)
     third_node = create_node(third_position)
-    create_edge(first_node, second_node, model_name: model_name, bottle_type: bottle_type, link_type: link_type)
-    create_edge(second_node, third_node, model_name: model_name, bottle_type: bottle_type, link_type: link_type)
-    create_edge(first_node, third_node, model_name: model_name, bottle_type: bottle_type, link_type: link_type)
+    create_edge(first_node,
+                second_node,
+                bottle_type: bottle_type,
+                link_type: link_type)
+    create_edge(second_node,
+                third_node,
+                bottle_type: bottle_type,
+                link_type: link_type)
+    create_edge(first_node,
+                third_node,
+                bottle_type: bottle_type,
+                link_type: link_type)
   end
 
   def create_surface(first_node, second_node, third_node)
@@ -155,15 +181,9 @@ class Graph
   # This removes all objects with deleted instances
   # Call this prior to exporting, importing, or starting simulation
   def cleanup
-    @edges.reject! { |id, e|
-      !e.check_if_valid
-    }
-    @nodes.reject! { |id, e|
-      !e.check_if_valid
-    }
-    @surfaces.reject! { |id, e|
-      !e.check_if_valid
-    }
+    @edges.select! { |_, e| e.check_if_valid }
+    @nodes.select! { |_, e| e.check_if_valid }
+    @surfaces.select! { |_, e| e.check_if_valid }
   end
 
   #
@@ -179,8 +199,10 @@ class Graph
     BottleCounter.update_status_text
   end
 
-  # nodes should never be created without a corresponding edge, therefore private
+  # nodes should never be created without a corresponding edge,
+  # therefore private
   private
+
   def create_node(position)
     node = find_close_node(position)
     return node unless node.nil?

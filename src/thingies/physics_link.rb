@@ -2,6 +2,7 @@ require 'src/thingies/link.rb'
 require 'src/thingies/link_entities/cylinder.rb'
 require 'src/simulation/simulation.rb'
 
+# SuperClass for moving links
 class PhysicsLink < Link
   attr_reader :joint, :first_cylinder, :second_cylinder
 
@@ -35,34 +36,32 @@ class PhysicsLink < Link
   #
 
   def create_joints(world, first_node, second_node, breaking_force)
-    first_direction = mid_point.vector_to(first_node.position)
-    second_direction = mid_point.vector_to(second_node.position)
-
     bd1 = first_node.thingy.body
     bd2 = second_node.thingy.body
     pt1 = bd1.group.bounds.center
     pt2 = bd2.group.bounds.center
     @joint = case @link_type # NOTE: Add newly created link_types here
-    when 'actuator'
-      TrussFab::PointToPointActuator.new(world, bd1, bd2, pt1, pt2, nil)
-    when 'spring'
-      TrussFab::PointToPointGasSpring.new(world, bd1, bd2, pt1, pt2, nil)
-    when 'generic'
-      TrussFab::GenericPointToPoint.new(world, bd1, bd2, pt1, pt2, nil)
-    else
-      raise 'Link type @link_type is not yet implemented'
-    end
+             when 'actuator'
+               TrussFab::PointToPointActuator.new(world, bd1, bd2, pt1, pt2,
+                                                  nil)
+             when 'spring'
+               TrussFab::PointToPointGasSpring.new(world, bd1, bd2, pt1, pt2,
+                                                   nil)
+             when 'generic'
+               TrussFab::GenericPointToPoint.new(world, bd1, bd2, pt1, pt2, nil)
+             else
+               raise 'Link type @link_type is not yet implemented'
+             end
     @joint.solver_model = Configuration::JOINT_SOLVER_MODEL
     @joint.stiffness = Configuration::JOINT_STIFFNESS
     @joint.breaking_force = breaking_force
-    @initial_length = case
-    when @joint.class <= TrussFab::PointToPointActuator
-      @joint.cur_distance
-    when @joint.class <= TrussFab::GenericPointToPoint
-      @joint.cur_distance
-    else
-      @joint.cur_length
-    end
+    @initial_length = if @joint.class <= TrussFab::PointToPointActuator
+                        @joint.cur_distance
+                      elsif @joint.class <= TrussFab::GenericPointToPoint
+                        @joint.cur_distance
+                      else
+                        @joint.cur_length
+                      end
     update_link_properties
   end
 
@@ -71,7 +70,7 @@ class PhysicsLink < Link
     pt2 = @second_node.thingy.entity.bounds.center
     pt3 = Geom::Point3d.linear_combination(0.5, pt1, 0.5, pt2)
     dir = pt2 - pt1
-    return if (dir.length.to_f < 1.0e-6)
+    return if dir.length.to_f < 1.0e-6
     dir.normalize!
 
     ot = Geometry.scale_vector(dir, Configuration::MINIMUM_ELONGATION)
@@ -97,7 +96,8 @@ class PhysicsLink < Link
   #
 
   def create_sub_thingies
-    @first_elongation_length = @second_elongation_length = Configuration::MINIMUM_ELONGATION
+    @first_elongation_length =
+      @second_elongation_length = Configuration::MINIMUM_ELONGATION
 
     direction_up = @position.vector_to(@second_position)
     direction_down = @second_position.vector_to(@position)
@@ -111,8 +111,10 @@ class PhysicsLink < Link
     cylinder_start = @position.offset(offset_up)
     cylinder_end = @second_position.offset(offset_down)
 
-    @first_cylinder = Cylinder.new(cylinder_start, direction_up, self, @model.outer_cylinder)
-    @second_cylinder = Cylinder.new(cylinder_end, direction_down, self, @model.inner_cylinder)
+    @first_cylinder = Cylinder.new(cylinder_start, direction_up, self,
+                                   @model.outer_cylinder)
+    @second_cylinder = Cylinder.new(cylinder_end, direction_down, self,
+                                    @model.inner_cylinder)
 
     add(@first_cylinder, @second_cylinder)
   end

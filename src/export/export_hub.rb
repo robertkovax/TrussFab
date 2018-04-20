@@ -1,6 +1,6 @@
 require 'src/export/presets.rb'
 
-
+# Export hub to SCAD file
 class ExportHub
   def initialize(id, l1)
     @id = id
@@ -13,6 +13,7 @@ class ExportHub
   end
 end
 
+# Export sub hub to SCAD file
 class ExportSubHub < ExportHub
   def initialize(id, l1)
     super(id, l1)
@@ -25,16 +26,16 @@ class ExportSubHub < ExportHub
     l3_array = []
 
     @elongations.each do |elongation|
-      gap_type_string = "none"
-      connector_type_string = "bottle"
+      gap_type_string = 'none'
+      connector_type_string = 'bottle'
 
       if elongation.hinge_connection == A_HINGE
-        gap_type_string = "a"
+        gap_type_string = 'a'
       elsif elongation.hinge_connection == B_HINGE
-        gap_type_string = "b"
-        connector_type_string = "none"
+        gap_type_string = 'b'
+        connector_type_string = 'none'
       elsif elongation.hinge_connection == A_B_HINGE
-        raise RuntimeError, 'Subhub can not be connected to both a and b hinge at same edge.'
+        raise 'Subhub can not be connected to both a and b hinge at same edge.'
       end
 
       vector_array << "[#{elongation.direction.to_a.join(', ')}]"
@@ -43,21 +44,22 @@ class ExportSubHub < ExportHub
       l3_array << elongation.l3.to_s
     end
 
-    params = "  normal_vectors = [\n" + vector_array.join(",\n") + "],\n" +
-             "  gap_types = [\n" + gap_type_array.join(",\n") + "],\n" +
-             "  connector_types = [\n" + connector_type_array.join(",\n") + "],\n" +
-             "  l1 = #{@l1},\n" +
+    params = "  normal_vectors = [\n" + vector_array.join(",\n") + "],\n"\
+             "  gap_types = [\n" + gap_type_array.join(",\n") + "],\n"\
+             "  connector_types = [\n" + connector_type_array.join(",\n") + "],\n"\
+             "  l1 = #{@l1},\n"\
              "  l3 = [\n" + l3_array.join(",\n") + "],\n"
 
     default_params = format_hash_for_openscad_params(PRESETS::SUBHUB_OPENSCAD)
     filename = "#{path}/SubHub_#{@id}.scad"
     file = File.new(filename, 'w')
 
-    export_string = ["// adjust filepath to LibSTLExport if necessary",
+    export_string = [
+      '// adjust filepath to LibSTLExport if necessary',
       "use <#{ProjectHelper.library_directory}/openscad/Kinematics/subhub.scad>",
-      "draw_subhub(",
-      "//  edge_sphere_push_out=[10, 10, 10],",
-      "//  edge_sphere_pull_in=[-200, -15, -15],",
+      'draw_subhub(',
+      '//  edge_sphere_push_out=[10, 10, 10],',
+      '//  edge_sphere_pull_in=[-200, -15, -15],'
     ].join("\n") + "\n" + params + default_params + "\n);\n"
 
     file.write(export_string)
@@ -66,6 +68,7 @@ class ExportSubHub < ExportHub
   end
 end
 
+# Export main hub to SCAD file
 class ExportMainHub < ExportHub
   def initialize(id, l1)
     super(id, l1)
@@ -102,7 +105,7 @@ class ExportMainHub < ExportHub
     @pods.each do |pod|
       addon_array << '[(45 - 0 - 10), "STAND",0,24,10,60,0]'
       type_array << '"STAND"'
-      vector_array << "[" + pod.direction.normalize.to_a.join(', ').to_s + "]"
+      vector_array << '[' + pod.direction.normalize.to_a.join(', ').to_s + ']'
     end
 
     export_string =

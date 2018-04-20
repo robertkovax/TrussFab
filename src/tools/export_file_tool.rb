@@ -3,8 +3,9 @@ require 'src/utility/mouse_input.rb'
 require 'src/utility/json_export.rb'
 require 'src/configuration/configuration.rb'
 
+# Exports Object to JSON
 class ExportFileTool < Tool
-  def initialize(ui)
+  def initialize(user_interface)
     super
     @mouse_input = MouseInput.new(snap_to_surfaces: true)
   end

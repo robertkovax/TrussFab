@@ -1,5 +1,6 @@
 require 'src/models/physics_link_model.rb'
 
+# GenericLinkModel (orange)
 class GenericLinkModel < PhysicsLinkModel
   def initialize
     super

@@ -1,5 +1,6 @@
+# Places a pod on a node
 class PodTool < Tool
-  def initialize(ui = nil)
+  def initialize(_ui = nil)
     super
     @mouse_input = MouseInput.new(snap_to_nodes: true, snap_to_surfaces: true)
   end

@@ -1,8 +1,8 @@
 require 'src/thingies/thingy.rb'
 require 'src/simulation/simulation.rb'
 
+# Cylinder
 class Cylinder < Thingy
-
   def initialize(center, vector, parent, definition, id = nil)
     super(id)
     @center = center

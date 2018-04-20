@@ -1,13 +1,15 @@
 ProjectHelper.require_multiple('src/tools/*.rb')
 
+# ruby integration for the tool sidebar
 class Sidebar
   attr_reader :width, :height, :top, :left
 
   attr_accessor :animation_pane
 
+  HTML_FILE = '../sidebar/index.html'.freeze
+
   def initialize
     @tools = {}
-    @HTML_FILE = '../sidebar/index.html'
   end
 
   def deselect_tool
@@ -30,21 +32,20 @@ class Sidebar
     @left = 50
 
     props = {
-      :resizable => true,
-      :width => @width,
-      :height => @height,
-      :left => @left,
-      :top => @top
-      # :min_width => @width,
-      # :min_height => @height,
-      # :max_width => @width,
-      # :max_height => @height
+      resizable: true,
+      width: @width,
+      height: @height,
+      left: @left,
+      top: @top
+      # min_width: @width,
+      # min_height: @height,
+      # max_width: @width,
+      # max_height: @height
     }
 
     @dialog = UI::HtmlDialog.new(props)
-    file = File.join(File.dirname(__FILE__), @HTML_FILE)
+    file = File.join(File.dirname(__FILE__), HTML_FILE)
     @dialog.set_file(file)
-    # @dialog.set_siSkeze(Configuration::UI_WIDsTH, Configuration::UI_HEIGHT)
     @dialog.set_position(@left, @top)
     @dialog.set_size(@width, @height)
     @dialog.show
@@ -73,7 +74,7 @@ class Sidebar
   end
 
   def refresh
-    file = File.join(File.dirname(__FILE__), @HTML_FILE)
+    file = File.join(File.dirname(__FILE__), HTML_FILE)
     @dialog.set_file(file)
   end
 

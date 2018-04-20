@@ -2,6 +2,7 @@ require 'json'
 require 'src/database/graph.rb'
 require 'src/utility/geometry.rb'
 
+# puts necessary parameters in json file for export
 class JsonExport
   def self.export(path, triangle = nil)
     file = File.open(path, 'w')
@@ -11,13 +12,12 @@ class JsonExport
 
   def self.graph_to_json(triangle = nil)
     graph = Graph.instance
-    json = {
-      distance_unit: 'mm',
-      force_unit: 'N'
-    }
+    json = { distance_unit: 'mm', force_unit: 'N' }
     json[:nodes] = nodes_to_hash(graph.nodes)
     json[:edges] = edges_to_hash(graph.edges)
-    json[:standard_surface] = triangle.nodes_ids_towards_user unless triangle.nil?
+    unless triangle.nil?
+      json[:standard_surface] = triangle.nodes_ids_towards_user
+    end
     JSON.pretty_generate(json)
   end
 

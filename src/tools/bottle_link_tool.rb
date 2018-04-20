@@ -1,8 +1,9 @@
 require 'src/tools/tool.rb'
 require 'src/utility/mouse_input.rb'
 
+# Creates a bottle link between two nodes
 class BottleLinkTool < Tool
-  def initialize(ui)
+  def initialize(_ui)
     super
     @mouse_input = MouseInput.new(snap_to_nodes: true)
   end
@@ -23,7 +24,10 @@ class BottleLinkTool < Tool
       @first_position = @mouse_input.update_positions(view, x, y)
       Sketchup.active_model.commit_operation
     else
-      second_position = @mouse_input.update_positions(view, x, y, point_on_plane_from_camera_normal: @first_position)
+      second_position =
+        @mouse_input
+        .update_positions(view, x, y,
+                          point_on_plane_from_camera_normal: @first_position)
 
       puts 'Create single bottle link'
       Sketchup.active_model.start_operation('Build Bottle Link', true)
