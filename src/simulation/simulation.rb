@@ -482,8 +482,8 @@ class Simulation
   end
 
   def change_piston_value(id, value)
-    return unless actuator.joint && actuator.joint.valid?
     actuator = @pistons[id.to_i]
+    return unless actuator.joint && actuator.joint.valid?
     actuator.joint.rate = actuator.rate
     actuator.joint.controller =
       (value.to_f - Configuration::ACTUATOR_INIT_DIST) * (actuator.max -
