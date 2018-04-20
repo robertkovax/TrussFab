@@ -217,12 +217,11 @@ module draw_subhub(
     }
     union() {
       for (i=[0:len(normal_vectors)]) {
+        construct_screw_hole(normal_vectors[i], l1, l2, l3[i], connector_end_extra_height, hole_size);
         if (gap_types[i] == "a") {
-          construct_screw_hole(normal_vectors[i], l1, l2, l3[i], connector_end_extra_height, hole_size);
           construct_a_gap(normal_vectors[i], l1, l2, gap_epsilon, gap_extra_round_size, round_size, normal_middle_vector, gap_cut_out_play);
         }
         if (gap_types[i] == "b") {
-          construct_screw_hole(normal_vectors[i], l1, l2, l3[i], connector_end_extra_height, hole_size);
           construct_b_gap(normal_vectors[i], l1, l2, gap_epsilon, gap_extra_round_size, round_size, normal_middle_vector, gap_cut_out_play);
         }
       }
