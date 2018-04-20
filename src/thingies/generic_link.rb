@@ -17,7 +17,7 @@ class GenericLink < PhysicsLink
     length = pt1.distance(pt2).to_m
 
     @force = 0
-    @min_distance = length - Configuration::GENERIC_LINK_MIN_DISTANCE
+    @min_distance = length + Configuration::GENERIC_LINK_MIN_DISTANCE
     @max_distance = length + Configuration::GENERIC_LINK_MAX_DISTANCE
     @limits_enabled = true
 
@@ -46,6 +46,7 @@ class GenericLink < PhysicsLink
 
   def update_force_as_linear_spring
     return unless @joint.valid? # joint becomes invalid when it breaks
-    self.force = 3000 * (@initial_length - @joint.cur_distance) - 50*(@joint.cur_velocity)
+    self.force = 0 #50 * (@initial_length - @joint.cur_distance) - 50*(@joint.cur_velocity)
+    puts "#{@joint.cur_velocity}"
   end
 end
