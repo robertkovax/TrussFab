@@ -16,7 +16,6 @@ module JsonImport
     end
 
     def at_position(path, position)
-      # Sketchup.active_model.start_operation('Import', true)
       json_objects = load_json(path)
       points = build_points(json_objects,
                             position,
@@ -25,7 +24,6 @@ module JsonImport
       triangles = create_triangles(edges)
       add_joints(json_objects, edges, nodes) unless json_objects['joints'].nil?
       add_pods(json_objects, nodes)
-      # Sketchup.active_model.commit_operation
       [triangles.values, edges.values]
     end
 
