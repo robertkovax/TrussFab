@@ -14,10 +14,11 @@ class GenericLink < PhysicsLink
     pt2 = second_node.thingy.position
     @default_length = pt1.distance(pt2).to_m
 
+    length = pt1.distance(pt2).to_m
+
     @force = 0
-    @initial_force = 0
-    @min_distance = @default_length + Configuration::GENERIC_LINK_MIN_DISTANCE
-    @max_distance = @default_length + Configuration::GENERIC_LINK_MAX_DISTANCE
+    @min_distance = length - Configuration::GENERIC_LINK_MIN_DISTANCE
+    @max_distance = length + Configuration::GENERIC_LINK_MAX_DISTANCE
     @limits_enabled = true
 
     persist_entity
@@ -28,11 +29,12 @@ class GenericLink < PhysicsLink
   #
 
   def update_link_properties
-    return unless @joint && @joint.valid?
-    @joint.force = @force
-    @joint.min_distance = @min_distance
-    @joint.max_distance = @max_distance
-    @joint.limits_enabled = @limits_enabled
+    if @joint && @joint.valid?
+      @joint.force = @force
+      @joint.min_distance = @min_distance
+      @joint.max_distance = @max_distance
+      @joint.limits_enabled = @limits_enabled
+    end
   end
 
   def force=(force)
@@ -40,5 +42,10 @@ class GenericLink < PhysicsLink
     return if @joint.nil? || !@joint.valid?
     @joint.force = force
     @joint.update_info
+  end
+
+  def update_force_as_linear_spring
+    return unless @joint.valid? # joint becomes invalid when it breaks
+    self.force = 3000 * (@initial_length - @joint.cur_distance) - 50*(@joint.cur_velocity)
   end
 end
