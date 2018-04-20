@@ -973,7 +973,7 @@ class Simulation
 
   def shift_chart_data
     return unless @chart
-    @chart.shiftData
+    @chart.shift_data
   end
 
   # Sends @total_force to the force graph and adds a label

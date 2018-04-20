@@ -1,10 +1,11 @@
 require 'src/tools/simulation_tool.rb'
 
+# Ruby integration for animation pane js
 class AnimationPane
   attr_accessor :sidebar_menu
+  HTML_FILE = '../animation-pane/build/index.html'.freeze
 
   def initialize
-    @HTML_FILE = '../animation-pane/build/index.html'
     @simulation_tool = SimulationTool.new(self)
     @width = 455
     # @width = 640 # for dev
@@ -14,25 +15,24 @@ class AnimationPane
     @collapsed_width = 53
   end
 
-  def open_dialog(sidebar_menu_width , sidebar_menu_height)
-
+  def open_dialog(sidebar_menu_width, sidebar_menu_height)
     left = sidebar_menu_width + 5
     top = sidebar_menu_height - @height
 
     props = {
-      # :resizable => false,
-      :width => @width,
-      :height => @height,
-      :left => left,
-      :top => top,
-      # :min_width => @width,
-      # :min_height => @height,
-      # :max_width => @width,
-      # :max_height => @height
+      # resizable: false,
+      width: @width,
+      height: @height,
+      left: left,
+      top: top,
+      # min_width: @width,
+      # min_height: @height,
+      # max_width: @width,
+      # max_height: @height
     }
 
     @dialog = UI::HtmlDialog.new(props)
-    file = File.join(File.dirname(__FILE__), @HTML_FILE)
+    file = File.join(File.dirname(__FILE__), HTML_FILE)
     @dialog.set_file(file)
     @dialog.set_position(left, top)
     @dialog.set_size(@collapsed_width, @height)
@@ -47,7 +47,7 @@ class AnimationPane
   end
 
   def refresh
-    file = File.join(File.dirname(__FILE__), @HTML_FILE)
+    file = File.join(File.dirname(__FILE__), HTML_FILE)
     @dialog.set_file(file)
   end
 
@@ -64,16 +64,11 @@ class AnimationPane
   end
 
   def stop_simulation
-    @dialog.execute_script("cleanupUiAfterStoppingSimulation();")
+    @dialog.execute_script('cleanupUiAfterStoppingSimulation();')
   end
 
   def simulation_broke
-    @dialog.execute_script("simulationJustBroke();")
-
-    #make sure to only draw one line. Right now this would be triggered every frame after the
-    #object broke.
-    #Maybe have an instance variable in the simulation called @broken and the broken? function
-    #only triggers if it was false or something like that
+    @dialog.execute_script('simulationJustBroke();')
   end
 
   private
@@ -82,10 +77,7 @@ class AnimationPane
     @sidebar_menu.deselect_tool
 
     Sketchup.active_model.select_tool(@simulation_tool)
-
-    pistons = @simulation_tool.pistons
     breaking_force = @simulation_tool.breaking_force
-    max_speed = @simulation_tool.max_speed
     stiffness = @simulation_tool.stiffness
     @dialog.execute_script("initState(#{breaking_force}, #{stiffness})")
   end
@@ -101,7 +93,8 @@ class AnimationPane
     end
 
     @dialog.add_action_callback('toggle_simulation') do |_context|
-      if @simulation_tool.simulation.nil? || @simulation_tool.simulation.stopped?
+      if @simulation_tool.simulation.nil? ||
+         @simulation_tool.simulation.stopped?
         start_simulation_setup_scripts
       else
         stop_simulation
@@ -117,7 +110,7 @@ class AnimationPane
       @simulation_tool.toggle_pause
     end
 
-    @dialog.add_action_callback('change_piston_value') do |_context, id, new_value|
+    @dialog.add_action_callback('change_piston_value') do |_, id, new_value|
       @simulation_tool.change_piston_value(id, new_value)
     end
 
@@ -133,7 +126,7 @@ class AnimationPane
       @simulation_tool.max_speed = value
     end
 
-    @dialog.add_action_callback('change_highest_force_mode') do |_context, checked|
+    @dialog.add_action_callback('change_highest_force_mode') do |_ctx, checked|
       @simulation_tool.change_highest_force_mode(checked)
     end
 
@@ -153,7 +146,7 @@ class AnimationPane
     #   @simulation_tool.retract_actuator(id)
     # end
 
-    @dialog.add_action_callback('move_joint') do |_context, id, next_value, duration|
+    @dialog.add_action_callback('move_joint') do |_, id, next_value, duration|
       @simulation_tool.move_joint(id, next_value, duration)
     end
 
