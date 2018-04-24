@@ -614,8 +614,8 @@ class Simulation
     end
     Graph.instance.edges.each_value do |edge|
       link = edge.thingy
-      if link.is_a?(GenericLink)
-        link.update_force_as_linear_spring
+      if link.is_a?(PidController)
+        link.update_force
       end
     end
   end

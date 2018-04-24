@@ -7,8 +7,8 @@ class GenericLink < PhysicsLink
   attr_reader :joint, :first_cylinder, :second_cylinder, :initial_force,
               :default_length, :force
 
-  def initialize(first_node, second_node, id: nil)
-    super(first_node, second_node, 'generic', id: id)
+  def initialize(first_node, second_node, id: nil, link_type: 'generic')
+    super(first_node, second_node, link_type, id: id)
 
     pt1 = first_node.thingy.position
     pt2 = second_node.thingy.position
@@ -46,7 +46,7 @@ class GenericLink < PhysicsLink
 
   def update_force_as_linear_spring
     return unless @joint.valid? # joint becomes invalid when it breaks
-    self.force = 0 #50 * (@initial_length - @joint.cur_distance) - 50*(@joint.cur_velocity)
+    self.force = 50 * (@initial_length - @joint.cur_distance) - 50*(@joint.cur_velocity)
     puts "#{@joint.cur_velocity}"
   end
 end

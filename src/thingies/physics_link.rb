@@ -49,6 +49,8 @@ class PhysicsLink < Link
                                                    nil)
              when 'generic'
                TrussFab::GenericPointToPoint.new(world, bd1, bd2, pt1, pt2, nil)
+             when 'pid_controller'
+               TrussFab::GenericPointToPoint.new(world, bd1, bd2, pt1, pt2, nil)
              else
                raise 'Link type @link_type is not yet implemented'
              end

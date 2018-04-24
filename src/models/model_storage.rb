@@ -44,6 +44,10 @@ class ModelStorage
       @models['generic'] = SpringModel.new
     end
 
+    if @models['pid_controller'].nil? || !@models['pid_controller'].valid?
+      @models['pid_controller'] = SpringModel.new
+    end
+
     if @models['spring'].nil? || !@models['spring'].valid?
       @models['spring'] = GenericLinkModel.new
     end

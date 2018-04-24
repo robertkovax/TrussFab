@@ -115,6 +115,7 @@ class Sidebar
     build_tool(AutomaticActuatorsTool, 'automatic_actuators_tool')
     build_tool(GeneticActuatorPlacementTool, 'genetic_actuator_placement_tool')
     build_tool(ForceLimitTool, 'force_limit_tool')
+    build_tool(PIDControllerTool, 'pid_controller_tool')
   end
 
   def build_tool(tool_class, tool_id)
