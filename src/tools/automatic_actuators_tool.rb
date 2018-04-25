@@ -3,6 +3,9 @@ require 'src/algorithms/automatic_actuators.rb'
 require 'src/utility/mouse_input.rb'
 require 'src/tools/actuator_tool.rb'
 
+# A tool that automatically places an actuator based on a desired movement by
+# checking which link has to be elongated the most in order to reach the
+# position
 class AutomaticActuatorsTool < Tool
   LINE_STIPPLE = '_'.freeze
 
@@ -80,7 +83,8 @@ class AutomaticActuatorsTool < Tool
     automatic_actuators.move_and_fix_node(@start_node, end_move_position)
     omitted_edge = automatic_actuators.relax
 
-    # TODO: This is quite hacky. Fix it by properly refactoring the actuator tool.
+    # TODO: This is quite hacky. Fix it by properly
+    # refactoring the actuator tool.
     a_tool = ActuatorTool.new @ui
     a_tool.change_edge_to_actuator(omitted_edge, view)
 

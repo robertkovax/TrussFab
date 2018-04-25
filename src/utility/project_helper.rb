@@ -1,3 +1,4 @@
+# used for setting up layers, getting paths
 module ProjectHelper
   def self.plugin_directory
     File.expand_path('../..', File.dirname(__FILE__))
@@ -23,8 +24,10 @@ module ProjectHelper
   def self.setup_sketchup
     model = Sketchup.active_model
     model.start_operation('TrussFab Setup', true)
-    model.options['UnitsOptions']['LengthUnit'] = 2 # print and display lengths in mm
-    model.options['UnitsOptions']['LengthFormat'] = 0 # print and display lengths as decimal number
+    # print and display lengths in mm
+    model.options['UnitsOptions']['LengthUnit'] = 2
+    # print and display lengths as decimal number
+    model.options['UnitsOptions']['LengthFormat'] = 0
     setup_style
     setup_layers
     setup_surface_materials
@@ -35,10 +38,9 @@ module ProjectHelper
 
   def self.setup_style
     styles = Sketchup.active_model.styles
-    unless styles['Bottle Editor Style1']
-      styles.add_style(plugin_directory + '/Bottle Editor Style1.style', false)
-      styles.selected_style = styles['Bottle Editor Style1']
-    end
+    return if styles['Bottle Editor Style1']
+    styles.add_style(plugin_directory + '/Bottle Editor Style1.style', false)
+    styles.selected_style = styles['Bottle Editor Style1']
   end
 
   def self.setup_layers
@@ -85,7 +87,6 @@ module ProjectHelper
 
     unless layers[Configuration::FORCE_LABEL_VIEW]
       force_label_layer = layers.add(Configuration::FORCE_LABEL_VIEW)
-      #force_label_layer.visible = false
     end
   end
 

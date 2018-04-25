@@ -1,10 +1,14 @@
 require 'src/tools/tool.rb'
 require 'src/utility/mouse_input.rb'
 
+# Deletes objects (like a brush)
 class DeleteTool < Tool
-  def initialize(ui)
+  def initialize(_ui)
     super
-    @mouse_input = MouseInput.new(snap_to_nodes: true, snap_to_edges: true, snap_to_pods: true, snap_to_covers: true)
+    @mouse_input = MouseInput.new(snap_to_nodes: true,
+                                  snap_to_edges: true,
+                                  snap_to_pods: true,
+                                  snap_to_covers: true)
   end
 
   def onLButtonDown(_flags, x, y, view)
@@ -17,7 +21,8 @@ class DeleteTool < Tool
     @mouse_input.update_positions(view, x, y)
     return unless @clicking
     unless @deleting
-      distance_moved = Math.sqrt((@initial_click_position[0] - x)**2 + (@initial_click_position[1] - y)**2)
+      distance_moved = Math.sqrt((@initial_click_position[0] - x)**2 +
+                                 (@initial_click_position[1] - y)**2)
       @deleting = distance_moved > 10
     end
     delete(x, y, view) if @deleting

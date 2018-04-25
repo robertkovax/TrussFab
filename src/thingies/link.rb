@@ -5,11 +5,12 @@ require 'src/simulation/simulation.rb'
 require 'src/thingies/physics_thingy.rb'
 require 'src/configuration/configuration'
 
-
+# Link
 class Link < PhysicsThingy
   attr_accessor :joint, :model
   attr_reader :first_elongation_length, :second_elongation_length,
-    :position, :second_position, :loc_up_vec, :first_node, :second_node, :sensor_symbol
+              :position, :second_position, :loc_up_vec, :first_node,
+              :second_node, :sensor_symbol
 
   def initialize(first_node, second_node, model_name, bottle_name: '', id: nil)
     super(id)
@@ -32,9 +33,7 @@ class Link < PhysicsThingy
       @model = ModelStorage.instance.models[model_name]
     end
 
-    if @model.nil?
-      raise "#{model_name} does not have a model yet"
-    end
+    raise "#{model_name} does not have a model yet" if @model.nil?
 
     @first_elongation_length = nil
     @second_elongation_length = nil
@@ -53,7 +52,8 @@ class Link < PhysicsThingy
   end
 
   def check_if_valid
-    (super && (@first_node.nil? || @first_node.thingy.check_if_valid) && (@second_node.nil? || @second_node.thingy.check_if_valid)) ? true : false
+    super && (@first_node.nil? || @first_node.thingy.check_if_valid) &&
+      (@second_node.nil? || @second_node.thingy.check_if_valid)
   end
 
   def update_positions(first_position, second_position)
@@ -81,19 +81,26 @@ class Link < PhysicsThingy
     Sketchup.active_model.start_operation('Add Sensor Symbol', true)
     point = mid_point
     model = ModelStorage.instance.models['sensor']
-    # s**t ton of transformation to align the image exactly with the bottle direction, which is
-    # not really needed anymore, because the object is now 3D. Will leave it here anyways, because
-    # I don't want to throw away all this work :(
+    # s**t ton of transformation to align the image exactly with the bottle
+    # direction, which is not really needed anymore, because the object is
+    # now 3D. Will leave it here anyways, because I don't want to throw away
+    # all this work :(
     transform = Geom::Transformation.new(point)
-    @sensor_symbol = Sketchup.active_model.active_entities.add_instance(model.definition, transform)
+    @sensor_symbol = Sketchup.active_model
+                             .active_entities
+                             .add_instance(model.definition, transform)
     image_normal = Geom::Vector3d.new(0, 0, 1)
     floor_normal = Geom::Vector3d.new(0, 0, 1)
     link_dir = @position.vector_to(@second_position)
     second_angle = link_dir.angle_between(floor_normal)
-    rotation = Geom::Transformation.rotation(point, link_dir, link_dir.angle_between(link_dir.cross(floor_normal)))
+    rotation = Geom::Transformation
+               .rotation(point, link_dir,
+                         link_dir.angle_between(link_dir.cross(floor_normal)))
     @sensor_symbol.transform!(rotation)
     image_normal.transform!(rotation)
-    rotation2 = Geom::Transformation.rotation(point, image_normal.cross(link_dir), second_angle)
+    rotation2 = Geom::Transformation.rotation(point,
+                                              image_normal.cross(link_dir),
+                                              second_angle)
     @sensor_symbol.transform!(rotation2)
     @sensor_symbol.transform!(Geom::Transformation.scaling(point, 0.2))
     Sketchup.active_model.commit_operation
@@ -110,16 +117,15 @@ class Link < PhysicsThingy
     end
   end
 
-  def is_sensor?
+  def sensor?
     @is_sensor
   end
 
   def move_sensor_symbol(position)
-    unless @sensor_symbol.nil?
-      old_pos = @sensor_symbol.transformation.origin
-      movement_vec = Geom::Transformation.translation(old_pos.vector_to(position))
-      @sensor_symbol.move!(movement_vec * @sensor_symbol.transformation)
-    end
+    return if @sensor_symbol.nil?
+    old_pos = @sensor_symbol.transformation.origin
+    movement_vec = Geom::Transformation.translation(old_pos.vector_to(position))
+    @sensor_symbol.move!(movement_vec * @sensor_symbol.transformation)
   end
 
   def reset_sensor_symbol_position
@@ -136,19 +142,25 @@ class Link < PhysicsThingy
     pt3 = Geom::Point3d.linear_combination(0.5, pt1, 0.5, pt2)
     dir = pt2 - pt1
 
-    return if (dir.length.to_f < 1.0e-6)
+    return if dir.length.to_f < 1.0e-6
 
     elong1 = @sub_thingies[0]
     elong2 = @sub_thingies[3]
     bottle = @sub_thingies[1]
 
-    scale1 = Geom::Transformation.scaling(elong1.radius, elong1.radius, elong1.length)
-    scale2 = Geom::Transformation.scaling(elong2.radius, elong2.radius, elong2.length)
+    scale1 = Geom::Transformation.scaling(elong1.radius,
+                                          elong1.radius,
+                                          elong1.length)
+    scale2 = Geom::Transformation.scaling(elong2.radius,
+                                          elong2.radius,
+                                          elong2.length)
 
     dir.normalize!
     t1 = Geom::Transformation.new(pt1, dir) * scale1
     t2 = Geom::Transformation.new(pt2, dir.reverse) * scale2
-    t3 = Geom::Transformation.new(pt2 - Geometry.scale_vector(dir, elong2.length), dir.reverse)
+    t3 = Geom::Transformation.new(pt2 - Geometry.scale_vector(dir,
+                                                              elong2.length),
+                                  dir.reverse)
 
     elong1.entity.move!(t1)
     elong2.entity.move!(t2)
@@ -200,13 +212,13 @@ class Link < PhysicsThingy
   def create_sub_thingies
     @first_elongation_length =
       @second_elongation_length =
-      Configuration::MINIMUM_ELONGATION
+        Configuration::MINIMUM_ELONGATION
 
     length = @first_node.position.distance(@second_node.position)
 
     @first_elongation_length =
       @second_elongation_length =
-      (length - @model.length) / 2
+        (length - @model.length) / 2
 
     direction = @position.vector_to(@second_position)
 

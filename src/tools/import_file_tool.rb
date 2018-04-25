@@ -1,8 +1,9 @@
 require 'src/tools/import_tool.rb'
 require 'src/configuration/configuration.rb'
 
+# Opens the file select window for the import tool
 class ImportFileTool < ImportTool
-  def initialize(ui)
+  def initialize(_ui)
     super
   end
 

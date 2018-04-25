@@ -1,6 +1,7 @@
 require 'src/tools/tool.rb'
 require 'src/algorithms/relaxation.rb'
 
+# increases or decreases the size of an edge
 class GrowShrinkTool < Tool
   def initialize(ui)
     super(ui)
@@ -28,12 +29,14 @@ class GrowShrinkTool < Tool
   end
 end
 
+# increases the size of an edge
 class GrowTool < GrowShrinkTool
   def alter_edge(edge, relaxation)
     relaxation.stretch(edge)
   end
 end
 
+# decreases the size of an endge
 class ShrinkTool < GrowShrinkTool
   def alter_edge(edge, relaxation)
     relaxation.shrink(edge)

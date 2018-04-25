@@ -1,5 +1,6 @@
 require 'singleton'
 
+# Generates IDs
 class IdManager
   include Singleton
 

@@ -1,10 +1,16 @@
 require 'set'
 
-# Used to handle mouse pointer related issue, can snap to objects, maps input points to useful ones.
+# Used to handle mouse pointer related issue, can snap to objects,
+# maps input points to useful ones.
 class MouseInput
   attr_reader :position, :snapped_object
 
-  def initialize(snap_to_nodes: false, snap_to_edges: false, snap_to_surfaces: false, snap_to_pods: false, snap_to_covers: false, should_highlight: true)
+  def initialize(snap_to_nodes: false,
+                 snap_to_edges: false,
+                 snap_to_surfaces: false,
+                 snap_to_pods: false,
+                 snap_to_covers: false,
+                 should_highlight: true)
     @snap_to_nodes = snap_to_nodes
     @snap_to_edges = snap_to_edges
     @snap_to_surfaces = snap_to_surfaces
@@ -17,7 +23,9 @@ class MouseInput
 
   def soft_reset
     @position = nil
-    unless @snapped_object.nil? || @snapped_object.deleted? || !@should_highlight
+    unless @snapped_object.nil? ||
+           @snapped_object.deleted? ||
+           !@should_highlight
       @snapped_object.un_highlight
     end
     @snapped_object = nil
@@ -26,7 +34,6 @@ class MouseInput
   # NB: In the old version, there was given a reference point to the InputPoint
   # but it was not clear why.
   def update_positions(view, x, y, point_on_plane_from_camera_normal: nil)
-    time1 = Time.now
     soft_reset
 
     input_point = Sketchup::InputPoint.new
@@ -34,9 +41,7 @@ class MouseInput
     @position = input_point.position
 
     snap_to_object
-    unless @snapped_object.nil? || !@should_highlight
-      @snapped_object.highlight
-    end
+    @snapped_object.highlight unless @snapped_object.nil? || !@should_highlight
     @position = @snapped_object.position if @snapped_object
 
     # For some reason, we don't have to find the intersection on the plane if

@@ -1,3 +1,4 @@
+# superclass for all tools
 class Tool
   def initialize(ui)
     @ui = ui
