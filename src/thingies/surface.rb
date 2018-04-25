@@ -1,16 +1,19 @@
 require 'src/thingies/thingy.rb'
 require 'src/thingies/surface_entities/cover.rb'
 
+# Surface
 class Surface < Thingy
   def initialize(first_position, second_position, third_position,
-                 id: nil, material: 'surface_material', highlight_material: 'surface_highlight_material')
+                 id: nil, material: 'surface_material',
+                 highlight_material: 'surface_highlight_material')
     super(id, material: material, highlight_material: highlight_material)
     @first_position = first_position
     @second_position = second_position
     @third_position = third_position
     @entity = create_entity
     @material = Sketchup.active_model.materials[material].freeze
-    @highlight_material = Sketchup.active_model.materials[highlight_material].freeze
+    @highlight_material = Sketchup.active_model
+                                  .materials[highlight_material].freeze
     persist_entity
   end
 
@@ -44,12 +47,17 @@ class Surface < Thingy
     delete_entity
     @entity = create_entity
     @sub_thingies.each do |sub_thingy|
-      sub_thingy.update_positions(first_position, second_position, third_position)
+      sub_thingy.update_positions(first_position,
+                                  second_position,
+                                  third_position)
     end
   end
 
   def add_cover(direction, pods)
-    add(Cover.new(@first_position, @second_position, @third_position, direction, pods))
+    add(Cover.new(@first_position,
+                  @second_position,
+                  @third_position,
+                  direction, pods))
   end
 
   def cover?
@@ -63,11 +71,14 @@ class Surface < Thingy
   private
 
   def create_entity
-    entity = Sketchup.active_model.entities.add_face(@first_position, @second_position, @third_position)
+    entity = Sketchup.active_model.entities.add_face(@first_position,
+                                                     @second_position,
+                                                     @third_position)
     entity.layer = Configuration::TRIANGLE_SURFACES_VIEW
     entity.material = entity.back_material = @material
     entity.edges.each do |edge|
-      # hide outline of surfaces, enable line link layer for lines instead of bottles
+      # hide outline of surfaces, enable line link layer for
+      # lines instead of bottles
       edge.hidden = true
     end
     entity

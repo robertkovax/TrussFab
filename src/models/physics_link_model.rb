@@ -1,7 +1,7 @@
 require 'src/configuration/configuration.rb'
 
+# Super Class for moving link models
 class PhysicsLinkModel
-
   attr_reader :length, :inner_cylinder, :outer_cylinder, :material
 
   def initialize
@@ -24,8 +24,9 @@ class PhysicsLinkModel
                                                       diameter, 12)
     face = definition.entities.add_face(circle_edgearray)
     face.pushpull(-2 * @length / 3, false)
-    definition.entities.each{ |entity| entity.layer = Configuration::ACTUATOR_VIEW }
+    definition.entities.each do |entity|
+      entity.layer = Configuration::ACTUATOR_VIEW
+    end
     definition
   end
-
 end

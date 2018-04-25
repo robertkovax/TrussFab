@@ -3,8 +3,10 @@ require 'src/utility/mouse_input.rb'
 require 'src/simulation/simulation.rb'
 require 'src/configuration/configuration.rb'
 
+# A tool that checks step-wise how much force an actuator needs in order to move
+# the two nodes it is connected to. It also checks what the maximum force is
+# before any node in the object breaks
 class ForceLimitTool < Tool
-
   def initialize(ui)
     super(ui)
     @mouse_input = MouseInput.new(snap_to_edges: true)
@@ -21,8 +23,7 @@ class ForceLimitTool < Tool
     @steps = 0
   end
 
-  def activate
-  end
+  def activate; end
 
   def deactivate(view)
     view.animation = nil
@@ -54,8 +55,8 @@ class ForceLimitTool < Tool
 
   def setup_simulation
     @simulation.setup
-    @simulation.breaking_force = 0 #disable breaking_force
-    @simulation.update_world_headless_by(5) #settle down
+    @simulation.breaking_force = 0 # disable breaking_force
+    @simulation.update_world_headless_by(5) # settle down
     @force = 0
   end
 
@@ -63,7 +64,7 @@ class ForceLimitTool < Tool
     @simulation.reset
     @simulation.setup
     @simulation.breaking_force = 0
-    @simulation.update_world_headless_by(5) #settle down again
+    @simulation.update_world_headless_by(5) # settle down again
     @simulation.breaking_force = Configuration::JOINT_BREAKING_FORCE
   end
 
@@ -72,26 +73,27 @@ class ForceLimitTool < Tool
     setup_simulation
     settled_distance = @edge.thingy.joint.cur_distance
     @piston_position = settled_distance
-    #should we apply positive or negative force?
+    # should we apply positive or negative force?
     positive_direction = settled_distance < @edge.thingy.default_length
-    #Find min force until it moves
-    while (@piston_position - settled_distance).abs < @threshold && @steps < 5000
+    # Find min force until it moves
+    while (@piston_position - settled_distance).abs < @threshold &&
+          @steps < 5000
       apply_force_increasing(positive_direction)
       @steps += 1
     end
     @min_force = @force
 
-    #Find max force before it breaks
+    # Find max force before it breaks
     reset_simulation
     @new_force = 0
     @force = Configuration::JOINT_BREAKING_FORCE
     @force *= positive_direction ? 1 : -1
 
     broke_previously = false
-    for i in 0..50
+    (0..50).each do |i|
       break if @force == @new_force
       reset_simulation
-      apply_force_binary_search(!broke_previously, i == 0)
+      apply_force_binary_search(!broke_previously, i.zero?)
       broke_previously = @simulation.broken?
     end
     @max_force = @force

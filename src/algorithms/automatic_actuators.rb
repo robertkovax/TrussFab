@@ -1,7 +1,8 @@
 require 'set'
 
 # The class is a c & p from the relaxion algorithm and adapted to our needs.
-# Instead of moving the nodes, it finds the shortest edge in the optimized model and transform it into an actuator.
+# Instead of moving the nodes, it finds the shortest edge in the optimized
+# model and transform it into an actuator.
 # There is still a lot of work left to do in only works in some basic cases.
 class AutomaticActuators
   DEFAULT_MAX_ITERATIONS = 20_000
@@ -9,7 +10,7 @@ class AutomaticActuators
   DAMPING_FACTOR = 0.9
 
   attr_reader :new_node_positions, :new_direction_vectors, :new_start_positions,
-    :max_iterations
+              :max_iterations
 
   def initialize(max_iterations: DEFAULT_MAX_ITERATIONS)
     @damping_factor = DAMPING_FACTOR
@@ -156,20 +157,23 @@ class AutomaticActuators
       stretch_vector = new_direction_vector.clone
       stretch_vector.length = delta
       if is_first_node_fixed
-        new_direction_vector = @new_direction_vectors[edge_id] = new_direction_vector + stretch_vector
+        new_direction_vector = @new_direction_vectors[edge_id] =
+            new_direction_vector + stretch_vector
 
         @new_node_positions[second_node_id] =
           @new_start_positions[edge_id] + new_direction_vector
 
         update_incident_edges(edge.second_node)
       elsif is_second_node_fixed
-        new_start_position = @new_start_positions[edge_id] = @new_start_positions[edge_id] - stretch_vector
+        new_start_position = @new_start_positions[edge_id] =
+            @new_start_positions[edge_id] - stretch_vector
         @new_direction_vectors[edge_id] = new_direction_vector + stretch_vector
         @new_node_positions[first_node_id] = new_start_position
 
         update_incident_edges(edge.first_node)
       else
-        new_start_position = @new_start_positions[edge_id] = @new_start_positions[edge_id] - Geometry.scale(stretch_vector, 0.5)
+        new_start_position = @new_start_positions[edge_id] =
+            @new_start_positions[edge_id] - Geometry.scale(stretch_vector, 0.5)
 
         new_direction_vector = @new_direction_vectors[edge_id] =
           new_direction_vector + stretch_vector

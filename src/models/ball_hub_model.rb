@@ -1,8 +1,11 @@
+# BallHubModel
 class BallHubModel
   attr_reader :definition, :scaling
 
   def initialize
-    @definition = Sketchup.active_model.definitions.load(ProjectHelper.component_directory + '/ball_hub.skp')
+    @definition = Sketchup.active_model.definitions
+                          .load(ProjectHelper.component_directory +
+                                '/ball_hub.skp')
     @definition.name = 'Hub'
 
     radius = Configuration::BALL_HUB_RADIUS
@@ -15,5 +18,4 @@ class BallHubModel
   def valid?
     @definition.valid?
   end
-
 end

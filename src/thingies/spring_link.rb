@@ -1,9 +1,10 @@
 require 'src/thingies/physics_link.rb'
 require 'src/configuration/configuration.rb'
 
+# PhysicsLink that behaves like a gas spring
 class SpringLink < PhysicsLink
-
-  attr_accessor :extended_length, :stroke_length, :extended_force, :threshold, :damp
+  attr_accessor :extended_length, :stroke_length, :extended_force, :threshold,
+                :damp
   attr_reader :joint, :first_cylinder, :second_cylinder
 
   def initialize(first_node, second_node, id: nil)
@@ -22,11 +23,10 @@ class SpringLink < PhysicsLink
   #
 
   def update_link_properties
-    if @joint && @joint.valid?
-      @joint.stroke_length = @stroke_length
-      @joint.extended_force = @extended_force
-      @joint.threshold = @threshold
-      @joint.damp = @damp
-    end
+    return unless @joint && @joint.valid?
+    @joint.stroke_length = @stroke_length
+    @joint.extended_force = @extended_force
+    @joint.threshold = @threshold
+    @joint.damp = @damp
   end
 end

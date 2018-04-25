@@ -1,3 +1,4 @@
+# Creates a surface cover
 class CoverTool < Tool
   def initialize(ui)
     super(ui)

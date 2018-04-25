@@ -9,6 +9,7 @@ require 'src/models/force_arrow_model.rb'
 require 'src/models/weight_indicator_model.rb'
 require 'src/models/sensor_model.rb'
 
+# Model Storage
 class ModelStorage
   include Singleton
 

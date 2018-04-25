@@ -1,3 +1,4 @@
+# Bottle
 class Bottle
   attr_reader :definition, :name, :length, :weight, :model
 
@@ -13,5 +14,4 @@ class Bottle
   def valid?
     @definition.valid?
   end
-
 end
