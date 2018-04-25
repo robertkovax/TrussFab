@@ -1,10 +1,13 @@
+# ThingyRotation
 class ThingyRotation
   def vector
     raise NotImplementedError
   end
 end
 
+# EdgeRotation
 class EdgeRotation < ThingyRotation
+  attr_reader :edge
   def initialize(edge)
     @edge = edge
   end
@@ -12,12 +15,9 @@ class EdgeRotation < ThingyRotation
   def vector
     @edge.direction
   end
-
-  def edge
-    @edge
-  end
 end
 
+# PlaneRotation
 class PlaneRotation < ThingyRotation
   def initialize(plane_nodes)
     @plane_nodes = plane_nodes

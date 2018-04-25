@@ -3,6 +3,7 @@ require 'src/thingies/thingy.rb'
 LINK_LINE = 0
 HINGE_LINE = 1
 
+# Line
 class Line < Thingy
   def initialize(first_position, second_position, line_type, id: nil)
     super(id)

@@ -1,3 +1,4 @@
+# Elongation
 class Elongation < Thingy
   attr_reader :direction, :radius
 
@@ -25,13 +26,17 @@ class Elongation < Thingy
     scale = Geom::Transformation.scaling(@radius, @radius, length)
     translation = Geom::Transformation.translation(@position)
 
-    rotation_angle = Geometry.rotation_angle_between(Geometry::Z_AXIS, @direction)
-    rotation_axis = Geometry.perpendicular_rotation_axis(Geometry::Z_AXIS, @direction)
-    rotation = Geom::Transformation.rotation(@position, rotation_axis, rotation_angle)
+    rotation_angle = Geometry.rotation_angle_between(Geometry::Z_AXIS,
+                                                     @direction)
+    rotation_axis = Geometry.perpendicular_rotation_axis(Geometry::Z_AXIS,
+                                                         @direction)
+    rotation = Geom::Transformation.rotation(@position,
+                                             rotation_axis, rotation_angle)
 
     transformation = rotation * translation * scale
 
-    entity = Sketchup.active_model.entities.add_instance(@model.definition, transformation)
+    entity = Sketchup.active_model.entities.add_instance(@model.definition,
+                                                         transformation)
     entity.material = @material
     entity.layer = @layer
     entity

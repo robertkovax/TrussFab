@@ -1,7 +1,8 @@
 require 'src/tools/import_tool.rb'
 
+# places an octa
 class OctahedronTool < ImportTool
-  def initialize(ui)
+  def initialize(_ui)
     super
     @path = Configuration::OCTAHEDRON_PATH
   end
