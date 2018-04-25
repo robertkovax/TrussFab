@@ -4,7 +4,8 @@ class WeightIndicatorModel
 
   def initialize
     @definition = Sketchup.active_model.definitions
-                          .load(ProjectHelper.component_directory + '/pod.skp')
+                          .load(ProjectHelper.component_directory +
+                                '/weight.skp')
     @definition.name = 'Weight Indicator'
   end
 

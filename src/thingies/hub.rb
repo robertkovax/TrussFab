@@ -16,6 +16,7 @@ class Hub < PhysicsThingy
     @mass = 0
     @force = Geom::Vector3d.new(0, 0, 0)
     @arrow = nil
+    @weight_indicator = nil
     @sensor_symbol = nil
     @is_sensor = false
     @incidents = incidents
