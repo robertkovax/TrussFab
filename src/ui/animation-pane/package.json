@@ -93,5 +93,9 @@
   },
   "devDependencies": {
     "prettier": "^1.12.1"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "es5"
   }
 }

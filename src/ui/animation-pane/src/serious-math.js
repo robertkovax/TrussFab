@@ -1,4 +1,4 @@
-import { linear } from "everpolate";
+import { linear } from 'everpolate';
 
 const getInterpolationForTime = (timeInSeconds, points) => {
   const X = points.map(x => x.time);

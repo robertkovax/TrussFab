@@ -1,9 +1,9 @@
-import React, { Component } from "react";
-import * as d3 from "d3";
+import React, { Component } from 'react';
+import * as d3 from 'd3';
 
-import "./App.css";
-import { toggleDiv } from "./util";
-import { getInterpolationForTime } from "./serious-math";
+import './App.css';
+import { toggleDiv } from './util';
+import { getInterpolationForTime } from './serious-math';
 import {
   togglePane,
   toggleSimulation,
@@ -18,8 +18,8 @@ import {
   getStiffness,
   changePeakForceMode,
   changeDisplayValues,
-  changePistonValue
-} from "./sketchup-integration";
+  changePistonValue,
+} from './sketchup-integration';
 
 const xAxis = 300;
 const yAxis = 50;
@@ -52,7 +52,7 @@ class App extends Component {
       simluationBrokeAt: null,
       simulationIsOnForValueTesting: false,
       oldKeyframesUIST: null,
-      collapsed: true
+      collapsed: true,
     };
   }
 
@@ -70,7 +70,7 @@ class App extends Component {
 
     setStiffness(this.state.stiffness);
 
-    document.addEventListener("keyup", e => {
+    document.addEventListener('keyup', e => {
       // ESC
       if (e.keyCode === 27) {
         this.stopSimulation();
@@ -79,7 +79,7 @@ class App extends Component {
   }
 
   componentWillUnmount() {
-    document.removeEventListener("keyup", this.stopSimulation);
+    document.removeEventListener('keyup', this.stopSimulation);
   }
 
   simulationJustBroke = () => {
@@ -97,8 +97,8 @@ class App extends Component {
       pistons: oldPistons.concat(id),
       keyframes: oldKeyframes.set(id, [
         { time: 0, value: 0.5 },
-        { time: this.state.seconds, value: 0.5 }
-      ]) // init
+        { time: this.state.seconds, value: 0.5 },
+      ]), // init
     });
     setTimeout(() => {
       this.addTimeSelectionForNewKeyFrame(id);
@@ -128,7 +128,7 @@ class App extends Component {
   _mapPointsToChart = kf => {
     return [
       kf.time * xAxis / this.state.seconds,
-      (1 - kf.value) * (yAxis - 8) + 4
+      (1 - kf.value) * (yAxis - 8) + 4,
     ];
   };
 
@@ -138,7 +138,7 @@ class App extends Component {
     const points = keyframes.map(this._mapPointsToChart);
 
     const viewBox = `0 0 ${xAxis} ${yAxis}`;
-    const pointsString = points.map(p => p.join(",")).join("\n");
+    const pointsString = points.map(p => p.join(',')).join('\n');
 
     const oldKeyframesMap = this.state.keyframes;
 
@@ -147,7 +147,7 @@ class App extends Component {
         keyframes: oldKeyframesMap.set(
           id,
           oldKeyframesMap.get(id).filter((_, index) => index !== keyframeIndex)
-        )
+        ),
       });
     };
 
@@ -167,10 +167,10 @@ class App extends Component {
       this.state.oldKeyframesUIST.get(id).map(this._mapPointsToChart);
     let greyOutPointsString = null;
     if (greyOutPoints != null)
-      greyOutPointsString = greyOutPoints.map(p => p.join(",")).join("\n");
+      greyOutPointsString = greyOutPoints.map(p => p.join(',')).join('\n');
 
     return (
-      <div style={{ position: "relative" }}>
+      <div style={{ position: 'relative' }}>
         {this.state.simluationBrokeAt !== null && (
           <div
             className="broken-time-line"
@@ -196,22 +196,22 @@ class App extends Component {
           {circles}
         </svg>
         <span
-          style={{ position: "absolute", bottom: 0, left: 0, fontSize: 10 }}
+          style={{ position: 'absolute', bottom: 0, left: 0, fontSize: 10 }}
         >
           0s
         </span>
         <span
           style={{
-            position: "absolute",
+            position: 'absolute',
             bottom: 0,
             right: xAxis / 2,
-            fontSize: 10
+            fontSize: 10,
           }}
         >
           {this.state.seconds / 2}s
         </span>
         <span
-          style={{ position: "absolute", bottom: 0, right: 0, fontSize: 10 }}
+          style={{ position: 'absolute', bottom: 0, right: 0, fontSize: 10 }}
         >
           {this.state.seconds}s
         </span>
@@ -223,7 +223,7 @@ class App extends Component {
     this.state.pistons.forEach(x => this.addTimeSelectionForNewKeyFrame(x));
   };
 
-  _removeAllTimeselection = () => d3.selectAll("line.timeSelection").remove();
+  _removeAllTimeselection = () => d3.selectAll('line.timeSelection').remove();
 
   addTimeSelectionForNewKeyFrame = id => {
     const self = this;
@@ -238,30 +238,30 @@ class App extends Component {
         timeSelection: oldTimeSelection.set(
           id,
           (newX / xAxis * self.state.seconds).toFixed(1)
-        )
+        ),
       });
 
       d3
         .select(this)
-        .attr("x1", newX)
-        .attr("x2", newX);
+        .attr('x1', newX)
+        .attr('x2', newX);
     }
 
-    const scrub = d3.drag().on("drag", scrubLine);
+    const scrub = d3.drag().on('drag', scrubLine);
 
     d3
-      .select("#svg-" + id)
-      .append("line")
-      .classed("timeSelection", true)
+      .select('#svg-' + id)
+      .append('line')
+      .classed('timeSelection', true)
       // .attr('x1', xAxis / 2) // for init in the middle
-      .attr("x1", 0)
-      .attr("y1", 0)
+      .attr('x1', 0)
+      .attr('y1', 0)
       // .attr('x2', xAxis / 2) // for init in the middle
-      .attr("x2", 0)
-      .attr("y2", yAxis)
-      .style("stroke-width", 3)
-      .style("stroke", "grey")
-      .style("fill", "none")
+      .attr('x2', 0)
+      .attr('y2', yAxis)
+      .style('stroke-width', 3)
+      .style('stroke', 'grey')
+      .style('fill', 'none')
       .call(scrub);
   };
 
@@ -281,7 +281,7 @@ class App extends Component {
           simulationPaused: true,
           timelineCurrentTime: 0,
           currentCycle: 0,
-          simulationIsPausedAfterOnce: true
+          simulationIsPausedAfterOnce: true,
         });
       } else {
         timelineCurrentTime = 0;
@@ -328,12 +328,12 @@ class App extends Component {
     const newX = timelineCurrentTimeSeconds * xAxis / this.state.seconds;
 
     d3
-      .selectAll("line.timeline")
-      .attr("x1", newX)
-      .attr("x2", newX);
+      .selectAll('line.timeline')
+      .attr('x1', newX)
+      .attr('x2', newX);
 
     this.setState({
-      timelineCurrentTime: timelineCurrentTime + timelineStepSeconds * FACTOR
+      timelineCurrentTime: timelineCurrentTime + timelineStepSeconds * FACTOR,
     });
   };
 
@@ -366,7 +366,7 @@ class App extends Component {
         startedSimulationCycle: false,
         simulationPaused: false,
         timelineCurrentTime: 0,
-        currentCycle: 0
+        currentCycle: 0,
       });
     } else {
       this.setState({
@@ -374,7 +374,7 @@ class App extends Component {
         startedSimulationOnce: false,
         simulationPaused: false,
         timelineCurrentTime: 0,
-        currentCycle: 0
+        currentCycle: 0,
       });
     }
   };
@@ -393,21 +393,21 @@ class App extends Component {
 
   _addLines = () => {
     d3
-      .selectAll("svg")
-      .append("line")
-      .classed("timeline", true)
-      .attr("x1", 0)
-      .attr("y1", 0)
-      .attr("x2", 0)
-      .attr("y2", yAxis)
+      .selectAll('svg')
+      .append('line')
+      .classed('timeline', true)
+      .attr('x1', 0)
+      .attr('y1', 0)
+      .attr('x2', 0)
+      .attr('y2', yAxis)
       // .style('stroke-width', 1)
-      .style("stroke-width", 3)
+      .style('stroke-width', 3)
       // .style('stroke', '#D3D3D3')
-      .style("stroke", "grey")
-      .style("fill", "none");
+      .style('stroke', 'grey')
+      .style('fill', 'none');
   };
 
-  _removeLines = () => d3.selectAll("line.timeline").remove();
+  _removeLines = () => d3.selectAll('line.timeline').remove();
 
   _togglePause = () => {
     const { simulationPaused } = this.state;
@@ -457,7 +457,7 @@ class App extends Component {
             keyframeIndex === 0 || keyframeIndex === oldKeyframe.length - 1
               ? x.value
               : x.value * 0.8,
-          time: x.time
+          time: x.time,
         };
       });
 
@@ -484,7 +484,7 @@ class App extends Component {
                 ? x.time * 2
                 : x.time === this.state.seconds
                   ? x.time
-                  : null
+                  : null,
           };
         })
         .filter(x => x.time !== null);
@@ -508,7 +508,7 @@ class App extends Component {
         startedSimulationCycle: false,
         simulationIsPausedAfterOnce: false,
         simluationBrokeAt: null,
-        oldKeyframesUIST: null
+        oldKeyframesUIST: null,
       });
     }, 100);
   };
@@ -517,7 +517,7 @@ class App extends Component {
     const {
       startedSimulationOnce,
       startedSimulationCycle,
-      simulationIsPausedAfterOnce
+      simulationIsPausedAfterOnce,
     } = this.state;
 
     if (this.state.simulationIsOnForValueTesting) {
@@ -540,15 +540,15 @@ class App extends Component {
 
   removeTimeSelectionForNewKeyFrame = id => {
     d3
-      .select("#svg-" + id)
-      .select("line.timeSelection")
+      .select('#svg-' + id)
+      .select('line.timeSelection')
       .remove();
     const oldTimeSelection = this.state.timeSelection;
     this.setState({
       timeSelection: oldTimeSelection.set(
         id,
         this.initialSecondsForTimeSelection()
-      )
+      ),
     });
   };
 
@@ -568,10 +568,10 @@ class App extends Component {
     const newX = value / this.state.seconds * xAxis;
 
     const line = d3
-      .select("#svg-" + id)
-      .select("line")
-      .attr("x1", newX)
-      .attr("x2", newX);
+      .select('#svg-' + id)
+      .select('line')
+      .attr('x1', newX)
+      .attr('x2', newX);
   };
 
   renderForm = () => {
@@ -653,7 +653,7 @@ class App extends Component {
                     } else
                       return {
                         value: oneKeyframe.value,
-                        time: oneKeyframe.time * ratio
+                        time: oneKeyframe.time * ratio,
                       };
                   });
                   newKeyframes.set(key, updatedValues);
@@ -661,7 +661,7 @@ class App extends Component {
 
                 this.setState({
                   seconds: newSeconds,
-                  keyframes: newKeyframes
+                  keyframes: newKeyframes,
                 });
               }}
             />
@@ -729,44 +729,44 @@ class App extends Component {
     const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
     return (
       <div
-        className={DEV ? "col-4" : ""}
+        className={DEV ? 'col-4' : ''}
         style={{
-          borderRight: "1px solid lightgrey",
-          height: "100%",
-          paddingRight: "3px",
-          width: DEV ? "40px" : "auto"
+          borderRight: '1px solid lightgrey',
+          height: '100%',
+          paddingRight: '3px',
+          width: DEV ? '40px' : 'auto',
         }}
       >
         <div
-          className={DEV ? "row no-gutters control-buttons" : "control-buttons"}
+          className={DEV ? 'row no-gutters control-buttons' : 'control-buttons'}
         >
-          <div className={DEV ? "col" : ""}>
+          <div className={DEV ? 'col' : ''}>
             <button onClick={() => this.toggelSimulation(true)}>
               <img
                 style={DEV ? {} : { height: 25, width: 25 }}
                 src={
                   this.state.startedSimulationOnce &&
                   !this.state.simulationPaused
-                    ? "../../trussfab-globals/assets/icons/pause.png"
-                    : "../../trussfab-globals/assets/icons/play.png"
+                    ? '../../trussfab-globals/assets/icons/pause.png'
+                    : '../../trussfab-globals/assets/icons/play.png'
                 }
               />
             </button>
           </div>
-          <div className={DEV ? "col" : "some-padding-top"}>
+          <div className={DEV ? 'col' : 'some-padding-top'}>
             <button onClick={() => this.toggelSimulation(false)}>
               <img
                 style={DEV ? {} : { height: 25, width: 25 }}
                 src={
                   this.state.startedSimulationCycle &&
                   !this.state.simulationPaused
-                    ? "../../trussfab-globals/assets/icons/pause.png"
-                    : "../../trussfab-globals/assets/icons/cycle.png"
+                    ? '../../trussfab-globals/assets/icons/pause.png'
+                    : '../../trussfab-globals/assets/icons/cycle.png'
                 }
               />
             </button>
           </div>
-          <div className={DEV ? "col" : "some-padding-top"}>
+          <div className={DEV ? 'col' : 'some-padding-top'}>
             <button onClick={this.stopSimulation}>
               <img
                 style={DEV ? {} : { height: 25, width: 25 }}
@@ -774,7 +774,7 @@ class App extends Component {
               />
             </button>
           </div>
-          <div className={DEV ? "col" : "some-padding-top"}>
+          <div className={DEV ? 'col' : 'some-padding-top'}>
             <button
               onClick={() => {
                 if (this.state.collapsed) {
@@ -789,7 +789,7 @@ class App extends Component {
                 togglePane();
               }}
             >
-              {this.state.collapsed ? "show" : "hide"}
+              {this.state.collapsed ? 'show' : 'hide'}
             </button>
           </div>
         </div>
@@ -805,13 +805,13 @@ class App extends Component {
       <div>
         <div
           style={{
-            display: "flex",
-            alignContent: "flex-start",
-            alignItems: "flex-start"
+            display: 'flex',
+            alignContent: 'flex-start',
+            alignItems: 'flex-start',
           }}
         >
           <div
-            style={{ "margin-top": yAxis / 3, marginLeft: 3, marginRight: 3 }}
+            style={{ 'margin-top': yAxis / 3, marginLeft: 3, marginRight: 3 }}
           >{`#${index + 1}`}</div>
           {/* >{`#${x}`}</div> */}
           {this.renderGraph(x)}
