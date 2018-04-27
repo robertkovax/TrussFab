@@ -224,6 +224,7 @@ class Simulation
       reset_force_arrows
       reset_sensor_symbols
       reset_generic_links
+      reset_pid_controllers
       rendering_options['EdgeDisplayMode'] = @show_edges
       rendering_options['DrawSilhouettes'] = @show_profiles
     rescue StandardError => err
@@ -353,6 +354,14 @@ class Simulation
     @generic_links.each_value do |generic_link|
       generic_link.force = generic_link.initial_force
     end
+  end
+
+  def reset_pid_controllers
+    pid_controllers = {}
+    Graph.instance.edges.each do |id, edge|
+      pid_controllers[id] = edge.thingy if edge.thingy.is_a?(PidController)
+    end
+    pid_controllers.each_value{ |controller| controller.reset_errors}
   end
 
   def get_closest_node_to_point(point)

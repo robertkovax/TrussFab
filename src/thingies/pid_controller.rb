@@ -10,9 +10,7 @@ class PidController < GenericLink
     @target_length = @default_length
     @integral_error = 0
     @previous_error = 0
-    @k_P = 100
-    @k_I = 0
-    @k_D = 0
+    set_pid_values(50, 50, 50)
   end
 
   def update_force
@@ -24,7 +22,20 @@ class PidController < GenericLink
 
     self.force = @k_P * error + @k_D * derivative_error + @k_I * integral_error
 
-    puts "#{self.force}"
+    @previous_error = error
+
+    puts "#{force.round(2)}|#{(@k_P * error).round(2)}|#{(@k_D * derivative_error).round(2)}|#{(@k_I * integral_error).round(2)}"
+  end
+
+  def set_pid_values(p, i, d)
+    @k_P = p
+    @k_I = i
+    @k_D = d
+  end
+
+  def reset_errors
+    @integral_error = 0
+    @previous_error = 0
   end
 
 end
