@@ -18,12 +18,6 @@ class BottleLink < Thingy
     persist_entity
   end
 
-  def change_color(color)
-    @entity.definition.entities.each do |ent|
-      ent.material = color if ent.material != color
-    end
-  end
-
   def highlight(highlight_material = @highlight_material)
     change_color(highlight_material)
   end
@@ -56,7 +50,7 @@ class BottleLink < Thingy
     entity = Sketchup.active_model
                      .active_entities
                      .add_instance(@model.definition, transformation)
-    entity.layer = Configeuration::COMPONENT_VIEW
+    entity.layer = Configuration::COMPONENT_VIEW
 
     entity
   end
