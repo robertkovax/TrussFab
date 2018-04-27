@@ -1,3 +1,4 @@
+# export presets
 module PRESETS
   DEFAULT_HOLE_SIZE = 3.2 # where the screw goes through
 
@@ -24,17 +25,22 @@ module PRESETS
 
   SIMPLE_HINGE_OPENSCAD = {
     l2: L2,
-    depth: 24.mm, # depth of a hinge part
-    width: 100.mm, # not really important because parts that are too much gets cut away anyway
-    round_size: 12.mm, # the round part of a hinge part
+    # depth of a hinge part
+    depth: 24.mm,
+    # not really important because parts that are too much gets cut away anyway
+    width: 100.mm,
+    # the round part of a hinge part
+    round_size: 12.mm,
     gap_angle_a: DEFAULT_GAP_ANGLE_SIMPLE,
     gap_angle_b: DEFAULT_GAP_ANGLE_SIMPLE,
     hole_size_a: DEFAULT_HOLE_SIZE,
     hole_size_b: DEFAULT_HOLE_SIZE,
-    gap_epsilon: 0.8.mm, # margin of the gap (due to printing issues)
+    # margin of the gap (due to printing issues)
+    gap_epsilon: 0.8.mm,
     connector_end_round: (30.0 / 2).mm,
     connector_end_heigth: 3.7.mm,
-    connector_end_extra_round: (19.90 / 2).mm, # to better connect the bottles
+    # to better connect the bottles
+    connector_end_extra_round: (19.90 / 2).mm,
     connector_end_extra_height: 7.mm,
     cut_out_hex_height_a: DEFAULT_CUT_OUT_HEX_HEIGHT,
     cut_out_hex_height_b: DEFAULT_CUT_OUT_HEX_HEIGHT,

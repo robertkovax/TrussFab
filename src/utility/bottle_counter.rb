@@ -1,10 +1,14 @@
 require 'src/configuration/configuration.rb'
 
+# counts bottles
 class BottleCounter
   class << self
     def update_status_text
       # It should tell the number of small-small, small-big, big-big, and hubs.
-      Sketchup.status_text = "Hubs: #{number_nodes} | Bottles: #{number_edges} (small-small: #{number_small_small}  small-big: #{number_small_big}  big-big: #{number_big_big})"
+      Sketchup.status_text = "Hubs: #{number_nodes} | Bottles: #{number_edges}"\
+                             " (small-small: #{number_small_small}  "\
+                             "small-big: #{number_small_big}  "\
+                             "big-big: #{number_big_big})"
     end
 
     def number_nodes

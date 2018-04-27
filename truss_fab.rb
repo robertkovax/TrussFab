@@ -30,7 +30,7 @@ require 'src/configuration/configuration'
 require 'src/utility/project_helper'
 
 # ui files
-require 'src/ui/dialogs/actuator_menu'
+require 'src/ui/dialogs/animation_pane'
 require 'src/ui/dialogs/sidebar'
 require 'src/ui/dialogs/component_properties'
 
@@ -41,7 +41,8 @@ module TrussFab
 
   @reloader = Reloader.new
   @sidebar_menu = Sidebar.new
-  @actuator_menu = ActuatorMenu.new
+  @animation_pane = AnimationPane.new
+  @store_sensor_output = false
 
   class << self
 
@@ -57,26 +58,33 @@ module TrussFab
 
       @sidebar_menu.open_dialog
 
-      @actuator_menu.open_dialog(@sidebar_menu.width + @sidebar_menu.left, @sidebar_menu.height + @sidebar_menu.top)
+      @animation_pane.open_dialog(@sidebar_menu.width + @sidebar_menu.left, @sidebar_menu.height + @sidebar_menu.top)
 
-      @sidebar_menu.actuator_menu = @actuator_menu
-      @actuator_menu.sidebar_menu = @sidebar_menu
+      @sidebar_menu.animation_pane = @animation_pane
+      @animation_pane.sidebar_menu = @sidebar_menu
     end
 
     def stop
       @sidebar_menu.close_dialog
-      @actuator_menu.close_dialog
+      @animation_pane.close_dialog
     end
 
     def refresh_ui
       @sidebar_menu.refresh
-      @actuator_menu.refresh
+      @animation_pane.refresh
     end
 
     def reload
       @reloader.reload
     end
 
+    def store_sensor_output
+      @store_sensor_output = !@store_sensor_output
+    end
+
+    def store_sensor_output?
+      @store_sensor_output
+    end
   end
 end
 

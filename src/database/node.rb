@@ -2,6 +2,7 @@ require 'src/database/graph_object.rb'
 require 'src/thingies/hub.rb'
 require 'src/thingies/hub_entities/pod.rb'
 
+# Node
 class Node < GraphObject
   attr_accessor :original_position
   attr_reader :position, :incidents, :adjacent_triangles
@@ -65,11 +66,12 @@ class Node < GraphObject
   end
 
   def fixed?
-    pods.any? { |pod| pod.is_fixed }
+    pods.any?(&:is_fixed)
   end
 
   def frozen?
-    # TODO: check if node is frozen by context menu, manually saving this node and connected edges from being changed
+    # TODO: check if node is frozen by context menu, manually saving this node
+    # and connected edges from being changed
     false
   end
 
@@ -90,11 +92,11 @@ class Node < GraphObject
     @adjacent_triangles.delete(triangle)
   end
 
-  def is_incident(edge)
+  def incident?(edge)
     @incidents.include?(edge)
   end
 
-  def is_adjacent(node)
+  def adjacent?(node)
     @incidents.any? { |edge| edge.include?(node) }
   end
 
@@ -115,9 +117,8 @@ class Node < GraphObject
   end
 
   def connected_component
-    unless @incidents.empty?
-      @incidents[0].connected_component
-    end
+    return if @incidents.empty?
+    @incidents[0].connected_component
   end
 
   def merge_into(other_node)
@@ -133,10 +134,10 @@ class Node < GraphObject
 
     # TODO: fix merging of pods
     new_pods = {}
-    #@pod_directions.each do |id, direction|
-    #  constraint = @pod_constraints[id]
-    #  new_pods[id] = other_node.add_pod(direction, constraint: true, id: id)
-    #end
+    # @pod_directions.each do |id, direction|
+    #   constraint = @pod_constraints[id]
+    #   new_pods[id] = other_node.add_pod(direction, constraint: true, id: id)
+    # end
 
     merged_adjacent_triangles = []
     @adjacent_triangles.each do |triangle|
@@ -166,9 +167,7 @@ class Node < GraphObject
     id = IdManager.instance.generate_next_id if id.nil?
     direction = direction.nil? ? Geometry::Z_AXIS.reverse : direction.normalize
     existing_pod = find_pod(direction)
-    unless existing_pod.nil?
-      return existing_pod
-    end
+    return existing_pod unless existing_pod.nil?
     @thingy.add_pod(direction, id: id, is_fixed: is_fixed)
   end
 
@@ -189,7 +188,7 @@ class Node < GraphObject
   end
 
   def inspect
-    "Node: " + @position.to_s
+    'Node: ' + @position.to_s
   end
 
   private

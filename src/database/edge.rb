@@ -8,6 +8,7 @@ require 'src/models/model_storage.rb'
 require 'src/simulation/thingy_rotation.rb'
 require 'src/configuration/configuration'
 
+# Edge
 class Edge < GraphObject
   attr_accessor :automatic_movement_group
   attr_reader :first_node, :second_node, :link_type, :bottle_type
@@ -22,7 +23,10 @@ class Edge < GraphObject
     @@retain_bottle_types = false
   end
 
-  def initialize(first_node, second_node, model_name: 'hard', bottle_type: Configuration::BIG_BIG_BOTTLE_NAME, id: nil, link_type: 'bottle_link')
+  def initialize(first_node,
+                 second_node,
+                 bottle_type: Configuration::BIG_BIG_BOTTLE_NAME,
+                 id: nil, link_type: 'bottle_link')
     @first_node = first_node
     @second_node = second_node
     @first_node.add_incident(self)
@@ -36,20 +40,20 @@ class Edge < GraphObject
   end
 
   def link_type=(type)
-    if type != @link_type
-      @link_type = type
-      recreate_thingy
-    end
+    return unless type != @link_type
+    @link_type = type
+    recreate_thingy
   end
 
-  def is_dynamic?
+  def dynamic?
     thingy.is_a?(PhysicsLink)
   end
 
   def distance(point)
     # offset to take ball_hub_radius into account
     first_point = position.offset(direction, Configuration::BALL_HUB_RADIUS / 2)
-    second_point = end_position.offset(direction.reverse, Configuration::BALL_HUB_RADIUS / 2)
+    second_point = end_position.offset(direction.reverse,
+                                       Configuration::BALL_HUB_RADIUS / 2)
     segment = [first_point, second_point]
     Geometry.dist_point_to_segment(point, segment)
   end
@@ -174,9 +178,7 @@ class Edge < GraphObject
     @first_node.delete_incident(self)
     @second_node.delete_incident(self)
 
-    adjacent_triangles.each do |tri|
-      tri.delete
-    end
+    adjacent_triangles.each(&:delete)
   end
 
   def update_bottle_type
@@ -218,38 +220,38 @@ class Edge < GraphObject
 
   def reset
     recreate_thingy
-    if @link_type == 'bottle_link'
-      @thingy.change_color(Configuration::BOTTLE_COLOR)
-    end
+
+    return unless @link_type == 'bottle_link'
+    @thingy.change_color(Configuration::BOTTLE_COLOR)
   end
 
   private
 
   def create_thingy(id)
     thingy = case @link_type
-    when 'bottle_link'
-      update_bottle_type if @bottle_type.empty?
+             when 'bottle_link'
+               update_bottle_type if @bottle_type.empty?
 
-      Link.new(@first_node,
-               @second_node,
-               Configuration::STANDARD_BOTTLES,
-               bottle_name: @bottle_type,
-               id: id)
-    when 'actuator'
-      ActuatorLink.new(@first_node,
-                       @second_node,
-                       id: id)
-    when 'spring'
-      SpringLink.new(@first_node,
-                     @second_node,
-                     id: id)
-    when 'generic'
-      GenericLink.new(@first_node,
-                      @second_node,
-                      id: id)
-    else
-      raise "Unkown link type: #{@link_type}"
-    end
+               Link.new(@first_node,
+                        @second_node,
+                        Configuration::STANDARD_BOTTLES,
+                        bottle_name: @bottle_type,
+                        id: id)
+             when 'actuator'
+               ActuatorLink.new(@first_node,
+                                @second_node,
+                                id: id)
+             when 'spring'
+               SpringLink.new(@first_node,
+                              @second_node,
+                              id: id)
+             when 'generic'
+               GenericLink.new(@first_node,
+                               @second_node,
+                               id: id)
+             else
+               raise "Unkown link type: #{@link_type}"
+             end
     thingy
   end
 end

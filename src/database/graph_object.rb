@@ -1,5 +1,6 @@
 require 'src/database/id_manager.rb'
 
+# Object like Edge, Node, Surface
 class GraphObject
   attr_reader :id, :thingy
 
@@ -10,7 +11,7 @@ class GraphObject
   end
 
   def check_if_valid
-    (@thingy && @thingy.check_if_valid) ? true : false
+    @thingy && @thingy.check_if_valid
   end
 
   def delete

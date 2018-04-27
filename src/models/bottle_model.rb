@@ -1,5 +1,6 @@
 require 'src/models/bottle.rb'
 
+# BottleModel
 class BottleModel
   attr_reader :name, :models, :material
 
@@ -39,16 +40,15 @@ class BottleModel
   end
 
   def valid?
-    @models.each { |spec, model|
-      return false unless model.valid?
-    }
-    return true
+    @models.each { |_, model| return false unless model.valid? }
+    true
   end
 
   private
 
   def create_model(specification)
-    components = Sketchup.active_model.definitions # Sketchup Component Definitions
+    # Sketchup Component Definitions
+    components = Sketchup.active_model.definitions
     name = specification[:NAME]
     if components[name]
       model = components[name]

@@ -1,8 +1,8 @@
 require 'src/thingies/physics_link.rb'
 require 'src/configuration/configuration.rb'
 
+# ActuatorLink
 class ActuatorLink < PhysicsLink
-
   attr_accessor :reduction, :rate, :power, :min, :max
   attr_reader :joint, :first_cylinder, :second_cylinder, :default_length
 
@@ -26,11 +26,10 @@ class ActuatorLink < PhysicsLink
   # Physics methods
   #
   def update_link_properties
-    if @joint && @joint.valid?
-      @joint.stiffness = 0.99
-      @joint.rate = @rate
-      @joint.reduction_ratio = @reduction
-      @joint.power = @power
-    end
+    return unless @joint && @joint.valid?
+    @joint.stiffness = 0.99
+    @joint.rate = @rate
+    @joint.reduction_ratio = @reduction
+    @joint.power = @power
   end
 end

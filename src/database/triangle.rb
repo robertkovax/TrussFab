@@ -2,6 +2,7 @@ require 'src/database/graph_object.rb'
 require 'src/thingies/surface.rb'
 require 'src/utility/geometry'
 
+# Triangle
 class Triangle < GraphObject
   attr_reader :first_node, :second_node, :third_node, :deleted
 
@@ -83,12 +84,12 @@ class Triangle < GraphObject
     end
   end
 
-  def is_dynamic?
-    edges.any? { |e| e.is_dynamic? }
+  def dynamic?
+    edges.any?(&:dynamic?)
   end
 
   def complete?
-    edges.all? { |e| !e.nil? }
+    edges.none?(&:nil?)
   end
 
   def exchange_node(current_node, new_node)
@@ -160,7 +161,7 @@ class Triangle < GraphObject
   end
 
   def inspect
-    "Triangle " + @id.to_s
+    'Triangle ' + @id.to_s
   end
 
   private

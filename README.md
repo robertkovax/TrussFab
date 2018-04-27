@@ -133,6 +133,13 @@ Also, use SketchUp’s Ruby Console to try for example `Graph.instance.empty?`.
 
 [TBD]
 
+### Dev Commands
+
+The ruby console in Sketchup can be used to interact with the TrussFab Plugin.
+Available commands are:
+    TrussFab.reload - reloads ruby and js files for faster development (do this after you changed code you want to test)
+    TrussFab.store_sensor_output - toggles writing the output of the sensors into a .csv-style file, which will be located in the home folder (called sensor_output.log)
+
 # Contact handles
 
 robert.kovacs@hpi.de

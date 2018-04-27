@@ -1,10 +1,13 @@
 require 'src/database/id_manager.rb'
 
+# Thingy (e.g. Hub, Link)
 class Thingy
   attr_reader :id, :entity, :sub_thingies, :position
   attr_accessor :parent
 
-  def initialize(id = nil, material: 'standard_material', highlight_material: 'highlight_material')
+  def initialize(id = nil,
+                 material: 'standard_material',
+                 highlight_material: 'highlight_material')
     @id = id.nil? ? IdManager.instance.generate_next_id : id
     @sub_thingies = []
     @entity = nil
@@ -15,19 +18,17 @@ class Thingy
   end
 
   def check_if_valid
-    return false if (@entity && !@entity.valid?)
-    @sub_thingies.each { |sub_thingy|
+    return false if @entity && !@entity.valid?
+    @sub_thingies.each do |sub_thingy|
       return false unless sub_thingy.check_if_valid
-    }
+    end
     true
   end
 
   def all_entities
     entities = []
     entities.push(@entity) if @entity && @entity.valid?
-    @sub_thingies.each { |thingy|
-      entities.concat(thingy.all_entities)
-    }
+    @sub_thingies.each { |thingy| entities.concat(thingy.all_entities) }
     entities
   end
 
@@ -59,6 +60,13 @@ class Thingy
 
   def color
     @entity.material if @entity && @entity.valid?
+  end
+
+  def material=(material)
+    Sketchup.active_model.start_operation('Thingy: Change Material', true)
+    @entity.material = material if @entity && @entity.valid?
+    @sub_thingies.each { |thingy| thingy.material = material }
+    Sketchup.active_model.commit_operation
   end
 
   def highlight(highlight_material = @highlight_material)

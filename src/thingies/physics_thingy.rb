@@ -1,8 +1,8 @@
 require 'src/thingies/thingy'
 require 'src/simulation/simulation.rb'
 
+# Moving Thingy, affected by physics
 class PhysicsThingy < Thingy
-
   def initialize(id, material: nil)
     if material.nil?
       super(id)

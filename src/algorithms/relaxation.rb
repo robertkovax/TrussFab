@@ -1,12 +1,13 @@
 require 'set'
 
+# Relaxation
 class Relaxation
   DEFAULT_MAX_ITERATIONS = 20_000
   CONVERGENCE_DEVIATION = 1.mm
   DAMPING_FACTOR = 0.9
 
   attr_reader :new_node_positions, :new_direction_vectors, :new_start_positions,
-    :max_iterations
+              :max_iterations
 
   def initialize(max_iterations: DEFAULT_MAX_ITERATIONS)
     @damping_factor = DAMPING_FACTOR
@@ -68,7 +69,7 @@ class Relaxation
       edge = @edges.to_a.sample
       # only adapt edge if we still have stuff to do
       deviation = deviation_to_optiomal_length(edge)
-      deviation = 0.0 if edge.is_dynamic?
+      deviation = 0.0 if edge.dynamic?
       next if deviation.abs < CONVERGENCE_DEVIATION
       # add neighbors if we still have edges left to add
       add_edges(edge.incidents) unless @edges.length == number_connected_edges
@@ -158,20 +159,22 @@ class Relaxation
       stretch_vector = new_direction_vector.clone
       stretch_vector.length = delta
       if is_first_node_fixed
-        new_direction_vector = @new_direction_vectors[edge_id] = new_direction_vector + stretch_vector
+        new_direction_vector += stretch_vector
+        @new_direction_vectors[edge_id] = new_direction_vector
 
         @new_node_positions[second_node_id] =
           @new_start_positions[edge_id] + new_direction_vector
 
         update_incident_edges(edge.second_node)
       elsif is_second_node_fixed
-        new_start_position = @new_start_positions[edge_id] = @new_start_positions[edge_id] - stretch_vector
+        new_start_position = @new_start_positions[edge_id] -= stretch_vector
         @new_direction_vectors[edge_id] = new_direction_vector + stretch_vector
         @new_node_positions[first_node_id] = new_start_position
 
         update_incident_edges(edge.first_node)
       else
-        new_start_position = @new_start_positions[edge_id] = @new_start_positions[edge_id] - Geometry.scale(stretch_vector, 0.5)
+        new_start_position = @new_start_positions[edge_id] -=
+          Geometry.scale(stretch_vector, 0.5)
 
         new_direction_vector = @new_direction_vectors[edge_id] =
           new_direction_vector + stretch_vector

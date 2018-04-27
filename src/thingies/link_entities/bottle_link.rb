@@ -1,5 +1,6 @@
 require 'src/configuration/configuration'
 
+# BottleLink
 class BottleLink < Thingy
   attr_reader :model, :direction
 
@@ -15,6 +16,12 @@ class BottleLink < Thingy
     @entity.material = @material
 
     persist_entity
+  end
+
+  def change_color(color)
+    @entity.definition.entities.each do |ent|
+      ent.material = color if ent.material != color
+    end
   end
 
   def highlight(highlight_material = @highlight_material)
@@ -36,15 +43,21 @@ class BottleLink < Thingy
     return @entity if @entity
     translation = Geom::Transformation.translation(@position)
 
-    rotation_angle = Geometry.rotation_angle_between(Geometry::Z_AXIS, @direction)
-    rotation_axis = Geometry.perpendicular_rotation_axis(Geometry::Z_AXIS, @direction)
-    rotation = Geom::Transformation.rotation(@position, rotation_axis, rotation_angle)
+    rotation_angle = Geometry.rotation_angle_between(Geometry::Z_AXIS,
+                                                     @direction)
+    rotation_axis = Geometry.perpendicular_rotation_axis(Geometry::Z_AXIS,
+                                                         @direction)
+    rotation = Geom::Transformation.rotation(@position,
+                                             rotation_axis,
+                                             rotation_angle)
 
     transformation = rotation * translation
 
-    entity = Sketchup.active_model.active_entities.add_instance(@model.definition, transformation)
-    entity.layer = Configuration::COMPONENT_VIEW
-    
+    entity = Sketchup.active_model
+                     .active_entities
+                     .add_instance(@model.definition, transformation)
+    entity.layer = Configeuration::COMPONENT_VIEW
+
     entity
   end
 end
