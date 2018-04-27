@@ -42,6 +42,7 @@ module TrussFab
   @reloader = Reloader.new
   @sidebar_menu = Sidebar.new
   @animation_pane = AnimationPane.new
+  @store_sensor_output = false
 
   class << self
 
@@ -77,6 +78,13 @@ module TrussFab
       @reloader.reload
     end
 
+    def store_sensor_output
+      @store_sensor_output = !@store_sensor_output
+    end
+
+    def store_sensor_output?
+      @store_sensor_output
+    end
   end
 end
 
