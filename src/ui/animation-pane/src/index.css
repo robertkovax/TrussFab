@@ -57,7 +57,7 @@ button:not(.add-new-kf) {
   bottom: 10px;
 }
 
-input[type='range'] {
+input[type="range"] {
   position: relative;
   top: 18px;
   right: 9px;
@@ -87,4 +87,9 @@ input[type='range'] {
 
 .some-padding-top {
   margin-top: 3px;
+}
+
+button img {
+  height: 30px;
+  width: 30px;
 }
