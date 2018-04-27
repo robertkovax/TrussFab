@@ -114,7 +114,7 @@ class HingePlacementAlgorithm
         next if same_group
 
         new_hinge = HingeExportInterface.new(e1, e2)
-        new_hinge.is_actuator_hinge = tri.dynamic?
+        new_hinge.is_double_hinge = tri.dynamic?
         hinges.add(new_hinge)
       end
     end
@@ -166,7 +166,7 @@ class HingePlacementAlgorithm
           val = 0
           val += shared_a_hinge_count[hinge] - 1 if shared_a_hinge_count[hinge] > 1
           val += shared_b_hinge_count[hinge] - 1 if shared_b_hinge_count[hinge] > 1
-          val += 1 if hinge.is_actuator_hinge && !connects_actuator
+          val += 1 if hinge.is_double_hinge && !connects_actuator
           val += 1 if hinge_connects_to_groups(group_edge_map, hinge, 2)
 
           hinge_values.push([hinge, val])
@@ -181,7 +181,7 @@ class HingePlacementAlgorithm
       hubs[node].drop(1).each do |connected_edges|
         connected_edges.each do |edge|
           edge_hinges = new_hinges.select { |hinge| hinge.edges.include?(edge) }
-          edge_hinges.sort_by! { |hinge| hinge.is_actuator_hinge ? 0 : 1 }
+          edge_hinges.sort_by! { |hinge| hinge.is_double_hinge ? 0 : 1 }
 
           while edge_hinges.size > 1
             new_hinges.delete(edge_hinges.first)
@@ -451,7 +451,7 @@ class HingePlacementAlgorithm
     mid_point = Geom::Point3d.linear_combination(0.5, mid_point2,
                                                  0.5, mid_point1)
 
-    if hinge.is_actuator_hinge
+    if hinge.is_double_hinge
       mid_point = Geom::Point3d.linear_combination(0.75, mid_point,
                                                    0.25, node.position)
     end

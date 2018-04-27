@@ -19,20 +19,17 @@ end
 
 # HingeExportInterface
 class HingeExportInterface
-  attr_accessor :edge1, :edge2, :is_actuator_hinge
+  attr_accessor :edge1, :edge2, :is_double_hinge
 
   def initialize(edge1, edge2)
     raise 'Edges have to be different.' if edge1 == edge2
     @edge1 = edge1
     @edge2 = edge2
-    # For historical reasons this is still called 'actuator hinge'.
-    # Actionally it is an 'double hinge' and gets used in other scenarios as
-    # well (e.g. subhubs).
-    @is_actuator_hinge = false
+    @is_double_hinge = false
   end
 
   def inspect
-    "#{@edge1.inspect} #{@edge2.inspect} #{@is_actuator_hinge}"
+    "#{@edge1.inspect} #{@edge2.inspect} #{@is_double_hinge}"
   end
 
   def hash
@@ -77,7 +74,7 @@ class HingeExportInterface
   end
 
   def l1
-    @is_actuator_hinge ? PRESETS::MINIMUM_ACTUATOR_L1 : PRESETS::MINIMUM_L1
+    @is_double_hinge ? PRESETS::MINIMUM_ACTUATOR_L1 : PRESETS::MINIMUM_L1
   end
 end
 

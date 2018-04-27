@@ -89,7 +89,7 @@ class ScadExport
       # two seperate hinges.
       # It only happens in the following steps that the ones hinges get's
       # split into two.
-      if hinge.is_actuator_hinge
+      if hinge.is_double_hinge
         additional_first_params = {}
         additional_second_params = {}
         if hinge.edge1.dynamic?
