@@ -344,7 +344,6 @@ class Simulation
       @auto_piston_group[group] = [] if @auto_piston_group[group].nil?
       @auto_piston_group[group].push(edge)
     end
-    p @auto_piston_group
   end
 
   def schedule_piston_for_testing(edge)
@@ -495,17 +494,11 @@ class Simulation
     #   p "Controller: #{joint.controller}"
     # end
 
-    p "Move Joint: #{id}"
-    p @auto_piston_group
-
     @auto_piston_group.each do |edges|
       next if edges.nil?
       edges.each do |edge|
         link = edge.thingy
-        p edge.piston_group
-        p id
         next if edge.piston_group != id || link.nil? || !link.joint.valid?
-        p edge
         joint = link.joint
 
         next_position_normalized = link.max * next_position.to_f +
@@ -519,9 +512,6 @@ class Simulation
 
         joint.rate = rate# > 0.01 ? rate : link.rate
         joint.controller = next_position_normalized
-        p rate
-        p joint.rate
-        p joint.controller
       end
     end
   end
