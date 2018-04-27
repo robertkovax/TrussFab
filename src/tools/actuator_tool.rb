@@ -19,7 +19,6 @@ class ActuatorTool < PhysicsLinkTool
               else
                 create_new_physics_link(view, x, y)
               end
-      @ui.animation_pane.add_piston(@edge.id) unless @edge.nil?
     end
   end
 
@@ -39,5 +38,6 @@ class ActuatorTool < PhysicsLinkTool
       edge.piston_group = 0
     end
     edge.thingy.material = COLORS[edge.piston_group]
+    @ui.animation_pane.add_piston(edge.piston_group)
   end
 end

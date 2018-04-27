@@ -91,19 +91,20 @@ class App extends Component {
   };
 
   addPiston = id => {
-    const number_id = this.state.pistons.length;
-    console.log(number_id);
+    if(this.state.pistons.includes(id)) {
+        return;
+    }
     const oldKeyframes = this.state.keyframes;
     const oldPistons = this.state.pistons;
     this.setState({
-      pistons: oldPistons.concat(number_id),
-      keyframes: oldKeyframes.set(number_id, [
+      pistons: oldPistons.concat(id),
+      keyframes: oldKeyframes.set(id, [
         { time: 0, value: 0.5 },
         { time: this.state.seconds, value: 0.5 }
       ]) // init
     });
     setTimeout(() => {
-      this.addTimeSelectionForNewKeyFrame(number_id);
+      this.addTimeSelectionForNewKeyFrame(id);
     }, 100);
   };
 

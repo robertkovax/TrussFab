@@ -479,6 +479,19 @@ class Simulation
                                                           actuator.min)
   end
 
+  def grouped_change_piston_value(id, value)
+    grouped_edges = @auto_piston_group[id.to_i]
+    return if grouped_edges.empty?
+    grouped_edges.each do |edge|
+      actuator = edge.thingy
+      next unless actuator.joint && actuator.joint.valid?
+      actuator.joint.rate = actuator.rate
+      actuator.joint.controller =
+        (value.to_f - Configuration::ACTUATOR_INIT_DIST) * (actuator.max -
+                                                            actuator.min)
+    end
+  end
+
   def move_joint(id, next_position, duration)
     # @pistons.each_value do |piston|
     #   next unless piston.id == id
