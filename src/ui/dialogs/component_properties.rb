@@ -33,6 +33,12 @@ class ComponentProperties
         add_generic_link_menu(context_menu,
                               '../context-menus/generic_link.erb',
                               'TrussFab Generic Link Properties')
+      when 'PidController'
+        @pid_controller = Graph.instance.edges[id].thingy
+        add_pid_controller_menu(context_menu,
+                                '../context-menus/pid_controller.erb',
+                                'TrussFab PID-Controller Properties')
+
       when 'Pod'
         @pod = nil
         Graph.instance.nodes.values.each do |node|
@@ -66,6 +72,12 @@ class ComponentProperties
   def add_generic_link_menu(context_menu, erb_file, title)
     context_menu.add_item(title) do
       show_generic_link_dialog(erb_file, title, Configuration::UI_WIDTH, 400)
+    end
+  end
+
+  def add_pid_controller_menu(context_menu, erb_file, title)
+    context_menu.add_item(title) do
+      show_pid_controller_dialog(erb_file, title, Configuration::UI_WIDTH, 600)
     end
   end
 
@@ -120,6 +132,14 @@ class ComponentProperties
                                height = Configuration::UI_HEIGHT)
     dialog = show_dialog(file, name, width, height)
     register_generic_link_callbacks(@generic_link, dialog)
+  end
+
+  def show_pid_controller_dialog(file,
+                                 name,
+                                 width = Configuration::UI_WIDTH,
+                                 height = Configuration::UI_HEIGHT)
+    dialog = show_dialog(file, name, width, height)
+    register_pid_controller_callbacks(@pid_controller, dialog)
   end
 
   def show_pod_dialog(file,
@@ -193,6 +213,37 @@ class ComponentProperties
     dialog.add_action_callback('set_max') do |_dialog, param|
       link.max_distance = param.to_f
       link.update_link_properties
+    end
+  end
+
+  def register_pid_controller_callbacks(link, dialog)
+    # pistons
+    dialog.add_action_callback('set_target') do |_dialog, param|
+      link.target_length = param.to_f
+      link.update_link_properties
+    end
+    dialog.add_action_callback('set_p') do |_dialog, param|
+      link.k_P = param.to_f
+      link.update_link_properties
+    end
+    dialog.add_action_callback('set_i') do |_dialog, param|
+      link.k_I = param.to_f
+      link.update_link_properties
+    end
+    dialog.add_action_callback('set_d') do |_dialog, param|
+      link.k_D = param.to_f
+      link.update_link_properties
+    end
+    dialog.add_action_callback('set_min') do |_dialog, param|
+      link.min_distance = param.to_f
+      link.update_link_properties
+    end
+    dialog.add_action_callback('set_max') do |_dialog, param|
+      link.max_distance = param.to_f
+      link.update_link_properties
+    end
+    dialog.add_action_callback('set_logging') do |_dialog, param|
+      link.logging = param
     end
   end
 
