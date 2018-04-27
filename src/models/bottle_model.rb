@@ -54,13 +54,6 @@ class BottleModel
       model = components[name]
     else
       definition = components.load specification[:PATH]
-
-      # we remove all materials of single bottles, in order to do the material handling
-      # in the ComponentInstance that wraps the bottles, see BottleLink
-      definition.entities.each do |ent|
-        ent.material = nil
-      end
-
       model = Bottle.new(name, specification[:WEIGHT], definition, self)
     end
     model

@@ -11,8 +11,6 @@ class BottleLink < Thingy
     @direction = direction
     @model = model
     @entity = create_entity
-    @material = Sketchup.active_model.materials.add('bottle_link')
-    @material.color = Configuration::BOTTLE_COLOR
     @entity.material = @material
 
     persist_entity

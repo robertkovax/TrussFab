@@ -102,7 +102,7 @@ module ProjectHelper
     unless materials['bottle_material']
       material = materials.add('bottle_material')
       material.color = Configuration::BOTTLE_COLOR
-      material.alpha = 0.65
+      material.alpha = 1.0
     end
 
     unless materials['actuator_material']
