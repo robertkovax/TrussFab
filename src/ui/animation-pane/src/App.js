@@ -21,13 +21,7 @@ import {
   changePistonValue,
 } from './sketchup-integration';
 
-const xAxis = 300;
-const yAxis = 50;
-const timelineStepSeconds = 100; // this affects how smooth the line should be
-
-const FACTOR = 0.5;
-
-const DEV = false;
+import { xAxis, yAxis, timelineStepSeconds, FACTOR, DEV } from './config';
 
 class App extends Component {
   constructor(props) {
@@ -107,116 +101,6 @@ class App extends Component {
 
   cleanupUiAfterStoppingSimulation = () => {
     this.resetState();
-  };
-
-  addKeyframe = event => {
-    const pistonId = parseInt(event.currentTarget.id);
-    const value = event.currentTarget.previousSibling.value / 100;
-    const time = parseFloat(
-      event.currentTarget.previousSibling.previousSibling.value
-    );
-
-    const oldKeyframes = this.state.keyframes;
-    const oldKeyframesPiston = oldKeyframes.get(pistonId) || [];
-    const keyframes = oldKeyframes.set(
-      pistonId,
-      oldKeyframesPiston.concat({ time, value }).sort((a, b) => a.time - b.time)
-    );
-    this.setState({ keyframes });
-  };
-
-  _mapPointsToChart = kf => {
-    return [
-      kf.time * xAxis / this.state.seconds,
-      (1 - kf.value) * (yAxis - 8) + 4,
-    ];
-  };
-
-  renderGraph = id => {
-    const keyframes = this.state.keyframes.get(id) || [];
-
-    const points = keyframes.map(this._mapPointsToChart);
-
-    const viewBox = `0 0 ${xAxis} ${yAxis}`;
-    const pointsString = points.map(p => p.join(',')).join('\n');
-
-    const oldKeyframesMap = this.state.keyframes;
-
-    const deleteCircle = keyframeIndex => {
-      this.setState({
-        keyframes: oldKeyframesMap.set(
-          id,
-          oldKeyframesMap.get(id).filter((_, index) => index !== keyframeIndex)
-        ),
-      });
-    };
-
-    const circles = points.map((x, index) => (
-      <circle
-        onClick={() => deleteCircle(index)}
-        cx={x[0]}
-        cy={x[1]}
-        r="4"
-        fill="#0074d9"
-      />
-    ));
-
-    const greyOutPoints =
-      this.state.oldKeyframesUIST &&
-      this.state.oldKeyframesUIST.get(id) &&
-      this.state.oldKeyframesUIST.get(id).map(this._mapPointsToChart);
-    let greyOutPointsString = null;
-    if (greyOutPoints != null)
-      greyOutPointsString = greyOutPoints.map(p => p.join(',')).join('\n');
-
-    return (
-      <div style={{ position: 'relative' }}>
-        {this.state.simluationBrokeAt !== null && (
-          <div
-            className="broken-time-line"
-            style={{ left: this.state.simluationBrokeAt / 1000 / 5 * xAxis }}
-          />
-        )}
-        <svg viewBox={viewBox} className="chart" id={`svg-${id}`}>
-          {greyOutPoints != null && (
-            <polyline
-              className="grey-out-line"
-              fill="none"
-              stroke="#D3D3D3"
-              strokeWidth="2"
-              points={greyOutPointsString}
-            />
-          )}
-          <polyline
-            fill="none"
-            stroke="#0074d9"
-            strokeWidth="3"
-            points={pointsString}
-          />
-          {circles}
-        </svg>
-        <span
-          style={{ position: 'absolute', bottom: 0, left: 0, fontSize: 10 }}
-        >
-          0s
-        </span>
-        <span
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            right: xAxis / 2,
-            fontSize: 10,
-          }}
-        >
-          {this.state.seconds / 2}s
-        </span>
-        <span
-          style={{ position: 'absolute', bottom: 0, right: 0, fontSize: 10 }}
-        >
-          {this.state.seconds}s
-        </span>
-      </div>
-    );
   };
 
   _addAllTimeSelectionLines = () => {
