@@ -1,70 +1,7 @@
 require 'singleton'
 require 'src/simulation/simulation.rb'
 require 'src/algorithms/rigidity_tester.rb'
-
-# Hinge
-class Hinge
-  attr_accessor :edge1, :edge2, :is_actuator_hinge
-
-  def initialize(edge1, edge2)
-    raise 'Edges have to be different.' if edge1 == edge2
-    @edge1 = edge1
-    @edge2 = edge2
-    # For historical reasons this is still called 'actuator hinge'.
-    # Actionally it is an 'double hinge' and gets used in other scenarios as
-    # well (e.g. subhubs).
-    @is_actuator_hinge = false
-  end
-
-  def inspect
-    "#{@edge1.inspect} #{@edge2.inspect} #{@is_actuator_hinge}"
-  end
-
-  def hash
-    self.class.hash ^ @edge1.hash ^ @edge2.hash
-  end
-
-  def eql?(other)
-    hash == other.hash
-  end
-
-  def common_edge(other)
-    common_edges = edges & other.edges
-    raise 'Too many or no common edges.' if common_edges.size != 1
-    common_edges[0]
-  end
-
-  def connected_with?(other)
-    common_edges = edges & other.edges
-    !common_edges.empty?
-  end
-
-  def num_connected_hinges(hinges)
-    hinges.select { |other| !eql?(other) && connected_with?(other) }.size
-  end
-
-  def edges
-    [@edge1, @edge2]
-  end
-
-  def swap_edges
-    @edge1, @edge2 = @edge2, @edge1
-  end
-
-  def angle
-    val = @edge1.direction.angle_between(@edge2.direction)
-    val = 180 / Math::PI * val
-    val = 180 - val if val > 90
-
-    raise 'Angle between edges not between 0° and 90°.' if val < 0 || val > 90
-
-    val
-  end
-
-  def l1
-    @is_actuator_hinge ? PRESETS::MINIMUM_ACTUATOR_L1 : PRESETS::MINIMUM_L1
-  end
-end
+require 'src/export/export_interface'
 
 # Hinge Placement Algorithm
 class HingePlacementAlgorithm
@@ -155,7 +92,7 @@ class HingePlacementAlgorithm
       group_nodes.each do |node|
         hub_edges = group_edges.select { |edge| edge.nodes.include? node }
         if hub_edges.size == 2
-          hinges.add(Hinge.new(hub_edges[0], hub_edges[1]))
+          hinges.add(HingeExportInterface.new(hub_edges[0], hub_edges[1]))
         else
           hubs[node].push(hub_edges)
         end
@@ -176,7 +113,7 @@ class HingePlacementAlgorithm
 
         next if same_group
 
-        new_hinge = Hinge.new(e1, e2)
+        new_hinge = HingeExportInterface.new(e1, e2)
         new_hinge.is_actuator_hinge = tri.dynamic?
         hinges.add(new_hinge)
       end
