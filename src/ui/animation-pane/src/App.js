@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import * as d3 from "d3";
 
-import logo from "./logo.svg";
 import "./App.css";
 import { toggleDiv } from "./util";
 import { getInterpolationForTime } from "./serious-math";
@@ -483,7 +482,9 @@ class App extends Component {
             time:
               x.time * 2 < this.state.seconds
                 ? x.time * 2
-                : x.time === this.state.seconds ? x.time : null
+                : x.time === this.state.seconds
+                  ? x.time
+                  : null
           };
         })
         .filter(x => x.time !== null);
