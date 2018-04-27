@@ -91,18 +91,19 @@ class App extends Component {
   };
 
   addPiston = id => {
-    // const id = this.state.pistons.length;
+    const number_id = this.state.pistons.length;
+    console.log(number_id);
     const oldKeyframes = this.state.keyframes;
     const oldPistons = this.state.pistons;
     this.setState({
-      pistons: oldPistons.concat(id),
-      keyframes: oldKeyframes.set(id, [
+      pistons: oldPistons.concat(number_id),
+      keyframes: oldKeyframes.set(number_id, [
         { time: 0, value: 0.5 },
         { time: this.state.seconds, value: 0.5 }
       ]) // init
     });
     setTimeout(() => {
-      this.addTimeSelectionForNewKeyFrame(id);
+      this.addTimeSelectionForNewKeyFrame(number_id);
     }, 100);
   };
 
@@ -111,6 +112,7 @@ class App extends Component {
   };
 
   addKeyframe = event => {
+    console.log(event);
     const pistonId = parseInt(event.currentTarget.id);
     const value = event.currentTarget.previousSibling.value / 100;
     const time = parseFloat(
@@ -448,9 +450,9 @@ class App extends Component {
     const oldKeyframesUIST = new Map();
     const keyframes = this.state.keyframes;
 
-    this.state.pistons.forEach(pistonId => {
-      const oldKeyframe = this.state.keyframes.get(pistonId);
-      oldKeyframesUIST.set(pistonId, oldKeyframe);
+    this.state.pistons.map((pistonId, id) => {
+      const oldKeyframe = this.state.keyframes.get(id);
+      oldKeyframesUIST.set(id, oldKeyframe);
 
       const newKeyframe = oldKeyframe.map((x, keyframeIndex) => {
         return {
@@ -462,7 +464,7 @@ class App extends Component {
         };
       });
 
-      keyframes.set(pistonId, newKeyframe);
+      keyframes.set(id, newKeyframe);
     });
     // finally update state
     this.setState({ oldKeyframesUIST, keyframes });
@@ -472,9 +474,9 @@ class App extends Component {
     const oldKeyframesUIST = new Map();
     const keyframes = this.state.keyframes;
 
-    this.state.pistons.forEach(pistonId => {
-      const oldKeyframe = this.state.keyframes.get(pistonId);
-      oldKeyframesUIST.set(pistonId, oldKeyframe);
+    this.state.pistons.map((pistonId, id) => {
+      const oldKeyframe = this.state.keyframes.get(id);
+      oldKeyframesUIST.set(id, oldKeyframe);
 
       const newKeyframe = oldKeyframe
         .map(x => {
@@ -488,7 +490,7 @@ class App extends Component {
         })
         .filter(x => x.time !== null);
 
-      keyframes.set(pistonId, newKeyframe);
+      keyframes.set(id, newKeyframe);
     });
     // finally update state
     this.setState({ oldKeyframesUIST, keyframes });

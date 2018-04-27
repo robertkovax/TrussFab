@@ -42,7 +42,7 @@ class SimulationTool < Tool
     setup_simulation_parameters
     @simulation.setup
     @simulation.open_sensor_dialog
-    @simulation.auto_piston_group = @auto_piston_group
+    @auto_piston_group = @simulation.auto_piston_group
     Sketchup.active_model.active_view.animation = @simulation
     @simulation.start
   end
@@ -51,7 +51,6 @@ class SimulationTool < Tool
     @simulation.stop
     @simulation.reset
     @simulation.close_sensor_dialog
-    @simulation.close_automatic_movement_dialog
     @simulation = nil
     @ui.stop_simulation
   end
@@ -200,25 +199,25 @@ class SimulationTool < Tool
               '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3',
               '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF']
     # we don't want to create more groups than we have pistons
-    # NB: automatic_movement_group is initialized with -1 so we have add one to
+    # NB: piston_group is initialized with -1 so we have add one to
     # compare to size
-    return if edge.automatic_movement_group + 1 >= @simulation.pistons.length
-    edge.automatic_movement_group += 1
+    return if edge.piston_group + 1 >= @simulation.pistons.length
+    edge.piston_group += 1
 
-    if @simulation.auto_piston_group[edge.automatic_movement_group].nil?
-      @simulation.auto_piston_group[edge.automatic_movement_group] = []
-      @ui.update_piston_group(edge.automatic_movement_group)
+    if @simulation.auto_piston_group[edge.piston_group].nil?
+      @simulation.auto_piston_group[edge.piston_group] = []
+      @ui.update_piston_group(edge.piston_group)
     end
 
-    unless edge.automatic_movement_group.zero?
-      @simulation.auto_piston_group[edge.automatic_movement_group - 1]
+    unless edge.piston_group.zero?
+      @simulation.auto_piston_group[edge.piston_group - 1]
                  .delete(edge)
     end
 
-    @simulation.auto_piston_group[edge.automatic_movement_group].push(edge)
+    @simulation.auto_piston_group[edge.piston_group].push(edge)
     link = edge.thingy
     mat = @simulation.bottle_dat[link][3]
-    mat.color = colors[edge.automatic_movement_group]
+    mat.color = colors[edge.piston_group]
     # persist the piston group array
     @auto_piston_group = @simulation.auto_piston_group
   end

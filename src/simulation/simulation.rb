@@ -180,6 +180,7 @@ class Simulation
     create_joints
     collect_all_pistons
     collect_all_generic_links
+    collect_piston_groups
 
     # Setup stuff
     model = Sketchup.active_model
@@ -195,8 +196,6 @@ class Simulation
       model.abort_operation
       raise err
     end
-
-    collect_all_pistons
 
     model.commit_operation
   end
@@ -337,6 +336,17 @@ class Simulation
     end
   end
 
+  def collect_piston_groups
+    @auto_piston_group.clear
+    Graph.instance.edges.each_value do |edge|
+      group = edge.piston_group
+      next if group < 0
+      @auto_piston_group[group] = [] if @auto_piston_group[group].nil?
+      @auto_piston_group[group].push(edge)
+    end
+    p @auto_piston_group
+  end
+
   def schedule_piston_for_testing(edge)
     @moving_pistons.push(id: edge.id.to_i, expanding: true, speed: 0.4)
   end
@@ -457,30 +467,6 @@ class Simulation
   # Automatic Piston Movement Methods
   #
 
-  def open_automatic_movement_dialog
-    @movement_dialog = UI::HtmlDialog.new(Configuration::HTML_DIALOG)
-    file_content = File.read(File.join(File.dirname(__FILE__),
-                                       '../ui/html/cycle_designer.erb'))
-    template = ERB.new(file_content)
-    @movement_dialog.set_html(template.result(binding))
-    @movement_dialog.set_size(300, Configuration::UI_HEIGHT)
-    @movement_dialog.add_action_callback('expand_actuator') do |_context, id|
-      expand_actuator(id)
-    end
-    @movement_dialog.add_action_callback('retract_actuator') do |_context, id|
-      retract_actuator(id)
-    end
-    @movement_dialog.add_action_callback('stop_actuator') do |_context, id|
-      stop_actuator(id)
-    end
-    @movement_dialog.show
-  end
-
-  def close_automatic_movement_dialog
-    return if @movement_dialog.nil?
-    @movement_dialog.close if @movement_dialog.visible?
-  end
-
   def change_piston_value(id, value)
     actuator = @pistons[id.to_i]
     return unless actuator.joint && actuator.joint.valid?
@@ -491,34 +477,53 @@ class Simulation
   end
 
   def move_joint(id, next_position, duration)
-    @pistons.each_value do |piston|
-      next unless piston.id == id
-      joint = piston.joint
-      next if joint.nil? || !joint.valid?
-      next_position_normalized = piston.max * next_position.to_f +
-                                 piston.min * (1 - next_position.to_f)
-      current_postion = joint.cur_distance - joint.start_distance
-      position_distance = (current_postion - next_position_normalized).abs
-      scale = 60.0 / (@fps)
-      scale = 1 if scale == Float::INFINITY
-      rate = (position_distance / duration * scale)
-      joint.rate = rate > 0.01 ? rate : piston.rate # put it on "holding force"
-      joint.controller = next_position_normalized
+    # @pistons.each_value do |piston|
+    #   next unless piston.id == id
+    #   joint = piston.joint
+    #   next if joint.nil? || !joint.valid?
+    #   next_position_normalized = piston.max * next_position.to_f +
+    #                              piston.min * (1 - next_position.to_f)
+    #   current_postion = joint.cur_distance - joint.start_distance
+    #   position_distance = (current_postion - next_position_normalized).abs
+    #   scale = 60.0 / (@fps)
+    #   scale = 1 if scale == Float::INFINITY
+    #   rate = (position_distance / duration * scale)
+    #   joint.rate = rate > 0.01 ? rate : piston.rate #put it on "holding force"
+    #   joint.controller = next_position_normalized
+    #   p next_position_normalized
+    #   p "Rate: #{joint.rate}"
+    #   p "Controller: #{joint.controller}"
+    # end
+
+    p "Move Joint: #{id}"
+    p @auto_piston_group
+
+    @auto_piston_group.each do |edges|
+      next if edges.nil?
+      edges.each do |edge|
+        link = edge.thingy
+        p edge.piston_group
+        p id
+        next if edge.piston_group != id || link.nil? || !link.joint.valid?
+        p edge
+        joint = link.joint
+
+        next_position_normalized = link.max * next_position.to_f +
+                                   link.min * (1 - next_position.to_f)
+        current_postion = joint.cur_distance - joint.start_distance
+        position_distance = (current_postion - next_position_normalized).abs
+        # scale = 60.0 / (@fps)
+        # p scale
+        scale = 1# if scale == Float::INFINITY
+        rate = (position_distance / duration * scale) # link.rate
+
+        joint.rate = rate# > 0.01 ? rate : link.rate
+        joint.controller = next_position_normalized
+        p rate
+        p joint.rate
+        p joint.controller
+      end
     end
-
-    # @auto_piston_group.each { |edges|
-    #   edges.each { |edge|
-    #     if edge.automatic_movement_group == id
-    #       link = edge.thingy
-    #       unless link.nil? || !link.joint.valid?
-    #         joint = link.joint
-
-    #         joint.rate = link.rate
-    #         joint.controller = expand ? link.max : link.min
-    #       end
-    #     end
-    #   }
-    # }
   end
 
   def expand_actuator(id)
@@ -533,7 +538,7 @@ class Simulation
     link = nil
     @auto_piston_group.each do |edges|
       edges.each do |edge|
-        next unless edge.automatic_movement_group == id
+        next unless edge.piston_group == id
         link = edge.thingy
         unless link.nil?
           joint = link.joint
@@ -545,7 +550,7 @@ class Simulation
 
   def reset_piston_group
     Graph.instance.edges.each_value do |edge|
-      edge.automatic_movement_group = -1
+      edge.piston_group = -1
     end
   end
 

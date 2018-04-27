@@ -23,7 +23,21 @@ class ActuatorTool < PhysicsLinkTool
     end
   end
 
+  COLORS = [
+    '#e6194b', '#3cb44b', '#ffe119', '#0082c8', '#f58231', '#911eb4', '#46f0f0',
+    '#f032e6', '#d2f53c', '#fabebe', '#008080', '#e6beff', '#aa6e28', '#fffac8',
+    '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000080', '#808080', '#000000'
+  ].freeze
+
   def change_piston_group(edge)
-    p edge.automatic_movement_group
+    max_group = Graph.instance.edges.count do |e|
+      e[1].thingy.is_a?(ActuatorLink)
+    end - 1
+    if edge.piston_group < max_group
+      edge.piston_group += 1
+    else
+      edge.piston_group = 0
+    end
+    edge.thingy.material = COLORS[edge.piston_group]
   end
 end

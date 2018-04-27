@@ -65,10 +65,9 @@ class Thingy
   end
 
   def material=(material)
-    Sketchup.active_model.start_operation('Thingy: Change Material', true)
+    @material = material
     @entity.material = material if @entity && @entity.valid?
     @sub_thingies.each { |thingy| thingy.material = material }
-    Sketchup.active_model.commit_operation
   end
 
   def highlight(highlight_material = @highlight_material)
