@@ -16,19 +16,6 @@ class BottleLink < Thingy
     persist_entity
   end
 
-  def highlight(highlight_material = @highlight_material)
-    change_color(highlight_material)
-  end
-
-  def un_highlight
-    change_color(@model.model.material.color)
-  end
-
-  def delete_entity
-    super
-    Sketchup.active_model.materials.remove(@material)
-  end
-
   private
 
   def create_entity
