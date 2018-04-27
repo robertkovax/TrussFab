@@ -8,11 +8,12 @@ module JsonImport
   class << self
     def distance_to_ground(json_objects)
       lowest_z = Float::INFINITY
+      first_z = json_objects['nodes'][0]['z'].to_f.mm
       json_objects['nodes'].each do |node|
         z = node['z'].to_f.mm
         lowest_z = [lowest_z, z].min
       end
-      lowest_z
+      first_z - lowest_z
     end
 
     def at_position(path, position)
@@ -28,7 +29,6 @@ module JsonImport
     end
 
     def at_triangle(path, snap_triangle)
-      # Sketchup.active_model.start_operation('Import', true)
       json_objects = load_json(path)
 
       # retrieve points from json
@@ -94,7 +94,6 @@ module JsonImport
       edges, nodes = build_edges(json_objects, json_points)
       triangles = create_triangles(edges)
       add_joints(json_objects, edges, nodes) unless json_objects['joints'].nil?
-      # Sketchup.active_model.commit_operation
       [triangles.values, edges.values]
     end
 
@@ -148,7 +147,7 @@ module JsonImport
         z = node['z'].to_f.mm
         point = Geom::Point3d.new(x, y, z)
         if first
-          position.z = -z_height
+          position.z = z_height
           translation = point.vector_to(position)
           first = false
         end
