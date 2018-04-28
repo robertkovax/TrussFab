@@ -12,16 +12,21 @@ Target Length<br>
 <input type="number" value="<%= @pid_controller.target_length %>" step="0.1" onchange="set_target(this.value)">
 <br>
 P<br>
-<input type="number" value="<%= @pid_controller.k_P %>" step="0.1" onchange="set_p(this.value)">
+<input type="number" value="<%= @pid_controller.k_P %>" step="10" onchange="set_p(this.value)">
 <br>
 I<br>
-<input type="number" value="<%= @pid_controller.k_I %>" step="0.1" onchange="set_i(this.value)">
+<input type="number" value="<%= @pid_controller.k_I %>" step="10" onchange="set_i(this.value)">
 <br>
 D<br>
-<input type="number" value="<%= @pid_controller.k_D %>" step="0.1" onchange="set_d(this.value)">
+<input type="number" value="<%= @pid_controller.k_D %>" step="10" onchange="set_d(this.value)">
 <br> <br>
 Console-Logging:
 <input type="checkbox" id="logging" onchange="set_logging(this.checked)">
+<br><br>
+Integral Error Cap (m*s)
+<br>
+<input type="number" value="<%= @pid_controller.integral_error_cap %>" step="0.1" onchange="set_error_cap(this.value)">
+<br>
 <h3>Link-Properties</h3>
 Minimum Position:
 <br>
@@ -35,6 +40,9 @@ Maximum Position:
   function init_checkbox() {
     var checkbox = document.getElementById("logging");
     checkbox.checked = <%= @pid_controller.logging %>
+  }
+  function set_error_cap(newValue){
+    sketchup.set_error_cap(newValue);
   }
   function set_logging(newValue) {
     sketchup.set_logging(newValue);

@@ -245,6 +245,10 @@ class ComponentProperties
     dialog.add_action_callback('set_logging') do |_dialog, param|
       link.logging = param
     end
+    dialog.add_action_callback('set_error_cap') do |_dialog, param|
+      link.integral_error_cap = param.to_f
+      link.update_link_properties
+    end
   end
 
   def register_pod_callbacks(pod, dialog)

@@ -3,7 +3,7 @@ require 'src/configuration/configuration.rb'
 require 'src/thingies/generic_link'
 
 class PidController < GenericLink
-  attr_accessor :integral_error, :k_P, :k_I, :k_D
+  attr_accessor :integral_error, :k_P, :k_I, :k_D, :integral_error_cap
   attr_reader :target_length, :logging
 
   def target_length=(length)
@@ -20,6 +20,7 @@ class PidController < GenericLink
     super(first_node, second_node, link_type: 'pid_controller', id: id)
 
     @logging = false
+    @integral_error_cap = 1
     @target_length = @default_length.round(4)
     @integral_error = 0
     @previous_error = nil
@@ -32,6 +33,7 @@ class PidController < GenericLink
     iteration_time = (Configuration::WORLD_TIMESTEP / \
                       Configuration::WORLD_NUM_ITERATIONS)
     @integral_error += error * iteration_time
+    @integral_error = [[integral_error, -@integral_error_cap].max, @integral_error_cap].min
 
     derivative_error = 0
     unless @previous_error.nil?
@@ -41,6 +43,7 @@ class PidController < GenericLink
     p_force = @k_P * error
     i_force = @k_I * integral_error
     d_force = @k_D * derivative_error
+
 
     self.force = p_force + i_force + d_force
     @previous_error = error
