@@ -4,137 +4,88 @@
   "nodes": [
     {
       "id": 1,
-      "x": -955.9670460954196,
-      "y": 6308.735251058613,
-      "z": 0.0
+      "x": 1149.3969711141401,
+      "y": 706.9501771130858,
+      "z": 0.0,
+      "pods": [
+
+      ]
     },
     {
-      "id": 7,
-      "x": -267.99071809541954,
-      "y": 6308.735251058613,
-      "z": 0.0
+      "id": 2,
+      "x": 1818.6784746236965,
+      "y": 706.9501771130858,
+      "z": 0.0,
+      "pods": [
+
+      ]
     },
     {
-      "id": 15,
-      "x": -611.9788820954195,
-      "y": 6904.540228308948,
-      "z": 0.0
+      "id": 3,
+      "x": 1484.0377228689185,
+      "y": 1286.5649614354056,
+      "z": 0.0,
+      "pods": [
+
+      ]
     },
     {
-      "id": 37,
-      "x": -611.9788820954195,
-      "y": 6507.3369101420585,
-      "z": 561.7303195712119
+      "id": 4,
+      "x": 1484.0377228689185,
+      "y": 900.1551052205257,
+      "z": 546.4660592937206,
+      "pods": [
+
+      ]
     }
   ],
   "edges": [
     {
-      "id": 9,
+      "id": 1,
       "n1": 1,
-      "n2": 7
+      "n2": 2,
+      "type": "bottle_link",
+      "bottle_type": "Big Big Double Bottle (60cm)"
     },
     {
-      "id": 17,
-      "n1": 7,
-      "n2": 15
+      "id": 2,
+      "n1": 2,
+      "n2": 3,
+      "type": "bottle_link",
+      "bottle_type": "Big Big Double Bottle (60cm)"
     },
     {
-      "id": 25,
-      "n1": 15,
-      "n2": 1
+      "id": 3,
+      "n1": 3,
+      "n2": 1,
+      "type": "bottle_link",
+      "bottle_type": "Big Big Double Bottle (60cm)"
     },
     {
-      "id": 39,
+      "id": 4,
       "n1": 1,
-      "n2": 37
+      "n2": 4,
+      "type": "bottle_link",
+      "bottle_type": "Big Big Double Bottle (60cm)"
     },
     {
-      "id": 47,
-      "n1": 7,
-      "n2": 37,
-      "type": "actuator"
+      "id": 5,
+      "n1": 2,
+      "n2": 4,
+      "type": "actuator",
+      "bottle_type": "Big Big Double Bottle (60cm)"
     },
     {
-      "id": 57,
-      "n1": 15,
-      "n2": 37
-    }
-  ],
-  "support_nodes": [
-    {
-      "node_id": 15,
-      "axes": [
-        "x_t",
-        "y_t",
-        "z_t"
-      ]
-    },
-    {
-      "node_id": 1,
-      "axes": [
-        "x_t",
-        "y_t",
-        "z_t"
-      ]
-    },
-    {
-      "node_id": 7,
-      "axes": [
-        "x_t",
-        "y_t",
-        "z_t"
-      ]
-    }
-  ],
-  "forces": [
-    {
-      "node_id": 1,
-      "components": {
-        "x_t": 0.0,
-        "y_t": 0.0,
-        "z_t": 0.0
-      }
-    },
-    {
-      "node_id": 7,
-      "components": {
-        "x_t": 0.0,
-        "y_t": 0.0,
-        "z_t": 0.0
-      }
-    },
-    {
-      "node_id": 15,
-      "components": {
-        "x_t": 0.0,
-        "y_t": 0.0,
-        "z_t": 0.0
-      }
-    },
-    {
-      "node_id": 37,
-      "components": {
-        "x_t": 0.0,
-        "y_t": 0.0,
-        "z_t": 0.0
-      }
+      "id": 6,
+      "n1": 3,
+      "n2": 4,
+      "type": "bottle_link",
+      "bottle_type": "Big Big Double Bottle (60cm)"
     }
   ],
   "standard_surface": [
-    1,7,15
-  ],
-  "joints": [
-    {
-      "node_id": 1,
-      "edge_id": 39,
-      "rotation_axis_id": 25,
-      "type": "hinge"
-    },
-    {
-      "node_id": 15,
-      "edge_id": 57,
-      "rotation_axis_id": 25,
-      "type": "hinge"
-    }
+    3,
+    1,
+    2
   ]
 }
