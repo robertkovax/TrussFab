@@ -5,7 +5,7 @@ require 'src/algorithms/rigidity_tester.rb'
 require 'src/simulation/thingy_rotation.rb'
 
 # superclass for all links that can move
-class PhysicsLinkTool < Tool
+class LinkTool < Tool
   MIN_ANGLE_DEVIATION = 0.05
 
   def initialize(ui, link_type)
