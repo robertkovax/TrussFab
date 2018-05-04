@@ -68,11 +68,11 @@ class ScadExport
       node_hubs = hubs[node]
       node_subhubs = node_hubs.drop(1)
 
-      if node_subhubs.any? { |edges| edges.include?(hinge.edge1) }
+      if node_subhubs.any? { |subhub| subhub.edges.include?(hinge.edge1) }
         is_sub_hub_connecting_a = true
       end
 
-      if node_subhubs.any? { |edges| edges.include?(hinge.edge2) }
+      if node_subhubs.any? { |subhub| subhub.edges.include?(hinge.edge2) }
         is_sub_hub_connecting_b = true
       end
 

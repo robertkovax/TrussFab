@@ -31,6 +31,15 @@ class ExportInterface
     @node_hub_map[node].drop(1)
   end
 
+  def non_mainhub_edges_at_node(node)
+    hinges = hinges_at_node(node)
+    subhubs = subhubs_at_node(node)
+
+    non_mainhub_edges = subhubs.map { |hub| hub.edges }.flatten + hinges.map { |hinge| [hinge.edge1, hinge.edge2] }.flatten
+    non_mainhub_edges.uniq!
+    non_mainhub_edges.reject { |edge| edge.dynamic? }
+  end
+
   def l1_at_node(node)
     l1 = hinges_at_node(node).map { |hinge| hinge.l1 }.max
     l1 = 0.0.mm if l1.nil?
@@ -194,13 +203,7 @@ class ExportInterface
     nodes = Graph.instance.nodes.values
 
     nodes.each do |node|
-      hinges = hinges_at_node(node)
-      subhubs = subhubs_at_node(node)
-
-      elongated_edges = subhubs.map { |hub| hub.edges }.flatten + hinges.map { |hinge| [hinge.edge1, hinge.edge2] }.flatten
-      elongated_edges.uniq!
-      elongated_edges.reject! { |edge| edge.dynamic? }
-
+      elongated_edges = non_mainhub_edges_at_node(node)
       elongate_edges_at_node(node, elongated_edges) unless elongated_edges.empty?
     end
 

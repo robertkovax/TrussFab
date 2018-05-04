@@ -10,6 +10,7 @@ class HingePlacementAlgorithm
 
   attr_accessor :export_interface
 
+  public
   def initialize
     @export_interface = nil
   end
@@ -17,6 +18,7 @@ class HingePlacementAlgorithm
   def run
     @export_interface = ExportInterface.new
 
+    nodes = Graph.instance.nodes.values
     edges = Graph.instance.edges.values
     edges.each(&:reset)
 
@@ -100,19 +102,12 @@ class HingePlacementAlgorithm
     # add visualisations
 
     # shorten elongations for all edges that are not part of the main hub
-    # nodes.each do |node|
-    #   main_hub = @hubs[node][0]
-    #
-    #   node_edges = edges.select do |edge|
-    #     edge.nodes.include?(node) && edge.link_type != 'actuator'
-    #   end
-    #
-    #   node_edges.each do |edge|
-    #     if main_hub.nil? || !main_hub.include?(edge)
-    #       disconnect_edge_from_hub(edge, node)
-    #     end
-    #   end
-    # end
+    nodes.each do |node|
+      non_mainhub_edges = @export_interface.non_mainhub_edges_at_node(node)
+      non_mainhub_edges.each do |edge|
+        disconnect_edge_from_hub(edge, node)
+      end
+    end
 
     @export_interface.hinges.each do |hinge|
       visualize_hinge(hinge)
@@ -130,6 +125,7 @@ class HingePlacementAlgorithm
     hinge_layer.visible = true
   end
 
+  private
   def color_group(group, group_nr)
     group_color = case group_nr
                   when 0
