@@ -85,8 +85,8 @@ class ScadExport
       # I don't know why but it has to be converted here
       hinge_params_lengths.update(hinge_params_lengths) { |_, v| v.to_mm }
 
-      # For now, we never really though of as the 'actuator hinge' as
-      # two seperate hinges.
+      # For now, we never really though of as the 'double hinge' as
+      # two separate hinges.
       # It only happens in the following steps that the ones hinges get's
       # split into two.
       if hinge.is_double_hinge

@@ -89,7 +89,6 @@ class ExportInterface
         val += shared_a_hinge_count[hinge] - 1 if shared_a_hinge_count[hinge] > 1
         val += shared_b_hinge_count[hinge] - 1 if shared_b_hinge_count[hinge] > 1
         val += 1 if hinge.is_double_hinge && !connects_actuator
-        val += 1 if hinge_connects_to_groups(group_edge_map, hinge, 2)
 
         hinge_values.push([hinge, val])
       end
@@ -104,8 +103,8 @@ class ExportInterface
   def filter_subhub_violations(node, hinges)
     # check that all subhubs are only connected to at most one hinge
     # remove hinges if there are more than one, starting with double hinges
-    subhubs_at_node(node).each do |connected_edges|
-      connected_edges.each do |edge|
+    subhubs_at_node(node).each do |subhub|
+      subhub.edges.each do |edge|
         edge_hinges = hinges.select { |hinge| hinge.edges.include?(edge) }
         edge_hinges.sort_by! { |hinge| hinge.is_double_hinge ? 0 : 1 }
 
@@ -198,7 +197,7 @@ class ExportInterface
       hinges = hinges_at_node(node)
       subhubs = subhubs_at_node(node)
 
-      elongated_edges = subhubs.flatten + hinges.map { |hinge| [hinge.edge1, hinge.edge2] }.flatten
+      elongated_edges = subhubs.map { |hub| hub.edges }.flatten + hinges.map { |hinge| [hinge.edge1, hinge.edge2] }.flatten
       elongated_edges.uniq!
       elongated_edges.reject! { |edge| edge.dynamic? }
 
