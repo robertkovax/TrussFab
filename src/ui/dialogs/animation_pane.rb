@@ -2,7 +2,7 @@ require 'src/tools/simulation_tool.rb'
 
 # Ruby integration for animation pane js
 class AnimationPane
-  attr_accessor :sidebar_menu
+  attr_accessor :sidebar_menu, :animation_values
   HTML_FILE = '../animation-pane/build/index.html'.freeze
 
   def initialize
@@ -13,6 +13,7 @@ class AnimationPane
 
     @collapsed = true
     @collapsed_width = 53
+    @animation_values = []
   end
 
   def open_dialog(sidebar_menu_width, sidebar_menu_height)
@@ -138,13 +139,9 @@ class AnimationPane
       @simulation_tool.pressurize_generic_link
     end
 
-    # @dialog.add_action_callback('expand_actuator') do |_context, id|
-    #   @simulation_tool.expand_actuator(id)
-    # end
-
-    # @dialog.add_action_callback('retract_actuator') do |_context, id|
-    #   @simulation_tool.retract_actuator(id)
-    # end
+    @dialog.add_action_callback('persist_keyframes') do |_ctx, keyframes|
+      @animation_values = keyframes
+    end
 
     @dialog.add_action_callback('move_joint') do |_, id, next_value, duration|
       @simulation_tool.move_joint(id, next_value, duration)

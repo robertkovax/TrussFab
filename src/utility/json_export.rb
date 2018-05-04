@@ -4,17 +4,18 @@ require 'src/utility/geometry.rb'
 
 # puts necessary parameters in json file for export
 class JsonExport
-  def self.export(path, triangle = nil)
+  def self.export(path, triangle = nil, animation)
     file = File.open(path, 'w')
-    file.write(graph_to_json(triangle))
+    file.write(graph_to_json(triangle, animation))
     file.close
   end
 
-  def self.graph_to_json(triangle = nil)
+  def self.graph_to_json(triangle = nil, animation)
     graph = Graph.instance
     json = { distance_unit: 'mm', force_unit: 'N' }
     json[:nodes] = nodes_to_hash(graph.nodes)
     json[:edges] = edges_to_hash(graph.edges)
+    json[:animation] = animation
     unless triangle.nil?
       json[:standard_surface] = triangle.nodes_ids_towards_user
     end
