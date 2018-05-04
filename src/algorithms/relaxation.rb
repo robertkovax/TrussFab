@@ -191,13 +191,19 @@ class Relaxation
   end
 
   def move_nodes_to_new_position
-    @edges.each do |edge|
-      [edge.first_node, edge.second_node].each do |node|
-        new_position = @new_node_positions[node.id]
-        unless new_position.nil? || new_position == node.position
-          node.move(new_position)
-        end
+    nodes = Set.new
+    @edges.each { |edge| nodes.add(edge.first_node)}
+    @edges.each { |edge| nodes.add(edge.second_node)}
+
+    nodes.each do |node|
+      new_position = @new_node_positions[node.id]
+      unless new_position.nil? || new_position == node.position
+        node.update_position(new_position)
       end
+    end
+
+    nodes.each do |node|
+      node.update_thingy
     end
   end
 
