@@ -1,10 +1,10 @@
 require 'src/tools/hinge_analysis_tool'
-require 'src/export/export_hinge'
-require 'src/export/export_hub'
-require 'src/export/export_elongation'
-require 'src/export/export_cap'
-require 'src/algorithms/relaxation.rb'
-require 'src/export/presets.rb'
+require 'src/scad_export/export_hinge'
+require 'src/scad_export/export_hub'
+require 'src/scad_export/export_elongation'
+require 'src/scad_export/export_cap'
+require 'src/algorithms/relaxation'
+require 'src/export/presets'
 
 # exports hinges to scad file
 class ScadExport
@@ -229,10 +229,10 @@ class ScadExport
   end
 
   def self.export_to_scad(path)
-    hinge_algorithm = HingePlacementAlgorithm.instance
-    hinge_algorithm.run
+    node_export_algorithm = NodeExportAlgorithm.instance
+    node_export_algorithm.run
 
-    export_interface = hinge_algorithm.export_interface
+    export_interface = node_export_algorithm.export_interface
 
     export_hinges = []
     export_hubs = []

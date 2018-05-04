@@ -2,7 +2,7 @@ require 'singleton'
 require 'src/database/node.rb'
 require 'src/database/edge.rb'
 require 'src/database/triangle.rb'
-require 'src/utility/scad_export.rb'
+require 'src/scad_export/scad_export'
 require 'src/utility/bottle_counter.rb'
 
 # Structure that contains all TrussObjects (i.e. Edges, Nodes and Surfaces)

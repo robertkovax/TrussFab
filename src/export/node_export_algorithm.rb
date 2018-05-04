@@ -1,11 +1,14 @@
 require 'singleton'
 require 'src/simulation/simulation.rb'
 require 'src/algorithms/rigidity_tester.rb'
-require 'src/export/export_interface'
+require 'src/export/node_export_interface'
 require 'src/export/static_group_analysis'
 
-# Hinge Placement Algorithm
-class HingePlacementAlgorithm
+# This class determines the placement of hubs, subhubs and hinges.
+# For finding out hinge positions, static group analysis is used.
+# Also edges that are connected to hinges or subhubs are elongated
+# to make room for the connection.
+class NodeExportAlgorithm
   include Singleton
 
   attr_accessor :export_interface
@@ -16,7 +19,7 @@ class HingePlacementAlgorithm
   end
 
   def run
-    @export_interface = ExportInterface.new
+    @export_interface = NodeExportInterface.new
 
     nodes = Graph.instance.nodes.values
     edges = Graph.instance.edges.values
@@ -128,22 +131,14 @@ class HingePlacementAlgorithm
   private
   def color_group(group, group_nr)
     group_color = case group_nr
-                  when 0
-                    '1f78b4' # dark blue
-                  when 1
-                    'e31a1c' # dark red
-                  when 2
-                    'ff7f00' # dark orange
-                  when 3
-                    '984ea3' # purple
-                  when 4
-                    'a65628' # brown
-                  when 5
-                    'a6cee3' # light blue
-                  when 6
-                    'e78ac3' # pink
-                  when 7
-                    'fdbf6f' # light orange
+                  when 0; '1f78b4' # dark blue
+                  when 1; 'e31a1c' # dark red
+                  when 2; 'ff7f00' # dark orange
+                  when 3; '984ea3' # purple
+                  when 4; 'a65628' # brown
+                  when 5; 'a6cee3' # light blue
+                  when 6; 'e78ac3' # pink
+                  when 7; 'fdbf6f' # light orange
                   else
                     format('%06x', rand * 0xffffff)
                   end
