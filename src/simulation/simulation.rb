@@ -617,7 +617,8 @@ class Simulation
     Graph.instance.nodes.each_value do |node|
       node.update_position(node.original_position)
     end
-    Graph.instance.surfaces.each_value(&:move)
+
+    Graph.instance.surfaces.each_value(&:update_thingy)
   end
 
   def update_forces

@@ -1,3 +1,5 @@
+require 'src/configuration/configuration'
+
 # BottleLink
 class BottleLink < Thingy
   attr_reader :model, :direction
@@ -9,22 +11,9 @@ class BottleLink < Thingy
     @direction = direction
     @model = model
     @entity = create_entity
-    change_color(@material)
+    @entity.material = @material
+
     persist_entity
-  end
-
-  def change_color(color)
-    @entity.definition.entities.each do |ent|
-      ent.material = color if ent.material != color
-    end
-  end
-
-  def highlight(highlight_material = @highlight_material)
-    change_color(highlight_material)
-  end
-
-  def un_highlight
-    change_color(@model.model.material.color)
   end
 
   private
@@ -47,6 +36,7 @@ class BottleLink < Thingy
                      .active_entities
                      .add_instance(@model.definition, transformation)
     entity.layer = Configuration::COMPONENT_VIEW
-    entity.make_unique
+
+    entity
   end
 end
