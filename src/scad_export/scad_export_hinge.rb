@@ -8,7 +8,7 @@ require 'src/export/presets.rb'
 DISTANCES_PARAMS = ['l1', 'l2', 'a_l3', 'b_l3'].freeze
 
 # Exports hinge to SCAD file
-class ExportHinge
+class ScadExportHinge
   def initialize(hub_id, a_other_hub_id, b_other_hub_id, type, params)
     distances = params.select { |k, _| DISTANCES_PARAMS.include? k.to_s }
     distances.each do |k, v|

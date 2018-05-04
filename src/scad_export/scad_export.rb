@@ -1,10 +1,10 @@
 require 'src/tools/hinge_analysis_tool'
-require 'src/scad_export/export_hinge'
-require 'src/scad_export/export_hub'
-require 'src/scad_export/export_elongation'
-require 'src/scad_export/export_cap'
-require 'src/algorithms/relaxation'
-require 'src/export/presets'
+require 'src/scad_export/scad_export_hinge'
+require 'src/scad_export/scad_export_hub'
+require 'src/scad_export/scad_export_elongation'
+require 'src/scad_export/scad_export_cap'
+require 'src/algorithms/relaxation.rb'
+require 'src/export/presets.rb'
 
 # exports hinges to scad file
 class ScadExport
@@ -116,11 +116,11 @@ class ScadExport
 
         first_hinge_params = first_hinge_params.merge(additional_first_params)
 
-        first_hinge = ExportHinge.new(node.id,
-                                      a_other_node.id.to_s,
-                                      'V' + double_hinge_id.to_s,
-                                      :double,
-                                      first_hinge_params)
+        first_hinge = ScadExportHinge.new(node.id,
+                                          a_other_node.id.to_s,
+                                          'V' + double_hinge_id.to_s,
+                                          :double,
+                                          first_hinge_params)
 
         second_hinge_params_others = { a_gap: true,
                                        b_gap: b_gap,
@@ -132,11 +132,11 @@ class ScadExport
         second_hinge_params =
           second_hinge_params.merge(additional_second_params)
 
-        second_hinge = ExportHinge.new(node.id,
-                                       'V' + double_hinge_id.to_s,
-                                       b_other_node.id.to_s,
-                                       :double,
-                                       second_hinge_params)
+        second_hinge = ScadExportHinge.new(node.id,
+                                           'V' + double_hinge_id.to_s,
+                                           b_other_node.id.to_s,
+                                           :double,
+                                           second_hinge_params)
 
         export_hinges.push(first_hinge)
         export_hinges.push(second_hinge)
@@ -149,11 +149,11 @@ class ScadExport
 
         export_hinges_params =
           export_hinge_params_other.merge(hinge_params_lengths)
-        export_hinge = ExportHinge.new(node.id,
-                                       a_other_node.id,
-                                       b_other_node.id,
-                                       :simple,
-                                       export_hinges_params)
+        export_hinge = ScadExportHinge.new(node.id,
+                                           a_other_node.id,
+                                           b_other_node.id,
+                                           :simple,
+                                           export_hinges_params)
 
         export_hinges.push(export_hinge)
       end
@@ -213,13 +213,13 @@ class ScadExport
           raise 'L3 distance for hub is too small.'
         end
 
-        export_elongation = ExportElongation.new(hub_id,
-                                                 other_node.id,
-                                                 hinge_connection,
-                                                 l1.to_mm,
-                                                 l2.to_mm,
-                                                 l3.to_mm,
-                                                 direction)
+        export_elongation = ScadExportElongation.new(hub_id,
+                                                     other_node.id,
+                                                     hinge_connection,
+                                                     l1.to_mm,
+                                                     l2.to_mm,
+                                                     l3.to_mm,
+                                                     direction)
         export_hub.add_elongation(export_elongation)
       end
 

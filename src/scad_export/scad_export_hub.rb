@@ -1,7 +1,7 @@
 require 'src/export/presets.rb'
 
 # Export hub to SCAD file
-class ExportHub
+class ScadExportHub
   def initialize(id, l1)
     @id = id
     @l1 = l1
@@ -14,7 +14,7 @@ class ExportHub
 end
 
 # Export sub hub to SCAD file
-class ExportSubHub < ExportHub
+class ExportSubHub < ScadExportHub
   def initialize(id, l1)
     super(id, l1)
   end
@@ -69,7 +69,7 @@ class ExportSubHub < ExportHub
 end
 
 # Export main hub to SCAD file
-class ExportMainHub < ExportHub
+class ExportMainHub < ScadExportHub
   def initialize(id, l1)
     super(id, l1)
     @pods = []
