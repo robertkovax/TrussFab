@@ -1,3 +1,10 @@
+# Find all substructures in the whole structure, that
+# are static, i.e. there is no rotation happening inside
+# them, when actuators are moving.
+# This is done by running a physics simulation once per
+# actuator and measuring which triangles rotated in regards
+# to each other. Afterwards, a recursive walk through the
+# structure determines all static groups.
 module StaticGroupAnalysis
 
   public
