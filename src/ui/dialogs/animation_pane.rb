@@ -64,6 +64,10 @@ class AnimationPane
     @dialog.execute_script("addPiston(#{id})")
   end
 
+  def add_piston_with_animation(id, animation)
+    @dialog.execute_script("addPistonWithAnimation(#{id}, #{animation})")
+  end
+
   def stop_simulation
     @dialog.execute_script('cleanupUiAfterStoppingSimulation();')
   end

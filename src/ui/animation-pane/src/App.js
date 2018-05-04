@@ -64,6 +64,7 @@ class App extends Component {
 
   componentDidMount() {
     window.addPiston = this.addPiston;
+    window.addPistonWithAnimation = this.addPistonWithAnimation;
     window.persistKeyframes = this.persistKeyframes;
     window.cleanupUiAfterStoppingSimulation = this.cleanupUiAfterStoppingSimulation;
     window.simulationJustBroke = this.simulationJustBroke;
@@ -108,6 +109,19 @@ class App extends Component {
       this.addTimeSelectionForNewKeyFrame(id);
     }, 100);
   };
+
+  addPistonWithAnimation = (id, animation) => {
+    // const id = this.state.pistons.length;
+    const oldKeyframes = this.state.keyframes;
+    const oldPistons = this.state.pistons;
+    this.setState({
+      pistons: oldPistons.concat(id),
+      keyframes: new Map(animation)
+    });
+    setTimeout(() => {
+      this.addTimeSelectionForNewKeyFrame(id);
+    }, 100);
+  }
 
   cleanupUiAfterStoppingSimulation = () => {
     this.resetState();
