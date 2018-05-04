@@ -1,4 +1,6 @@
 class ExportInterface
+  attr_accessor :node_hinge_map, :node_hub_map
+
   def initialize
     @node_hub_map = Hash.new { |h, k| h[k] = [] }
     @node_hinge_map = Hash.new { |h, k| h[k] = [] }
@@ -31,8 +33,10 @@ class ExportInterface
 
   def l1_at_node(node)
     l1 = hinges_at_node(node).map { |hinge| hinge.l1 }.max
+    l1 = 0.0.mm if l1.nil?
+
     if subhubs_at_node(node).size > 0
-      l1 = [l1, PRESETS::MINIMUM_L1]
+      l1 = [l1, PRESETS::MINIMUM_L1].max
     end
 
     l1

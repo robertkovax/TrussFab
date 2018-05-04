@@ -181,7 +181,7 @@ class ScadExport
         end
       end
 
-      hub.each do |edge|
+      hub.edges.each do |edge|
         a_hinges = hinges.select { |hinge| hinge.edge1 == edge }
         b_hinges = hinges.select { |hinge| hinge.edge2 == edge }
 
@@ -232,29 +232,29 @@ class ScadExport
     hinge_algorithm = HingePlacementAlgorithm.instance
     hinge_algorithm.run
 
+    export_interface = hinge_algorithm.export_interface
+
     export_hinges = []
     export_hubs = []
 
     l2 = PRESETS::L2
     l3_min = PRESETS::L3_MIN
 
-    hinge_algorithm.hinges.each do |node, hinges|
-      l1 = hinge_algorithm.node_l1[node]
+    export_interface.node_hinge_map.each do |node, hinges|
+      l1 = export_interface.l1_at_node(node)
       export_hinges.concat(create_export_hinges(hinges,
                                                 node,
                                                 l1,
                                                 l2,
                                                 l3_min,
-                                                hinge_algorithm.hubs))
+                                                export_interface.node_hub_map))
     end
 
-    hinge_algorithm.hubs.each do |node, hubs|
+    export_interface.node_hub_map.each do |node, hubs|
       hub_id = node.id
-      l1 = hinge_algorithm.node_l1[node]
+      l1 = export_interface.l1_at_node(node)
 
-      l1 = 0.0.mm if l1.nil?
-
-      hinges = hinge_algorithm.hinges[node]
+      hinges = export_interface.node_hinge_map[node]
       export_hubs.concat(create_export_hubs(hubs,
                                             hinges,
                                             l1,
@@ -270,24 +270,6 @@ class ScadExport
 
     export_hubs.each do |hub|
       hub.write_to_file(path)
-    end
-
-    hinge_algorithm.hubs.each do |node, hubs|
-      next if hubs.size <= 1
-      hinges_node = hinge_algorithm.hinges[node]
-      mainhub_hinges = hinges_node.select do |x|
-        hubs[0].include?(x.edge1) || hubs[0].include?(x.edge2)
-      end
-      subhub_hinges = hinges_node.select do |x|
-        hubs[1].include?(x.edge1) || hubs[1].include?(x.edge2)
-      end
-
-      p 'node w/ at least 1 subhub'
-      p "node: #{node.id}"
-      p "mainhub: #{hubs[0]}"
-      p "hinges for mainhub: #{mainhub_hinges}"
-      p "subhub: #{hubs[1]}"
-      p "hinges for subhub: #{subhub_hinges}"
     end
   end
 end
