@@ -242,6 +242,10 @@ class ComponentProperties
       link.max_distance = param.to_f
       link.update_link_properties
     end
+    dialog.add_action_callback('set_static_force') do |_dialog, param|
+      link.static_force = param.to_f
+      link.update_link_properties
+    end
     dialog.add_action_callback('set_logging') do |_dialog, param|
       link.logging = param
     end

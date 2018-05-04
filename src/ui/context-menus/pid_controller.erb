@@ -20,6 +20,9 @@ I<br>
 D<br>
 <input type="number" value="<%= @pid_controller.k_D %>" step="10" onchange="set_d(this.value)">
 <br> <br>
+Static controller force<br>
+<input type="number" value="<%= @pid_controller.static_force %>" step="10" onchange="set_static_force(this.value)">
+<br>
 Console-Logging:
 <input type="checkbox" id="logging" onchange="set_logging(this.checked)">
 <br><br>
@@ -43,6 +46,9 @@ Maximum Position:
   }
   function set_error_cap(newValue){
     sketchup.set_error_cap(newValue);
+  }
+  function set_static_force(newValue){
+    sketchup.set_static_force(newValue);
   }
   function set_logging(newValue) {
     sketchup.set_logging(newValue);
