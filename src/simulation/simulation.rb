@@ -512,6 +512,7 @@ class Simulation
                                  piston.min * (1 - next_position.to_f)
       current_postion = joint.cur_distance - joint.start_distance
       position_distance = (current_postion - next_position_normalized).abs
+      @fps = 1 if @fps.nil?
       scale = 60.0 / (@fps)
       scale = 1 if scale == Float::INFINITY
       rate = (position_distance / duration * scale)
