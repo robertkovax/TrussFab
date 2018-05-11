@@ -21,6 +21,8 @@ import {
   changePistonValue,
 } from './sketchup-integration';
 
+import Piston from './components/Piston';
+
 import { xAxis, yAxis, timelineStepSeconds, FACTOR, DEV } from './config';
 
 class App extends Component {
@@ -75,6 +77,10 @@ class App extends Component {
   componentWillUnmount() {
     document.removeEventListener('keyup', this.stopSimulation);
   }
+
+  setContainerState = newState => {
+    this.setState(newState);
+  };
 
   simulationJustBroke = () => {
     if (this.state.simluationBrokeAt === null) {
@@ -422,25 +428,6 @@ class App extends Component {
     this.resetState();
   };
 
-  removeTimeSelectionForNewKeyFrame = id => {
-    d3
-      .select('#svg-' + id)
-      .select('line.timeSelection')
-      .remove();
-    const oldTimeSelection = this.state.timeSelection;
-    this.setState({
-      timeSelection: oldTimeSelection.set(
-        id,
-        this.initialSecondsForTimeSelection()
-      ),
-    });
-  };
-
-  initialSecondsForTimeSelection = () => {
-    return 0;
-    // return this.state.seconds / 2;
-  };
-
   newKeyframeToggle = id => {
     toggleDiv(`add-kf-${id}`);
     toggleDiv(`new-kf-${id}`);
@@ -627,6 +614,7 @@ class App extends Component {
           <div className={DEV ? 'col' : ''}>
             <button onClick={() => this.toggelSimulation(true)}>
               <img
+                alt="pause play"
                 style={DEV ? {} : { height: 25, width: 25 }}
                 src={
                   this.state.startedSimulationOnce &&
@@ -640,6 +628,7 @@ class App extends Component {
           <div className={DEV ? 'col' : 'some-padding-top'}>
             <button onClick={() => this.toggelSimulation(false)}>
               <img
+                alt="pause cycle play"
                 style={DEV ? {} : { height: 25, width: 25 }}
                 src={
                   this.state.startedSimulationCycle &&
@@ -653,6 +642,7 @@ class App extends Component {
           <div className={DEV ? 'col' : 'some-padding-top'}>
             <button onClick={this.stopSimulation}>
               <img
+                alt="stop"
                 style={DEV ? {} : { height: 25, width: 25 }}
                 src="../../trussfab-globals/assets/icons/stop.png"
               />
@@ -683,73 +673,37 @@ class App extends Component {
   };
 
   render() {
-    const { startedSimulationCycle, startedSimulationOnce } = this.state;
+    const {
+      startedSimulationCycle,
+      startedSimulationOnce,
+      seconds,
+      timeSelection,
+      simulationIsOnForValueTesting,
+      keyframes,
+      simluationBrokeAt,
+    } = this.state;
     const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
     const pistons = this.state.pistons.map((x, index) => (
-      <div>
-        <div
-          style={{
-            display: 'flex',
-            alignContent: 'flex-start',
-            alignItems: 'flex-start',
-          }}
-        >
-          <div
-            style={{ 'margin-top': yAxis / 3, marginLeft: 3, marginRight: 3 }}
-          >{`#${index + 1}`}</div>
-          {/* >{`#${x}`}</div> */}
-          {this.renderGraph(x)}
-          <div id={`add-kf-${x}`}>
-            <input
-              hidden
-              type="number"
-              step="0.1"
-              min="0"
-              max={this.state.seconds}
-              value={
-                this.state.timeSelection.get(x) ||
-                this.initialSecondsForTimeSelection()
-              }
-              onChange={event =>
-                this.onTimeSelectionInputChange(x, event.currentTarget.value)
-              }
-            />
-            <input
-              type="range"
-              onChange={event => {
-                const fixedValue = parseFloat(event.target.value) / 100;
-                if (simulationIsRunning) {
-                  changePistonValue(x, fixedValue);
-                } else {
-                  if (!this.state.simulationIsOnForValueTesting) {
-                    this.setState({ simulationIsOnForValueTesting: true });
-                    toggleSimulation();
-                  }
-                  changePistonValue(x, fixedValue);
-                }
-              }}
-            />
-            <button onClick={this.addKeyframe} className="add-new-kf" id={x}>
-              <img
-                style={DEV ? {} : { height: 15, width: 15 }}
-                src="../../trussfab-globals/assets/icons/rhombus.png"
-              />
-            </button>
-          </div>
-        </div>
-      </div>
+      <Piston
+        key={x.id}
+        x={x}
+        index={index}
+        simulationIsRunning={simulationIsRunning}
+        setContainerState={this.setContainerState}
+        seconds={seconds}
+        timeSelection={timeSelection}
+        simulationIsOnForValueTesting={simulationIsOnForValueTesting}
+        keyframesMap={keyframes}
+        simluationBrokeAt={simluationBrokeAt}
+      />
     ));
+
     return (
       <div className="row no-gutters">
         {this.renderControlls()}
         {!this.state.collapsed && (
           <div className="col-8">
-            <div className="App">
-              {/* {this.state.startedSimulation && (
-              <span>{(this.state.timelineCurrentTime / 1000).toFixed(1)}s</span>
-            )} */}
-              {pistons}
-            </div>
+            <div className="App">{pistons}</div>
           </div>
         )}
       </div>

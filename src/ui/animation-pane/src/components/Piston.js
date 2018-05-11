@@ -1,29 +1,57 @@
 import React from 'react';
+import * as d3 from 'd3';
 
-import { xAxis, yAxis, timelineStepSeconds, FACTOR, DEV } from './config';
+import { changePistonValue, toggleSimulation } from '../sketchup-integration';
+import { xAxis, yAxis, timelineStepSeconds, FACTOR, DEV } from '../config';
 
 class Piston extends React.Component {
   _mapPointsToChart = kf => {
     return [
-      kf.time * xAxis / this.state.seconds,
+      kf.time * xAxis / this.props.seconds,
       (1 - kf.value) * (yAxis - 8) + 4,
     ];
   };
 
-  renderGraph = id => {
-    const { keyframes } = this.props;
+  removeTimeSelectionForNewKeyFrame = id => {
+    const { setContainerState, timeSelection } = this.props;
+    d3
+      .select('#svg-' + id)
+      .select('line.timeSelection')
+      .remove();
+    const oldTimeSelection = timeSelection;
+    setContainerState({
+      timeSelection: oldTimeSelection.set(
+        id,
+        this.initialSecondsForTimeSelection()
+      ),
+    });
+  };
 
-    const keyframes = this.state.keyframes.get(id) || [];
+  initialSecondsForTimeSelection = () => {
+    return 0;
+    // return this.props.seconds / 2;
+  };
+
+  renderGraph = id => {
+    const {
+      keyframesMap,
+      oldKeyframesUIST,
+      simluationBrokeAt,
+      seconds,
+      setContainerState,
+    } = this.props;
+
+    const keyframes = keyframesMap.get(id) || [];
 
     const points = keyframes.map(this._mapPointsToChart);
 
     const viewBox = `0 0 ${xAxis} ${yAxis}`;
     const pointsString = points.map(p => p.join(',')).join('\n');
 
-    const oldKeyframesMap = this.state.keyframes;
+    const oldKeyframesMap = keyframesMap;
 
     const deleteCircle = keyframeIndex => {
-      this.setState({
+      setContainerState({
         keyframes: oldKeyframesMap.set(
           id,
           oldKeyframesMap.get(id).filter((_, index) => index !== keyframeIndex)
@@ -42,9 +70,9 @@ class Piston extends React.Component {
     ));
 
     const greyOutPoints =
-      this.state.oldKeyframesUIST &&
-      this.state.oldKeyframesUIST.get(id) &&
-      this.state.oldKeyframesUIST.get(id).map(this._mapPointsToChart);
+      oldKeyframesUIST &&
+      oldKeyframesUIST.get(id) &&
+      oldKeyframesUIST.get(id).map(this._mapPointsToChart);
 
     let greyOutPointsString = null;
     if (greyOutPoints != null)
@@ -52,10 +80,10 @@ class Piston extends React.Component {
 
     return (
       <div style={{ position: 'relative' }}>
-        {this.state.simluationBrokeAt !== null && (
+        {simluationBrokeAt !== null && (
           <div
             className="broken-time-line"
-            style={{ left: this.state.simluationBrokeAt / 1000 / 5 * xAxis }}
+            style={{ left: simluationBrokeAt / 1000 / 5 * xAxis }}
           />
         )}
         <svg viewBox={viewBox} className="chart" id={`svg-${id}`}>
@@ -89,34 +117,45 @@ class Piston extends React.Component {
             fontSize: 10,
           }}
         >
-          {this.state.seconds / 2}s
+          {seconds / 2}s
         </span>
         <span
           style={{ position: 'absolute', bottom: 0, right: 0, fontSize: 10 }}
         >
-          {this.state.seconds}s
+          {seconds}s
         </span>
       </div>
     );
   };
 
   addKeyframe = event => {
+    const { keyframesMap, setContainerState } = this.props;
+
     const pistonId = parseInt(event.currentTarget.id, 10);
     const value = event.currentTarget.previousSibling.value / 100;
     const time = parseFloat(
       event.currentTarget.previousSibling.previousSibling.value
     );
 
-    const oldKeyframes = this.state.keyframes;
-    const oldKeyframesPiston = oldKeyframes.get(pistonId) || [];
-    const keyframes = oldKeyframes.set(
+    const oldKeyframesMap = keyframesMap;
+    const oldKeyframes = oldKeyframesMap.get(pistonId) || [];
+    const keyframes = oldKeyframesMap.set(
       pistonId,
-      oldKeyframesPiston.concat({ time, value }).sort((a, b) => a.time - b.time)
+      oldKeyframes.concat({ time, value }).sort((a, b) => a.time - b.time)
     );
-    this.setState({ keyframes });
+    setContainerState({ keyframes });
   };
 
   render() {
+    const {
+      x,
+      index,
+      simulationIsRunning,
+      seconds,
+      timeSelection,
+      simulationIsOnForValueTesting,
+      setContainerState,
+    } = this.props;
     return (
       <div>
         <div
@@ -127,9 +166,8 @@ class Piston extends React.Component {
           }}
         >
           <div
-            style={{ 'margin-top': yAxis / 3, marginLeft: 3, marginRight: 3 }}
+            style={{ marginTop: yAxis / 3, marginLeft: 3, marginRight: 3 }}
           >{`#${index + 1}`}</div>
-          {/* >{`#${x}`}</div> */}
           {this.renderGraph(x)}
           <div id={`add-kf-${x}`}>
             <input
@@ -137,10 +175,9 @@ class Piston extends React.Component {
               type="number"
               step="0.1"
               min="0"
-              max={this.state.seconds}
+              max={seconds}
               value={
-                this.state.timeSelection.get(x) ||
-                this.initialSecondsForTimeSelection()
+                timeSelection.get(x) || this.initialSecondsForTimeSelection()
               }
               onChange={event =>
                 this.onTimeSelectionInputChange(x, event.currentTarget.value)
@@ -153,8 +190,8 @@ class Piston extends React.Component {
                 if (simulationIsRunning) {
                   changePistonValue(x, fixedValue);
                 } else {
-                  if (!this.state.simulationIsOnForValueTesting) {
-                    this.setState({ simulationIsOnForValueTesting: true });
+                  if (!simulationIsOnForValueTesting) {
+                    setContainerState({ simulationIsOnForValueTesting: true });
                     toggleSimulation();
                   }
                   changePistonValue(x, fixedValue);
@@ -163,6 +200,7 @@ class Piston extends React.Component {
             />
             <button onClick={this.addKeyframe} className="add-new-kf" id={x}>
               <img
+                alt="rhomus"
                 style={DEV ? {} : { height: 15, width: 15 }}
                 src="../../trussfab-globals/assets/icons/rhombus.png"
               />
