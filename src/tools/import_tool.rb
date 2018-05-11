@@ -31,7 +31,7 @@ class ImportTool < Tool
       _, new_edges = JsonImport.at_triangle(path, graph_object)
       new_edges.each do |edge|
         if edge.thingy.is_a?(ActuatorLink)
-          @ui.animation_pane.add_piston(edge.id) unless edge.nil?
+          # @ui.animation_pane.add_piston(edge.id) unless edge.nil?
         end
       end
     elsif graph_object.nil?
@@ -44,7 +44,7 @@ class ImportTool < Tool
       end
       new_edges.each do |edge|
         if edge.thingy.is_a?(ActuatorLink)
-          @ui.animation_pane.add_piston(edge.id) unless edge.nil?
+          # @ui.animation_pane.add_piston(edge.id) unless edge.nil?
         end
       end
     else

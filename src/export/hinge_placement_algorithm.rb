@@ -308,6 +308,7 @@ class HingePlacementAlgorithm
     end
 
     group_nr = 0
+    Sketchup.active_model.start_operation('color static groups', true)
     static_groups.reverse.each do |group|
       if group.length == 1
         color_triangle(group)
@@ -316,6 +317,7 @@ class HingePlacementAlgorithm
       color_group(group, group_nr)
       group_nr += 1
     end
+    Sketchup.active_model.commit_operation
 
     hinge_layer = Sketchup.active_model.layers.at(Configuration::HINGE_VIEW)
     hinge_layer.visible = true

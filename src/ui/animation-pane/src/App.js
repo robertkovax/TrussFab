@@ -90,7 +90,9 @@ class App extends Component {
   };
 
   addPiston = id => {
-    // const id = this.state.pistons.length;
+    if (this.state.pistons.includes(id)) {
+      return;
+    }
     const oldKeyframes = this.state.keyframes;
     const oldPistons = this.state.pistons;
     this.setState({
@@ -337,9 +339,9 @@ class App extends Component {
     const oldKeyframesUIST = new Map();
     const keyframes = this.state.keyframes;
 
-    this.state.pistons.forEach(pistonId => {
-      const oldKeyframe = this.state.keyframes.get(pistonId);
-      oldKeyframesUIST.set(pistonId, oldKeyframe);
+    this.state.pistons.map((pistonId, id) => {
+      const oldKeyframe = this.state.keyframes.get(id);
+      oldKeyframesUIST.set(id, oldKeyframe);
 
       const newKeyframe = oldKeyframe.map((x, keyframeIndex) => {
         return {
@@ -351,7 +353,7 @@ class App extends Component {
         };
       });
 
-      keyframes.set(pistonId, newKeyframe);
+      keyframes.set(id, newKeyframe);
     });
     // finally update state
     this.setState({ oldKeyframesUIST, keyframes });
@@ -361,9 +363,9 @@ class App extends Component {
     const oldKeyframesUIST = new Map();
     const keyframes = this.state.keyframes;
 
-    this.state.pistons.forEach(pistonId => {
-      const oldKeyframe = this.state.keyframes.get(pistonId);
-      oldKeyframesUIST.set(pistonId, oldKeyframe);
+    this.state.pistons.map((pistonId, id) => {
+      const oldKeyframe = this.state.keyframes.get(id);
+      oldKeyframesUIST.set(id, oldKeyframe);
 
       const newKeyframe = oldKeyframe
         .map(x => {
@@ -379,7 +381,7 @@ class App extends Component {
         })
         .filter(x => x.time !== null);
 
-      keyframes.set(pistonId, newKeyframe);
+      keyframes.set(id, newKeyframe);
     });
     // finally update state
     this.setState({ oldKeyframesUIST, keyframes });
