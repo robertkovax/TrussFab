@@ -192,8 +192,8 @@ class Relaxation
 
   def move_nodes_to_new_position
     nodes = Set.new
-    @edges.each { |edge| nodes.add(edge.first_node)}
-    @edges.each { |edge| nodes.add(edge.second_node)}
+    @edges.each { |edge| nodes.add(edge.first_node) }
+    @edges.each { |edge| nodes.add(edge.second_node) }
 
     nodes.each do |node|
       new_position = @new_node_positions[node.id]
@@ -202,9 +202,7 @@ class Relaxation
       end
     end
 
-    nodes.each do |node|
-      node.update_thingy
-    end
+    nodes.each(&:update_thingy)
   end
 
   def update_incident_edges(node)
