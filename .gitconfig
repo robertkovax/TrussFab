@@ -1,6 +1,0 @@
-[filter "tabspace"]
-    clean = expand --initial -t 2
-    smudge = expand --initial -t 2
-    required
-[merge]
-    renormalize = true
