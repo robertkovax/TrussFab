@@ -459,6 +459,24 @@ class Simulation
     highest_force
   end
 
+  def check_static_force(piston_id, position)
+    Graph.instance.edges.each_value do |edge|
+      edge.thingy.joint.stiffness = 0.999
+    end
+
+    actuator = @pistons[piston_id]
+    actuator.joint.breaking_force = 0
+    actuator.joint.rate = 10
+    actuator.joint.controller = actuator.max * position.to_f +
+                                actuator.min * (1 - position.to_f)
+
+    update_world_headless_by(3)
+    @max_link_tensions.clear
+    update_world_headless_by(0.2, true)
+    @max_link_tensions[piston_id]
+
+  end
+
   def print_piston_stats
     @moving_pistons.each do |hash|
       p "PISTON #{hash[:id]}"

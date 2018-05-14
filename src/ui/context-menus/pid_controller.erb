@@ -38,11 +38,15 @@ Minimum Position:
 Maximum Position:
 <br>
 <input type="number" value="<%= @pid_controller.max_distance %>" step="0.1" onchange="set_max(this.value)"> m
+<button onclick="analyze_static_forces()">Analyze Forces!</button>
 
 <script type="text/javascript">
   function init_checkbox() {
     var checkbox = document.getElementById("logging");
     checkbox.checked = <%= @pid_controller.logging %>
+  }
+  function analyze_static_forces(){
+    sketchup.analyze_static_forces();
   }
   function set_error_cap(newValue){
     sketchup.set_error_cap(newValue);

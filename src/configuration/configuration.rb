@@ -174,4 +174,7 @@ module Configuration
   PISTON_MASS       = 0.3
   HUB_MASS          = 0.12
   POD_MASS          = 0.1
+
+  #PID_Controller
+  STATIC_FORCE_ANALYSIS_STEPS = 20
 end

@@ -218,6 +218,9 @@ class ComponentProperties
 
   def register_pid_controller_callbacks(link, dialog)
     # pistons
+    dialog.add_action_callback('analyze_static_forces') do |_dialog, param|
+      link.analyze_static_forces()
+    end
     dialog.add_action_callback('set_target') do |_dialog, param|
       link.target_length = param.to_f
       link.update_link_properties
