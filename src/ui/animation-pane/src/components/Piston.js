@@ -2,7 +2,7 @@ import React from 'react';
 import * as d3 from 'd3';
 
 import { changePistonValue, toggleSimulation } from '../sketchup-integration';
-import { xAxis, yAxis, timelineStepSeconds, FACTOR, DEV } from '../config';
+import { xAxis, yAxis, DEV } from '../config';
 
 class Piston extends React.Component {
   _mapPointsToChart = kf => {
@@ -29,7 +29,6 @@ class Piston extends React.Component {
 
   initialSecondsForTimeSelection = () => {
     return 0;
-    // return this.props.seconds / 2;
   };
 
   renderGraph = id => {

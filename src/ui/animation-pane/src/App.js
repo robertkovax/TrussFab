@@ -23,33 +23,33 @@ import {
 import Piston from './components/Piston';
 import SimulationControls from './components/SimulationControls';
 
-import { xAxis, yAxis, timelineStepSeconds, FACTOR } from './config';
+import { xAxis, yAxis } from './config';
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      pistons: [],
-      keyframesMap: new Map(),
-      seconds: 8,
-      timeSelection: new Map(),
-      simulationPaused: true,
-      timlineInterval: null,
-      timelineCurrentTime: 0,
-      startedSimulationCycle: false,
-      startedSimulationOnce: false,
-      simulationIsPausedAfterOnce: false,
-      currentCycle: 0,
-      highestForceMode: false,
-      peakForceMode: false,
-      displayVol: false,
       breakingForce: 1000,
-      stiffness: 92, // get ignored if not changed
+      currentCycle: 0,
+      devMode: false,
+      displayVol: false,
+      highestForceMode: false,
+      keyframesMap: new Map(),
+      oldKeyframesUIST: null,
+      peakForceMode: false,
+      pistons: [],
+      seconds: 8,
       simluationBrokeAt: null,
       simulationIsOnForValueTesting: false,
-      oldKeyframesUIST: null,
+      simulationIsPausedAfterOnce: false,
+      simulationPaused: true,
+      startedSimulationCycle: false,
+      startedSimulationOnce: false,
+      stiffness: 92, // gets ignored if not changed
+      timelineCurrentTime: 0,
+      timeSelection: new Map(),
+      timlineInterval: null,
       windowCollapsed: true,
-      devMode: false,
     };
   }
 
@@ -79,6 +79,10 @@ class App extends Component {
     }
   };
 
+  cleanupUiAfterStoppingSimulation = () => {
+    this.resetState();
+  };
+
   addPiston = id => {
     if (this.state.pistons.includes(id)) {
       return;
@@ -95,10 +99,6 @@ class App extends Component {
     setTimeout(() => {
       this.addTimeSelectionForNewKeyFrame(id);
     }, 100);
-  };
-
-  cleanupUiAfterStoppingSimulation = () => {
-    this.resetState();
   };
 
   addTimeSelectionForNewKeyFrame = id => {
@@ -125,14 +125,13 @@ class App extends Component {
 
     const scrub = d3.drag().on('drag', scrubLine);
 
+    // the vertical timeline
     d3
       .select('#svg-' + id)
       .append('line')
       .classed('timeSelection', true)
-      // .attr('x1', xAxis / 2) // for init in the middle
       .attr('x1', 0)
       .attr('y1', 0)
-      // .attr('x2', xAxis / 2) // for init in the middle
       .attr('x2', 0)
       .attr('y2', yAxis)
       .style('stroke-width', 3)
