@@ -32,6 +32,7 @@ class ExportFileTool < Tool
 
   def export_with_file_dialog(triangle = nil)
     path = UI.savepanel('Export JSON', Configuration::JSON_PATH, '')
-    JsonExport.export(path, triangle) unless path.nil?
+    animation = @ui.animation_pane.animation_values
+    JsonExport.export(path, triangle, animation) unless path.nil?
   end
 end
