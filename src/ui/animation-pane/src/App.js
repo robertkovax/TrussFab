@@ -18,6 +18,7 @@ import {
   changePeakForceMode,
   changeDisplayValues,
   changePistonValue,
+  persistKeyframes
 } from './sketchup-integration';
 
 import Piston from './components/Piston';
@@ -59,6 +60,8 @@ class App extends Component {
 
   componentDidMount() {
     window.addPiston = this.addPiston;
+    window.addPistonWithAnimation = this.addPistonWithAnimation;
+    window.persistKeyframes = this.persistKeyframes;
     window.cleanupUiAfterStoppingSimulation = this.cleanupUiAfterStoppingSimulation;
     window.simulationJustBroke = this.simulationJustBroke;
     window.fixBrokenModelByReducingSpeed = this.fixBrokenModelByReducingSpeed;
@@ -96,10 +99,23 @@ class App extends Component {
         { time: this.state.seconds, value: 0.5 },
       ]), // init
     });
+    persistKeyframes(JSON.stringify([...this.state.keyframes]));
     setTimeout(() => {
       this.addTimeSelectionForNewKeyFrame(id);
     }, 100);
   };
+
+  addPistonWithAnimation = (id, animation) => {
+    const oldKeyframes = this.state.keyframes;
+    const oldPistons = this.state.pistons;
+    this.setState({
+      pistons: oldPistons.concat(id),
+      keyframes: new Map(animation)
+    });
+    setTimeout(() => {
+      this.addTimeSelectionForNewKeyFrame(id);
+    }, 100);
+  }
 
   addTimeSelectionForNewKeyFrame = id => {
     const self = this;
