@@ -506,9 +506,6 @@ class Simulation
     #   rate = (position_distance / duration * scale)
     #   joint.rate = rate > 0.01 ? rate : piston.rate #put it on "holding force"
     #   joint.controller = next_position_normalized
-    #   p next_position_normalized
-    #   p "Rate: #{joint.rate}"
-    #   p "Controller: #{joint.controller}"
     # end
 
     @auto_piston_group.each do |edges|
@@ -522,12 +519,11 @@ class Simulation
                                    link.min * (1 - next_position.to_f)
         current_postion = joint.cur_distance - joint.start_distance
         position_distance = (current_postion - next_position_normalized).abs
-        # scale = 60.0 / (@fps)
-        # p scale
-        scale = 1# if scale == Float::INFINITY
+
+        scale = 1 # if scale == Float::INFINITY
         rate = (position_distance / duration * scale) # link.rate
 
-        joint.rate = rate# > 0.01 ? rate : link.rate
+        joint.rate = rate # > 0.01 ? rate : link.rate
         joint.controller = next_position_normalized
       end
     end
