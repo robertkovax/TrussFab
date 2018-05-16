@@ -147,9 +147,7 @@ class SimulationControls extends React.Component {
       .attr('y1', 0)
       .attr('x2', 0)
       .attr('y2', yAxis)
-      // .style('stroke-width', 1)
       .style('stroke-width', 3)
-      // .style('stroke', '#D3D3D3')
       .style('stroke', 'grey')
       .style('fill', 'none');
   };
