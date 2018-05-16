@@ -31,14 +31,6 @@ class ImportTool < Tool
       edge.thingy.piston_group = IdManager.instance.maximum_piston_group + 1
     end
     @ui.animation_pane.add_piston(edge.thingy.piston_group)
-    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    # put this back in as soon as we have a view for single
-    # piston movement
-    # if animation == ''
-    #   @ui.animation_pane.add_piston(edge.id)
-    # else
-    #   @ui.animation_pane.add_piston_with_animation(edge.id, animation)
-    # end
   end
 
   def import_from_json(path, graph_object, position)
