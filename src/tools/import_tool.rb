@@ -25,20 +25,28 @@ class ImportTool < Tool
     view.invalidate
   end
 
+  def setup_new_edge(edge, animation)
+    return unless edge.thingy.is_a?(ActuatorLink)
+    if edge.thingy.piston_group < 0
+      edge.thingy.piston_group = IdManager.instance.maximum_piston_group + 1
+    end
+    @ui.animation_pane.add_piston(edge.thingy.piston_group)
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # put this back in as soon as we have a view for single
+    # piston movement
+    # if animation == ''
+    #   @ui.animation_pane.add_piston(edge.id)
+    # else
+    #   @ui.animation_pane.add_piston_with_animation(edge.id, animation)
+    # end
+  end
+
   def import_from_json(path, graph_object, position)
     Sketchup.active_model.start_operation('import from JSON', true)
     if graph_object.is_a?(Triangle)
       _, new_edges, animation = JsonImport.at_triangle(path, graph_object)
       new_edges.each do |edge|
-        next unless edge.thingy.is_a?(ActuatorLink)
-        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        # put this back in as soon as we have a view for single
-        # piston movement
-        # if animation == ''
-        #   @ui.animation_pane.add_piston(edge.id)
-        # else
-        #   @ui.animation_pane.add_piston_with_animation(edge.id, animation)
-        # end
+        setup_new_edge(edge, animation)
       end
     elsif graph_object.nil?
       return unless Graph.instance.find_close_node(position).nil?
@@ -50,14 +58,7 @@ class ImportTool < Tool
         delete_edges(new_edges)
       end
       new_edges.each do |edge|
-        next unless edge.thingy.is_a?(ActuatorLink)
-        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        # put this back in as soon as we have a view for single
-        # if animation == ''
-        #   @ui.animation_pane.add_piston(edge.id)
-        # else
-        #   @ui.animation_pane.add_piston_with_animation(edge.id, animation)
-        # end
+        setup_new_edge(edge, animation)
       end
     else
       raise NotImplementedError
