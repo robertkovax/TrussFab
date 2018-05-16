@@ -45,6 +45,7 @@ class LinkTool < Tool
   def change_link_to_physics_link(view, edge)
     Sketchup.active_model.start_operation("toggle edge to #{@link_type}", true)
     edge.link_type = @link_type
+    edge.thingy.piston_group = IdManager.instance.maximum_piston_group + 1
     @edge = edge
     view.invalidate
     Sketchup.active_model.commit_operation
@@ -66,6 +67,7 @@ class LinkTool < Tool
       @edge = Graph.instance.create_edge_from_points(@first_position,
                                                      second_position,
                                                      link_type: @link_type)
+      @edge.thingy.piston_group = IdManager.instance.maximum_piston_group + 1
       Sketchup.active_model.commit_operation
       reset
       @edge

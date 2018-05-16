@@ -343,7 +343,7 @@ class Simulation
   def collect_piston_groups
     @auto_piston_group.clear
     Graph.instance.edges.each_value do |edge|
-      group = edge.piston_group
+      group = edge.thingy.piston_group
       next if group < 0
       @auto_piston_group[group] = [] if @auto_piston_group[group].nil?
       @auto_piston_group[group].push(edge)
@@ -512,7 +512,7 @@ class Simulation
       next if edges.nil?
       edges.each do |edge|
         link = edge.thingy
-        next if edge.piston_group != id || link.nil? || !link.joint.valid?
+        next if edge.thingy.piston_group != id || link.nil? || !link.joint.valid?
         joint = link.joint
 
         next_position_normalized = link.max * next_position.to_f +
@@ -541,7 +541,7 @@ class Simulation
     link = nil
     @auto_piston_group.each do |edges|
       edges.each do |edge|
-        next unless edge.piston_group == id
+        next unless edge.thingy.piston_group == id
         link = edge.thingy
         unless link.nil?
           joint = link.joint
@@ -553,7 +553,7 @@ class Simulation
 
   def reset_piston_group
     Graph.instance.edges.each_value do |edge|
-      edge.piston_group = -1
+      edge.thingy.piston_group = -1
     end
   end
 

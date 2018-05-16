@@ -102,12 +102,12 @@ module Configuration
   ].freeze
 
   # Colors
-  STANDARD_COLOR            = Sketchup::Color.new(0.5, 0.5, 0.5)
+  STANDARD_COLOR            = Sketchup::Color.new(1.0, 1.0, 1.0)
   BOTTLE_COLOR              = Sketchup::Color.new(1.0, 1.0, 1.0)
   ACTUATOR_COLOR            = Sketchup::Color.new(1.0, 1.0, 1.0)
   SPRING_COLOR              = Sketchup::Color.new(1.0, 0.64, 0.0)
   GENERIC_LINK_COLOR        = Sketchup::Color.new(0.72, 1.0, 0.0)
-  HIGHLIGHT_COLOR           = Sketchup::Color.new(1.0, 1.0, 1.0)
+  HIGHLIGHT_COLOR           = Sketchup::Color.new(0.5, 0.5, 0.5)
   SURFACE_COLOR             = Sketchup::Color.new(1.0, 1.0, 1.0)
   SURFACE_HIGHLIGHT_COLOR   = Sketchup::Color.new(0.5, 0.5, 0.5)
   HUB_COLOR                 = Sketchup::Color.new(0.69, 0.75, 0.81)
@@ -116,7 +116,7 @@ module Configuration
   # Ground Stuff
   GROUND_COLOR          = Sketchup::Color.new(1.0, 1.0, 1.0)
   GROUND_ALPHA          = 0.0
-  GROUND_SIZE           = 10000 # in inches
+  GROUND_SIZE           = 10_000 # in inches
   GROUND_HEIGHT         = 0.01 # in inches
   GROUND_THICKNESS      = 20.0 # in inches
 
