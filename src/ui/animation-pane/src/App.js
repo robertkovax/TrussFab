@@ -105,16 +105,21 @@ class App extends Component {
     }, 100);
   };
 
-  addPistonWithAnimation = (id, animation) => {
-    const oldKeyframes = this.state.keyframes;
-    const oldPistons = this.state.pistons;
-    this.setState({
-      pistons: oldPistons.concat(id),
-      keyframes: new Map(animation)
+  addPistonWithAnimation = (animation) => {
+    const animationMap = new Map(animation);
+    animationMap.forEach((keyframes, id) => {
+      if (this.state.pistons.includes(id)) {
+        return;
+      }
+      this.setState({
+        pistons: this.state.pistons.concat(id),
+        keyframes: this.state.keyframesMap.set(id, keyframes),
+      });
+      setTimeout(() => {
+        this.addTimeSelectionForNewKeyFrame(id);
+      }, 100);
     });
-    setTimeout(() => {
-      this.addTimeSelectionForNewKeyFrame(id);
-    }, 100);
+    persistKeyframes(JSON.stringify([...this.state.keyframes]));
   }
 
   addTimeSelectionForNewKeyFrame = id => {

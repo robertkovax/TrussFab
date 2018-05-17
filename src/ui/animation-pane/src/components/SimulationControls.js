@@ -28,7 +28,7 @@ class SimulationControls extends React.Component {
     document.removeEventListener('keyup', this.stopSimulation);
   }
 
-  toggelSimulation = playOnce => {
+  toggleSimulation = playOnce => {
     const { startedSimulationOnce, startedSimulationCycle } = this.props;
 
     if (playOnce) {
@@ -290,7 +290,7 @@ class SimulationControls extends React.Component {
           }
         >
           <div className={devMode ? 'col' : ''}>
-            <button onClick={() => this.toggelSimulation(true)}>
+            <button onClick={() => this.toggleSimulation(true)}>
               <img
                 alt="pause play"
                 style={devMode ? {} : { height: 25, width: 25 }}
@@ -303,7 +303,7 @@ class SimulationControls extends React.Component {
             </button>
           </div>
           <div className={devMode ? 'col' : 'some-padding-top'}>
-            <button onClick={() => this.toggelSimulation(false)}>
+            <button onClick={() => this.toggleSimulation(false)}>
               <img
                 alt="pause cycle play"
                 style={devMode ? {} : { height: 25, width: 25 }}

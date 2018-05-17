@@ -1,7 +1,11 @@
 import React from 'react';
 import * as d3 from 'd3';
 
-import { changePistonValue, toggleSimulation } from '../sketchup-integration';
+import {
+  changePistonValue,
+  toggleSimulation,
+  persistKeyframes
+} from '../sketchup-integration';
 import { xAxis, yAxis, DEV } from '../config';
 
 class Piston extends React.Component {
@@ -166,6 +170,7 @@ class Piston extends React.Component {
       pistonId,
       oldKeyframes.concat({ time, value }).sort((a, b) => a.time - b.time)
     );
+    persistKeyframes(JSON.stringify([...keyframes]));
     setContainerState({ keyframes });
   };
 
