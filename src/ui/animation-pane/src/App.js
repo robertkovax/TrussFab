@@ -3,27 +3,9 @@ import * as d3 from 'd3';
 
 import './App.css';
 import { toggleDiv } from './util';
-import { getInterpolationForTime } from './serious-math';
-import {
-  togglePane,
-  toggleSimulation,
-  moveJoint,
-  togglePauseSimulation,
-  setBreakingForce,
-  getBreakingForce,
-  setMaxSpeed,
-  changeHighestForceMode,
-  setStiffness,
-  getStiffness,
-  changePeakForceMode,
-  changeDisplayValues,
-  changePistonValue,
-  persistKeyframes
-} from './sketchup-integration';
-
+import { setStiffness, persistKeyframes } from './sketchup-integration';
 import Piston from './components/Piston';
 import SimulationControls from './components/SimulationControls';
-
 import { xAxis, yAxis } from './config';
 
 class App extends Component {
@@ -106,16 +88,15 @@ class App extends Component {
   };
 
   addPistonWithAnimation = (id, animation) => {
-    const oldKeyframes = this.state.keyframes;
     const oldPistons = this.state.pistons;
     this.setState({
       pistons: oldPistons.concat(id),
-      keyframes: new Map(animation)
+      keyframes: new Map(animation),
     });
     setTimeout(() => {
       this.addTimeSelectionForNewKeyFrame(id);
     }, 100);
-  }
+  };
 
   addTimeSelectionForNewKeyFrame = id => {
     const self = this;

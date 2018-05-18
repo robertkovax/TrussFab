@@ -1,9 +1,7 @@
 import React from 'react';
-
 import * as d3 from 'd3';
 
 import SimulationForm from './SimulationForm';
-
 import { xAxis, yAxis, timelineStepSeconds, FACTOR } from '../config';
 
 import {
@@ -130,9 +128,7 @@ class SimulationControls extends React.Component {
       .attr('y1', 0)
       .attr('x2', 0)
       .attr('y2', yAxis)
-      // .style('stroke-width', 1)
       .style('stroke-width', 3)
-      // .style('stroke', '#D3D3D3')
       .style('stroke', 'grey')
       .style('fill', 'none');
   };
@@ -181,9 +177,6 @@ class SimulationControls extends React.Component {
         toggleSimulation();
       }
     }
-
-    // I don't know. Is this still required?
-    // setBreakingForce(this.state.breakingForce);
 
     if (playOnce) {
       setContainerState({

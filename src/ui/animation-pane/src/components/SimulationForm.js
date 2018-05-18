@@ -1,20 +1,11 @@
 import React from 'react';
 
 import {
-  togglePane,
-  toggleSimulation,
-  moveJoint,
-  restartSimulation,
-  togglePauseSimulation,
   setBreakingForce,
-  getBreakingForce,
-  setMaxSpeed,
   changeHighestForceMode,
   setStiffness,
-  getStiffness,
   changePeakForceMode,
   changeDisplayValues,
-  changePistonValue,
 } from '../sketchup-integration';
 
 class SimulationForm extends React.Component {
