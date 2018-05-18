@@ -80,36 +80,19 @@ class SimulationControls extends React.Component {
 
     const timelineCurrentTimeSeconds = timelineCurrentTime / 1000;
 
-    keyframesMap.forEach((value, key) => {
-      const keyframes = value;
-
+    keyframesMap.forEach((keyframes, jointId) => {
       for (let i = 0; i < keyframes.length; i++) {
-        const x = keyframes[i];
-        if (timelineCurrentTime === x.time * 1000) {
-          let duration;
-          let newValue;
-          // check if last one
+        const currentKeyframe = keyframes[i];
+        if (timelineCurrentTime === currentKeyframe.time * 1000) {
+          // Since the first and the last keyframe are 'special' and should
+          // always have the same value, we must not move the joint for the last
+          // keyframe.
           if (i === keyframes.length - 1) {
-            // newValue = keyframes[0].value;
-            // duration = this.state.seconds - x.time; // value until end
-          } else {
-            newValue = keyframes[i + 1].value;
-            duration = keyframes[i + 1].time - x.time; // next
-
-            // some hack because the inital value of the piston is 0
-            // so we have to fix it here
-            // if (
-            //   i === 0 &&
-            //   this.state.currentCycle === 0 &&
-            //   keyframes[0].value !== keyframes[1].value
-            // ) {
-            //   console.log('fixing');
-            //   if (keyframes[0].value > keyframes[1].value)
-            //     newValue -= keyframes[0].value;
-            //   else newValue += keyframes[0].value;
-            // }
-            moveJoint(key, newValue, duration);
+            continue;
           }
+          const newValue = keyframes[i + 1].value;
+          const duration = keyframes[i + 1].time - currentKeyframe.time;
+          moveJoint(jointId, newValue, duration);
         }
       }
     });
