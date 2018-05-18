@@ -16,10 +16,15 @@ class ActuatorLink < PhysicsLink
     @reduction = Configuration::ACTUATOR_REDUCTION
     @rate = Configuration::ACTUATOR_RATE
     @power = Configuration::ACTUATOR_POWER
-    @min = Configuration::ACTUATOR_MIN
-    @max = Configuration::ACTUATOR_MAX
+    @min = (-2 * length / 3) / 100 # Configuration::ACTUATOR_MIN
+    @max = (2 * length / 3) / 100 # Configuration::ACTUATOR_MAX
 
     persist_entity
+  end
+
+  def update_limits
+    @min = (-2 * length / 3) / 100 # Configuration::ACTUATOR_MIN
+    @max = (2 * length / 3) / 100 # Configuration::ACTUATOR_MAX
   end
 
   #

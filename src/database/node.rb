@@ -31,6 +31,7 @@ class Node < GraphObject
   def update_thingy
     @incidents.each(&:update_thingy)
     @adjacent_triangles.each(&:update_thingy)
+    pods.each { |pod| pod.update_position(@position) }
     @thingy.entity.move!(Geom::Transformation.new(@position))
   end
 

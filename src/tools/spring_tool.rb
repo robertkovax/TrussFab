@@ -1,7 +1,7 @@
-require 'src/tools/physics_link_tool.rb'
+require 'src/tools/link_tool.rb'
 
 # creates a gas spring-type link
-class SpringTool < PhysicsLinkTool
+class SpringTool < LinkTool
   def initialize(ui)
     super(ui, 'spring')
   end

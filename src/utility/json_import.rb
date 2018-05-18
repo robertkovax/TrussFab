@@ -25,7 +25,8 @@ module JsonImport
       triangles = create_triangles(edges)
       add_joints(json_objects, edges, nodes) unless json_objects['joints'].nil?
       add_pods(json_objects, nodes)
-      [triangles.values, edges.values]
+      animation = json_objects['animation'].to_s
+      [triangles.values, edges.values, animation]
     end
 
     def at_triangle(path, snap_triangle)
@@ -94,7 +95,8 @@ module JsonImport
       edges, nodes = build_edges(json_objects, json_points)
       triangles = create_triangles(edges)
       add_joints(json_objects, edges, nodes) unless json_objects['joints'].nil?
-      [triangles.values, edges.values]
+      animation = json_objects['animation'].to_s
+      [triangles.values, edges.values, animation]
     end
 
     def load_json(path)
