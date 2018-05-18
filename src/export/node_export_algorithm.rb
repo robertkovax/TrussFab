@@ -3,6 +3,7 @@ require 'src/simulation/simulation.rb'
 require 'src/algorithms/rigidity_tester.rb'
 require 'src/export/node_export_interface'
 require 'src/export/static_group_analysis'
+require 'src/export/node_export_visualization'
 
 # This class determines the placement of hubs, subhubs and hinges.
 # For finding out hinge positions, static group analysis is used.
@@ -19,9 +20,6 @@ class NodeExportAlgorithm
   end
 
   def run
-    @export_interface = NodeExportInterface.new
-
-    nodes = Graph.instance.nodes.values
     edges = Graph.instance.edges.values
     edges.each(&:reset)
 
@@ -29,6 +27,8 @@ class NodeExportAlgorithm
     static_groups.select! { |group| group.size > 1 }
     static_groups.sort! { |a, b| b.size <=> a.size }
     static_groups = prioritise_pod_groups(static_groups)
+
+    @export_interface = NodeExportInterface.new(static_groups)
 
     group_edge_map = {}
 
@@ -63,17 +63,9 @@ class NodeExportAlgorithm
 
     triangles.each do |tri|
       tri.edges.combination(2).each do |e1, e2|
-        same_group = static_groups.any? do |group|
-          group_edge_map[group].include?(e1) &&
-            group_edge_map[group].include?(e2)
-        end
-
-        next if same_group
-
+        hinge = generate_hinge_if_necessary(e1, e2, tri, static_groups, group_edge_map)
         node = e1.shared_node(e2)
-        hinge = HingeExportInterface.new(e1, e2)
-        hinge.is_double_hinge = tri.dynamic?
-        @export_interface.add_hinge(node, hinge)
+        @export_interface.add_hinge(node, hinge) unless hinge.nil?
       end
     end
 
@@ -86,88 +78,21 @@ class NodeExportAlgorithm
     Sketchup.active_model.commit_operation
 
     # add visualisations
-
-    # shorten elongations for all edges that are not part of the main hub
-    nodes.each do |node|
-      non_mainhub_edges = @export_interface.non_mainhub_edges_at_node(node)
-      non_mainhub_edges.each do |edge|
-        disconnect_edge_from_hub(edge, node)
-      end
-    end
-
-    @export_interface.hinges.each do |hinge|
-      visualize_hinge(hinge)
-    end
-
-    group_nr = 0
-    Sketchup.active_model.start_operation('color static groups', true)
-    static_groups.reverse.each do |group|
-      color_group(group, group_nr)
-      group_nr += 1
-    end
-    Sketchup.active_model.commit_operation
-
-    hinge_layer = Sketchup.active_model.layers.at(Configuration::HINGE_VIEW)
-    hinge_layer.visible = true
+    NodeExportVisualization.visualize(@export_interface)
   end
 
   private
-  def color_group(group, group_nr)
-    group_color = case group_nr
-                  when 0; '1f78b4' # dark blue
-                  when 1; 'e31a1c' # dark red
-                  when 2; 'ff7f00' # dark orange
-                  when 3; '984ea3' # purple
-                  when 4; 'a65628' # brown
-                  when 5; 'a6cee3' # light blue
-                  when 6; 'e78ac3' # pink
-                  when 7; 'fdbf6f' # light orange
-                  else
-                    format('%06x', rand * 0xffffff)
-                  end
-
-    group.each do |triangle|
-      triangle.edges.each do |edge|
-        edge.thingy.change_color(group_color)
-      end
-    end
-  end
-
-  def disconnect_edge_from_hub(rotating_edge, node)
-    if rotating_edge.first_node?(node)
-      rotating_edge.thingy.disconnect_from_hub(true)
-    else
-      rotating_edge.thingy.disconnect_from_hub(false)
-    end
-  end
-
-  def visualize_hinge(hinge)
-    rotation_axis = hinge.edge1
-    rotating_edge = hinge.edge2
-    node = rotating_edge.shared_node(rotation_axis)
-
-    mid_point1 = Geom::Point3d.linear_combination(0.7,
-                                                  node.position,
-                                                  0.3,
-                                                  rotation_axis.mid_point)
-    mid_point2 = Geom::Point3d.linear_combination(0.7,
-                                                  node.position,
-                                                  0.3,
-                                                  rotating_edge.mid_point)
-
-    # Draw hinge visualization
-    mid_point = Geom::Point3d.linear_combination(0.5, mid_point2,
-                                                 0.5, mid_point1)
-
-    if hinge.is_double_hinge
-      mid_point = Geom::Point3d.linear_combination(0.75, mid_point,
-                                                   0.25, node.position)
+  def generate_hinge_if_necessary(e1, e2, tri, static_groups, group_edge_map)
+    is_same_group = static_groups.any? do |group|
+      group_edge_map[group].include?(e1) &&
+        group_edge_map[group].include?(e2)
     end
 
-    line1 = Line.new(mid_point, mid_point1, HINGE_LINE)
-    line2 = Line.new(mid_point, mid_point2, HINGE_LINE)
+    return nil if is_same_group
 
-    rotating_edge.thingy.add(line1, line2)
+    hinge = HingeExportInterface.new(e1, e2)
+    hinge.is_double_hinge = tri.dynamic?
+    hinge
   end
 
   def prioritise_pod_groups(groups)

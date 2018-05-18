@@ -7,11 +7,12 @@ require 'src/export/hinge_export_interface'
 # The logic which hinges have to be removed to create a printable
 # node configuration is also included here.
 class NodeExportInterface
-  attr_accessor :node_hinge_map, :node_hub_map
+  attr_accessor :node_hinge_map, :node_hub_map, :static_groups
 
-  def initialize
+  def initialize(static_groups)
     @node_hub_map = Hash.new { |h, k| h[k] = [] }
     @node_hinge_map = Hash.new { |h, k| h[k] = [] }
+    @static_groups = static_groups
   end
 
   def add_hub(node, hub)
