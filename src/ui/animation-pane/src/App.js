@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import * as d3 from 'd3';
 
 import './App.css';
-import { toggleDiv } from './util';
+import { toggleDiv } from './utils/dom';
 import { setStiffness, persistKeyframes } from './utils/sketchup-integration';
 import Piston from './components/Piston';
 import SimulationControls from './components/SimulationControls';
