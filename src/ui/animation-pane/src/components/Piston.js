@@ -92,14 +92,14 @@ class Piston extends React.Component {
       />
     ));
 
-    const greyOutPoints =
+    const greyedOutPoints =
       oldKeyframesUIST &&
       oldKeyframesUIST.get(id) &&
       oldKeyframesUIST.get(id).map(this._mapPointsToChart);
 
     let greyOutPointsString = null;
-    if (greyOutPoints != null)
-      greyOutPointsString = greyOutPoints.map(p => p.join(',')).join('\n');
+    if (greyedOutPoints != null)
+      greyOutPointsString = greyedOutPoints.map(p => p.join(',')).join('\n');
 
     return (
       <div style={{ position: 'relative' }}>
@@ -110,7 +110,7 @@ class Piston extends React.Component {
           />
         )}
         <svg viewBox={viewBox} className="chart" id={`svg-${id}`}>
-          {greyOutPoints != null && (
+          {greyedOutPoints != null && (
             <polyline
               className="grey-out-line"
               fill="none"
