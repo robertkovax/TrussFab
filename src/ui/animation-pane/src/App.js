@@ -241,6 +241,7 @@ class App extends Component {
       currentCycle,
       timelineCurrentTime,
       timlineInterval,
+      DEV,
     } = this.state;
 
     const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
@@ -259,6 +260,7 @@ class App extends Component {
         currentCycle={currentCycle}
         startedSimulationOnce={startedSimulationOnce}
         timelineCurrentTime={timelineCurrentTime}
+        DEV={DEV}
       />
     ));
 

@@ -2,7 +2,7 @@ import React from 'react';
 import * as d3 from 'd3';
 
 import { changePistonValue, toggleSimulation } from '../sketchup-integration';
-import { xAxis, yAxis, DEV } from '../config';
+import { xAxis, yAxis } from '../config';
 import colors from '../utils/colors';
 
 class Piston extends React.Component {
