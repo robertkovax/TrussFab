@@ -6,10 +6,10 @@ import { xAxis, yAxis, DEV } from '../config';
 import colors from '../utils/colors';
 
 class Piston extends React.Component {
-  _mapPointsToChart = kf => {
+  _mapKeyframeToCoordinates = keyframe => {
     return [
-      kf.time * xAxis / this.props.seconds,
-      (1 - kf.value) * (yAxis - 8) + 4,
+      keyframe.time * xAxis / this.props.seconds,
+      (1 - keyframe.value) * (yAxis - 8) + 4,
     ];
   };
 
@@ -43,22 +43,19 @@ class Piston extends React.Component {
 
     const keyframes = keyframesMap.get(id) || [];
 
-    const points = keyframes.map(this._mapPointsToChart);
+    const points = keyframes.map(this._mapKeyframeToCoordinates);
 
     const viewBox = `0 0 ${xAxis} ${yAxis}`;
     const pointsString = points.map(p => p.join(',')).join('\n');
 
-    const oldKeyframesMap = keyframesMap;
-
     const deleteCircle = keyframeIndex => {
       setContainerState({
-        keyframes: oldKeyframesMap.set(
+        keyframes: keyframesMap.set(
           id,
-          oldKeyframesMap.get(id).filter((_, index) => index !== keyframeIndex)
+          keyframesMap.get(id).filter((_, index) => index !== keyframeIndex)
         ),
       });
     };
-
 
     const circles = points.map((x, index) => (
       <circle
@@ -73,7 +70,7 @@ class Piston extends React.Component {
     const greyedOutPoints =
       oldKeyframesUIST &&
       oldKeyframesUIST.get(id) &&
-      oldKeyframesUIST.get(id).map(this._mapPointsToChart);
+      oldKeyframesUIST.get(id).map(this._mapKeyframeToCoordinates);
 
     let greyOutPointsString = null;
     if (greyedOutPoints != null)
@@ -156,6 +153,7 @@ class Piston extends React.Component {
       timeSelection,
       simulationIsOnForValueTesting,
       setContainerState,
+      DEV,
     } = this.props;
     return (
       <div>
