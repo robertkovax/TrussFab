@@ -33,7 +33,7 @@ class NodeExportInterface
   end
 
   def mainhub_at_node(node)
-    raise 'Node does not have a main hub' if @node_hub_map[node].size == 0
+    raise 'Node does not have a main hub' if @node_hub_map[node].empty?
     @node_hub_map[node][0]
   end
 
@@ -42,12 +42,12 @@ class NodeExportInterface
   end
 
   def non_mainhub_edges_at_node(node)
-    hinges = hinges_at_node(node)
-    subhubs = subhubs_at_node(node)
+    edges = Graph.instance.edges.values
+    node_edges = edges.select { |edge| edge.nodes.include? node }
+    return node_edges if @node_hub_map[node].empty?
 
-    non_mainhub_edges = subhubs.map { |hub| hub.edges }.flatten + hinges.map { |hinge| [hinge.edge1, hinge.edge2] }.flatten
-    non_mainhub_edges.uniq!
-    non_mainhub_edges.reject { |edge| edge.dynamic? }
+    mainhub_edges = mainhub_at_node(node).edges
+    node_edges.reject { |edge| mainhub_edges.include? edge }
   end
 
   def l1_at_node(node)
@@ -75,10 +75,21 @@ class NodeExportInterface
 
     nodes = Graph.instance.nodes.values
 
+    # find out all edges that need to be elongated and their corresponding node
+    elongation_tuples = []
     nodes.each do |node|
+      # edges that are part of a subhub need to be elongated
       elongated_edges = non_mainhub_edges_at_node(node)
-      elongate_edges_at_node(node, elongated_edges) unless elongated_edges.empty?
+      # edges that are connected by hinges also need to be elongated
+      elongated_edges += hinges_at_node(node).map { |hinge| [hinge.edge1, hinge.edge2] }.flatten
+      elongated_edges.uniq!
+      # don't elongated edges that have a dynamic size
+      elongated_edges.reject! { |edge| edge.dynamic? }
+
+      elongation_tuples.concat(elongated_edges.map { |edge| [node, edge] })
     end
+
+    elongate_edges_with_tuples(elongation_tuples) unless elongation_tuples.empty?
 
     Edge.disable_bottle_freeze
   end
@@ -221,17 +232,15 @@ class NodeExportInterface
     new_hinges
   end
 
-  def elongate_edges_at_node(node, edges)
-    l1 = l1_at_node(node)
+  def elongate_edges_with_tuples(elongation_tuple)
     l2 = PRESETS::L2
     l3_min = PRESETS::L3_MIN
 
     loop do
       relaxation = Relaxation.new
-
       is_finished = true
 
-      edges.each do |edge|
+      elongation_tuple.each do |node, edge|
         # if pods are fixed and edge can not be elongated, raise error
         edge_fixed = edge.nodes.any?(&:fixed?)
         if edge_fixed
@@ -244,9 +253,11 @@ class NodeExportInterface
                      else
                        edge.second_elongation_length
                      end
+
+        l1 = l1_at_node(node)
         target_elongation = l1 + l2 + l3_min
 
-        next unless elongation < target_elongation
+        next if elongation >= target_elongation
 
         total_elongation = edge.first_elongation_length +
           edge.second_elongation_length
