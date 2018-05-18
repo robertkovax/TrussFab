@@ -5,14 +5,14 @@ import {
   changePistonValue,
   toggleSimulation,
 } from '../utils/sketchup-integration';
-import { xAxis, yAxis } from '../config';
+import { X_AXIS, Y_AXIS } from '../config';
 import colors from '../utils/colors';
 
 class Piston extends React.Component {
   _mapKeyframeToCoordinates = keyframe => {
     return [
-      keyframe.time * xAxis / this.props.seconds,
-      (1 - keyframe.value) * (yAxis - 8) + 4,
+      keyframe.time * X_AXIS / this.props.seconds,
+      (1 - keyframe.value) * (Y_AXIS - 8) + 4,
     ];
   };
 
@@ -48,7 +48,7 @@ class Piston extends React.Component {
 
     const points = keyframes.map(this._mapKeyframeToCoordinates);
 
-    const viewBox = `0 0 ${xAxis} ${yAxis}`;
+    const viewBox = `0 0 ${X_AXIS} ${Y_AXIS}`;
     const pointsString = points.map(p => p.join(',')).join('\n');
 
     const deleteCircle = keyframeIndex => {
@@ -84,7 +84,7 @@ class Piston extends React.Component {
         {simluationBrokeAt !== null && (
           <div
             className="broken-time-line"
-            style={{ left: simluationBrokeAt / 1000 / 5 * xAxis }}
+            style={{ left: simluationBrokeAt / 1000 / 5 * X_AXIS }}
           />
         )}
         <svg viewBox={viewBox} className="chart" id={`svg-${id}`}>
@@ -114,7 +114,7 @@ class Piston extends React.Component {
           style={{
             position: 'absolute',
             bottom: 0,
-            right: xAxis / 2,
+            right: X_AXIS / 2,
             fontSize: 10,
           }}
         >
@@ -168,7 +168,7 @@ class Piston extends React.Component {
           }}
         >
           <div
-            style={{ marginTop: yAxis / 3, marginLeft: 3, marginRight: 3 }}
+            style={{ marginTop: Y_AXIS / 3, marginLeft: 3, marginRight: 3 }}
           >{`#${index + 1}`}</div>
           {this.renderGraph(x)}
           <div id={`add-kf-${x}`}>

@@ -1,7 +1,11 @@
-const xAxis = 300;
-const yAxis = 50;
-const timelineStepSeconds = 100; // this affects how smooth the line should be
+const X_AXIS = 300;
+const Y_AXIS = 50;
 
-const FACTOR = 0.5;
+// How many ms before the next timeline step gets called.
+// The lower the value, the smoother is animation gets.
+const UPDATE_INTERVALL = 100;
 
-export { xAxis, yAxis, timelineStepSeconds, FACTOR };
+// A value of 0.5 slows it down => doubles the time in the timeline.
+const TIMELINE_TIME_FACTOR = 0.5;
+
+export { X_AXIS, Y_AXIS, UPDATE_INTERVALL, TIMELINE_TIME_FACTOR };

@@ -2,7 +2,12 @@ import React from 'react';
 import * as d3 from 'd3';
 
 import SimulationForm from './SimulationForm';
-import { xAxis, yAxis, timelineStepSeconds, FACTOR } from '../config';
+import {
+  X_AXIS,
+  Y_AXIS,
+  UPDATE_INTERVALL,
+  TIMELINE_TIME_FACTOR,
+} from '../config';
 
 import {
   togglePane,
@@ -95,7 +100,7 @@ class SimulationControls extends React.Component {
       }
     });
 
-    const newX = timelineCurrentTimeSeconds * xAxis / seconds;
+    const newX = timelineCurrentTimeSeconds * X_AXIS / seconds;
 
     d3
       .selectAll('line.timeline')
@@ -103,14 +108,15 @@ class SimulationControls extends React.Component {
       .attr('x2', newX);
 
     setContainerState({
-      timelineCurrentTime: timelineCurrentTime + timelineStepSeconds * FACTOR,
+      timelineCurrentTime:
+        timelineCurrentTime + UPDATE_INTERVALL * TIMELINE_TIME_FACTOR,
     });
   };
 
   _addInterval = () => {
     const timlineInterval = setInterval(
       this.playOneTimelineStep,
-      timelineStepSeconds
+      UPDATE_INTERVALL
     );
     this.props.setContainerState({ timlineInterval });
   };
@@ -127,7 +133,7 @@ class SimulationControls extends React.Component {
       .attr('x1', 0)
       .attr('y1', 0)
       .attr('x2', 0)
-      .attr('y2', yAxis)
+      .attr('y2', Y_AXIS)
       .style('stroke-width', 3)
       .style('stroke', 'grey')
       .style('fill', 'none');

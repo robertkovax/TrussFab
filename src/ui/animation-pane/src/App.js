@@ -6,7 +6,7 @@ import { toggleDiv } from './utils/dom';
 import { setStiffness, persistKeyframes } from './utils/sketchup-integration';
 import Piston from './components/Piston';
 import SimulationControls from './components/SimulationControls';
-import { xAxis, yAxis } from './config';
+import { X_AXIS, Y_AXIS } from './config';
 
 class App extends Component {
   constructor(props) {
@@ -103,14 +103,14 @@ class App extends Component {
 
     function scrubLine() {
       let newX = d3.event.x;
-      newX = Math.min(Math.max(0, newX), xAxis);
+      newX = Math.min(Math.max(0, newX), X_AXIS);
 
       const oldTimeSelection = self.state.timeSelection;
 
       self.setState({
         timeSelection: oldTimeSelection.set(
           id,
-          (newX / xAxis * self.state.seconds).toFixed(1)
+          (newX / X_AXIS * self.state.seconds).toFixed(1)
         ),
       });
 
@@ -130,7 +130,7 @@ class App extends Component {
       .attr('x1', 0)
       .attr('y1', 0)
       .attr('x2', 0)
-      .attr('y2', yAxis)
+      .attr('y2', Y_AXIS)
       .style('stroke-width', 3)
       .style('stroke', 'grey')
       .style('fill', 'none')
@@ -215,7 +215,7 @@ class App extends Component {
   onTimeSelectionInputChange = (id, value) => {
     this.setState({ timeSelection: this.state.timeSelection.set(id, value) });
 
-    const newX = value / this.state.seconds * xAxis;
+    const newX = value / this.state.seconds * X_AXIS;
 
     const line = d3
       .select('#svg-' + id)
