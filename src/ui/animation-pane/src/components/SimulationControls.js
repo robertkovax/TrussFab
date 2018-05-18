@@ -10,7 +10,7 @@ import {
   togglePauseSimulation,
   toggleSimulation,
   moveJoint,
-} from '../sketchup-integration';
+} from '../utils/sketchup-integration';
 
 class SimulationControls extends React.Component {
   componentDidMount() {

@@ -6,7 +6,7 @@ import {
   setStiffness,
   changePeakForceMode,
   changeDisplayValues,
-} from '../sketchup-integration';
+} from '../utils/sketchup-integration';
 
 class SimulationForm extends React.Component {
   render() {

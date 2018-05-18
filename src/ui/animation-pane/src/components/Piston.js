@@ -1,7 +1,10 @@
 import React from 'react';
 import * as d3 from 'd3';
 
-import { changePistonValue, toggleSimulation } from '../sketchup-integration';
+import {
+  changePistonValue,
+  toggleSimulation,
+} from '../utils/sketchup-integration';
 import { xAxis, yAxis } from '../config';
 import colors from '../utils/colors';
 

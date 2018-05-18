@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 
 import './App.css';
 import { toggleDiv } from './util';
-import { setStiffness, persistKeyframes } from './sketchup-integration';
+import { setStiffness, persistKeyframes } from './utils/sketchup-integration';
 import Piston from './components/Piston';
 import SimulationControls from './components/SimulationControls';
 import { xAxis, yAxis } from './config';
