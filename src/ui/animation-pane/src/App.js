@@ -241,14 +241,13 @@ class App extends Component {
       currentCycle,
       timelineCurrentTime,
       timlineInterval,
-      DEV,
     } = this.state;
 
     const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
-    const pistonElements = pistons.map((x, index) => (
+    const pistonElements = pistons.map((id, index) => (
       <Piston
-        key={x.id}
-        x={x}
+        key={id}
+        id={id}
         index={index}
         simulationIsRunning={simulationIsRunning}
         setContainerState={this.setContainerState}
@@ -260,7 +259,7 @@ class App extends Component {
         currentCycle={currentCycle}
         startedSimulationOnce={startedSimulationOnce}
         timelineCurrentTime={timelineCurrentTime}
-        DEV={DEV}
+        devMode={devMode}
       />
     ));
 

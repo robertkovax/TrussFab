@@ -149,14 +149,14 @@ class Piston extends React.Component {
 
   render() {
     const {
-      x,
+      id,
       index,
       simulationIsRunning,
       seconds,
       timeSelection,
       simulationIsOnForValueTesting,
       setContainerState,
-      DEV,
+      devMode,
     } = this.props;
     return (
       <div>
@@ -170,8 +170,8 @@ class Piston extends React.Component {
           <div
             style={{ marginTop: Y_AXIS / 3, marginLeft: 3, marginRight: 3 }}
           >{`#${index + 1}`}</div>
-          {this.renderGraph(x)}
-          <div id={`add-kf-${x}`}>
+          {this.renderGraph(id)}
+          <div id={`add-kf-${id}`}>
             <input
               hidden
               type="number"
@@ -179,10 +179,10 @@ class Piston extends React.Component {
               min="0"
               max={seconds}
               value={
-                timeSelection.get(x) || this.initialSecondsForTimeSelection()
+                timeSelection.get(id) || this.initialSecondsForTimeSelection()
               }
               onChange={event =>
-                this.onTimeSelectionInputChange(x, event.currentTarget.value)
+                this.onTimeSelectionInputChange(id, event.currentTarget.value)
               }
             />
             <input
@@ -190,20 +190,20 @@ class Piston extends React.Component {
               onChange={event => {
                 const fixedValue = parseFloat(event.target.value) / 100;
                 if (simulationIsRunning) {
-                  changePistonValue(x, fixedValue);
+                  changePistonValue(id, fixedValue);
                 } else {
                   if (!simulationIsOnForValueTesting) {
                     setContainerState({ simulationIsOnForValueTesting: true });
                     toggleSimulation();
                   }
-                  changePistonValue(x, fixedValue);
+                  changePistonValue(id, fixedValue);
                 }
               }}
             />
-            <button onClick={this.addKeyframe} className="add-new-kf" id={x}>
+            <button onClick={this.addKeyframe} className="add-new-kf" id={id}>
               <img
                 alt="rhomus"
-                style={DEV ? {} : { height: 15, width: 15 }}
+                style={devMode ? {} : { height: 15, width: 15 }}
                 src="../../trussfab-globals/assets/icons/rhombus.png"
               />
             </button>
