@@ -1,3 +1,4 @@
+require 'src/export/presets'
 require 'src/export/hub_export_interface'
 require 'src/export/hinge_export_interface'
 
@@ -69,6 +70,20 @@ class NodeExportInterface
     end
   end
 
+  def elongate_edges
+    Edge.enable_bottle_freeze
+
+    nodes = Graph.instance.nodes.values
+
+    nodes.each do |node|
+      elongated_edges = non_mainhub_edges_at_node(node)
+      elongate_edges_at_node(node, elongated_edges) unless elongated_edges.empty?
+    end
+
+    Edge.disable_bottle_freeze
+  end
+
+  private
   def filter_valid_hinges(hinges)
     new_hinges = hinges.clone
 
@@ -204,19 +219,6 @@ class NodeExportInterface
     end
 
     new_hinges
-  end
-
-  def elongate_edges
-    Edge.enable_bottle_freeze
-
-    nodes = Graph.instance.nodes.values
-
-    nodes.each do |node|
-      elongated_edges = non_mainhub_edges_at_node(node)
-      elongate_edges_at_node(node, elongated_edges) unless elongated_edges.empty?
-    end
-
-    Edge.disable_bottle_freeze
   end
 
   def elongate_edges_at_node(node, edges)

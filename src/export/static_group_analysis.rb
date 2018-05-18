@@ -8,6 +8,9 @@
 module StaticGroupAnalysis
 
   public
+  # return a an array of groups of triangles that do not change their angle in
+  # regards to each other
+  # we call these groups static substructures
   def StaticGroupAnalysis.find_static_groups
     edges = Graph.instance.edges.values
     actuators = edges.select { |e| e.link_type == 'actuator' }
@@ -41,9 +44,6 @@ module StaticGroupAnalysis
   private
   MIN_ANGLE_DEVIATION = 0.001
 
-  # return a an array of groups of triangles that do not change their angle in
-  # regards to each other
-  # we call these groups rigid substructures
   def StaticGroupAnalysis.start_static_group_search(edges, rotation_partners)
     visited_triangles = Set.new
     groups = []
