@@ -97,6 +97,8 @@ class PhysicsLink < Link
   # Subthingy methods
   #
 
+  def update_limits; end
+
   def create_sub_thingies
     @first_elongation_length =
       @second_elongation_length = Configuration::MINIMUM_ELONGATION
@@ -113,10 +115,14 @@ class PhysicsLink < Link
     cylinder_start = @position.offset(offset_up)
     cylinder_end = @second_position.offset(offset_down)
 
+    cylinder_model = PhysicsLinkModel.new(length)
+
     @first_cylinder = Cylinder.new(cylinder_start, direction_up, self,
-                                   @model.outer_cylinder)
+                                   cylinder_model.outer_cylinder, length)
     @second_cylinder = Cylinder.new(cylinder_end, direction_down, self,
-                                    @model.inner_cylinder)
+                                    cylinder_model.inner_cylinder, length)
+
+    update_limits
 
     add(@first_cylinder, @second_cylinder)
   end

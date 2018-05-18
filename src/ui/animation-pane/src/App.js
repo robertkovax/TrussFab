@@ -19,7 +19,8 @@ import {
   getStiffness,
   changePeakForceMode,
   changeDisplayValues,
-  changePistonValue
+  changePistonValue,
+  persistKeyframes
 } from "./sketchup-integration";
 
 const xAxis = 300;
@@ -63,6 +64,8 @@ class App extends Component {
 
   componentDidMount() {
     window.addPiston = this.addPiston;
+    window.addPistonWithAnimation = this.addPistonWithAnimation;
+    window.persistKeyframes = this.persistKeyframes;
     window.cleanupUiAfterStoppingSimulation = this.cleanupUiAfterStoppingSimulation;
     window.simulationJustBroke = this.simulationJustBroke;
     window.fixBrokenModelByReducingSpeed = this.fixBrokenModelByReducingSpeed;
@@ -101,10 +104,24 @@ class App extends Component {
         { time: this.state.seconds, value: 0.5 }
       ]) // init
     });
+    persistKeyframes(JSON.stringify([...this.state.keyframes]));
     setTimeout(() => {
       this.addTimeSelectionForNewKeyFrame(id);
     }, 100);
   };
+
+  addPistonWithAnimation = (id, animation) => {
+    // const id = this.state.pistons.length;
+    const oldKeyframes = this.state.keyframes;
+    const oldPistons = this.state.pistons;
+    this.setState({
+      pistons: oldPistons.concat(id),
+      keyframes: new Map(animation)
+    });
+    setTimeout(() => {
+      this.addTimeSelectionForNewKeyFrame(id);
+    }, 100);
+  }
 
   cleanupUiAfterStoppingSimulation = () => {
     this.resetState();
@@ -124,6 +141,8 @@ class App extends Component {
       oldKeyframesPiston.concat({ time, value }).sort((a, b) => a.time - b.time)
     );
     this.setState({ keyframes });
+    var keyframesJson = JSON.stringify([...this.state.keyframes])
+    persistKeyframes(keyframesJson);
   };
 
   _mapPointsToChart = kf => {

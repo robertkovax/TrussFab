@@ -19,20 +19,20 @@ class Node < GraphObject
     super(node_id)
   end
 
-  # Moves the nodes and all connected components
-  # this is very slow. Only do this if necessary (i.e. not in simulation)
-  def move(position)
-    update_position(position)
-    @incidents.each(&:move)
-    @adjacent_triangles.each(&:move)
-    @thingy.entity.move!(Geom::Transformation.new(position))
-  end
-
   # This only updates the position variable, e.g. to let the MouseInput know
   # where the Node is
   def update_position(position)
     @position = position
     @thingy.position = position
+  end
+
+  # Moves all connected components
+  # this is very slow. Only do this if necessary (i.e. not in simulation)
+  def update_thingy
+    @incidents.each(&:update_thingy)
+    @adjacent_triangles.each(&:update_thingy)
+    pods.each { |pod| pod.update_position(@position) }
+    @thingy.entity.move!(Geom::Transformation.new(@position))
   end
 
   def distance(point)

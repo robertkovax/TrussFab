@@ -188,7 +188,7 @@ class Edge < GraphObject
     @bottle_type = model.name
   end
 
-  def move
+  def update_thingy
     if @link_type == 'bottle_link'
       update_bottle_type unless @@retain_bottle_types
 

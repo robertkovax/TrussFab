@@ -4,8 +4,8 @@ require 'src/configuration/configuration.rb'
 class PhysicsLinkModel
   attr_reader :length, :inner_cylinder, :outer_cylinder, :material
 
-  def initialize
-    @length = 688.mm
+  def initialize(length = nil)
+    @length = length.nil? ? 688.mm : length
     @center = Geom::Point3d.new
     @up_vector = Geom::Vector3d.new(0, 0, 1).normalize!
     @inner_cylinder = create_cylinder('inner_piston_cylinder', 0.5)

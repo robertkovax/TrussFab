@@ -57,6 +57,9 @@ class Link < PhysicsThingy
   end
 
   def update_positions(first_position, second_position)
+    return if first_position == @first_position &&
+              second_position == @second_position
+
     @position = first_position
     @second_position = second_position
     delete_sub_thingies

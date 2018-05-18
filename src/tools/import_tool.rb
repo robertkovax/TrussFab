@@ -28,23 +28,34 @@ class ImportTool < Tool
   def import_from_json(path, graph_object, position)
     Sketchup.active_model.start_operation('import from JSON', true)
     if graph_object.is_a?(Triangle)
-      _, new_edges = JsonImport.at_triangle(path, graph_object)
+      _, new_edges, animation = JsonImport.at_triangle(path, graph_object)
       new_edges.each do |edge|
-        if edge.thingy.is_a?(ActuatorLink)
-          @ui.animation_pane.add_piston(edge.id) unless edge.nil?
+        next unless edge.thingy.is_a?(ActuatorLink)
+        unless edge.nil?
+          if animation == ''
+            @ui.animation_pane.add_piston(edge.id)
+          else
+            @ui.animation_pane.add_piston_with_animation(edge.id, animation)
+          end
         end
       end
     elsif graph_object.nil?
       return unless Graph.instance.find_close_node(position).nil?
       old_triangles = Graph.instance.surfaces.values
-      new_triangles, new_edges = JsonImport.at_position(path, position)
+      new_triangles, new_edges, animation =
+        JsonImport.at_position(path, position)
       if intersecting?(old_triangles, new_triangles)
         puts('New object intersects with old')
         delete_edges(new_edges)
       end
       new_edges.each do |edge|
-        if edge.thingy.is_a?(ActuatorLink)
-          @ui.animation_pane.add_piston(edge.id) unless edge.nil?
+        next unless edge.thingy.is_a?(ActuatorLink)
+        unless edge.nil?
+          if animation == ''
+            @ui.animation_pane.add_piston(edge.id)
+          else
+            @ui.animation_pane.add_piston_with_animation(edge.id, animation)
+          end
         end
       end
     else
