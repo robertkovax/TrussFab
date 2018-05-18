@@ -30,23 +30,6 @@ class NodeExportAlgorithm
     static_groups.sort! { |a, b| b.size <=> a.size }
     static_groups = prioritise_pod_groups(static_groups)
 
-    group_rotations = Hash.new { |h, k| h[k] = Set.new }
-
-    group_combinations = static_groups.combination(2)
-    group_combinations.each do |pair|
-      group1_edges = Set.new(pair[0].flat_map(&:edges))
-      group2_edges = Set.new(pair[1].flat_map(&:edges))
-
-      common_edges = group1_edges & group2_edges
-
-      raise 'More than one common edge.' if common_edges.size > 1
-
-      if !common_edges.empty? && common_edges.to_a[0].dynamic?
-        group_rotations[pair[1]].add(pair[0])
-        group_rotations[pair[0]].add(pair[1])
-      end
-    end
-
     group_edge_map = {}
 
     # generate hubs for all groups with size > 1
