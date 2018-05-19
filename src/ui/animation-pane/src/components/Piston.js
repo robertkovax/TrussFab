@@ -38,7 +38,7 @@ class Piston extends React.Component {
   renderGraph = id => {
     const {
       keyframesMap,
-      oldKeyframesUIST,
+      previousKeyframesMap,
       simluationBrokeAt,
       seconds,
       setContainerState,
@@ -70,10 +70,11 @@ class Piston extends React.Component {
       />
     ));
 
+    // get the points or null/false if theren't any
     const greyedOutPoints =
-      oldKeyframesUIST &&
-      oldKeyframesUIST.get(id) &&
-      oldKeyframesUIST.get(id).map(this._mapKeyframeToCoordinates);
+      previousKeyframesMap &&
+      previousKeyframesMap.get(id) &&
+      previousKeyframesMap.get(id).map(this._mapKeyframeToCoordinates);
 
     let greyOutPointsString = null;
     if (greyedOutPoints != null)

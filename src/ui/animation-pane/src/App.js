@@ -18,7 +18,7 @@ class App extends Component {
       displayVol: false,
       highestForceMode: false,
       keyframesMap: new Map(),
-      oldKeyframesUIST: null,
+      previousKeyframesMap: null,
       peakForceMode: false,
       pistons: [],
       seconds: 8,
@@ -138,12 +138,12 @@ class App extends Component {
   };
 
   fixBrokenModelByReducingMovement = () => {
-    const oldKeyframesUIST = new Map();
+    const previousKeyframesMap = new Map();
     const keyframesMap = this.state.keyframesMap;
 
     this.state.pistons.map((pistonId, id) => {
       const oldKeyframe = this.state.keyframesMap.get(id);
-      oldKeyframesUIST.set(id, oldKeyframe);
+      previousKeyframesMap.set(id, oldKeyframe);
 
       const newKeyframe = oldKeyframe.map((x, keyframeIndex) => {
         return {
@@ -158,16 +158,16 @@ class App extends Component {
       keyframesMap.set(id, newKeyframe);
     });
     // finally update state
-    this.setState({ oldKeyframesUIST, keyframesMap });
+    this.setState({ previousKeyframesMap, keyframesMap });
   };
 
   fixBrokenModelByReducingSpeed = () => {
-    const oldKeyframesUIST = new Map();
+    const previousKeyframesMap = new Map();
     const keyframesMap = this.state.keyframesMap;
 
     this.state.pistons.map((pistonId, id) => {
       const oldKeyframe = this.state.keyframesMap.get(id);
-      oldKeyframesUIST.set(id, oldKeyframe);
+      previousKeyframesMap.set(id, oldKeyframe);
 
       const newKeyframe = oldKeyframe
         .map(x => {
@@ -186,7 +186,7 @@ class App extends Component {
       keyframesMap.set(id, newKeyframe);
     });
     // finally update state
-    this.setState({ oldKeyframesUIST, keyframesMap });
+    this.setState({ previousKeyframesMap, keyframesMap });
   };
 
   resetState = () => {
@@ -202,7 +202,7 @@ class App extends Component {
         startedSimulationCycle: false,
         simulationIsPausedAfterOnce: false,
         simluationBrokeAt: null,
-        oldKeyframesUIST: null,
+        previousKeyframesMap: null,
       });
     }, 100);
   };
@@ -241,6 +241,7 @@ class App extends Component {
       currentCycle,
       timelineCurrentTime,
       timlineInterval,
+      previousKeyframesMap,
     } = this.state;
 
     const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
@@ -260,6 +261,7 @@ class App extends Component {
         startedSimulationOnce={startedSimulationOnce}
         timelineCurrentTime={timelineCurrentTime}
         devMode={devMode}
+        previousKeyframesMap={previousKeyframesMap}
       />
     ));
 
