@@ -141,7 +141,7 @@ class App extends Component {
     const previousKeyframesMap = new Map();
     const keyframesMap = this.state.keyframesMap;
 
-    this.state.pistons.map((pistonId, id) => {
+    this.state.pistons.forEach((pistonId, id) => {
       const oldKeyframe = this.state.keyframesMap.get(id);
       previousKeyframesMap.set(id, oldKeyframe);
 
@@ -165,7 +165,7 @@ class App extends Component {
     const previousKeyframesMap = new Map();
     const keyframesMap = this.state.keyframesMap;
 
-    this.state.pistons.map((pistonId, id) => {
+    this.state.pistons.forEach((pistonId, id) => {
       const oldKeyframe = this.state.keyframesMap.get(id);
       previousKeyframesMap.set(id, oldKeyframe);
 
