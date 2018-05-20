@@ -17,10 +17,10 @@ class App extends Component {
       devMode: false,
       displayVol: false,
       highestForceMode: false,
-      keyframesMap: new Map(),
-      previousKeyframesMap: null,
+      keyframesMap: new Map(), // maps from piston id to array of keyframes
+      previousKeyframesMap: null, // use for greyed points when something broke
       peakForceMode: false,
-      pistons: [],
+      pistons: [], // this is not actually needed because we have `keyframesMap`
       seconds: 8,
       simluationBrokeAt: null,
       simulationIsOnForValueTesting: false,
@@ -30,7 +30,7 @@ class App extends Component {
       startedSimulationOnce: false,
       stiffness: 92, // gets ignored if not changed
       timelineCurrentTime: 0,
-      timeSelection: new Map(),
+      timeSelection: new Map(), // map from piston id
       timlineInterval: null,
       windowCollapsed: true,
     };
@@ -76,12 +76,12 @@ class App extends Component {
     const oldPistons = this.state.pistons;
     this.setState({
       pistons: oldPistons.concat(id),
-      keyframes: oldKeyframes.set(id, [
+      keyframesMap: oldKeyframes.set(id, [
         { time: 0, value: 0.5 },
         { time: this.state.seconds, value: 0.5 },
       ]), // init
     });
-    persistKeyframes(JSON.stringify([...this.state.keyframes]));
+    persistKeyframes(JSON.stringify([...this.state.keyframesMap]));
     setTimeout(() => {
       this.addTimeSelectionForNewKeyFrame(id);
     }, 100);
@@ -91,7 +91,7 @@ class App extends Component {
     const oldPistons = this.state.pistons;
     this.setState({
       pistons: oldPistons.concat(id),
-      keyframes: new Map(animation),
+      keyframesMap: new Map(animation),
     });
     setTimeout(() => {
       this.addTimeSelectionForNewKeyFrame(id);
