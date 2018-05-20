@@ -2,6 +2,7 @@
   "name": "animation-pane",
   "version": "0.1.0",
   "private": true,
+  "homepage": "./",
   "license": "GPL",
   "dependencies": {
     "bootstrap": "4.0",
