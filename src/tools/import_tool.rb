@@ -28,7 +28,6 @@ class ImportTool < Tool
   def setup_new_edges(new_edges, animation)
     new_edges.each do |edge|
       next unless edge.thingy.is_a?(ActuatorLink)
-      p edge.thingy.piston_group
       if edge.thingy.piston_group < 0
         edge.thingy.piston_group = IdManager.instance.maximum_piston_group + 1
       end

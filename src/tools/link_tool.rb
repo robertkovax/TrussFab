@@ -26,8 +26,7 @@ class LinkTool < Tool
   def onLButtonDown(_flags, x, y, view)
     @mouse_input.update_positions(view, x, y)
     obj = @mouse_input.snapped_object
-    return @edge if obj.nil?
-    @edge = if obj.is_a?(Edge)
+    @edge = if !obj.nil? && obj.is_a?(Edge)
               change_link_to_physics_link(view, obj)
             else
               create_new_physics_link(view, x, y)
@@ -45,7 +44,9 @@ class LinkTool < Tool
   def change_link_to_physics_link(view, edge)
     Sketchup.active_model.start_operation("toggle edge to #{@link_type}", true)
     edge.link_type = @link_type
-    edge.thingy.piston_group = IdManager.instance.maximum_piston_group + 1
+    unless @link_type == 'bottle_link'
+      edge.thingy.piston_group = IdManager.instance.maximum_piston_group + 1
+    end
     @edge = edge
     view.invalidate
     Sketchup.active_model.commit_operation
@@ -61,13 +62,16 @@ class LinkTool < Tool
         @mouse_input
         .update_positions(view, x, y,
                           point_on_plane_from_camera_normal: @first_position)
+      return if @first_position == second_position
 
       puts "Create single #{@link_type} link"
       Sketchup.active_model.start_operation("Create #{@link_type} link", true)
       @edge = Graph.instance.create_edge_from_points(@first_position,
                                                      second_position,
                                                      link_type: @link_type)
-      @edge.thingy.piston_group = IdManager.instance.maximum_piston_group + 1
+      unless @link_type == 'bottle_link'
+        @edge.thingy.piston_group = IdManager.instance.maximum_piston_group + 1
+      end
       Sketchup.active_model.commit_operation
       reset
       @edge
