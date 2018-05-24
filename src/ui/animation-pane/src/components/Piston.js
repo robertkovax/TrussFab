@@ -4,6 +4,7 @@ import * as d3 from 'd3';
 import {
   changePistonValue,
   toggleSimulation,
+  persistKeyframes
 } from '../utils/sketchup-integration';
 import { X_AXIS, Y_AXIS } from '../config';
 import colors from '../utils/colors';
@@ -145,6 +146,7 @@ class Piston extends React.Component {
       pistonId,
       oldKeyframes.concat({ time, value }).sort((a, b) => a.time - b.time)
     );
+    persistKeyframes(JSON.stringify([...keyframes]));
     setContainerState({ keyframes });
   };
 
