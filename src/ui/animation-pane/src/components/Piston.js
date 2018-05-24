@@ -5,14 +5,15 @@ import {
   changePistonValue,
   toggleSimulation,
   persistKeyframes
-} from '../sketchup-integration';
-import { xAxis, yAxis, DEV } from '../config';
+} from '../utils/sketchup-integration';
+import { X_AXIS, Y_AXIS } from '../config';
+import colors from '../utils/colors';
 
 class Piston extends React.Component {
-  _mapPointsToChart = kf => {
+  _mapKeyframeToCoordinates = keyframe => {
     return [
-      kf.time * xAxis / this.props.seconds,
-      (1 - kf.value) * (yAxis - 8) + 4,
+      keyframe.time * X_AXIS / this.props.seconds,
+      (1 - keyframe.value) * (Y_AXIS - 8) + 4,
     ];
   };
 
@@ -38,7 +39,7 @@ class Piston extends React.Component {
   renderGraph = id => {
     const {
       keyframesMap,
-      oldKeyframesUIST,
+      previousKeyframesMap,
       simluationBrokeAt,
       seconds,
       setContainerState,
@@ -46,45 +47,19 @@ class Piston extends React.Component {
 
     const keyframes = keyframesMap.get(id) || [];
 
-    const points = keyframes.map(this._mapPointsToChart);
+    const points = keyframes.map(this._mapKeyframeToCoordinates);
 
-    const viewBox = `0 0 ${xAxis} ${yAxis}`;
+    const viewBox = `0 0 ${X_AXIS} ${Y_AXIS}`;
     const pointsString = points.map(p => p.join(',')).join('\n');
-
-    const oldKeyframesMap = keyframesMap;
 
     const deleteCircle = keyframeIndex => {
       setContainerState({
-        keyframes: oldKeyframesMap.set(
+        keyframes: keyframesMap.set(
           id,
-          oldKeyframesMap.get(id).filter((_, index) => index !== keyframeIndex)
+          keyframesMap.get(id).filter((_, index) => index !== keyframeIndex)
         ),
       });
     };
-
-    const colors = [
-      '#e6194b',
-      '#3cb44b',
-      '#ffe119',
-      '#0082c8',
-      '#f58231',
-      '#911eb4',
-      '#46f0f0',
-      '#f032e6',
-      '#d2f53c',
-      '#fabebe',
-      '#008080',
-      '#e6beff',
-      '#aa6e28',
-      '#fffac8',
-      '#800000',
-      '#aaffc3',
-      '#808000',
-      '#ffd8b1',
-      '#000080',
-      '#808080',
-      '#000000',
-    ];
 
     const circles = points.map((x, index) => (
       <circle
@@ -96,25 +71,26 @@ class Piston extends React.Component {
       />
     ));
 
-    const greyOutPoints =
-      oldKeyframesUIST &&
-      oldKeyframesUIST.get(id) &&
-      oldKeyframesUIST.get(id).map(this._mapPointsToChart);
+    // get the points or null/false if theren't any
+    const greyedOutPoints =
+      previousKeyframesMap &&
+      previousKeyframesMap.get(id) &&
+      previousKeyframesMap.get(id).map(this._mapKeyframeToCoordinates);
 
     let greyOutPointsString = null;
-    if (greyOutPoints != null)
-      greyOutPointsString = greyOutPoints.map(p => p.join(',')).join('\n');
+    if (greyedOutPoints != null)
+      greyOutPointsString = greyedOutPoints.map(p => p.join(',')).join('\n');
 
     return (
       <div style={{ position: 'relative' }}>
         {simluationBrokeAt !== null && (
           <div
             className="broken-time-line"
-            style={{ left: simluationBrokeAt / 1000 / 5 * xAxis }}
+            style={{ left: simluationBrokeAt / 1000 / 5 * X_AXIS }}
           />
         )}
         <svg viewBox={viewBox} className="chart" id={`svg-${id}`}>
-          {greyOutPoints != null && (
+          {greyedOutPoints != null && (
             <polyline
               className="grey-out-line"
               fill="none"
@@ -140,7 +116,7 @@ class Piston extends React.Component {
           style={{
             position: 'absolute',
             bottom: 0,
-            right: xAxis / 2,
+            right: X_AXIS / 2,
             fontSize: 10,
           }}
         >
@@ -176,13 +152,14 @@ class Piston extends React.Component {
 
   render() {
     const {
-      x,
+      id,
       index,
       simulationIsRunning,
       seconds,
       timeSelection,
       simulationIsOnForValueTesting,
       setContainerState,
+      devMode,
     } = this.props;
     return (
       <div>
@@ -194,10 +171,10 @@ class Piston extends React.Component {
           }}
         >
           <div
-            style={{ marginTop: yAxis / 3, marginLeft: 3, marginRight: 3 }}
+            style={{ marginTop: Y_AXIS / 3, marginLeft: 3, marginRight: 3 }}
           >{`#${index + 1}`}</div>
-          {this.renderGraph(x)}
-          <div id={`add-kf-${x}`}>
+          {this.renderGraph(id)}
+          <div id={`add-kf-${id}`}>
             <input
               hidden
               type="number"
@@ -205,10 +182,10 @@ class Piston extends React.Component {
               min="0"
               max={seconds}
               value={
-                timeSelection.get(x) || this.initialSecondsForTimeSelection()
+                timeSelection.get(id) || this.initialSecondsForTimeSelection()
               }
               onChange={event =>
-                this.onTimeSelectionInputChange(x, event.currentTarget.value)
+                this.onTimeSelectionInputChange(id, event.currentTarget.value)
               }
             />
             <input
@@ -216,20 +193,20 @@ class Piston extends React.Component {
               onChange={event => {
                 const fixedValue = parseFloat(event.target.value) / 100;
                 if (simulationIsRunning) {
-                  changePistonValue(x, fixedValue);
+                  changePistonValue(id, fixedValue);
                 } else {
                   if (!simulationIsOnForValueTesting) {
                     setContainerState({ simulationIsOnForValueTesting: true });
                     toggleSimulation();
                   }
-                  changePistonValue(x, fixedValue);
+                  changePistonValue(id, fixedValue);
                 }
               }}
             />
-            <button onClick={this.addKeyframe} className="add-new-kf" id={x}>
+            <button onClick={this.addKeyframe} className="add-new-kf" id={id}>
               <img
                 alt="rhomus"
-                style={DEV ? {} : { height: 15, width: 15 }}
+                style={devMode ? {} : { height: 15, width: 15 }}
                 src="../../trussfab-globals/assets/icons/rhombus.png"
               />
             </button>

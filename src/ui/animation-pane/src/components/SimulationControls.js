@@ -1,10 +1,13 @@
 import React from 'react';
-
 import * as d3 from 'd3';
 
 import SimulationForm from './SimulationForm';
-
-import { xAxis, yAxis, timelineStepSeconds, FACTOR } from '../config';
+import {
+  X_AXIS,
+  Y_AXIS,
+  UPDATE_INTERVALL,
+  TIMELINE_TIME_FACTOR,
+} from '../config';
 
 import {
   togglePane,
@@ -12,7 +15,7 @@ import {
   togglePauseSimulation,
   toggleSimulation,
   moveJoint,
-} from '../sketchup-integration';
+} from '../utils/sketchup-integration';
 
 class SimulationControls extends React.Component {
   componentDidMount() {
@@ -80,41 +83,24 @@ class SimulationControls extends React.Component {
 
     const timelineCurrentTimeSeconds = timelineCurrentTime / 1000;
 
-    keyframesMap.forEach((value, key) => {
-      const keyframes = value;
-
+    keyframesMap.forEach((keyframes, jointId) => {
       for (let i = 0; i < keyframes.length; i++) {
-        const x = keyframes[i];
-        if (timelineCurrentTime === x.time * 1000) {
-          let duration;
-          let newValue;
-          // check if last one
+        const currentKeyframe = keyframes[i];
+        if (timelineCurrentTime === currentKeyframe.time * 1000) {
+          // Since the first and the last keyframe are 'special' and should
+          // always have the same value, we must not move the joint for the last
+          // keyframe.
           if (i === keyframes.length - 1) {
-            // newValue = keyframes[0].value;
-            // duration = this.state.seconds - x.time; // value until end
-          } else {
-            newValue = keyframes[i + 1].value;
-            duration = keyframes[i + 1].time - x.time; // next
-
-            // some hack because the inital value of the piston is 0
-            // so we have to fix it here
-            // if (
-            //   i === 0 &&
-            //   this.state.currentCycle === 0 &&
-            //   keyframes[0].value !== keyframes[1].value
-            // ) {
-            //   console.log('fixing');
-            //   if (keyframes[0].value > keyframes[1].value)
-            //     newValue -= keyframes[0].value;
-            //   else newValue += keyframes[0].value;
-            // }
-            moveJoint(key, newValue, duration);
+            continue;
           }
+          const newValue = keyframes[i + 1].value;
+          const duration = keyframes[i + 1].time - currentKeyframe.time;
+          moveJoint(jointId, newValue, duration);
         }
       }
     });
 
-    const newX = timelineCurrentTimeSeconds * xAxis / seconds;
+    const newX = timelineCurrentTimeSeconds * X_AXIS / seconds;
 
     d3
       .selectAll('line.timeline')
@@ -122,14 +108,15 @@ class SimulationControls extends React.Component {
       .attr('x2', newX);
 
     setContainerState({
-      timelineCurrentTime: timelineCurrentTime + timelineStepSeconds * FACTOR,
+      timelineCurrentTime:
+        timelineCurrentTime + UPDATE_INTERVALL * TIMELINE_TIME_FACTOR,
     });
   };
 
   _addInterval = () => {
     const timlineInterval = setInterval(
       this.playOneTimelineStep,
-      timelineStepSeconds
+      UPDATE_INTERVALL
     );
     this.props.setContainerState({ timlineInterval });
   };
@@ -146,7 +133,7 @@ class SimulationControls extends React.Component {
       .attr('x1', 0)
       .attr('y1', 0)
       .attr('x2', 0)
-      .attr('y2', yAxis)
+      .attr('y2', Y_AXIS)
       .style('stroke-width', 3)
       .style('stroke', 'grey')
       .style('fill', 'none');
@@ -196,9 +183,6 @@ class SimulationControls extends React.Component {
         toggleSimulation();
       }
     }
-
-    // I don't know. Is this still required?
-    // setBreakingForce(this.state.breakingForce);
 
     if (playOnce) {
       setContainerState({

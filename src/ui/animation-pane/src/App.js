@@ -1,30 +1,12 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
 
-import './App.css';
-import { toggleDiv } from './util';
-import { getInterpolationForTime } from './serious-math';
-import {
-  togglePane,
-  toggleSimulation,
-  moveJoint,
-  togglePauseSimulation,
-  setBreakingForce,
-  getBreakingForce,
-  setMaxSpeed,
-  changeHighestForceMode,
-  setStiffness,
-  getStiffness,
-  changePeakForceMode,
-  changeDisplayValues,
-  changePistonValue,
-  persistKeyframes
-} from './sketchup-integration';
-
+import './css/App.css';
+import { toggleDiv } from './utils/dom';
+import { setStiffness, persistKeyframes } from './utils/sketchup-integration';
 import Piston from './components/Piston';
 import SimulationControls from './components/SimulationControls';
-
-import { xAxis, yAxis } from './config';
+import { X_AXIS, Y_AXIS } from './config';
 
 class App extends Component {
   constructor(props) {
@@ -35,10 +17,10 @@ class App extends Component {
       devMode: false,
       displayVol: false,
       highestForceMode: false,
-      keyframesMap: new Map(),
-      oldKeyframesUIST: null,
+      keyframesMap: new Map(), // maps from piston id to array of keyframes
+      previousKeyframesMap: null, // use for greyed points when something broke
       peakForceMode: false,
-      pistons: [],
+      pistons: [], // this is not actually needed because we have `keyframesMap`
       seconds: 8,
       simluationBrokeAt: null,
       simulationIsOnForValueTesting: false,
@@ -48,7 +30,7 @@ class App extends Component {
       startedSimulationOnce: false,
       stiffness: 92, // gets ignored if not changed
       timelineCurrentTime: 0,
-      timeSelection: new Map(),
+      timeSelection: new Map(), // map from piston id
       timlineInterval: null,
       windowCollapsed: true,
     };
@@ -94,12 +76,12 @@ class App extends Component {
     const oldPistons = this.state.pistons;
     this.setState({
       pistons: oldPistons.concat(id),
-      keyframes: oldKeyframes.set(id, [
+      keyframesMap: oldKeyframes.set(id, [
         { time: 0, value: 0.5 },
         { time: this.state.seconds, value: 0.5 },
       ]), // init
     });
-    persistKeyframes(JSON.stringify([...this.state.keyframes]));
+    persistKeyframes(JSON.stringify([...this.state.keyframesMap]));
     setTimeout(() => {
       this.addTimeSelectionForNewKeyFrame(id);
     }, 100);
@@ -127,14 +109,14 @@ class App extends Component {
 
     function scrubLine() {
       let newX = d3.event.x;
-      newX = Math.min(Math.max(0, newX), xAxis);
+      newX = Math.min(Math.max(0, newX), X_AXIS);
 
       const oldTimeSelection = self.state.timeSelection;
 
       self.setState({
         timeSelection: oldTimeSelection.set(
           id,
-          (newX / xAxis * self.state.seconds).toFixed(1)
+          (newX / X_AXIS * self.state.seconds).toFixed(1)
         ),
       });
 
@@ -154,7 +136,7 @@ class App extends Component {
       .attr('x1', 0)
       .attr('y1', 0)
       .attr('x2', 0)
-      .attr('y2', yAxis)
+      .attr('y2', Y_AXIS)
       .style('stroke-width', 3)
       .style('stroke', 'grey')
       .style('fill', 'none')
@@ -162,12 +144,12 @@ class App extends Component {
   };
 
   fixBrokenModelByReducingMovement = () => {
-    const oldKeyframesUIST = new Map();
+    const previousKeyframesMap = new Map();
     const keyframesMap = this.state.keyframesMap;
 
-    this.state.pistons.map((pistonId, id) => {
+    this.state.pistons.forEach((pistonId, id) => {
       const oldKeyframe = this.state.keyframesMap.get(id);
-      oldKeyframesUIST.set(id, oldKeyframe);
+      previousKeyframesMap.set(id, oldKeyframe);
 
       const newKeyframe = oldKeyframe.map((x, keyframeIndex) => {
         return {
@@ -182,16 +164,16 @@ class App extends Component {
       keyframesMap.set(id, newKeyframe);
     });
     // finally update state
-    this.setState({ oldKeyframesUIST, keyframesMap });
+    this.setState({ previousKeyframesMap, keyframesMap });
   };
 
   fixBrokenModelByReducingSpeed = () => {
-    const oldKeyframesUIST = new Map();
+    const previousKeyframesMap = new Map();
     const keyframesMap = this.state.keyframesMap;
 
-    this.state.pistons.map((pistonId, id) => {
+    this.state.pistons.forEach((pistonId, id) => {
       const oldKeyframe = this.state.keyframesMap.get(id);
-      oldKeyframesUIST.set(id, oldKeyframe);
+      previousKeyframesMap.set(id, oldKeyframe);
 
       const newKeyframe = oldKeyframe
         .map(x => {
@@ -210,7 +192,7 @@ class App extends Component {
       keyframesMap.set(id, newKeyframe);
     });
     // finally update state
-    this.setState({ oldKeyframesUIST, keyframesMap });
+    this.setState({ previousKeyframesMap, keyframesMap });
   };
 
   resetState = () => {
@@ -226,7 +208,7 @@ class App extends Component {
         startedSimulationCycle: false,
         simulationIsPausedAfterOnce: false,
         simluationBrokeAt: null,
-        oldKeyframesUIST: null,
+        previousKeyframesMap: null,
       });
     }, 100);
   };
@@ -239,7 +221,7 @@ class App extends Component {
   onTimeSelectionInputChange = (id, value) => {
     this.setState({ timeSelection: this.state.timeSelection.set(id, value) });
 
-    const newX = value / this.state.seconds * xAxis;
+    const newX = value / this.state.seconds * X_AXIS;
 
     const line = d3
       .select('#svg-' + id)
@@ -265,13 +247,14 @@ class App extends Component {
       currentCycle,
       timelineCurrentTime,
       timlineInterval,
+      previousKeyframesMap,
     } = this.state;
 
     const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
-    const pistonElements = pistons.map((x, index) => (
+    const pistonElements = pistons.map((id, index) => (
       <Piston
-        key={x.id}
-        x={x}
+        key={id}
+        id={id}
         index={index}
         simulationIsRunning={simulationIsRunning}
         setContainerState={this.setContainerState}
@@ -283,6 +266,8 @@ class App extends Component {
         currentCycle={currentCycle}
         startedSimulationOnce={startedSimulationOnce}
         timelineCurrentTime={timelineCurrentTime}
+        devMode={devMode}
+        previousKeyframesMap={previousKeyframesMap}
       />
     ));
 
