@@ -62,7 +62,10 @@ class LinkTool < Tool
         @mouse_input
         .update_positions(view, x, y,
                           point_on_plane_from_camera_normal: @first_position)
-      return if @first_position == second_position
+      if @first_position == second_position
+        reset
+        return
+      end
 
       puts "Create single #{@link_type} link"
       Sketchup.active_model.start_operation("Create #{@link_type} link", true)
