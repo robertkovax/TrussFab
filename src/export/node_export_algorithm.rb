@@ -12,7 +12,7 @@ require 'src/export/node_export_visualization'
 class NodeExportAlgorithm
   include Singleton
 
-  attr_accessor :export_interface
+  attr_reader :export_interface
 
   public
   def initialize
@@ -90,8 +90,8 @@ class NodeExportAlgorithm
 
     return nil if is_same_group
 
-    hinge = HingeExportInterface.new(e1, e2)
-    hinge.is_double_hinge = tri.dynamic?
+    is_double_hinge =  tri.dynamic?
+    hinge = HingeExportInterface.new(e1, e2, is_double_hinge)
     hinge
   end
 

@@ -1,5 +1,5 @@
 class HubExportInterface
-  attr_accessor :edges
+  attr_reader :edges
 
   def initialize(edges)
     @edges = edges

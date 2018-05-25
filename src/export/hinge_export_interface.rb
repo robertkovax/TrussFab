@@ -1,12 +1,12 @@
 # HingeExportInterface
 class HingeExportInterface
-  attr_accessor :edge1, :edge2, :is_double_hinge
+  attr_reader :edge1, :edge2, :is_double_hinge
 
-  def initialize(edge1, edge2)
+  def initialize(edge1, edge2, is_double_hinge)
     raise 'Edges have to be different.' if edge1 == edge2
     @edge1 = edge1
     @edge2 = edge2
-    @is_double_hinge = false
+    @is_double_hinge = is_double_hinge
   end
 
   def inspect
@@ -21,15 +21,9 @@ class HingeExportInterface
     hash == other.hash
   end
 
-  def common_edge(other)
-    common_edges = edges & other.edges
-    raise 'Too many or no common edges.' if common_edges.size != 1
-    common_edges[0]
-  end
-
   def connected_with?(other)
     common_edges = edges & other.edges
-    !common_edges.empty?
+    common_edges.any?
   end
 
   def num_connected_hinges(hinges)
