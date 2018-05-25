@@ -26,7 +26,7 @@ class LinkTool < Tool
   def onLButtonDown(_flags, x, y, view)
     @mouse_input.update_positions(view, x, y)
     obj = @mouse_input.snapped_object
-    return if obj.nil?
+    return @edge if obj.nil?
     @edge = if obj.is_a?(Edge)
               change_link_to_physics_link(view, obj)
             else
@@ -54,6 +54,7 @@ class LinkTool < Tool
   def create_new_physics_link(view, x, y)
     if @first_position.nil?
       @first_position = @mouse_input.update_positions(view, x, y)
+      nil
     else
       second_position =
         @mouse_input
