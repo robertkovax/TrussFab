@@ -14,7 +14,6 @@ class NodeExportAlgorithm
 
   attr_reader :export_interface
 
-  public
   def initialize
     @export_interface = nil
   end
@@ -47,7 +46,7 @@ class NodeExportAlgorithm
         # if hub only connects with two edges at this node,
         # it degenerates to a hinge
         if hub_edges.size == 2
-          hinge = HingeExportInterface.new(hub_edges[0], hub_edges[1])
+          hinge = HingeExportInterface.new(hub_edges[0], hub_edges[1], false)
           @export_interface.add_hinge(node, hinge)
         else
           hub = HubExportInterface.new(hub_edges)
@@ -69,19 +68,19 @@ class NodeExportAlgorithm
       end
     end
 
-    Sketchup.active_model.start_operation('find hinges', true)
     @export_interface.apply_hinge_algorithm
-    Sketchup.active_model.commit_operation
 
     Sketchup.active_model.start_operation('elongate edges', true)
     @export_interface.elongate_edges
     Sketchup.active_model.commit_operation
 
-    # add visualisations
+    Sketchup.active_model.start_operation('visualize export result', true)
     NodeExportVisualization.visualize(@export_interface)
+    Sketchup.active_model.commit_operation
   end
 
   private
+
   def generate_hinge_if_necessary(e1, e2, tri, static_groups, group_edge_map)
     is_same_group = static_groups.any? do |group|
       group_edge_map[group].include?(e1) &&

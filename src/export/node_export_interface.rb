@@ -51,12 +51,9 @@ class NodeExportInterface
   end
 
   def l1_at_node(node)
-    l1 = hinges_at_node(node).map { |hinge| hinge.l1 }.max
+    l1 = hinges_at_node(node).map(&:l1).max
     l1 = 0.0.mm if l1.nil?
-
-    if subhubs_at_node(node).size > 0
-      l1 = [l1, PRESETS::MINIMUM_L1].max
-    end
+    l1 = [l1, PRESETS::MINIMUM_L1].max if subhubs_at_node(node).any?
 
     l1
   end
@@ -81,10 +78,11 @@ class NodeExportInterface
       # edges that are part of a subhub need to be elongated
       elongated_edges = non_mainhub_edges_at_node(node)
       # edges that are connected by hinges also need to be elongated
-      elongated_edges += hinges_at_node(node).map { |hinge| [hinge.edge1, hinge.edge2] }.flatten
+      elongated_edges += hinges_at_node(node)
+                           .map { |hinge| [hinge.edge1, hinge.edge2] }.flatten
       elongated_edges.uniq!
       # don't elongated edges that have a dynamic size
-      elongated_edges.reject! { |edge| edge.dynamic? }
+      elongated_edges.reject!(&:dynamic?)
 
       elongation_tuples.concat(elongated_edges.map { |edge| [node, edge] })
     end
@@ -171,8 +169,9 @@ class NodeExportInterface
     is_edge1_connected = other_edges.include? cur_hinge.edge1
     is_edge2_connected = other_edges.include? cur_hinge.edge2
 
-    raise 'Hinge is not connected to any other hinge' if !is_edge1_connected &&
-      !is_edge2_connected
+    if !is_edge1_connected && !is_edge2_connected
+      raise 'Hinge is not connected to any other hinge'
+    end
 
     cur_hinge.swap_edges if is_edge1_connected && !is_edge2_connected
   end
@@ -208,7 +207,7 @@ class NodeExportInterface
       end
       if next_hinge_possibilities.size > 1
         raise 'More than one next hinge can be connected at node ' +
-                node.id.to_s
+               node.id.to_s
       end
 
       if next_hinge_possibilities.empty?

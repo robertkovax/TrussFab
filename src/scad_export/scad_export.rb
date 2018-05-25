@@ -1,8 +1,7 @@
-require 'src/tools/hinge_analysis_tool'
-require 'src/scad_export/scad_export_hinge'
-require 'src/scad_export/scad_export_hub'
-require 'src/scad_export/scad_export_elongation'
-require 'src/scad_export/scad_export_cap'
+require 'src/scad_export/scad_export_hinge.rb'
+require 'src/scad_export/scad_export_hub.rb'
+require 'src/scad_export/scad_export_elongation.rb'
+require 'src/scad_export/scad_export_cap.rb'
 require 'src/algorithms/relaxation.rb'
 require 'src/export/presets.rb'
 
@@ -85,9 +84,9 @@ class ScadExport
       # I don't know why but it has to be converted here
       hinge_params_lengths.update(hinge_params_lengths) { |_, v| v.to_mm }
 
-      # For now, we never really though of as the 'double hinge' as
-      # two separate hinges.
-      # It only happens in the following steps that the ones hinges get's
+      # For now, we never really thought of 'double hinges' as the two
+      # separate hinges.
+      # It only happens in the following steps that the one hinges gets
       # split into two.
       if hinge.is_double_hinge
         additional_first_params = {}
