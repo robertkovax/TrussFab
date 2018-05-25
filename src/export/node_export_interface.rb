@@ -93,6 +93,7 @@ class NodeExportInterface
   end
 
   private
+  
   def filter_valid_hinges(hinges)
     new_hinges = hinges.clone
 
