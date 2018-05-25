@@ -3,7 +3,8 @@ require 'src/configuration/configuration.rb'
 require 'src/thingies/generic_link'
 
 class PidController < GenericLink
-  attr_accessor :integral_error, :k_P, :k_I, :k_D, :integral_error_cap, :static_force, :static_forces_lookup
+  attr_accessor :integral_error, :k_P, :k_I, :k_D, :integral_error_cap,
+                :static_force, :static_forces_lookup, :use_static_lookup_force
   attr_reader :target_length, :logging
 
   def target_length=(length)
@@ -26,12 +27,13 @@ class PidController < GenericLink
     @previous_error = nil
     @static_force = 0
     @static_forces_lookup = []
+    @use_static_lookup_force = false
     set_pid_values(50, 50, 50)
   end
 
   def lookup_static_force
     return 0 if static_forces_lookup.empty?
-
+    # TODO: Do linear interpolation between the two positions in the array
     array_position = (normalized_position * Configuration::STATIC_FORCE_ANALYSIS_STEPS).round(0)
     static_forces_lookup[array_position]
   end
@@ -58,7 +60,8 @@ class PidController < GenericLink
     d_force = @k_D * derivative_error
 
 
-    self.force = p_force + i_force + d_force + @static_force + lookup_static_force
+    self.force = p_force + i_force + d_force + @static_force
+    self.force += lookup_static_force if @use_static_lookup_force
     @previous_error = error
 
     if @logging
@@ -87,8 +90,8 @@ class PidController < GenericLink
     pid_edge_id = nil
     Graph.instance.edges.each do |id, edge|
       if edge.thingy == self
-          pid_edge = edge
-          pid_edge_id = id
+        pid_edge = edge
+        pid_edge_id = id
       end
     end
     puts "#{pid_edge} | #{pid_edge.nil?}"
@@ -110,6 +113,6 @@ class PidController < GenericLink
     pid_edge.link_type = 'pid_controller'
     new_pid_link = Graph.instance.edges[pid_edge_id].thingy
     new_pid_link.static_forces_lookup = forces
-    puts "#{new_pid_link.static_forces_lookup}"
+    puts "#{new_pid_link.static_forces_array}"
   end
 end

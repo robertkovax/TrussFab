@@ -267,9 +267,9 @@ class Simulation
     z = Configuration::GROUND_HEIGHT
     pts = [
       [-x, -y, z],
-      [ x, -y, z],
-      [ x,  y, z],
-      [-x,  y, z]
+      [x, -y, z],
+      [x, y, z],
+      [-x, y, z]
     ]
     face = @ground_group.entities.add_face(pts)
     face.pushpull(-Configuration::GROUND_THICKNESS)
@@ -361,7 +361,7 @@ class Simulation
     Graph.instance.edges.each do |id, edge|
       pid_controllers[id] = edge.thingy if edge.thingy.is_a?(PidController)
     end
-    pid_controllers.each_value{ |controller| controller.reset_errors}
+    pid_controllers.each_value {|controller| controller.reset_errors}
   end
 
   def get_closest_node_to_point(point)
@@ -398,7 +398,7 @@ class Simulation
         # add the piston frequency as a label in the chart (every value between
         # two frequencies has the same frequency)
         log_max_actuator_tensions((1 / (@world.elapsed_time - @piston_world_time)
-                                  .to_f).round(2))
+                                         .to_f).round(2))
       end
       hash
     end
@@ -459,6 +459,28 @@ class Simulation
     highest_force
   end
 
+  def analyse_pose(combination)
+    Graph.instance.edges.each_value do |edge|
+      edge.thingy.joint.stiffness = 0.999
+    end
+    # move them to the proper position
+    combination.each do |id, position|
+      actuator = @pistons[id]
+      actuator.joint.breaking_force = 0
+      actuator.joint.rate = 10
+      actuator.joint.controller = actuator.max * position.to_f +
+            actuator.min * (1 - position.to_f)
+    end
+    update_world_headless_by(3) # settle down
+    @max_link_tensions.clear
+    update_world_headless_by(0.2, true)
+    forces = {}
+    combination.each do |id, _|
+      forces[id] = @max_link_tensions[id]
+    end
+    forces
+  end
+
   def check_static_force(piston_id, position)
     Graph.instance.edges.each_value do |edge|
       edge.thingy.joint.stiffness = 0.999
@@ -468,7 +490,7 @@ class Simulation
     actuator.joint.breaking_force = 0
     actuator.joint.rate = 10
     actuator.joint.controller = actuator.max * position.to_f +
-                                actuator.min * (1 - position.to_f)
+      actuator.min * (1 - position.to_f)
 
     update_world_headless_by(3)
     @max_link_tensions.clear
@@ -518,7 +540,7 @@ class Simulation
     actuator.joint.rate = actuator.rate
     actuator.joint.controller =
       (value.to_f - Configuration::ACTUATOR_INIT_DIST) * (actuator.max -
-                                                          actuator.min)
+        actuator.min)
   end
 
   def move_joint(id, next_position, duration)
@@ -527,7 +549,7 @@ class Simulation
       joint = piston.joint
       next if joint.nil? || !joint.valid?
       next_position_normalized = piston.max * next_position.to_f +
-                                 piston.min * (1 - next_position.to_f)
+        piston.min * (1 - next_position.to_f)
       current_postion = joint.cur_distance - joint.start_distance
       position_distance = (current_postion - next_position_normalized).abs
       @fps = 1 if @fps.nil?
@@ -848,7 +870,7 @@ class Simulation
       umat.color = Configuration::BOTTLE_COLOR
       dat[3] = umat
       dat[0].material = umat
-      dat[2].each { |e, _| e.material = nil }
+      dat[2].each {|e, _| e.material = nil}
       if link.is_a?(ActuatorLink)
         second_cylinder = link.sub_thingies[0].entity
         second_cylinder.material = dat[3]
@@ -865,7 +887,7 @@ class Simulation
     sub_mats = {}
     bottle_entities.each do |entity|
       if entity.is_a?(::Sketchup::Group) ||
-         entity.is_a?(::Sketchup::ComponentInstance)
+        entity.is_a?(::Sketchup::ComponentInstance)
         sub_mats[entity] = entity.material
       end
     end
@@ -907,7 +929,7 @@ class Simulation
                 get_directed_force(link)
               end
       r = (@breaking_force + force * Configuration::TENSION_SENSITIVITY) *
-          @breaking_force_invh
+        @breaking_force_invh
       mat.color = Geometry.blend_colors(Configuration::TENSION_COLORS, r)
     end
   end
@@ -945,7 +967,7 @@ class Simulation
     end
     force = @max_link_tensions[link.id] if @peak_force_mode
     r = (@breaking_force + force * Configuration::TENSION_SENSITIVITY) *
-        @breaking_force_invh
+      @breaking_force_invh
     mat.color = Geometry.blend_colors(Configuration::TENSION_COLORS, r)
   end
 
@@ -1066,6 +1088,6 @@ class Simulation
   # Removes force labels
   # Note: this must be wrapped in operation
   def reset_force_labels
-    @force_labels.each { |_, label| label.text = '' }
+    @force_labels.each {|_, label| label.text = ''}
   end
 end
