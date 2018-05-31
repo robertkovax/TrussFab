@@ -21,6 +21,7 @@ class ImportTool < Tool
     @mouse_input.update_positions(view, x, y)
     snapped_object = @mouse_input.snapped_object
     import_from_json(@path, snapped_object, @mouse_input.position)
+    @ui.animation_pane.sync_hidden_status(Graph.instance.actuator_groups)
     @mouse_input.update_positions(view, x, y)
     view.invalidate
   end
