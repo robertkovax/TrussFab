@@ -131,10 +131,6 @@ class Graph
   end
 
   def actuator_groups
-    # TODO: What is exactly the last id?
-    # I guess we only consider the IDs of edges, right?
-    # The current implementation considers all IDs
-
     map = {}
     @edges.count.times do |i|
       map[i] = false

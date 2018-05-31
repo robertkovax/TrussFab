@@ -36,7 +36,6 @@ class DeleteTool < Tool
   private
 
   def delete(x, y, view)
-   # TODO: sync hidden keyframes
     @mouse_input.update_positions(view, x, y)
     object = @mouse_input.snapped_object
     return if object.nil?
