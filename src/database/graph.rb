@@ -136,11 +136,11 @@ class Graph
     # The current implementation considers all IDs
 
     map = {}
-    IdManager.instance.last_id.times do |i| 
+    @edges.count.times do |i|
       map[i] = false
     end
 
-    @edges.each_value do |edge| 
+    @edges.each_value do |edge|
       map[edge.thingy.piston_group] = true unless edge.thingy.piston_group < 0
     end
     map

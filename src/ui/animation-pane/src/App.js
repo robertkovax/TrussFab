@@ -70,9 +70,9 @@ class App extends Component {
     this.resetState();
   };
 
-  syncHiddenStatus = newgroupVisible => {
+  syncHiddenStatus = newGroupVisible => {
     this.setState({
-      groupVisible: newgroupVisible,
+      groupVisible: newGroupVisible,
     });
   };
 
@@ -260,7 +260,7 @@ class App extends Component {
 
     const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
     const pistonElements = pistons
-      .filter(x => this.state.groupVisible[x] === false) // filter out hidden ids
+      .filter(x => this.state.groupVisible[x] === true) // filter out hidden ids
       .map((id, index) => (
         <Piston
           key={id}
