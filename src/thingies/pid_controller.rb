@@ -4,11 +4,7 @@ require 'src/thingies/generic_link.rb'
 
 class PidController < GenericLink
   attr_accessor :integral_error, :k_P, :k_I, :k_D, :integral_error_cap,
-<<<<<<< HEAD
                 :static_force, :static_forces_lookup, :use_static_lookup_force
-=======
-                :static_force, :static_forces_lookup
->>>>>>> basic_pid_controller
   attr_reader :target_length, :logging
 
   def target_length=(length)
@@ -38,16 +34,11 @@ class PidController < GenericLink
   end
 
   def lookup_static_force
-    return 0 if static_forces_lookup.empty?
-<<<<<<< HEAD
+    return 0 if @static_forces_lookup.empty?
     # TODO: Do linear interpolation between the two positions in the array
-    array_position = (normalized_position * Configuration::STATIC_FORCE_ANALYSIS_STEPS).round(0)
-    static_forces_lookup[array_position]
-=======
     pos = normalized_position
     index = (pos * Configuration::STATIC_FORCE_ANALYSIS_STEPS).round(2)
-    static_forces_lookup[index]
->>>>>>> basic_pid_controller
+    @static_forces_lookup[index]
   end
 
   def normalized_position
