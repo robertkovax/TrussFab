@@ -29,7 +29,7 @@ const timelineStepSeconds = 100; // this affects how smooth the line should be
 
 const FACTOR = 0.5;
 
-const DEV = true;
+const DEV = false;
 
 class App extends Component {
   constructor(props) {
