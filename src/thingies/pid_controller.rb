@@ -115,6 +115,6 @@ class PidController < GenericLink
     pid_edge.link_type = 'pid_controller'
     new_pid_link = Graph.instance.edges[pid_edge_id].thingy
     new_pid_link.static_forces_lookup = forces
-    puts "#{new_pid_link.static_forces_array}"
+    puts "#{new_pid_link.static_forces_lookup}"
   end
 end
