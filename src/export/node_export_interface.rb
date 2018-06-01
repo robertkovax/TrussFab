@@ -32,6 +32,10 @@ class NodeExportInterface
     @node_hinge_map[node]
   end
 
+  def hubs_at_node(node)
+    @node_hub_map[node]
+  end
+
   def mainhub_at_node(node)
     raise 'Node does not have a main hub' if @node_hub_map[node].empty?
     @node_hub_map[node][0]
@@ -60,10 +64,15 @@ class NodeExportInterface
 
   def apply_hinge_algorithm
     @node_hinge_map.each do |node, hinges|
-      new_hinges = filter_valid_hinges(hinges)
-      new_hinges = filter_subhub_violations(node, new_hinges)
+      hubs = hubs_at_node(node)
+      new_parts = filter_valid_hinges(node, hubs, hinges)
+
+      new_hinges = new_parts.select { |part| part.is_a? HingeExportInterface }
       new_hinges = order_hinges(new_hinges)
       @node_hinge_map[node] = new_hinges
+
+      new_hubs = new_parts.select { |part| part.is_a? HubExportInterface }
+      @node_hub_map[node] = new_hubs
     end
   end
 
@@ -93,72 +102,83 @@ class NodeExportInterface
   end
 
   private
-  
-  def filter_valid_hinges(hinges)
-    new_hinges = hinges.clone
 
-    loop do
-      # save how many hinges each hinge shares an edge with around the current
-      # node. if it is more than one hinge at either connection, hinges need
-      # to be removed
-      shared_a_hinge_count = {}
-      shared_b_hinge_count = {}
-
-      new_hinges.each do |hinge|
-        shared_hinges_a = new_hinges.select do |other_hinge|
-          hinge != other_hinge && other_hinge.edges.include?(hinge.edge1)
-        end
-        shared_a_hinge_count[hinge] = shared_hinges_a.size
-
-        shared_hinges_b = new_hinges.select do |other_hinge|
-          hinge != other_hinge && other_hinge.edges.include?(hinge.edge2)
-        end
-        shared_b_hinge_count[hinge] = shared_hinges_b.size
-      end
-
-      valid_result = new_hinges.all? do |hinge|
-        shared_a_hinge_count[hinge] <= 1 && shared_b_hinge_count[hinge] <= 1
-      end
-
-      break if valid_result
-
-      # assign values to hinges that states how likely it is to be removed
-      # the higher number the number, the more problematic is a hinge
-      hinge_values = []
-      new_hinges.each do |hinge|
-        connects_actuator = hinge.edge1.dynamic? || hinge.edge2.dynamic?
-
-        val = 0
-        val += shared_a_hinge_count[hinge] - 1 if shared_a_hinge_count[hinge] > 1
-        val += shared_b_hinge_count[hinge] - 1 if shared_b_hinge_count[hinge] > 1
-        val += 1 if hinge.is_double_hinge && !connects_actuator
-
-        hinge_values.push([hinge, val])
-      end
-
-      hinge_values.sort! { |a, b| b[1] <=> a[1] }
-      new_hinges.delete(hinge_values.first[0])
-    end
-
-    new_hinges
+  def find_adjacent_parts(part, parts)
+    parts.select { |other_part|
+      part != other_part && (part.edges & other_part.edges).any?
+    }
   end
 
-  def filter_subhub_violations(node, hinges)
-    # check that all subhubs are only connected to at most one hinge
-    # remove hinges if there are more than one, starting with double hinges
-    subhubs_at_node(node).each do |subhub|
-      subhub.edges.each do |edge|
-        edge_hinges = hinges.select { |hinge| hinge.edges.include?(edge) }
-        edge_hinges.sort_by! { |hinge| hinge.is_double_hinge ? 0 : 1 }
+  def find_violating_parts(parts)
+    violating_parts = []
 
-        while edge_hinges.size > 1
-          hinges.delete(edge_hinges.first)
-          edge_hinges.delete(edge_hinges.first)
+    parts.each do |part|
+      violating = false
+
+      part.edges.each do |edge|
+        connected_part_count = parts.count { |other_part|
+          part != other_part && other_part.edges.include?(edge)
+        }
+
+        if connected_part_count > 1
+          violating = true
+          break
         end
+      end
+
+      violating_parts.push(part) if violating
+    end
+
+    violating_parts
+  end
+
+  def depth_first_search(parts)
+    remaining = [parts[0]]
+    discovered = Set.new
+
+    while remaining.any?
+      current = remaining.pop()
+      next if discovered.include?(current)
+      discovered.add(current)
+      find_adjacent_parts(current, parts).each do |adjacent_part|
+        remaining.push(adjacent_part)
       end
     end
 
-    hinges
+    discovered
+  end
+
+  def check_part_connectedness(parts)
+    parts.size == depth_first_search(parts).size
+  end
+
+  def filter_valid_hinges(node, hubs, hinges)
+    mainhub = hubs[0]
+    all_parts = hubs + hinges
+    violating_parts = find_violating_parts(all_parts)
+    violating_parts.delete(mainhub)
+
+    enumerator = Enumerator.new { |y|
+      cur_length = 0
+      while cur_length <= violating_parts.size
+        violating_parts.combination(cur_length).each { |combination|
+          y << combination
+        }
+        cur_length += 1
+      end
+    }
+
+    enumerator.each { |removed_parts|
+      remaining_parts = all_parts - removed_parts
+
+      violating = false
+      violating = true if find_violating_parts(remaining_parts).any?
+      violating = true unless check_part_connectedness(remaining_parts)
+
+      return remaining_parts unless violating
+    }
+
+    raise 'No valid hinge configuration could be found at node ' + node.id.to_s
   end
 
   # make sure that edge1 is the unconnected one if there is one
