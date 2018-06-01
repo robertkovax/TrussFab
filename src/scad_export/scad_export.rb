@@ -160,13 +160,16 @@ class ScadExport
     export_hinges
   end
 
-  def self.create_export_hubs(hubs, hinges, l1, l2, l3_min, node, hub_id)
+  def self.create_export_hubs(hubs, hinges, l1, l2, l3_min, node)
     export_hubs = []
     i = 0
 
     hubs.each do |hub|
       is_main_hub = i.zero?
       i += 1
+
+      hub_id = node.id.to_s
+      hub_id += '.' + i.to_s unless is_main_hub
 
       export_hub = if is_main_hub
                      ExportMainHub.new(hub_id, l1.to_mm)
@@ -183,10 +186,26 @@ class ScadExport
       hub.edges.each do |edge|
         a_hinges = hinges.select { |hinge| hinge.edge1 == edge }
         b_hinges = hinges.select { |hinge| hinge.edge2 == edge }
+        connecting_hubs = hubs.select { |other_hub|
+          other_hub != hub && other_hub.edges.include?(edge)
+        }
+
+        total_connecting_elements = a_hinges.size + b_hinges.size +
+          connecting_hubs.size
 
         if a_hinges.size > 1 || b_hinges.size > 1
           raise 'More than one A or B hinge around an edge at node ' +
                 node.id.to_s
+        end
+
+        if is_main_hub and total_connecting_elements > 2
+          raise 'More than two elements connecting to mainhub at node ' +
+                  node.is.to_s
+        end
+
+        if not is_main_hub and total_connecting_elements > 1
+          raise 'More than one element connecting to subhub at node ' +
+                  node.id.to_s
         end
 
         elongation = if edge.first_node?(node)
@@ -201,6 +220,25 @@ class ScadExport
         hinge_connection = B_HINGE unless a_hinges.empty?
         hinge_connection = A_HINGE unless b_hinges.empty?
         hinge_connection = A_B_HINGE unless a_hinges.empty? || b_hinges.empty?
+
+        # handle cases where two hubs are connected with each other
+        if connecting_hubs.size > 0
+          other_hub = connecting_hubs[0]
+          other_is_mainhub = hubs.index(other_hub) == 0
+          if is_main_hub
+            # this is a main hub and a subhub connects
+            # we don't want to supply the connector
+            hinge_connection = A_B_HINGE
+          elsif !other_is_mainhub
+            # two subhubs are connected with each other
+            # we arbitrarily select one as having the A part
+            raise 'Both a hub and a hinge connected to an edge at node ' + node.id.to_s unless a_hinges.empty? && b_hinges.empty?
+
+            is_first = hubs.index(hub) < hubs.index(other_hub)
+            hinge_connection = A_HINGE if is_first
+            hinge_connection = B_HINGE unless is_first
+          end
+        end
 
         if export_hub.is_a?(ExportSubHub) && hinge_connection == A_B_HINGE
           raise 'Subhub can not be connected to both A and B hinge'
@@ -250,7 +288,6 @@ class ScadExport
     end
 
     export_interface.node_hub_map.each do |node, hubs|
-      hub_id = node.id
       l1 = export_interface.l1_at_node(node)
 
       hinges = export_interface.node_hinge_map[node]
@@ -259,8 +296,7 @@ class ScadExport
                                             l1,
                                             l2,
                                             l3_min,
-                                            node,
-                                            hub_id))
+                                            node))
     end
 
     export_hinges.each do |hinge|

@@ -36,25 +36,15 @@ class NodeExportAlgorithm
     static_groups.each do |group|
       group_nodes = Set.new(group.flat_map(&:nodes))
       group_edges = Set.new(group.flat_map(&:edges))
-      group_edges -= processed_edges
 
       group_edge_map[group] = group_edges
 
       group_nodes.each do |node|
         hub_edges = group_edges.select { |edge| edge.nodes.include? node }
 
-        # if hub only connects with two edges at this node,
-        # it degenerates to a hinge
-        if hub_edges.size == 2
-          hinge = HingeExportInterface.new(hub_edges[0], hub_edges[1], false)
-          @export_interface.add_hinge(node, hinge)
-        else
-          hub = HubExportInterface.new(hub_edges)
-          @export_interface.add_hub(node, hub)
-        end
+        hub = HubExportInterface.new(hub_edges)
+        @export_interface.add_hub(node, hub)
       end
-
-      processed_edges = processed_edges.merge(group_edges)
     end
 
     # put hinges everywhere possible
