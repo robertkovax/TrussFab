@@ -32,7 +32,6 @@ class NodeExportAlgorithm
     group_edge_map = {}
 
     # generate hubs for all groups with size > 1
-    processed_edges = Set.new
     static_groups.each do |group|
       group_nodes = Set.new(group.flat_map(&:nodes))
       group_edges = Set.new(group.flat_map(&:edges))
