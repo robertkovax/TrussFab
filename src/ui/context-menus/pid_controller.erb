@@ -22,7 +22,9 @@ D<br>
 <br> <br>
 Static controller force<br>
 <input type="number" value="<%= @pid_controller.static_force %>" step="10" onchange="set_static_force(this.value)">
-<br>
+<br><br>
+<button onclick="analyze_static_forces()">Analyze Forces!</button>
+<br><br>
 Console-Logging:
 <input type="checkbox" id="logging" onchange="set_logging(this.checked)">
 <br><br>
@@ -38,7 +40,6 @@ Minimum Position:
 Maximum Position:
 <br>
 <input type="number" value="<%= @pid_controller.max_distance %>" step="0.1" onchange="set_max(this.value)"> m
-<button onclick="analyze_static_forces()">Analyze Forces!</button>
 
 <script type="text/javascript">
   function init_checkbox() {
