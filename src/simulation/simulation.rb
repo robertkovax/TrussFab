@@ -266,9 +266,9 @@ class Simulation
     z = Configuration::GROUND_HEIGHT
     pts = [
       [-x, -y, z],
-      [x, -y, z],
-      [x, y, z],
-      [-x, y, z]
+      [ x, -y, z],
+      [ x,  y, z],
+      [-x,  y, z]
     ]
     face = @ground_group.entities.add_face(pts)
     face.pushpull(-Configuration::GROUND_THICKNESS)
