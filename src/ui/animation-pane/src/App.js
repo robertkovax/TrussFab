@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 
 import './css/App.css';
 import { toggleDiv } from './utils/dom';
-import { setStiffness, persistKeyframes } from './utils/sketchup-integration';
+import { persistKeyframes } from './utils/sketchup-integration';
 import Piston from './components/Piston';
 import SimulationControls from './components/SimulationControls';
 import { X_AXIS, Y_AXIS } from './config';
@@ -12,34 +12,34 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      breakingForce: 1000,
-      currentCycle: 0,
+      windowCollapsed: true,
       devMode: false,
-      displayVol: false,
-      highestForceMode: false,
+      simulationSettings: {
+        breakingForce: null,
+        stiffness: null,
+        displayVol: null,
+        highestForceMode: null,
+        peakForceMode: null,
+      },
+      timeline: {
+        currentCycle: 0,
+        seconds: 8,
+        currentTime: 0,
+        simluationBrokeAt: null,
+        simulationIsOnForValueTesting: false,
+        simulationIsPausedAfterOnce: false,
+        simulationPaused: true,
+        startedSimulationCycle: false,
+        startedSimulationOnce: false,
+        interval: null,
+      },
       groupVisible: {}, // group id => bool
       keyframesMap: new Map(), // maps from piston id to array of keyframes
       previousKeyframesMap: null, // use for greyed points when something broke
-      peakForceMode: false,
       pistons: [], // this is not actually needed because we have `keyframesMap`
-      seconds: 8,
-      simluationBrokeAt: null,
-      simulationIsOnForValueTesting: false,
-      simulationIsPausedAfterOnce: false,
-      simulationPaused: true,
-      startedSimulationCycle: false,
-      startedSimulationOnce: false,
-      stiffness: 92, // gets ignored if not changed
-      timelineCurrentTime: 0,
       timeSelection: new Map(), // map from piston id
-      timlineInterval: null,
-      windowCollapsed: true,
     };
   }
-
-  initState = (breakingForce, stiffness) => {
-    this.setState({ breakingForce, stiffness });
-  };
 
   componentDidMount() {
     window.addPiston = this.addPiston;
@@ -49,31 +49,68 @@ class App extends Component {
     window.simulationJustBroke = this.simulationJustBroke;
     window.fixBrokenModelByReducingSpeed = this.fixBrokenModelByReducingSpeed;
     window.fixBrokenModelByReducingMovement = this.fixBrokenModelByReducingMovement;
-    window.initState = this.initState;
+    window.initSimulationState = this.initSimulationState;
     window.syncHiddenStatus = this.syncHiddenStatus;
-
-    setStiffness(this.state.stiffness);
   }
 
-  setContainerState = newState => {
-    this.setState(newState);
-  };
-
-  simulationJustBroke = () => {
-    if (this.state.simluationBrokeAt === null) {
-      window.showModal();
-      this.setState({ simluationBrokeAt: this.state.timelineCurrentTime });
-    }
-  };
-
-  cleanupUiAfterStoppingSimulation = () => {
-    this.resetState();
+  /**
+   * Initialize the UI state with values from the backend.
+   * @param {number} breakingForce
+   * @param {number} stiffness
+   * @param {boolean} displayVol
+   * @param {boolean} highestForceMode
+   * @param {boolean} peakForceMode
+   */
+  initSimulationState = (
+    breakingForce,
+    stiffness,
+    displayVol,
+    highestForceMode,
+    peakForceMode
+  ) => {
+    this.setState({
+      simulationSettings: {
+        breakingForce,
+        stiffness,
+        displayVol,
+        highestForceMode,
+        peakForceMode,
+      },
+    });
   };
 
   syncHiddenStatus = newGroupVisible => {
     this.setState({
       groupVisible: newGroupVisible,
     });
+  };
+
+  setContainerState = newState => {
+    const { timeline, simulationSettings } = newState;
+    // delete nested state and update it seperatily
+    delete newState.timeline;
+    delete newState.simulationSettings;
+    this.setState({
+      ...newState,
+      timeline: { ...this.state.timeline, ...timeline },
+      simulationSettings: {
+        ...this.state.simulationSettings,
+        ...simulationSettings,
+      },
+    });
+  };
+
+  simulationJustBroke = () => {
+    if (this.state.timline.simluationBrokeAt === null) {
+      window.showModal();
+      this.setContainerState({
+        timeline: { simluationBrokeAt: this.state.timeline.currentTime },
+      });
+    }
+  };
+
+  cleanupUiAfterStoppingSimulation = () => {
+    this.resetState();
   };
 
   addPiston = id => {
@@ -86,7 +123,7 @@ class App extends Component {
       pistons: oldPistons.concat(id),
       keyframesMap: oldKeyframes.set(id, [
         { time: 0, value: 0.5 },
-        { time: this.state.seconds, value: 0.5 },
+        { time: this.state.timeline.seconds, value: 0.5 },
       ]), // init
     });
     persistKeyframes(JSON.stringify([...this.state.keyframesMap]));
@@ -124,7 +161,7 @@ class App extends Component {
       self.setState({
         timeSelection: oldTimeSelection.set(
           id,
-          (newX / X_AXIS * self.state.seconds).toFixed(1)
+          (newX / X_AXIS * self.state.timeline.seconds).toFixed(1)
         ),
       });
 
@@ -176,11 +213,12 @@ class App extends Component {
   };
 
   fixBrokenModelByReducingSpeed = () => {
-    const previousKeyframesMap = new Map();
-    const keyframesMap = this.state.keyframesMap;
+    const { keyframesMap, timeline, pistons } = this.state;
 
-    this.state.pistons.forEach((pistonId, id) => {
-      const oldKeyframe = this.state.keyframesMap.get(id);
+    const previousKeyframesMap = new Map();
+
+    pistons.forEach((pistonId, id) => {
+      const oldKeyframe = keyframesMap.get(id);
       previousKeyframesMap.set(id, oldKeyframe);
 
       const newKeyframe = oldKeyframe
@@ -188,9 +226,9 @@ class App extends Component {
           return {
             value: x.value,
             time:
-              x.time * 2 < this.state.seconds
+              x.time * 2 < timeline.seconds
                 ? x.time * 2
-                : x.time === this.state.seconds
+                : x.time === timeline.seconds
                   ? x.time
                   : null,
           };
@@ -204,19 +242,26 @@ class App extends Component {
   };
 
   resetState = () => {
+    const { timeline } = this.state;
     SimulationControls.removeLines();
-    clearInterval(this.state.timlineInterval);
-    // some race condition with the 'broken sim' requires this
+
+    clearInterval(timeline.interval);
+
+    // some race condition with the 'broken sim' requires the timeout
     setTimeout(() => {
       this.setState({
-        simulationPaused: true,
-        timelineCurrentTime: 0,
-        currentCycle: 0,
-        startedSimulationOnce: false,
-        startedSimulationCycle: false,
-        simulationIsPausedAfterOnce: false,
-        simluationBrokeAt: null,
-        previousKeyframesMap: null,
+        timeline: {
+          ...timeline,
+          currentCycle: 0,
+          currentTime: 0,
+          interval: null,
+          simulationPaused: true,
+          startedSimulationOnce: false,
+          startedSimulationCycle: false,
+          simulationIsPausedAfterOnce: false,
+          simluationBrokeAt: null,
+          previousKeyframesMap: null,
+        },
       });
     }, 100);
   };
@@ -240,25 +285,18 @@ class App extends Component {
 
   render() {
     const {
-      startedSimulationCycle,
-      startedSimulationOnce,
-      seconds,
+      timeline,
+      simulationSettings,
       timeSelection,
-      simulationIsPausedAfterOnce,
-      simulationIsOnForValueTesting,
       keyframesMap,
-      simluationBrokeAt,
-      simulationPaused,
       devMode,
       windowCollapsed,
       pistons,
-      currentCycle,
-      timelineCurrentTime,
-      timlineInterval,
       previousKeyframesMap,
     } = this.state;
 
-    const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
+    const simulationIsRunning =
+      timeline.startedSimulationCycle || timeline.startedSimulationOnce;
     const pistonElements = pistons
       .filter(x => this.state.groupVisible[x] === true) // filter out hidden ids
       .map((id, index) => (
@@ -268,14 +306,16 @@ class App extends Component {
           index={index}
           simulationIsRunning={simulationIsRunning}
           setContainerState={this.setContainerState}
-          seconds={seconds}
+          timelineSeconds={timeline.seconds}
+          currentCycle={timeline.currentCycle}
+          timelineCurrentTime={timeline.currentTime}
+          timelineSimluationBrokeAt={timeline.simluationBrokeAt}
+          timelineSimulationIsOnForValueTesting={
+            timeline.simulationIsOnForValueTesting
+          }
+          timelineStartedSimulationOnce={timeline.startedSimulationOnce}
           timeSelection={timeSelection}
-          simulationIsOnForValueTesting={simulationIsOnForValueTesting}
           keyframesMap={keyframesMap}
-          simluationBrokeAt={simluationBrokeAt}
-          currentCycle={currentCycle}
-          startedSimulationOnce={startedSimulationOnce}
-          timelineCurrentTime={timelineCurrentTime}
           devMode={devMode}
           previousKeyframesMap={previousKeyframesMap}
         />
@@ -284,21 +324,15 @@ class App extends Component {
     return (
       <div className="row no-gutters">
         <SimulationControls
-          seconds={seconds}
-          timelineCurrentTime={timelineCurrentTime}
+          timeline={timeline}
+          simulationSettings={simulationSettings}
           keyframesMap={keyframesMap}
-          setContainerState={this.setContainerState}
-          resetState={this.resetState}
           pistons={pistons}
-          addTimeSelectionForNewKeyFrame={this.addTimeSelectionForNewKeyFrame}
-          startedSimulationCycle={startedSimulationCycle}
-          startedSimulationOnce={startedSimulationOnce}
-          simulationPaused={simulationPaused}
           devMode={devMode}
           windowCollapsed={windowCollapsed}
-          timlineInterval={timlineInterval}
-          simulationIsPausedAfterOnce={simulationIsPausedAfterOnce}
-          simulationIsOnForValueTesting={simulationIsOnForValueTesting}
+          addTimeSelectionForNewKeyFrame={this.addTimeSelectionForNewKeyFrame}
+          setContainerState={this.setContainerState}
+          resetState={this.resetState}
         />
         {!windowCollapsed && (
           <div className="col-8">

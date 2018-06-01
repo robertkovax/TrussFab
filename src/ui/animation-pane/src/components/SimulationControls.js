@@ -50,43 +50,44 @@ class SimulationControls extends React.Component {
   };
 
   playOneTimelineStep = () => {
-    const {
-      seconds,
-      setContainerState,
-      currentCycle,
-      startedSimulationOnce,
-      keyframesMap,
-    } = this.props;
+    const { timeline, setContainerState, keyframesMap } = this.props;
 
-    let { timelineCurrentTime } = this.props;
+    let timelineCurrentTimeAdjusted = timeline.currentTime;
 
-    if (timelineCurrentTime / 1000 > seconds) {
-      if (startedSimulationOnce) {
+    if (timelineCurrentTimeAdjusted / 1000 > timeline.seconds) {
+      if (timeline.startedSimulationOnce) {
+        console.log('here)');
         this._removeInterval();
         SimulationControls.removeLines();
         // toggleSimulation();
         togglePauseSimulation();
 
         setContainerState({
-          startedSimulationOnce: false,
-          startedSimulationCycle: false,
-          simulationPaused: true,
-          timelineCurrentTime: 0,
-          currentCycle: 0,
-          simulationIsPausedAfterOnce: true,
+          timeline: {
+            startedSimulationOnce: false,
+            startedSimulationCycle: false,
+            simulationPaused: true,
+            simulationIsPausedAfterOnce: true,
+            currentCycle: 0,
+            currentTime: 0,
+          },
         });
       } else {
-        timelineCurrentTime = 0;
-        setContainerState({ currentCycle: currentCycle + 1 });
+        // reset current time to 0 because we start a new cycle
+        timelineCurrentTimeAdjusted = 0;
+        setContainerState({
+          timeline: { currentCycle: timeline.currentCycle + 1 },
+        });
       }
     }
 
-    const timelineCurrentTimeSeconds = timelineCurrentTime / 1000;
+    const timelinecurrentTimeInSeconds = timelineCurrentTimeAdjusted / 1000;
 
     keyframesMap.forEach((keyframes, jointId) => {
       for (let i = 0; i < keyframes.length; i++) {
         const currentKeyframe = keyframes[i];
-        if (timelineCurrentTime === currentKeyframe.time * 1000) {
+        if (timelinecurrentTimeInSeconds === currentKeyframe.time * 1000) {
+          console.log('move joint');
           // Since the first and the last keyframe are 'special' and should
           // always have the same value, we must not move the joint for the last
           // keyframe.
@@ -100,7 +101,7 @@ class SimulationControls extends React.Component {
       }
     });
 
-    const newX = timelineCurrentTimeSeconds * X_AXIS / seconds;
+    const newX = timelinecurrentTimeInSeconds * X_AXIS / timeline.seconds;
 
     d3
       .selectAll('line.timeline')
@@ -108,21 +109,20 @@ class SimulationControls extends React.Component {
       .attr('x2', newX);
 
     setContainerState({
-      timelineCurrentTime:
-        timelineCurrentTime + UPDATE_INTERVALL * TIMELINE_TIME_FACTOR,
+      timeline: {
+        currentTime:
+          timelineCurrentTimeAdjusted + UPDATE_INTERVALL * TIMELINE_TIME_FACTOR,
+      },
     });
   };
 
   _addInterval = () => {
-    const timlineInterval = setInterval(
-      this.playOneTimelineStep,
-      UPDATE_INTERVALL
-    );
-    this.props.setContainerState({ timlineInterval });
+    const interval = setInterval(this.playOneTimelineStep, UPDATE_INTERVALL);
+    this.props.setContainerState({ timeline: { interval } });
   };
 
   _removeInterval = () => {
-    clearInterval(this.props.timlineInterval);
+    clearInterval(this.props.timeline.interval);
   };
 
   _addLines = () => {
@@ -186,19 +186,23 @@ class SimulationControls extends React.Component {
 
     if (playOnce) {
       setContainerState({
-        startedSimulationOnce: true,
-        startedSimulationCycle: false,
-        simulationPaused: false,
-        timelineCurrentTime: 0,
-        currentCycle: 0,
+        timeline: {
+          startedSimulationOnce: true,
+          startedSimulationCycle: false,
+          simulationPaused: false,
+          currentTime: 0,
+          currentCycle: 0,
+        },
       });
     } else {
       setContainerState({
-        startedSimulationCycle: true,
-        startedSimulationOnce: false,
-        simulationPaused: false,
-        timelineCurrentTime: 0,
-        currentCycle: 0,
+        timeline: {
+          startedSimulationCycle: true,
+          startedSimulationOnce: false,
+          simulationPaused: false,
+          currentTime: 0,
+          currentCycle: 0,
+        },
       });
     }
   };
@@ -210,18 +214,18 @@ class SimulationControls extends React.Component {
   };
 
   stopSimulation = () => {
+    const { timeline, setContainerState, resetState } = this.props;
+
     const {
       startedSimulationOnce,
       startedSimulationCycle,
       simulationIsPausedAfterOnce,
       simulationIsOnForValueTesting,
-      setContainerState,
-      resetState,
-    } = this.props;
+    } = timeline;
 
     if (simulationIsOnForValueTesting) {
       toggleSimulation();
-      setContainerState({ simulationIsOnForValueTesting: false });
+      setContainerState({ timline: { simulationIsOnForValueTesting: false } });
       return;
     }
 
@@ -241,19 +245,13 @@ class SimulationControls extends React.Component {
 
   render() {
     const {
-      startedSimulationCycle,
-      startedSimulationOnce,
-      simulationPaused,
       devMode,
       windowCollapsed,
+      timeline,
+      simulationSettings,
       setContainerState,
-      seconds,
-      breakingForce,
-      stiffness,
-      displayVol,
-      peakForceMode,
-      highestForceMode,
     } = this.props;
+
     return (
       <div
         className={devMode ? 'col-4' : ''}
@@ -275,7 +273,7 @@ class SimulationControls extends React.Component {
                 alt="pause play"
                 style={devMode ? {} : { height: 25, width: 25 }}
                 src={
-                  startedSimulationOnce && !simulationPaused
+                  timeline.startedSimulationOnce && !timeline.simulationPaused
                     ? '../../trussfab-globals/assets/icons/pause.png'
                     : '../../trussfab-globals/assets/icons/play.png'
                 }
@@ -288,7 +286,7 @@ class SimulationControls extends React.Component {
                 alt="pause cycle play"
                 style={devMode ? {} : { height: 25, width: 25 }}
                 src={
-                  startedSimulationCycle && !simulationPaused
+                  timeline.startedSimulationCycle && !timeline.simulationPaused
                     ? '../../trussfab-globals/assets/icons/pause.png'
                     : '../../trussfab-globals/assets/icons/cycle.png'
                 }
@@ -324,13 +322,11 @@ class SimulationControls extends React.Component {
         </div>
         {devMode && (
           <SimulationForm
+            simulationSettings={simulationSettings}
             setContainerState={setContainerState}
-            stiffness={stiffness}
-            breakingForce={breakingForce}
-            seconds={seconds}
-            displayVol={displayVol}
-            peakForceMode={peakForceMode}
-            highestForceMode={highestForceMode}
+            timelineSeconds={timeline.seconds}
+            startedSimulationCycle={timeline.startedSimulationCycle}
+            startedSimulationOnce={timeline.startedSimulationOnce}
           />
         )}
       </div>

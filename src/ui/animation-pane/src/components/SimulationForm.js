@@ -13,13 +13,9 @@ class SimulationForm extends React.Component {
     const {
       startedSimulationCycle,
       startedSimulationOnce,
+      simulationSettings,
+      timelineSeconds,
       setContainerState,
-      highestForceMode,
-      peakForceMode,
-      displayVol,
-      seconds,
-      breakingForce,
-      stiffness,
     } = this.props;
     const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
     return (
@@ -29,9 +25,11 @@ class SimulationForm extends React.Component {
             className="form-check-input"
             type="checkbox"
             id="defaultCheck1"
-            value={highestForceMode}
+            value={simulationSettings.highestForceMode}
             onChange={event => {
-              setContainerState({ highestForceMode: event.target.value });
+              setContainerState({
+                simulationSettings: { highestForceMode: event.target.value },
+              });
               changeHighestForceMode(event.target.value);
             }}
           />
@@ -44,9 +42,11 @@ class SimulationForm extends React.Component {
             className="form-check-input"
             type="checkbox"
             id="defaultCheck1"
-            value={peakForceMode}
+            value={simulationSettings.peakForceMode}
             onChange={event => {
-              setContainerState({ peakForceMode: event.target.value });
+              setContainerState({
+                simulationSettings: { peakForceMode: event.target.value },
+              });
               changePeakForceMode(event.target.value);
             }}
           />
@@ -59,9 +59,11 @@ class SimulationForm extends React.Component {
             className="form-check-input"
             type="checkbox"
             id="defaultCheck1"
-            value={displayVol}
+            value={simulationSettings.displayVol}
             onChange={event => {
-              setContainerState({ displayVol: event.target.value });
+              setContainerState({
+                simulationSettings: { displayVol: event.target.value },
+              });
               changeDisplayValues(event.target.value);
             }}
           />
@@ -79,18 +81,18 @@ class SimulationForm extends React.Component {
               className="form-control form-control-sm"
               id="inputEmail3"
               placeholder="6"
-              value={seconds}
+              value={timelineSeconds}
               onChange={event => {
                 const newSeconds = parseFloat(event.target.value);
                 if (newSeconds == null || isNaN(newSeconds)) return;
-                const ratio = newSeconds / this.state.seconds;
+                const ratio = newSeconds / timelineSeconds;
                 // fix old values
                 const newKeyframes = new Map();
                 const oldKeyframes = this.state.keyframes;
 
                 oldKeyframes.forEach((value, key) => {
                   const updatedValues = value.map(oneKeyframe => {
-                    if (oneKeyframe.time === this.state.seconds) {
+                    if (oneKeyframe.time === timelineSeconds) {
                       return { value: oneKeyframe.value, time: newSeconds };
                     } else
                       return {
@@ -102,7 +104,7 @@ class SimulationForm extends React.Component {
                 });
 
                 setContainerState({
-                  seconds: newSeconds,
+                  timeline: { seconds: newSeconds },
                   keyframes: newKeyframes,
                 });
               }}
@@ -124,9 +126,11 @@ class SimulationForm extends React.Component {
               className="form-control form-control-sm"
               id="inputEmail3"
               placeholder="300"
-              value={breakingForce}
+              value={simulationSettings.breakingForce}
               onChange={event => {
-                setContainerState({ breakingForce: event.target.value });
+                setContainerState({
+                  simulationSettings: { breakingForce: event.target.value },
+                });
                 if (simulationIsRunning) {
                   setBreakingForce(event.target.value);
                 }
@@ -149,9 +153,11 @@ class SimulationForm extends React.Component {
               className="form-control form-control-sm"
               id="inputEmail3"
               placeholder="Email"
-              value={stiffness}
+              value={simulationSettings.stiffness}
               onChange={event => {
-                setContainerState({ stiffness: event.target.value });
+                setContainerState({
+                  simulationSettings: { stiffness: event.target.value },
+                });
                 setStiffness(event.target.value);
               }}
             />
