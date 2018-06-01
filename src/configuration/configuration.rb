@@ -112,6 +112,7 @@ module Configuration
   SURFACE_HIGHLIGHT_COLOR   = Sketchup::Color.new(0.5, 0.5, 0.5)
   HUB_COLOR                 = Sketchup::Color.new(0.69, 0.75, 0.81)
   ELONGATION_COLOR          = Sketchup::Color.new(0.69, 0.75, 0.81)
+  PID_COLOR                 = Sketchup::Color.new(1.0, 0.45, 0.0)
 
   # Ground Stuff
   GROUND_COLOR          = Sketchup::Color.new(1.0, 1.0, 1.0)

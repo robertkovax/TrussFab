@@ -77,7 +77,7 @@ class ComponentProperties
 
   def add_pid_controller_menu(context_menu, erb_file, title)
     context_menu.add_item(title) do
-      show_pid_controller_dialog(erb_file, title, Configuration::UI_WIDTH, 600)
+      show_pid_controller_dialog(erb_file, title, Configuration::UI_WIDTH, 650)
     end
   end
 

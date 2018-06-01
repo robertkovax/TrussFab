@@ -1,10 +1,14 @@
 require 'src/thingies/physics_link.rb'
 require 'src/configuration/configuration.rb'
-require 'src/thingies/generic_link'
+require 'src/thingies/generic_link.rb'
 
 class PidController < GenericLink
   attr_accessor :integral_error, :k_P, :k_I, :k_D, :integral_error_cap,
+<<<<<<< HEAD
                 :static_force, :static_forces_lookup, :use_static_lookup_force
+=======
+                :static_force, :static_forces_lookup
+>>>>>>> basic_pid_controller
   attr_reader :target_length, :logging
 
   def target_length=(length)
@@ -14,7 +18,9 @@ class PidController < GenericLink
 
   def logging=(val)
     @logging = val
-    puts "Error(cm)|Force|P_Force|I_Force|D_Force|Lookup Static Error" if @logging
+    if @logging
+      puts 'Error(cm)|Force|P_Force|I_Force|D_Force|Lookup Static Error'
+    end
   end
 
   def initialize(first_node, second_node, id: nil)
@@ -33,9 +39,15 @@ class PidController < GenericLink
 
   def lookup_static_force
     return 0 if static_forces_lookup.empty?
+<<<<<<< HEAD
     # TODO: Do linear interpolation between the two positions in the array
     array_position = (normalized_position * Configuration::STATIC_FORCE_ANALYSIS_STEPS).round(0)
     static_forces_lookup[array_position]
+=======
+    pos = normalized_position
+    index = (pos * Configuration::STATIC_FORCE_ANALYSIS_STEPS).round(2)
+    static_forces_lookup[index]
+>>>>>>> basic_pid_controller
   end
 
   def normalized_position
@@ -45,11 +57,11 @@ class PidController < GenericLink
   def update_force
     return unless @joint.valid?
     error = (@target_length - @joint.cur_distance)
-    iteration_time = (Configuration::WORLD_TIMESTEP / \
-                      Configuration::WORLD_NUM_ITERATIONS)
+    iteration_time = Configuration::WORLD_TIMESTEP /
+                     Configuration::WORLD_NUM_ITERATIONS
     @integral_error += error * iteration_time
-    @integral_error = [[integral_error, -@integral_error_cap].max, @integral_error_cap].min
-
+    @integral_error = [[integral_error, -@integral_error_cap].max,
+                       @integral_error_cap].min
     derivative_error = 0
     unless @previous_error.nil?
       derivative_error = (error - @previous_error) / iteration_time
@@ -60,8 +72,8 @@ class PidController < GenericLink
     d_force = @k_D * derivative_error
 
 
-    self.force = p_force + i_force + d_force + @static_force
-    self.force += lookup_static_force if @use_static_lookup_force
+    self.force  = p_force + i_force + d_force + @static_force
+                + lookup_static_force
     @previous_error = error
 
     if @logging
@@ -73,10 +85,10 @@ class PidController < GenericLink
     end
   end
 
-  def set_pid_values(p, i, d)
-    @k_P = p
-    @k_I = i
-    @k_D = d
+  def set_pid_values(proportional, integral, derivative)
+    @k_P = proportional
+    @k_I = integral
+    @k_D = derivative
   end
 
   def reset_errors
@@ -85,7 +97,7 @@ class PidController < GenericLink
   end
 
   def analyze_static_forces
-    puts "I will now do this analysis"
+    puts "Analyzing static forces of selected controller"
     pid_edge = nil # Get the edge of the joint
     pid_edge_id = nil
     Graph.instance.edges.each do |id, edge|
@@ -94,16 +106,15 @@ class PidController < GenericLink
         pid_edge_id = id
       end
     end
-    puts "#{pid_edge} | #{pid_edge.nil?}"
-    #puts "#{@max_distance}"
-    #puts "#{@min_distance}"
     #TODO: Give the Actuator the correct min/max distances
     pid_edge.link_type = 'actuator'
     Sketchup.active_model.active_view.invalidate
     simulation = Simulation.new
     simulation.setup
     forces = []
-    for position in (0.0..1.0).step(1.0 / Configuration::STATIC_FORCE_ANALYSIS_STEPS)
+
+    step_width = 1.0 / Configuration::STATIC_FORCE_ANALYSIS_STEPS
+    (0.0..1.0).step(step_width).each do |position|
       force = simulation.check_static_force(pid_edge_id, position)
       simulation.reset
       simulation.setup

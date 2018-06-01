@@ -1,60 +1,38 @@
-import React, { Component } from "react";
-import * as d3 from "d3";
+import React, { Component } from 'react';
+import * as d3 from 'd3';
 
-import logo from "./logo.svg";
-import "./App.css";
-import { toggleDiv } from "./util";
-import { getInterpolationForTime } from "./serious-math";
-import {
-  togglePane,
-  toggleSimulation,
-  moveJoint,
-  restartSimulation,
-  togglePauseSimulation,
-  setBreakingForce,
-  getBreakingForce,
-  setMaxSpeed,
-  changeHighestForceMode,
-  setStiffness,
-  getStiffness,
-  changePeakForceMode,
-  changeDisplayValues,
-  changePistonValue,
-  persistKeyframes
-} from "./sketchup-integration";
+import './css/App.css';
+import { toggleDiv } from './utils/dom';
+import { setStiffness, persistKeyframes } from './utils/sketchup-integration';
+import Piston from './components/Piston';
+import SimulationControls from './components/SimulationControls';
+import { X_AXIS, Y_AXIS } from './config';
 
-const xAxis = 300;
-const yAxis = 50;
-const timelineStepSeconds = 100; // this affects how smooth the line should be
-
-const FACTOR = 0.5;
-
-const DEV = true;
-
-class App extends Component {
+class App extend Component {
   constructor(props) {
     super(props);
     this.state = {
-      pistons: [],
-      keyframes: new Map(),
-      seconds: 8,
-      timeSelection: new Map(),
-      simulationPaused: true,
-      timlineInterval: null,
-      timelineCurrentTime: 0,
-      startedSimulationCycle: false,
-      startedSimulationOnce: false,
-      simulationIsPausedAfterOnce: false,
-      currentCycle: 0,
-      highestForceMode: false,
-      peakForceMode: false,
-      displayVol: false,
       breakingForce: 1000,
-      stiffness: 92, // get ignored if not changed
+      currentCycle: 0,
+      devMode: false,
+      displayVol: false,
+      highestForceMode: false,
+      keyframesMap: new Map(), // maps from piston id to array of keyframes
+      previousKeyframesMap: null, // use for greyed points when something broke
+      peakForceMode: false,
+      pistons: [], // this is not actually needed because we have `keyframesMap`
+      seconds: 8,
       simluationBrokeAt: null,
       simulationIsOnForValueTesting: false,
-      oldKeyframesUIST: null,
-      collapsed: true
+      simulationIsPausedAfterOnce: false,
+      simulationPaused: true,
+      startedSimulationCycle: false,
+      startedSimulationOnce: false,
+      stiffness: 92, // gets ignored if not changed
+      timelineCurrentTime: 0,
+      timeSelection: new Map(), // map from piston id
+      timlineInterval: null,
+      windowCollapsed: true,
     };
   }
 
@@ -73,18 +51,11 @@ class App extends Component {
     window.initState = this.initState;
 
     setStiffness(this.state.stiffness);
-
-    document.addEventListener("keyup", e => {
-      // ESC
-      if (e.keyCode === 27) {
-        this.stopSimulation();
-      }
-    });
   }
 
-  componentWillUnmount() {
-    document.removeEventListener("keyup", this.stopSimulation);
-  }
+  setContainerState = newState => {
+    this.setState(newState);
+  };
 
   simulationJustBroke = () => {
     if (this.state.simluationBrokeAt === null) {
@@ -93,383 +64,86 @@ class App extends Component {
     }
   };
 
+  cleanupUiAfterStoppingSimulation = () => {
+    this.resetState();
+  };
+
   addPiston = id => {
-    // const id = this.state.pistons.length;
-    const oldKeyframes = this.state.keyframes;
+    if (this.state.pistons.includes(id)) {
+      return;
+    }
+    const oldKeyframes = this.state.keyframesMap;
     const oldPistons = this.state.pistons;
     this.setState({
       pistons: oldPistons.concat(id),
-      keyframes: oldKeyframes.set(id, [
+      keyframesMap: oldKeyframes.set(id, [
         { time: 0, value: 0.5 },
-        { time: this.state.seconds, value: 0.5 }
-      ]) // init
+        { time: this.state.seconds, value: 0.5 },
+      ]), // init
     });
-    persistKeyframes(JSON.stringify([...this.state.keyframes]));
+    persistKeyframes(JSON.stringify([...this.state.keyframesMap]));
     setTimeout(() => {
       this.addTimeSelectionForNewKeyFrame(id);
     }, 100);
   };
 
   addPistonWithAnimation = (id, animation) => {
-    // const id = this.state.pistons.length;
-    const oldKeyframes = this.state.keyframes;
     const oldPistons = this.state.pistons;
     this.setState({
       pistons: oldPistons.concat(id),
-      keyframes: new Map(animation)
+      keyframesMap: new Map(animation),
     });
     setTimeout(() => {
       this.addTimeSelectionForNewKeyFrame(id);
     }, 100);
-  }
-
-  cleanupUiAfterStoppingSimulation = () => {
-    this.resetState();
   };
-
-  addKeyframe = event => {
-    const pistonId = parseInt(event.currentTarget.id);
-    const value = event.currentTarget.previousSibling.value / 100;
-    const time = parseFloat(
-      event.currentTarget.previousSibling.previousSibling.value
-    );
-
-    const oldKeyframes = this.state.keyframes;
-    const oldKeyframesPiston = oldKeyframes.get(pistonId) || [];
-    const keyframes = oldKeyframes.set(
-      pistonId,
-      oldKeyframesPiston.concat({ time, value }).sort((a, b) => a.time - b.time)
-    );
-    this.setState({ keyframes });
-    var keyframesJson = JSON.stringify([...this.state.keyframes])
-    persistKeyframes(keyframesJson);
-  };
-
-  _mapPointsToChart = kf => {
-    return [
-      kf.time * xAxis / this.state.seconds,
-      (1 - kf.value) * (yAxis - 8) + 4
-    ];
-  };
-
-  renderGraph = id => {
-    const keyframes = this.state.keyframes.get(id) || [];
-
-    const points = keyframes.map(this._mapPointsToChart);
-
-    const viewBox = `0 0 ${xAxis} ${yAxis}`;
-    const pointsString = points.map(p => p.join(",")).join("\n");
-
-    const oldKeyframesMap = this.state.keyframes;
-
-    const deleteCircle = keyframeIndex => {
-      this.setState({
-        keyframes: oldKeyframesMap.set(
-          id,
-          oldKeyframesMap.get(id).filter((_, index) => index !== keyframeIndex)
-        )
-      });
-    };
-
-    const circles = points.map((x, index) => (
-      <circle
-        onClick={() => deleteCircle(index)}
-        cx={x[0]}
-        cy={x[1]}
-        r="4"
-        fill="#0074d9"
-      />
-    ));
-
-    const greyOutPoints =
-      this.state.oldKeyframesUIST &&
-      this.state.oldKeyframesUIST.get(id) &&
-      this.state.oldKeyframesUIST.get(id).map(this._mapPointsToChart);
-    let greyOutPointsString = null;
-    if (greyOutPoints != null)
-      greyOutPointsString = greyOutPoints.map(p => p.join(",")).join("\n");
-
-    return (
-      <div style={{ position: "relative" }}>
-        {this.state.simluationBrokeAt !== null && (
-          <div
-            className="broken-time-line"
-            style={{ left: this.state.simluationBrokeAt / 1000 / 5 * xAxis }}
-          />
-        )}
-        <svg viewBox={viewBox} className="chart" id={`svg-${id}`}>
-          {greyOutPoints != null && (
-            <polyline
-              className="grey-out-line"
-              fill="none"
-              stroke="#D3D3D3"
-              strokeWidth="2"
-              points={greyOutPointsString}
-            />
-          )}
-          <polyline
-            fill="none"
-            stroke="#0074d9"
-            strokeWidth="3"
-            points={pointsString}
-          />
-          {circles}
-        </svg>
-        <span
-          style={{ position: "absolute", bottom: 0, left: 0, fontSize: 10 }}
-        >
-          0s
-        </span>
-        <span
-          style={{
-            position: "absolute",
-            bottom: 0,
-            right: xAxis / 2,
-            fontSize: 10
-          }}
-        >
-          {this.state.seconds / 2}s
-        </span>
-        <span
-          style={{ position: "absolute", bottom: 0, right: 0, fontSize: 10 }}
-        >
-          {this.state.seconds}s
-        </span>
-      </div>
-    );
-  };
-
-  _addAllTimeSelectionLines = () => {
-    this.state.pistons.forEach(x => this.addTimeSelectionForNewKeyFrame(x));
-  };
-
-  _removeAllTimeselection = () => d3.selectAll("line.timeSelection").remove();
 
   addTimeSelectionForNewKeyFrame = id => {
     const self = this;
 
     function scrubLine() {
       let newX = d3.event.x;
-      newX = Math.min(Math.max(0, newX), xAxis);
+      newX = Math.min(Math.max(0, newX), X_AXIS);
 
       const oldTimeSelection = self.state.timeSelection;
 
       self.setState({
         timeSelection: oldTimeSelection.set(
           id,
-          (newX / xAxis * self.state.seconds).toFixed(1)
-        )
+          (newX / X_AXIS * self.state.seconds).toFixed(1)
+        ),
       });
 
       d3
         .select(this)
-        .attr("x1", newX)
-        .attr("x2", newX);
+        .attr('x1', newX)
+        .attr('x2', newX);
     }
 
-    const scrub = d3.drag().on("drag", scrubLine);
+    const scrub = d3.drag().on('drag', scrubLine);
 
+    // the vertical timeline
     d3
-      .select("#svg-" + id)
-      .append("line")
-      .classed("timeSelection", true)
-      // .attr('x1', xAxis / 2) // for init in the middle
-      .attr("x1", 0)
-      .attr("y1", 0)
-      // .attr('x2', xAxis / 2) // for init in the middle
-      .attr("x2", 0)
-      .attr("y2", yAxis)
-      .style("stroke-width", 3)
-      .style("stroke", "grey")
-      .style("fill", "none")
+      .select('#svg-' + id)
+      .append('line')
+      .classed('timeSelection', true)
+      .attr('x1', 0)
+      .attr('y1', 0)
+      .attr('x2', 0)
+      .attr('y2', Y_AXIS)
+      .style('stroke-width', 3)
+      .style('stroke', 'grey')
+      .style('fill', 'none')
       .call(scrub);
   };
 
-  playOneTimelineStep = () => {
-    let { timelineCurrentTime } = this.state;
-
-    if (timelineCurrentTime / 1000 > this.state.seconds) {
-      if (this.state.startedSimulationOnce) {
-        this._removeInterval();
-        this._removeLines();
-        // toggleSimulation();
-        togglePauseSimulation();
-
-        this.setState({
-          startedSimulationOnce: false,
-          startedSimulationCycle: false,
-          simulationPaused: true,
-          timelineCurrentTime: 0,
-          currentCycle: 0,
-          simulationIsPausedAfterOnce: true
-        });
-      } else {
-        timelineCurrentTime = 0;
-        this.setState({ currentCycle: this.state.currentCycle + 1 });
-      }
-    }
-
-    const timelineCurrentTimeSeconds = timelineCurrentTime / 1000;
-
-    this.state.keyframes.forEach((value, key) => {
-      const keyframes = value;
-
-      for (let i = 0; i < keyframes.length; i++) {
-        const x = keyframes[i];
-        if (timelineCurrentTime === x.time * 1000) {
-          let duration;
-          let newValue;
-          // check if last one
-          if (i === keyframes.length - 1) {
-            // newValue = keyframes[0].value;
-            // duration = this.state.seconds - x.time; // value until end
-          } else {
-            newValue = keyframes[i + 1].value;
-            duration = keyframes[i + 1].time - x.time; // next
-
-            // some hack because the inital value of the piston is 0
-            // so we have to fix it here
-            // if (
-            //   i === 0 &&
-            //   this.state.currentCycle === 0 &&
-            //   keyframes[0].value !== keyframes[1].value
-            // ) {
-            //   console.log('fixing');
-            //   if (keyframes[0].value > keyframes[1].value)
-            //     newValue -= keyframes[0].value;
-            //   else newValue += keyframes[0].value;
-            // }
-            moveJoint(key, newValue, duration);
-          }
-        }
-      }
-    });
-
-    const newX = timelineCurrentTimeSeconds * xAxis / this.state.seconds;
-
-    d3
-      .selectAll("line.timeline")
-      .attr("x1", newX)
-      .attr("x2", newX);
-
-    this.setState({
-      timelineCurrentTime: timelineCurrentTime + timelineStepSeconds * FACTOR
-    });
-  };
-
-  _startSimulation = playOnce => {
-    this._removeLines();
-    this._addLines();
-
-    this._removeInterval();
-    this._addInterval();
-
-    this._removeAllTimeselection();
-
-    if (this.state.simulationIsPausedAfterOnce) {
-      restartSimulation();
-    } else {
-      if (this.state.simulationIsOnForValueTesting) {
-        restartSimulation();
-        this.setState({ simulationIsOnForValueTesting: false });
-      } else {
-        toggleSimulation();
-      }
-    }
-
-    // TODO
-    setBreakingForce(this.state.breakingForce);
-
-    if (playOnce) {
-      this.setState({
-        startedSimulationOnce: true,
-        startedSimulationCycle: false,
-        simulationPaused: false,
-        timelineCurrentTime: 0,
-        currentCycle: 0
-      });
-    } else {
-      this.setState({
-        startedSimulationCycle: true,
-        startedSimulationOnce: false,
-        simulationPaused: false,
-        timelineCurrentTime: 0,
-        currentCycle: 0
-      });
-    }
-  };
-
-  _addInterval = () => {
-    const timlineInterval = setInterval(
-      this.playOneTimelineStep,
-      timelineStepSeconds
-    );
-    this.setState({ timlineInterval });
-  };
-
-  _removeInterval = () => {
-    clearInterval(this.state.timlineInterval);
-  };
-
-  _addLines = () => {
-    d3
-      .selectAll("svg")
-      .append("line")
-      .classed("timeline", true)
-      .attr("x1", 0)
-      .attr("y1", 0)
-      .attr("x2", 0)
-      .attr("y2", yAxis)
-      // .style('stroke-width', 1)
-      .style("stroke-width", 3)
-      // .style('stroke', '#D3D3D3')
-      .style("stroke", "grey")
-      .style("fill", "none");
-  };
-
-  _removeLines = () => d3.selectAll("line.timeline").remove();
-
-  _togglePause = () => {
-    const { simulationPaused } = this.state;
-    if (simulationPaused) {
-      togglePauseSimulation();
-      this.setState({ simulationPaused: !simulationPaused });
-
-      this._addLines();
-
-      this._addInterval();
-    } else {
-      togglePauseSimulation();
-      this._removeInterval();
-      this.setState({ simulationPaused: !simulationPaused });
-    }
-  };
-
-  toggelSimulation = playOnce => {
-    const { startedSimulationOnce, startedSimulationCycle } = this.state;
-
-    if (playOnce) {
-      if (startedSimulationOnce) {
-        this._togglePause();
-      } else {
-        this._startSimulation(playOnce);
-      }
-    } else {
-      if (startedSimulationCycle) {
-        this._togglePause();
-      } else {
-        this._startSimulation(playOnce);
-      }
-    }
-  };
-
   fixBrokenModelByReducingMovement = () => {
-    const oldKeyframesUIST = new Map();
-    const keyframes = this.state.keyframes;
+    const previousKeyframesMap = new Map();
+    const keyframesMap = this.state.keyframesMap;
 
-    this.state.pistons.forEach(pistonId => {
-      const oldKeyframe = this.state.keyframes.get(pistonId);
-      oldKeyframesUIST.set(pistonId, oldKeyframe);
+    this.state.pistons.forEach((pistonId, id) => {
+      const oldKeyframe = this.state.keyframesMap.get(id);
+      previousKeyframesMap.set(id, oldKeyframe);
 
       const newKeyframe = oldKeyframe.map((x, keyframeIndex) => {
         return {
@@ -477,23 +151,23 @@ class App extends Component {
             keyframeIndex === 0 || keyframeIndex === oldKeyframe.length - 1
               ? x.value
               : x.value * 0.8,
-          time: x.time
+          time: x.time,
         };
       });
 
-      keyframes.set(pistonId, newKeyframe);
+      keyframesMap.set(id, newKeyframe);
     });
     // finally update state
-    this.setState({ oldKeyframesUIST, keyframes });
+    this.setState({ previousKeyframesMap, keyframesMap });
   };
 
   fixBrokenModelByReducingSpeed = () => {
-    const oldKeyframesUIST = new Map();
-    const keyframes = this.state.keyframes;
+    const previousKeyframesMap = new Map();
+    const keyframesMap = this.state.keyframesMap;
 
-    this.state.pistons.forEach(pistonId => {
-      const oldKeyframe = this.state.keyframes.get(pistonId);
-      oldKeyframesUIST.set(pistonId, oldKeyframe);
+    this.state.pistons.forEach((pistonId, id) => {
+      const oldKeyframe = this.state.keyframesMap.get(id);
+      previousKeyframesMap.set(id, oldKeyframe);
 
       const newKeyframe = oldKeyframe
         .map(x => {
@@ -502,19 +176,21 @@ class App extends Component {
             time:
               x.time * 2 < this.state.seconds
                 ? x.time * 2
-                : x.time === this.state.seconds ? x.time : null
+                : x.time === this.state.seconds
+                  ? x.time
+                  : null,
           };
         })
         .filter(x => x.time !== null);
 
-      keyframes.set(pistonId, newKeyframe);
+      keyframesMap.set(id, newKeyframe);
     });
     // finally update state
-    this.setState({ oldKeyframesUIST, keyframes });
+    this.setState({ previousKeyframesMap, keyframesMap });
   };
 
   resetState = () => {
-    this._removeLines();
+    SimulationControls.removeLines();
     clearInterval(this.state.timlineInterval);
     // some race condition with the 'broken sim' requires this
     setTimeout(() => {
@@ -526,53 +202,9 @@ class App extends Component {
         startedSimulationCycle: false,
         simulationIsPausedAfterOnce: false,
         simluationBrokeAt: null,
-        oldKeyframesUIST: null
+        previousKeyframesMap: null,
       });
     }, 100);
-  };
-
-  stopSimulation = () => {
-    const {
-      startedSimulationOnce,
-      startedSimulationCycle,
-      simulationIsPausedAfterOnce
-    } = this.state;
-
-    if (this.state.simulationIsOnForValueTesting) {
-      toggleSimulation();
-      this.setState({ simulationIsOnForValueTesting: false });
-      return;
-    }
-
-    if (
-      !(startedSimulationOnce || startedSimulationCycle) &&
-      !simulationIsPausedAfterOnce
-    ) {
-      return;
-    }
-
-    this._addAllTimeSelectionLines();
-    toggleSimulation();
-    this.resetState();
-  };
-
-  removeTimeSelectionForNewKeyFrame = id => {
-    d3
-      .select("#svg-" + id)
-      .select("line.timeSelection")
-      .remove();
-    const oldTimeSelection = this.state.timeSelection;
-    this.setState({
-      timeSelection: oldTimeSelection.set(
-        id,
-        this.initialSecondsForTimeSelection()
-      )
-    });
-  };
-
-  initialSecondsForTimeSelection = () => {
-    return 0;
-    // return this.state.seconds / 2;
   };
 
   newKeyframeToggle = id => {
@@ -583,307 +215,78 @@ class App extends Component {
   onTimeSelectionInputChange = (id, value) => {
     this.setState({ timeSelection: this.state.timeSelection.set(id, value) });
 
-    const newX = value / this.state.seconds * xAxis;
+    const newX = value / this.state.seconds * X_AXIS;
 
     const line = d3
-      .select("#svg-" + id)
-      .select("line")
-      .attr("x1", newX)
-      .attr("x2", newX);
-  };
-
-  renderForm = () => {
-    const { startedSimulationCycle, startedSimulationOnce } = this.state;
-    const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
-    return (
-      <form>
-        <div className="form-check">
-          <input
-            className="form-check-input"
-            type="checkbox"
-            value=""
-            id="defaultCheck1"
-            value={this.state.highestForceMode}
-            onChange={event => {
-              this.setState({ highestForceMode: event.target.value });
-              changeHighestForceMode(event.target.value);
-            }}
-          />
-          <label className="form-check-label" for="defaultCheck1">
-            Highest Force
-          </label>
-        </div>
-        <div className="form-check">
-          <input
-            className="form-check-input"
-            type="checkbox"
-            value=""
-            id="defaultCheck1"
-            value={this.state.peakForceMode}
-            onChange={event => {
-              this.setState({ peakForceMode: event.target.value });
-              changePeakForceMode(event.target.value);
-            }}
-          />
-          <label className="form-check-label" for="defaultCheck1">
-            Peak Force
-          </label>
-        </div>
-        <div className="form-check">
-          <input
-            className="form-check-input"
-            type="checkbox"
-            value=""
-            id="defaultCheck1"
-            value={this.state.displayVol}
-            onChange={event => {
-              this.setState({ displayVol: event.target.value });
-              changeDisplayValues(event.target.value);
-            }}
-          />
-          <label className="form-check-label" for="defaultCheck1">
-            Display Values
-          </label>
-        </div>
-        <div className="form-group row no-gutters">
-          <label for="inputEmail3" className="col-sm-6 col-form-label">
-            Cycle Length
-          </label>
-          <div className="input-group input-group-sm col-sm-6">
-            <input
-              type="number"
-              className="form-control form-control-sm"
-              id="inputEmail3"
-              placeholder="6"
-              value={this.state.seconds}
-              onChange={event => {
-                const newSeconds = parseFloat(event.target.value);
-                if (newSeconds == null || isNaN(newSeconds)) return;
-                const ratio = newSeconds / this.state.seconds;
-                // fix old values
-                const newKeyframes = new Map();
-                const oldKeyframes = this.state.keyframes;
-
-                oldKeyframes.forEach((value, key) => {
-                  const updatedValues = value.map(oneKeyframe => {
-                    if (oneKeyframe.time === this.state.seconds) {
-                      return { value: oneKeyframe.value, time: newSeconds };
-                    } else
-                      return {
-                        value: oneKeyframe.value,
-                        time: oneKeyframe.time * ratio
-                      };
-                  });
-                  newKeyframes.set(key, updatedValues);
-                });
-
-                this.setState({
-                  seconds: newSeconds,
-                  keyframes: newKeyframes
-                });
-              }}
-            />
-            <div className="input-group-append">
-              <span className="input-group-text" id="basic-addon2">
-                s
-              </span>
-            </div>
-          </div>
-        </div>
-        <div className="form-group row no-gutters">
-          <label for="inputEmail3" className="col-sm-6 col-form-label">
-            Breaking Force
-          </label>
-          <div className="input-group input-group-sm col-sm-6">
-            <input
-              type="number"
-              className="form-control form-control-sm"
-              id="inputEmail3"
-              placeholder="300"
-              value={this.state.breakingForce}
-              onChange={event => {
-                this.setState({ breakingForce: event.target.value });
-                if (simulationIsRunning) {
-                  setBreakingForce(event.target.value);
-                }
-              }}
-            />
-            <div className="input-group-append">
-              <span className="input-group-text" id="basic-addon2">
-                N
-              </span>
-            </div>
-          </div>
-        </div>
-        <div className="form-group row no-gutters">
-          <label for="inputEmail3" className="col-sm-6 col-form-label">
-            Stiffness
-          </label>
-          <div className="input-group input-group-sm col-sm-6">
-            <input
-              type="number"
-              className="form-control form-control-sm"
-              id="inputEmail3"
-              placeholder="Email"
-              value={this.state.stiffness}
-              onChange={event => {
-                this.setState({ stiffness: event.target.value });
-                setStiffness(event.target.value);
-              }}
-            />
-            <div className="input-group-append">
-              <span className="input-group-text" id="basic-addon2">
-                %
-              </span>
-            </div>
-          </div>
-        </div>
-      </form>
-    );
-  };
-
-  renderControlls = () => {
-    const { startedSimulationCycle, startedSimulationOnce } = this.state;
-    const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
-    return (
-      <div
-        className={DEV ? "col-4" : ""}
-        style={{
-          borderRight: "1px solid lightgrey",
-          height: "100%",
-          paddingRight: "3px",
-          width: DEV ? "40px" : "auto"
-        }}
-      >
-        <div
-          className={DEV ? "row no-gutters control-buttons" : "control-buttons"}
-        >
-          <div className={DEV ? "col" : ""}>
-            <button onClick={() => this.toggelSimulation(true)}>
-              <img
-                style={DEV ? {} : { height: 25, width: 25 }}
-                src={
-                  this.state.startedSimulationOnce &&
-                  !this.state.simulationPaused
-                    ? "../../trussfab-globals/assets/icons/pause.png"
-                    : "../../trussfab-globals/assets/icons/play.png"
-                }
-              />
-            </button>
-          </div>
-          <div className={DEV ? "col" : "some-padding-top"}>
-            <button onClick={() => this.toggelSimulation(false)}>
-              <img
-                style={DEV ? {} : { height: 25, width: 25 }}
-                src={
-                  this.state.startedSimulationCycle &&
-                  !this.state.simulationPaused
-                    ? "../../trussfab-globals/assets/icons/pause.png"
-                    : "../../trussfab-globals/assets/icons/cycle.png"
-                }
-              />
-            </button>
-          </div>
-          <div className={DEV ? "col" : "some-padding-top"}>
-            <button onClick={this.stopSimulation}>
-              <img
-                style={DEV ? {} : { height: 25, width: 25 }}
-                src="../../trussfab-globals/assets/icons/stop.png"
-              />
-            </button>
-          </div>
-          <div className={DEV ? "col" : "some-padding-top"}>
-            <button
-              onClick={() => {
-                if (this.state.collapsed) {
-                  setTimeout(() => {
-                    this._addAllTimeSelectionLines();
-                  }, 100);
-                } else {
-                  this._removeAllTimeselection();
-                }
-
-                this.setState({ collapsed: !this.state.collapsed });
-                togglePane();
-              }}
-            >
-              {this.state.collapsed ? "show" : "hide"}
-            </button>
-          </div>
-        </div>
-        {DEV && this.renderForm()}
-      </div>
-    );
+      .select('#svg-' + id)
+      .select('line')
+      .attr('x1', newX)
+      .attr('x2', newX);
   };
 
   render() {
-    const { startedSimulationCycle, startedSimulationOnce } = this.state;
+    const {
+      startedSimulationCycle,
+      startedSimulationOnce,
+      seconds,
+      timeSelection,
+      simulationIsPausedAfterOnce,
+      simulationIsOnForValueTesting,
+      keyframesMap,
+      simluationBrokeAt,
+      simulationPaused,
+      devMode,
+      windowCollapsed,
+      pistons,
+      currentCycle,
+      timelineCurrentTime,
+      timlineInterval,
+      previousKeyframesMap,
+    } = this.state;
+
     const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
-    const pistons = this.state.pistons.map((x, index) => (
-      <div>
-        <div
-          style={{
-            display: "flex",
-            alignContent: "flex-start",
-            alignItems: "flex-start"
-          }}
-        >
-          <div
-            style={{ "margin-top": yAxis / 3, marginLeft: 3, marginRight: 3 }}
-          >{`#${index + 1}`}</div>
-          {/* >{`#${x}`}</div> */}
-          {this.renderGraph(x)}
-          <div id={`add-kf-${x}`}>
-            <input
-              hidden
-              type="number"
-              step="0.1"
-              min="0"
-              max={this.state.seconds}
-              value={
-                this.state.timeSelection.get(x) ||
-                this.initialSecondsForTimeSelection()
-              }
-              onChange={event =>
-                this.onTimeSelectionInputChange(x, event.currentTarget.value)
-              }
-            />
-            <input
-              type="range"
-              onChange={event => {
-                const fixedValue = parseFloat(event.target.value) / 100;
-                if (simulationIsRunning) {
-                  changePistonValue(x, fixedValue);
-                } else {
-                  if (!this.state.simulationIsOnForValueTesting) {
-                    this.setState({ simulationIsOnForValueTesting: true });
-                    toggleSimulation();
-                  }
-                  changePistonValue(x, fixedValue);
-                }
-              }}
-            />
-            <button onClick={this.addKeyframe} className="add-new-kf" id={x}>
-              <img
-                style={DEV ? {} : { height: 15, width: 15 }}
-                src="../../trussfab-globals/assets/icons/rhombus.png"
-              />
-            </button>
-          </div>
-        </div>
-      </div>
+    const pistonElements = pistons.map((id, index) => (
+      <Piston
+        key={id}
+        id={id}
+        index={index}
+        simulationIsRunning={simulationIsRunning}
+        setContainerState={this.setContainerState}
+        seconds={seconds}
+        timeSelection={timeSelection}
+        simulationIsOnForValueTesting={simulationIsOnForValueTesting}
+        keyframesMap={keyframesMap}
+        simluationBrokeAt={simluationBrokeAt}
+        currentCycle={currentCycle}
+        startedSimulationOnce={startedSimulationOnce}
+        timelineCurrentTime={timelineCurrentTime}
+        devMode={devMode}
+        previousKeyframesMap={previousKeyframesMap}
+      />
     ));
+
     return (
       <div className="row no-gutters">
-        {this.renderControlls()}
-        {!this.state.collapsed && (
+        <SimulationControls
+          seconds={seconds}
+          timelineCurrentTime={timelineCurrentTime}
+          keyframesMap={keyframesMap}
+          setContainerState={this.setContainerState}
+          resetState={this.resetState}
+          pistons={pistons}
+          addTimeSelectionForNewKeyFrame={this.addTimeSelectionForNewKeyFrame}
+          startedSimulationCycle={startedSimulationCycle}
+          startedSimulationOnce={startedSimulationOnce}
+          simulationPaused={simulationPaused}
+          devMode={devMode}
+          windowCollapsed={windowCollapsed}
+          timlineInterval={timlineInterval}
+          simulationIsPausedAfterOnce={simulationIsPausedAfterOnce}
+          simulationIsOnForValueTesting={simulationIsOnForValueTesting}
+        />
+        {!windowCollapsed && (
           <div className="col-8">
-            <div className="App">
-              {/* {this.state.startedSimulation && (
-              <span>{(this.state.timelineCurrentTime / 1000).toFixed(1)}s</span>
-            )} */}
-              {pistons}
-            </div>
+            <div className="App">{pistonElements}</div>
           </div>
         )}
       </div>

@@ -1,8 +1,7 @@
-require 'src/tools/hinge_analysis_tool'
-require 'src/export/export_hinge'
-require 'src/export/export_hub'
-require 'src/export/export_elongation'
-require 'src/export/export_cap'
+require 'src/scad_export/scad_export_hinge.rb'
+require 'src/scad_export/scad_export_hub.rb'
+require 'src/scad_export/scad_export_elongation.rb'
+require 'src/scad_export/scad_export_cap.rb'
 require 'src/algorithms/relaxation.rb'
 require 'src/export/presets.rb'
 
@@ -68,11 +67,11 @@ class ScadExport
       node_hubs = hubs[node]
       node_subhubs = node_hubs.drop(1)
 
-      if node_subhubs.any? { |edges| edges.include?(hinge.edge1) }
+      if node_subhubs.any? { |subhub| subhub.edges.include?(hinge.edge1) }
         is_sub_hub_connecting_a = true
       end
 
-      if node_subhubs.any? { |edges| edges.include?(hinge.edge2) }
+      if node_subhubs.any? { |subhub| subhub.edges.include?(hinge.edge2) }
         is_sub_hub_connecting_b = true
       end
 
@@ -85,11 +84,11 @@ class ScadExport
       # I don't know why but it has to be converted here
       hinge_params_lengths.update(hinge_params_lengths) { |_, v| v.to_mm }
 
-      # For now, we never really though of as the 'actuator hinge' as
-      # two seperate hinges.
-      # It only happens in the following steps that the ones hinges get's
+      # For now, we never really thought of 'double hinges' as the two
+      # separate hinges.
+      # It only happens in the following steps that the one hinges gets
       # split into two.
-      if hinge.is_actuator_hinge
+      if hinge.is_double_hinge
         additional_first_params = {}
         additional_second_params = {}
         if hinge.edge1.dynamic?
@@ -116,11 +115,11 @@ class ScadExport
 
         first_hinge_params = first_hinge_params.merge(additional_first_params)
 
-        first_hinge = ExportHinge.new(node.id,
-                                      a_other_node.id.to_s,
-                                      'V' + double_hinge_id.to_s,
-                                      :double,
-                                      first_hinge_params)
+        first_hinge = ScadExportHinge.new(node.id,
+                                          a_other_node.id.to_s,
+                                          'V' + double_hinge_id.to_s,
+                                          :double,
+                                          first_hinge_params)
 
         second_hinge_params_others = { a_gap: true,
                                        b_gap: b_gap,
@@ -132,11 +131,11 @@ class ScadExport
         second_hinge_params =
           second_hinge_params.merge(additional_second_params)
 
-        second_hinge = ExportHinge.new(node.id,
-                                       'V' + double_hinge_id.to_s,
-                                       b_other_node.id.to_s,
-                                       :double,
-                                       second_hinge_params)
+        second_hinge = ScadExportHinge.new(node.id,
+                                           'V' + double_hinge_id.to_s,
+                                           b_other_node.id.to_s,
+                                           :double,
+                                           second_hinge_params)
 
         export_hinges.push(first_hinge)
         export_hinges.push(second_hinge)
@@ -149,11 +148,11 @@ class ScadExport
 
         export_hinges_params =
           export_hinge_params_other.merge(hinge_params_lengths)
-        export_hinge = ExportHinge.new(node.id,
-                                       a_other_node.id,
-                                       b_other_node.id,
-                                       :simple,
-                                       export_hinges_params)
+        export_hinge = ScadExportHinge.new(node.id,
+                                           a_other_node.id,
+                                           b_other_node.id,
+                                           :simple,
+                                           export_hinges_params)
 
         export_hinges.push(export_hinge)
       end
@@ -181,7 +180,7 @@ class ScadExport
         end
       end
 
-      hub.each do |edge|
+      hub.edges.each do |edge|
         a_hinges = hinges.select { |hinge| hinge.edge1 == edge }
         b_hinges = hinges.select { |hinge| hinge.edge2 == edge }
 
@@ -213,13 +212,13 @@ class ScadExport
           raise 'L3 distance for hub is too small.'
         end
 
-        export_elongation = ExportElongation.new(hub_id,
-                                                 other_node.id,
-                                                 hinge_connection,
-                                                 l1.to_mm,
-                                                 l2.to_mm,
-                                                 l3.to_mm,
-                                                 direction)
+        export_elongation = ScadExportElongation.new(hub_id,
+                                                     other_node.id,
+                                                     hinge_connection,
+                                                     l1.to_mm,
+                                                     l2.to_mm,
+                                                     l3.to_mm,
+                                                     direction)
         export_hub.add_elongation(export_elongation)
       end
 
@@ -229,8 +228,10 @@ class ScadExport
   end
 
   def self.export_to_scad(path)
-    hinge_algorithm = HingePlacementAlgorithm.instance
-    hinge_algorithm.run
+    node_export_algorithm = NodeExportAlgorithm.instance
+    node_export_algorithm.run
+
+    export_interface = node_export_algorithm.export_interface
 
     export_hinges = []
     export_hubs = []
@@ -238,23 +239,21 @@ class ScadExport
     l2 = PRESETS::L2
     l3_min = PRESETS::L3_MIN
 
-    hinge_algorithm.hinges.each do |node, hinges|
-      l1 = hinge_algorithm.node_l1[node]
+    export_interface.node_hinge_map.each do |node, hinges|
+      l1 = export_interface.l1_at_node(node)
       export_hinges.concat(create_export_hinges(hinges,
                                                 node,
                                                 l1,
                                                 l2,
                                                 l3_min,
-                                                hinge_algorithm.hubs))
+                                                export_interface.node_hub_map))
     end
 
-    hinge_algorithm.hubs.each do |node, hubs|
+    export_interface.node_hub_map.each do |node, hubs|
       hub_id = node.id
-      l1 = hinge_algorithm.node_l1[node]
+      l1 = export_interface.l1_at_node(node)
 
-      l1 = 0.0.mm if l1.nil?
-
-      hinges = hinge_algorithm.hinges[node]
+      hinges = export_interface.node_hinge_map[node]
       export_hubs.concat(create_export_hubs(hubs,
                                             hinges,
                                             l1,

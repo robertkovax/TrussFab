@@ -149,7 +149,7 @@ module JsonImport
         z = node['z'].to_f.mm
         point = Geom::Point3d.new(x, y, z)
         if first
-          position.z = z_height
+          position.z = z_height + Configuration::BALL_HUB_RADIUS
           translation = point.vector_to(position)
           first = false
         end

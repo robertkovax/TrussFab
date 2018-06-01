@@ -4,14 +4,14 @@ require 'src/thingies/link.rb'
 require 'src/thingies/actuator_link.rb'
 require 'src/thingies/spring_link.rb'
 require 'src/thingies/generic_link.rb'
-require 'src/thingies/pid_controller'
+require 'src/thingies/pid_controller.rb'
 require 'src/models/model_storage.rb'
 require 'src/simulation/thingy_rotation.rb'
-require 'src/configuration/configuration'
+require 'src/configuration/configuration.rb'
 
 # Edge
 class Edge < GraphObject
-  attr_accessor :automatic_movement_group
+  attr_accessor :piston_group
   attr_reader :first_node, :second_node, :link_type, :bottle_type
 
   @@retain_bottle_types = false
@@ -36,7 +36,7 @@ class Edge < GraphObject
     @bottle_type = bottle_type
     @link_type = link_type
     edge_id = id.nil? ? IdManager.instance.generate_next_tag_id('edge') : id
-    @automatic_movement_group = -1
+    @piston_group = -1
     super(edge_id)
   end
 

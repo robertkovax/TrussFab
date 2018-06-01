@@ -28,7 +28,7 @@ class PhysicsLink < Link
   end
 
   def un_highlight
-    change_color(@model.material.color)
+    change_color(@material)
   end
 
   #
