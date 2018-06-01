@@ -366,11 +366,9 @@ class Simulation
   end
 
   def reset_pid_controllers
-    pid_controllers = {}
     Graph.instance.edges.each do |id, edge|
-      pid_controllers[id] = edge.thingy if edge.thingy.is_a?(PidController)
+      edge.thingy.reset_errors if edge.thingy.is_a?(PidController)
     end
-    pid_controllers.each_value {|controller| controller.reset_errors}
   end
 
   def get_closest_node_to_point(point)
@@ -478,7 +476,7 @@ class Simulation
       actuator.joint.breaking_force = 0
       actuator.joint.rate = 10
       actuator.joint.controller = actuator.max * position.to_f +
-            actuator.min * (1 - position.to_f)
+        actuator.min * (1 - position.to_f)
     end
     update_world_headless_by(3) # settle down
     @max_link_tensions.clear
@@ -537,7 +535,7 @@ class Simulation
       actuator.joint.rate = actuator.rate
       actuator.joint.controller =
         (value.to_f - Configuration::ACTUATOR_INIT_DIST) * (actuator.max -
-                                                            actuator.min)
+          actuator.min)
     end
   end
 
@@ -565,7 +563,7 @@ class Simulation
         joint = link.joint
 
         next_position_normalized = link.max * next_position.to_f +
-                                   link.min * (1 - next_position.to_f)
+          link.min * (1 - next_position.to_f)
         current_postion = joint.cur_distance - joint.start_distance
         position_distance = (current_postion - next_position_normalized).abs
 
@@ -873,7 +871,7 @@ class Simulation
       umat.color = Configuration::BOTTLE_COLOR
       dat[3] = umat
       dat[0].material = umat
-      dat[2].each {|e, _| e.material = nil}
+      dat[2].each { |e, _| e.material = nil }
       if link.is_a?(ActuatorLink)
         second_cylinder = link.sub_thingies[0].entity
         second_cylinder.material = dat[3]
@@ -1091,6 +1089,6 @@ class Simulation
   # Removes force labels
   # Note: this must be wrapped in operation
   def reset_force_labels
-    @force_labels.each {|_, label| label.text = ''}
+    @force_labels.each { |_, label| label.text = '' }
   end
 end

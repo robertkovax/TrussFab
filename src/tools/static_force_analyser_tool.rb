@@ -35,11 +35,11 @@ class StaticForceAnalyserTool < Tool
     puts @combinations_with_force
     @simulation.stop
     @simulation.reset
-    remake_to_pid_controllers
+    reset_linktype_to_pid_controllers
     save_force_values
   end
 
-  def remake_to_pid_controllers
+  def reset_linktype_to_pid_controllers
     @transformed_pid_edges.each do |id, _|
       Graph.instance.edges[id].link_type = 'pid_controller'
     end
