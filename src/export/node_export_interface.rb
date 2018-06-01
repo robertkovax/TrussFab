@@ -28,6 +28,10 @@ class NodeExportInterface
     @node_hinge_map.values.flatten
   end
 
+  def subhubs
+    @node_hub_map.values.map { |hubs| hubs.drop(1) }.flatten
+  end
+
   def hinges_at_node(node)
     @node_hinge_map[node]
   end

@@ -40,6 +40,7 @@ class NodeExportAlgorithm
 
       group_nodes.each do |node|
         hub_edges = group_edges.select { |edge| edge.nodes.include? node }
+        hub_edges = sort_edges_clockwise(hub_edges)
 
         hub = HubExportInterface.new(hub_edges)
         @export_interface.add_hub(node, hub)
@@ -69,6 +70,28 @@ class NodeExportAlgorithm
   end
 
   private
+
+  def edge_angle(a, b)
+    a.direction.normalize.dot(b.direction.normalize).abs
+  end
+
+  # HACK: always choose the next edge, that has the minimum angle to the current
+  # one. For the cases we encountered so far this works.
+  def sort_edges_clockwise(edges)
+    result = []
+    current = edges[0]
+
+    loop do
+      result.push(current)
+      return result if result.size == edges.size
+      remaining_edges = edges - result
+
+      current = remaining_edges.min { |a,b|
+        edge_angle(b, current) <=> edge_angle(a, current) }
+    end
+
+    raise 'Sorting edges failed.'
+  end
 
   def generate_hinge_if_necessary(e1, e2, tri, static_groups, group_edge_map)
     is_same_group = static_groups.any? do |group|
