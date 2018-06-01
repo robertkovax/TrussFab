@@ -91,6 +91,8 @@ class Simulation
     @highest_force_mode = false
     @peak_force_mode = false
 
+    @display_values = false # TODO, does it belong here? @Tim
+
     hinge_layer = Sketchup.active_model.layers.at(Configuration::HINGE_VIEW)
     hinge_layer.visible = false unless hinge_layer.nil?
 
@@ -124,6 +126,11 @@ class Simulation
       edge.thingy.joint.stiffness =
         edge.thingy.is_a?(ActuatorLink) ? 0.99 : stiffness
     end
+  end
+
+  def display_values
+    # TODO: see above
+    @display_values
   end
 
   #
