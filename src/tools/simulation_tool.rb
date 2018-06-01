@@ -201,23 +201,23 @@ class SimulationTool < Tool
     # we don't want to create more groups than we have pistons
     # NB: piston_group is initialized with -1 so we have add one to
     # compare to size
-    return if edge.piston_group + 1 >= @simulation.pistons.length
-    edge.piston_group += 1
+    return if edge.thingy.piston_group + 1 >= @simulation.pistons.length
+    edge.thingy.piston_group += 1
 
-    if @simulation.auto_piston_group[edge.piston_group].nil?
-      @simulation.auto_piston_group[edge.piston_group] = []
-      @ui.update_piston_group(edge.piston_group)
+    if @simulation.auto_piston_group[edge.thingy.piston_group].nil?
+      @simulation.auto_piston_group[edge.thingy.piston_group] = []
+      @ui.update_piston_group(edge.thingy.piston_group)
     end
 
-    unless edge.piston_group.zero?
-      @simulation.auto_piston_group[edge.piston_group - 1]
+    unless edge.thingy.piston_group.zero?
+      @simulation.auto_piston_group[edge.thingy.piston_group - 1]
                  .delete(edge)
     end
 
-    @simulation.auto_piston_group[edge.piston_group].push(edge)
+    @simulation.auto_piston_group[edge.thingy.piston_group].push(edge)
     link = edge.thingy
     mat = @simulation.bottle_dat[link][3]
-    mat.color = colors[edge.piston_group]
+    mat.color = colors[edge.thingy.piston_group]
     # persist the piston group array
     @auto_piston_group = @simulation.auto_piston_group
   end

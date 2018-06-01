@@ -10,7 +10,7 @@ class Link < PhysicsThingy
   attr_accessor :joint, :model
   attr_reader :first_elongation_length, :second_elongation_length,
               :position, :second_position, :loc_up_vec, :first_node,
-              :second_node, :sensor_symbol
+              :second_node, :sensor_symbol, :piston_group
 
   def initialize(first_node, second_node, model_name, bottle_name: '', id: nil)
     super(id)
@@ -24,6 +24,8 @@ class Link < PhysicsThingy
     @second_node = second_node
 
     @model = nil
+
+    @piston_group = -1
 
     # extract specific bottle model for bottle links
     if model_name == Configuration::STANDARD_BOTTLES

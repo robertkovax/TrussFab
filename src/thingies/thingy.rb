@@ -69,13 +69,11 @@ class Thingy
   end
 
   def highlight(highlight_material = @highlight_material)
-    @entity.material = highlight_material if @entity && @entity.valid?
-    @sub_thingies.each { |thingy| thingy.highlight(highlight_material) }
+    change_color(highlight_material)
   end
 
   def un_highlight
-    @entity.material = @material if @entity && @entity.valid?
-    @sub_thingies.each(&:un_highlight)
+    change_color(@material)
   end
 
   def delete_entity

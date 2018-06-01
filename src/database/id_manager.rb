@@ -18,4 +18,14 @@ class IdManager
   def generate_next_tag_id(tag)
     @tag_id_map[tag] += 1
   end
+
+  def maximum_piston_group
+    max_group = -1
+    Graph.instance.edges.each_value do |edge|
+      if edge.thingy.piston_group > max_group
+        max_group = edge.thingy.piston_group
+      end
+    end
+    max_group
+  end
 end
