@@ -1,7 +1,6 @@
 require 'src/models/physics_link_model.rb'
 
-# Spring model (green)
-class SpringModel < PhysicsLinkModel
+class PIDModel < PhysicsLinkModel
   def initialize
     super
     @material = Sketchup.active_model.materials['pid_material']

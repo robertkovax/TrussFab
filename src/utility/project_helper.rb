@@ -117,6 +117,12 @@ module ProjectHelper
       material.alpha = 1
     end
 
+    unless materials['pid_material']
+      material = materials.add('pid_material')
+      material.color = Configuration::PID_COLOR
+      material.alpha = 1
+    end
+
     unless materials['generic_link_material']
       material = materials.add('generic_link_material')
       material.color = Configuration::GENERIC_LINK_COLOR

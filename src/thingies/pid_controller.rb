@@ -1,6 +1,6 @@
 require 'src/thingies/physics_link.rb'
 require 'src/configuration/configuration.rb'
-require 'src/thingies/generic_link'
+require 'src/thingies/generic_link.rb'
 
 class PidController < GenericLink
   attr_accessor :integral_error, :k_P, :k_I, :k_D, :integral_error_cap, :static_force, :static_forces_lookup
