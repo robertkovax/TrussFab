@@ -4,7 +4,7 @@ B_HINGE = 2
 A_B_HINGE = 3
 
 # Exports elongation to SCAD file
-class ExportElongation
+class ScadExportElongation
   attr_accessor :hub_id, :other_hub_id, :direction,
                 :l1, :l2, :l3, :hinge_connection
 

@@ -1,7 +1,7 @@
 require 'src/export/presets.rb'
 
 # Exports Caps to SCAD file
-class ExportCap
+class ScadExportCap
   attr_accessor :length
 
   def initialize(hub_id, other_hub_id, length)
