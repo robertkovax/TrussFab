@@ -23,6 +23,7 @@ class ActuatorTool < LinkTool
       @edge.thingy.piston_group = IdManager.instance.maximum_piston_group
       @ui.animation_pane.add_piston(@edge.thingy.piston_group)
     end
+    @ui.animation_pane.sync_hidden_status(Graph.instance.actuator_groups)
   end
 
   def change_piston_group(edge)

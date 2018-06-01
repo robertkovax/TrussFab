@@ -130,6 +130,18 @@ class Graph
     @nodes.values.flat_map(&:pods)
   end
 
+  def actuator_groups
+    map = {}
+    @edges.count.times do |i|
+      map[i] = false
+    end
+
+    @edges.each_value do |edge|
+      map[edge.thingy.piston_group] = true unless edge.thingy.piston_group < 0
+    end
+    map
+  end
+
   #
   # Methods to check whether a node, edge or surface already exists
   # and return the duplicate if there is some

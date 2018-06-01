@@ -846,18 +846,12 @@ class Simulation
   # deleting the created ones.
   # Note: this must be wrapped in operation
   def reset_materials
+    # This is not the ideal solution for recoloring bottles, however it is only
+    # called once, after stopping the simulation, so the performance impact is
+    # not too big.
     mats = Sketchup.active_model.materials
-    @bottle_dat.each do |_, dat|
-      if dat[0].valid?
-        dat[0].material = (dat[1] && dat[1].valid?) ? dat[1] : nil
-        dat[2].each do |e, m|
-          next unless e.valid?
-          e.material = (m && m.valid?) ? m : nil
-        end
-      end
-      # Note this works in SU2014+, use material.purge_unused at end for
-      # compatibility with prior SU versions
-      mats.remove(dat[3]) if dat[3] && dat[3].valid?
+    Graph.instance.edges.each_value do |edge|
+        edge.thingy.un_highlight
     end
     @bottle_dat.clear
   end

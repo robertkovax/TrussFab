@@ -31,6 +31,7 @@ class LinkTool < Tool
             else
               create_new_physics_link(view, x, y)
             end
+    @ui.animation_pane.sync_hidden_status(Graph.instance.actuator_groups)
   end
 
   def onMouseMove(_flags, x, y, view)
