@@ -106,10 +106,16 @@ class ScadExport
         double_hinge_id = IdManager.instance
                                    .generate_next_tag_id('double_hinge')
 
+        # calculate the angle that each part of the double hinge needs
+        # add some more in order to avoid buckling of double hinge
+        per_side_angle = ((hinge.angle + PRESETS::DOUBLE_HINGE_ADDED_ANGLE) / 2)
+
         first_hinge_params_others = { a_gap: a_gap,
                                       b_gap: true,
                                       a_with_connector: a_with_connector,
-                                      b_with_connector: false }
+                                      b_with_connector: false,
+                                      alpha: per_side_angle }
+
         first_hinge_params =
           first_hinge_params_others.merge(hinge_params_lengths)
 
@@ -124,7 +130,9 @@ class ScadExport
         second_hinge_params_others = { a_gap: true,
                                        b_gap: b_gap,
                                        a_with_connector: false,
-                                       b_with_connector: b_with_connector }
+                                       b_with_connector: b_with_connector,
+                                       alpha: per_side_angle }
+
         second_hinge_params =
           second_hinge_params_others.merge(hinge_params_lengths)
 
