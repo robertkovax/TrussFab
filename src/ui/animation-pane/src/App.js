@@ -231,11 +231,11 @@ class App extends Component {
 
     const newX = value / this.state.seconds * X_AXIS;
 
-    const line = d3
-      .select('#svg-' + id)
-      .select('line')
-      .attr('x1', newX)
-      .attr('x2', newX);
+    d3
+    .select('#svg-' + id)
+    .select('line')
+    .attr('x1', newX)
+    .attr('x2', newX);
   };
 
   render() {
