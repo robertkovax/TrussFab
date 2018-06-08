@@ -241,18 +241,19 @@ class SimulationControls extends React.Component {
 
   render() {
     const {
+      breakingForce,
+      devMode,
+      displayVol,
+      highestForceMode,
+      keyframesMap,
+      peakForceMode,
+      seconds,
+      setContainerState,
+      simulationPaused,
       startedSimulationCycle,
       startedSimulationOnce,
-      simulationPaused,
-      devMode,
-      windowCollapsed,
-      setContainerState,
-      seconds,
-      breakingForce,
       stiffness,
-      displayVol,
-      peakForceMode,
-      highestForceMode,
+      windowCollapsed,
     } = this.props;
     return (
       <div
@@ -324,13 +325,14 @@ class SimulationControls extends React.Component {
         </div>
         {devMode && (
           <SimulationForm
+            breakingForce={breakingForce}
+            displayVol={displayVol}
+            highestForceMode={highestForceMode}
+            keyframesMap={keyframesMap}
+            peakForceMode={peakForceMode}
+            seconds={seconds}
             setContainerState={setContainerState}
             stiffness={stiffness}
-            breakingForce={breakingForce}
-            seconds={seconds}
-            displayVol={displayVol}
-            peakForceMode={peakForceMode}
-            highestForceMode={highestForceMode}
           />
         )}
       </div>

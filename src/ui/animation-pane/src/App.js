@@ -19,9 +19,9 @@ class App extends Component {
       highestForceMode: false,
       groupVisible: {}, // group id => bool
       keyframesMap: new Map(), // maps from piston id to array of keyframes
-      previousKeyframesMap: null, // use for greyed points when something broke
       peakForceMode: false,
       pistons: [], // this is not actually needed because we have `keyframesMap`
+      previousKeyframesMap: null, // use for greyed points when something broke
       seconds: 8,
       simluationBrokeAt: null,
       simulationIsOnForValueTesting: false,
@@ -209,14 +209,14 @@ class App extends Component {
     // some race condition with the 'broken sim' requires this
     setTimeout(() => {
       this.setState({
-        simulationPaused: true,
-        timelineCurrentTime: 0,
         currentCycle: 0,
-        startedSimulationOnce: false,
-        startedSimulationCycle: false,
-        simulationIsPausedAfterOnce: false,
-        simluationBrokeAt: null,
         previousKeyframesMap: null,
+        simluationBrokeAt: null,
+        simulationIsPausedAfterOnce: false,
+        simulationPaused: true,
+        startedSimulationCycle: false,
+        startedSimulationOnce: false,
+        timelineCurrentTime: 0,
       });
     }, 100);
   };
@@ -240,22 +240,22 @@ class App extends Component {
 
   render() {
     const {
+      currentCycle,
+      devMode,
+      keyframesMap,
+      pistons,
+      previousKeyframesMap,
+      seconds,
+      simluationBrokeAt,
+      simulationIsOnForValueTesting,
+      simulationIsPausedAfterOnce,
+      simulationPaused,
       startedSimulationCycle,
       startedSimulationOnce,
-      seconds,
-      timeSelection,
-      simulationIsPausedAfterOnce,
-      simulationIsOnForValueTesting,
-      keyframesMap,
-      simluationBrokeAt,
-      simulationPaused,
-      devMode,
-      windowCollapsed,
-      pistons,
-      currentCycle,
       timelineCurrentTime,
+      timeSelection,
       timlineInterval,
-      previousKeyframesMap,
+      windowCollapsed,
     } = this.state;
 
     const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
@@ -263,42 +263,42 @@ class App extends Component {
       .filter(x => this.state.groupVisible[x] === true) // filter out hidden ids
       .map((id, index) => (
         <Piston
-          key={id}
+          currentCycle={currentCycle}
+          devMode={devMode}
           id={id}
           index={index}
-          simulationIsRunning={simulationIsRunning}
-          setContainerState={this.setContainerState}
-          seconds={seconds}
-          timeSelection={timeSelection}
-          simulationIsOnForValueTesting={simulationIsOnForValueTesting}
+          key={id}
           keyframesMap={keyframesMap}
+          previousKeyframesMap={previousKeyframesMap}
+          seconds={seconds}
+          setContainerState={this.setContainerState}
           simluationBrokeAt={simluationBrokeAt}
-          currentCycle={currentCycle}
+          simulationIsOnForValueTesting={simulationIsOnForValueTesting}
+          simulationIsRunning={simulationIsRunning}
           startedSimulationOnce={startedSimulationOnce}
           timelineCurrentTime={timelineCurrentTime}
-          devMode={devMode}
-          previousKeyframesMap={previousKeyframesMap}
+          timeSelection={timeSelection}
         />
       ));
 
     return (
       <div className="row no-gutters">
         <SimulationControls
-          seconds={seconds}
-          timelineCurrentTime={timelineCurrentTime}
-          keyframesMap={keyframesMap}
-          setContainerState={this.setContainerState}
-          resetState={this.resetState}
-          pistons={pistons}
           addTimeSelectionForNewKeyFrame={this.addTimeSelectionForNewKeyFrame}
+          devMode={devMode}
+          keyframesMap={keyframesMap}
+          pistons={pistons}
+          resetState={this.resetState}
+          seconds={seconds}
+          setContainerState={this.setContainerState}
+          simulationIsOnForValueTesting={simulationIsOnForValueTesting}
+          simulationIsPausedAfterOnce={simulationIsPausedAfterOnce}
+          simulationPaused={simulationPaused}
           startedSimulationCycle={startedSimulationCycle}
           startedSimulationOnce={startedSimulationOnce}
-          simulationPaused={simulationPaused}
-          devMode={devMode}
-          windowCollapsed={windowCollapsed}
+          timelineCurrentTime={timelineCurrentTime}
           timlineInterval={timlineInterval}
-          simulationIsPausedAfterOnce={simulationIsPausedAfterOnce}
-          simulationIsOnForValueTesting={simulationIsOnForValueTesting}
+          windowCollapsed={windowCollapsed}
         />
         {!windowCollapsed && (
           <div className="col-8">

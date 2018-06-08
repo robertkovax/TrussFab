@@ -11,14 +11,15 @@ import {
 class SimulationForm extends React.Component {
   render() {
     const {
+      breakingForce,
+      displayVol,
+      highestForceMode,
+      keyframesMap,
+      peakForceMode,
+      seconds,
+      setContainerState,
       startedSimulationCycle,
       startedSimulationOnce,
-      setContainerState,
-      highestForceMode,
-      peakForceMode,
-      displayVol,
-      seconds,
-      breakingForce,
       stiffness,
     } = this.props;
     const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
@@ -35,7 +36,7 @@ class SimulationForm extends React.Component {
               changeHighestForceMode(event.target.value);
             }}
           />
-          <label className="form-check-label" for="highestForceCheck">
+          <label className="form-check-label">
             Highest Force
           </label>
         </div>
@@ -50,7 +51,7 @@ class SimulationForm extends React.Component {
               changePeakForceMode(event.target.value);
             }}
           />
-          <label className="form-check-label" for="peakForceModeCheck">
+          <label className="form-check-label">
             Peak Force
           </label>
         </div>
@@ -65,12 +66,12 @@ class SimulationForm extends React.Component {
               changeDisplayValues(event.target.value);
             }}
           />
-          <label className="form-check-label" for="displayValuesCheck">
+          <label className="form-check-label">
             Display Values
           </label>
         </div>
         <div className="form-group row no-gutters">
-          <label for="cycleLengthInput" className="col-sm-6 col-form-label">
+          <label className="col-sm-6 col-form-label">
             Cycle Length
           </label>
           <div className="input-group input-group-sm col-sm-6">
@@ -83,14 +84,14 @@ class SimulationForm extends React.Component {
               onChange={event => {
                 const newSeconds = parseFloat(event.target.value);
                 if (newSeconds == null || isNaN(newSeconds)) return;
-                const ratio = newSeconds / this.state.seconds;
+                const ratio = newSeconds / seconds;
                 // fix old values
                 const newKeyframes = new Map();
-                const oldKeyframes = this.state.keyframes;
+                const oldKeyframes = keyframesMap;
 
                 oldKeyframes.forEach((value, key) => {
                   const updatedValues = value.map(oneKeyframe => {
-                    if (oneKeyframe.time === this.state.seconds) {
+                    if (oneKeyframe.time === seconds) {
                       return { value: oneKeyframe.value, time: newSeconds };
                     } else
                       return {
@@ -103,7 +104,7 @@ class SimulationForm extends React.Component {
 
                 setContainerState({
                   seconds: newSeconds,
-                  keyframes: newKeyframes,
+                  keyframesMap: newKeyframes,
                 });
               }}
             />
@@ -115,7 +116,7 @@ class SimulationForm extends React.Component {
           </div>
         </div>
         <div className="form-group row no-gutters">
-          <label for="breakingForceInput" className="col-sm-6 col-form-label">
+          <label className="col-sm-6 col-form-label">
             Breaking Force
           </label>
           <div className="input-group input-group-sm col-sm-6">
@@ -140,7 +141,7 @@ class SimulationForm extends React.Component {
           </div>
         </div>
         <div className="form-group row no-gutters">
-          <label for="stiffnessInput" className="col-sm-6 col-form-label">
+          <label className="col-sm-6 col-form-label">
             Stiffness
           </label>
           <div className="input-group input-group-sm col-sm-6">
