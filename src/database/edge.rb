@@ -10,7 +10,6 @@ require 'src/configuration/configuration'
 
 # Edge
 class Edge < GraphObject
-  attr_accessor :piston_group
   attr_reader :first_node, :second_node, :link_type, :bottle_type
 
   @@retain_bottle_types = false
@@ -35,7 +34,6 @@ class Edge < GraphObject
     @bottle_type = bottle_type
     @link_type = link_type
     edge_id = id.nil? ? IdManager.instance.generate_next_tag_id('edge') : id
-    @piston_group = -1
     super(edge_id)
   end
 
