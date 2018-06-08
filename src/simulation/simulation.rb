@@ -366,11 +366,9 @@ class Simulation
   end
 
   def reset_pid_controllers
-    pid_controllers = {}
-    Graph.instance.edges.each do |id, edge|
-      pid_controllers[id] = edge.thingy if edge.thingy.is_a?(PidController)
+    Graph.instance.edges.each do |_, edge|
+      edge.thingy.reset_errors if edge.thingy.is_a?(PidController)
     end
-    pid_controllers.each_value{ |controller| controller.reset_errors}
   end
 
   def get_closest_node_to_point(point)
@@ -483,7 +481,6 @@ class Simulation
     @max_link_tensions.clear
     update_world_headless_by(0.2, true)
     @max_link_tensions[piston_id]
-
   end
 
   def print_piston_stats
@@ -650,9 +647,7 @@ class Simulation
     end
     Graph.instance.edges.each_value do |edge|
       link = edge.thingy
-      if link.is_a?(PidController)
-        link.update_force
-      end
+      link.update_force if link.is_a?(PidController)
     end
   end
 

@@ -59,19 +59,16 @@ class PidController < GenericLink
     p_force = @k_P * error
     i_force = @k_I * integral_error
     d_force = @k_D * derivative_error
-
-
-    self.force  = p_force + i_force + d_force + @static_force
-                + lookup_static_force
+    self.force = p_force + i_force + d_force + @static_force +
+                 lookup_static_force
     @previous_error = error
 
-    if @logging
-      puts "#{(error * 100).round(2)}||#{force.round(2)}|"\
-           "#{p_force.round(2)}|#{i_force.round(2)}|"\
-           "#{d_force.round(2)}||"\
-           "#{@joint.linear_tension.length.to_f.round(2)}|"\
-           "#{lookup_static_force}"
-    end
+    return unless @logging
+    puts "#{(error * 100).round(2)}||#{force.round(2)}|"\
+          "#{p_force.round(2)}|#{i_force.round(2)}|"\
+          "#{d_force.round(2)}||"\
+          "#{@joint.linear_tension.length.to_f.round(2)}|"\
+          "#{lookup_static_force}"
   end
 
   def set_pid_values(proportional, integral, derivative)
@@ -87,14 +84,9 @@ class PidController < GenericLink
 
   def analyze_static_forces
     puts "Analyzing static forces of selected controller"
-    pid_edge = nil # Get the edge of the joint
-    pid_edge_id = nil
-    Graph.instance.edges.each do |id, edge|
-      if edge.thingy == self
-        pid_edge = edge
-        pid_edge_id = id
-      end
-    end
+    pid_edge_id, pid_edge =
+      Graph.instance.edges.find { |_, edge| edge.thingy == self }
+    old_link = pid_edge.thingy
     #TODO: Give the Actuator the correct min/max distances
     pid_edge.link_type = 'actuator'
     Sketchup.active_model.active_view.invalidate
@@ -108,11 +100,24 @@ class PidController < GenericLink
       simulation.reset
       simulation.setup
       forces.push(force)
-      #puts "#{position.round(2)}|#{force.round(2)}"
     end
     pid_edge.link_type = 'pid_controller'
     new_pid_link = Graph.instance.edges[pid_edge_id].thingy
+    puts "Position:Force"
+    forces.each_with_index do |force, idx|
+      p "#{(idx * step_width).round(2)}: #{forces[idx].round(2)}"
+    end
+    old_link.write_parameters_to(new_pid_link)
     new_pid_link.static_forces_lookup = forces
-    puts "#{new_pid_link.static_forces_lookup}"
+  end
+
+  def write_parameters_to(pid_controller)
+    pid_controller.k_P = @k_P
+    pid_controller.k_D = @k_D
+    pid_controller.k_I = @k_I
+    pid_controller.logging = @logging
+    pid_controller.target_length = @target_length
+    pid_controller.static_force = @static_force
+    pid_controller.integral_error_cap = @integral_error_cap
   end
 end

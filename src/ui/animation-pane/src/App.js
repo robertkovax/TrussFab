@@ -8,7 +8,7 @@ import Piston from './components/Piston';
 import SimulationControls from './components/SimulationControls';
 import { X_AXIS, Y_AXIS } from './config';
 
-class App extend Component {
+class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
