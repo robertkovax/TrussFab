@@ -17,6 +17,7 @@ class App extends Component {
       devMode: false,
       displayVol: false,
       highestForceMode: false,
+      groupVisible: {}, // group id => bool
       keyframesMap: new Map(), // maps from piston id to array of keyframes
       previousKeyframesMap: null, // use for greyed points when something broke
       peakForceMode: false,
@@ -49,6 +50,7 @@ class App extends Component {
     window.fixBrokenModelByReducingSpeed = this.fixBrokenModelByReducingSpeed;
     window.fixBrokenModelByReducingMovement = this.fixBrokenModelByReducingMovement;
     window.initState = this.initState;
+    window.syncHiddenStatus = this.syncHiddenStatus;
 
     setStiffness(this.state.stiffness);
   }
@@ -66,6 +68,12 @@ class App extends Component {
 
   cleanupUiAfterStoppingSimulation = () => {
     this.resetState();
+  };
+
+  syncHiddenStatus = newGroupVisible => {
+    this.setState({
+      groupVisible: newGroupVisible,
+    });
   };
 
   addPiston = id => {
@@ -87,15 +95,21 @@ class App extends Component {
     }, 100);
   };
 
-  addPistonWithAnimation = (id, animation) => {
-    const oldPistons = this.state.pistons;
-    this.setState({
-      pistons: oldPistons.concat(id),
-      keyframesMap: new Map(animation),
+  addPistonWithAnimation = animation => {
+    const animationMap = new Map(animation);
+    animationMap.forEach((keyframes, id) => {
+      if (this.state.pistons.includes(id)) {
+        return;
+      }
+      this.setState({
+        pistons: this.state.pistons.concat(id),
+        keyframes: this.state.keyframesMap.set(id, keyframes),
+      });
+      setTimeout(() => {
+        this.addTimeSelectionForNewKeyFrame(id);
+      }, 100);
     });
-    setTimeout(() => {
-      this.addTimeSelectionForNewKeyFrame(id);
-    }, 100);
+    persistKeyframes(JSON.stringify([...this.state.keyframes]));
   };
 
   addTimeSelectionForNewKeyFrame = id => {
@@ -217,11 +231,11 @@ class App extends Component {
 
     const newX = value / this.state.seconds * X_AXIS;
 
-    const line = d3
-      .select('#svg-' + id)
-      .select('line')
-      .attr('x1', newX)
-      .attr('x2', newX);
+    d3
+    .select('#svg-' + id)
+    .select('line')
+    .attr('x1', newX)
+    .attr('x2', newX);
   };
 
   render() {
@@ -245,25 +259,27 @@ class App extends Component {
     } = this.state;
 
     const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
-    const pistonElements = pistons.map((id, index) => (
-      <Piston
-        key={id}
-        id={id}
-        index={index}
-        simulationIsRunning={simulationIsRunning}
-        setContainerState={this.setContainerState}
-        seconds={seconds}
-        timeSelection={timeSelection}
-        simulationIsOnForValueTesting={simulationIsOnForValueTesting}
-        keyframesMap={keyframesMap}
-        simluationBrokeAt={simluationBrokeAt}
-        currentCycle={currentCycle}
-        startedSimulationOnce={startedSimulationOnce}
-        timelineCurrentTime={timelineCurrentTime}
-        devMode={devMode}
-        previousKeyframesMap={previousKeyframesMap}
-      />
-    ));
+    const pistonElements = pistons
+      .filter(x => this.state.groupVisible[x] === true) // filter out hidden ids
+      .map((id, index) => (
+        <Piston
+          key={id}
+          id={id}
+          index={index}
+          simulationIsRunning={simulationIsRunning}
+          setContainerState={this.setContainerState}
+          seconds={seconds}
+          timeSelection={timeSelection}
+          simulationIsOnForValueTesting={simulationIsOnForValueTesting}
+          keyframesMap={keyframesMap}
+          simluationBrokeAt={simluationBrokeAt}
+          currentCycle={currentCycle}
+          startedSimulationOnce={startedSimulationOnce}
+          timelineCurrentTime={timelineCurrentTime}
+          devMode={devMode}
+          previousKeyframesMap={previousKeyframesMap}
+        />
+      ));
 
     return (
       <div className="row no-gutters">

@@ -64,8 +64,8 @@ class AnimationPane
     @dialog.execute_script("addPiston(#{id})")
   end
 
-  def add_piston_with_animation(id, animation)
-    @dialog.execute_script("addPistonWithAnimation(#{id}, #{animation})")
+  def add_piston_with_animation(animation)
+    @dialog.execute_script("addPistonWithAnimation(#{animation})")
   end
 
   def stop_simulation
@@ -74,6 +74,10 @@ class AnimationPane
 
   def simulation_broke
     @dialog.execute_script('simulationJustBroke();')
+  end
+
+  def sync_hidden_status(map)
+    @dialog.execute_script("syncHiddenStatus(#{map.to_json})")
   end
 
   private

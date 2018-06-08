@@ -166,7 +166,7 @@ class Simulation
 
     if TrussFab.store_sensor_output?
       @sensor_output_csv =
-        File.new("#{File.expand_path('~')}/sensor_output.log", "w")
+        File.new("#{File.expand_path('~')}/sensor_output.log", 'w')
     end
 
     # create bodies for node
@@ -209,9 +209,7 @@ class Simulation
 
     destroy_world
 
-    if TrussFab.store_sensor_output?
-      @sensor_output_csv.close
-    end
+    @sensor_output_csv.close if TrussFab.store_sensor_output?
 
     model.start_operation('Resetting Simulation', true)
     begin
@@ -266,9 +264,9 @@ class Simulation
     z = Configuration::GROUND_HEIGHT
     pts = [
       [-x, -y, z],
-      [ x, -y, z],
-      [ x,  y, z],
-      [-x,  y, z]
+      [x, -y, z],
+      [x, y, z],
+      [-x, y, z]
     ]
     face = @ground_group.entities.add_face(pts)
     face.pushpull(-Configuration::GROUND_THICKNESS)
@@ -344,7 +342,7 @@ class Simulation
   def collect_piston_groups
     @auto_piston_group.clear
     Graph.instance.edges.each_value do |edge|
-      group = edge.piston_group
+      group = edge.thingy.piston_group
       next if group < 0
       @auto_piston_group[group] = [] if @auto_piston_group[group].nil?
       @auto_piston_group[group].push(edge)
@@ -400,12 +398,14 @@ class Simulation
         hash[:expanding] = false
       elsif (cur_disp - link.min).abs < 0.005 && !hash[:expanding]
         # increase speed everytime the piston reaches its minimum value
-        hash[:speed] += 0.05 unless hash[:speed] >= @max_speed && @max_speed != 0
+        unless hash[:speed] >= @max_speed && @max_speed != 0
+          hash[:speed] += 0.05
+        end
         hash[:expanding] = true
         # add the piston frequency as a label in the chart (every value between
         # two frequencies has the same frequency)
-        log_max_actuator_tensions((1 / (@world.elapsed_time - @piston_world_time)
-                                  .to_f).round(2))
+        timestep = (@world.elapsed_time - @piston_world_time).to_f.round(2)
+        log_max_actuator_tensions(1 / timestep)
       end
       hash
     end
@@ -536,7 +536,7 @@ class Simulation
       next if edges.nil?
       edges.each do |edge|
         link = edge.thingy
-        next if edge.piston_group != id || link.nil? || !link.joint.valid?
+        next if link.piston_group != id || link.nil? || !link.joint.valid?
         joint = link.joint
 
         next_position_normalized = link.max * next_position.to_f +
@@ -565,7 +565,7 @@ class Simulation
     link = nil
     @auto_piston_group.each do |edges|
       edges.each do |edge|
-        next unless edge.piston_group == id
+        next unless edge.thingy.piston_group == id
         link = edge.thingy
         unless link.nil?
           joint = link.joint
@@ -577,7 +577,7 @@ class Simulation
 
   def reset_piston_group
     Graph.instance.edges.each_value do |edge|
-      edge.piston_group = -1
+      edge.thingy.piston_group = -1
     end
   end
 
@@ -728,7 +728,7 @@ class Simulation
     end
   end
 
-  def nextFrame(view)
+  def nextFrame(view) # rubocop:disable Naming/MethodName
     return @running unless @running && !@paused
 
     update_world
@@ -874,18 +874,11 @@ class Simulation
   # deleting the created ones.
   # Note: this must be wrapped in operation
   def reset_materials
-    mats = Sketchup.active_model.materials
-    @bottle_dat.each do |_, dat|
-      if dat[0].valid?
-        dat[0].material = (dat[1] && dat[1].valid?) ? dat[1] : nil
-        dat[2].each do |e, m|
-          next unless e.valid?
-          e.material = (m && m.valid?) ? m : nil
-        end
-      end
-      # Note this works in SU2014+, use material.purge_unused at end for
-      # compatibility with prior SU versions
-      mats.remove(dat[3]) if dat[3] && dat[3].valid?
+    # This is not the ideal solution for recoloring bottles, however it is only
+    # called once, after stopping the simulation, so the performance impact is
+    # not too big.
+    Graph.instance.edges.each_value do |edge|
+      edge.thingy.un_highlight
     end
     @bottle_dat.clear
   end

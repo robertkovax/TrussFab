@@ -21,25 +21,28 @@ class ImportTool < Tool
     @mouse_input.update_positions(view, x, y)
     snapped_object = @mouse_input.snapped_object
     import_from_json(@path, snapped_object, @mouse_input.position)
+    @ui.animation_pane.sync_hidden_status(Graph.instance.actuator_groups)
     @mouse_input.update_positions(view, x, y)
     view.invalidate
+  end
+
+  def setup_new_edges(new_edges, animation)
+    new_edges.each do |edge|
+      next unless edge.thingy.is_a?(ActuatorLink)
+      if edge.thingy.piston_group < 0
+        edge.thingy.piston_group = IdManager.instance.maximum_piston_group + 1
+      end
+      @ui.animation_pane.add_piston(edge.thingy.piston_group) if animation == ''
+    end
+    return if animation == ''
+    @ui.animation_pane.add_piston_with_animation(animation)
   end
 
   def import_from_json(path, graph_object, position)
     Sketchup.active_model.start_operation('import from JSON', true)
     if graph_object.is_a?(Triangle)
       _, new_edges, animation = JsonImport.at_triangle(path, graph_object)
-      new_edges.each do |edge|
-        next unless edge.thingy.is_a?(ActuatorLink)
-        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        # put this back in as soon as we have a view for single
-        # piston movement
-        # if animation == ''
-        #   @ui.animation_pane.add_piston(edge.id)
-        # else
-        #   @ui.animation_pane.add_piston_with_animation(edge.id, animation)
-        # end
-      end
+      setup_new_edges(new_edges, animation)
     elsif graph_object.nil?
       return unless Graph.instance.find_close_node(position).nil?
       old_triangles = Graph.instance.surfaces.values
@@ -48,17 +51,9 @@ class ImportTool < Tool
       if intersecting?(old_triangles, new_triangles)
         puts('New object intersects with old')
         delete_edges(new_edges)
+        return
       end
-      new_edges.each do |edge|
-        next unless edge.thingy.is_a?(ActuatorLink)
-        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        # put this back in as soon as we have a view for single
-        # if animation == ''
-        #   @ui.animation_pane.add_piston(edge.id)
-        # else
-        #   @ui.animation_pane.add_piston_with_animation(edge.id, animation)
-        # end
-      end
+      setup_new_edges(new_edges, animation)
     else
       raise NotImplementedError
     end

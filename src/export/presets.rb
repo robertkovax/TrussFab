@@ -18,6 +18,9 @@ module PRESETS
   MINIMUM_L1 = 35.mm
   MINIMUM_ACTUATOR_L1 = 40.mm
 
+  # Safety angle to avoid buckling in double hinges
+  DOUBLE_HINGE_ADDED_ANGLE = 25
+
   # the default l2
   L2 = 40.mm # gap sized derived from this value
 
@@ -49,7 +52,6 @@ module PRESETS
   }.freeze
 
   DOUBLE_HINGE_OPENSCAD = SIMPLE_HINGE_OPENSCAD.dup
-  DOUBLE_HINGE_OPENSCAD[:alpha] = 40 # add a default
   DOUBLE_HINGE_OPENSCAD[:gap_angle_a] = DEFAULT_GAP_ANGLE_DOUBLE # overwrite
   DOUBLE_HINGE_OPENSCAD[:gap_angle_b] = DEFAULT_GAP_ANGLE_DOUBLE # overwrite
 
