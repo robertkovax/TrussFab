@@ -28,6 +28,7 @@ class DeleteStructureTool < Tool
     Sketchup.active_model.start_operation('Delete Object', true)
     object.connected_component.each(&:delete)
     Sketchup.active_model.commit_operation
+    @ui.animation_pane.sync_hidden_status(Graph.instance.actuator_groups)
     view.invalidate
   end
 end
