@@ -28,7 +28,7 @@ class DeleteStructureTool < Tool
     object = @mouse_input.snapped_object
     return if object.nil?
     Sketchup.active_model.start_operation('Delete Object', true)
-    object.connected_component.each { |element| element.delete }
+    object.connected_component.each(&:delete)
     Sketchup.active_model.commit_operation
     view.invalidate
   end
