@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 
 import './css/App.css';
 import { toggleDiv } from './utils/dom';
-import { setStiffness, persistKeyframes } from './utils/sketchup-integration';
+import { persistKeyframes } from './utils/sketchup-integration';
 import Piston from './components/Piston';
 import SimulationControls from './components/SimulationControls';
 import { X_AXIS, Y_AXIS } from './config';
@@ -52,7 +52,7 @@ class App extends Component {
     window.initState = this.initState;
     window.syncHiddenStatus = this.syncHiddenStatus;
 
-    setStiffness(this.state.stiffness);
+    // setStiffness(this.state.stiffness);
   }
 
   setContainerState = newState => {
@@ -285,6 +285,7 @@ class App extends Component {
       <div className="row no-gutters">
         <SimulationControls
           addTimeSelectionForNewKeyFrame={this.addTimeSelectionForNewKeyFrame}
+          breakingForce={this.state.breakingForce}
           devMode={devMode}
           keyframesMap={keyframesMap}
           pistons={pistons}
@@ -296,6 +297,7 @@ class App extends Component {
           simulationPaused={simulationPaused}
           startedSimulationCycle={startedSimulationCycle}
           startedSimulationOnce={startedSimulationOnce}
+          stiffness={this.state.stiffness}
           timelineCurrentTime={timelineCurrentTime}
           timlineInterval={timlineInterval}
           windowCollapsed={windowCollapsed}

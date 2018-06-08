@@ -128,9 +128,7 @@ class SimulationForm extends React.Component {
               value={breakingForce}
               onChange={event => {
                 setContainerState({ breakingForce: event.target.value });
-                if (simulationIsRunning) {
-                  setBreakingForce(event.target.value);
-                }
+                setBreakingForce(event.target.value);
               }}
             />
             <div className="input-group-append">
