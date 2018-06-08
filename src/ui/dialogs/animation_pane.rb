@@ -76,6 +76,10 @@ class AnimationPane
     @dialog.execute_script('simulationJustBroke();')
   end
 
+  def sync_hidden_status(map)
+    @dialog.execute_script("syncHiddenStatus(#{map.to_json})")
+  end
+
   private
 
   def start_simulation_setup_scripts

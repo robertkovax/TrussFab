@@ -219,15 +219,12 @@ class SimulationControls extends React.Component {
       resetState,
     } = this.props;
 
-    console.log('simulationIsOnForValueTesting', simulationIsOnForValueTesting);
     if (simulationIsOnForValueTesting) {
       toggleSimulation();
       setContainerState({ simulationIsOnForValueTesting: false });
       return;
     }
 
-    console.log('startedSimulationOnce', startedSimulationOnce);
-    console.log('startedSimulationCycle', startedSimulationCycle);
     if (
       !(startedSimulationOnce || startedSimulationCycle) &&
       !simulationIsPausedAfterOnce
@@ -237,7 +234,6 @@ class SimulationControls extends React.Component {
 
     this._addAllTimeSelectionLines();
     toggleSimulation();
-    console.log('resetting state');
     resetState();
   };
 

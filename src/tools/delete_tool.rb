@@ -42,6 +42,7 @@ class DeleteTool < Tool
     Sketchup.active_model.start_operation('Delete Object', true)
     object.delete
     Sketchup.active_model.commit_operation
+    @ui.animation_pane.sync_hidden_status(Graph.instance.actuator_groups)
     view.invalidate
   end
 end
