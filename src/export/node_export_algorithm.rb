@@ -52,7 +52,9 @@ class NodeExportAlgorithm
 
     triangles.each do |tri|
       tri.edges.combination(2).each do |e1, e2|
-        hinge = generate_hinge_if_necessary(e1, e2, tri, static_groups, group_edge_map)
+        hinge = generate_hinge_if_necessary(
+          e1, e2, tri, static_groups, group_edge_map
+        )
         node = e1.shared_node(e2)
         @export_interface.add_hinge(node, hinge) unless hinge.nil?
       end
@@ -71,8 +73,8 @@ class NodeExportAlgorithm
 
   private
 
-  def edge_angle(a, b)
-    a.direction.normalize.dot(b.direction.normalize).abs
+  def edge_angle(edge1, edge2)
+    edge1.direction.normalize.dot(edge2.direction.normalize).abs
   end
 
   # HACK: always choose the next edge, that has the minimum angle to the current
@@ -86,7 +88,7 @@ class NodeExportAlgorithm
       return result if result.size == edges.size
       remaining_edges = edges - result
 
-      current = remaining_edges.min do |a,b|
+      current = remaining_edges.min do |a, b|
         edge_angle(b, current) <=> edge_angle(a, current)
       end
     end
@@ -94,17 +96,16 @@ class NodeExportAlgorithm
     raise 'Sorting edges failed.'
   end
 
-  def generate_hinge_if_necessary(e1, e2, tri, static_groups, group_edge_map)
+  def generate_hinge_if_necessary(edge1, edge2, tri, static_groups, group_edges)
     is_same_group = static_groups.any? do |group|
-      group_edge_map[group].include?(e1) &&
-        group_edge_map[group].include?(e2)
+      group_edges[group].include?(edge1) &&
+        group_edges[group].include?(edge2)
     end
 
     return nil if is_same_group
 
-    is_double_hinge =  tri.dynamic?
-    hinge = HingeExportInterface.new(e1, e2, is_double_hinge)
-    hinge
+    is_double_hinge = tri.dynamic?
+    HingeExportInterface.new(edge1, edge2, is_double_hinge)
   end
 
   def prioritise_pod_groups(groups)
