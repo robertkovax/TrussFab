@@ -92,7 +92,7 @@ class NodeExportInterface
       elongated_edges = non_mainhub_edges_at_node(node)
       # edges that are connected by hinges also need to be elongated
       elongated_edges += hinges_at_node(node)
-                           .map { |hinge| [hinge.edge1, hinge.edge2] }.flatten
+                         .map { |hinge| [hinge.edge1, hinge.edge2] }.flatten
       elongated_edges.uniq!
       # don't elongated edges that have a dynamic size
       elongated_edges.reject!(&:dynamic?)
@@ -100,7 +100,9 @@ class NodeExportInterface
       elongation_tuples.concat(elongated_edges.map { |edge| [node, edge] })
     end
 
-    elongate_edges_with_tuples(elongation_tuples) unless elongation_tuples.empty?
+    unless elongation_tuples.empty?
+      elongate_edges_with_tuples(elongation_tuples)
+    end
 
     Edge.disable_bottle_freeze
   end
@@ -108,9 +110,9 @@ class NodeExportInterface
   private
 
   def find_adjacent_parts(part, parts)
-    parts.select { |other_part|
+    parts.select do |other_part|
       part != other_part && (part.edges & other_part.edges).any?
-    }
+    end
   end
 
   def find_violating_parts(parts)
@@ -120,9 +122,9 @@ class NodeExportInterface
       violating = false
 
       part.edges.each do |edge|
-        connected_part_count = parts.count { |other_part|
+        connected_part_count = parts.count do |other_part|
           part != other_part && other_part.edges.include?(edge)
-        }
+        end
 
         if connected_part_count > 1
           violating = true
@@ -141,7 +143,7 @@ class NodeExportInterface
     discovered = Set.new
 
     while remaining.any?
-      current = remaining.pop()
+      current = remaining.pop
       next if discovered.include?(current)
       discovered.add(current)
       find_adjacent_parts(current, parts).each do |adjacent_part|
@@ -162,17 +164,17 @@ class NodeExportInterface
     violating_parts = find_violating_parts(all_parts)
     violating_parts.delete(mainhub)
 
-    enumerator = Enumerator.new { |y|
+    enumerator = Enumerator.new do |y|
       cur_length = 0
       while cur_length <= violating_parts.size
-        violating_parts.combination(cur_length).each { |combination|
+        violating_parts.combination(cur_length).each do |combination|
           y << combination
-        }
+        end
         cur_length += 1
       end
-    }
+    end
 
-    enumerator.each { |removed_parts|
+    enumerator.each do |removed_parts|
       remaining_parts = all_parts - removed_parts
 
       violating = false
@@ -180,7 +182,7 @@ class NodeExportInterface
       violating = true unless check_part_connectedness(remaining_parts)
 
       return remaining_parts unless violating
-    }
+    end
 
     raise 'No valid hinge configuration could be found at node ' + node.id.to_s
   end
@@ -232,7 +234,7 @@ class NodeExportInterface
       end
       if next_hinge_possibilities.size > 1
         raise 'More than one next hinge can be connected at node ' +
-               node.id.to_s
+              node.id.to_s
       end
 
       if next_hinge_possibilities.empty?
@@ -284,7 +286,8 @@ class NodeExportInterface
         next if elongation >= target_elongation
 
         total_elongation = edge.first_elongation_length +
-          edge.second_elongation_length
+                           edge.second_elongation_length
+
         relaxation.stretch_to(edge,
                               edge.length - total_elongation +
                                 2 * target_elongation + 10.mm)

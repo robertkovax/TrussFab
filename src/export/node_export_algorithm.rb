@@ -86,8 +86,9 @@ class NodeExportAlgorithm
       return result if result.size == edges.size
       remaining_edges = edges - result
 
-      current = remaining_edges.min { |a,b|
-        edge_angle(b, current) <=> edge_angle(a, current) }
+      current = remaining_edges.min do |a,b|
+        edge_angle(b, current) <=> edge_angle(a, current)
+      end
     end
 
     raise 'Sorting edges failed.'
