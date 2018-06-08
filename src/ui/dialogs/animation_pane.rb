@@ -105,11 +105,15 @@ class AnimationPane
       @collapsed = !@collapsed
     end
 
-    @dialog.add_action_callback('toggle_simulation') do |_context|
+    @dialog.add_action_callback('start_simulation') do |_context|
       if @simulation_tool.simulation.nil? ||
          @simulation_tool.simulation.stopped?
         start_simulation_setup_scripts
-      else
+      end
+    end
+
+    @dialog.add_action_callback('stop_simulation') do |_context|
+      unless @simulation_tool.simulation.nil? ||
         stop_simulation
         Sketchup.active_model.select_tool(nil)
       end
@@ -119,7 +123,13 @@ class AnimationPane
       @simulation_tool.restart
     end
 
-    @dialog.add_action_callback('toggle_pause_simulation') do |_context|
+    # TODO: Not sure if this is sufficent. Maybe we have to do it similiar to
+    # the start/stop simulation calls.
+    @dialog.add_action_callback('pause_simulation') do |_context|
+      @simulation_tool.toggle_pause
+    end
+
+    @dialog.add_action_callback('unpause_simulation') do |_context|
       @simulation_tool.toggle_pause
     end
 

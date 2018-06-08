@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 
 import {
   changePistonValue,
-  toggleSimulation,
+  startSimulation,
   persistKeyframes,
 } from '../utils/sketchup-integration';
 import { X_AXIS, Y_AXIS } from '../config';
@@ -199,7 +199,7 @@ class Piston extends React.Component {
                     setContainerState({
                       timeline: { simulationIsOnForValueTesting: true },
                     });
-                    toggleSimulation();
+                    startSimulation();
                   }
                   changePistonValue(id, fixedValue);
                 }

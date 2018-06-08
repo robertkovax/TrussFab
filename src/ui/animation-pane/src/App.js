@@ -11,35 +11,36 @@ import { X_AXIS, Y_AXIS } from './config';
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      windowCollapsed: true,
-      devMode: false,
-      simulationSettings: {
-        breakingForce: null,
-        stiffness: null,
-        displayVol: null,
-        highestForceMode: null,
-        peakForceMode: null,
-      },
-      timeline: {
-        currentCycle: 0,
-        seconds: 8,
-        currentTime: 0,
-        simluationBrokeAt: null,
-        simulationIsOnForValueTesting: false,
-        simulationIsPausedAfterOnce: false,
-        simulationPaused: true,
-        startedSimulationCycle: false,
-        startedSimulationOnce: false,
-        interval: null,
-      },
-      groupVisible: {}, // group id => bool
-      keyframesMap: new Map(), // maps from piston id to array of keyframes
-      previousKeyframesMap: null, // use for greyed points when something broke
-      pistons: [], // this is not actually needed because we have `keyframesMap`
-      timeSelection: new Map(), // map from piston id
-    };
+    this.state = this.getIninitalState();
   }
+
+  getIninitalState = () => ({
+    windowCollapsed: true,
+    devMode: false,
+    simulationSettings: {
+      breakingForce: null,
+      stiffness: null,
+      displayVol: null,
+      highestForceMode: null,
+      peakForceMode: null,
+    },
+    timeline: {
+      currentCycle: 0,
+      seconds: 8,
+      currentTime: 0,
+      simluationBrokeAt: null,
+      simulationIsOnForValueTesting: false,
+      simulationIsPausedAfterOnce: false,
+      simulationPaused: true,
+      startedSimulationCycle: false,
+      startedSimulationOnce: false,
+    },
+    groupVisible: {}, // group id => bool
+    keyframesMap: new Map(), // maps from piston id to array of keyframes
+    previousKeyframesMap: null, // use for greyed points when something broke
+    pistons: [], // this is not actually needed because we have `keyframesMap`
+    timeSelection: new Map(), // map from piston id
+  });
 
   componentDidMount() {
     window.addPiston = this.addPiston;
@@ -242,26 +243,15 @@ class App extends Component {
   };
 
   resetState = () => {
-    const { timeline } = this.state;
     SimulationControls.removeLines();
 
-    clearInterval(timeline.interval);
+    // the interval is a class variable so clear with a class method
+    SimulationControls.clearTimelineInterval();
 
     // some race condition with the 'broken sim' requires the timeout
     setTimeout(() => {
       this.setState({
-        timeline: {
-          ...timeline,
-          currentCycle: 0,
-          currentTime: 0,
-          interval: null,
-          simulationPaused: true,
-          startedSimulationOnce: false,
-          startedSimulationCycle: false,
-          simulationIsPausedAfterOnce: false,
-          simluationBrokeAt: null,
-          previousKeyframesMap: null,
-        },
+        timeline: { ...this.getIninitalState().timeline },
       });
     }, 100);
   };

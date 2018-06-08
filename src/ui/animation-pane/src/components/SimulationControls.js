@@ -12,27 +12,37 @@ import {
 import {
   togglePane,
   restartSimulation,
-  togglePauseSimulation,
-  toggleSimulation,
   moveJoint,
+  pauseSimulation,
+  unpauseSimulation,
+  startSimulation,
+  stopSimulation,
 } from '../utils/sketchup-integration';
 
 class SimulationControls extends React.Component {
+  timelineInterval = null;
+
+  static clearTimelineInterval = () => clearInterval(this.timelineInterval);
+
   componentDidMount() {
     document.addEventListener('keyup', e => {
       // ESC
       if (e.keyCode === 27) {
-        this.stopSimulation();
+        this.stopSimulationClick();
       }
     });
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keyup', this.stopSimulation);
+    document.removeEventListener('keyup', this.stopSimulationClick);
   }
 
   toggleSimulation = playOnce => {
-    const { startedSimulationOnce, startedSimulationCycle } = this.props;
+    const {
+      timeline: { startedSimulationOnce, startedSimulationCycle },
+    } = this.props;
+    console.log('startedSimulationCycle', startedSimulationCycle);
+    console.log('startedSimulationOnce', startedSimulationOnce);
 
     if (playOnce) {
       if (startedSimulationOnce) {
@@ -49,18 +59,22 @@ class SimulationControls extends React.Component {
     }
   };
 
-  playOneTimelineStep = () => {
-    const { timeline, setContainerState, keyframesMap } = this.props;
+  /**
+   * Checks if we reached the timeline end
+   * @returns adjusted time in seconds
+   */
+  _checkIfReachedTimelineEnd = () => {
+    const { timeline, setContainerState } = this.props;
 
-    let timelineCurrentTimeAdjusted = timeline.currentTime;
+    let actualTimelineMiliSeconds = timeline.currentTime;
 
-    if (timelineCurrentTimeAdjusted / 1000 > timeline.seconds) {
+    if (actualTimelineMiliSeconds / 1000 > timeline.seconds) {
       if (timeline.startedSimulationOnce) {
-        console.log('here)');
-        this._removeInterval();
+        SimulationControls.clearTimelineInterval();
         SimulationControls.removeLines();
-        // toggleSimulation();
-        togglePauseSimulation();
+
+        // pause the sim
+        pauseSimulation();
 
         setContainerState({
           timeline: {
@@ -74,19 +88,30 @@ class SimulationControls extends React.Component {
         });
       } else {
         // reset current time to 0 because we start a new cycle
-        timelineCurrentTimeAdjusted = 0;
+        actualTimelineMiliSeconds = 0;
         setContainerState({
           timeline: { currentCycle: timeline.currentCycle + 1 },
         });
       }
     }
 
-    const timelinecurrentTimeInSeconds = timelineCurrentTimeAdjusted / 1000;
+    return actualTimelineMiliSeconds;
+  };
+
+  /**
+   * Only play the timeline once and pause the simulation afterwards.
+   */
+  playOneTimelineStep = () => {
+    const { timeline, setContainerState, keyframesMap } = this.props;
+
+    const actualTimelineMiliSeconds = this._checkIfReachedTimelineEnd();
+    const actualTimelineSeconds = actualTimelineMiliSeconds / 1000;
+    console.log('actualTimelineSeconds', actualTimelineSeconds);
 
     keyframesMap.forEach((keyframes, jointId) => {
       for (let i = 0; i < keyframes.length; i++) {
         const currentKeyframe = keyframes[i];
-        if (timelinecurrentTimeInSeconds === currentKeyframe.time * 1000) {
+        if (actualTimelineSeconds === currentKeyframe.time * 1000) {
           console.log('move joint');
           // Since the first and the last keyframe are 'special' and should
           // always have the same value, we must not move the joint for the last
@@ -101,7 +126,7 @@ class SimulationControls extends React.Component {
       }
     });
 
-    const newX = timelinecurrentTimeInSeconds * X_AXIS / timeline.seconds;
+    const newX = actualTimelineSeconds * X_AXIS / timeline.seconds;
 
     d3
       .selectAll('line.timeline')
@@ -111,18 +136,15 @@ class SimulationControls extends React.Component {
     setContainerState({
       timeline: {
         currentTime:
-          timelineCurrentTimeAdjusted + UPDATE_INTERVALL * TIMELINE_TIME_FACTOR,
+          actualTimelineMiliSeconds + UPDATE_INTERVALL * TIMELINE_TIME_FACTOR,
       },
     });
   };
 
   _addInterval = () => {
+    console.log('added interval');
     const interval = setInterval(this.playOneTimelineStep, UPDATE_INTERVALL);
-    this.props.setContainerState({ timeline: { interval } });
-  };
-
-  _removeInterval = () => {
-    clearInterval(this.props.timeline.interval);
+    this.interval = interval;
   };
 
   _addLines = () => {
@@ -142,15 +164,19 @@ class SimulationControls extends React.Component {
   static removeLines = () => d3.selectAll('line.timeline').remove();
 
   _togglePause = () => {
-    const { simulationPaused, setContainerState } = this.props;
+    const {
+      timeline: { simulationPaused },
+      setContainerState,
+    } = this.props;
+    console.log('simulationPaused', simulationPaused);
     if (simulationPaused) {
-      togglePauseSimulation();
+      unpauseSimulation();
       setContainerState({ simulationPaused: !simulationPaused });
 
       this._addLines();
       this._addInterval();
     } else {
-      togglePauseSimulation();
+      pauseSimulation();
       this._removeInterval();
       SimulationControls.removeLines();
 
@@ -161,17 +187,18 @@ class SimulationControls extends React.Component {
   _startSimulation = playOnce => {
     const {
       setContainerState,
-      simulationIsPausedAfterOnce,
-      simulationIsOnForValueTesting,
+      timeline: { simulationIsPausedAfterOnce, simulationIsOnForValueTesting },
     } = this.props;
 
     SimulationControls.removeLines();
     this._addLines();
 
-    this._removeInterval();
+    SimulationControls.clearTimelineInterval();
     this._addInterval();
 
     this._removeAllTimeselection();
+
+    // just start?
 
     if (simulationIsPausedAfterOnce) {
       restartSimulation();
@@ -180,7 +207,7 @@ class SimulationControls extends React.Component {
         restartSimulation();
         setContainerState({ simulationIsOnForValueTesting: false });
       } else {
-        toggleSimulation();
+        startSimulation();
       }
     }
 
@@ -213,18 +240,20 @@ class SimulationControls extends React.Component {
     );
   };
 
-  stopSimulation = () => {
-    const { timeline, setContainerState, resetState } = this.props;
-
+  stopSimulationClick = () => {
     const {
-      startedSimulationOnce,
-      startedSimulationCycle,
-      simulationIsPausedAfterOnce,
-      simulationIsOnForValueTesting,
-    } = timeline;
+      timeline: {
+        startedSimulationOnce,
+        startedSimulationCycle,
+        simulationIsPausedAfterOnce,
+        simulationIsOnForValueTesting,
+      },
+      setContainerState,
+      resetState,
+    } = this.props;
 
     if (simulationIsOnForValueTesting) {
-      toggleSimulation();
+      stopSimulation();
       setContainerState({ timline: { simulationIsOnForValueTesting: false } });
       return;
     }
@@ -237,7 +266,7 @@ class SimulationControls extends React.Component {
     }
 
     this._addAllTimeSelectionLines();
-    toggleSimulation();
+    stopSimulation();
     resetState();
   };
 
@@ -247,7 +276,12 @@ class SimulationControls extends React.Component {
     const {
       devMode,
       windowCollapsed,
-      timeline,
+      timeline: {
+        startedSimulationOnce,
+        simulationPaused,
+        startedSimulationCycle,
+        seconds,
+      },
       simulationSettings,
       setContainerState,
     } = this.props;
@@ -273,7 +307,7 @@ class SimulationControls extends React.Component {
                 alt="pause play"
                 style={devMode ? {} : { height: 25, width: 25 }}
                 src={
-                  timeline.startedSimulationOnce && !timeline.simulationPaused
+                  startedSimulationOnce && !simulationPaused
                     ? '../../trussfab-globals/assets/icons/pause.png'
                     : '../../trussfab-globals/assets/icons/play.png'
                 }
@@ -286,7 +320,7 @@ class SimulationControls extends React.Component {
                 alt="pause cycle play"
                 style={devMode ? {} : { height: 25, width: 25 }}
                 src={
-                  timeline.startedSimulationCycle && !timeline.simulationPaused
+                  startedSimulationCycle && !simulationPaused
                     ? '../../trussfab-globals/assets/icons/pause.png'
                     : '../../trussfab-globals/assets/icons/cycle.png'
                 }
@@ -294,7 +328,7 @@ class SimulationControls extends React.Component {
             </button>
           </div>
           <div className={devMode ? 'col' : 'some-padding-top'}>
-            <button onClick={this.stopSimulation}>
+            <button onClick={this.stopSimulationClick}>
               <img
                 alt="stop"
                 style={devMode ? {} : { height: 25, width: 25 }}
@@ -324,9 +358,9 @@ class SimulationControls extends React.Component {
           <SimulationForm
             simulationSettings={simulationSettings}
             setContainerState={setContainerState}
-            timelineSeconds={timeline.seconds}
-            startedSimulationCycle={timeline.startedSimulationCycle}
-            startedSimulationOnce={timeline.startedSimulationOnce}
+            timelineSeconds={seconds}
+            startedSimulationCycle={startedSimulationCycle}
+            startedSimulationOnce={startedSimulationOnce}
           />
         )}
       </div>

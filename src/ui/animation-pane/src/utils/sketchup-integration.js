@@ -1,9 +1,17 @@
-function toggleSimulation() {
-  window.sketchup.toggle_simulation();
+function startSimulation() {
+  window.sketchup.start_simulation();
 }
 
-function togglePauseSimulation() {
-  window.sketchup.toggle_pause_simulation();
+function stopSimulation() {
+  window.sketchup.stop_simulation();
+}
+
+function pauseSimulation() {
+  window.sketchup.pause_simulation();
+}
+
+function unpauseSimulation() {
+  window.sketchup.unpause_simulation();
 }
 
 function restartSimulation() {
@@ -51,9 +59,11 @@ function persistKeyframes(keyframes) {
 }
 
 export {
+  startSimulation,
+  stopSimulation,
+  pauseSimulation,
+  unpauseSimulation,
   togglePane,
-  toggleSimulation,
-  togglePauseSimulation,
   restartSimulation,
   moveJoint,
   setBreakingForce,
