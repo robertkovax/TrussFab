@@ -7,15 +7,14 @@ class GenericLink < PhysicsLink
   attr_reader :joint, :first_cylinder, :second_cylinder, :initial_force,
               :default_length, :force
 
-  def initialize(first_node, second_node, id: nil)
-    super(first_node, second_node, 'generic', id: id)
+  def initialize(first_node, second_node, id: nil, link_type: 'generic')
+    super(first_node, second_node, link_type, id: id)
 
     pt1 = first_node.thingy.position
     pt2 = second_node.thingy.position
     @default_length = pt1.distance(pt2).to_m
 
     @force = 0
-    @initial_force = 0
     @min_distance = @default_length + Configuration::GENERIC_LINK_MIN_DISTANCE
     @max_distance = @default_length + Configuration::GENERIC_LINK_MAX_DISTANCE
     @limits_enabled = true

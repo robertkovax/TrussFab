@@ -112,6 +112,7 @@ module Configuration
   SURFACE_HIGHLIGHT_COLOR   = Sketchup::Color.new(0.5, 0.5, 0.5)
   HUB_COLOR                 = Sketchup::Color.new(0.69, 0.75, 0.81)
   ELONGATION_COLOR          = Sketchup::Color.new(0.69, 0.75, 0.81)
+  PID_COLOR                 = Sketchup::Color.new(1.0, 0.45, 0.0)
 
   # Ground Stuff
   GROUND_COLOR          = Sketchup::Color.new(1.0, 1.0, 1.0)
@@ -153,7 +154,7 @@ module Configuration
   SPRING_DAMP = 10
 
   # GenericPointToPoint Properties
-  GENERIC_LINK_FORCE = 100
+  GENERIC_LINK_FORCE = 0
   GENERIC_LINK_MIN_DISTANCE = -0.2
   GENERIC_LINK_MAX_DISTANCE = 0.2
 
@@ -174,4 +175,7 @@ module Configuration
   PISTON_MASS       = 0.3
   HUB_MASS          = 0.12
   POD_MASS          = 0.1
+
+  #PID_Controller
+  STATIC_FORCE_ANALYSIS_STEPS = 20
 end

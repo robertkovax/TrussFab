@@ -8,6 +8,7 @@ require 'src/models/pod_model.rb'
 require 'src/models/force_arrow_model.rb'
 require 'src/models/weight_indicator_model.rb'
 require 'src/models/sensor_model.rb'
+require 'src/models/pid_model.rb'
 
 # Model Storage
 class ModelStorage
@@ -42,6 +43,10 @@ class ModelStorage
 
     if @models['generic'].nil? || !@models['generic'].valid?
       @models['generic'] = SpringModel.new
+    end
+
+    if @models['pid_controller'].nil? || !@models['pid_controller'].valid?
+      @models['pid_controller'] = PIDModel.new
     end
 
     if @models['spring'].nil? || !@models['spring'].valid?

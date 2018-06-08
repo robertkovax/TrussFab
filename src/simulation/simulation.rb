@@ -221,6 +221,7 @@ class Simulation
       reset_force_arrows
       reset_sensor_symbols
       reset_generic_links
+      reset_pid_controllers
       rendering_options['EdgeDisplayMode'] = @show_edges
       rendering_options['DrawSilhouettes'] = @show_profiles
     rescue StandardError => err
@@ -362,6 +363,12 @@ class Simulation
     end
   end
 
+  def reset_pid_controllers
+    Graph.instance.edges.each do |_, edge|
+      edge.thingy.reset_errors if edge.thingy.is_a?(PidController)
+    end
+  end
+
   def get_closest_node_to_point(point)
     closest_distance = Float::INFINITY
     Graph.instance.nodes.values.each do |node|
@@ -457,6 +464,23 @@ class Simulation
       highest_force = force if force.abs > highest_force.abs
     end
     highest_force
+  end
+
+  def check_static_force(piston_id, position)
+    Graph.instance.edges.each_value do |edge|
+      edge.thingy.joint.stiffness = 0.999
+    end
+
+    actuator = @pistons[piston_id]
+    actuator.joint.breaking_force = 0
+    actuator.joint.rate = 10
+    actuator.joint.controller = actuator.max * position.to_f +
+                                actuator.min * (1 - position.to_f)
+
+    update_world_headless_by(3)
+    @max_link_tensions.clear
+    update_world_headless_by(0.2, true)
+    @max_link_tensions[piston_id]
   end
 
   def print_piston_stats
@@ -620,6 +644,10 @@ class Simulation
   def update_forces
     Graph.instance.nodes.each_value do |node|
       node.thingy.apply_force
+    end
+    Graph.instance.edges.each_value do |edge|
+      link = edge.thingy
+      link.update_force if link.is_a?(PidController)
     end
   end
 
