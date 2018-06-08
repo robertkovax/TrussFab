@@ -166,7 +166,7 @@ class Simulation
 
     if TrussFab.store_sensor_output?
       @sensor_output_csv =
-        File.new("#{File.expand_path('~')}/sensor_output.log", "w")
+        File.new("#{File.expand_path('~')}/sensor_output.log", 'w')
     end
 
     # create bodies for node
@@ -209,9 +209,7 @@ class Simulation
 
     destroy_world
 
-    if TrussFab.store_sensor_output?
-      @sensor_output_csv.close
-    end
+    @sensor_output_csv.close if TrussFab.store_sensor_output?
 
     model.start_operation('Resetting Simulation', true)
     begin
@@ -265,9 +263,9 @@ class Simulation
     z = Configuration::GROUND_HEIGHT
     pts = [
       [-x, -y, z],
-      [ x, -y, z],
-      [ x,  y, z],
-      [-x,  y, z]
+      [x, -y, z],
+      [x, y, z],
+      [-x, y, z]
     ]
     face = @ground_group.entities.add_face(pts)
     face.pushpull(-Configuration::GROUND_THICKNESS)
@@ -393,12 +391,14 @@ class Simulation
         hash[:expanding] = false
       elsif (cur_disp - link.min).abs < 0.005 && !hash[:expanding]
         # increase speed everytime the piston reaches its minimum value
-        hash[:speed] += 0.05 unless hash[:speed] >= @max_speed && @max_speed != 0
+        unless hash[:speed] >= @max_speed && @max_speed != 0
+          hash[:speed] += 0.05
+        end
         hash[:expanding] = true
         # add the piston frequency as a label in the chart (every value between
         # two frequencies has the same frequency)
-        log_max_actuator_tensions((1 / (@world.elapsed_time - @piston_world_time)
-                                  .to_f).round(2))
+        timestep = (@world.elapsed_time - @piston_world_time).to_f.round(2)
+        log_max_actuator_tensions(1 / timestep)
       end
       hash
     end
@@ -512,7 +512,7 @@ class Simulation
       next if edges.nil?
       edges.each do |edge|
         link = edge.thingy
-        next if edge.thingy.piston_group != id || link.nil? || !link.joint.valid?
+        next if link.piston_group != id || link.nil? || !link.joint.valid?
         joint = link.joint
 
         next_position_normalized = link.max * next_position.to_f +
@@ -700,7 +700,7 @@ class Simulation
     end
   end
 
-  def nextFrame(view)
+  def nextFrame(view) # rubocop:disable Naming/MethodName
     return @running unless @running && !@paused
 
     update_world
@@ -849,9 +849,8 @@ class Simulation
     # This is not the ideal solution for recoloring bottles, however it is only
     # called once, after stopping the simulation, so the performance impact is
     # not too big.
-    mats = Sketchup.active_model.materials
     Graph.instance.edges.each_value do |edge|
-        edge.thingy.un_highlight
+      edge.thingy.un_highlight
     end
     @bottle_dat.clear
   end
