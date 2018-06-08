@@ -89,7 +89,7 @@ class NodeExportInterface
     elongation_tuples = []
     nodes.each do |node|
       # edges that are part of a subhub need to be elongated
-      elongated_edges = non_mainhub_edges_at_node(node)
+      elongated_edges = subhubs_at_node(node).map { |hub| hub.edges }.flatten
       # edges that are connected by hinges also need to be elongated
       elongated_edges += hinges_at_node(node)
                          .map { |hinge| [hinge.edge1, hinge.edge2] }.flatten
