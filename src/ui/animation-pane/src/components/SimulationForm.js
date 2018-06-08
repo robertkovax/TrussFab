@@ -28,14 +28,14 @@ class SimulationForm extends React.Component {
           <input
             className="form-check-input"
             type="checkbox"
-            id="defaultCheck1"
+            id="highestForceCheck"
             value={highestForceMode}
             onChange={event => {
               setContainerState({ highestForceMode: event.target.value });
               changeHighestForceMode(event.target.value);
             }}
           />
-          <label className="form-check-label" for="defaultCheck1">
+          <label className="form-check-label" for="highestForceCheck">
             Highest Force
           </label>
         </div>
@@ -43,14 +43,14 @@ class SimulationForm extends React.Component {
           <input
             className="form-check-input"
             type="checkbox"
-            id="defaultCheck1"
+            id="peakForceModeCheck"
             value={peakForceMode}
             onChange={event => {
               setContainerState({ peakForceMode: event.target.value });
               changePeakForceMode(event.target.value);
             }}
           />
-          <label className="form-check-label" for="defaultCheck1">
+          <label className="form-check-label" for="peakForceModeCheck">
             Peak Force
           </label>
         </div>
@@ -58,26 +58,26 @@ class SimulationForm extends React.Component {
           <input
             className="form-check-input"
             type="checkbox"
-            id="defaultCheck1"
+            id="displayValuesCheck"
             value={displayVol}
             onChange={event => {
               setContainerState({ displayVol: event.target.value });
               changeDisplayValues(event.target.value);
             }}
           />
-          <label className="form-check-label" for="defaultCheck1">
+          <label className="form-check-label" for="displayValuesCheck">
             Display Values
           </label>
         </div>
         <div className="form-group row no-gutters">
-          <label for="inputEmail3" className="col-sm-6 col-form-label">
+          <label for="cycleLengthInput" className="col-sm-6 col-form-label">
             Cycle Length
           </label>
           <div className="input-group input-group-sm col-sm-6">
             <input
               type="number"
               className="form-control form-control-sm"
-              id="inputEmail3"
+              id="cycleLengthInput"
               placeholder="6"
               value={seconds}
               onChange={event => {
@@ -115,14 +115,14 @@ class SimulationForm extends React.Component {
           </div>
         </div>
         <div className="form-group row no-gutters">
-          <label for="inputEmail3" className="col-sm-6 col-form-label">
+          <label for="breakingForceInput" className="col-sm-6 col-form-label">
             Breaking Force
           </label>
           <div className="input-group input-group-sm col-sm-6">
             <input
               type="number"
               className="form-control form-control-sm"
-              id="inputEmail3"
+              id="breakingForceInput"
               placeholder="300"
               value={breakingForce}
               onChange={event => {
@@ -140,15 +140,15 @@ class SimulationForm extends React.Component {
           </div>
         </div>
         <div className="form-group row no-gutters">
-          <label for="inputEmail3" className="col-sm-6 col-form-label">
+          <label for="stiffnessInput" className="col-sm-6 col-form-label">
             Stiffness
           </label>
           <div className="input-group input-group-sm col-sm-6">
             <input
               type="number"
               className="form-control form-control-sm"
-              id="inputEmail3"
-              placeholder="Email"
+              id="stiffnessInput"
+              placeholder="Stiffness"
               value={stiffness}
               onChange={event => {
                 setContainerState({ stiffness: event.target.value });
