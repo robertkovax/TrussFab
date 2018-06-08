@@ -12,8 +12,6 @@ class DeleteStructureTool < Tool
   end
 
   def onLButtonDown(_flags, x, y, view)
-    @clicking = true
-    @initial_click_position = [x, y]
     delete(x, y, view)
   end
 
