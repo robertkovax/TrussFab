@@ -150,27 +150,48 @@ class App extends Component {
     persistKeyframes(JSON.stringify([...this.state.keyframes]));
   };
 
+  /**
+   * adds a timeline for a keyframe. NB: The coupling with d3 goes agains the
+   * state management with React. For the future, try to get d3 fully out of the
+   * project and connect the SVG elements to the state.
+   * @param {number} id piston group id
+   */
   addTimeSelectionForNewKeyFrame = id => {
     const self = this;
 
-    function scrubLine() {
-      let newX = d3.event.x;
-      newX = Math.min(Math.max(0, newX), X_AXIS);
-
+    /**
+     * updates the timeline in the state and for the ui
+     * @param {number} newX the new x coordinate relative to the SVG
+     */
+    function udpateLine(newX) {
+      const newXBounded = Math.min(Math.max(0, newX), X_AXIS);
       const oldTimeSelection = self.state.timeSelection;
 
       self.setState({
         timeSelection: oldTimeSelection.set(
           id,
-          (newX / X_AXIS * self.state.timeline.seconds).toFixed(1)
+          (newXBounded / X_AXIS * self.state.timeline.seconds).toFixed(1)
         ),
       });
 
       d3
-        .select(this)
-        .attr('x1', newX)
-        .attr('x2', newX);
+        .select('#svg-' + id)
+        .select('.timeSelection')
+        .attr('x1', newXBounded)
+        .attr('x2', newXBounded);
     }
+
+    function scrubLine() {
+      const newX = d3.event.x;
+      udpateLine(newX);
+    }
+
+    function moveTimelineByClicking() {
+      const newX = d3.mouse(this)[0]; // get X relative to SVG
+      udpateLine(newX);
+    }
+
+    d3.select(`#svg-${id}`).on('click', moveTimelineByClicking);
 
     const scrub = d3.drag().on('drag', scrubLine);
 
