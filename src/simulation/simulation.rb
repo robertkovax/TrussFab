@@ -880,6 +880,9 @@ class Simulation
     Graph.instance.edges.each_value do |edge|
       edge.thingy.un_highlight
     end
+    @bottle_dat.each do |_, dat|
+      Sketchup.active_model.materials.remove(dat[3]) if dat[3] && dat[3].valid?
+    end
     @bottle_dat.clear
   end
 
