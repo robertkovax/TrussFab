@@ -30,10 +30,10 @@ class SimulationForm extends React.Component {
             className="form-check-input"
             type="checkbox"
             id="highestForceCheck"
-            value={highestForceMode}
+            checked={highestForceMode}
             onChange={event => {
-              setContainerState({ highestForceMode: event.target.value });
-              changeHighestForceMode(event.target.value);
+              setContainerState({ highestForceMode: event.target.checked });
+              changeHighestForceMode(event.target.checked);
             }}
           />
           <label className="form-check-label">
@@ -45,10 +45,10 @@ class SimulationForm extends React.Component {
             className="form-check-input"
             type="checkbox"
             id="peakForceModeCheck"
-            value={peakForceMode}
+            checked={peakForceMode}
             onChange={event => {
-              setContainerState({ peakForceMode: event.target.value });
-              changePeakForceMode(event.target.value);
+              setContainerState({ peakForceMode: event.target.checked });
+              changePeakForceMode(event.target.checked);
             }}
           />
           <label className="form-check-label">
