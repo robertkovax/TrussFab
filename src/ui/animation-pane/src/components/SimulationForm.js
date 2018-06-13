@@ -18,11 +18,9 @@ class SimulationForm extends React.Component {
       peakForceMode,
       seconds,
       setContainerState,
-      startedSimulationCycle,
-      startedSimulationOnce,
       stiffness,
     } = this.props;
-    const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
+
     return (
       <form>
         <div className="form-check">
