@@ -88,7 +88,7 @@ class AnimationPane
     Sketchup.active_model.select_tool(@simulation_tool)
     breaking_force = @simulation_tool.breaking_force
     stiffness = @simulation_tool.stiffness
-    @dialog.execute_script("initState(#{breaking_force}, #{stiffness})")
+    @dialog.execute_script("initState(#{breaking_force}, #{stiffness} * 100)")
   end
 
   def register_callbacks

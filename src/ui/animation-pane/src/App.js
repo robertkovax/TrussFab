@@ -51,8 +51,6 @@ class App extends Component {
     window.fixBrokenModelByReducingMovement = this.fixBrokenModelByReducingMovement;
     window.initState = this.initState;
     window.syncHiddenStatus = this.syncHiddenStatus;
-
-    // setStiffness(this.state.stiffness);
   }
 
   setContainerState = newState => {
