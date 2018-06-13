@@ -143,6 +143,10 @@ class AnimationPane
       @simulation_tool.change_peak_force_mode(checked)
     end
 
+    @dialog.add_action_callback('change_display_values') do |_context, checked|
+      @simulation_tool.change_display_values(checked)
+    end
+
     @dialog.add_action_callback('apply_force') do |_context|
       @simulation_tool.pressurize_generic_link
     end

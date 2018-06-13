@@ -12,7 +12,7 @@ class SimulationForm extends React.Component {
   render() {
     const {
       breakingForce,
-      displayVol,
+      displayVal,
       highestForceMode,
       keyframesMap,
       peakForceMode,
@@ -60,10 +60,10 @@ class SimulationForm extends React.Component {
             className="form-check-input"
             type="checkbox"
             id="displayValuesCheck"
-            value={displayVol}
+            checked={displayVal}
             onChange={event => {
-              setContainerState({ displayVol: event.target.value });
-              changeDisplayValues(event.target.value);
+              setContainerState({ displayVal: event.target.checked });
+              changeDisplayValues(event.target.checked);
             }}
           />
           <label className="form-check-label">

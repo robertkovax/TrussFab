@@ -34,6 +34,7 @@ class SimulationTool < Tool
     @simulation.breaking_force = @breaking_force
     @simulation.peak_force_mode = @peak_force_mode
     @simulation.highest_force_mode = @highest_force_mode
+    @simulation.display_values = @display_values
     @simulation.stiffness = @stiffness
   end
 
@@ -180,6 +181,11 @@ class SimulationTool < Tool
 
   def change_peak_force_mode(param)
     @peak_force_mode = param
+    setup_simulation_parameters
+  end
+
+  def change_display_values(param)
+    @display_values = param
     setup_simulation_parameters
   end
 

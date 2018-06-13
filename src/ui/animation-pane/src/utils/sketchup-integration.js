@@ -21,8 +21,7 @@ function changePeakForceMode(checked) {
 }
 
 function changeDisplayValues(checked) {
-  console.log('cdv');
-  // todo
+  window.sketchup.change_display_values(checked);
 }
 
 function setStiffness(value) { window.sketchup.set_stiffness(value); }

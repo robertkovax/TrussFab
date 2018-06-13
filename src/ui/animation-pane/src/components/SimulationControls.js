@@ -243,7 +243,7 @@ class SimulationControls extends React.Component {
     const {
       breakingForce,
       devMode,
-      displayVol,
+      displayVal,
       highestForceMode,
       keyframesMap,
       peakForceMode,
@@ -326,7 +326,7 @@ class SimulationControls extends React.Component {
         {devMode && (
           <SimulationForm
             breakingForce={breakingForce}
-            displayVol={displayVol}
+            displayVal={displayVal}
             highestForceMode={highestForceMode}
             keyframesMap={keyframesMap}
             peakForceMode={peakForceMode}

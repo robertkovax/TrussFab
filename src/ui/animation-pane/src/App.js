@@ -15,7 +15,7 @@ class App extends Component {
       breakingForce: 1000,
       currentCycle: 0,
       devMode: false,
-      displayVol: false,
+      displayVal: false,
       highestForceMode: false,
       groupVisible: {}, // group id => bool
       keyframesMap: new Map(), // maps from piston id to array of keyframes
