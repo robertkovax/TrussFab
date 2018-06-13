@@ -5,7 +5,7 @@ require 'src/export/hinge_export_interface'
 # This class keeps track of hubs and hinges that will be exported.
 # The hubs and hinges are associated with the node they are
 # connected around.
-# The logic which hinges have to be removed to create a printable
+# The logic which hinges have to be removed to create a 3D printable
 # node configuration is also included here.
 class NodeExportInterface
   attr_reader :node_hinge_map, :node_hub_map, :static_groups
@@ -69,7 +69,7 @@ class NodeExportInterface
   def apply_hinge_algorithm
     @node_hinge_map.each do |node, hinges|
       hubs = hubs_at_node(node)
-      new_parts = filter_valid_hinges(node, hubs, hinges)
+      new_parts = filter_valid_parts(node, hubs, hinges)
 
       new_hinges = new_parts.select { |part| part.is_a? HingeExportInterface }
       new_hinges = order_hinges(new_hinges)
@@ -158,13 +158,17 @@ class NodeExportInterface
     parts.size == depth_first_search(parts).size
   end
 
-  def filter_valid_hinges(node, hubs, hinges)
+  def filter_valid_parts(node, hubs, hinges)
     mainhub = hubs[0]
     all_parts = hubs + hinges
     violating_parts = find_violating_parts(all_parts)
+    # mainhub can not be removed, therefore it can not be considered violating
     violating_parts.delete(mainhub)
 
-    enumerator = Enumerator.new do |y|
+    # Enumerate all possible combinations of parts to remove, starting with
+    # the least amount of parts, since we want to test bigger remaining sets
+    # earlier.
+    removal_possibilities_enumerator = Enumerator.new do |y|
       cur_length = 0
       while cur_length <= violating_parts.size
         violating_parts.combination(cur_length).each do |combination|
@@ -174,14 +178,18 @@ class NodeExportInterface
       end
     end
 
-    enumerator.each do |removed_parts|
-      remaining_parts = all_parts - removed_parts
+    # Go through all possible combinations of violating parts and remove them.
+    # If the remaining parts
+    #   (1) don't contain violating parts anymore
+    #   (2) are still fully connected
+    # a valid result was found.
+    removal_possibilities_enumerator.each do |removal_possibility|
+      remaining_parts = all_parts - removal_possibility
 
-      violating = false
-      violating = true if find_violating_parts(remaining_parts).any?
-      violating = true unless check_part_connectedness(remaining_parts)
+      has_violating_part = find_violating_parts(remaining_parts).any?
+      is_connected = check_part_connectedness(remaining_parts)
 
-      return remaining_parts unless violating
+      return remaining_parts if is_connected && !has_violating_part
     end
 
     raise 'No valid hinge configuration could be found at node ' + node.id.to_s
