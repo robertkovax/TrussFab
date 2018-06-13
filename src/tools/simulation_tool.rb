@@ -34,13 +34,14 @@ class SimulationTool < Tool
     @simulation.breaking_force = @breaking_force
     @simulation.peak_force_mode = @peak_force_mode
     @simulation.highest_force_mode = @highest_force_mode
+    @simulation.display_values = @display_values
     @simulation.stiffness = @stiffness
   end
 
   def activate
     @simulation = Simulation.new
-    setup_simulation_parameters
     @simulation.setup
+    setup_simulation_parameters
     @simulation.open_sensor_dialog
     @auto_piston_group = @simulation.auto_piston_group
     Sketchup.active_model.active_view.animation = @simulation
@@ -180,6 +181,11 @@ class SimulationTool < Tool
 
   def change_peak_force_mode(param)
     @peak_force_mode = param
+    setup_simulation_parameters
+  end
+
+  def change_display_values(param)
+    @display_values = param
     setup_simulation_parameters
   end
 

@@ -5,9 +5,9 @@ require 'erb'
 # Simulation, using MSPhysics
 class Simulation
   attr_reader :pistons, :moving_pistons, :bottle_dat, :stiffness,
-              :breaking_force
-  attr_accessor :max_speed, :highest_force_mode,
-                :peak_force_mode, :auto_piston_group, :reset_positions_on_end
+              :breaking_force, :display_values
+  attr_accessor :max_speed, :highest_force_mode, :peak_force_mode,
+                :auto_piston_group, :reset_positions_on_end
 
   class << self
     def create_body(world, entity, collision_type = :box)
@@ -124,6 +124,12 @@ class Simulation
       edge.thingy.joint.stiffness =
         edge.thingy.is_a?(ActuatorLink) ? 0.99 : stiffness
     end
+  end
+
+  def display_values=(display_values)
+    @display_values = display_values
+    # reset labels if display values box is unchecked
+    reset_force_labels unless display_values
   end
 
   #
@@ -610,12 +616,6 @@ class Simulation
       # reset_force_labels
       start
     else
-      # note(tim): I'm not sure if we want to do this on pause. There should
-      # probably be another mode that shows the force labels.
-      # model = Sketchup.active_model
-      # model.start_operation('update force label', true)
-      # update_force_labels
-      # model.commit_operation
       @paused = true
     end
   end
@@ -880,6 +880,9 @@ class Simulation
     Graph.instance.edges.each_value do |edge|
       edge.thingy.un_highlight
     end
+    @bottle_dat.each do |_, dat|
+      Sketchup.active_model.materials.remove(dat[3]) if dat[3] && dat[3].valid?
+    end
     @bottle_dat.clear
   end
 
@@ -901,6 +904,7 @@ class Simulation
           @breaking_force_invh
       mat.color = Geometry.blend_colors(Configuration::TENSION_COLORS, r)
     end
+    update_force_labels if @display_values
   end
 
   def visualize_highest_tension
@@ -922,6 +926,7 @@ class Simulation
     end
     color_single_link(lowest_force_tuple[0])
     color_single_link(highest_force_tuple[0])
+    update_force_labels if @display_values
   end
 
   def color_single_link(link)
