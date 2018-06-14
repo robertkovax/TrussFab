@@ -789,12 +789,14 @@ class Simulation
     @sensors.each do |sensor|
       if sensor.is_a?(Hub)
         speed = sensor.body.get_velocity.length.to_f
-        @sensor_dialog.update_speed(sensor.id, speed.round(2))
+        @sensor_dialog.add_chart_data(sensor.id, ' ', speed, 'Speed', 'Hub')
         accel = sensor.body.get_acceleration.length.to_f
-        @sensor_dialog.update_acceleration(sensor.id, accel.round(2))
+        @sensor_dialog.add_chart_data(sensor.id, ' ', accel,
+                                      'Acceleration', 'Hub')
       elsif sensor.is_a?(Link)
         @sensor_dialog.add_chart_data(sensor.id,
-                                      ' ', @max_actuator_tensions[sensor.id])
+                                      ' ', @max_actuator_tensions[sensor.id],
+                                      'Force', 'Edge')
         if TrussFab.store_sensor_output?
           @sensor_output_csv
             .write(@max_actuator_tensions[sensor.id].to_s + "\n")
