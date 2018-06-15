@@ -80,6 +80,10 @@ class AnimationPane
     @dialog.execute_script("syncHiddenStatus(#{map.to_json})")
   end
 
+  def toggle_dev_mode()
+    @dialog.execute_script("toggleDevMode()")
+  end
+
   private
 
   def start_simulation_setup_scripts

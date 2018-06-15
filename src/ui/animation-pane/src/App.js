@@ -52,6 +52,7 @@ class App extends Component {
     window.fixBrokenModelByReducingMovement = this.fixBrokenModelByReducingMovement;
     window.initSimulationState = this.initSimulationState;
     window.syncHiddenStatus = this.syncHiddenStatus;
+    window.toggleDevMode = this.toggleDevMode;
   }
 
   /**
@@ -85,6 +86,8 @@ class App extends Component {
       groupVisible: newGroupVisible,
     });
   };
+
+  toggleDevMode = () => this.setState({ devMode: !this.state.devMode });
 
   setContainerState = newState => {
     const { timeline, simulationSettings } = newState;
