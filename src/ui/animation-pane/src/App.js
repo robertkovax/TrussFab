@@ -88,7 +88,7 @@ class App extends Component {
 
   setContainerState = newState => {
     const { timeline, simulationSettings } = newState;
-    // delete nested state and update it seperatily
+    // delete nested state and update it separately
     delete newState.timeline;
     delete newState.simulationSettings;
     this.setState({
@@ -163,7 +163,7 @@ class App extends Component {
      * updates the timeline in the state and for the ui
      * @param {number} newX the new x coordinate relative to the SVG
      */
-    function udpateLine(newX) {
+    function updateLine(newX) {
       const newXBounded = Math.min(Math.max(0, newX), X_AXIS);
       const oldTimeSelection = self.state.timeSelection;
 
@@ -183,12 +183,12 @@ class App extends Component {
 
     function scrubLine() {
       const newX = d3.event.x;
-      udpateLine(newX);
+      updateLine(newX);
     }
 
     function moveTimelineByClicking() {
       const newX = d3.mouse(this)[0]; // get X relative to SVG
-      udpateLine(newX);
+      updateLine(newX);
     }
 
     d3.select(`#svg-${id}`).on('click', moveTimelineByClicking);
@@ -288,10 +288,10 @@ class App extends Component {
     const newX = value / this.state.seconds * X_AXIS;
 
     d3
-    .select('#svg-' + id)
-    .select('line')
-    .attr('x1', newX)
-    .attr('x2', newX);
+      .select('#svg-' + id)
+      .select('line')
+      .attr('x1', newX)
+      .attr('x2', newX);
   };
 
   render() {
