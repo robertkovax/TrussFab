@@ -99,7 +99,7 @@ class PhysicsLink < Link
 
   def update_limits; end
 
-  def create_sub_sketchup_objects
+  def create_children
     @first_elongation_length =
       @second_elongation_length = Configuration::MINIMUM_ELONGATION
 

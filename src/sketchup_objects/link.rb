@@ -45,7 +45,7 @@ class Link < PhysicsSketchupObject
 
     @sensor_symbol = nil
 
-    create_sub_sketchup_objects
+    create_children
   end
 
   def delete
@@ -65,7 +65,7 @@ class Link < PhysicsSketchupObject
     @position = first_position
     @second_position = second_position
     delete_children
-    create_sub_sketchup_objects
+    create_children
   end
 
   def length
@@ -214,7 +214,7 @@ class Link < PhysicsSketchupObject
     @children.find { |child| child.is_a?(BottleLink) }
   end
 
-  def create_sub_sketchup_objects
+  def create_children
     @first_elongation_length =
       @second_elongation_length =
         Configuration::MINIMUM_ELONGATION
