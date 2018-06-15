@@ -45,7 +45,8 @@ module NodeExportVisualization
 
     private
 
-    HINGE_VISUALIZATION_DISTANCE = 3
+    ELONGATION_PUSH_DISTANCE = 2.5
+    LINE_VISUALIZATION_DISTANCE = 3
 
     def color_group(group, group_nr)
       group_color = case group_nr
@@ -70,7 +71,7 @@ module NodeExportVisualization
 
     def disconnect_edge_from_hub(rotating_edge, node)
       direction = rotating_edge.mid_point - node.position
-      direction.length = HINGE_VISUALIZATION_DISTANCE
+      direction.length = ELONGATION_PUSH_DISTANCE
 
       if rotating_edge.first_node?(node)
         rotating_edge.thingy.disconnect_from_hub(true, direction)
@@ -87,8 +88,8 @@ module NodeExportVisualization
       direction1 = (rotation_axis.mid_point - node.position).normalize
       direction2 = (rotating_edge.mid_point - node.position).normalize
 
-      direction1.length = HINGE_VISUALIZATION_DISTANCE
-      direction2.length = HINGE_VISUALIZATION_DISTANCE
+      direction1.length = LINE_VISUALIZATION_DISTANCE
+      direction2.length = LINE_VISUALIZATION_DISTANCE
 
       point1 = node.position.offset(direction1)
       point2 = node.position.offset(direction2)
