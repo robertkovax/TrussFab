@@ -59,10 +59,10 @@ class SimulationForm extends React.Component {
             className="form-check-input"
             type="checkbox"
             id="defaultCheck1"
-            value={simulationSettings.displayVol}
+            value={simulationSettings.displayValues}
             onChange={event => {
               setContainerState({
-                simulationSettings: { displayVol: event.target.value },
+                simulationSettings: { displayValues: event.target.value },
               });
               changeDisplayValues(event.target.value);
             }}

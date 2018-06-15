@@ -20,7 +20,7 @@ class App extends Component {
     simulationSettings: {
       breakingForce: null,
       stiffness: null,
-      displayVol: null,
+      displayValues: null,
       highestForceMode: null,
       peakForceMode: null,
     },
@@ -58,14 +58,14 @@ class App extends Component {
    * Initialize the UI state with values from the backend.
    * @param {number} breakingForce
    * @param {number} stiffness
-   * @param {boolean} displayVol
+   * @param {boolean} displayValues
    * @param {boolean} highestForceMode
    * @param {boolean} peakForceMode
    */
   initSimulationState = (
     breakingForce,
     stiffness,
-    displayVol,
+    displayValues,
     highestForceMode,
     peakForceMode
   ) => {
@@ -73,7 +73,7 @@ class App extends Component {
       simulationSettings: {
         breakingForce,
         stiffness,
-        displayVol,
+        displayValues,
         highestForceMode,
         peakForceMode,
       },
