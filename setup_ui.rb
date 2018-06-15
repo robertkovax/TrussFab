@@ -3,7 +3,7 @@ def all_folders(folder)
   Dir.chdir(folder) { Dir.glob("**/*").map {|path| File.expand_path(path) } }
 end
 
-# returns
+# returns the date of the last modified file in a directory
 def last_modified_date(dir)
   all_dates = all_folders(dir).map do |file|
     File.new(file).mtime.utc
