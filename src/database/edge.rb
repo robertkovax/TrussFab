@@ -195,10 +195,10 @@ class Edge < GraphObject
       update_bottle_type unless @@retain_bottle_types
 
       model = @bottle_models.models[@bottle_type]
-      @sketchup_object.model = model
+      link.model = model
     end
 
-    @sketchup_object.update_positions(@first_node.position, @second_node.position)
+    link.update_positions(@first_node.position, @second_node.position)
   end
 
   def next_longer_length
@@ -210,11 +210,11 @@ class Edge < GraphObject
   end
 
   def first_elongation_length
-    @sketchup_object.first_elongation_length
+    link.first_elongation_length
   end
 
   def second_elongation_length
-    @sketchup_object.second_elongation_length
+    link.second_elongation_length
   end
 
   def inspect
@@ -225,7 +225,7 @@ class Edge < GraphObject
     recreate_sketchup_object
 
     return unless @link_type == 'bottle_link'
-    @sketchup_object.change_color(Configuration::BOTTLE_COLOR)
+    link.change_color(Configuration::BOTTLE_COLOR)
   end
 
   private

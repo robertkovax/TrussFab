@@ -27,7 +27,7 @@ class Node < GraphObject
   # where the Node is
   def update_position(position)
     @position = position
-    @sketchup_object.position = position
+    hub.position = position
   end
 
   # Moves all connected components
@@ -36,7 +36,7 @@ class Node < GraphObject
     @incidents.each(&:update_sketchup_object)
     @adjacent_triangles.each(&:update_sketchup_object)
     pods.each { |pod| pod.update_position(@position) }
-    @sketchup_object.entity.move!(Geom::Transformation.new(@position))
+    hub.entity.move!(Geom::Transformation.new(@position))
   end
 
   def distance(point)
@@ -165,7 +165,7 @@ class Node < GraphObject
     id, = pods.find do |pod|
       direction.angle_between(pod.direction) <= POD_ANGLE_THRESHOLD
     end
-    @sketchup_object.pods.find { |pod| pod.id == id }
+    hub.pods.find { |pod| pod.id == id }
   end
 
   def add_pod(direction = nil, is_fixed: true, id: nil)

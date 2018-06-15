@@ -133,16 +133,16 @@ class Triangle < GraphObject
     nodes.each do |node|
       cover_pods << node.add_pod(normal_towards_user, is_fixed: false)
     end
-    @sketchup_object.add_cover(normal_towards_user, cover_pods)
+    surface.add_cover(normal_towards_user, cover_pods)
   end
 
   def cover
-    return nil if @sketchup_object.nil?
-    @sketchup_object.cover
+    return nil if surface.nil?
+    surface.cover
   end
 
   def cover?
-    !@sketchup_object.nil? && @sketchup_object.cover?
+    !surface.nil? && surface.cover?
   end
 
   def nodes_ids_towards_user
