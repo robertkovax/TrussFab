@@ -127,14 +127,12 @@ class AnimationPane
       @simulation_tool.restart
     end
 
-    # TODO: Not sure if this is sufficent. Maybe we have to do it similiar to
-    # the start/stop simulation calls.
     @dialog.add_action_callback('pause_simulation') do |_context|
-      @simulation_tool.toggle_pause
+      @simulation_tool.pause_simulation
     end
 
     @dialog.add_action_callback('unpause_simulation') do |_context|
-      @simulation_tool.toggle_pause
+      @simulation_tool.unpause_simulation
     end
 
     @dialog.add_action_callback('change_piston_value') do |_, id, new_value|

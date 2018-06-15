@@ -55,10 +55,16 @@ class SimulationTool < Tool
     @ui.stop_simulation
   end
 
-  def toggle_pause
+  def pause_simulation
     return if @simulation.nil?
-    @simulation.toggle_pause
+    @simulation.pause
   end
+
+  def unpause_simulation
+    return if @simulation.nil?
+    @simulation.unpause
+  end
+
 
   def restart
     return if @simulation.nil?

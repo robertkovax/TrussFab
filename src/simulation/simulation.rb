@@ -627,6 +627,14 @@ class Simulation
     end
   end
 
+  def pause
+    @paused = true
+  end
+
+  def unpause
+    start
+  end
+
   def restart
     @sensors.each do |sensor|
       @sensor_dialog.reset_chart(sensor.id) unless @sensor_dialog.nil?
