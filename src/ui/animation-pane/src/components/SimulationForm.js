@@ -28,9 +28,9 @@ class SimulationForm extends React.Component {
             value={simulationSettings.highestForceMode}
             onChange={event => {
               setContainerState({
-                simulationSettings: { highestForceMode: event.target.value },
+                simulationSettings: { highestForceMode: event.target.checked },
               });
-              changeHighestForceMode(event.target.value);
+              changeHighestForceMode(event.target.checked);
             }}
           />
           <label className="form-check-label" for="defaultCheck1">
@@ -45,9 +45,9 @@ class SimulationForm extends React.Component {
             value={simulationSettings.peakForceMode}
             onChange={event => {
               setContainerState({
-                simulationSettings: { peakForceMode: event.target.value },
+                simulationSettings: { peakForceMode: event.target.checked },
               });
-              changePeakForceMode(event.target.value);
+              changePeakForceMode(event.target.checked);
             }}
           />
           <label className="form-check-label" for="defaultCheck1">
@@ -62,9 +62,9 @@ class SimulationForm extends React.Component {
             value={simulationSettings.displayValues}
             onChange={event => {
               setContainerState({
-                simulationSettings: { displayValues: event.target.value },
+                simulationSettings: { displayValues: event.target.checked },
               });
-              changeDisplayValues(event.target.value);
+              changeDisplayValues(event.target.checked);
             }}
           />
           <label className="form-check-label" for="defaultCheck1">
