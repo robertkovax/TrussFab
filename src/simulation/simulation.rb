@@ -1,6 +1,8 @@
 require 'src/utility/geometry.rb'
 require 'src/ui/dialogs/force_chart.rb'
+require 'src/simulation/socket_connection.rb'
 require 'erb'
+require 'socket'
 
 # Simulation, using MSPhysics
 class Simulation
@@ -99,6 +101,9 @@ class Simulation
     Graph.instance.edges.each_value do |edge|
       edge.thingy.connect_to_hub
     end
+
+    @socket_connection = SocketConnection.new
+
   end
 
   #
@@ -535,7 +540,15 @@ class Simulation
       actuator.joint.controller =
         (value.to_f - Configuration::ACTUATOR_INIT_DIST) * (actuator.max -
           actuator.min)
+      send_value_of(actuator)
     end
+
+  end
+
+  def send_value_of(actuator)
+    distance_in_cm = (actuator.joint.controller + 0.14) * 100 # This weird, but I dunno why the value is like that
+    distance_in_cm = distance_in_cm.round(0)
+    @socket_connection.send_cm(distance_in_cm)
   end
 
   def move_joint(id, next_position, duration)
