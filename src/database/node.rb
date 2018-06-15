@@ -1,6 +1,6 @@
 require 'src/database/graph_object.rb'
-require 'src/thingies/hub.rb'
-require 'src/thingies/hub_entities/pod.rb'
+require 'src/sketchup_objects/hub.rb'
+require 'src/sketchup_objects/hub_entities/pod.rb'
 
 # Node
 class Node < GraphObject
@@ -19,20 +19,24 @@ class Node < GraphObject
     super(node_id)
   end
 
+  def hub
+    @sketchup_object
+  end
+
   # This only updates the position variable, e.g. to let the MouseInput know
   # where the Node is
   def update_position(position)
     @position = position
-    @thingy.position = position
+    hub.position = position
   end
 
   # Moves all connected components
   # this is very slow. Only do this if necessary (i.e. not in simulation)
-  def update_thingy
-    @incidents.each(&:update_thingy)
-    @adjacent_triangles.each(&:update_thingy)
+  def update_sketchup_object
+    @incidents.each(&:update_sketchup_object)
+    @adjacent_triangles.each(&:update_sketchup_object)
     pods.each { |pod| pod.update_position(@position) }
-    @thingy.entity.move!(Geom::Transformation.new(@position))
+    hub.entity.move!(Geom::Transformation.new(@position))
   end
 
   def distance(point)
@@ -44,7 +48,7 @@ class Node < GraphObject
   end
 
   def pods
-    @thingy.pods
+    hub.pods
   end
 
   def pod_export_info
@@ -143,7 +147,7 @@ class Node < GraphObject
     merged_adjacent_triangles = []
     @adjacent_triangles.each do |triangle|
       new_triangle = triangle.nodes - [self] + [other_node]
-      next unless Graph.instance.find_surface(new_triangle).nil?
+      next unless Graph.instance.find_triangle(new_triangle).nil?
       triangle.exchange_node(self, other_node)
       other_node.add_adjacent_triangle(triangle)
       if triangle.cover?
@@ -161,7 +165,7 @@ class Node < GraphObject
     id, = pods.find do |pod|
       direction.angle_between(pod.direction) <= POD_ANGLE_THRESHOLD
     end
-    @thingy.pods.find { |pod| pod.id == id }
+    hub.pods.find { |pod| pod.id == id }
   end
 
   def add_pod(direction = nil, is_fixed: true, id: nil)
@@ -169,11 +173,11 @@ class Node < GraphObject
     direction = direction.nil? ? Geometry::Z_AXIS.reverse : direction.normalize
     existing_pod = find_pod(direction)
     return existing_pod unless existing_pod.nil?
-    @thingy.add_pod(direction, id: id, is_fixed: is_fixed)
+    hub.add_pod(direction, id: id, is_fixed: is_fixed)
   end
 
   def delete_pod(id)
-    @thingy.delete_sub_thingy(id)
+    hub.delete_child(id)
   end
 
   def pod?(id)
@@ -194,7 +198,7 @@ class Node < GraphObject
 
   private
 
-  def create_thingy(id)
-    @thingy = Hub.new(@position, id: id, incidents: incidents)
+  def create_sketchup_object(id)
+    @sketchup_object = Hub.new(@position, id: id, incidents: incidents)
   end
 end

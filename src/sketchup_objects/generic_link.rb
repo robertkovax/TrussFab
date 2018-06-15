@@ -1,4 +1,4 @@
-require 'src/thingies/physics_link.rb'
+require 'src/sketchup_objects/physics_link.rb'
 require 'src/configuration/configuration.rb'
 
 # GenericLink
@@ -10,8 +10,8 @@ class GenericLink < PhysicsLink
   def initialize(first_node, second_node, id: nil, link_type: 'generic')
     super(first_node, second_node, link_type, id: id)
 
-    pt1 = first_node.thingy.position
-    pt2 = second_node.thingy.position
+    pt1 = first_node.hub.position
+    pt2 = second_node.hub.position
     @default_length = pt1.distance(pt2).to_m
 
     @force = 0

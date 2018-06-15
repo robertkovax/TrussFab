@@ -1,4 +1,4 @@
-require 'src/thingies/physics_link.rb'
+require 'src/sketchup_objects/physics_link.rb'
 require 'src/configuration/configuration.rb'
 
 # ActuatorLink
@@ -15,8 +15,8 @@ class ActuatorLink < PhysicsLink
   def initialize(first_node, second_node, id: nil)
     super(first_node, second_node, 'actuator', id: id)
 
-    pt1 = first_node.thingy.position
-    pt2 = second_node.thingy.position
+    pt1 = first_node.hub.position
+    pt2 = second_node.hub.position
     @default_length = pt1.distance(pt2).to_m
 
     @reduction = Configuration::ACTUATOR_REDUCTION

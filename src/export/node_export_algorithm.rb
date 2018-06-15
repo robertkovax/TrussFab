@@ -20,7 +20,6 @@ class NodeExportAlgorithm
 
   def run
     edges = Graph.instance.edges.values
-    edges.each(&:reset)
 
     static_groups = StaticGroupAnalysis.find_static_groups
     static_groups.select! { |group| group.size > 1 }
@@ -110,7 +109,7 @@ class NodeExportAlgorithm
 
   def prioritise_pod_groups(groups)
     pod_groups = groups.select do |group|
-      group.any? { |tri| tri.nodes.all? { |node| node.thingy.pods? } }
+      group.any? { |tri| tri.nodes.all? { |node| node.hub.pods? } }
     end
     pod_groups + (groups - pod_groups)
   end
