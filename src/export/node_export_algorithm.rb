@@ -109,7 +109,7 @@ class NodeExportAlgorithm
 
   def prioritise_pod_groups(groups)
     pod_groups = groups.select do |group|
-      group.any? { |tri| tri.nodes.all? { |node| node.thingy.pods? } }
+      group.any? { |tri| tri.nodes.all? { |node| node.hub.pods? } }
     end
     pod_groups + (groups - pod_groups)
   end

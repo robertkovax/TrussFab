@@ -201,7 +201,7 @@ class Relaxation
       end
     end
 
-    nodes.each(&:update_thingy)
+    nodes.each(&:update_sketchup_object)
   end
 
   def update_incident_edges(node)

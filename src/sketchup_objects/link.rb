@@ -1,12 +1,12 @@
-require 'src/thingies/link_entities/elongation.rb'
-require 'src/thingies/link_entities/bottle_link.rb'
-require 'src/thingies/link_entities/line.rb'
+require 'src/sketchup_objects/link_entities/elongation.rb'
+require 'src/sketchup_objects/link_entities/bottle_link.rb'
+require 'src/sketchup_objects/link_entities/line.rb'
 require 'src/simulation/simulation.rb'
-require 'src/thingies/physics_thingy.rb'
+require 'src/sketchup_objects/physics_sketchup_object.rb'
 require 'src/configuration/configuration'
 
 # Link
-class Link < PhysicsThingy
+class Link < PhysicsSketchupObject
   attr_accessor :joint, :model
   attr_reader :first_elongation_length, :second_elongation_length,
               :position, :second_position, :loc_up_vec, :first_node,
@@ -45,7 +45,7 @@ class Link < PhysicsThingy
 
     @sensor_symbol = nil
 
-    create_sub_thingies
+    create_children
   end
 
   def delete
@@ -54,8 +54,8 @@ class Link < PhysicsThingy
   end
 
   def check_if_valid
-    super && (@first_node.nil? || @first_node.thingy.check_if_valid) &&
-      (@second_node.nil? || @second_node.thingy.check_if_valid)
+    super && (@first_node.nil? || @first_node.hub.check_if_valid) &&
+      (@second_node.nil? || @second_node.hub.check_if_valid)
   end
 
   def update_positions(first_position, second_position)
@@ -64,8 +64,8 @@ class Link < PhysicsThingy
 
     @position = first_position
     @second_position = second_position
-    delete_sub_thingies
-    create_sub_thingies
+    delete_children
+    create_children
   end
 
   def length
@@ -142,16 +142,16 @@ class Link < PhysicsThingy
   #
 
   def update_link_transformations
-    pt1 = @first_node.thingy.entity.bounds.center
-    pt2 = @second_node.thingy.entity.bounds.center
+    pt1 = @first_node.hub.entity.bounds.center
+    pt2 = @second_node.hub.entity.bounds.center
     pt3 = Geom::Point3d.linear_combination(0.5, pt1, 0.5, pt2)
     dir = pt2 - pt1
 
     return if dir.length.to_f < 1.0e-6
 
-    elong1 = @sub_thingies[0]
-    elong2 = @sub_thingies[3]
-    bottle = @sub_thingies[1]
+    elong1 = @children[0]
+    elong2 = @children[3]
+    bottle = @children[1]
 
     scale1 = Geom::Transformation.scaling(elong1.radius,
                                           elong1.radius,
@@ -178,8 +178,8 @@ class Link < PhysicsThingy
     # Associated nodes are to be connected with one joint:
     #   Node A connected to Node B by PointToPoint constraint.
     # The link object in between will not be part of physics simulation.
-    bd1 = first_node.thingy.body
-    bd2 = second_node.thingy.body
+    bd1 = first_node.hub.body
+    bd2 = second_node.hub.body
     pt1 = bd1.group.bounds.center
     pt2 = bd2.group.bounds.center
     @joint = TrussFab::PointToPoint.new(world, bd1, bd2, pt1, pt2, nil)
@@ -194,7 +194,7 @@ class Link < PhysicsThingy
   end
 
   #
-  # Subthingy methods
+  # Children SketchupObject methods
   #
 
   def connect_to_hub
@@ -211,10 +211,10 @@ class Link < PhysicsThingy
   end
 
   def bottle_link
-    @sub_thingies.find { |thingy| thingy.is_a?(BottleLink) }
+    @children.find { |child| child.is_a?(BottleLink) }
   end
 
-  def create_sub_thingies
+  def create_children
     @first_elongation_length =
       @second_elongation_length =
         Configuration::MINIMUM_ELONGATION

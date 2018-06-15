@@ -72,7 +72,7 @@ class MouseInput
       objects.push(node) unless node.nil? || out_of_snap_tolerance?(node)
     end
     if @snap_to_surfaces
-      surface = Graph.instance.closest_surface(@position)
+      surface = Graph.instance.closest_triangle(@position)
       unless surface.nil? || out_of_snap_tolerance?(surface)
         objects.push(surface)
       end
@@ -82,7 +82,7 @@ class MouseInput
       objects.push(pod) unless pod.nil? || out_of_snap_tolerance?(pod)
     end
     if @snap_to_covers
-      surface = Graph.instance.closest_surface(@position)
+      surface = Graph.instance.closest_triangle(@position)
       if !surface.nil? && surface.cover? && !out_of_snap_tolerance?(surface)
         objects.push(surface.cover)
       end

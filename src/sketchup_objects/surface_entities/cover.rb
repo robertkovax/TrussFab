@@ -1,5 +1,5 @@
 # Cover
-class Cover < Thingy
+class Cover < SketchupObject
   attr_reader :pods
   def initialize(first_position, second_position, third_position, normal_vector,
                  pods, id: nil, material: 'wooden_cover')

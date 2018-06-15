@@ -1,5 +1,5 @@
 # Elongation
-class Elongation < Thingy
+class Elongation < SketchupObject
   attr_reader :direction, :radius
 
   def initialize(position, direction, length,
