@@ -746,6 +746,7 @@ class Simulation
   end
 
   def nextFrame(view) # rubocop:disable Naming/MethodName
+    view.show_frame
     return @running unless @running && !@paused
 
     update_world
@@ -762,7 +763,6 @@ class Simulation
 
     update_status_text
 
-    view.show_frame
     @running
   end
 
