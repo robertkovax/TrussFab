@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="de">
+<link rel="stylesheet" href="../css/ui.css" type="text/css">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Piston Menu</title>
+</head>
+<body onload="init_checkbox()">
+<h3>PID-Parameters</h3>
+Target Length<br>
+<input type="number" value="<%= @pid_controller.target_length %>" step="0.1" onchange="set_target(this.value)">
+<br>
+P<br>
+<input type="number" value="<%= @pid_controller.k_P %>" step="10" onchange="set_p(this.value)">
+<br>
+I<br>
+<input type="number" value="<%= @pid_controller.k_I %>" step="10" onchange="set_i(this.value)">
+<br>
+D<br>
+<input type="number" value="<%= @pid_controller.k_D %>" step="10" onchange="set_d(this.value)">
+<br> <br>
+Static controller force<br>
+<input type="number" value="<%= @pid_controller.static_force %>" step="10" onchange="set_static_force(this.value)">
+<br><br>
+<button onclick="analyze_static_forces()">Analyze Forces!</button>
+<br><br>
+Console-Logging:
+<input type="checkbox" id="logging" onchange="set_logging(this.checked)">
+<br><br>
+Integral Error Cap (m*s)
+<br>
+<input type="number" value="<%= @pid_controller.integral_error_cap %>" step="0.1" onchange="set_error_cap(this.value)">
+<br>
+<h3>Link-Properties</h3>
+Minimum Position:
+<br>
+<input type="number" value="<%= @pid_controller.min_distance %>" step="0.1" onchange="set_min(this.value)"> m
+<br><br>
+Maximum Position:
+<br>
+<input type="number" value="<%= @pid_controller.max_distance %>" step="0.1" onchange="set_max(this.value)"> m
+
+<script type="text/javascript">
+  function init_checkbox() {
+    var checkbox = document.getElementById("logging");
+    checkbox.checked = <%= @pid_controller.logging %>
+  }
+  function analyze_static_forces(){
+    sketchup.analyze_static_forces();
+    window.close();
+  }
+  function set_error_cap(newValue){
+    sketchup.set_error_cap(newValue);
+  }
+  function set_static_force(newValue){
+    sketchup.set_static_force(newValue);
+  }
+  function set_logging(newValue) {
+    sketchup.set_logging(newValue);
+  }
+  function set_target(newValue) {
+    sketchup.set_target(newValue);
+  }
+
+  function set_p(newValue) {
+    sketchup.set_p(newValue);
+  }
+
+  function set_i(newValue) {
+    sketchup.set_i(newValue);
+  }
+
+  function set_d(newValue) {
+    sketchup.set_d(newValue);
+  }
+
+  function set_min(newValue) {
+    sketchup.set_min(newValue);
+  }
+
+  function set_max(newValue) {
+    sketchup.set_max(newValue);
+  }
+</script>
+</body>
+</html>

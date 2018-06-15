@@ -130,6 +130,9 @@ class Graph
     @nodes.values.flat_map(&:pods)
   end
 
+  # This method returns a map from an piston group ID to a boolean. False means
+  # that this group does not contain any actuators. This is needed for hiding
+  # the animation lines for empty groups.
   def actuator_groups
     map = {}
     @edges.count.times do |i|

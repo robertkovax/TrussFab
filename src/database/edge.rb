@@ -4,9 +4,10 @@ require 'src/thingies/link.rb'
 require 'src/thingies/actuator_link.rb'
 require 'src/thingies/spring_link.rb'
 require 'src/thingies/generic_link.rb'
+require 'src/thingies/pid_controller.rb'
 require 'src/models/model_storage.rb'
 require 'src/simulation/thingy_rotation.rb'
-require 'src/configuration/configuration'
+require 'src/configuration/configuration.rb'
 
 # Edge
 class Edge < GraphObject
@@ -245,6 +246,10 @@ class Edge < GraphObject
                               id: id)
              when 'generic'
                GenericLink.new(@first_node,
+                               @second_node,
+                               id: id)
+             when 'pid_controller'
+               PidController.new(@first_node,
                                @second_node,
                                id: id)
              else
