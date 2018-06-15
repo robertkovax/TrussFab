@@ -20,7 +20,7 @@ class BottleCounter
     end
 
     def number_triangles
-      Graph.instance.surfaces.length
+      Graph.instance.triangles.length
     end
 
     def number_actuators
@@ -34,7 +34,7 @@ class BottleCounter
       end
       Graph.instance.edges.values.each do |edge|
         if edge.link_type == 'bottle_link'
-          counts[edge.thingy.bottle_link.model.name] += 1
+          counts[edge.link.bottle_link.model.name] += 1
         end
       end
       counts

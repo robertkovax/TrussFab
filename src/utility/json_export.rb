@@ -42,7 +42,7 @@ class JsonExport
         n2: edge.second_node.id,
         type: edge.link_type,
         bottle_type: edge.bottle_type,
-        piston_group: edge.thingy.piston_group
+        piston_group: edge.link.piston_group
       }
     end
   end

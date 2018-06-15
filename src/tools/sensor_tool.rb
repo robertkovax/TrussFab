@@ -13,11 +13,18 @@ class SensorTool < Tool
     @mouse_input.update_positions(view, x, y)
     obj = @mouse_input.snapped_object
     return if obj.nil?
-    if obj.thingy.sensor?
+
+    sketchup_object = if obj.is_a?(Node)
+                        obj.hub
+                      elsif obj.is_a?(Edge)
+                        obj.link
+                      end
+
+    if sketchup_object.sensor?
       p "Removed sensor from #{obj.class.name} #{obj.id}"
     else
       p "Placed sensor at #{obj.class.name} #{obj.id}"
     end
-    obj.thingy.toggle_sensor_state
+    sketchup_object.toggle_sensor_state
   end
 end

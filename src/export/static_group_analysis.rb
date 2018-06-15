@@ -101,9 +101,9 @@ module StaticGroupAnalysis
     end
 
     def simulation_triangle_normal(triangle)
-      pos1 = triangle.first_node.thingy.body.get_position(1)
-      pos2 = triangle.second_node.thingy.body.get_position(1)
-      pos3 = triangle.third_node.thingy.body.get_position(1)
+      pos1 = triangle.first_node.hub.body.get_position(1)
+      pos2 = triangle.second_node.hub.body.get_position(1)
+      pos3 = triangle.third_node.hub.body.get_position(1)
       vector1 = pos1.vector_to(pos2)
       vector2 = pos1.vector_to(pos3)
       vector1.cross(vector2)
@@ -141,10 +141,10 @@ module StaticGroupAnalysis
       @simulation = Simulation.new
       @simulation.setup
       @simulation.disable_gravity
-      piston = edge.thingy.joint
+      piston = edge.link.joint
       # don't extend all the way in order not to break structure
       # TODO: find a better way to extend actuator without breaking structure
-      piston.controller = edge.thingy.max / 4.0 if piston
+      piston.controller = edge.link.max / 4.0 if piston
       @simulation.start
       @simulation.update_world_headless_by(2)
     end

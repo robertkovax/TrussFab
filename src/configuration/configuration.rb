@@ -28,7 +28,7 @@ module Configuration
   UI_WIDTH  = 380
   UI_HEIGHT = 700
 
-  # Thingy Properties
+  # SketchupObject Properties
   MINIMUM_ELONGATION    = 20.mm.freeze
   DEFAULT_ELONGATION    = 30.mm.freeze
   MAXIMUM_ELONGATION    = 100.mm.freeze

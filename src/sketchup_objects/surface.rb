@@ -1,8 +1,8 @@
-require 'src/thingies/thingy.rb'
-require 'src/thingies/surface_entities/cover.rb'
+require 'src/sketchup_objects/sketchup_object.rb'
+require 'src/sketchup_objects/surface_entities/cover.rb'
 
 # Surface
-class Surface < Thingy
+class Surface < SketchupObject
   def initialize(first_position, second_position, third_position,
                  id: nil, material: 'surface_material',
                  highlight_material: 'surface_highlight_material')
@@ -50,10 +50,10 @@ class Surface < Thingy
     @third_position = third_position
     delete_entity
     @entity = create_entity
-    @sub_thingies.each do |sub_thingy|
-      sub_thingy.update_positions(first_position,
-                                  second_position,
-                                  third_position)
+    @children.each do |child|
+      child.update_positions(first_position,
+                             second_position,
+                             third_position)
     end
   end
 
@@ -65,11 +65,11 @@ class Surface < Thingy
   end
 
   def cover?
-    @sub_thingies.any? { |thingy| thingy.is_a?(Cover) }
+    @children.any? { |child| child.is_a?(Cover) }
   end
 
   def cover
-    @sub_thingies.detect { |thingy| thingy.is_a?(Cover) }
+    @children.detect { |child| child.is_a?(Cover) }
   end
 
   private

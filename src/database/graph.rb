@@ -5,26 +5,22 @@ require 'src/database/triangle.rb'
 require 'src/scad_export/scad_export.rb'
 require 'src/utility/bottle_counter.rb'
 
-# Structure that contains all TrussObjects (i.e. Edges, Nodes and Surfaces)
+# Structure that contains all TrussObjects (i.e. Edges, Nodes and Triangles)
 class Graph
   include Singleton
 
-  attr_reader :edges, :nodes, :surfaces
+  attr_reader :edges, :nodes, :triangles
 
   CLOSE_NODE_DIST = 50.mm
 
   def initialize
     @edges = {}       # {(id => edge)}
     @nodes = {}       # {(id => node)}
-    @surfaces = {}    # {(id => surface)}
-  end
-
-  def nodes_and_edges
-    [@edges.values, @nodes.values].flatten
+    @triangles = {}   # {(id => triangle)}
   end
 
   def all_graph_objects
-    [@edges.values, @nodes.values, @surfaces.values].flatten
+    [@edges.values, @nodes.values, @triangles.values].flatten
   end
 
   def export_to_scad(path)
@@ -32,7 +28,7 @@ class Graph
   end
 
   #
-  # Methods to to create one node, edge or surface
+  # Methods to to create one node, edge or triangle
   #
 
   def create_edge_from_points(first_position,
@@ -59,17 +55,17 @@ class Graph
                     second_node,
                     bottle_type: bottle_type,
                     link_type: link_type)
-    create_possible_surfaces(edge)
+    create_possible_triangles(edge)
     @edges[edge.id] = edge
     BottleCounter.update_status_text
     edge
   end
 
-  def create_surface_from_points(first_position,
-                                 second_position,
-                                 third_position,
-                                 bottle_type: Configuration::BIG_BIG_BOTTLE_NAME,
-                                 link_type: 'bottle_link')
+  def create_triangle_from_points(first_position,
+                                  second_position,
+                                  third_position,
+                                  bottle_type: Configuration::BIG_BIG_BOTTLE_NAME,
+                                  link_type: 'bottle_link')
     first_node = create_node(first_position)
     second_node = create_node(second_position)
     third_node = create_node(third_position)
@@ -87,27 +83,27 @@ class Graph
                 link_type: link_type)
   end
 
-  def create_surface(first_node, second_node, third_node)
+  def create_triangle(first_node, second_node, third_node)
     nodes = [first_node, second_node, third_node]
-    surface = find_surface(nodes)
-    return surface unless surface.nil?
-    surface = Triangle.new(first_node, second_node, third_node)
-    @surfaces[surface.id] = surface
-    surface
+    triangle = find_triangle(nodes)
+    return triangle unless triangle.nil?
+    triangle = Triangle.new(first_node, second_node, third_node)
+    @triangles[triangle.id] = triangle
+    triangle
   end
 
-  def create_possible_surfaces(edge)
+  def create_possible_triangles(edge)
     first_node = edge.first_node
     second_node = edge.second_node
     first_other_nodes = first_node.adjacent_nodes
     second_other_nodes = second_node.adjacent_nodes
     (first_other_nodes & second_other_nodes).each do |node|
-      create_surface(first_node, second_node, node)
+      create_triangle(first_node, second_node, node)
     end
   end
 
   #
-  # Methods to get closest node, edge or surface
+  # Methods to get closest node, edge or triangle
   #
 
   def closest_node(point)
@@ -118,8 +114,8 @@ class Graph
     @edges.values.min_by { |edge| edge.distance(point) }
   end
 
-  def closest_surface(point)
-    @surfaces.values.min_by { |surface| surface.distance(point) }
+  def closest_triangle(point)
+    @triangles.values.min_by { |triangle| triangle.distance(point) }
   end
 
   def closest_pod(point)
@@ -140,13 +136,13 @@ class Graph
     end
 
     @edges.each_value do |edge|
-      map[edge.thingy.piston_group] = true unless edge.thingy.piston_group < 0
+      map[edge.link.piston_group] = true unless edge.link.piston_group < 0
     end
     map
   end
 
   #
-  # Methods to check whether a node, edge or surface already exists
+  # Methods to check whether a node, edge or triangle already exists
   # and return the duplicate if there is some
   #
 
@@ -168,9 +164,9 @@ class Graph
   end
 
   # this function expects a 3-node array
-  def find_surface(nodes)
-    @surfaces.values.detect do |surface|
-      surface.nodes.all? { |node| nodes.include?(node) }
+  def find_triangle(nodes)
+    @triangles.values.detect do |triangle|
+      triangle.nodes.all? { |node| nodes.include?(node) }
     end
   end
 
@@ -185,7 +181,7 @@ class Graph
   def clear!
     @edges = {}       # {(id => edge)}
     @nodes = {}       # {(id => node)}
-    @surfaces = {}    # {(id => surface)}
+    @triangles = {}   # {(id => triangle)}
     Sketchup.active_model.entities.clear!
   end
 
@@ -198,17 +194,17 @@ class Graph
   def cleanup
     @edges.select! { |_, e| e.check_if_valid }
     @nodes.select! { |_, e| e.check_if_valid }
-    @surfaces.select! { |_, e| e.check_if_valid }
+    @triangles.select! { |_, e| e.check_if_valid }
   end
 
   #
-  # Method to delete either a node, an edge or a surface
+  # Method to delete either a node, an edge or a triangle
   #
 
   def delete_object(object)
     hash = @nodes if object.is_a?(Node)
     hash = @edges if object.is_a?(Edge)
-    hash = @surfaces if object.is_a?(Triangle)
+    hash = @triangles if object.is_a?(Triangle)
     return if hash.nil?
     hash.delete(object.id)
     BottleCounter.update_status_text

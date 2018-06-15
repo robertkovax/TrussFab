@@ -1,10 +1,10 @@
-require 'src/thingies/thingy.rb'
+require 'src/sketchup_objects/sketchup_object.rb'
 
 LINK_LINE = 0
 HINGE_LINE = 1
 
 # Line
-class Line < Thingy
+class Line < SketchupObject
   def initialize(first_position, second_position, line_type, id: nil)
     super(id)
     @first_position = first_position

@@ -1,6 +1,6 @@
-require 'src/thingies/physics_link.rb'
+require 'src/sketchup_objects/physics_link.rb'
 require 'src/configuration/configuration.rb'
-require 'src/thingies/generic_link.rb'
+require 'src/sketchup_objects/generic_link.rb'
 
 class PidController < GenericLink
   attr_accessor :integral_error, :k_P, :k_I, :k_D, :integral_error_cap,
@@ -85,8 +85,8 @@ class PidController < GenericLink
   def analyze_static_forces
     puts "Analyzing static forces of selected controller"
     pid_edge_id, pid_edge =
-      Graph.instance.edges.find { |_, edge| edge.thingy == self }
-    old_link = pid_edge.thingy
+      Graph.instance.edges.find { |_, edge| edge.link == self }
+    old_link = pid_edge.link
     #TODO: Give the Actuator the correct min/max distances
     pid_edge.link_type = 'actuator'
     Sketchup.active_model.active_view.invalidate
@@ -102,7 +102,7 @@ class PidController < GenericLink
       forces.push(force)
     end
     pid_edge.link_type = 'pid_controller'
-    new_pid_link = Graph.instance.edges[pid_edge_id].thingy
+    new_pid_link = Graph.instance.edges[pid_edge_id].link
     puts "Position:Force"
     forces.each_with_index do |force, idx|
       p "#{(idx * step_width).round(2)}: #{forces[idx].round(2)}"

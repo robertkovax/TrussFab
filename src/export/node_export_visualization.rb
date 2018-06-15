@@ -45,6 +45,9 @@ module NodeExportVisualization
 
     private
 
+    ELONGATION_PUSH_DISTANCE = 2.5
+    LINE_VISUALIZATION_DISTANCE = 3
+
     def color_group(group, group_nr)
       group_color = case group_nr
                     when 0 then '1f78b4' # dark blue
@@ -61,16 +64,19 @@ module NodeExportVisualization
 
       group.each do |triangle|
         triangle.edges.each do |edge|
-          edge.thingy.change_color(group_color)
+          edge.link.change_color(group_color)
         end
       end
     end
 
     def disconnect_edge_from_hub(rotating_edge, node)
+      direction = rotating_edge.mid_point - node.position
+      direction.length = ELONGATION_PUSH_DISTANCE
+
       if rotating_edge.first_node?(node)
-        rotating_edge.thingy.disconnect_from_hub(true)
+        rotating_edge.link.disconnect_from_hub(true, direction)
       else
-        rotating_edge.thingy.disconnect_from_hub(false)
+        rotating_edge.link.disconnect_from_hub(false, direction)
       end
     end
 
@@ -79,28 +85,26 @@ module NodeExportVisualization
       rotating_edge = hinge.edge2
       node = rotating_edge.shared_node(rotation_axis)
 
-      mid_point1 = Geom::Point3d.linear_combination(0.7,
-                                                    node.position,
-                                                    0.3,
-                                                    rotation_axis.mid_point)
-      mid_point2 = Geom::Point3d.linear_combination(0.7,
-                                                    node.position,
-                                                    0.3,
-                                                    rotating_edge.mid_point)
+      direction1 = (rotation_axis.mid_point - node.position).normalize
+      direction2 = (rotating_edge.mid_point - node.position).normalize
 
-      # Draw hinge visualization
-      mid_point = Geom::Point3d.linear_combination(0.5, mid_point2,
-                                                   0.5, mid_point1)
+      direction1.length = LINE_VISUALIZATION_DISTANCE
+      direction2.length = LINE_VISUALIZATION_DISTANCE
+
+      point1 = node.position.offset(direction1)
+      point2 = node.position.offset(direction2)
+
+      mid_point = Geom::Point3d.linear_combination(0.5, point1, 0.5, point2)
 
       if hinge.is_double_hinge
         mid_point = Geom::Point3d.linear_combination(0.75, mid_point,
                                                      0.25, node.position)
       end
 
-      line1 = Line.new(mid_point, mid_point1, HINGE_LINE)
-      line2 = Line.new(mid_point, mid_point2, HINGE_LINE)
+      line1 = Line.new(mid_point, point1, HINGE_LINE)
+      line2 = Line.new(mid_point, point2, HINGE_LINE)
 
-      rotating_edge.thingy.add(line1, line2)
+      rotating_edge.link.add(line1, line2)
     end
   end
 end

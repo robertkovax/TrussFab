@@ -45,8 +45,8 @@ class LinkTool < Tool
   def change_link_to_physics_link(view, edge)
     Sketchup.active_model.start_operation("toggle edge to #{@link_type}", true)
     edge.link_type = @link_type
-    unless @link_type == 'bottle_link'
-      edge.thingy.piston_group = IdManager.instance.maximum_piston_group + 1
+    if @link_type == 'actuator'
+      edge.link.piston_group = IdManager.instance.maximum_piston_group + 1
     end
     @edge = edge
     view.invalidate
@@ -74,7 +74,7 @@ class LinkTool < Tool
                                                      second_position,
                                                      link_type: @link_type)
       unless @link_type == 'bottle_link'
-        @edge.thingy.piston_group = IdManager.instance.maximum_piston_group + 1
+        @edge.link.piston_group = IdManager.instance.maximum_piston_group + 1
       end
       Sketchup.active_model.commit_operation
       reset

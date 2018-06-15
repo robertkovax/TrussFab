@@ -97,7 +97,7 @@ class Simulation
     @sensor_output_csv = nil
 
     Graph.instance.edges.each_value do |edge|
-      edge.thingy.connect_to_hub
+      edge.link.connect_to_hub
     end
   end
 
@@ -110,7 +110,7 @@ class Simulation
     @breaking_force_invh =
       @breaking_force > 1.0e-6 ? 0.5.fdiv(@breaking_force) : 0.0
     Graph.instance.edges.each_value do |edge|
-      link = edge.thingy
+      link = edge.link
       if link.is_a?(Link) && link.joint && link.joint.valid?
         link.joint.breaking_force = @breaking_force
       end
@@ -120,9 +120,9 @@ class Simulation
   def stiffness=(stiffness)
     @stiffness = stiffness
     Graph.instance.edges.each_value do |edge|
-      next if edge.thingy.joint.nil? || !edge.thingy.joint.valid?
-      edge.thingy.joint.stiffness =
-        edge.thingy.is_a?(ActuatorLink) ? 0.99 : stiffness
+      next if edge.link.joint.nil? || !edge.link.joint.valid?
+      edge.link.joint.stiffness =
+        edge.link.is_a?(ActuatorLink) ? 0.99 : stiffness
     end
   end
 
@@ -133,15 +133,15 @@ class Simulation
   def save_transformations
     Graph.instance.nodes.each_value do |obj|
       obj.original_position = obj.position
-      e = obj.thingy.entity
+      e = obj.hub.entity
       @saved_transformations[e] = e.transformation
-      obj.thingy.sub_thingies.each do |sub_obj|
+      obj.hub.children.each do |sub_obj|
         e2 = sub_obj.entity
         @saved_transformations[e2] = e2.transformation
       end
     end
     Graph.instance.edges.each_value do |obj|
-      obj.thingy.sub_thingies.each do |sub_obj|
+      obj.link.children.each do |sub_obj|
         e2 = sub_obj.entity
         @saved_transformations[e2] = e2.transformation
       end
@@ -172,7 +172,7 @@ class Simulation
     # create bodies for node
     # (all edges will not have physics components to them)
     Graph.instance.nodes.each_value do |obj|
-      obj.thingy.create_body(@world)
+      obj.hub.create_body(@world)
     end
 
     # save transformation of current bodies for resetting
@@ -240,8 +240,11 @@ class Simulation
   end
 
   def reset_bodies_and_joints
-    Graph.instance.nodes_and_edges.each do |obj|
-      obj.thingy.reset_physics
+    Graph.instance.nodes.values.each do |node|
+      node.hub.reset_physics
+    end
+    Graph.instance.edges.values.each do |edge|
+      edge.link.reset_physics
     end
   end
 
@@ -294,19 +297,18 @@ class Simulation
 
   # Note: this must be wrapped in operation
   def show_triangle_surfaces
-    Graph.instance.surfaces.each do |_, surface|
-      next if surface.thingy.entity.deleted?
-      surface.thingy.entity.hidden = false
+    Graph.instance.triangles.each do |_, triangle|
+      triangle.surface.show
       # workaround to properly reset surface color
-      surface.un_highlight
+      triangle.surface.un_highlight
     end
     @triangles_hidden = false
   end
 
   # Note: this must be wrapped in operation
   def hide_triangle_surfaces
-    Graph.instance.surfaces.each do |_, surface|
-      surface.thingy.entity.hidden = true unless surface.thingy.entity.deleted?
+    Graph.instance.triangles.each do |_, triangle|
+      triangle.surface.hide
     end
     @triangles_hidden = true
   end
@@ -314,8 +316,8 @@ class Simulation
   # Note: this must be wrapped in operation
   def hide_force_arrows
     Graph.instance.nodes.each do |_, node|
-      node.thingy.arrow.erase! unless node.thingy.arrow.nil?
-      node.thingy.arrow = nil
+      node.hub.arrow.erase! unless node.hub.arrow.nil?
+      node.hub.arrow = nil
     end
   end
 
@@ -327,7 +329,7 @@ class Simulation
     # get all pistons from actuator edges
     @pistons.clear
     Graph.instance.edges.each do |id, edge|
-      @pistons[id] = edge.thingy if edge.thingy.is_a?(ActuatorLink)
+      @pistons[id] = edge.link if edge.link.is_a?(ActuatorLink)
     end
   end
 
@@ -335,14 +337,14 @@ class Simulation
     # get all generic links from actuator edges
     @generic_links.clear
     Graph.instance.edges.each do |id, edge|
-      @generic_links[id] = edge.thingy if edge.thingy.is_a?(GenericLink)
+      @generic_links[id] = edge.link if edge.link.is_a?(GenericLink)
     end
   end
 
   def collect_piston_groups
     @auto_piston_group.clear
     Graph.instance.edges.each_value do |edge|
-      group = edge.thingy.piston_group
+      group = edge.link.piston_group
       next if group < 0
       @auto_piston_group[group] = [] if @auto_piston_group[group].nil?
       @auto_piston_group[group].push(edge)
@@ -365,15 +367,15 @@ class Simulation
 
   def reset_pid_controllers
     Graph.instance.edges.each do |_, edge|
-      edge.thingy.reset_errors if edge.thingy.is_a?(PidController)
+      edge.link.reset_errors if edge.link.is_a?(PidController)
     end
   end
 
   def get_closest_node_to_point(point)
     closest_distance = Float::INFINITY
     Graph.instance.nodes.values.each do |node|
-      if node.thingy.body.get_position(1).distance(point) < closest_distance
-        closest_distance = node.thingy.body.get_position(1).distance(point)
+      if node.hub.body.get_position(1).distance(point) < closest_distance
+        closest_distance = node.hub.body.get_position(1).distance(point)
       end
     end
     closest_distance
@@ -414,7 +416,7 @@ class Simulation
   def test_piston_for_hub_movement(node, point)
     test_pistons
     update_entities
-    node.thingy.body.get_position(1).distance(point)
+    node.hub.body.get_position(1).distance(point)
   end
 
   # this automatically uses the test function on all the pistons in the scene
@@ -436,7 +438,7 @@ class Simulation
     highest_force = 0
 
     Graph.instance.edges.each_value do |edge|
-      edge.thingy.joint.stiffness = 0.999
+      edge.link.joint.stiffness = 0.999
     end
     # move them to the proper position
     combination.each do |id, pos|
@@ -468,7 +470,7 @@ class Simulation
 
   def check_static_force(piston_id, position)
     Graph.instance.edges.each_value do |edge|
-      edge.thingy.joint.stiffness = 0.999
+      edge.link.joint.stiffness = 0.999
     end
 
     actuator = @pistons[piston_id]
@@ -507,7 +509,7 @@ class Simulation
     grouped_edges = @auto_piston_group[id.to_i]
     return if grouped_edges.empty?
     grouped_edges.each do |edge|
-      actuator = edge.thingy
+      actuator = edge.link
       next unless actuator.joint && actuator.joint.valid?
       actuator.joint.rate = actuator.rate
       actuator.joint.controller =
@@ -535,7 +537,7 @@ class Simulation
     @auto_piston_group.each do |edges|
       next if edges.nil?
       edges.each do |edge|
-        link = edge.thingy
+        link = edge.link
         next if link.piston_group != id || link.nil? || !link.joint.valid?
         joint = link.joint
 
@@ -565,8 +567,8 @@ class Simulation
     link = nil
     @auto_piston_group.each do |edges|
       edges.each do |edge|
-        next unless edge.thingy.piston_group == id
-        link = edge.thingy
+        next unless edge.link.piston_group == id
+        link = edge.link
         unless link.nil?
           joint = link.joint
           joint.rate = 0
@@ -577,7 +579,7 @@ class Simulation
 
   def reset_piston_group
     Graph.instance.edges.each_value do |edge|
-      edge.thingy.piston_group = -1
+      edge.link.piston_group = -1
     end
   end
 
@@ -638,15 +640,15 @@ class Simulation
       node.update_position(node.original_position)
     end
 
-    Graph.instance.surfaces.each_value(&:update_thingy)
+    Graph.instance.triangles.each_value(&:update_sketchup_object)
   end
 
   def update_forces
     Graph.instance.nodes.each_value do |node|
-      node.thingy.apply_force
+      node.hub.apply_force
     end
     Graph.instance.edges.each_value do |edge|
-      link = edge.thingy
+      link = edge.link
       link.update_force if link.is_a?(PidController)
     end
   end
@@ -701,30 +703,30 @@ class Simulation
     model.start_operation('Update Entities', true)
     @world.update_group_transformations
     Graph.instance.edges.each do |_, edge|
-      link = edge.thingy
+      link = edge.link
       link.update_link_transformations
     end
     Graph.instance.nodes.values.each do |node|
-      node.update_position(node.thingy.body.get_position(1))
+      node.update_position(node.hub.body.get_position(1))
     end
     model.commit_operation
   end
 
   def update_hub_addons
     Graph.instance.nodes.values.each do |node|
-      node.thingy.move_addons(node.position)
+      node.hub.move_addons(node.position)
     end
   end
 
   def reset_force_arrows
     Graph.instance.nodes.values.each do |node|
-      node.thingy.reset_addon_positions
+      node.hub.reset_addon_positions
     end
   end
 
   def reset_sensor_symbols
     Graph.instance.edges.each_value do |edge|
-      edge.thingy.reset_sensor_symbol_position
+      edge.link.reset_sensor_symbol_position
     end
   end
 
@@ -779,8 +781,11 @@ class Simulation
   end
 
   def collect_sensors
-    Graph.instance.nodes_and_edges.each do |obj|
-      @sensors.push(obj.thingy) if obj.thingy.sensor?
+    Graph.instance.nodes.values.each do |node|
+      @sensors.push(node.hub) if node.hub.sensor?
+    end
+    Graph.instance.edges.values.each do |edge|
+      @sensors.push(edge.link) if edge.link.sensor?
     end
   end
 
@@ -811,7 +816,7 @@ class Simulation
   #
 
   def add_force_to_node(node, force)
-    node.thingy.body.apply_force(force)
+    node.hub.body.apply_force(force)
   end
 
   def apply_force
@@ -824,8 +829,8 @@ class Simulation
   def broken?
     broken = false
     Graph.instance.edges.each_value do |edge|
-      next if edge.thingy.joint.nil?
-      broken = true unless edge.thingy.joint.valid?
+      next if edge.link.joint.nil?
+      broken = true unless edge.link.joint.valid?
     end
     broken
   end
@@ -837,9 +842,9 @@ class Simulation
     mats = Sketchup.active_model.materials
     # First, store current mats of bottles and sub-bottles
     Graph.instance.edges.each_value do |edge|
-      link = edge.thingy
+      link = edge.link
       # Get the bottle of the link
-      bottle = link.sub_thingies[1].entity
+      bottle = link.children[1].entity
       persist_material(link, bottle)
     end
     # Now, create new materials
@@ -850,7 +855,7 @@ class Simulation
       dat[0].material = umat
       dat[2].each { |e, _| e.material = nil }
       if link.is_a?(ActuatorLink)
-        second_cylinder = link.sub_thingies[0].entity
+        second_cylinder = link.children[0].entity
         second_cylinder.material = dat[3]
       end
     end
@@ -880,7 +885,7 @@ class Simulation
     # called once, after stopping the simulation, so the performance impact is
     # not too big.
     Graph.instance.edges.each_value do |edge|
-      edge.thingy.un_highlight
+      edge.link.un_highlight
     end
     @bottle_dat.clear
   end
@@ -944,8 +949,8 @@ class Simulation
 
   def get_directed_force(link)
     if link.joint && link.joint.valid?
-      pt1 = link.first_node.thingy.entity.bounds.center
-      pt2 = link.second_node.thingy.entity.bounds.center
+      pt1 = link.first_node.hub.entity.bounds.center
+      pt2 = link.second_node.hub.entity.bounds.center
       dir = pt1.vector_to(pt2).normalize
       link.joint.linear_tension.dot(dir)
     else
@@ -961,7 +966,7 @@ class Simulation
 
   # Returns total tension applied to actuators along their directions
   def compute_net_actuator_tension(edge)
-    link = edge.thingy
+    link = edge.link
     net_lin_tension = get_directed_force(link) if link.is_a?(Link)
     net_lin_tension
   end
@@ -970,7 +975,7 @@ class Simulation
   def rec_max_actuator_tensions
     return unless @sensor_dialog
     Graph.instance.edges.each_value do |edge|
-      next unless edge.thingy.sensor?
+      next unless edge.link.sensor?
       net_lin_tension = compute_net_actuator_tension(edge)
       if @max_actuator_tensions[edge.id].nil?
         @max_actuator_tensions[edge.id] = net_lin_tension
@@ -1022,10 +1027,10 @@ class Simulation
   # Note: this must be wrapped in operation
   def update_force_labels
     Graph.instance.edges.each_value do |edge|
-      link = edge.thingy
+      link = edge.link
       next unless link.is_a?(Link) # this might unnecessary
-      pt1 = link.first_node.thingy.entity.bounds.center
-      pt2 = link.second_node.thingy.entity.bounds.center
+      pt1 = link.first_node.hub.entity.bounds.center
+      pt2 = link.second_node.hub.entity.bounds.center
       dir = pt1.vector_to(pt2).normalize
       position = Geom.linear_combination(0.5, pt1, 0.5, pt2)
       tension = if link.joint && link.joint.valid?

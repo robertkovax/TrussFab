@@ -67,7 +67,7 @@ class SimulationTool < Tool
 
   def apply_force
     return unless @moving
-    @start_position = @node.thingy.body.get_position(1)
+    @start_position = @node.hub.body.get_position(1)
     @end_position = @mouse_input.position
     force = @start_position.vector_to(@end_position)
     force.length *= Configuration::DRAG_FACTOR unless force.length.zero?
@@ -97,7 +97,7 @@ class SimulationTool < Tool
       @moving = true
       @node = obj
       @start_position = @end_position = @mouse_input.position
-    elsif obj.thingy.is_a?(ActuatorLink)
+    elsif obj.is_a?(Edge) && obj.link.is_a?(ActuatorLink)
       toggle_piston_group(obj)
     end
   end
@@ -201,7 +201,7 @@ class SimulationTool < Tool
     # we don't want to create more groups than we have pistons
     # NB: piston_group is initialized with -1 so we have add one to
     # compare to size
-    link = edge.thingy
+    link = edge.link
     return if link.piston_group + 1 >= @simulation.pistons.length
     link.piston_group += 1
 

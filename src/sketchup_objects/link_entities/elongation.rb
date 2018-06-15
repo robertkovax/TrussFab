@@ -1,5 +1,5 @@
 # Elongation
-class Elongation < Thingy
+class Elongation < SketchupObject
   attr_reader :direction, :radius
 
   def initialize(position, direction, length,
@@ -11,12 +11,21 @@ class Elongation < Thingy
     @model = ModelStorage.instance.models['connector']
     @radius = Configuration::ELONGATION_RADIUS
     @layer = Configuration::HUB_VIEW
+    @original_transformation = nil
     @entity = create_entity
     persist_entity
   end
 
   def length
     @direction.length
+  end
+
+  def shorten(offset)
+    @entity.transform! Geom::Transformation.translation(offset)
+  end
+
+  def reset
+    @entity.transformation = @original_transformation
   end
 
   private
@@ -34,6 +43,8 @@ class Elongation < Thingy
                                              rotation_axis, rotation_angle)
 
     transformation = rotation * translation * scale
+
+    @original_transformation = transformation
 
     entity = Sketchup.active_model.entities.add_instance(@model.definition,
                                                          transformation)

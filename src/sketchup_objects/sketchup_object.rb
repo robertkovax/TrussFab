@@ -1,15 +1,16 @@
 require 'src/database/id_manager.rb'
 
-# Thingy (e.g. Hub, Link)
-class Thingy
-  attr_reader :id, :entity, :sub_thingies, :position
+# Wrapper for the representation of TrussFab objects in Sketchup (e.g. Hub,
+# Link)
+class SketchupObject
+  attr_reader :id, :entity, :children, :position
   attr_accessor :parent
 
   def initialize(id = nil,
                  material: 'standard_material',
                  highlight_material: 'highlight_material')
     @id = id.nil? ? IdManager.instance.generate_next_id : id
-    @sub_thingies = []
+    @children = []
     @entity = nil
     @parent = nil
     @material = Sketchup.active_model.materials[material]
@@ -19,8 +20,8 @@ class Thingy
 
   def check_if_valid
     return false if @entity && !@entity.valid?
-    @sub_thingies.each do |sub_thingy|
-      return false unless sub_thingy.check_if_valid
+    @children.each do |child|
+      return false unless child.check_if_valid
     end
     true
   end
@@ -28,28 +29,28 @@ class Thingy
   def all_entities
     entities = []
     entities.push(@entity) if @entity && @entity.valid?
-    @sub_thingies.each { |thingy| entities.concat(thingy.all_entities) }
+    @children.each { |child| entities.concat(child.all_entities) }
     entities
   end
 
   def transform(transformation)
     @entity.move!(transformation) if @entity && @entity.valid?
-    @sub_thingies.each { |thingy| thingy.transform(transformation) }
+    @children.each { |child| child.transform(transformation) }
   end
 
   def change_color(color)
     @entity.material = color if @entity && @entity.valid?
-    @sub_thingies.each { |thingy| thingy.change_color(color) }
+    @children.each { |child| child.change_color(color) }
   end
 
   def hide
     @entity.hidden = true if @entity && @entity.valid?
-    @sub_thingies.each(&:hide)
+    @children.each(&:hide)
   end
 
   def show
     @entity.hidden = false if @entity && @entity.valid?
-    @sub_thingies.each(&:show)
+    @children.each(&:show)
   end
 
   def color
@@ -59,7 +60,7 @@ class Thingy
   def material=(material)
     @material = material
     @entity.material = material if @entity && @entity.valid?
-    @sub_thingies.each { |thingy| thingy.material = material }
+    @children.each { |child| child.material = material }
   end
 
   def highlight(highlight_material = @highlight_material)
@@ -76,7 +77,7 @@ class Thingy
   end
 
   def delete
-    delete_sub_thingies
+    delete_children
     delete_entity
     @parent.remove(self) unless @parent.nil?
     @deleted = true
@@ -86,24 +87,24 @@ class Thingy
     @deleted
   end
 
-  def delete_sub_thingy(id)
-    @sub_thingies.each do |sub_thingy|
-      next unless sub_thingy.id == id
-      sub_thingy.delete
+  def delete_child(id)
+    @children.each do |child|
+      next unless child.id == id
+      child.delete
     end
   end
 
-  def delete_sub_thingies
-    @sub_thingies.clone.each(&:delete)
+  def delete_children
+    @children.clone.each(&:delete)
   end
 
   def remove(child)
-    @sub_thingies.delete(child)
+    @children.delete(child)
   end
 
   def add(*children)
     children.each do |child|
-      @sub_thingies << child
+      @children << child
       child.parent = self
     end
   end

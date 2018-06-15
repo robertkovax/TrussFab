@@ -1,5 +1,5 @@
 require 'src/database/graph_object.rb'
-require 'src/thingies/surface.rb'
+require 'src/sketchup_objects/surface.rb'
 require 'src/utility/geometry'
 
 # Triangle
@@ -16,6 +16,10 @@ class Triangle < GraphObject
     @deleted = false
     triangle_id = id.nil? ? IdManager.instance.generate_next_tag_id('triangle') : id
     super(triangle_id)
+  end
+
+  def surface
+    @sketchup_object
   end
 
   def normal_towards_user
@@ -47,8 +51,8 @@ class Triangle < GraphObject
     center.distance(point)
   end
 
-  def update_thingy
-    @thingy.update_positions(@first_node.position,
+  def update_sketchup_object
+    surface.update_positions(@first_node.position,
                              @second_node.position,
                              @third_node.position)
   end
@@ -129,16 +133,16 @@ class Triangle < GraphObject
     nodes.each do |node|
       cover_pods << node.add_pod(normal_towards_user, is_fixed: false)
     end
-    @thingy.add_cover(normal_towards_user, cover_pods)
+    surface.add_cover(normal_towards_user, cover_pods)
   end
 
   def cover
-    return nil if @thingy.nil?
-    @thingy.cover
+    return nil if surface.nil?
+    surface.cover
   end
 
   def cover?
-    !@thingy.nil? && @thingy.cover?
+    !surface.nil? && surface.cover?
   end
 
   def nodes_ids_towards_user
@@ -166,7 +170,7 @@ class Triangle < GraphObject
 
   private
 
-  def create_thingy(id)
+  def create_sketchup_object(id)
     Surface.new(@first_node.position,
                 @second_node.position,
                 @third_node.position,

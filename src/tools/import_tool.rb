@@ -3,7 +3,7 @@ require 'src/utility/mouse_input.rb'
 require 'src/utility/json_import.rb'
 require 'src/database/graph.rb'
 require 'src/configuration/configuration.rb'
-require 'src/thingies/actuator_link.rb'
+require 'src/sketchup_objects/actuator_link.rb'
 
 # Imports an object from a JSON file
 class ImportTool < Tool
@@ -28,11 +28,11 @@ class ImportTool < Tool
 
   def setup_new_edges(new_edges, animation)
     new_edges.each do |edge|
-      next unless edge.thingy.is_a?(ActuatorLink)
-      if edge.thingy.piston_group < 0
-        edge.thingy.piston_group = IdManager.instance.maximum_piston_group + 1
+      next unless edge.link.is_a?(ActuatorLink)
+      if edge.link.piston_group < 0
+        edge.link.piston_group = IdManager.instance.maximum_piston_group + 1
       end
-      @ui.animation_pane.add_piston(edge.thingy.piston_group) if animation == ''
+      @ui.animation_pane.add_piston(edge.link.piston_group) if animation == ''
     end
     return if animation == ''
     @ui.animation_pane.add_piston_with_animation(animation)
@@ -45,7 +45,7 @@ class ImportTool < Tool
       setup_new_edges(new_edges, animation)
     elsif graph_object.nil?
       return unless Graph.instance.find_close_node(position).nil?
-      old_triangles = Graph.instance.surfaces.values
+      old_triangles = Graph.instance.triangles.values
       new_triangles, new_edges, animation =
         JsonImport.at_position(path, position)
       if intersecting?(old_triangles, new_triangles)
@@ -64,7 +64,7 @@ class ImportTool < Tool
     old_triangles.each do |old_triangle|
       new_bounds = Geom::BoundingBox.new
       new_triangles.each do |new_triangle|
-        new_bounds.add(new_triangle.thingy.entity.bounds)
+        new_bounds.add(new_triangle.surface.entity.bounds)
       end
       # expand the bounding box along the diagonal of the already existing one
       left_front_bottom = new_bounds.corner(0)
@@ -78,7 +78,7 @@ class ImportTool < Tool
                        diagonal.reverse,
                        Configuration::INTERSECTION_OFFSET
       ))
-      oent = old_triangle.thingy.entity
+      oent = old_triangle.surface.entity
       next unless oent.valid?
       old_bounds = oent.bounds
       intersection = old_bounds.intersect(new_bounds)
