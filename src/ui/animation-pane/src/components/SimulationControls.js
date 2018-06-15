@@ -44,13 +44,13 @@ class SimulationControls extends React.Component {
     document.addEventListener('keyup', e => {
       // ESC
       if (e.keyCode === 27) {
-        this.stopSimulationClick();
+        this.triggerStopSimulation();
       }
     });
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keyup', this.stopSimulationClick);
+    document.removeEventListener('keyup', this.triggerStopSimulation);
   }
 
   toggleSimulation = playOnce => {
@@ -260,7 +260,7 @@ class SimulationControls extends React.Component {
     );
   };
 
-  stopSimulationClick = () => {
+  triggerStopSimulation = () => {
     const {
       timeline: {
         startedSimulationOnce,
@@ -348,7 +348,7 @@ class SimulationControls extends React.Component {
             </button>
           </div>
           <div className={devMode ? 'col' : 'some-padding-top'}>
-            <button onClick={this.stopSimulationClick}>
+            <button onClick={this.triggerStopSimulation}>
               <img
                 alt="stop"
                 style={devMode ? {} : { height: 25, width: 25 }}
