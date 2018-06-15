@@ -20,7 +20,6 @@ class NodeExportAlgorithm
 
   def run
     edges = Graph.instance.edges.values
-    edges.each(&:reset)
 
     static_groups = StaticGroupAnalysis.find_static_groups
     static_groups.select! { |group| group.size > 1 }
