@@ -15,6 +15,14 @@ module NodeExportVisualization
         visualize_hinge(hinge)
       end
 
+      export_interface.subhubs.each do |subhub|
+        edges = subhub.edges
+        edges.zip(edges.rotate(1)).each do |edge1, edge2|
+          temp_hinge = HingeExportInterface.new(edge1, edge2, false)
+          visualize_hinge(temp_hinge)
+        end
+      end
+
       hinge_layer = Sketchup.active_model.layers.at(Configuration::HINGE_VIEW)
       hinge_layer.visible = true
 
