@@ -1,4 +1,4 @@
-require 'src/thingies/physics_link.rb'
+require 'src/sketchup_objects/physics_link.rb'
 require 'src/configuration/configuration.rb'
 
 # PhysicsLink that behaves like a gas spring

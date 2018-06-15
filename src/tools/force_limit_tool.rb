@@ -43,7 +43,7 @@ class ForceLimitTool < Tool
   def onLButtonDown(_flags, x, y, view)
     update(view, x, y)
     edge = @mouse_input.snapped_object
-    if edge.nil? || !edge.thingy.is_a?(GenericLink)
+    if edge.nil? || !edge.link.is_a?(GenericLink)
       p 'Edge is invalid. Should be a GenericLink'
       return
     end
@@ -71,10 +71,10 @@ class ForceLimitTool < Tool
   def find_limits
     @simulation = Simulation.new
     setup_simulation
-    settled_distance = @edge.thingy.joint.cur_distance
+    settled_distance = @edge.link.joint.cur_distance
     @piston_position = settled_distance
     # should we apply positive or negative force?
-    positive_direction = settled_distance < @edge.thingy.default_length
+    positive_direction = settled_distance < @edge.link.default_length
     # Find min force until it moves
     while (@piston_position - settled_distance).abs < @threshold &&
           @steps < 5000
@@ -110,9 +110,9 @@ class ForceLimitTool < Tool
     else
       @force -= 10
     end
-    @edge.thingy.force = @force
+    @edge.link.force = @force
     @simulation.update_world_headless_by(1)
-    @piston_position = @edge.thingy.joint.cur_distance
+    @piston_position = @edge.link.joint.cur_distance
   end
 
   def apply_force_binary_search(increasing, first)
@@ -123,7 +123,7 @@ class ForceLimitTool < Tool
         @force = (@new_force + @force) / 2.0
       end
     end
-    @edge.thingy.force = (@new_force + @force) / 2.0
+    @edge.link.force = (@new_force + @force) / 2.0
     @simulation.update_world_headless_by(0.2)
   end
 end

@@ -16,25 +16,25 @@ class ComponentProperties
 
       case type
       when 'ActuatorLink'
-        actuator = Graph.instance.edges[id].thingy
+        actuator = Graph.instance.edges[id].link
         @actuator = actuator
         add_animation_pane(context_menu,
                            '../context-menus/piston.erb',
                            'TrussFab Piston Properties')
       when 'SpringLink'
-        spring = Graph.instance.edges[id].thingy
+        spring = Graph.instance.edges[id].link
         @spring = spring
         add_spring_menu(context_menu,
                         '../context-menus/spring.erb',
                         'TrussFab Spring Properties')
       when 'GenericLink'
-        generic_link = Graph.instance.edges[id].thingy
+        generic_link = Graph.instance.edges[id].link
         @generic_link = generic_link
         add_generic_link_menu(context_menu,
                               '../context-menus/generic_link.erb',
                               'TrussFab Generic Link Properties')
       when 'PidController'
-        @pid_controller = Graph.instance.edges[id].thingy
+        @pid_controller = Graph.instance.edges[id].link
         add_pid_controller_menu(context_menu,
                                 '../context-menus/pid_controller.erb',
                                 'TrussFab PID-Controller Properties')

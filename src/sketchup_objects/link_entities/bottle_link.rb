@@ -1,7 +1,7 @@
 require 'src/configuration/configuration'
 
 # BottleLink
-class BottleLink < Thingy
+class BottleLink < SketchupObject
   attr_reader :model, :direction
 
   def initialize(position, direction, model,

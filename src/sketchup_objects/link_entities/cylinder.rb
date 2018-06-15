@@ -1,8 +1,8 @@
-require 'src/thingies/thingy.rb'
+require 'src/sketchup_objects/sketchup_object.rb'
 require 'src/simulation/simulation.rb'
 
 # Cylinder
-class Cylinder < Thingy
+class Cylinder < SketchupObject
   def initialize(center, vector, parent, definition, id = nil)
     super(id)
     @center = center

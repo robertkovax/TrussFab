@@ -1,5 +1,5 @@
-require 'src/thingies/link.rb'
-require 'src/thingies/link_entities/cylinder.rb'
+require 'src/sketchup_objects/link.rb'
+require 'src/sketchup_objects/link_entities/cylinder.rb'
 require 'src/simulation/simulation.rb'
 
 # SuperClass for moving links
@@ -36,8 +36,8 @@ class PhysicsLink < Link
   #
 
   def create_joints(world, first_node, second_node, breaking_force)
-    bd1 = first_node.thingy.body
-    bd2 = second_node.thingy.body
+    bd1 = first_node.hub.body
+    bd2 = second_node.hub.body
     pt1 = bd1.group.bounds.center
     pt2 = bd2.group.bounds.center
     @joint = case @link_type # NOTE: Add newly created link_types here
@@ -68,8 +68,8 @@ class PhysicsLink < Link
   end
 
   def update_link_transformations
-    pt1 = @first_node.thingy.entity.bounds.center
-    pt2 = @second_node.thingy.entity.bounds.center
+    pt1 = @first_node.hub.entity.bounds.center
+    pt2 = @second_node.hub.entity.bounds.center
     pt3 = Geom::Point3d.linear_combination(0.5, pt1, 0.5, pt2)
     dir = pt2 - pt1
     return if dir.length.to_f < 1.0e-6
@@ -94,12 +94,12 @@ class PhysicsLink < Link
   end
 
   #
-  # Subthingy methods
+  # Children SketchupObject methods
   #
 
   def update_limits; end
 
-  def create_sub_thingies
+  def create_children
     @first_elongation_length =
       @second_elongation_length = Configuration::MINIMUM_ELONGATION
 

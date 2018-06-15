@@ -1,8 +1,8 @@
-require 'src/thingies/thingy'
+require 'src/sketchup_objects/sketchup_object'
 require 'src/simulation/simulation.rb'
 
-# Moving Thingy, affected by physics
-class PhysicsThingy < Thingy
+# Moving SketchupObject, affected by physics
+class PhysicsSketchupObject < SketchupObject
   def initialize(id, material: nil)
     if material.nil?
       super(id)
