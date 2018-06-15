@@ -198,15 +198,15 @@ class Link < PhysicsThingy
   #
 
   def connect_to_hub
-    @first_elongation.show if @first_elongation
-    @second_elongation.show if @second_elongation
+    @first_elongation.reset if @first_elongation
+    @second_elongation.reset if @second_elongation
   end
 
-  def disconnect_from_hub(is_first_joint)
+  def disconnect_from_hub(is_first_joint, distance)
     if is_first_joint
-      @first_elongation.hide if @first_elongation
+      @first_elongation.shorten(distance) if @first_elongation
     else
-      @second_elongation.hide if @second_elongation
+      @second_elongation.shorten(distance) if @second_elongation
     end
   end
 
