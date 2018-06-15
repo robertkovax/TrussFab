@@ -36,10 +36,9 @@ class App extends Component {
       startedSimulationOnce: false,
     },
     groupVisible: {}, // group id => bool
-    keyframesMap: new Map(), // maps from piston id to array of keyframes
+    keyframesMap: new Map(), // maps from piston group id to array of keyframes
     previousKeyframesMap: null, // use for greyed points when something broke
-    pistons: [], // this is not actually needed because we have `keyframesMap`
-    timeSelection: new Map(), // map from piston id
+    timeSelection: new Map(), // map from piston group id to current time
   });
 
   componentDidMount() {
@@ -117,20 +116,28 @@ class App extends Component {
     this.resetState();
   };
 
+  /**
+   * @returns array of all piston group id
+   */
+  pistons = () => [...this.state.keyframesMap.keys()];
+
   addPiston = id => {
-    if (this.state.pistons.includes(id)) {
+    const {
+      keyframesMap,
+      timeline: { seconds },
+    } = this.state;
+
+    if (keyframesMap.has(id)) {
       return;
     }
-    const oldKeyframes = this.state.keyframesMap;
-    const oldPistons = this.state.pistons;
+
     this.setState({
-      pistons: oldPistons.concat(id),
-      keyframesMap: oldKeyframes.set(id, [
+      keyframesMap: keyframesMap.set(id, [
         { time: 0, value: 0.5 },
-        { time: this.state.timeline.seconds, value: 0.5 },
+        { time: seconds, value: 0.5 },
       ]), // init
     });
-    persistKeyframes(JSON.stringify([...this.state.keyframesMap]));
+    persistKeyframes(JSON.stringify([...keyframesMap]));
     setTimeout(() => {
       this.addTimeSelectionForNewKeyFrame(id);
     }, 100);
@@ -139,11 +146,10 @@ class App extends Component {
   addPistonWithAnimation = animation => {
     const animationMap = new Map(animation);
     animationMap.forEach((keyframes, id) => {
-      if (this.state.pistons.includes(id)) {
+      if (this.pistons().includes(id)) {
         return;
       }
       this.setState({
-        pistons: this.state.pistons.concat(id),
         keyframes: this.state.keyframesMap.set(id, keyframes),
       });
       setTimeout(() => {
@@ -214,11 +220,10 @@ class App extends Component {
   };
 
   fixBrokenModelByReducingMovement = () => {
+    const { keyframesMap } = this.state;
     const previousKeyframesMap = new Map();
-    const keyframesMap = this.state.keyframesMap;
 
-    this.state.pistons.forEach((pistonId, id) => {
-      const oldKeyframe = this.state.keyframesMap.get(id);
+    keyframesMap.forEach((oldKeyframe, id) => {
       previousKeyframesMap.set(id, oldKeyframe);
 
       const newKeyframe = oldKeyframe.map((x, keyframeIndex) => {
@@ -238,12 +243,11 @@ class App extends Component {
   };
 
   fixBrokenModelByReducingSpeed = () => {
-    const { keyframesMap, timeline, pistons } = this.state;
+    const { keyframesMap, timeline } = this.state;
 
     const previousKeyframesMap = new Map();
 
-    pistons.forEach((pistonId, id) => {
-      const oldKeyframe = keyframesMap.get(id);
+    keyframesMap.forEach((oldKeyframe, id) => {
       previousKeyframesMap.set(id, oldKeyframe);
 
       const newKeyframe = oldKeyframe
@@ -305,13 +309,12 @@ class App extends Component {
       keyframesMap,
       devMode,
       windowCollapsed,
-      pistons,
       previousKeyframesMap,
     } = this.state;
 
     const simulationIsRunning =
       timeline.startedSimulationCycle || timeline.startedSimulationOnce;
-    const pistonElements = pistons
+    const pistonElements = this.pistons()
       .filter(x => this.state.groupVisible[x] === true) // filter out hidden ids
       .map((id, index) => (
         <Piston
@@ -341,7 +344,6 @@ class App extends Component {
           timeline={timeline}
           simulationSettings={simulationSettings}
           keyframesMap={keyframesMap}
-          pistons={pistons}
           devMode={devMode}
           windowCollapsed={windowCollapsed}
           addTimeSelectionForNewKeyFrame={this.addTimeSelectionForNewKeyFrame}

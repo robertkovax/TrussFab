@@ -255,7 +255,7 @@ class SimulationControls extends React.Component {
   };
 
   _addAllTimeSelectionLines = () => {
-    this.props.pistons.forEach(x =>
+    [...this.props.keyframesMap.keys()].forEach(x =>
       this.props.addTimeSelectionForNewKeyFrame(x)
     );
   };
