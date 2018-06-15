@@ -526,21 +526,6 @@ class Simulation
   end
 
   def move_joint(id, next_position, duration)
-    # @pistons.each_value do |piston|
-    #   next unless piston.id == id
-    #   joint = piston.joint
-    #   next if joint.nil? || !joint.valid?
-    #   next_position_normalized = piston.max * next_position.to_f +
-    #                              piston.min * (1 - next_position.to_f)
-    #   current_postion = joint.cur_distance - joint.start_distance
-    #   position_distance = (current_postion - next_position_normalized).abs
-    #   scale = 60.0 / (@fps)
-    #   scale = 1 if scale == Float::INFINITY
-    #   rate = (position_distance / duration * scale)
-    #   joint.rate = rate > 0.01 ? rate : piston.rate #put it on "holding force"
-    #   joint.controller = next_position_normalized
-    # end
-
     @auto_piston_group.each do |edges|
       next if edges.nil?
       edges.each do |edge|
@@ -553,10 +538,9 @@ class Simulation
         current_postion = joint.cur_distance - joint.start_distance
         position_distance = (current_postion - next_position_normalized).abs
 
-        scale = 1 # if scale == Float::INFINITY
-        rate = (position_distance / duration * scale) # link.rate
+        rate = position_distance / duration
 
-        joint.rate = rate # > 0.01 ? rate : link.rate
+        joint.rate = rate > 0.01 ? rate : link.rate
         joint.controller = next_position_normalized
       end
     end
