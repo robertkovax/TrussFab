@@ -2,20 +2,20 @@ require 'src/database/id_manager.rb'
 
 # Object like Edge, Node, Surface
 class GraphObject
-  attr_reader :id, :thingy
+  attr_reader :id
 
   def initialize(id = nil)
     @id = id.nil? ? IdManager.instance.generate_next_id : id
-    @thingy = create_thingy(@id)
+    @sketchup_object = create_sketchup_object(@id)
     @deleted = false
   end
 
   def check_if_valid
-    @thingy && @thingy.check_if_valid
+    @sketchup_object && @sketchup_object.check_if_valid
   end
 
   def delete
-    delete_thingy
+    delete_sketchup_object
     Graph.instance.delete_object(self)
     @deleted = true
   end
@@ -25,31 +25,31 @@ class GraphObject
   end
 
   def redraw
-    delete_thingy
-    @thingy = create_thingy(@id)
+    delete_sketchup_object
+    @sketchup_object = create_sketchup_object(@id)
   end
 
   def highlight
-    @thingy.highlight unless @thingy.nil?
+    @sketchup_object.highlight unless @sketchup_object.nil?
   end
 
   def un_highlight
-    @thingy.un_highlight unless @thingy.nil?
+    @sketchup_object.un_highlight unless @sketchup_object.nil?
   end
 
   private
 
-  def create_thingy(_id)
-    raise "GraphObject (#{self.class}):: create_thingy needs to be overwritten"
+  def create_sketchup_object(_id)
+    raise "GraphObject (#{self.class})::create_sketchup_object needs to be overwritten"
   end
 
-  def recreate_thingy
-    @thingy.delete
-    @thingy = create_thingy(@id)
+  def recreate_sketchup_object
+    @sketchup_object.delete
+    @sketchup_object = create_sketchup_object(@id)
   end
 
-  def delete_thingy
-    @thingy.delete unless @thingy.nil?
-    @thingy = nil
+  def delete_sketchup_object
+    @sketchup_object.delete unless @sketchup_object.nil?
+    @sketchup_object = nil
   end
 end

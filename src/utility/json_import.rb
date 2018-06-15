@@ -128,9 +128,9 @@ module JsonImport
                     (first_incident.opposite(edge.first_node) !=
                     second_incident.opposite(edge.second_node))
             triangle = Graph.instance
-                            .create_surface(edge.first_node,
-                                            edge.second_node,
-                                            first_incident
+                            .create_triangle(edge.first_node,
+                                             edge.second_node,
+                                             first_incident
                                             .opposite(edge.first_node))
             triangles[triangle.id] = triangle
           end
@@ -175,9 +175,9 @@ module JsonImport
                                                       second_position,
                                                       bottle_type: bottle_type,
                                                       link_type: link_type)
-        if edge.thingy.is_a?(ActuatorLink)
+        if edge.link.is_a?(ActuatorLink)
           piston_group = edge_json['piston_group']
-          edge.thingy.piston_group = piston_group unless piston_group.nil?
+          edge.link.piston_group = piston_group unless piston_group.nil?
         end
         edges[edge_json['id']] = edge
         nodes[edge_json['n1']] = edge.first_node

@@ -61,16 +61,16 @@ module NodeExportVisualization
 
       group.each do |triangle|
         triangle.edges.each do |edge|
-          edge.thingy.change_color(group_color)
+          edge.link.change_color(group_color)
         end
       end
     end
 
     def disconnect_edge_from_hub(rotating_edge, node)
       if rotating_edge.first_node?(node)
-        rotating_edge.thingy.disconnect_from_hub(true)
+        rotating_edge.link.disconnect_from_hub(true)
       else
-        rotating_edge.thingy.disconnect_from_hub(false)
+        rotating_edge.link.disconnect_from_hub(false)
       end
     end
 
@@ -100,7 +100,7 @@ module NodeExportVisualization
       line1 = Line.new(mid_point, mid_point1, HINGE_LINE)
       line2 = Line.new(mid_point, mid_point2, HINGE_LINE)
 
-      rotating_edge.thingy.add(line1, line2)
+      rotating_edge.link.add(line1, line2)
     end
   end
 end

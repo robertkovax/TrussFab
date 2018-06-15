@@ -22,8 +22,8 @@ class AddWeightTool < Tool
   end
 
   def add_weight_to_node(node)
-    node.thingy.add_weight(WEIGHT) # in kg
-    node.thingy.add_weight_indicator
+    node.hub.add_weight(WEIGHT) # in kg
+    node.hub.add_weight_indicator
   end
 
   def add_weight_to_surface(surface)

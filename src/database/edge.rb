@@ -1,10 +1,10 @@
 require 'set'
 require 'src/database/graph_object.rb'
-require 'src/thingies/link.rb'
-require 'src/thingies/actuator_link.rb'
-require 'src/thingies/spring_link.rb'
-require 'src/thingies/generic_link.rb'
-require 'src/thingies/pid_controller.rb'
+require 'src/sketchup_objects/link.rb'
+require 'src/sketchup_objects/actuator_link.rb'
+require 'src/sketchup_objects/spring_link.rb'
+require 'src/sketchup_objects/generic_link.rb'
+require 'src/sketchup_objects/pid_controller.rb'
 require 'src/models/model_storage.rb'
 require 'src/simulation/thingy_rotation.rb'
 require 'src/configuration/configuration.rb'
@@ -38,14 +38,18 @@ class Edge < GraphObject
     super(edge_id)
   end
 
+  def link
+    @sketchup_object
+  end
+
   def link_type=(type)
     return unless type != @link_type
     @link_type = type
-    recreate_thingy
+    recreate_sketchup_object
   end
 
   def dynamic?
-    thingy.is_a?(PhysicsLink)
+    link.is_a?(PhysicsLink)
   end
 
   def distance(point)
@@ -78,7 +82,7 @@ class Edge < GraphObject
   end
 
   def create_joints(world, breaking_force)
-    @thingy.create_joints(world, @first_node, @second_node, breaking_force)
+    link.create_joints(world, @first_node, @second_node, breaking_force)
   end
 
   def position
@@ -186,15 +190,15 @@ class Edge < GraphObject
     @bottle_type = model.name
   end
 
-  def update_thingy
+  def update_sketchup_object
     if @link_type == 'bottle_link'
       update_bottle_type unless @@retain_bottle_types
 
       model = @bottle_models.models[@bottle_type]
-      @thingy.model = model
+      @sketchup_object.model = model
     end
 
-    @thingy.update_positions(@first_node.position, @second_node.position)
+    @sketchup_object.update_positions(@first_node.position, @second_node.position)
   end
 
   def next_longer_length
@@ -206,11 +210,11 @@ class Edge < GraphObject
   end
 
   def first_elongation_length
-    @thingy.first_elongation_length
+    @sketchup_object.first_elongation_length
   end
 
   def second_elongation_length
-    @thingy.second_elongation_length
+    @sketchup_object.second_elongation_length
   end
 
   def inspect
@@ -218,43 +222,45 @@ class Edge < GraphObject
   end
 
   def reset
-    recreate_thingy
+    recreate_sketchup_object
 
     return unless @link_type == 'bottle_link'
-    @thingy.change_color(Configuration::BOTTLE_COLOR)
+    @sketchup_object.change_color(Configuration::BOTTLE_COLOR)
   end
 
   private
 
-  def create_thingy(id)
-    thingy = case @link_type
-             when 'bottle_link'
-               update_bottle_type if @bottle_type.empty?
+  def create_sketchup_object(id)
+    sketchup_object =
+      case @link_type
+      when 'bottle_link'
+        update_bottle_type if @bottle_type.empty?
 
-               Link.new(@first_node,
+        Link.new(@first_node,
+                 @second_node,
+                 Configuration::STANDARD_BOTTLES,
+                 bottle_name: @bottle_type,
+                 id: id)
+      when 'actuator'
+        ActuatorLink.new(@first_node,
+                         @second_node,
+                         id: id)
+      when 'spring'
+        SpringLink.new(@first_node,
+                       @second_node,
+                       id: id)
+      when 'generic'
+        GenericLink.new(@first_node,
                         @second_node,
-                        Configuration::STANDARD_BOTTLES,
-                        bottle_name: @bottle_type,
                         id: id)
-             when 'actuator'
-               ActuatorLink.new(@first_node,
-                                @second_node,
-                                id: id)
-             when 'spring'
-               SpringLink.new(@first_node,
-                              @second_node,
-                              id: id)
-             when 'generic'
-               GenericLink.new(@first_node,
-                               @second_node,
-                               id: id)
-             when 'pid_controller'
-               PidController.new(@first_node,
-                               @second_node,
-                               id: id)
-             else
-               raise "Unkown link type: #{@link_type}"
-             end
-    thingy
+      when 'pid_controller'
+        PidController.new(@first_node,
+                          @second_node,
+                          id: id)
+      else
+        raise "Unkown link type: #{@link_type}"
+      end
+
+    sketchup_object
   end
 end

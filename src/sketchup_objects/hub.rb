@@ -1,9 +1,9 @@
-require 'src/thingies/physics_thingy.rb'
+require 'src/sketchup_objects/physics_sketchup_object.rb'
 require 'src/models/model_storage.rb'
 require 'src/simulation/simulation.rb'
 
 # Hub
-class Hub < PhysicsThingy
+class Hub < PhysicsSketchupObject
   attr_accessor :position, :body, :mass, :arrow
 
   def initialize(position, id: nil, incidents: nil, material: 'hub_material')
@@ -112,7 +112,7 @@ class Hub < PhysicsThingy
   end
 
   def pods
-    @sub_thingies.select { |sub_thingy| sub_thingy.is_a?(Pod) }
+    @children.select { |child| child.is_a?(Pod) }
   end
 
   def pods?
@@ -178,7 +178,7 @@ class Hub < PhysicsThingy
   end
 
   def create_body(world)
-    num_physics_links = @incidents.count { |x| x.thingy.is_a?(PhysicsLink) }
+    num_physics_links = @incidents.count { |x| x.link.is_a?(PhysicsLink) }
     weight = Configuration::HUB_MASS * @incidents.count +
              Configuration::PISTON_MASS * num_physics_links
     # spheres will have it rolling

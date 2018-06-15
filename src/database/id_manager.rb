@@ -22,8 +22,8 @@ class IdManager
   def maximum_piston_group
     max_group = -1
     Graph.instance.edges.each_value do |edge|
-      if edge.thingy.piston_group > max_group
-        max_group = edge.thingy.piston_group
+      if edge.link.piston_group > max_group
+        max_group = edge.link.piston_group
       end
     end
     max_group

@@ -1,7 +1,7 @@
 require 'src/simulation/simulation.rb'
 
 # Pod
-class Pod < Thingy
+class Pod < SketchupObject
   attr_accessor :is_fixed
 
   attr_reader :position, :direction
