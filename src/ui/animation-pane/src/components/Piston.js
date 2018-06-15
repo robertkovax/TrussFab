@@ -3,8 +3,8 @@ import * as d3 from 'd3';
 
 import {
   changePistonValue,
-  toggleSimulation,
-  persistKeyframes
+  startSimulation,
+  persistKeyframes,
 } from '../utils/sketchup-integration';
 import { X_AXIS, Y_AXIS } from '../config';
 import colors from '../utils/colors';
@@ -12,7 +12,7 @@ import colors from '../utils/colors';
 class Piston extends React.Component {
   _mapKeyframeToCoordinates = keyframe => {
     return [
-      keyframe.time * X_AXIS / this.props.seconds,
+      keyframe.time * X_AXIS / this.props.timelineSeconds,
       (1 - keyframe.value) * (Y_AXIS - 8) + 4,
     ];
   };
@@ -40,8 +40,8 @@ class Piston extends React.Component {
     const {
       keyframesMap,
       previousKeyframesMap,
-      simluationBrokeAt,
-      seconds,
+      timelineSimluationBrokeAt,
+      timelineSeconds,
       setContainerState,
     } = this.props;
 
@@ -83,10 +83,10 @@ class Piston extends React.Component {
 
     return (
       <div style={{ position: 'relative' }}>
-        {simluationBrokeAt !== null && (
+        {timelineSimluationBrokeAt !== null && (
           <div
             className="broken-time-line"
-            style={{ left: simluationBrokeAt / 1000 / 5 * X_AXIS }}
+            style={{ left: timelineSimluationBrokeAt / 1000 / 5 * X_AXIS }}
           />
         )}
         <svg viewBox={viewBox} className="chart" id={`svg-${id}`}>
@@ -120,12 +120,12 @@ class Piston extends React.Component {
             fontSize: 10,
           }}
         >
-          {seconds / 2}s
+          {timelineSeconds / 2}s
         </span>
         <span
           style={{ position: 'absolute', bottom: 0, right: 0, fontSize: 10 }}
         >
-          {seconds}s
+          {timelineSeconds}s
         </span>
       </div>
     );
@@ -154,12 +154,12 @@ class Piston extends React.Component {
     const {
       id,
       index,
-      simulationIsRunning,
-      seconds,
-      timeSelection,
-      simulationIsOnForValueTesting,
-      setContainerState,
       devMode,
+      simulationIsRunning,
+      timelineSeconds,
+      timeSelection,
+      timelineSimulationIsOnForValueTesting,
+      setContainerState,
     } = this.props;
     return (
       <div>
@@ -180,7 +180,7 @@ class Piston extends React.Component {
               type="number"
               step="0.1"
               min="0"
-              max={seconds}
+              max={timelineSeconds}
               value={
                 timeSelection.get(id) || this.initialSecondsForTimeSelection()
               }
@@ -195,9 +195,11 @@ class Piston extends React.Component {
                 if (simulationIsRunning) {
                   changePistonValue(id, fixedValue);
                 } else {
-                  if (!simulationIsOnForValueTesting) {
-                    setContainerState({ simulationIsOnForValueTesting: true });
-                    toggleSimulation();
+                  if (!timelineSimulationIsOnForValueTesting) {
+                    setContainerState({
+                      timeline: { simulationIsOnForValueTesting: true },
+                    });
+                    startSimulation();
                   }
                   changePistonValue(id, fixedValue);
                 }

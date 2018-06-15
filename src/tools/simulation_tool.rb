@@ -55,10 +55,16 @@ class SimulationTool < Tool
     @ui.stop_simulation
   end
 
-  def toggle_pause
+  def pause_simulation
     return if @simulation.nil?
-    @simulation.toggle_pause
+    @simulation.pause
   end
+
+  def unpause_simulation
+    return if @simulation.nil?
+    @simulation.unpause
+  end
+
 
   def restart
     return if @simulation.nil?
@@ -151,6 +157,19 @@ class SimulationTool < Tool
     @simulation.stiffness
   end
 
+  def display_values
+    @simulation.display_values
+  end
+
+  def highest_force_mode
+    @simulation.highest_force_mode
+  end
+
+  def peak_force_mode
+    @simulation.peak_force_mode
+  end
+
+
   def change_piston_value(id, value)
     @simulation.grouped_change_piston_value(id, value) unless @simulation.nil?
   end
@@ -180,6 +199,11 @@ class SimulationTool < Tool
 
   def change_peak_force_mode(param)
     @peak_force_mode = param
+    setup_simulation_parameters
+  end
+
+  def change_display_values(param)
+    @display_values = param
     setup_simulation_parameters
   end
 

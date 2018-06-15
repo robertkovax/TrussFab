@@ -80,6 +80,10 @@ class AnimationPane
     @dialog.execute_script("syncHiddenStatus(#{map.to_json})")
   end
 
+  def toggle_dev_mode()
+    @dialog.execute_script("toggleDevMode()")
+  end
+
   private
 
   def start_simulation_setup_scripts
@@ -88,7 +92,11 @@ class AnimationPane
     Sketchup.active_model.select_tool(@simulation_tool)
     breaking_force = @simulation_tool.breaking_force
     stiffness = @simulation_tool.stiffness
-    @dialog.execute_script("initState(#{breaking_force}, #{stiffness})")
+    display_values = @simulation_tool.display_values
+    highest_force_mode = @simulation_tool.highest_force_mode
+    peak_force_mode = @simulation_tool.peak_force_mode
+    @dialog.execute_script("initSimulationState(#{breaking_force}, #{stiffness},
+      #{display_values}, #{highest_force_mode}, #{peak_force_mode})")
   end
 
   def register_callbacks
@@ -101,11 +109,15 @@ class AnimationPane
       @collapsed = !@collapsed
     end
 
-    @dialog.add_action_callback('toggle_simulation') do |_context|
+    @dialog.add_action_callback('start_simulation') do |_context|
       if @simulation_tool.simulation.nil? ||
          @simulation_tool.simulation.stopped?
         start_simulation_setup_scripts
-      else
+      end
+    end
+
+    @dialog.add_action_callback('stop_simulation') do |_context|
+      unless @simulation_tool.simulation.nil? ||
         stop_simulation
         Sketchup.active_model.select_tool(nil)
       end
@@ -115,8 +127,12 @@ class AnimationPane
       @simulation_tool.restart
     end
 
-    @dialog.add_action_callback('toggle_pause_simulation') do |_context|
-      @simulation_tool.toggle_pause
+    @dialog.add_action_callback('pause_simulation') do |_context|
+      @simulation_tool.pause_simulation
+    end
+
+    @dialog.add_action_callback('unpause_simulation') do |_context|
+      @simulation_tool.unpause_simulation
     end
 
     @dialog.add_action_callback('change_piston_value') do |_, id, new_value|
@@ -141,6 +157,10 @@ class AnimationPane
 
     @dialog.add_action_callback('change_peak_force_mode') do |_context, checked|
       @simulation_tool.change_peak_force_mode(checked)
+    end
+
+    @dialog.add_action_callback('change_display_values') do |_context, checked|
+      @simulation_tool.change_display_values(checked)
     end
 
     @dialog.add_action_callback('apply_force') do |_context|

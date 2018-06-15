@@ -6,6 +6,6 @@ const Y_AXIS = 50;
 const UPDATE_INTERVALL = 100;
 
 // A value of 0.5 slows it down => doubles the time in the timeline.
-const TIMELINE_TIME_FACTOR = 0.5;
+const TIMELINE_TIME_FACTOR = 1;
 
 export { X_AXIS, Y_AXIS, UPDATE_INTERVALL, TIMELINE_TIME_FACTOR };

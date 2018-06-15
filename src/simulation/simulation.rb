@@ -91,6 +91,8 @@ class Simulation
     @highest_force_mode = false
     @peak_force_mode = false
 
+    @display_values = false
+
     hinge_layer = Sketchup.active_model.layers.at(Configuration::HINGE_VIEW)
     hinge_layer.visible = false unless hinge_layer.nil?
 
@@ -124,6 +126,11 @@ class Simulation
       edge.link.joint.stiffness =
         edge.link.is_a?(ActuatorLink) ? 0.99 : stiffness
     end
+  end
+
+  def display_values
+    # TODO: see above
+    @display_values
   end
 
   #
@@ -622,6 +629,14 @@ class Simulation
     end
   end
 
+  def pause
+    @paused = true
+  end
+
+  def unpause
+    start
+  end
+
   def restart
     @sensors.each do |sensor|
       @sensor_dialog.reset_chart(sensor.id) unless @sensor_dialog.nil?
@@ -731,6 +746,7 @@ class Simulation
   end
 
   def nextFrame(view) # rubocop:disable Naming/MethodName
+    view.show_frame
     return @running unless @running && !@paused
 
     update_world
@@ -747,7 +763,6 @@ class Simulation
 
     update_status_text
 
-    view.show_frame
     @running
   end
 
