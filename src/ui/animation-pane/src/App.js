@@ -271,6 +271,7 @@ class App extends Component {
   };
 
   resetState = () => {
+    const { timeline } = this.state;
     SimulationControls.removeLines();
 
     // the interval is a class variable so clear with a class method
@@ -278,8 +279,10 @@ class App extends Component {
 
     // some race condition with the 'broken sim' requires the timeout
     setTimeout(() => {
+      const oldSeconds = timeline.seconds;
       this.setState({
-        timeline: { ...this.getIninitalState().timeline },
+        timeline: { ...this.getIninitialState(),
+                    seconds: oldSeconds },
       });
     }, 100);
   };
