@@ -11,11 +11,12 @@ import {
 class SimulationForm extends React.Component {
   render() {
     const {
+      keyframesMap,
+      setContainerState,
+      simulationSettings,
       startedSimulationCycle,
       startedSimulationOnce,
-      simulationSettings,
       timelineSeconds,
-      setContainerState,
     } = this.props;
     const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
     return (
@@ -33,7 +34,7 @@ class SimulationForm extends React.Component {
               changeHighestForceMode(event.target.checked);
             }}
           />
-          <label className="form-check-label" for="checkbox-highest-force">
+          <label className="form-check-label">
             Highest Force
           </label>
         </div>
@@ -50,7 +51,7 @@ class SimulationForm extends React.Component {
               changePeakForceMode(event.target.checked);
             }}
           />
-          <label className="form-check-label" for="checkbox-peak-force">
+          <label className="form-check-label">
             Peak Force
           </label>
         </div>
@@ -67,12 +68,12 @@ class SimulationForm extends React.Component {
               changeDisplayValues(event.target.checked);
             }}
           />
-          <label className="form-check-label" for="checkbox-display-values">
+          <label className="form-check-label">
             Display Values
           </label>
         </div>
         <div className="form-group row no-gutters">
-          <label for="input-cycle-length" className="col-sm-6 col-form-label">
+          <label className="col-sm-6 col-form-label">
             Cycle Length
           </label>
           <div className="input-group input-group-sm col-sm-6">
@@ -88,7 +89,7 @@ class SimulationForm extends React.Component {
                 const ratio = newSeconds / timelineSeconds;
                 // fix old values
                 const newKeyframes = new Map();
-                const oldKeyframes = this.state.keyframes;
+                const oldKeyframes = keyframesMap;
 
                 oldKeyframes.forEach((value, key) => {
                   const updatedValues = value.map(oneKeyframe => {
@@ -105,7 +106,7 @@ class SimulationForm extends React.Component {
 
                 setContainerState({
                   timeline: { seconds: newSeconds },
-                  keyframes: newKeyframes,
+                  keyframesMap: newKeyframes,
                 });
               }}
             />
@@ -115,7 +116,7 @@ class SimulationForm extends React.Component {
           </div>
         </div>
         <div className="form-group row no-gutters">
-          <label for="input-breaking-force" className="col-sm-6 col-form-label">
+          <label className="col-sm-6 col-form-label">
             Breaking Force
           </label>
           <div className="input-group input-group-sm col-sm-6">
@@ -140,7 +141,7 @@ class SimulationForm extends React.Component {
           </div>
         </div>
         <div className="form-group row no-gutters">
-          <label for="input-stiffness" className="col-sm-6 col-form-label">
+          <label className="col-sm-6 col-form-label">
             Stiffness
           </label>
           <div className="input-group input-group-sm col-sm-6">

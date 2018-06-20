@@ -11,10 +11,10 @@ import { X_AXIS, Y_AXIS } from './config';
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = this.getIninitalState();
+    this.state = this.getIninitialState();
   }
 
-  getIninitalState = () => ({
+  getIninitialState = () => ({
     windowCollapsed: true,
     devMode: false,
     simulationSettings: {
