@@ -23,8 +23,12 @@ class ForceChart
     @dialog.visible?
   end
 
-  def add_chart_data(sensor_id, label, data)
-    @dialog.execute_script("addChartData(#{sensor_id}, '#{label}', #{data});")
+  def add_chart_data(sensor_id, label, data, datatype, sensortype)
+    @dialog.execute_script("addChartData(#{sensor_id},"\
+                           " '#{label}',"\
+                           " #{data},"\
+                           " '#{datatype}',"\
+                           " '#{sensortype}');")
   end
 
   def shift_data
@@ -33,14 +37,5 @@ class ForceChart
 
   def reset_chart(sensor_id)
     @dialog.execute_script("resetChart(#{sensor_id});")
-  end
-
-  def update_speed(sensor_id, speed)
-    @dialog.execute_script("updateSpeed('#{sensor_id}', '#{speed}');")
-  end
-
-  def update_acceleration(sensor_id, acceleration)
-    @dialog.execute_script("updateAcceleration('#{sensor_id}',
-                           '#{acceleration}');")
   end
 end
