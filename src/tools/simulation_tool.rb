@@ -65,7 +65,6 @@ class SimulationTool < Tool
     @simulation.unpause
   end
 
-
   def restart
     return if @simulation.nil?
     @simulation.restart
@@ -168,7 +167,6 @@ class SimulationTool < Tool
   def peak_force_mode
     @simulation.peak_force_mode
   end
-
 
   def change_piston_value(id, value)
     @simulation.grouped_change_piston_value(id, value) unless @simulation.nil?
