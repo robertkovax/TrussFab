@@ -5,7 +5,6 @@ require 'src/configuration/configuration.rb'
 class SpringLink < PhysicsLink
   attr_accessor :extended_length, :stroke_length, :extended_force, :threshold,
                 :damp
-  attr_reader :joint, :first_cylinder, :second_cylinder
 
   def initialize(first_node, second_node, id: nil)
     super(first_node, second_node, 'spring', id: id)

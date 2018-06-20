@@ -4,8 +4,7 @@ require 'src/configuration/configuration.rb'
 # GenericLink
 class GenericLink < PhysicsLink
   attr_accessor :min_distance, :max_distance
-  attr_reader :joint, :first_cylinder, :second_cylinder, :initial_force,
-              :default_length, :force
+  attr_reader :initial_force, :default_length, :force
 
   def initialize(first_node, second_node, id: nil, link_type: 'generic')
     super(first_node, second_node, link_type, id: id)
