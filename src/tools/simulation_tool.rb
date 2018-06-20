@@ -5,7 +5,8 @@ require 'src/configuration/configuration.rb'
 
 # Starts the simulation
 class SimulationTool < Tool
-  attr_reader :simulation
+  attr_reader :simulation, :breaking_force, :peak_force_mode,
+              :highest_force_mode, :display_values, :stiffness
 
   def initialize(ui)
     super(ui)
@@ -143,31 +144,6 @@ class SimulationTool < Tool
   def pistons
     @simulation.pistons
   end
-
-  def breaking_force
-    @simulation.breaking_force
-  end
-
-  def max_speed
-    @simulation.max_speed
-  end
-
-  def stiffness
-    @simulation.stiffness
-  end
-
-  def display_values
-    @simulation.display_values
-  end
-
-  def highest_force_mode
-    @simulation.highest_force_mode
-  end
-
-  def peak_force_mode
-    @simulation.peak_force_mode
-  end
-
 
   def change_piston_value(id, value)
     @simulation.grouped_change_piston_value(id, value) unless @simulation.nil?

@@ -86,18 +86,24 @@ class AnimationPane
 
   private
 
-  def start_simulation_setup_scripts
-    @sidebar_menu.deselect_tool
-
-    Sketchup.active_model.select_tool(@simulation_tool)
+  def set_simulation_parameters
     breaking_force = @simulation_tool.breaking_force
     stiffness = @simulation_tool.stiffness
     display_values = @simulation_tool.display_values
     highest_force_mode = @simulation_tool.highest_force_mode
     peak_force_mode = @simulation_tool.peak_force_mode
     @dialog.execute_script("initSimulationState(#{breaking_force},
-      #{stiffness} * 100, #{display_values}, #{highest_force_mode},
-      #{peak_force_mode})")
+                                                #{stiffness} * 100,
+                                                #{display_values},
+                                                #{highest_force_mode},
+                                                #{peak_force_mode})")
+  end
+
+  def start_simulation_setup_scripts
+    @sidebar_menu.deselect_tool
+
+    Sketchup.active_model.select_tool(@simulation_tool)
+    set_simulation_parameters
   end
 
   def register_callbacks
@@ -185,6 +191,10 @@ class AnimationPane
 
     @dialog.add_action_callback('set_stiffness') do |_, stiffness|
       @simulation_tool.stiffness = stiffness
+    end
+
+    @dialog.add_action_callback('on_load') do |_context|
+      set_simulation_parameters
     end
   end
 end

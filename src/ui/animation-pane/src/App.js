@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 
 import './css/App.css';
 import { toggleDiv } from './utils/dom';
-import { persistKeyframes } from './utils/sketchup-integration';
+import { persistKeyframes, onLoad } from './utils/sketchup-integration';
 import Piston from './components/Piston';
 import SimulationControls from './components/SimulationControls';
 import { X_AXIS, Y_AXIS } from './config';
@@ -12,17 +12,18 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = this.getIninitialState();
+    onLoad();
   }
 
   getIninitialState = () => ({
     windowCollapsed: true,
     devMode: false,
     simulationSettings: {
-      breakingForce: null,
-      stiffness: null,
-      displayValues: null,
-      highestForceMode: null,
-      peakForceMode: null,
+      breakingForce: "",
+      stiffness: "",
+      displayValues: false,
+      highestForceMode: false,
+      peakForceMode: false,
     },
     timeline: {
       currentCycle: 0,

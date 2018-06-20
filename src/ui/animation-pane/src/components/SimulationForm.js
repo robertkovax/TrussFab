@@ -121,9 +121,9 @@ class SimulationForm extends React.Component {
               type="number"
               className="form-control form-control-sm"
               id="input-breaking-force"
-              placeholder="300"
+              placeholder=""
               value={simulationSettings.breakingForce}
-              onChange={event => {
+              onChange={ event => {
                 setContainerState({
                   simulationSettings: { breakingForce: event.target.value },
                 });
