@@ -14,11 +14,8 @@ class SimulationForm extends React.Component {
       keyframesMap,
       setContainerState,
       simulationSettings,
-      startedSimulationCycle,
-      startedSimulationOnce,
       timelineSeconds,
     } = this.props;
-    const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
     return (
       <form>
         <div className="form-check">

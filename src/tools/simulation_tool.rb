@@ -39,8 +39,8 @@ class SimulationTool < Tool
 
   def activate
     @simulation = Simulation.new
-    setup_simulation_parameters
     @simulation.setup
+    setup_simulation_parameters
     @simulation.open_sensor_dialog
     @auto_piston_group = @simulation.auto_piston_group
     Sketchup.active_model.active_view.animation = @simulation
@@ -64,7 +64,6 @@ class SimulationTool < Tool
     return if @simulation.nil?
     @simulation.unpause
   end
-
 
   def restart
     return if @simulation.nil?

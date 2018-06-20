@@ -80,8 +80,8 @@ class AnimationPane
     @dialog.execute_script("syncHiddenStatus(#{map.to_json})")
   end
 
-  def toggle_dev_mode()
-    @dialog.execute_script("toggleDevMode()")
+  def toggle_dev_mode
+    @dialog.execute_script('toggleDevMode()')
   end
 
   private
@@ -95,8 +95,9 @@ class AnimationPane
     display_values = @simulation_tool.display_values
     highest_force_mode = @simulation_tool.highest_force_mode
     peak_force_mode = @simulation_tool.peak_force_mode
-    @dialog.execute_script("initSimulationState(#{breaking_force}, #{stiffness},
-      #{display_values}, #{highest_force_mode}, #{peak_force_mode})")
+    @dialog.execute_script("initSimulationState(#{breaking_force},
+      #{stiffness} * 100, #{display_values}, #{highest_force_mode},
+      #{peak_force_mode})")
   end
 
   def register_callbacks
@@ -117,8 +118,7 @@ class AnimationPane
     end
 
     @dialog.add_action_callback('stop_simulation') do |_context|
-      unless @simulation_tool.simulation.nil? ||
-        stop_simulation
+      unless @simulation_tool.simulation.nil? || stop_simulation
         Sketchup.active_model.select_tool(nil)
       end
     end
