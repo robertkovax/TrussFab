@@ -540,7 +540,7 @@ class Simulation
 
         rate = position_distance / duration
 
-        joint.rate = rate > 0.01 ? rate : link.rate
+        joint.rate = rate > 0.001 ? rate : link.rate
         joint.controller = next_position_normalized
       end
     end
