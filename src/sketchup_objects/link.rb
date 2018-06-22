@@ -12,11 +12,13 @@ class Link < PhysicsSketchupObject
               :position, :second_position, :loc_up_vec, :first_node,
               :second_node, :sensor_symbol, :piston_group
 
-  def initialize(first_node, second_node, model_name, bottle_name: '', id: nil)
+  def initialize(first_node, second_node, edge, model_name, bottle_name: '',
+                 id: nil)
     super(id)
 
     @position = first_node.position
     @second_position = second_node.position
+    @edge = edge
     # the vector pointing along the length of the bottle
     @loc_up_vec = Geom::Vector3d.new(0, 0, -1)
 
@@ -58,6 +60,30 @@ class Link < PhysicsSketchupObject
     @elongation_ratio = val
     delete_children
     create_children
+  end
+
+  def change_elongation_length(elongation, length)
+    new_first_elongation_length = @first_elongation_length
+    new_second_elongation_length = @second_elongation_length
+
+    if elongation == @first_elongation
+      new_first_elongation_length = length
+    elsif elongation == @second_elongation
+      new_second_elongation_length = length
+    else
+      raise 'Logic error: elongation does not belong to link.'
+    end
+
+    old_total_length =
+      @first_elongation_length + @second_elongation_length
+    new_total_length =
+      new_first_elongation_length + new_second_elongation_length
+
+    @elongation_ratio = new_first_elongation_length / new_total_length
+
+    difference = new_total_length - old_total_length
+
+    Relaxation.new.stretch_to(@edge, self.length + difference).relax
   end
 
   def delete
@@ -224,6 +250,10 @@ class Link < PhysicsSketchupObject
 
   def bottle_link
     @children.find { |child| child.is_a?(BottleLink) }
+  end
+
+  def elongations
+    @children.select { |child| child.is_a? Elongation }
   end
 
   def direction

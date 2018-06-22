@@ -28,6 +28,10 @@ class Elongation < SketchupObject
     @entity.transformation = @original_transformation
   end
 
+  def resize(length)
+    @parent.change_elongation_length(self, length)
+  end
+
   private
 
   def create_entity

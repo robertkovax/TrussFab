@@ -7,8 +7,8 @@ class GenericLink < PhysicsLink
   attr_reader :joint, :first_cylinder, :second_cylinder, :initial_force,
               :default_length, :force
 
-  def initialize(first_node, second_node, id: nil, link_type: 'generic')
-    super(first_node, second_node, link_type, id: id)
+  def initialize(first_node, second_node, edge, id: nil, link_type: 'generic')
+    super(first_node, second_node, edge, link_type, id: id)
 
     pt1 = first_node.hub.position
     pt2 = second_node.hub.position

@@ -19,8 +19,8 @@ class PidController < GenericLink
     end
   end
 
-  def initialize(first_node, second_node, id: nil)
-    super(first_node, second_node, link_type: 'pid_controller', id: id)
+  def initialize(first_node, second_node, edge, id: nil)
+    super(first_node, second_node, edge, link_type: 'pid_controller', id: id)
 
     @logging = false
     @integral_error_cap = 1

@@ -6,13 +6,13 @@ require 'src/simulation/simulation.rb'
 class PhysicsLink < Link
   attr_reader :joint, :first_cylinder, :second_cylinder
 
-  def initialize(first_node, second_node, link_type, id: nil)
+  def initialize(first_node, second_node, edge, link_type, id: nil)
     @first_cylinder = nil
     @second_cylinder = nil
     @joint = nil
     @link_type = link_type
 
-    super(first_node, second_node, link_type, id: id)
+    super(first_node, second_node, edge, link_type, id: id)
 
     persist_entity
   end

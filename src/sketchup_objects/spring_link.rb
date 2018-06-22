@@ -7,8 +7,8 @@ class SpringLink < PhysicsLink
                 :damp
   attr_reader :joint, :first_cylinder, :second_cylinder
 
-  def initialize(first_node, second_node, id: nil)
-    super(first_node, second_node, 'spring', id: id)
+  def initialize(first_node, second_node, edge, id: nil)
+    super(first_node, second_node, edge,'spring', id: id)
 
     @stroke_length = Configuration::SPRING_STROKE_LENGTH
     @extended_force = Configuration::SPRING_EXTENDED_FORCE

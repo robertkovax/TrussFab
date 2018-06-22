@@ -12,8 +12,8 @@ class ActuatorLink < PhysicsLink
     '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000080', '#808080', '#000000'
   ].freeze
 
-  def initialize(first_node, second_node, id: nil)
-    super(first_node, second_node, 'actuator', id: id)
+  def initialize(first_node, second_node, edge, id: nil)
+    super(first_node, second_node, edge,'actuator', id: id)
 
     pt1 = first_node.hub.position
     pt2 = second_node.hub.position
