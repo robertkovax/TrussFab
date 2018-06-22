@@ -102,7 +102,9 @@ class Simulation
       edge.link.connect_to_hub
     end
 
-    @socket_connection = SocketConnection.new
+    @send_over_socket = false
+    @socket_connection = SocketConnection.new if @send_over_socket
+    @update_count = 0
 
   end
 
@@ -542,13 +544,12 @@ class Simulation
       actuator.joint.controller =
         (value.to_f - Configuration::ACTUATOR_INIT_DIST) * (actuator.max -
           actuator.min)
-      send_value_of(actuator)
     end
 
   end
 
-  def send_value_of(actuator)
-    distance_in_cm = (actuator.joint.controller + 0.14) * 100 # This weird, but I dunno why the value is like that
+  def send_value_of(joint)
+    distance_in_cm = (joint.cur_distance - 0.53 ) * 100 # This weird, but I dunno why the value is like that
     distance_in_cm = distance_in_cm.round(0)
     @socket_connection.send_cm(distance_in_cm)
   end
@@ -731,6 +732,7 @@ class Simulation
       end
       Sketchup.active_model.commit_operation
     end
+    send_value_of(@auto_piston_group.first.first.link.joint) if @send_over_socket
   end
 
   def update_entities

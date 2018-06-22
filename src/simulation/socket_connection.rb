@@ -16,13 +16,13 @@ class SocketConnection
 
   def send_cm(value)
     begin
-      @client.send(value.to_s, 0) unless @connection_error
+      @client.send("#{value}", 0) unless @connection_error
     rescue SystemCallError => error
       puts "Error sending to the socket"
       puts error.message
       @connection_error = true
     end
     puts "Not sending cause connection Error, but would" if @connection_error
-    puts "send to socket: #{value}"
+    puts "send to socket: #{value}" if @connection_error
   end
 end
