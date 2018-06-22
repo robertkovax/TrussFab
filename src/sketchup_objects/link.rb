@@ -7,7 +7,7 @@ require 'src/configuration/configuration'
 
 # Link
 class Link < PhysicsSketchupObject
-  attr_accessor :joint, :model
+  attr_accessor :joint, :model, :elongation_ratio
   attr_reader :first_elongation_length, :second_elongation_length,
               :position, :second_position, :loc_up_vec, :first_node,
               :second_node, :sensor_symbol, :piston_group
@@ -44,6 +44,8 @@ class Link < PhysicsSketchupObject
     @second_elongation = nil
 
     @sensor_symbol = nil
+
+    @elongation_ratio = 0.5
 
     create_children
   end
@@ -215,15 +217,11 @@ class Link < PhysicsSketchupObject
   end
 
   def create_children
-    @first_elongation_length =
-      @second_elongation_length =
-        Configuration::MINIMUM_ELONGATION
-
     length = @first_node.position.distance(@second_node.position)
 
-    @first_elongation_length =
-      @second_elongation_length =
-        (length - @model.length) / 2
+    elongation_length = length - @model.length
+    @first_elongation_length = elongation_length * @elongation_ratio
+    @second_elongation_length = elongation_length * (1.0 - @elongation_ratio)
 
     direction = @position.vector_to(@second_position)
 
