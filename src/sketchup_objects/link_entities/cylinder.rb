@@ -3,6 +3,8 @@ require 'src/simulation/simulation.rb'
 
 # Cylinder
 class Cylinder < SketchupObject
+  attr_reader :material
+
   def initialize(center, vector, parent, definition, id = nil)
     super(id)
     @center = center
@@ -28,6 +30,11 @@ class Cylinder < SketchupObject
     entity = Sketchup.active_model.active_entities.add_instance(@definition,
                                                                 transformation)
     entity
+  end
+
+  def material=(material)
+    @material = material
+    change_color(material)
   end
 
   def change_color(color)

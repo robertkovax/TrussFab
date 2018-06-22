@@ -843,7 +843,11 @@ class Simulation
     Graph.instance.edges.each_value do |edge|
       link = edge.link
       # Get the bottle of the link
-      bottle = link.children[1].entity
+      bottle = if link.is_a?(ActuatorLink)
+                 link.first_cylinder.entity
+               else
+                 link.children[1].entity
+               end
       persist_material(link, bottle)
     end
     # Now, create new materials
@@ -853,7 +857,7 @@ class Simulation
       dat[3] = umat
       dat[0].material = umat
       dat[2].each { |e, _| e.material = nil }
-      if link.is_a?(ActuatorLink)
+      if link.is_a?(PhysicsLink) && !link.is_a?(ActuatorLink)
         second_cylinder = link.children[0].entity
         second_cylinder.material = dat[3]
       end
