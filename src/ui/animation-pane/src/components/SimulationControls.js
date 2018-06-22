@@ -304,6 +304,7 @@ class SimulationControls extends React.Component {
       },
       simulationSettings,
       setContainerState,
+      keyframesMap,
     } = this.props;
 
     return (
@@ -376,6 +377,7 @@ class SimulationControls extends React.Component {
         </div>
         {devMode && (
           <SimulationForm
+            keyframesMap={keyframesMap}
             simulationSettings={simulationSettings}
             setContainerState={setContainerState}
             timelineSeconds={seconds}

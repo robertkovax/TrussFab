@@ -63,6 +63,7 @@ class Piston extends React.Component {
 
     const circles = points.map((x, index) => (
       <circle
+        key={index}
         onClick={() => deleteCircle(index)}
         cx={x[0]}
         cy={x[1]}
