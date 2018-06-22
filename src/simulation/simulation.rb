@@ -858,7 +858,7 @@ class Simulation
       link = edge.link
       # Get the bottle of the link
       bottle = if link.is_a?(ActuatorLink)
-                 link.children[0].entity
+                 link.first_cylinder.entity
                else
                  link.children[1].entity
                end
