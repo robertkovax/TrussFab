@@ -7,7 +7,7 @@ require 'src/configuration/configuration'
 
 # Link
 class Link < PhysicsSketchupObject
-  attr_accessor :joint, :model, :elongation_ratio
+  attr_accessor :joint, :model
   attr_reader :first_elongation_length, :second_elongation_length,
               :position, :second_position, :loc_up_vec, :first_node,
               :second_node, :sensor_symbol, :piston_group
@@ -47,6 +47,16 @@ class Link < PhysicsSketchupObject
 
     @elongation_ratio = 0.5
 
+    create_children
+  end
+
+  def elongation_ratio
+    @elongation_ratio
+  end
+
+  def elongation_ratio=(val)
+    @elongation_ratio = val
+    delete_children
     create_children
   end
 
@@ -216,14 +226,30 @@ class Link < PhysicsSketchupObject
     @children.find { |child| child.is_a?(BottleLink) }
   end
 
+  def direction
+    @position.vector_to(@second_position)
+  end
+
   def create_children
+    create_elongations
+
+    link_position = @position.offset(@first_elongation.direction)
+
+    add(@first_elongation,
+        BottleLink.new(link_position, direction, @model),
+        Line.new(@position, @second_position, LINK_LINE),
+        @second_elongation)
+  end
+
+  def create_elongations
+    @first_elongation.delete if @first_elongation
+    @second_elongation.delete if @second_elongation
+
     length = @first_node.position.distance(@second_node.position)
 
     elongation_length = length - @model.length
     @first_elongation_length = elongation_length * @elongation_ratio
     @second_elongation_length = elongation_length * (1.0 - @elongation_ratio)
-
-    direction = @position.vector_to(@second_position)
 
     @first_elongation = Elongation.new(@position,
                                        direction,
@@ -232,12 +258,5 @@ class Link < PhysicsSketchupObject
     @second_elongation = Elongation.new(@second_position,
                                         direction.reverse,
                                         @second_elongation_length)
-
-    link_position = @position.offset(@first_elongation.direction)
-
-    add(@first_elongation,
-        BottleLink.new(link_position, direction, @model),
-        Line.new(@position, @second_position, LINK_LINE),
-        @second_elongation)
   end
 end
