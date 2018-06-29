@@ -93,6 +93,8 @@ class Simulation
     @highest_force_mode = false
     @peak_force_mode = false
 
+    @display_values = false
+
     hinge_layer = Sketchup.active_model.layers.at(Configuration::HINGE_VIEW)
     hinge_layer.visible = false unless hinge_layer.nil?
 
@@ -131,6 +133,11 @@ class Simulation
       edge.link.joint.stiffness =
         edge.link.is_a?(ActuatorLink) ? 0.99 : stiffness
     end
+  end
+
+  def display_values
+    # TODO: see above
+    @display_values
   end
 
   #
@@ -555,21 +562,6 @@ class Simulation
   end
 
   def move_joint(id, next_position, duration)
-    # @pistons.each_value do |piston|
-    #   next unless piston.id == id
-    #   joint = piston.joint
-    #   next if joint.nil? || !joint.valid?
-    #   next_position_normalized = piston.max * next_position.to_f +
-    #                              piston.min * (1 - next_position.to_f)
-    #   current_postion = joint.cur_distance - joint.start_distance
-    #   position_distance = (current_postion - next_position_normalized).abs
-    #   scale = 60.0 / (@fps)
-    #   scale = 1 if scale == Float::INFINITY
-    #   rate = (position_distance / duration * scale)
-    #   joint.rate = rate > 0.01 ? rate : piston.rate #put it on "holding force"
-    #   joint.controller = next_position_normalized
-    # end
-
     @auto_piston_group.each do |edges|
       next if edges.nil?
       edges.each do |edge|
@@ -582,10 +574,9 @@ class Simulation
         current_postion = joint.cur_distance - joint.start_distance
         position_distance = (current_postion - next_position_normalized).abs
 
-        scale = 1 # if scale == Float::INFINITY
-        rate = (position_distance / duration * scale) # link.rate
+        rate = position_distance / duration
 
-        joint.rate = rate # > 0.01 ? rate : link.rate
+        joint.rate = rate > 0.001 ? rate : link.rate
         joint.controller = next_position_normalized
       end
     end
@@ -656,6 +647,14 @@ class Simulation
       # model.commit_operation
       @paused = true
     end
+  end
+
+  def pause
+    @paused = true
+  end
+
+  def unpause
+    start
   end
 
   def restart
@@ -768,6 +767,7 @@ class Simulation
   end
 
   def nextFrame(view) # rubocop:disable Naming/MethodName
+    view.show_frame
     return @running unless @running && !@paused
 
     update_world
@@ -784,7 +784,6 @@ class Simulation
 
     update_status_text
 
-    view.show_frame
     @running
   end
 
@@ -831,12 +830,14 @@ class Simulation
     @sensors.each do |sensor|
       if sensor.is_a?(Hub)
         speed = sensor.body.get_velocity.length.to_f
-        @sensor_dialog.update_speed(sensor.id, speed.round(2))
+        @sensor_dialog.add_chart_data(sensor.id, ' ', speed, 'Speed', 'Hub')
         accel = sensor.body.get_acceleration.length.to_f
-        @sensor_dialog.update_acceleration(sensor.id, accel.round(2))
+        @sensor_dialog.add_chart_data(sensor.id, ' ', accel,
+                                      'Acceleration', 'Hub')
       elsif sensor.is_a?(Link)
         @sensor_dialog.add_chart_data(sensor.id,
-                                      ' ', @max_actuator_tensions[sensor.id])
+                                      ' ', @max_actuator_tensions[sensor.id],
+                                      'Force', 'Edge')
         if TrussFab.store_sensor_output?
           @sensor_output_csv
             .write(@max_actuator_tensions[sensor.id].to_s + "\n")
@@ -879,7 +880,11 @@ class Simulation
     Graph.instance.edges.each_value do |edge|
       link = edge.link
       # Get the bottle of the link
-      bottle = link.children[1].entity
+      bottle = if link.is_a?(ActuatorLink)
+                 link.first_cylinder.entity
+               else
+                 link.children[1].entity
+               end
       persist_material(link, bottle)
     end
     # Now, create new materials
@@ -889,7 +894,7 @@ class Simulation
       dat[3] = umat
       dat[0].material = umat
       dat[2].each { |e, _| e.material = nil }
-      if link.is_a?(ActuatorLink)
+      if link.is_a?(PhysicsLink) && !link.is_a?(ActuatorLink)
         second_cylinder = link.children[0].entity
         second_cylinder.material = dat[3]
       end
@@ -916,11 +921,11 @@ class Simulation
   # deleting the created ones.
   # Note: this must be wrapped in operation
   def reset_materials
-    # This is not the ideal solution for recoloring bottles, however it is only
-    # called once, after stopping the simulation, so the performance impact is
-    # not too big.
     Graph.instance.edges.each_value do |edge|
       edge.link.un_highlight
+    end
+    @bottle_dat.each do |_, dat|
+      Sketchup.active_model.materials.remove(dat[3]) if dat[3] && dat[3].valid?
     end
     @bottle_dat.clear
   end

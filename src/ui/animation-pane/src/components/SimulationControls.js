@@ -12,27 +12,51 @@ import {
 import {
   togglePane,
   restartSimulation,
-  togglePauseSimulation,
-  toggleSimulation,
   moveJoint,
+  pauseSimulation,
+  unpauseSimulation,
+  startSimulation,
+  stopSimulation,
 } from '../utils/sketchup-integration';
 
 class SimulationControls extends React.Component {
+  timelineInterval = null;
+
+  /**
+   * add new timeline interval, clears old if present
+   * @param {Function} playOneTimelineStep function that plays one step
+   */
+  static addTimelineInterval = playOneTimelineStep => {
+    if (this.timelineInterval != null) {
+      SimulationControls.clearTimelineInterval();
+    }
+
+    // save interval to class variable so we can clear it later
+    this.timelineInterval = setInterval(playOneTimelineStep, UPDATE_INTERVALL);
+  };
+
+  /**
+   * clear timeline interval
+   */
+  static clearTimelineInterval = () => clearInterval(this.timelineInterval);
+
   componentDidMount() {
     document.addEventListener('keyup', e => {
       // ESC
       if (e.keyCode === 27) {
-        this.stopSimulation();
+        this.triggerStopSimulation();
       }
     });
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keyup', this.stopSimulation);
+    document.removeEventListener('keyup', this.triggerStopSimulation);
   }
 
   toggleSimulation = playOnce => {
-    const { startedSimulationOnce, startedSimulationCycle } = this.props;
+    const {
+      timeline: { startedSimulationOnce, startedSimulationCycle },
+    } = this.props;
 
     if (playOnce) {
       if (startedSimulationOnce) {
@@ -49,44 +73,87 @@ class SimulationControls extends React.Component {
     }
   };
 
-  playOneTimelineStep = () => {
+  /**
+   * Checks if we reached the timeline end and also updates state accordingly
+   * @returns adjusted timeline time in milliseconds
+   */
+  _checkIfReachedTimelineEnd = () => {
     const {
-      seconds,
+      timeline: { seconds, startedSimulationOnce, currentCycle },
       setContainerState,
-      currentCycle,
-      startedSimulationOnce,
-      keyframesMap,
     } = this.props;
 
-    let { timelineCurrentTime } = this.props;
+    let {
+      timeline: { currentTime: actualTimelineMilliSeconds },
+    } = this.props;
 
-    if (timelineCurrentTime / 1000 > seconds) {
+    if (actualTimelineMilliSeconds / 1000 > seconds) {
       if (startedSimulationOnce) {
-        this._removeInterval();
+        // we reached the end of the cycle and we only wanted to play on cycle
+        // thus, pause the simulation and reset the state
+        SimulationControls.clearTimelineInterval();
         SimulationControls.removeLines();
-        // toggleSimulation();
-        togglePauseSimulation();
+
+        pauseSimulation();
 
         setContainerState({
-          startedSimulationOnce: false,
-          startedSimulationCycle: false,
-          simulationPaused: true,
-          timelineCurrentTime: 0,
-          currentCycle: 0,
-          simulationIsPausedAfterOnce: true,
+          timeline: {
+            startedSimulationOnce: false,
+            startedSimulationCycle: false,
+            simulationPaused: true,
+            simulationIsPausedAfterOnce: true,
+            currentCycle: 0,
+          },
         });
       } else {
-        timelineCurrentTime = 0;
-        setContainerState({ currentCycle: currentCycle + 1 });
+        // set current time to 0 because reached the end of a cycle
+        actualTimelineMilliSeconds = 0;
+        setContainerState({
+          timeline: { currentCycle: currentCycle + 1 },
+        });
       }
     }
 
-    const timelineCurrentTimeSeconds = timelineCurrentTime / 1000;
+    setContainerState({
+      timeline: {
+        currentTime:
+          actualTimelineMilliSeconds + UPDATE_INTERVALL * TIMELINE_TIME_FACTOR,
+      },
+    });
+
+    return actualTimelineMilliSeconds;
+  };
+
+  /**
+   * sets the current time for the timeline indicator
+   * @param {number} actualTimelineSeconds
+   */
+  _setTimelineTimeIndicator = actualTimelineSeconds => {
+    const {
+      timeline: { seconds },
+    } = this.props;
+
+    const newX = actualTimelineSeconds * X_AXIS / seconds;
+
+    d3
+      .selectAll('line.timeline')
+      .attr('x1', newX)
+      .attr('x2', newX);
+  };
+
+  /**
+   * Only play the timeline once and pause the simulation afterwards.
+   */
+  playOneTimelineStep = () => {
+    const { keyframesMap } = this.props;
+
+    const actualTimelineMilliSeconds = this._checkIfReachedTimelineEnd();
+    const actualTimelineSeconds = actualTimelineMilliSeconds / 1000;
 
     keyframesMap.forEach((keyframes, jointId) => {
       for (let i = 0; i < keyframes.length; i++) {
         const currentKeyframe = keyframes[i];
-        if (timelineCurrentTime === currentKeyframe.time * 1000) {
+        if (actualTimelineSeconds === currentKeyframe.time) {
           // Since the first and the last keyframe are 'special' and should
           // always have the same value, we must not move the joint for the last
           // keyframe.
@@ -100,29 +167,7 @@ class SimulationControls extends React.Component {
       }
     });
 
-    const newX = timelineCurrentTimeSeconds * X_AXIS / seconds;
-
-    d3
-      .selectAll('line.timeline')
-      .attr('x1', newX)
-      .attr('x2', newX);
-
-    setContainerState({
-      timelineCurrentTime:
-        timelineCurrentTime + UPDATE_INTERVALL * TIMELINE_TIME_FACTOR,
-    });
-  };
-
-  _addInterval = () => {
-    const timlineInterval = setInterval(
-      this.playOneTimelineStep,
-      UPDATE_INTERVALL
-    );
-    this.props.setContainerState({ timlineInterval });
-  };
-
-  _removeInterval = () => {
-    clearInterval(this.props.timlineInterval);
+    this._setTimelineTimeIndicator(actualTimelineSeconds);
   };
 
   _addLines = () => {
@@ -142,34 +187,34 @@ class SimulationControls extends React.Component {
   static removeLines = () => d3.selectAll('line.timeline').remove();
 
   _togglePause = () => {
-    const { simulationPaused, setContainerState } = this.props;
+    const {
+      timeline: { simulationPaused },
+      setContainerState,
+    } = this.props;
     if (simulationPaused) {
-      togglePauseSimulation();
-      setContainerState({ simulationPaused: !simulationPaused });
+      unpauseSimulation();
+      setContainerState({ timeline: { simulationPaused: !simulationPaused } });
 
       this._addLines();
-      this._addInterval();
+      SimulationControls.addTimelineInterval(this.playOneTimelineStep);
     } else {
-      togglePauseSimulation();
-      this._removeInterval();
+      pauseSimulation();
+      SimulationControls.clearTimelineInterval();
       SimulationControls.removeLines();
-
-      setContainerState({ simulationPaused: !simulationPaused });
+      setContainerState({ timeline: { simulationPaused: !simulationPaused } });
     }
   };
 
   _startSimulation = playOnce => {
     const {
       setContainerState,
-      simulationIsPausedAfterOnce,
-      simulationIsOnForValueTesting,
+      timeline: { simulationIsPausedAfterOnce, simulationIsOnForValueTesting },
     } = this.props;
 
     SimulationControls.removeLines();
     this._addLines();
 
-    this._removeInterval();
-    this._addInterval();
+    SimulationControls.addTimelineInterval(this.playOneTimelineStep);
 
     this._removeAllTimeselection();
 
@@ -178,50 +223,58 @@ class SimulationControls extends React.Component {
     } else {
       if (simulationIsOnForValueTesting) {
         restartSimulation();
-        setContainerState({ simulationIsOnForValueTesting: false });
+        setContainerState({
+          timeline: { simulationIsOnForValueTesting: false },
+        });
       } else {
-        toggleSimulation();
+        startSimulation();
       }
     }
 
     if (playOnce) {
       setContainerState({
-        startedSimulationOnce: true,
-        startedSimulationCycle: false,
-        simulationPaused: false,
-        timelineCurrentTime: 0,
-        currentCycle: 0,
+        timeline: {
+          startedSimulationOnce: true,
+          startedSimulationCycle: false,
+          simulationPaused: false,
+          currentTime: 0,
+          currentCycle: 0,
+        },
       });
     } else {
       setContainerState({
-        startedSimulationCycle: true,
-        startedSimulationOnce: false,
-        simulationPaused: false,
-        timelineCurrentTime: 0,
-        currentCycle: 0,
+        timeline: {
+          startedSimulationCycle: true,
+          startedSimulationOnce: false,
+          simulationPaused: false,
+          currentTime: 0,
+          currentCycle: 0,
+        },
       });
     }
   };
 
   _addAllTimeSelectionLines = () => {
-    this.props.pistons.forEach(x =>
+    [...this.props.keyframesMap.keys()].forEach(x =>
       this.props.addTimeSelectionForNewKeyFrame(x)
     );
   };
 
-  stopSimulation = () => {
+  triggerStopSimulation = () => {
     const {
-      startedSimulationOnce,
-      startedSimulationCycle,
-      simulationIsPausedAfterOnce,
-      simulationIsOnForValueTesting,
+      timeline: {
+        startedSimulationOnce,
+        startedSimulationCycle,
+        simulationIsPausedAfterOnce,
+        simulationIsOnForValueTesting,
+      },
       setContainerState,
       resetState,
     } = this.props;
 
     if (simulationIsOnForValueTesting) {
-      toggleSimulation();
-      setContainerState({ simulationIsOnForValueTesting: false });
+      stopSimulation();
+      setContainerState({ timeline: { simulationIsOnForValueTesting: false } });
       return;
     }
 
@@ -233,7 +286,7 @@ class SimulationControls extends React.Component {
     }
 
     this._addAllTimeSelectionLines();
-    toggleSimulation();
+    stopSimulation();
     resetState();
   };
 
@@ -241,19 +294,19 @@ class SimulationControls extends React.Component {
 
   render() {
     const {
-      startedSimulationCycle,
-      startedSimulationOnce,
-      simulationPaused,
       devMode,
       windowCollapsed,
+      timeline: {
+        startedSimulationOnce,
+        simulationPaused,
+        startedSimulationCycle,
+        seconds,
+      },
+      simulationSettings,
       setContainerState,
-      seconds,
-      breakingForce,
-      stiffness,
-      displayVol,
-      peakForceMode,
-      highestForceMode,
+      keyframesMap,
     } = this.props;
+
     return (
       <div
         className={devMode ? 'col-4' : ''}
@@ -296,7 +349,7 @@ class SimulationControls extends React.Component {
             </button>
           </div>
           <div className={devMode ? 'col' : 'some-padding-top'}>
-            <button onClick={this.stopSimulation}>
+            <button onClick={this.triggerStopSimulation}>
               <img
                 alt="stop"
                 style={devMode ? {} : { height: 25, width: 25 }}
@@ -324,13 +377,12 @@ class SimulationControls extends React.Component {
         </div>
         {devMode && (
           <SimulationForm
+            keyframesMap={keyframesMap}
+            simulationSettings={simulationSettings}
             setContainerState={setContainerState}
-            stiffness={stiffness}
-            breakingForce={breakingForce}
-            seconds={seconds}
-            displayVol={displayVol}
-            peakForceMode={peakForceMode}
-            highestForceMode={highestForceMode}
+            timelineSeconds={seconds}
+            startedSimulationCycle={startedSimulationCycle}
+            startedSimulationOnce={startedSimulationOnce}
           />
         )}
       </div>

@@ -11,31 +11,27 @@ import {
 class SimulationForm extends React.Component {
   render() {
     const {
-      startedSimulationCycle,
-      startedSimulationOnce,
+      keyframesMap,
       setContainerState,
-      highestForceMode,
-      peakForceMode,
-      displayVol,
-      seconds,
-      breakingForce,
-      stiffness,
+      simulationSettings,
+      timelineSeconds,
     } = this.props;
-    const simulationIsRunning = startedSimulationCycle || startedSimulationOnce;
     return (
       <form>
         <div className="form-check">
           <input
             className="form-check-input"
             type="checkbox"
-            id="defaultCheck1"
-            value={highestForceMode}
+            id="checkbox-highest-force"
+            value={simulationSettings.highestForceMode}
             onChange={event => {
-              setContainerState({ highestForceMode: event.target.value });
-              changeHighestForceMode(event.target.value);
+              setContainerState({
+                simulationSettings: { highestForceMode: event.target.checked },
+              });
+              changeHighestForceMode(event.target.checked);
             }}
           />
-          <label className="form-check-label" for="defaultCheck1">
+          <label className="form-check-label">
             Highest Force
           </label>
         </div>
@@ -43,14 +39,16 @@ class SimulationForm extends React.Component {
           <input
             className="form-check-input"
             type="checkbox"
-            id="defaultCheck1"
-            value={peakForceMode}
+            id="checkbox-peak-force"
+            value={simulationSettings.peakForceMode}
             onChange={event => {
-              setContainerState({ peakForceMode: event.target.value });
-              changePeakForceMode(event.target.value);
+              setContainerState({
+                simulationSettings: { peakForceMode: event.target.checked },
+              });
+              changePeakForceMode(event.target.checked);
             }}
           />
-          <label className="form-check-label" for="defaultCheck1">
+          <label className="form-check-label">
             Peak Force
           </label>
         </div>
@@ -58,39 +56,41 @@ class SimulationForm extends React.Component {
           <input
             className="form-check-input"
             type="checkbox"
-            id="defaultCheck1"
-            value={displayVol}
+            id="checkbox-display-values"
+            value={simulationSettings.displayValues}
             onChange={event => {
-              setContainerState({ displayVol: event.target.value });
-              changeDisplayValues(event.target.value);
+              setContainerState({
+                simulationSettings: { displayValues: event.target.checked },
+              });
+              changeDisplayValues(event.target.checked);
             }}
           />
-          <label className="form-check-label" for="defaultCheck1">
+          <label className="form-check-label">
             Display Values
           </label>
         </div>
         <div className="form-group row no-gutters">
-          <label for="inputEmail3" className="col-sm-6 col-form-label">
+          <label className="col-sm-6 col-form-label">
             Cycle Length
           </label>
           <div className="input-group input-group-sm col-sm-6">
             <input
               type="number"
               className="form-control form-control-sm"
-              id="inputEmail3"
+              id="input-cycle-length"
               placeholder="6"
-              value={seconds}
+              value={timelineSeconds}
               onChange={event => {
                 const newSeconds = parseFloat(event.target.value);
                 if (newSeconds == null || isNaN(newSeconds)) return;
-                const ratio = newSeconds / this.state.seconds;
+                const ratio = newSeconds / timelineSeconds;
                 // fix old values
                 const newKeyframes = new Map();
-                const oldKeyframes = this.state.keyframes;
+                const oldKeyframes = keyframesMap;
 
                 oldKeyframes.forEach((value, key) => {
                   const updatedValues = value.map(oneKeyframe => {
-                    if (oneKeyframe.time === this.state.seconds) {
+                    if (oneKeyframe.time === timelineSeconds) {
                       return { value: oneKeyframe.value, time: newSeconds };
                     } else
                       return {
@@ -102,63 +102,58 @@ class SimulationForm extends React.Component {
                 });
 
                 setContainerState({
-                  seconds: newSeconds,
-                  keyframes: newKeyframes,
+                  timeline: { seconds: newSeconds },
+                  keyframesMap: newKeyframes,
                 });
               }}
             />
             <div className="input-group-append">
-              <span className="input-group-text" id="basic-addon2">
-                s
-              </span>
+              <span className="input-group-text">s</span>
             </div>
           </div>
         </div>
         <div className="form-group row no-gutters">
-          <label for="inputEmail3" className="col-sm-6 col-form-label">
+          <label className="col-sm-6 col-form-label">
             Breaking Force
           </label>
           <div className="input-group input-group-sm col-sm-6">
             <input
               type="number"
               className="form-control form-control-sm"
-              id="inputEmail3"
-              placeholder="300"
-              value={breakingForce}
-              onChange={event => {
-                setContainerState({ breakingForce: event.target.value });
-                if (simulationIsRunning) {
-                  setBreakingForce(event.target.value);
-                }
+              id="input-breaking-force"
+              placeholder=""
+              value={simulationSettings.breakingForce}
+              onChange={ event => {
+                setContainerState({
+                  simulationSettings: { breakingForce: event.target.value },
+                });
+                setBreakingForce(event.target.value);
               }}
             />
             <div className="input-group-append">
-              <span className="input-group-text" id="basic-addon2">
-                N
-              </span>
+              <span className="input-group-text">N</span>
             </div>
           </div>
         </div>
         <div className="form-group row no-gutters">
-          <label for="inputEmail3" className="col-sm-6 col-form-label">
+          <label className="col-sm-6 col-form-label">
             Stiffness
           </label>
           <div className="input-group input-group-sm col-sm-6">
             <input
               type="number"
               className="form-control form-control-sm"
-              id="inputEmail3"
-              placeholder="Email"
-              value={stiffness}
+              id="input-stiffness"
+              value={simulationSettings.stiffness}
               onChange={event => {
-                setContainerState({ stiffness: event.target.value });
+                setContainerState({
+                  simulationSettings: { stiffness: event.target.value },
+                });
                 setStiffness(event.target.value);
               }}
             />
             <div className="input-group-append">
-              <span className="input-group-text" id="basic-addon2">
-                %
-              </span>
+              <span className="input-group-text">%</span>
             </div>
           </div>
         </div>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="de">
+<link rel="stylesheet" href="../css/ui.css" type="text/css">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elongation Menu</title>
+</head>
+<body onload="init()">
+Elongation length:
+<input type="text" id="elongation-length">
+<button type="button" onclick="set_elongation()">set</button>
+
+<script type="text/javascript">
+    function init() {
+        var elongationLength = document.getElementById("elongation-length");
+        elongationLength.value = <%= @elongation.length.to_mm %>
+    }
+
+    function set_elongation() {
+        var value = document.getElementById("elongation-length").value;
+        sketchup.set_length(value);
+        window.close();
+    }
+</script>
+</body>
+</html>

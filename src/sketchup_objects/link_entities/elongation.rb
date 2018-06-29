@@ -28,6 +28,16 @@ class Elongation < SketchupObject
     @entity.transformation = @original_transformation
   end
 
+  def resize(length)
+    if length < Configuration::MINIMUM_ELONGATION
+      raise 'Elongation is shorter than minimum length.'
+    end
+
+    Edge.enable_bottle_freeze
+    @parent.change_elongation_length(self, length)
+    Edge.disable_bottle_freeze
+  end
+
   private
 
   def create_entity

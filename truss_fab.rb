@@ -74,6 +74,12 @@ module TrussFab
       @animation_pane.refresh
     end
 
+    # call 'TrussFab.dev' to toggle between 'dev' modes
+    def dev
+      @animation_pane.toggle_dev_mode
+      # TODO: add here other UI parts / components that have a 'dev' mode
+    end
+
     def reload
       @reloader.reload
     end

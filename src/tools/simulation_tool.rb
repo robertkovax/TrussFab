@@ -5,7 +5,8 @@ require 'src/configuration/configuration.rb'
 
 # Starts the simulation
 class SimulationTool < Tool
-  attr_reader :simulation
+  attr_reader :simulation, :breaking_force, :peak_force_mode,
+              :highest_force_mode, :display_values, :stiffness
 
   def initialize(ui)
     super(ui)
@@ -39,8 +40,8 @@ class SimulationTool < Tool
 
   def activate
     @simulation = Simulation.new
-    setup_simulation_parameters
     @simulation.setup
+    setup_simulation_parameters
     @simulation.open_sensor_dialog
     @auto_piston_group = @simulation.auto_piston_group
     Sketchup.active_model.active_view.animation = @simulation
@@ -55,9 +56,14 @@ class SimulationTool < Tool
     @ui.stop_simulation
   end
 
-  def toggle_pause
+  def pause_simulation
     return if @simulation.nil?
-    @simulation.toggle_pause
+    @simulation.pause
+  end
+
+  def unpause_simulation
+    return if @simulation.nil?
+    @simulation.unpause
   end
 
   def restart
@@ -139,18 +145,6 @@ class SimulationTool < Tool
     @simulation.pistons
   end
 
-  def breaking_force
-    @simulation.breaking_force
-  end
-
-  def max_speed
-    @simulation.max_speed
-  end
-
-  def stiffness
-    @simulation.stiffness
-  end
-
   def change_piston_value(id, value)
     @simulation.grouped_change_piston_value(id, value) unless @simulation.nil?
   end
@@ -180,6 +174,11 @@ class SimulationTool < Tool
 
   def change_peak_force_mode(param)
     @peak_force_mode = param
+    setup_simulation_parameters
+  end
+
+  def change_display_values(param)
+    @display_values = param
     setup_simulation_parameters
   end
 
