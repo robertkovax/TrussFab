@@ -53,6 +53,20 @@ class ComponentProperties
         add_pod_menu(context_menu,
                      '../context-menus/pod.erb',
                      'TrussFab Pod Properties')
+
+      when 'Elongation'
+        @elongation = nil
+        Graph.instance.edges.values.each do |edge|
+          elongations = edge.link.elongations
+          @elongation = elongations.detect { |elongation| elongation.id == id }
+          break unless @elongation.nil?
+        end
+
+        raise 'Elongation not found' if @elongation.nil?
+
+        add_elongation_menu(context_menu,
+                            '../context-menus/elongation.erb',
+                            'TrussFab Elongation Properties')
       end
     end
   end
@@ -84,6 +98,12 @@ class ComponentProperties
   def add_pod_menu(context_menu, erb_file, title)
     context_menu.add_item(title) do
       show_pod_dialog(erb_file, title, Configuration::UI_WIDTH, 400)
+    end
+  end
+
+  def add_elongation_menu(context_menu, erb_file, title)
+    context_menu.add_item(title) do
+      show_elongation_dialog(erb_file, title, Configuration::UI_WIDTH, 400)
     end
   end
 
@@ -148,6 +168,14 @@ class ComponentProperties
                       height = Configuration::UI_HEIGHT)
     dialog = show_dialog(file, name, width, height)
     register_pod_callbacks(@pod, dialog)
+  end
+
+  def show_elongation_dialog(file,
+                             name,
+                             width = Configuration::UI_WIDTH,
+                             height = Configuration::UI_HEIGHT)
+    dialog = show_dialog(file, name, width, height)
+    register_elongation_callbacks(@elongation, dialog)
   end
 
   def render(path)
@@ -261,6 +289,12 @@ class ComponentProperties
   def register_pod_callbacks(pod, dialog)
     dialog.add_action_callback('set_fixed') do |_dialog, param|
       pod.is_fixed = param
+    end
+  end
+
+  def register_elongation_callbacks(elongation, dialog)
+    dialog.add_action_callback('set_length') do |_dialog, param|
+      elongation.resize(param.to_f.mm)
     end
   end
 end

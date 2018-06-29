@@ -28,6 +28,14 @@ class Elongation < SketchupObject
     @entity.transformation = @original_transformation
   end
 
+  def resize(length)
+    if length < Configuration::MINIMUM_ELONGATION
+      raise 'Elongation is shorter than minimum length.'
+    end
+
+    @parent.change_elongation_length(self, length)
+  end
+
   private
 
   def create_entity

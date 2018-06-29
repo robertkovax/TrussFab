@@ -175,6 +175,18 @@ module JsonImport
                                                       second_position,
                                                       bottle_type: bottle_type,
                                                       link_type: link_type)
+
+        # recreate elongation ratio
+        unless edge_json['e1'].nil? || edge_json['e2'].nil?
+          first_elongation_length = edge_json['e1'].to_f.mm
+          second_elongation_length = edge_json['e2'].to_f.mm
+
+          total_elongation_length =
+            first_elongation_length + second_elongation_length
+          edge.link.elongation_ratio =
+            first_elongation_length / total_elongation_length
+        end
+
         if edge.link.is_a?(ActuatorLink)
           piston_group = edge_json['piston_group']
           edge.link.piston_group = piston_group unless piston_group.nil?

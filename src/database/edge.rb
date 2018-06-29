@@ -238,24 +238,29 @@ class Edge < GraphObject
 
         Link.new(@first_node,
                  @second_node,
+                 self,
                  Configuration::STANDARD_BOTTLES,
                  bottle_name: @bottle_type,
                  id: id)
       when 'actuator'
         ActuatorLink.new(@first_node,
                          @second_node,
+                         self,
                          id: id)
       when 'spring'
         SpringLink.new(@first_node,
                        @second_node,
+                       self,
                        id: id)
       when 'generic'
         GenericLink.new(@first_node,
                         @second_node,
+                        self,
                         id: id)
       when 'pid_controller'
         PidController.new(@first_node,
                           @second_node,
+                          self,
                           id: id)
       else
         raise "Unkown link type: #{@link_type}"
