@@ -58,9 +58,8 @@ class ComponentProperties
         @elongation = nil
         Graph.instance.edges.values.each do |edge|
           elongations = edge.link.elongations
-          elongations.each do |elongation|
-            @elongation = elongation if elongation.id == id
-          end
+          @elongation = elongations.detect { |elongation| elongation.id == id }
+          break unless @elongation.nil?
         end
 
         raise 'Elongation not found' if @elongation.nil?

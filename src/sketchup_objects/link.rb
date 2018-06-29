@@ -58,8 +58,7 @@ class Link < PhysicsSketchupObject
 
   def elongation_ratio=(val)
     @elongation_ratio = val
-    delete_children
-    create_children
+    recreate_children
   end
 
   def change_elongation_length(elongation, length)
@@ -102,8 +101,7 @@ class Link < PhysicsSketchupObject
 
     @position = first_position
     @second_position = second_position
-    delete_children
-    create_children
+    recreate_children
   end
 
   def length
@@ -258,6 +256,11 @@ class Link < PhysicsSketchupObject
 
   def direction
     @position.vector_to(@second_position)
+  end
+
+  def recreate_children
+    delete_children
+    create_children
   end
 
   def create_children

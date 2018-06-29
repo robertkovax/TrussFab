@@ -293,7 +293,7 @@ class NodeExportInterface
             new_second_elongation_length = target_elongation
           else
             raise 'Logic error during node export: '\
-                  'node is not connected to edge'
+                  'Node ' + node.to_s + ' is not connected to edge ' + edge.to_s
           end
         end
 
