@@ -108,8 +108,10 @@ class Edge < GraphObject
   def exchange_node(current_node, new_node)
     if current_node == @first_node
       @first_node = new_node
+      link.first_node = new_node
     elsif current_node == @second_node
       @second_node = new_node
+      link.second_node = new_node
     else
       raise "#{current_node} not in nodes"
     end

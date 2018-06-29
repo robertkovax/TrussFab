@@ -19,7 +19,7 @@ class SketchupObject
   end
 
   def check_if_valid
-    return false if @entity && !@entity.valid?
+    return false if @entity.nil? || (@entity && !@entity.valid?)
     @children.each do |child|
       return false unless child.check_if_valid
     end
