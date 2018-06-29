@@ -4,7 +4,7 @@ require 'src/configuration/configuration.rb'
 # ActuatorLink
 class ActuatorLink < PhysicsLink
   attr_accessor :reduction, :rate, :power, :min, :max
-  attr_reader :joint, :first_cylinder, :second_cylinder, :default_length
+  attr_reader :default_length
 
   COLORS = [
     '#e6194b', '#3cb44b', '#ffe119', '#0082c8', '#f58231', '#911eb4', '#46f0f0',

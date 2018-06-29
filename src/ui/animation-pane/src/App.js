@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 
 import './css/App.css';
 import { toggleDiv } from './utils/dom';
-import { persistKeyframes } from './utils/sketchup-integration';
+import { persistKeyframes, onLoad } from './utils/sketchup-integration';
 import Piston from './components/Piston';
 import SimulationControls from './components/SimulationControls';
 import { X_AXIS, Y_AXIS } from './config';
@@ -11,18 +11,19 @@ import { X_AXIS, Y_AXIS } from './config';
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = this.getIninitalState();
+    this.state = this.getIninitialState();
+    onLoad();
   }
 
-  getIninitalState = () => ({
+  getIninitialState = () => ({
     windowCollapsed: true,
     devMode: false,
     simulationSettings: {
-      breakingForce: null,
-      stiffness: null,
-      displayValues: null,
-      highestForceMode: null,
-      peakForceMode: null,
+      breakingForce: "",
+      stiffness: "",
+      displayValues: false,
+      highestForceMode: false,
+      peakForceMode: false,
     },
     timeline: {
       currentCycle: 0,
@@ -271,6 +272,7 @@ class App extends Component {
   };
 
   resetState = () => {
+    const { timeline } = this.state;
     SimulationControls.removeLines();
 
     // the interval is a class variable so clear with a class method
@@ -278,8 +280,10 @@ class App extends Component {
 
     // some race condition with the 'broken sim' requires the timeout
     setTimeout(() => {
+      const oldSeconds = timeline.seconds;
       this.setState({
-        timeline: { ...this.getIninitalState().timeline },
+        timeline: { ...this.getIninitialState(),
+                    seconds: oldSeconds },
       });
     }, 100);
   };

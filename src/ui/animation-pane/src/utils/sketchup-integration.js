@@ -58,6 +58,10 @@ function persistKeyframes(keyframes) {
   window.sketchup.persist_keyframes(keyframes);
 }
 
+function onLoad() {
+  window.sketchup.on_load();
+}
+
 export {
   startSimulation,
   stopSimulation,
@@ -74,4 +78,5 @@ export {
   changePeakForceMode,
   changePistonValue,
   persistKeyframes,
+  onLoad,
 };

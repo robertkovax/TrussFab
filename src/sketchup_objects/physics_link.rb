@@ -19,16 +19,20 @@ class PhysicsLink < Link
 
   def change_color(color)
     [@first_cylinder, @second_cylinder].each do |cylinder|
-      cylinder.change_color(color)
+      cylinder.material = color
     end
   end
 
   def highlight(highlight_material = @highlight_material)
-    change_color(highlight_material)
+    [@first_cylinder, @second_cylinder].each do |cylinder|
+      cylinder.change_color(highlight_material)
+    end
   end
 
   def un_highlight
-    change_color(@material)
+    [@first_cylinder, @second_cylinder].each do |cylinder|
+      cylinder.change_color(cylinder.material)
+    end
   end
 
   #

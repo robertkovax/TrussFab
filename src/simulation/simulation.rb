@@ -843,7 +843,11 @@ class Simulation
     Graph.instance.edges.each_value do |edge|
       link = edge.link
       # Get the bottle of the link
-      bottle = link.children[1].entity
+      bottle = if link.is_a?(ActuatorLink)
+                 link.first_cylinder.entity
+               else
+                 link.children[1].entity
+               end
       persist_material(link, bottle)
     end
     # Now, create new materials
@@ -853,7 +857,7 @@ class Simulation
       dat[3] = umat
       dat[0].material = umat
       dat[2].each { |e, _| e.material = nil }
-      if link.is_a?(ActuatorLink)
+      if link.is_a?(PhysicsLink) && !link.is_a?(ActuatorLink)
         second_cylinder = link.children[0].entity
         second_cylinder.material = dat[3]
       end
@@ -880,11 +884,11 @@ class Simulation
   # deleting the created ones.
   # Note: this must be wrapped in operation
   def reset_materials
-    # This is not the ideal solution for recoloring bottles, however it is only
-    # called once, after stopping the simulation, so the performance impact is
-    # not too big.
     Graph.instance.edges.each_value do |edge|
       edge.link.un_highlight
+    end
+    @bottle_dat.each do |_, dat|
+      Sketchup.active_model.materials.remove(dat[3]) if dat[3] && dat[3].valid?
     end
     @bottle_dat.clear
   end
