@@ -29,6 +29,10 @@ class Elongation < SketchupObject
   end
 
   def resize(length)
+    if length < Configuration::MINIMUM_ELONGATION
+      raise 'Elongation is shorter than minimum length.'
+    end
+
     @parent.change_elongation_length(self, length)
   end
 
