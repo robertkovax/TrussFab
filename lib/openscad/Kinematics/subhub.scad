@@ -87,7 +87,7 @@ module construct_base_model(vectors, l1, l2, round_size, bottom_radius_play, edg
       construct_spheres(outer_radius=l12, inner_radius=l1 + bottom_radius_play);
     }
     union() {
-      for(i = [0 : len(vectors)]) {
+      for(i = [0 : len(vectors)] - 1) {
         v = vectors[i];
         translate(pushed_out[i][0])
         construct_cylinder_at_position(norm_v(v), 0, l12, push_out_distances[i] - 0);
@@ -200,7 +200,7 @@ module draw_subhub(
     union() {
       construct_base_model(vectors, l1, l2, round_size, bottom_radius_play, edge_sphere_push_out, edge_sphere_pull_in);
 
-      for (i=[0:len(normal_vectors)]) {
+      for (i=[0 : len(normal_vectors) - 1]) {
         if (gap_types[i] != undef) {
           construct_cylinder_at_position(normal_vectors[i], l1, l2, round_size);
         }
@@ -211,7 +211,7 @@ module draw_subhub(
       }
     }
     union() {
-      for (i=[0:len(normal_vectors)]) {
+      for (i=[0 : len(normal_vectors) - 1]) {
       construct_screw_hole(normal_vectors[i], l1, l2, l3[i], connector_end_extra_height, hole_size);
         if (gap_types[i] == "a") {
           construct_a_gap(normal_vectors[i], l1, l2, gap_epsilon, gap_extra_round_size, round_size, normal_middle_vector, gap_cut_out_play);
