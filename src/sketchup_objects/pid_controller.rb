@@ -1,6 +1,7 @@
 require 'src/sketchup_objects/physics_link.rb'
 require 'src/configuration/configuration.rb'
 require 'src/sketchup_objects/generic_link.rb'
+require 'time'
 
 class PidController < GenericLink
   attr_accessor :integral_error, :k_P, :k_I, :k_D, :integral_error_cap,
@@ -30,7 +31,9 @@ class PidController < GenericLink
     @static_force = 0
     @static_forces_lookup = []
     @use_static_lookup_force = false
-    set_pid_values(50, 50, 50)
+    @mode = 1
+    @begin_time = Time.now
+    set_pid_values(0, 0, 500)
   end
 
   def lookup_static_force
@@ -49,7 +52,7 @@ class PidController < GenericLink
     return unless @joint.valid?
     error = (@target_length - @joint.cur_distance)
     iteration_time = Configuration::WORLD_TIMESTEP /
-                     Configuration::WORLD_NUM_ITERATIONS
+      Configuration::WORLD_NUM_ITERATIONS
     @integral_error += error * iteration_time
     @integral_error = [[integral_error, -@integral_error_cap].max,
                        @integral_error_cap].min
@@ -62,15 +65,46 @@ class PidController < GenericLink
     i_force = @k_I * integral_error
     d_force = @k_D * derivative_error
     self.force = p_force + i_force + d_force + @static_force +
-                 lookup_static_force
+      lookup_static_force
     @previous_error = error
+
+    if @joint.cur_distance < 0.55 && @mode == 0
+      @target_length = @joint.cur_distance
+      set_pid_values(800, 100, 500)
+      reset_errors
+      @mode = 1
+      puts "Changed to holding"
+      @begin_time = Time.now
+    end
+
+    if (@mode == 1) && Time.now - @begin_time > 5 #TODO: This should definitly be synced better with the simulation
+      @mode = 2
+      self.force = 0
+      @begin_time = Time.now
+      set_pid_values(2500, 0, 0)
+      @target_length = @default_length
+      reset_errors
+      @counter = 0
+      puts "Start trying to oscillate"
+    end
+
+    if @mode == 2 && @default_length - @joint.cur_distance > 0.03
+      self.force += 100
+      puts "Pushed"
+      @counter += 1
+
+      if @counter > 20
+        @counter = 0
+      end
+    end
 
     return unless @logging
     puts "#{(error * 100).round(2)}||#{force.round(2)}|"\
           "#{p_force.round(2)}|#{i_force.round(2)}|"\
           "#{d_force.round(2)}||"\
           "#{@joint.linear_tension.length.to_f.round(2)}|"\
-          "#{lookup_static_force}"
+          "#{lookup_static_force.round(2)}|"\
+          "#{@joint.cur_distance.round(4)}"
   end
 
   def set_pid_values(proportional, integral, derivative)

@@ -14,7 +14,7 @@ class App extends Component {
     this.state = {
       breakingForce: 1000,
       currentCycle: 0,
-      devMode: false,
+      devMode: true,
       displayVol: false,
       highestForceMode: false,
       groupVisible: {}, // group id => bool
