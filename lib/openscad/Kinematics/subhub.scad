@@ -1,5 +1,6 @@
 use <../Util/line_calculations.scad>
 use <../Util/construct_at_position.scad>
+use <../Util/text_on.scad>
 use <util.scad>
 
 // some small value
@@ -9,6 +10,11 @@ small_point_radius = 0.00001;
 
 // does not really matter, we just have to assigne some propery value to the vectors
 vector_l12_distance_factor = 10;
+
+
+text_size = 7;
+text_spacing = 0.9;
+text_printin = 1; // how much mm goes into
 
 // all credits Robert Kovacs
 function angle_to_distance_to_pull(alpha, r) = sqrt(pow(r / sin((alpha * 1.2) / 2), 2) - pow(r, 2));
@@ -176,6 +182,8 @@ module draw_subhub(
   normal_vectors, // array of vectors
   gap_types, // array of gap types
   connector_types, // array of gap types
+  labels, // array of labels
+  node_label, // string
   l1, // number
   l2, // number
   l3, // array of numbers
@@ -190,7 +198,7 @@ module draw_subhub(
   gap_cut_out_play=1,
   bottom_radius_play=3,
   edge_sphere_push_out=undef,
-  edge_sphere_pull_in=undef
+  edge_sphere_pull_in=undef,
   ) {
   vectors = vector_l12_distance_factor * (l1 + l2) * normal_vectors;
 
@@ -220,6 +228,16 @@ module draw_subhub(
           construct_b_gap(normal_vectors[i], l1, l2, gap_epsilon, gap_extra_round_size, round_size, normal_middle_vector, gap_cut_out_play);
         }
       }
+      
+        factor_1 = 2/5;
+        factor_2 = 1 - factor_1;
+        for(i = [0 : len(vectors) - 1]) {
+          v = factor_1 * normal_vectors[i] + factor_2 * normal_vectors[next_i(i, len(vectors))];
+          construct_text_on_sphere_at_position(v, r=l1 + l2 - text_printin, t=labels[i], size=text_size, spacing=text_spacing);
+        }
+        
+        v = factor_2 * normal_vectors[0] + factor_1 * normal_vectors[1];
+        construct_text_on_sphere_at_position(v, r=l1 + l2 - text_printin, t=node_label, size=text_size, spacing=text_spacing);
     }
   }
 }
@@ -241,6 +259,8 @@ draw_subhub(
 "bottle",
 "bottle",
 "none"],
+labels=["aaa", "bbb", "ccc"],
+node_label="NDD",
   l1 = 35.0,
   l3 = [
 13.871094099104516,
