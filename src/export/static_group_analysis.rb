@@ -9,7 +9,7 @@ module StaticGroupAnalysis
   # return a an array of groups of triangles that do not change their angle in
   # regards to each other
   # we call these groups static substructures
-  def StaticGroupAnalysis.find_static_groups
+  def self.find_static_groups
     analysis = Analysis.new
     analysis.perform
   end
