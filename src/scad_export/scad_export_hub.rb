@@ -24,6 +24,7 @@ class ExportSubHub < ScadExportHub
     gap_type_array = []
     connector_type_array = []
     l3_array = []
+    labels_array = []
 
     @elongations.each do |elongation|
       gap_type_string = 'none'
@@ -42,11 +43,14 @@ class ExportSubHub < ScadExportHub
       gap_type_array << "\"#{gap_type_string}\""
       connector_type_array << "\"#{connector_type_string}\""
       l3_array << elongation.l3.to_s
+      labels_array << "\"#{elongation.other_hub_id}\""
     end
 
     params = "  normal_vectors = [\n" + vector_array.join(",\n") + "],\n"\
-             "  gap_types = [\n" + gap_type_array.join(",\n") + "],\n"\
-             "  connector_types = [\n" + connector_type_array.join(",\n") + "],\n"\
+             "  gap_types = [" + gap_type_array.join(", ") + "],\n"\
+             "  connector_types = [" + connector_type_array.join(", ") + "],\n"\
+             "  labels = [" + labels_array.join(", ") + "],\n"\
+             "  node_label = \"N#{@id.split('.')[0]}\",\n"\
              "  l1 = #{@l1},\n"\
              "  l3 = [\n" + l3_array.join(",\n") + "],\n"
 
