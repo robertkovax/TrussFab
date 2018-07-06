@@ -91,6 +91,7 @@ class Simulation
     @highest_force_mode = false
     @peak_force_mode = false
 
+    @disable_coloring = false
     @display_values = false
 
     hinge_layer = Sketchup.active_model.layers.at(Configuration::HINGE_VIEW)
@@ -165,6 +166,10 @@ class Simulation
     @world.set_gravity(0.0, 0.0, 0.0)
   end
 
+  def disable_coloring
+    @disable_coloring = true
+  end
+
   # Called when activates
   def setup
     @world = TrussFab::World.new
@@ -198,7 +203,7 @@ class Simulation
     begin
       hide_triangle_surfaces
       add_ground
-      assign_unique_materials
+      assign_unique_materials unless @disable_coloring
       @show_edges = rendering_options['EdgeDisplayMode']
       @show_profiles = rendering_options['DrawSilhouettes']
     rescue StandardError => err
