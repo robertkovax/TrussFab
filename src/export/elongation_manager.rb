@@ -1,15 +1,20 @@
+# This module is responsible for ensuring minimum elongation lengths.
+# This is needed for
+#   - making sure main hub cuffs are not intersecting
+#   - making place for subhub and hinge connections
 module ElongationManager
-
   def self.improve_elongations(export_interface)
     Manager.new(export_interface).perform
   end
 
+  # Hide implementation details
   class Manager
     def initialize(export_interface)
       @export_interface = export_interface
     end
 
     def perform
+      # make sure that bottle types are not changed while optimizing elongations
       Edge.enable_bottle_freeze
       optimize_elongations
       Edge.disable_bottle_freeze
@@ -23,9 +28,13 @@ module ElongationManager
 
       nodes = Graph.instance.nodes.values
 
-      # find out all edges that need to be elongated and their corresponding node
-      elongated_edge_map = Hash.new { |h, k| h[k] = Hash.new {
-        |h,k| h[k] = Configuration::MINIMUM_ELONGATION } }
+      # map from all edges that need to be elongated
+      # to a map of node -> length mappings
+      elongated_edge_map = Hash.new do |h, k|
+        h[k] = Hash.new do |h2, k2|
+          h2[k2] = Configuration::MINIMUM_ELONGATION
+        end
+      end
 
       # Set target elongation lengths for main hub edges , based on the smallest
       # angle to the nearest other edge
@@ -35,7 +44,9 @@ module ElongationManager
 
         mainhub.edges.each do |edge|
           angle = shortest_angle_for_edge(edge, node)
-          length = determine_elongation_length(angle)
+          length = mainhub_elongation_length(angle)
+          deg = angle * 180 / Math::PI
+          p deg.to_s + ': ' + length.to_mm.to_s
           elongated_edge_map[edge][node] =
             [elongated_edge_map[edge][node], length].max
         end
@@ -96,13 +107,14 @@ module ElongationManager
       new_second_elongation_length = edge.second_elongation_length
 
       node_length_map.each do |node, target_length|
+        unless edge.nodes.include?(node)
+          raise 'Node ' + node.to_s + ' is not connected to edge ' + edge.to_s
+        end
+
         if node == edge.first_node
           new_first_elongation_length = target_length
         elsif node == edge.second_node
           new_second_elongation_length = target_length
-        else
-          raise 'Logic error during node export: '\
-                'Node ' + node.to_s + ' is not connected to edge ' + edge.to_s
         end
       end
 
@@ -136,22 +148,23 @@ module ElongationManager
     end
 
     def shortest_angle_for_edge(edge, node)
+      vector_a = vector_facing_away(edge, node)
       other_edges = node.incidents.reject { |other_edge| other_edge == edge }
       angles = other_edges.map do |other_edge|
-        vector_a = vector_facing_away(edge, node)
         vector_b = vector_facing_away(other_edge, node)
         vector_a.angle_between(vector_b)
       end
       angles.min
     end
 
-    def determine_elongation_length(angle)
+    def mainhub_elongation_length(angle)
       return Configuration::MINIMUM_ELONGATION if angle > Math::PI
+      beta = Math::PI - angle
       e = Math.sqrt(Configuration::CONNECTOR_CUFF_RADIUS *
                     Configuration::CONNECTOR_CUFF_RADIUS *
-                    2 * (1 - Math::cos(angle)))
+                    2 * (1 - Math.cos(beta)))
       gamma = (Math::PI - angle) / 2
-      (e * Math::sin(gamma) / Math::sin(angle)).mm
+      (e * Math.sin(gamma) / Math.sin(angle)).mm
     end
   end
 end
