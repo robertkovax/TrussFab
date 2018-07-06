@@ -8,7 +8,7 @@ class AnimationPane
   def initialize
     @simulation_tool = SimulationTool.new(self)
     @width = 455
-    @dev_width = 610 # for dev
+    @dev_width = 570 # for dev
     @height = 300
 
     @collapsed = false

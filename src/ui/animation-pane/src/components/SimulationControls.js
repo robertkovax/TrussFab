@@ -312,7 +312,8 @@ class SimulationControls extends React.Component {
           borderRight: '1px solid lightgrey',
           height: '100%',
           paddingRight: '3px',
-          width: devMode ? '40px' : 'auto',
+          width: devMode ? '35px' : 'auto',
+          maxWidth: '30%',
         }}
       >
         <div
@@ -324,7 +325,7 @@ class SimulationControls extends React.Component {
             <button onClick={() => this.toggleSimulation(true)}>
               <img
                 alt="pause play"
-                style={devMode ? {} : { height: 25, width: 25 }}
+                style={{ height: 25, width: 25 }}
                 src={
                   startedSimulationOnce && !simulationPaused
                     ? '../../trussfab-globals/assets/icons/pause.png'
@@ -337,7 +338,7 @@ class SimulationControls extends React.Component {
             <button onClick={() => this.toggleSimulation(false)}>
               <img
                 alt="pause cycle play"
-                style={devMode ? {} : { height: 25, width: 25 }}
+                style={{ height: 25, width: 25 }}
                 src={
                   startedSimulationCycle && !simulationPaused
                     ? '../../trussfab-globals/assets/icons/pause.png'
@@ -350,7 +351,7 @@ class SimulationControls extends React.Component {
             <button onClick={this.triggerStopSimulation}>
               <img
                 alt="stop"
-                style={devMode ? {} : { height: 25, width: 25 }}
+                style={{ height: 25, width: 25 }}
                 src="../../trussfab-globals/assets/icons/stop.png"
               />
             </button>
