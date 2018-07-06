@@ -94,8 +94,6 @@ class SimulationControls extends React.Component {
         SimulationControls.clearTimelineInterval();
         SimulationControls.removeLines();
 
-        pauseSimulation();
-
         setContainerState({
           timeline: {
             startedSimulationOnce: false,
