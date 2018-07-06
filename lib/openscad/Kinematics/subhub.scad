@@ -93,7 +93,10 @@ module construct_base_model(vectors, l1, l2, round_size, bottom_radius_play, edg
       construct_spheres(outer_radius=l12, inner_radius=l1 + bottom_radius_play);
     }
     union() {
-      for(i = [0 : len(vectors)] - 1) {
+      // NB: This is a little bit hacky. We add the the vector [0, 0, 0] by including an out of boundary array.
+      // At least I think this is the reason why we have to `len(vectors)` instead of `len(vectors) - 1` to properly cut out.
+      // But I am not 100% sure, but I don't want to debug it now :/.
+      for(i = [0 : len(vectors)]) {
         v = vectors[i];
         translate(pushed_out[i][0])
         construct_cylinder_at_position(norm_v(v), 0, l12, push_out_distances[i] - 0);
