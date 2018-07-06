@@ -78,6 +78,10 @@ class Sidebar
     @dialog.set_file(file)
   end
 
+  def toggle_dev_mode
+    @dialog.execute_script('toggleDevMode();')
+  end
+
   private
 
   def register_callbacks
