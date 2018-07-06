@@ -36,7 +36,7 @@ module Configuration
   STANDARD_BOTTLES      = 'hard'.freeze
   COVER_THICKNESS       = 20.mm.freeze
   ELONGATION_RADIUS     = 11.mm.freeze
-  CONNECTOR_CUFF_RADIUS = 18.freeze
+  CONNECTOR_CUFF_RADIUS = 18
 
   # Paths
   JSON_PATH = (ProjectHelper.asset_directory + '/exports/').freeze
