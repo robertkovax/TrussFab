@@ -45,8 +45,6 @@ module ElongationManager
         mainhub.edges.each do |edge|
           angle = shortest_angle_for_edge(edge, node)
           length = mainhub_elongation_length(angle)
-          deg = angle * 180 / Math::PI
-          p deg.to_s + ': ' + length.to_mm.to_s
           elongated_edge_map[edge][node] =
             [elongated_edge_map[edge][node], length].max
         end
