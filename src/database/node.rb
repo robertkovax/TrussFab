@@ -117,10 +117,6 @@ class Node < GraphObject
     adjacent_nodes.include?(other_node)
   end
 
-  def dangling?
-    @incidents.empty?
-  end
-
   def connected_component
     return if @incidents.empty?
     @incidents[0].connected_component
@@ -200,5 +196,9 @@ class Node < GraphObject
 
   def create_sketchup_object(id)
     @sketchup_object = Hub.new(@position, id: id, incidents: incidents)
+  end
+
+  def dangling?
+    @incidents.empty?
   end
 end

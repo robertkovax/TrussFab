@@ -661,14 +661,14 @@ class Simulation
       # we might skip the crucial forces involved
       rec_max_actuator_tensions
       rec_max_link_tensions if @peak_force_mode
-      Sketchup.active_model.start_operation('Sim: Visualize force', true)
-      if @highest_force_mode
-        visualize_highest_tension
-      else
-        visualize_tensions
-      end
-      Sketchup.active_model.commit_operation
     end
+    Sketchup.active_model.start_operation('Sim: Visualize force', true)
+    if @highest_force_mode
+      visualize_highest_tension
+    else
+      visualize_tensions
+    end
+    Sketchup.active_model.commit_operation
   end
 
   def update_world_headless_by(time_step, rec_max_tension = false)
@@ -687,14 +687,14 @@ class Simulation
       # we might skip the crucial forces involved
       rec_max_actuator_tensions
       rec_max_link_tensions if @peak_force_mode
-      Sketchup.active_model.start_operation('Sim: Visualize force', true)
-      if @highest_force_mode
-        visualize_highest_tension
-      else
-        visualize_tensions
-      end
-      Sketchup.active_model.commit_operation
     end
+    Sketchup.active_model.start_operation('Sim: Visualize force', true)
+    if @highest_force_mode
+      visualize_highest_tension
+    else
+      visualize_tensions
+    end
+    Sketchup.active_model.commit_operation
   end
 
   def update_entities
