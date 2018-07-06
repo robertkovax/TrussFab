@@ -43,7 +43,7 @@ class ExportSubHub < ScadExportHub
       gap_type_array << "\"#{gap_type_string}\""
       connector_type_array << "\"#{connector_type_string}\""
       l3_array << elongation.l3.to_s
-      labels_array << "\"#{elongation.other_hub_id}\""
+      labels_array << "\"#{elongation.other_hub_id}#{elongation.bottle_size}\""
     end
 
     params = "  normal_vectors = [\n" + vector_array.join(",\n") + "],\n"\
