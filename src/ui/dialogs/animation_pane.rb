@@ -8,10 +8,11 @@ class AnimationPane
   def initialize
     @simulation_tool = SimulationTool.new(self)
     @width = 455
-    # @width = 640 # for dev
+    @dev_width = 610 # for dev
     @height = 300
 
-    @collapsed = true
+    @collapsed = false
+    @dev_mode = false
     @collapsed_width = 53
     @animation_values = []
   end
@@ -36,7 +37,7 @@ class AnimationPane
     file = File.join(File.dirname(__FILE__), HTML_FILE)
     @dialog.set_file(file)
     @dialog.set_position(left, top)
-    @dialog.set_size(@collapsed_width, @height)
+    @dialog.set_size(@width, @height)
     @dialog.show
 
     register_callbacks
@@ -81,6 +82,13 @@ class AnimationPane
   end
 
   def toggle_dev_mode
+    if @dev_mode
+      @dialog.set_size(@width, @height)
+      @dev_mode = false
+    else
+      @dialog.set_size(@dev_width, @height)
+      @dev_mode = true
+    end
     @dialog.execute_script('toggleDevMode()')
   end
 
