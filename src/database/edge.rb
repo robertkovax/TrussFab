@@ -228,6 +228,10 @@ class Edge < GraphObject
     link.change_color(Configuration::BOTTLE_COLOR)
   end
 
+  def bottle_length_short_name
+    @bottle_models.models[@bottle_type].short_name
+  end
+
   private
 
   def create_sketchup_object(id)
