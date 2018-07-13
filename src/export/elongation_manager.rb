@@ -40,6 +40,7 @@ module ElongationManager
       # angle to the nearest other edge
       @nodes.each do |node|
         next if @export_interface.hubs_at_node(node).empty?
+        next if node.fixed?
         mainhub = @export_interface.mainhub_at_node(node)
 
         mainhub.edges.each do |edge|
@@ -53,6 +54,7 @@ module ElongationManager
       # Set target elongation lengths for subhub and hinge edges, based on
       # l1, l2 and l3 distances of the subhubs and hinges
       @nodes.each do |node|
+        next if node.fixed?
         subhubs = @export_interface.subhubs_at_node(node)
         hinges = @export_interface.hinges_at_node(node)
 
@@ -94,17 +96,14 @@ module ElongationManager
     end
 
     def set_elongations_for_edge(relaxation, edge, node_length_map)
-      # if pods are fixed and edge can not be elongated, raise error
-      edge_fixed = edge.nodes.any?(&:fixed?)
-      if edge_fixed
-        raise "#{edge.inspect} is fixed, e.g. by a pod, but needs to be "\
-              'elongated since a hinge connects to it.'
-      end
-
       new_first_elongation_length = edge.first_elongation_length
       new_second_elongation_length = edge.second_elongation_length
 
       node_length_map.each do |node, target_length|
+        if node.fixed?
+          raise 'Node ' + node.to_s + 'is fixed.'
+        end
+
         unless edge.nodes.include?(node)
           raise 'Node ' + node.to_s + ' is not connected to edge ' + edge.to_s
         end
