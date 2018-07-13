@@ -11,6 +11,7 @@ import {
 class SimulationForm extends React.Component {
   render() {
     const {
+      devMode,
       keyframesMap,
       setContainerState,
       simulationSettings,
@@ -69,6 +70,7 @@ class SimulationForm extends React.Component {
             Display Values
           </label>
         </div>
+        {devMode && (
         <div className="form-group row no-gutters">
           <label className="col-sm-6 col-form-label">
             Cycle Length
@@ -112,6 +114,8 @@ class SimulationForm extends React.Component {
             </div>
           </div>
         </div>
+        )}
+        {devMode && (
         <div className="form-group row no-gutters">
           <label className="col-sm-6 col-form-label">
             Breaking Force
@@ -135,6 +139,8 @@ class SimulationForm extends React.Component {
             </div>
           </div>
         </div>
+        )}
+        {devMode && (
         <div className="form-group row no-gutters">
           <label className="col-sm-6 col-form-label">
             Stiffness
@@ -157,6 +163,7 @@ class SimulationForm extends React.Component {
             </div>
           </div>
         </div>
+        )}
       </form>
     );
   }

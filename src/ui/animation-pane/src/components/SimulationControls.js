@@ -374,7 +374,6 @@ class SimulationControls extends React.Component {
             </button>
           </div>
         </div>
-        {devMode && (
           <SimulationForm
             keyframesMap={keyframesMap}
             simulationSettings={simulationSettings}
@@ -382,8 +381,8 @@ class SimulationControls extends React.Component {
             timelineSeconds={seconds}
             startedSimulationCycle={startedSimulationCycle}
             startedSimulationOnce={startedSimulationOnce}
+            devMode={devMode}
           />
-        )}
       </div>
     );
   }
