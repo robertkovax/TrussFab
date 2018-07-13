@@ -35,7 +35,6 @@ class DeleteTool < Tool
 
   def activate
     selection = Sketchup.active_model.selection
-    p selection
     return if selection.nil? or selection.empty?
 
     deleted_objects = []
