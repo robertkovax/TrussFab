@@ -44,7 +44,7 @@ module StaticGroupAnalysis
 
     private
 
-    MIN_ANGLE_DEVIATION = 0.001
+    MIN_ANGLE_DEVIATION = 0.0001
 
     def start_static_group_search(edges, rotation_partners)
       visited_triangles = Set.new
