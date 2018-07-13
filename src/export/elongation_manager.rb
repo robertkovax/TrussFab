@@ -3,14 +3,16 @@
 #   - making sure main hub cuffs are not intersecting
 #   - making place for subhub and hinge connections
 module ElongationManager
-  def self.improve_elongations(export_interface)
-    Manager.new(export_interface).perform
+  def self.improve_elongations(export_interface, nodes, shorten_elongations)
+    Manager.new(export_interface, nodes, shorten_elongations).perform
   end
 
   # Hide implementation details
   class Manager
-    def initialize(export_interface)
+    def initialize(export_interface, nodes, shorten_elongations)
       @export_interface = export_interface
+      @nodes = nodes
+      @shorten_elongations = shorten_elongations
     end
 
     def perform
@@ -26,8 +28,6 @@ module ElongationManager
       l2 = PRESETS::L2
       l3_min = PRESETS::L3_MIN
 
-      nodes = Graph.instance.nodes.values
-
       # map from all edges that need to be elongated
       # to a map of node -> length mappings
       elongated_edge_map = Hash.new do |h, k|
@@ -38,7 +38,7 @@ module ElongationManager
 
       # Set target elongation lengths for main hub edges , based on the smallest
       # angle to the nearest other edge
-      nodes.each do |node|
+      @nodes.each do |node|
         next if @export_interface.hubs_at_node(node).empty?
         mainhub = @export_interface.mainhub_at_node(node)
 
@@ -52,7 +52,7 @@ module ElongationManager
 
       # Set target elongation lengths for subhub and hinge edges, based on
       # l1, l2 and l3 distances of the subhubs and hinges
-      nodes.each do |node|
+      @nodes.each do |node|
         subhubs = @export_interface.subhubs_at_node(node)
         hinges = @export_interface.hinges_at_node(node)
 
@@ -116,8 +116,18 @@ module ElongationManager
         end
       end
 
-      if new_first_elongation_length <= edge.first_elongation_length &&
-         new_second_elongation_length <= edge.second_elongation_length
+      too_short = new_first_elongation_length > edge.first_elongation_length ||
+                  new_second_elongation_length > edge.second_elongation_length
+      too_long = edge.first_elongation_length > new_first_elongation_length + 10.mm ||
+                 edge.second_elongation_length > new_second_elongation_length + 10.mm
+
+      # we reached the minimum elongation length
+      if !@shorten_elongations && !too_short
+        return false
+      end
+
+      # we are within the optimal range
+      if @shorten_elongations && !too_short && !too_long
         return false
       end
 
@@ -130,9 +140,12 @@ module ElongationManager
       edge.link.elongation_ratio =
         new_first_elongation_length / total_new_elongation
 
+      # move towards the right direction to reach goal
+      offset = too_short ? 10.mm : -1.mm
+
       relaxation.stretch_to(edge,
                             edge.length - total_old_elongation +
-                            total_new_elongation + 10.mm)
+                            total_new_elongation + offset)
 
       true
     end

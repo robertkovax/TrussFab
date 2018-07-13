@@ -20,6 +20,7 @@ class NodeExportAlgorithm
   end
 
   def run
+    nodes = Graph.instance.nodes.values
     edges = Graph.instance.edges.values
 
     static_groups = StaticGroupAnalysis.find_static_groups
@@ -63,7 +64,7 @@ class NodeExportAlgorithm
     @export_interface.apply_hinge_algorithm
 
     Sketchup.active_model.start_operation('elongate edges', true)
-    ElongationManager.improve_elongations(@export_interface)
+    ElongationManager.improve_elongations(@export_interface, nodes, false)
     Sketchup.active_model.commit_operation
 
     Sketchup.active_model.start_operation('visualize export result', true)
