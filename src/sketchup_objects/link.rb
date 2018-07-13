@@ -268,7 +268,7 @@ class Link < PhysicsSketchupObject
     link_position = @position.offset(@first_elongation.direction)
 
     add(@first_elongation,
-        BottleLink.new(link_position, direction, @model),
+        BottleLink.new(link_position, direction, @model, id: @id),
         Line.new(@position, @second_position, LINK_LINE),
         @second_elongation)
   end

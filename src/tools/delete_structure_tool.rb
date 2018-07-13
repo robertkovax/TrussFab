@@ -3,32 +3,34 @@ require 'src/utility/mouse_input.rb'
 
 # Deletes the connected component of the selected element
 class DeleteStructureTool < Tool
-  def initialize(_ui)
-    super
-    @mouse_input = MouseInput.new(snap_to_nodes: true,
-                                  snap_to_edges: true,
-                                  snap_to_pods: true,
-                                  snap_to_covers: true)
-  end
 
-  def onLButtonDown(_flags, x, y, view)
-    delete(x, y, view)
-  end
+  def activate
+    selection = Sketchup.active_model.selection
+    p selection
+    return if selection.nil? or selection.empty?
 
-  def onMouseMove(_flags, x, y, view)
-    @mouse_input.update_positions(view, x, y)
-  end
+    deleted_objects = []
+    selection.each do |entity|
+      next if entity.nil? || entity.deleted?
 
-  private
+      type = entity.get_attribute('attributes', :type)
+      id = entity.get_attribute('attributes', :id)
 
-  def delete(x, y, view)
-    @mouse_input.update_positions(view, x, y)
-    object = @mouse_input.snapped_object
-    return if object.nil?
-    Sketchup.active_model.start_operation('Delete Object', true)
-    object.connected_component.each(&:delete)
-    Sketchup.active_model.commit_operation
+      next if type.nil? || id.nil?
+
+      if type.include? "Link" or type.include? "PidController"
+        edge = Graph.instance.edges[id]
+        deleted_objects.push(edge) if edge
+      end
+
+      if type.include? "Hub"
+        node = Graph.instance.nodes[id]
+        deleted_objects.push(node) if node
+      end
+    end
+
+    deleted_objects.each(&:delete)
+
     @ui.animation_pane.sync_hidden_status(Graph.instance.actuator_groups)
-    view.invalidate
   end
 end
