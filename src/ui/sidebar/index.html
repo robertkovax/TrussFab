@@ -11,31 +11,21 @@
 </head>
 
 <body>
-  <div id="accordion" role="tablist" aria-multiselectable="true">
-    <div class="card">
-      <div class="card-header" role="tab" id="headingOne">
-        <h5 class="mb-0">
-          <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-            Shape
-          </button>
-        </h5>
-      </div>
-      <div id="collapseOne" class="collapse show" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
-        <div class="card-block">
-          <h6>Create</h6>
-          <button type="button" class="tool" id="tetrahedron_tool">
-            <img src="../trussfab-globals/assets/icons/tetrahedron.png" alt="tetra">
-            <div>tetra</div>
-          </button>
-          <button type="button" class="tool" id="octahedron_tool">
-            <img src="../trussfab-globals/assets/icons/octahedron.png" alt="octa">
-            <div>octa</div>
-          </button>
-          <button type="button" class="tool" id="bottle_link_tool">
-            <img src="../trussfab-globals/assets/icons/single.png" alt="bottle">
-            <div>bottle</div>
-          </button>
-          <!-- <button type="button" hidden="true" class="tool">
+  <div id="accordion">
+    <h6>Create</h6>
+    <button type="button" class="tool" id="tetrahedron_tool">
+      <img src="../trussfab-globals/assets/icons/tetrahedron.png" alt="tetra">
+      <div>tetra</div>
+    </button>
+    <button type="button" class="tool" id="octahedron_tool">
+      <img src="../trussfab-globals/assets/icons/octahedron.png" alt="octa">
+      <div>octa</div>
+    </button>
+    <button type="button" class="tool" id="bottle_link_tool">
+      <img src="../trussfab-globals/assets/icons/single.png" alt="bottle">
+      <div>bottle</div>
+    </button>
+    <!-- <button type="button" hidden="true" class="tool">
             <img src="../trussfab-globals/assets/icons/wheel.png" alt="wheel">
             <div>wheel</div>
           </button>
@@ -43,7 +33,7 @@
             <img src="../trussfab-globals/assets/icons/triangle.png" alt="triangle">
             <div>triangle</div>
           </button> -->
-          <!-- <h6 hidden="true">Structures</h6>
+    <!-- <h6 hidden="true">Structures</h6>
           <button type="button" hidden="true" class="tool">
             <img src="../trussfab-globals/assets/icons/beam.png" alt="beam">
             <div>beam</div>
@@ -60,90 +50,77 @@
             <img src="../trussfab-globals/assets/icons/fill.png" alt="fill">
             <div>fill</div>
           </button> -->
-          <h6>Modify</h6>
-          <button type="button" class="tool" id="grow_tool">
-            <img src="../trussfab-globals/assets/icons/grow.png" alt="grow">
-            <div>grow</div>
-          </button>
-          <button type="button" class="tool" id="shrink_tool">
-            <img src="../trussfab-globals/assets/icons/shrink.png" alt="shrink">
-            <div>shrink</div>
-          </button>
-          <button type="button" class="tool" id="deform_tool">
-            <img src="../trussfab-globals/assets/icons/deform.png" alt="deform">
-            <div>deform</div>
-          </button>
-          <!-- <button type="button" hidden="true" class="tool">
+    <h6>Modify</h6>
+    <button type="button" class="tool" id="grow_tool">
+      <img src="../trussfab-globals/assets/icons/grow.png" alt="grow">
+      <div>grow</div>
+    </button>
+    <button type="button" class="tool" id="shrink_tool">
+      <img src="../trussfab-globals/assets/icons/shrink.png" alt="shrink">
+      <div>shrink</div>
+    </button>
+    <button type="button" class="tool" id="deform_tool">
+      <img src="../trussfab-globals/assets/icons/deform.png" alt="deform">
+      <div>deform</div>
+    </button>
+    <!-- <button type="button" hidden="true" class="tool">
             <img src="../trussfab-globals/assets/icons/connect.png" alt="connect">
             <div>connect</div>
           </button> -->
-          <button type="button" class="tool" id="delete_tool">
-            <img src="../trussfab-globals/assets/icons/delete.png" alt="delete">
-            <div>delete</div>
-          </button>
+    <button type="button" class="tool" id="delete_tool">
+      <img src="../trussfab-globals/assets/icons/delete.png" alt="delete">
+      <div>delete</div>
+    </button>
 
-          <h6>Add-Ons</h6>
-          <button type="button" class="tool" id="pod_tool">
-            <img src="../trussfab-globals/assets/icons/pod.png" alt="pod">
-            <div>pod</div>
-          </button>
-          <button type="button" class="tool" id="cover_tool">
-            <img src="../trussfab-globals/assets/icons/cover.png" alt="cover">
-            <div>cover</div>
-          </button>
-          <!-- <h6 hidden="true">Conversion</h6> -->
-          <!-- <button type="button" hidden="true" class="tool">
+    <h6>Add-Ons</h6>
+    <button type="button" class="tool" id="pod_tool">
+      <img src="../trussfab-globals/assets/icons/pod.png" alt="pod">
+      <div>pod</div>
+    </button>
+    <button type="button" class="tool" id="cover_tool">
+      <img src="../trussfab-globals/assets/icons/cover.png" alt="cover">
+      <div>cover</div>
+    </button>
+    <!-- <h6 hidden="true">Conversion</h6> -->
+    <!-- <button type="button" hidden="true" class="tool">
             <img src="../trussfab-globals/assets/icons/surface.png" alt="surface">
             <div>surface</div>
           </button> -->
-          <!-- <button type="button" hidden="true" class="tool">
+    <!-- <button type="button" hidden="true" class="tool">
             <img src="../trussfab-globals/assets/icons/volume.png" alt="volume">
             <div>volume</div>
           </button> -->
-          <!-- <h6>Misc</h6>
+    <!-- <h6>Misc</h6>
           <button type="button" class="tool" id="bottle_count_tool">
             <img src="../trussfab-globals/assets/icons/stability.png" alt="print bottle counts">
             <div>bottle counts</div>
           </button> -->
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-header" role="tab" id="headingTwo">
-        <h5 class="mb-0">
-          <button class="btn btn-link" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-            Motion
-          </button>
-        </h5>
-      </div>
-      <div id="collapseTwo" class="collapse" role="tabpanel" aria-labelledby="headingTwo" data-parent="#accordion">
-        <div class="card-block">
-          <h6>Actuator</h6>
-          <button type="button" class="tool" id="actuator_tool">
-            <img src="../trussfab-globals/assets/icons/actuator.png" width="54px" alt="actuator">
-            <div>actuator</div>
-          </button>
-          <!-- <button type="button" class="tool" id="spring_tool">
+    <h6>Actuator</h6>
+    <button type="button" class="tool" id="actuator_tool">
+      <img src="../trussfab-globals/assets/icons/actuator.png" width="54px" alt="actuator">
+      <div>actuator</div>
+    </button>
+    <!-- <button type="button" class="tool" id="spring_tool">
             <img src="../trussfab-globals/assets/icons/actuator.png" width="54px" alt="spring">
             <div>spring</div>
           </button> -->
-          <button type="button" class="tool" id="generic_physics_link_tool" style="display: none;">
-            <img src="../trussfab-globals/assets/icons/actuator.png" width="54px" alt="generic">
-            <div>generic link</div>
-          </button>
-          <button type="button" class="tool" id="pid_controller_tool" style="display: none;">
-            <img src="../trussfab-globals/assets/icons/actuator.png" width="54px" alt="pid_controller">
-            <div>PID Link</div>
-          </button>
-          <button type="button" class="tool" id="genetic_actuator_placement_tool">
-            <img src="../trussfab-globals/assets/icons/auto_act_uist.png" alt="genetic placment">
-            <div>auto. act.</div>
-          </button>
-          <!-- <button type="button" class="tool" id="pose_check_tool">
+    <button type="button" class="tool" id="generic_physics_link_tool" style="display: none;">
+      <img src="../trussfab-globals/assets/icons/actuator.png" width="54px" alt="generic">
+      <div>generic link</div>
+    </button>
+    <button type="button" class="tool" id="pid_controller_tool" style="display: none;">
+      <img src="../trussfab-globals/assets/icons/actuator.png" width="54px" alt="pid_controller">
+      <div>PID Link</div>
+    </button>
+    <button type="button" class="tool" id="genetic_actuator_placement_tool">
+      <img src="../trussfab-globals/assets/icons/auto_act_uist.png" alt="genetic placment">
+      <div>auto. act.</div>
+    </button>
+    <!-- <button type="button" class="tool" id="pose_check_tool">
             <img src="../trussfab-globals/assets/icons/act_dashed.png" alt="pose check">
             <div>chk. pos.</div>
           </button> -->
-          <!-- <button type="button" class="tool" id="spring_tool">
+    <!-- <button type="button" class="tool" id="spring_tool">
             <img src="../trussfab-globals/assets/icons/actuator.png" width="54px" alt="actuator">
             <div>spring</div>
           </button>
@@ -151,56 +128,56 @@
             <img src="../trussfab-globals/assets/icons/actuator.png" width="54px" alt="actuator">
             <div>damp</div>
           </button> -->
-          <h6>Assets</h6>
-          <button type="button" class="tool" id="dynamic_tetrahedron_tool">
-            <img src="../trussfab-globals/assets/icons/tetrahedron_actuator.png" alt="dynamic tetrahedron">
-            <div>1DOF tetra</div>
-          </button>
-          <button type="button" class="tool" id="dynamic_octahedron_tool">
-            <img src="../trussfab-globals/assets/icons/octahedron_actuator.png" alt="dynamic octrahedron">
-            <div>1DOF octa</div>
-          </button>
-          <button type="button" class="tool" id="assets_parallel_tool">
-            <img src="../trussfab-globals/assets/icons/parallel.png" alt="parallel">
-            <div>2DOF octa</div>
-          </button>
-          <button type="button" class="tool" id="assets_leg_tool">
-            <img src="../trussfab-globals/assets/icons/leg.png" alt="leg">
-            <div>leg</div>
-          </button>
-          <button type="button" class="tool" id="assets_bend_tool">
-            <img src="../trussfab-globals/assets/icons/bend.png" alt="bend">
-            <div>bend</div>
-          </button>
-          <button type="button" class="tool" id="assets_hinge_tool">
-            <img src="../trussfab-globals/assets/icons/asset_hinge.png" alt="hinge">
-            <div>hinge</div>
-          </button>
-          <!-- <h6>Automatic</h6> -->
-          <!-- <button type="button" class="tool" id="automatic_actuators_tool">
+    <h6>Assets</h6>
+    <button type="button" class="tool" id="dynamic_tetrahedron_tool">
+      <img src="../trussfab-globals/assets/icons/tetrahedron_actuator.png" alt="dynamic tetrahedron">
+      <div>1DOF tetra</div>
+    </button>
+    <button type="button" class="tool" id="dynamic_octahedron_tool">
+      <img src="../trussfab-globals/assets/icons/octahedron_actuator.png" alt="dynamic octrahedron">
+      <div>1DOF octa</div>
+    </button>
+    <button type="button" class="tool" id="assets_parallel_tool">
+      <img src="../trussfab-globals/assets/icons/parallel.png" alt="parallel">
+      <div>2DOF octa</div>
+    </button>
+    <button type="button" class="tool" id="assets_leg_tool">
+      <img src="../trussfab-globals/assets/icons/leg.png" alt="leg">
+      <div>leg</div>
+    </button>
+    <button type="button" class="tool" id="assets_bend_tool">
+      <img src="../trussfab-globals/assets/icons/bend.png" alt="bend">
+      <div>bend</div>
+    </button>
+    <button type="button" class="tool" id="assets_hinge_tool">
+      <img src="../trussfab-globals/assets/icons/asset_hinge.png" alt="hinge">
+      <div>hinge</div>
+    </button>
+    <!-- <h6>Automatic</h6> -->
+    <!-- <button type="button" class="tool" id="automatic_actuators_tool">
             <img src="../trussfab-globals/assets/icons/deform.png" alt="deform">
             <div>auto. actu.</div>
           </button> -->
-          <!-- <button type="button" class="tool" id="hinge_analysis_tool">
+    <!-- <button type="button" class="tool" id="hinge_analysis_tool">
             <img src="../trussfab-globals/assets/icons/hinge.png" alt="hinge analysis">
             <div>hinges</div>
           </button> -->
 
-          <h6>Loads</h6>
-          <!-- <button type="button" class="tool" id="rigidity_test_tool">
+    <h6>Loads</h6>
+    <!-- <button type="button" class="tool" id="rigidity_test_tool">
             <img src="../trussfab-globals/assets/icons/force.png" alt="rigidity test">
             <div>rigidity test</div>
           </button> -->
-          <button type="button" class="tool" id="add_weight_tool">
-            <img src="../trussfab-globals/assets/icons/force.png" alt="add test load">
-            <div>weight</div>
-          </button>
-          <!-- TODO: -->
-          <button type="button" class="tool" id="add_force_tool">
-            <img src="../trussfab-globals/assets/icons/arrow_down.png" alt="add test load">
-            <div>force</div>
-          </button>
-          <!-- <button type="button" class="tool" id="force_limit_tool">
+    <button type="button" class="tool" id="add_weight_tool">
+      <img src="../trussfab-globals/assets/icons/force.png" alt="add test load">
+      <div>weight</div>
+    </button>
+    <!-- TODO: -->
+    <button type="button" class="tool" id="add_force_tool">
+      <img src="../trussfab-globals/assets/icons/arrow_down.png" alt="add test load">
+      <div>force</div>
+    </button>
+    <!-- <button type="button" class="tool" id="force_limit_tool">
             <img src="../trussfab-globals/assets/icons/line_max.png" alt="check force limits">
             <div>force limits</div>
           </button>
@@ -208,19 +185,16 @@
             <img src="../trussfab-globals/assets/icons/stability.png" alt="check stability">
             <div>check stability</div>
           </button> -->
-          <!-- <h6>Observe</h6> -->
-          <button type="button" class="tool" id="sensor_tool">
-            <img src="../trussfab-globals/assets/icons/sensor.png" alt="sensor">
-            <div>sensor</div>
-          </button>
-          <!-- <h6>Optimize Force</h6> -->
-          <!-- <button type="button" class="tool" id="optimize_force_tool">
+    <!-- <h6>Observe</h6> -->
+    <button type="button" class="tool" id="sensor_tool">
+      <img src="../trussfab-globals/assets/icons/sensor.png" alt="sensor">
+      <div>sensor</div>
+    </button>
+    <!-- <h6>Optimize Force</h6> -->
+    <!-- <button type="button" class="tool" id="optimize_force_tool">
             <img src="../trussfab-globals/assets/icons/line_sensor.png" alt="sensor">
             <div>sensor</div>
           </button> -->
-        </div>
-      </div>
-    </div>
   </div>
   <!-- Accordion End -->
   <footer>
