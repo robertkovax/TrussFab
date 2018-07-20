@@ -6,7 +6,9 @@ class SocketConnection
   def initialize
     @connection_error = false
     begin
-      @client = TCPSocket.new 'localhost', 5000
+      address = Configuration::SOCKET_ADDRESS
+      port = Configuration::SOCKET_PORT
+      @client = TCPSocket.new address, port
     rescue SystemCallError => error
       @connection_error = true
       puts "Error creating the Socket to the server"

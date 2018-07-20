@@ -25,6 +25,15 @@ Static controller force<br>
 <br><br>
 <button onclick="analyze_static_forces()">Analyze Forces!</button>
 <br><br>
+Resonance Frequency<br>
+<input type="number" value="<%= @pid_controller.resonance_frequency %>" step="10" onchange="set_resonance_frequency(this.value)">
+<br><br>
+<button onclick="analyze_resonance_frequency()">Analyze Frequency!</button>
+<br><br>
+Gas Spring constant
+<br><br>
+<input type="number" value="<%= @pid_controller.gas_spring_constant %>" step="10" onchange="set_gas_spring_constant(this.value)">
+<br><br>
 Console-Logging:
 <input type="checkbox" id="logging" onchange="set_logging(this.checked)">
 <br><br>
@@ -50,6 +59,14 @@ Maximum Position:
     sketchup.analyze_static_forces();
     window.close();
   }
+  function analyze_resonance_frequency(){
+    sketchup.analyze_resonance_frequency();
+    window.close();
+  }
+  function set_resonance_frequency(newValue){
+    sketchup.set_resonance_frequency(newValue);
+    window.close();
+  }
   function set_error_cap(newValue){
     sketchup.set_error_cap(newValue);
   }
@@ -62,7 +79,9 @@ Maximum Position:
   function set_target(newValue) {
     sketchup.set_target(newValue);
   }
-
+  function set_gas_spring_constant(newValue) {
+    sketchup.set_gas_spring_constant(newValue);
+  }
   function set_p(newValue) {
     sketchup.set_p(newValue);
   }

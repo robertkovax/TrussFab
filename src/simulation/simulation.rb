@@ -7,7 +7,7 @@ require 'socket'
 # Simulation, using MSPhysics
 class Simulation
   attr_reader :pistons, :moving_pistons, :bottle_dat, :stiffness,
-              :breaking_force
+              :breaking_force, :generic_links
   attr_accessor :max_speed, :highest_force_mode,
                 :peak_force_mode, :auto_piston_group, :reset_positions_on_end
 
@@ -104,7 +104,7 @@ class Simulation
       edge.link.connect_to_hub
     end
 
-    @send_over_socket = false
+    @send_over_socket = Configuration::SOCKET_ENABLE_SENDING
     @socket_connection = SocketConnection.new if @send_over_socket
     @update_count = 0
 

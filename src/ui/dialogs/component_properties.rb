@@ -91,7 +91,7 @@ class ComponentProperties
 
   def add_pid_controller_menu(context_menu, erb_file, title)
     context_menu.add_item(title) do
-      show_pid_controller_dialog(erb_file, title, Configuration::UI_WIDTH, 650)
+      show_pid_controller_dialog(erb_file, title, Configuration::UI_WIDTH, 800)
     end
   end
 
@@ -247,7 +247,10 @@ class ComponentProperties
   def register_pid_controller_callbacks(link, dialog)
     # pistons
     dialog.add_action_callback('analyze_static_forces') do |_dialog, param|
-      link.analyze_static_forces()
+      link.analyze_static_forces
+    end
+    dialog.add_action_callback('analyze_resonance_frequency') do |_dialog, param|
+      link.analyze_resonance_frequency
     end
     dialog.add_action_callback('set_target') do |_dialog, param|
       link.target_length = param.to_f
@@ -280,8 +283,15 @@ class ComponentProperties
     dialog.add_action_callback('set_logging') do |_dialog, param|
       link.logging = param
     end
+    dialog.add_action_callback('set_gas_spring_constant') do |_dialog, param|
+      link.gas_spring_constant = param.to_f
+    end
     dialog.add_action_callback('set_error_cap') do |_dialog, param|
       link.integral_error_cap = param.to_f
+      link.update_link_properties
+    end
+    dialog.add_action_callback('set_resonance_frequency') do |_dialog, param|
+      link.resonance_frequency = param.to_f
       link.update_link_properties
     end
   end

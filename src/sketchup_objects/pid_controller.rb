@@ -5,12 +5,27 @@ require 'time'
 
 class PidController < GenericLink
   attr_accessor :integral_error, :k_P, :k_I, :k_D, :integral_error_cap,
-                :static_force, :static_forces_lookup, :use_static_lookup_force
+                :static_force, :static_forces_lookup, :use_static_lookup_force,
+                :resonance_frequency, :gas_spring_constant
   attr_reader :target_length, :logging
 
   def target_length=(length)
     @target_length = length
     reset_errors
+  end
+
+  def resonance_frequency=(wanted_frequency)
+    while (wanted_frequency - @resonance_frequency).abs > 0.1
+      puts "Wanted: #{wanted_frequency}"
+      puts "@resonance_fre: #{@resonance_frequency}"
+      if wanted_frequency > @resonance_frequency
+        @k_P += 30
+      else
+        @k_P -= 30
+      end
+      puts "Testing P: #{@k_P}"
+      analyze_resonance_frequency
+    end
   end
 
   def logging=(val)
@@ -25,7 +40,7 @@ class PidController < GenericLink
 
     @logging = false
     @integral_error_cap = 1
-    @target_length = @default_length.round(4)
+    @target_length = @max_distance.round(4)
     @integral_error = 0
     @previous_error = nil
     @static_force = 0
@@ -33,7 +48,9 @@ class PidController < GenericLink
     @use_static_lookup_force = false
     @mode = 1
     @begin_time = Time.now
-    set_pid_values(0, 0, 500)
+    @resonance_frequency = 0
+    @gas_spring_constant = 0
+    set_pid_values(1500, 0, 0)
   end
 
   def lookup_static_force
@@ -46,6 +63,11 @@ class PidController < GenericLink
 
   def normalized_position
     (@joint.cur_distance - @min_distance) / (@max_distance - @min_distance)
+  end
+
+  def gas_spring_force
+    distance_to_min = @joint.cur_distance - @min_distance
+    @gas_spring_constant * (1 / distance_to_min * @target_length - 1)
   end
 
   def update_force
@@ -65,38 +87,8 @@ class PidController < GenericLink
     i_force = @k_I * integral_error
     d_force = @k_D * derivative_error
     self.force = p_force + i_force + d_force + @static_force +
-      lookup_static_force
+                 gas_spring_force + lookup_static_force
     @previous_error = error
-
-    if @joint.cur_distance < 0.55 && @mode == 0
-      @target_length = @joint.cur_distance
-      set_pid_values(800, 100, 500)
-      reset_errors
-      @mode = 1
-      puts "Changed to holding"
-      @begin_time = Time.now
-    end
-
-    if (@mode == 1) && Time.now - @begin_time > 5 #TODO: This should definitly be synced better with the simulation
-      @mode = 2
-      self.force = 0
-      @begin_time = Time.now
-      set_pid_values(2500, 0, 0)
-      @target_length = @default_length
-      reset_errors
-      @counter = 0
-      puts "Start trying to oscillate"
-    end
-
-    if @mode == 2 && @default_length - @joint.cur_distance > 0.03
-      self.force += 100
-      puts "Pushed"
-      @counter += 1
-
-      if @counter > 20
-        @counter = 0
-      end
-    end
 
     return unless @logging
     puts "#{(error * 100).round(2)}||#{force.round(2)}|"\
@@ -104,7 +96,8 @@ class PidController < GenericLink
           "#{d_force.round(2)}||"\
           "#{@joint.linear_tension.length.to_f.round(2)}|"\
           "#{lookup_static_force.round(2)}|"\
-          "#{@joint.cur_distance.round(4)}"
+          "#{@joint.cur_distance.round(4)}|"\
+          "#{gas_spring_force}"
   end
 
   def set_pid_values(proportional, integral, derivative)
@@ -155,5 +148,49 @@ class PidController < GenericLink
     pid_controller.target_length = @target_length
     pid_controller.static_force = @static_force
     pid_controller.integral_error_cap = @integral_error_cap
+  end
+
+  def analyze_resonance_frequency
+    puts "Analyze resonance frequency"
+    Sketchup.active_model.active_view.invalidate
+    simulation = Simulation.new
+    simulation.setup
+    pid_edge_id, pid_edge =
+      Graph.instance.edges.find { |_, edge| edge.link == self }
+    distances = []
+    500.times do
+      begin
+        simulation.update_world
+        distances.push simulation.generic_links[pid_edge_id].joint.cur_distance
+      rescue
+        puts 'Model broke during the simulation'
+        puts 'Use the analysis with care!'
+        break
+      end
+    end
+    simulation.reset
+
+    going_up = false
+    period_count = 0
+    going_up_start = 0
+    lengths = []
+    for i in 0..(distances.length - 2)
+      diff = distances[i + 1] - distances[i]
+      if diff < 0
+        going_up = false
+      end
+      if diff > 0 && going_up == false
+        lengths.push ((i - going_up_start) * Configuration::WORLD_TIMESTEP)
+        going_up = true
+        period_count += 1
+        going_up_start = i
+      end
+    end
+    puts "Counted #{period_count} periods"
+    lengths.delete_at(0) # This will often not be the real period
+    length_mean = (lengths.inject(0) { |sum, x| sum + x }) / lengths.length
+    @resonance_frequency = (1 / length_mean).round(3)
+    puts "resonance frequency: #{@resonance_frequency} Hz,"
+    puts "resonance period: #{length_mean.round(3)} seconds"
   end
 end

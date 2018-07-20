@@ -165,6 +165,7 @@ class Hub < PhysicsSketchupObject
   # Physics methods
   #
   def add_weight(weight)
+    puts "Weight: #{@mass + weight}"
     @mass += weight
   end
 
