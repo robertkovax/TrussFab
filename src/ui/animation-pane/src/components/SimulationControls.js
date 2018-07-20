@@ -357,32 +357,34 @@ class SimulationControls extends React.Component {
             </button>
           </div>
           <div className={devMode ? 'col' : 'some-padding-top'}>
-            <button
-              onClick={() => {
-                if (windowCollapsed) {
-                  setTimeout(() => {
-                    this._addAllTimeSelectionLines();
-                  }, 100);
-                } else {
-                  this._removeAllTimeselection();
-                }
-                setContainerState({ windowCollapsed: !windowCollapsed });
-                togglePane();
-              }}
-            >
-              {windowCollapsed ? 'show' : 'hide'}
-            </button>
+            {!devMode && (
+              <button
+                onClick={() => {
+                  if (windowCollapsed) {
+                    setTimeout(() => {
+                      this._addAllTimeSelectionLines();
+                    }, 100);
+                  } else {
+                    this._removeAllTimeselection();
+                  }
+                  setContainerState({ windowCollapsed: !windowCollapsed });
+                  togglePane();
+                }}
+              >
+                {windowCollapsed ? 'show' : 'hide'}
+              </button>
+            )}
           </div>
         </div>
-          <SimulationForm
-            keyframesMap={keyframesMap}
-            simulationSettings={simulationSettings}
-            setContainerState={setContainerState}
-            timelineSeconds={seconds}
-            startedSimulationCycle={startedSimulationCycle}
-            startedSimulationOnce={startedSimulationOnce}
-            devMode={devMode}
-          />
+        <SimulationForm
+          keyframesMap={keyframesMap}
+          simulationSettings={simulationSettings}
+          setContainerState={setContainerState}
+          timelineSeconds={seconds}
+          startedSimulationCycle={startedSimulationCycle}
+          startedSimulationOnce={startedSimulationOnce}
+          devMode={devMode}
+        />
       </div>
     );
   }
