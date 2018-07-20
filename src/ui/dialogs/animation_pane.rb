@@ -12,7 +12,7 @@ class AnimationPane
     @height = 300
 
     @collapsed = false
-    @dev_mode = false
+    @dev_mode = true
     @collapsed_width = 53
     @animation_values = []
   end
@@ -23,13 +23,13 @@ class AnimationPane
 
     props = {
       # resizable: false,
-      width: @width,
+      width: @dev_width,
       height: @height,
       left: left,
       top: top,
-      # min_width: @width,
+      min_width: @dev_width,
       # min_height: @height,
-      # max_width: @width,
+      max_width: @dev_width,
       # max_height: @height
     }
 
@@ -38,7 +38,7 @@ class AnimationPane
     @dialog.set_file(file)
     # if this is commented in, the window size will be reset on every start
     # @dialog.set_position(@left, @top)
-    # @dialog.set_size(@width, @height)
+    @dialog.set_size(@dev_width, @height)
     @dialog.show
 
     register_callbacks

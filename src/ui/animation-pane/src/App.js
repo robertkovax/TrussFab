@@ -17,7 +17,7 @@ class App extends Component {
 
   getIninitialState = () => ({
     windowCollapsed: false,
-    devMode: false,
+    devMode: true,
     simulationSettings: {
       breakingForce: "",
       stiffness: "",
