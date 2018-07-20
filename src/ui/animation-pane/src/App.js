@@ -19,8 +19,8 @@ class App extends Component {
     windowCollapsed: false,
     devMode: true,
     simulationSettings: {
-      breakingForce: "",
-      stiffness: "",
+      breakingForce: '',
+      stiffness: '',
       displayValues: false,
       highestForceMode: false,
       peakForceMode: false,
@@ -175,13 +175,16 @@ class App extends Component {
      */
     function updateAllLines(newX) {
       const newXBounded = Math.min(Math.max(0, newX), X_AXIS);
-       const newXInSeconds =
-          (newXBounded / X_AXIS * self.state.timeline.seconds).toFixed(1);
+      const newXInSeconds = (
+        newXBounded /
+        X_AXIS *
+        self.state.timeline.seconds
+      ).toFixed(1);
       const oldTimeSelection = self.state.timeSelection;
 
       self.pistons().forEach(function(piston_group_id) {
         self.setState({
-          timeSelection : oldTimeSelection.set(piston_group_id, newXInSeconds),
+          timeSelection: oldTimeSelection.set(piston_group_id, newXInSeconds),
         });
       });
 
@@ -283,8 +286,10 @@ class App extends Component {
     setTimeout(() => {
       const oldSeconds = timeline.seconds;
       this.setState({
-        timeline: { ...this.getIninitialState(),
-                    seconds: oldSeconds },
+        timeline: {
+          ...this.getIninitialState(),
+          seconds: oldSeconds,
+        },
       });
     }, 100);
   };
