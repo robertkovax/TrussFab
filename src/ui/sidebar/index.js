@@ -33,7 +33,8 @@ $(() => {
         .find('.collapse')
         .hasClass('show')
     ) {
-      $('.card').find('.collapse').not('.show').addClass('show');
+      e.stopPropagation();
+      // $('.card').find('.collapse').not('.show').addClass('show');
     }
   });
 });
