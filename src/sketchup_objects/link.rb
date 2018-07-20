@@ -7,10 +7,9 @@ require 'src/configuration/configuration'
 
 # Link
 class Link < PhysicsSketchupObject
-  attr_accessor :joint, :model
-  attr_reader :first_elongation_length, :second_elongation_length,
-              :position, :second_position, :loc_up_vec, :first_node,
-              :second_node, :sensor_symbol, :piston_group
+  attr_accessor :joint, :model, :first_node, :second_node
+  attr_reader :first_elongation_length, :second_elongation_length, :position,
+              :second_position, :loc_up_vec, :sensor_symbol, :piston_group
 
   def initialize(first_node, second_node, edge, model_name, bottle_name: '',
                  id: nil)
@@ -269,7 +268,7 @@ class Link < PhysicsSketchupObject
     link_position = @position.offset(@first_elongation.direction)
 
     add(@first_elongation,
-        BottleLink.new(link_position, direction, @model),
+        BottleLink.new(link_position, direction, @model, id: @id),
         Line.new(@position, @second_position, LINK_LINE),
         @second_elongation)
   end

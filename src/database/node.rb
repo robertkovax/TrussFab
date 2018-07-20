@@ -155,6 +155,7 @@ class Node < GraphObject
     @adjacent_triangles -= merged_adjacent_triangles
 
     delete
+    Graph.instance.cleanup
   end
 
   def find_pod(direction)

@@ -55,6 +55,8 @@ class Relaxation
 
   def fix_node(node)
     @fixed_nodes << node
+    add_edges(node.incidents)
+    update_incident_edges(node)
     self
   end
 
