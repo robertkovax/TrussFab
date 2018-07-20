@@ -177,5 +177,5 @@ module Configuration
   POD_MASS          = 0.1
 
   #PID_Controller
-  STATIC_FORCE_ANALYSIS_STEPS = 20
+  STATIC_FORCE_ANALYSIS_STEPS = 5
 end

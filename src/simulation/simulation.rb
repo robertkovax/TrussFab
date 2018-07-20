@@ -1,6 +1,8 @@
 require 'src/utility/geometry.rb'
 require 'src/ui/dialogs/force_chart.rb'
+require 'src/simulation/socket_connection.rb'
 require 'erb'
+require 'socket'
 
 # Simulation, using MSPhysics
 class Simulation
@@ -101,6 +103,11 @@ class Simulation
     Graph.instance.edges.each_value do |edge|
       edge.link.connect_to_hub
     end
+
+    @send_over_socket = false
+    @socket_connection = SocketConnection.new if @send_over_socket
+    @update_count = 0
+
   end
 
   #
@@ -475,6 +482,28 @@ class Simulation
     highest_force
   end
 
+  def analyse_pose(combination)
+    Graph.instance.edges.each_value do |edge|
+      edge.thingy.joint.stiffness = 0.999
+    end
+    # move them to the proper position
+    combination.each do |id, position|
+      actuator = @pistons[id]
+      actuator.joint.breaking_force = 0
+      actuator.joint.rate = 10
+      actuator.joint.controller = actuator.max * position.to_f +
+        actuator.min * (1 - position.to_f)
+    end
+    update_world_headless_by(3) # settle down
+    @max_link_tensions.clear
+    update_world_headless_by(0.2, true)
+    forces = {}
+    combination.each do |id, _|
+      forces[id] = @max_link_tensions[id]
+    end
+    forces
+  end
+
   def check_static_force(piston_id, position)
     Graph.instance.edges.each_value do |edge|
       edge.link.joint.stiffness = 0.999
@@ -484,7 +513,7 @@ class Simulation
     actuator.joint.breaking_force = 0
     actuator.joint.rate = 10
     actuator.joint.controller = actuator.max * position.to_f +
-                                actuator.min * (1 - position.to_f)
+      actuator.min * (1 - position.to_f)
 
     update_world_headless_by(3)
     @max_link_tensions.clear
@@ -509,7 +538,7 @@ class Simulation
     actuator.joint.rate = actuator.rate
     actuator.joint.controller =
       (value.to_f - Configuration::ACTUATOR_INIT_DIST) * (actuator.max -
-                                                          actuator.min)
+        actuator.min)
   end
 
   def grouped_change_piston_value(id, value)
@@ -521,8 +550,15 @@ class Simulation
       actuator.joint.rate = actuator.rate
       actuator.joint.controller =
         (value.to_f - Configuration::ACTUATOR_INIT_DIST) * (actuator.max -
-                                                            actuator.min)
+          actuator.min)
     end
+
+  end
+
+  def send_value_of(joint)
+    distance_in_cm = (joint.cur_distance - 0.53 ) * 100 # This weird, but I dunno why the value is like that
+    distance_in_cm = distance_in_cm.round(0)
+    @socket_connection.send_cm(distance_in_cm)
   end
 
   def move_joint(id, next_position, duration)
@@ -534,7 +570,7 @@ class Simulation
         joint = link.joint
 
         next_position_normalized = link.max * next_position.to_f +
-                                   link.min * (1 - next_position.to_f)
+          link.min * (1 - next_position.to_f)
         current_postion = joint.cur_distance - joint.start_distance
         position_distance = (current_postion - next_position_normalized).abs
 
@@ -695,6 +731,7 @@ class Simulation
       end
       Sketchup.active_model.commit_operation
     end
+    send_value_of(@auto_piston_group.first.first.link.joint) if @send_over_socket
   end
 
   def update_entities
@@ -873,7 +910,7 @@ class Simulation
     sub_mats = {}
     bottle_entities.each do |entity|
       if entity.is_a?(::Sketchup::Group) ||
-         entity.is_a?(::Sketchup::ComponentInstance)
+        entity.is_a?(::Sketchup::ComponentInstance)
         sub_mats[entity] = entity.material
       end
     end
@@ -908,7 +945,7 @@ class Simulation
                 get_directed_force(link)
               end
       r = (@breaking_force + force * Configuration::TENSION_SENSITIVITY) *
-          @breaking_force_invh
+        @breaking_force_invh
       mat.color = Geometry.blend_colors(Configuration::TENSION_COLORS, r)
     end
   end
@@ -946,7 +983,7 @@ class Simulation
     end
     force = @max_link_tensions[link.id] if @peak_force_mode
     r = (@breaking_force + force * Configuration::TENSION_SENSITIVITY) *
-        @breaking_force_invh
+      @breaking_force_invh
     mat.color = Geometry.blend_colors(Configuration::TENSION_COLORS, r)
   end
 
