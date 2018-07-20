@@ -356,8 +356,8 @@ class SimulationControls extends React.Component {
               />
             </button>
           </div>
-          <div className={devMode ? 'col' : 'some-padding-top'}>
-            {!devMode && (
+          {!devMode && (
+            <div className={devMode ? 'col' : 'some-padding-top'}>
               <button
                 onClick={() => {
                   if (windowCollapsed) {
@@ -373,8 +373,8 @@ class SimulationControls extends React.Component {
               >
                 {windowCollapsed ? 'show' : 'hide'}
               </button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
         <SimulationForm
           keyframesMap={keyframesMap}
