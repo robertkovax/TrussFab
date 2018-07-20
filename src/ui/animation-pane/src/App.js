@@ -170,22 +170,23 @@ class App extends Component {
     const self = this;
 
     /**
-     * updates the timeline in the state and for the ui
+     * updates all timeline in the state and in the ui
      * @param {number} newX the new x coordinate relative to the SVG
      */
-    function updateLine(newX) {
+    function updateAllLines(newX) {
       const newXBounded = Math.min(Math.max(0, newX), X_AXIS);
+       const newXInSeconds =
+          (newXBounded / X_AXIS * self.state.timeline.seconds).toFixed(1);
       const oldTimeSelection = self.state.timeSelection;
 
-      self.setState({
-        timeSelection: oldTimeSelection.set(
-          id,
-          (newXBounded / X_AXIS * self.state.timeline.seconds).toFixed(1)
-        ),
+      self.pistons().forEach(function(piston_group_id) {
+        self.setState({
+          timeSelection : oldTimeSelection.set(piston_group_id, newXInSeconds),
+        });
       });
 
       d3
-        .select('#svg-' + id)
+        .selectAll('svg')
         .select('.timeSelection')
         .attr('x1', newXBounded)
         .attr('x2', newXBounded);
@@ -193,12 +194,12 @@ class App extends Component {
 
     function scrubLine() {
       const newX = d3.event.x;
-      updateLine(newX);
+      updateAllLines(newX);
     }
 
     function moveTimelineByClicking() {
       const newX = d3.mouse(this)[0]; // get X relative to SVG
-      updateLine(newX);
+      updateAllLines(newX);
     }
 
     d3.select(`#svg-${id}`).on('click', moveTimelineByClicking);
