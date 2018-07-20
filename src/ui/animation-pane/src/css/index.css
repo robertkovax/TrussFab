@@ -93,3 +93,7 @@ button img {
   height: 30px;
   width: 30px;
 }
+
+.form-group {
+  margin-bottom: 0;
+}
