@@ -50,11 +50,12 @@ class BottleModel
     # Sketchup Component Definitions
     components = Sketchup.active_model.definitions
     name = specification[:NAME]
+    short_name = specification[:SHORT_NAME]
     if components[name]
       model = components[name]
     else
       definition = components.load specification[:PATH]
-      model = Bottle.new(name, specification[:WEIGHT], definition, self)
+      model = Bottle.new(name, short_name, specification[:WEIGHT], definition, self)
     end
     model
   end

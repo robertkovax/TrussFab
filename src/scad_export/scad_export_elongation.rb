@@ -6,9 +6,9 @@ A_B_HINGE = 3
 # Exports elongation to SCAD file
 class ScadExportElongation
   attr_accessor :hub_id, :other_hub_id, :direction,
-                :l1, :l2, :l3, :hinge_connection
+                :l1, :l2, :l3, :hinge_connection, :bottle_size
 
-  def initialize(hub_id, other_hub_id, hinge_connection, l1, l2, l3, direction)
+  def initialize(hub_id, other_hub_id, hinge_connection, l1, l2, l3, direction, bottle_size)
     @hub_id = hub_id
     @other_hub_id = other_hub_id
     @hinge_connection = hinge_connection
@@ -16,6 +16,7 @@ class ScadExportElongation
     @l2 = l2
     @l3 = l3
     @direction = direction
+    @bottle_size = bottle_size
   end
 
   def total_length
