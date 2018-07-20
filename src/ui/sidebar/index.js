@@ -16,8 +16,12 @@ function buttonClicked(id) {
 
 function toggleDevMode() {
   devMode = !devMode;
-  document.getElementById('generic_physics_link_tool').style.display = devMode ? 'inline' : 'none';
-  document.getElementById('pid_controller_tool').style.display = devMode ? 'inline' : 'none';
+  document.getElementById('generic_physics_link_tool').style.display = devMode
+    ? 'inline'
+    : 'none';
+  document.getElementById('pid_controller_tool').style.display = devMode
+    ? 'inline'
+    : 'none';
 }
 
 $(() => {
@@ -38,3 +42,17 @@ $(() => {
     }
   });
 });
+
+function fixFooter() {
+  const heightWindow = $(window).outerHeight();
+  const heightBody = $('#accordion').outerHeight() + $('footer').outerHeight();
+
+  if (heightBody > heightWindow) {
+    $('footer').removeClass('stickBottom');
+  } else {
+    $('footer').addClass('stickBottom');
+  }
+}
+
+window.addEventListener('resize', fixFooter, true);
+window.addEventListener('load', fixFooter, true);
