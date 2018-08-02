@@ -13,6 +13,8 @@ class LinkTool < Tool
     @mouse_input = MouseInput.new(snap_to_edges: true, snap_to_nodes: true)
     @link_type = link_type
     @edge = nil
+    @snap_to_edges = true
+    status_text_update
   end
 
   #
@@ -36,6 +38,17 @@ class LinkTool < Tool
 
   def onMouseMove(_flags, x, y, view)
     @mouse_input.update_positions(view, x, y)
+  end
+
+  def onKeyDown(key, _repeat, _flags, _view)
+    if key == VK_LEFT or key == VK_RIGHT
+      @snap_to_edges = !@snap_to_edges
+      @mouse_input.soft_reset
+      @mouse_input = MouseInput.new(snap_to_edges: @snap_to_edges,
+                                    snap_to_nodes: true)
+      status_text_update
+    end
+    super
   end
 
   #
@@ -83,6 +96,11 @@ class LinkTool < Tool
   end
 
   private
+
+  def status_text_update
+    Sketchup.set_status_text("Snapping to edges is now #{@snap_to_edges}, " \
+    "use arrow keys to change")
+  end
 
   def reset
     @mouse_input.soft_reset
