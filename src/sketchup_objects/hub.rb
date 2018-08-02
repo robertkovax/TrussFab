@@ -38,8 +38,8 @@ class Hub < PhysicsSketchupObject
       model = ModelStorage.instance.models['force_arrow']
       transform = Geom::Transformation.new(point)
       @arrow = Sketchup.active_model
-                       .active_entities
-                       .add_instance(model.definition, transform)
+                 .active_entities
+                 .add_instance(model.definition, transform)
     else
       @arrow.transform!(Geom::Transformation.scaling(point, 1.5))
     end
@@ -54,8 +54,8 @@ class Hub < PhysicsSketchupObject
       model = ModelStorage.instance.models['weight_indicator']
       transform = Geom::Transformation.new(point)
       @weight_indicator = Sketchup.active_model
-                                  .active_entities
-                                  .add_instance(model.definition, transform)
+                            .active_entities
+                            .add_instance(model.definition, transform)
     else
       @weight_indicator.transform!(Geom::Transformation.scaling(point, 1.5))
     end
@@ -66,7 +66,7 @@ class Hub < PhysicsSketchupObject
     return if object.nil?
     old_pos = object.transformation.origin
     movement_vec = Geom::Transformation.translation(old_pos.vector_to(position +
-                                                                      offset))
+                                                                        offset))
     object.move!(movement_vec * object.transformation)
   end
 
@@ -134,14 +134,15 @@ class Hub < PhysicsSketchupObject
     move_addons(position)
   end
 
+
   def add_sensor_symbol
     point = Geom::Point3d.new(@position)
     model = ModelStorage.instance.models['sensor']
     transform = Geom::Transformation.new(point)
     Sketchup.active_model.start_operation('Hub: Add Sensor Symbol', true)
     @sensor_symbol = Sketchup.active_model
-                             .active_entities
-                             .add_instance(model.definition, transform)
+                       .active_entities
+                       .add_instance(model.definition, transform)
     @sensor_symbol.transform!(Geom::Transformation.scaling(point, 0.2))
     Sketchup.active_model.commit_operation
   end
@@ -180,7 +181,7 @@ class Hub < PhysicsSketchupObject
   def create_body(world)
     num_physics_links = @incidents.count { |x| x.link.is_a?(PhysicsLink) }
     weight = Configuration::HUB_MASS * @incidents.count +
-             Configuration::PISTON_MASS * num_physics_links
+      Configuration::PISTON_MASS * num_physics_links
     # spheres will have it rolling
     @body = Simulation.create_body(world, @entity, :box)
     @body.collidable = true
