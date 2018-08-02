@@ -134,7 +134,6 @@ class Hub < PhysicsSketchupObject
     move_addons(position)
   end
 
-
   def add_sensor_symbol
     point = Geom::Point3d.new(@position)
     model = ModelStorage.instance.models['sensor']

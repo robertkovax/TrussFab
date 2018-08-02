@@ -82,7 +82,6 @@ class ComponentProperties
                      '../context-menus/hub.erb',
                      'TrussFab Hub Properties')
       end
-
     end
   end
 
@@ -124,7 +123,7 @@ class ComponentProperties
 
   def add_hub_menu(context_menu, erb_file, title)
     context_menu.add_item(title) do
-      show_hub_dialog(erb_file, title, Configuration::UI_WIDTH, 400)
+      show_hub_dialog(erb_file, title, Configuration::UI_WIDTH, 200)
     end
   end
 
