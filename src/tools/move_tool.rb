@@ -69,16 +69,18 @@ class MoveTool < Tool
     relaxation = Relaxation.new
 
     end_move_position = @end_position
-    unless snapped_node.nil?
-      # TODO: This is not working. For me, it is not even clear
-      # what should be done in this case
+    if snapped_node.nil?
+      relaxation.move_and_fix_node(@start_node, end_move_position)
+      relaxation.relax
+    else
+      # merging functionality
       relaxation.fix_node(snapped_node)
-      @start_node.merge_into(snapped_node)
       end_move_position = snapped_node.position
+      relaxation.move_and_fix_node(@start_node, end_move_position)
+      relaxation.relax
+      @start_node.merge_into(snapped_node)
     end
 
-    relaxation.move_and_fix_node(@start_node, end_move_position)
-    relaxation.relax
     view.invalidate
     Sketchup.active_model.commit_operation
 

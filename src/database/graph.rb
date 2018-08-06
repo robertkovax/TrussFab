@@ -192,9 +192,9 @@ class Graph
   # This removes all objects with deleted instances
   # Call this prior to exporting, importing, or starting simulation
   def cleanup
-    @edges.select! { |_, e| e.check_if_valid }
-    @nodes.select! { |_, e| e.check_if_valid }
-    @triangles.select! { |_, e| e.check_if_valid }
+    @edges.select! { |_, e| !e.nil? || e.check_if_valid }
+    @nodes.select! { |_, e| !e.nil? || e.check_if_valid }
+    @triangles.select! { |_, e| !e.nil? || e.check_if_valid }
   end
 
   #

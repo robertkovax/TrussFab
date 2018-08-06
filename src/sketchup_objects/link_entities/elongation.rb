@@ -33,7 +33,9 @@ class Elongation < SketchupObject
       raise 'Elongation is shorter than minimum length.'
     end
 
+    Edge.enable_bottle_freeze
     @parent.change_elongation_length(self, length)
+    Edge.disable_bottle_freeze
   end
 
   private
