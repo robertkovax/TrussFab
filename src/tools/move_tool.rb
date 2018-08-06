@@ -62,10 +62,45 @@ class MoveTool < Tool
   def onLButtonUp(_flags, x, y, view)
     update(view, x, y)
     return unless @moving
+    return if @start_node.nil?
     snapped_node = @mouse_input.snapped_object
     snapped_node = nil if snapped_node == @start_node
 
-    Sketchup.active_model.start_operation('move node and relax', true)
+    Sketchup.active_model.start_operation('move structure', true)
+    if is_fixed?(@start_node)
+      deform snapped_node
+    else
+      move snapped_node
+    end
+    view.invalidate
+    Sketchup.active_model.commit_operation
+
+    reset
+  end
+
+  def move(snapped_node)
+    @end_position = snapped_node.position unless snapped_node.nil?
+    translation = @end_position - @start_node.position
+    nodes = breadth_search(@start_node)
+    # While moving, we don't want hub's at the same position at any time,
+    # because they would be joined. Therefore we reverse the array. Then even if
+    # an end position in the same structure is chosen, the start_node will be
+    # moved last, and so no nodes will overlap
+    nodes.reverse.each do |node|
+      puts @end_position
+      end_position = node.position + translation
+      node.update_position(end_position)
+      node.update_sketchup_object
+    end
+    puts snapped_node.nil?
+    puts nodes.include?(snapped_node)
+    puts nodes
+    unless snapped_node.nil? || nodes.include?(snapped_node)
+      @start_node.merge_into(snapped_node)
+    end
+  end
+
+  def deform(snapped_node)
     relaxation = Relaxation.new
 
     end_move_position = @end_position
@@ -80,10 +115,24 @@ class MoveTool < Tool
       relaxation.relax
       @start_node.merge_into(snapped_node)
     end
+  end
 
-    view.invalidate
-    Sketchup.active_model.commit_operation
+  def is_fixed?(node)
+    breadth_search(node).any? { |each| each.fixed? }
+  end
 
-    reset
+  def breadth_search(node)
+    visited = [node]
+    queue = [node]
+
+    until queue.empty?
+      current = queue.shift
+      current.adjacent_nodes.each do |adjacent|
+        next if visited.include? adjacent
+        queue << adjacent
+        visited << adjacent
+      end
+    end
+    visited
   end
 end
