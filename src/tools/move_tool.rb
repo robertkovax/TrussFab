@@ -87,14 +87,10 @@ class MoveTool < Tool
     # an end position in the same structure is chosen, the start_node will be
     # moved last, and so no nodes will overlap
     nodes.reverse.each do |node|
-      puts @end_position
       end_position = node.position + translation
       node.update_position(end_position)
       node.update_sketchup_object
     end
-    puts snapped_node.nil?
-    puts nodes.include?(snapped_node)
-    puts nodes
     unless snapped_node.nil? || nodes.include?(snapped_node)
       @start_node.merge_into(snapped_node)
     end
