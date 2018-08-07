@@ -67,6 +67,20 @@ class ComponentProperties
         add_elongation_menu(context_menu,
                             '../context-menus/elongation.erb',
                             'TrussFab Elongation Properties')
+
+      when 'Hub'
+        @node = nil
+        Graph.instance.nodes.values.each do |node|
+          if node.hub.id == id
+            @node = node
+            break
+          end
+        end
+        raise 'Matching Node for Hub not found' if @node.nil?
+
+        add_hub_menu(context_menu,
+                     '../context-menus/hub.erb',
+                     'TrussFab Hub Properties')
       end
     end
   end
@@ -104,6 +118,12 @@ class ComponentProperties
   def add_elongation_menu(context_menu, erb_file, title)
     context_menu.add_item(title) do
       show_elongation_dialog(erb_file, title, Configuration::UI_WIDTH, 400)
+    end
+  end
+
+  def add_hub_menu(context_menu, erb_file, title)
+    context_menu.add_item(title) do
+      show_hub_dialog(erb_file, title, Configuration::UI_WIDTH, 200)
     end
   end
 
@@ -176,6 +196,14 @@ class ComponentProperties
                              height = Configuration::UI_HEIGHT)
     dialog = show_dialog(file, name, width, height)
     register_elongation_callbacks(@elongation, dialog)
+  end
+
+  def show_hub_dialog(file,
+                      name,
+                      width = Configuration::UI_WIDTH,
+                      height = Configuration::UI_HEIGHT)
+    dialog = show_dialog(file, name, width, height)
+    register_hub_callbacks(@node, dialog)
   end
 
   def render(path)
@@ -295,6 +323,15 @@ class ComponentProperties
   def register_elongation_callbacks(elongation, dialog)
     dialog.add_action_callback('set_length') do |_dialog, param|
       elongation.resize(param.to_f.mm)
+    end
+  end
+
+  def register_hub_callbacks(node, dialog)
+    dialog.add_action_callback('set_position') do |_dialog, param|
+      end_position = Geom::Point3d.new(param[0].to_f.m,
+                                       param[1].to_f.m,
+                                       param[2].to_f.m)
+      node.move_to end_position
     end
   end
 end
