@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="de">
+<link rel="stylesheet" href="../css/ui.css" type="text/css">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hub Menu</title>
+</head>
+<body onload="init()">
+Hub position:<br>
+<input type="text" id="position-x" onchange="set_position()">m
+<input type="text" id="position-y" onchange="set_position()">m
+<input type="text" id="position-z" onchange="set_position()">m
+<br>
+<button type="button" onclick="set_position()">set</button>
+
+<script type="text/javascript">
+  function init() {
+    var x = document.getElementById("position-x");
+    x.value = <%= @node.position.x.to_m %>;
+    var y = document.getElementById("position-y");
+    y.value = <%= @node.position.y.to_m %>;
+    var z = document.getElementById("position-z");
+    z.value = <%= @node.position.z.to_m %>;
+  }
+
+  function set_position() {
+    var x = document.getElementById("position-x");
+    var y = document.getElementById("position-y");
+    var z = document.getElementById("position-z");
+    sketchup.set_position([x.value,y.value,z.value]);
+  }
+</script>
+</body>
+</html>
