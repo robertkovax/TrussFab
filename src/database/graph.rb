@@ -34,13 +34,15 @@ class Graph
   def create_edge_from_points(first_position,
                               second_position,
                               bottle_type: Configuration::BIG_BIG_BOTTLE_NAME,
-                              link_type: 'bottle_link')
+                              link_type: 'bottle_link',
+                              use_best_model: false)
     first_node = create_node(first_position)
     second_node = create_node(second_position)
     edge = create_edge(first_node,
                        second_node,
                        bottle_type: bottle_type,
                        link_type: link_type)
+    edge.update_sketchup_object if use_best_model
     edge
   end
 

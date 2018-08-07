@@ -80,7 +80,8 @@ class LinkTool < Tool
     Sketchup.active_model.start_operation("Create #{@link_type} link", true)
     @edge = Graph.instance.create_edge_from_points(from,
                                                    to,
-                                                   link_type: @link_type)
+                                                   link_type: @link_type,
+                                                   use_best_model: true)
     unless @link_type == 'bottle_link'
       @edge.link.piston_group = IdManager.instance.maximum_piston_group + 1
     end
