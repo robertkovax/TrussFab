@@ -16,11 +16,17 @@ module JsonImport
       first_z - lowest_z
     end
 
-    def at_position(path, position)
+    def at_position(path, position, angle: 0)
       json_objects = load_json(path)
       points = build_points(json_objects,
                             position,
                             distance_to_ground(json_objects))
+      rotation = Geom::Transformation.rotation(position,
+                                               Geom::Vector3d.new(0, 0, -1),
+                                               angle)
+      points.values.each do |point|
+        point.transform!(rotation)
+      end
       edges, nodes = build_edges(json_objects, points)
       triangles = create_triangles(edges)
       add_joints(json_objects, edges, nodes) unless json_objects['joints'].nil?
@@ -29,7 +35,7 @@ module JsonImport
       [triangles.values, edges.values, animation]
     end
 
-    def at_triangle(path, snap_triangle)
+    def at_triangle(path, snap_triangle, angle: 0)
       json_objects = load_json(path)
 
       # retrieve points from json
@@ -74,8 +80,11 @@ module JsonImport
       rotation_around_center = Geometry.rotation_transformation(vector_json,
                                                                 vector_snap,
                                                                 json_center)
+      rotation_of_json = Geom::Transformation.rotation(json_center, snap_direction,
+                                                       angle)
 
-      transformation = rotation_around_center * transformation
+      transformation = rotation_of_json * rotation_around_center *
+                       transformation
 
       json_points.values.each do |point|
         point.transform!(transformation)
@@ -125,12 +134,12 @@ module JsonImport
         edge.first_node.incidents.each do |first_incident|
           edge.second_node.incidents.each do |second_incident|
             next if first_incident == second_incident ||
-                    (first_incident.opposite(edge.first_node) !=
-                    second_incident.opposite(edge.second_node))
+              (first_incident.opposite(edge.first_node) !=
+                second_incident.opposite(edge.second_node))
             triangle = Graph.instance
-                            .create_triangle(edge.first_node,
-                                             edge.second_node,
-                                             first_incident
+                         .create_triangle(edge.first_node,
+                                          edge.second_node,
+                                          first_incident
                                             .opposite(edge.first_node))
             triangles[triangle.id] = triangle
           end
