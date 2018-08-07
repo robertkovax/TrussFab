@@ -5,6 +5,7 @@ require 'src/simulation/simulation.rb'
 # Hub
 class Hub < PhysicsSketchupObject
   attr_accessor :position, :body, :mass, :arrow
+  attr_reader :force
 
   def initialize(position, id: nil, incidents: nil, material: 'hub_material')
     super(id, material: material)
@@ -34,7 +35,10 @@ class Hub < PhysicsSketchupObject
     Sketchup.active_model.start_operation('Hub: Add Force Arrow', true)
     point = Geom::Point3d.new(@position)
     alignment_vec = Geom::Vector3d.new(0, 0, 1)
-    @arrow.erase! unless @arrow.nil?
+    unless @arrow.nil?
+      @arrow.erase!
+      @arrow = nil
+    end
     return if @force.length == 0
     model = ModelStorage.instance.models['force_arrow']
     transform = Geom::Transformation.new(point + alignment_vec)
@@ -124,6 +128,7 @@ class Hub < PhysicsSketchupObject
   def delete
     @id_label.erase!
     @arrow.erase! unless @arrow.nil?
+    @arrow = nil
     @sensor_symbol.erase! unless @sensor_symbol.nil?
     @weight_indicator.erase! unless @weight_indicator.nil?
     super
@@ -171,7 +176,7 @@ class Hub < PhysicsSketchupObject
   end
 
   def add_force(force)
-    @force += force
+    self.force += force
   end
 
   def force=(force)

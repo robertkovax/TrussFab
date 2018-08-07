@@ -35,6 +35,7 @@ class Node < GraphObject
     relaxation = Relaxation.new
     relaxation.move_and_fix_node(self, position)
     relaxation.relax
+    hub.update_position position
     Sketchup.active_model.commit_operation
   end
 
