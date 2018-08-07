@@ -192,7 +192,7 @@ class Hub < PhysicsSketchupObject
   def create_body(world)
     num_physics_links = @incidents.count { |x| x.link.is_a?(PhysicsLink) }
     weight = Configuration::HUB_MASS * @incidents.count +
-      Configuration::PISTON_MASS * num_physics_links
+             Configuration::PISTON_MASS * num_physics_links
     # spheres will have it rolling
     @body = Simulation.create_body(world, @entity, :box)
     @body.collidable = true
