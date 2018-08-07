@@ -15,6 +15,13 @@ class LinkTool < Tool
     @edge = nil
   end
 
+  def activate
+    Sketchup.active_model.selection.each do |element|
+      next unless element.kind_of? Sketchup::Edge
+      create_link element.start.position, element.end.position
+    end
+  end
+
   #
   # Sketchup Tool methods
   #
@@ -61,28 +68,31 @@ class LinkTool < Tool
     else
       second_position =
         @mouse_input
-        .update_positions(view, x, y,
-                          point_on_plane_from_camera_normal: @first_position)
+          .update_positions(view, x, y,
+                            point_on_plane_from_camera_normal: @first_position)
       if @first_position == second_position
         reset
         return
       end
-
-      puts "Create single #{@link_type} link"
-      Sketchup.active_model.start_operation("Create #{@link_type} link", true)
-      @edge = Graph.instance.create_edge_from_points(@first_position,
-                                                     second_position,
-                                                     link_type: @link_type)
-      unless @link_type == 'bottle_link'
-        @edge.link.piston_group = IdManager.instance.maximum_piston_group + 1
-      end
-      Sketchup.active_model.commit_operation
+      create_link @first_position, second_position
       reset
       @edge
     end
   end
 
   private
+
+  def create_link(from, to)
+    puts "Create single #{@link_type} link"
+    Sketchup.active_model.start_operation("Create #{@link_type} link", true)
+    @edge = Graph.instance.create_edge_from_points(from,
+                                                   to,
+                                                   link_type: @link_type)
+    unless @link_type == 'bottle_link'
+      @edge.link.piston_group = IdManager.instance.maximum_piston_group + 1
+    end
+    Sketchup.active_model.commit_operation
+  end
 
   def reset
     @mouse_input.soft_reset

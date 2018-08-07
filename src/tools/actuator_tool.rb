@@ -7,6 +7,8 @@ class ActuatorTool < LinkTool
     super(ui, 'actuator')
   end
 
+  def activate; end
+
   def onLButtonDown(flags, x, y, view)
     @mouse_input.update_positions(view, x, y)
     obj = @mouse_input.snapped_object
