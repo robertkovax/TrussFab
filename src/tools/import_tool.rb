@@ -13,6 +13,10 @@ class ImportTool < Tool
     @path = nil
   end
 
+  def activate
+    BottleCounter.update_status_text
+  end
+
   def onMouseMove(_flags, x, y, view)
     @mouse_input.update_positions(view, x, y)
   end
