@@ -33,7 +33,7 @@ class Graph
 
   def create_edge_from_points(first_position,
                               second_position,
-                              bottle_type: Configuration::BIG_BIG_BOTTLE_NAME,
+                              bottle_type: nil,
                               link_type: 'bottle_link')
     first_node = create_node(first_position)
     second_node = create_node(second_position)
@@ -46,7 +46,7 @@ class Graph
 
   def create_edge(first_node,
                   second_node,
-                  bottle_type: Configuration::BIG_BIG_BOTTLE_NAME,
+                  bottle_type: nil,
                   link_type: 'bottle_link')
     nodes = [first_node, second_node]
     edge = find_edge(nodes)
@@ -64,7 +64,7 @@ class Graph
   def create_triangle_from_points(first_position,
                                   second_position,
                                   third_position,
-                                  bottle_type: Configuration::BIG_BIG_BOTTLE_NAME,
+                                  bottle_type: nil,
                                   link_type: 'bottle_link')
     first_node = create_node(first_position)
     second_node = create_node(second_position)
