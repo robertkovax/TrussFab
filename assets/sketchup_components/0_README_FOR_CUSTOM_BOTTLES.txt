@@ -4,7 +4,7 @@ The specification for the bottle model is coded in the filename (.skp)
 
 The specification has the elements: 
 number - Only used for sorting, the first bottle will be the 'default' bottle
-name - Used to describe the connection
+name - Used to describe the connection. This should be unique, as it will be used to reload the model in case of JSON Import/Export.
 short_name - Used short to describe the connection, this will be used for example in the connection count tool
 weight - The weight of the link in grams 
 
