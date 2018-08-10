@@ -29,13 +29,16 @@ module Configuration
   UI_HEIGHT = 700
 
   # SketchupObject Properties
-  MINIMUM_ELONGATION    = 35.mm.freeze
+  MINIMUM_ELONGATION    = 20.mm.freeze
   DEFAULT_ELONGATION    = 40.mm.freeze
   MAXIMUM_ELONGATION    = 100.mm.freeze
   BALL_HUB_RADIUS       = 14.mm.freeze
   STANDARD_BOTTLES      = 'hard'.freeze
   COVER_THICKNESS       = 20.mm.freeze
+  # Size of the rendered elongation
   ELONGATION_RADIUS     = 11.mm.freeze
+  # This value is used for finding out the minimum angle of elongations to
+  # each other
   CONNECTOR_CUFF_RADIUS = 18
 
   # Paths
