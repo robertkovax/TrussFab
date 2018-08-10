@@ -93,7 +93,7 @@ class SimulationForm extends React.Component {
                       } else
                         return {
                           value: oneKeyframe.value,
-                          time: oneKeyframe.time * ratio,
+                          time: Math.round(oneKeyframe.time * ratio),
                         };
                     });
                     newKeyframes.set(key, updatedValues);
