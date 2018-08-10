@@ -56,8 +56,16 @@ class NodeExportAlgorithm
         hinge = generate_hinge_if_necessary(
           e1, e2, tri, static_groups, group_edge_map
         )
+
         node = e1.shared_node(e2)
-        @export_interface.add_hinge(node, hinge) unless hinge.nil?
+
+        if !@export_interface.has_mainhub_at_node(node) &&
+           !hinge.is_double_hinge
+          hub = HubExportInterface.new([e1, e2])
+          @export_interface.add_hub(node, hub)
+        else
+          @export_interface.add_hinge(node, hinge) unless hinge.nil?
+        end
       end
     end
 

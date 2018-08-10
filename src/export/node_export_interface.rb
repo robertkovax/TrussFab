@@ -40,6 +40,10 @@ class NodeExportInterface
     @node_hub_map[node]
   end
 
+  def has_mainhub_at_node(node)
+    !@node_hub_map[node].empty?
+  end
+
   def mainhub_at_node(node)
     raise 'Node does not have a main hub' if @node_hub_map[node].empty?
     @node_hub_map[node][0]
