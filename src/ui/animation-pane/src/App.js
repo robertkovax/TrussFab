@@ -105,7 +105,7 @@ class App extends Component {
   };
 
   simulationJustBroke = () => {
-    if (this.state.timline.simluationBrokeAt === null) {
+    if (this.state.timeline.simluationBrokeAt === null) {
       window.showModal();
       this.setContainerState({
         timeline: { simluationBrokeAt: this.state.timeline.currentTime },
