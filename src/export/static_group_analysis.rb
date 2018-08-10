@@ -24,31 +24,27 @@ module StaticGroupAnalysis
       # axis
       rotation_partners = Hash.new { |h, k| h[k] = Set.new }
 
-      actuators.each do |actuator|
-        edges_without_actuator = actuator.connected_component.reject do |e|
-          e == actuator
-        end
-        triangle_pairs = edges_without_actuator.flat_map do |e|
-          valid_triangle_pairs(e, actuator)
-        end
-
-        original_angles = triangle_pair_angles(triangle_pairs)
-        start_simulation(actuator)
-        simulation_angles = triangle_pair_angles(triangle_pairs, true)
-
-        process_triangle_pairs(triangle_pairs, original_angles,
-                               simulation_angles,
-                               rotation_partners)
-
-        reset_simulation
+      triangle_pairs = edges.flat_map do |e|
+        valid_triangle_pairs(e)
       end
 
-      start_static_group_search(edges.reject(&:dynamic?), rotation_partners)
+      original_angles = triangle_pair_angles(triangle_pairs)
+
+      start_simulation(actuators)
+
+      simulation_angles = triangle_pair_angles(triangle_pairs, true)
+
+      process_triangle_pairs(triangle_pairs, original_angles,
+                             simulation_angles,
+                             rotation_partners)
+
+      start_static_group_search(edges.reject(&:dynamic?),
+                                rotation_partners)
     end
 
     private
 
-    MIN_ANGLE_DEVIATION = 0.001
+    MIN_ANGLE_DEVIATION = 0.0001
 
     def start_static_group_search(edges, rotation_partners)
       visited_triangles = Set.new
@@ -94,9 +90,9 @@ module StaticGroupAnalysis
       end
     end
 
-    def valid_triangle_pairs(edge, actuator)
+    def valid_triangle_pairs(edge)
       edge.sorted_adjacent_triangle_pairs.select do |pair|
-        pair.all? { |t| t.complete? && t.edges.none? { |e| e == actuator } }
+        pair.all?(&:complete?)
       end
     end
 
@@ -137,21 +133,21 @@ module StaticGroupAnalysis
       end
     end
 
-    def start_simulation(edge)
+    def start_simulation(edges)
       @simulation = Simulation.new
+      @simulation.disable_coloring
       @simulation.setup
       @simulation.disable_gravity
-      piston = edge.link.joint
-      # don't extend all the way in order not to break structure
-      # TODO: find a better way to extend actuator without breaking structure
-      piston.controller = edge.link.max / 4.0 if piston
-      @simulation.start
-      @simulation.update_world_headless_by(2)
-    end
 
-    def reset_simulation
-      @simulation.reset
-      @simulation = nil
+      edges.each do |edge|
+        piston = edge.link.joint
+        # don't extend all the way in order not to break structure
+        # TODO: find a better way to extend actuator without breaking structure
+        piston.controller = edge.link.max / 4.0 if piston
+      end
+
+      @simulation.start
+      @simulation.update_world_headless_by(1.0)
     end
   end
 end
