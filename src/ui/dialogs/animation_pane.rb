@@ -8,10 +8,11 @@ class AnimationPane
   def initialize
     @simulation_tool = SimulationTool.new(self)
     @width = 455
-    # @width = 640 # for dev
+    @dev_width = 570 # for dev
     @height = 300
 
-    @collapsed = true
+    @collapsed = false
+    @dev_mode = true
     @collapsed_width = 53
     @animation_values = []
   end
@@ -22,21 +23,22 @@ class AnimationPane
 
     props = {
       # resizable: false,
-      width: @width,
+      width: @dev_width,
       height: @height,
       left: left,
       top: top,
-      # min_width: @width,
+      min_width: @dev_width,
       # min_height: @height,
-      # max_width: @width,
+      max_width: @dev_width,
       # max_height: @height
     }
 
     @dialog = UI::HtmlDialog.new(props)
     file = File.join(File.dirname(__FILE__), HTML_FILE)
     @dialog.set_file(file)
-    @dialog.set_position(left, top)
-    @dialog.set_size(@collapsed_width, @height)
+    # if this is commented in, the window size will be reset on every start
+    # @dialog.set_position(@left, @top)
+    @dialog.set_size(@dev_width, @height)
     @dialog.show
 
     register_callbacks
@@ -81,6 +83,13 @@ class AnimationPane
   end
 
   def toggle_dev_mode
+    if @dev_mode
+      @dialog.set_size(@width, @height)
+      @dev_mode = false
+    else
+      @dialog.set_size(@dev_width, @height)
+      @dev_mode = true
+    end
     @dialog.execute_script('toggleDevMode()')
   end
 

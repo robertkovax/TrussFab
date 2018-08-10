@@ -46,8 +46,9 @@ class Sidebar
     @dialog = UI::HtmlDialog.new(props)
     file = File.join(File.dirname(__FILE__), HTML_FILE)
     @dialog.set_file(file)
-    @dialog.set_position(@left, @top)
-    @dialog.set_size(@width, @height)
+    # if this is commented in, the window size will be reset on every start
+    # @dialog.set_position(@left, @top)
+    # @dialog.set_size(@width, @height)
     @dialog.show
     @dialog.add_action_callback('documentReady') { register_callbacks }
     @dialog.add_action_callback('buttonClicked') do |_, button_id|
@@ -76,6 +77,10 @@ class Sidebar
   def refresh
     file = File.join(File.dirname(__FILE__), HTML_FILE)
     @dialog.set_file(file)
+  end
+
+  def toggle_dev_mode
+    @dialog.execute_script('toggleDevMode();')
   end
 
   private

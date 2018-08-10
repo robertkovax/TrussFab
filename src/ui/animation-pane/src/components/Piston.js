@@ -155,7 +155,6 @@ class Piston extends React.Component {
     const {
       id,
       index,
-      devMode,
       simulationIsRunning,
       timelineSeconds,
       timeSelection,
@@ -209,7 +208,7 @@ class Piston extends React.Component {
             <button onClick={this.addKeyframe} className="add-new-kf" id={id}>
               <img
                 alt="rhomus"
-                style={devMode ? {} : { height: 15, width: 15 }}
+                style={{ height: 15, width: 15 }}
                 src="../../trussfab-globals/assets/icons/rhombus.png"
               />
             </button>
