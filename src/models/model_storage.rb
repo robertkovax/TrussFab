@@ -34,7 +34,7 @@ class ModelStorage
     end
 
     if @models['hard'].nil? || !@models['hard'].valid?
-      @models['hard'] = BottleModel.new('hard', Configuration::HARD_MODELS)
+      @models['hard'] = BottleModel.new('hard', bottle_specifications)
     end
 
     if @models['actuator'].nil? || !@models['actuator'].valid?
@@ -64,5 +64,24 @@ class ModelStorage
     if @models['sensor'].nil? || !@models['sensor'].valid?
       @models['sensor'] = SensorModel.new
     end
+  end
+
+  def bottle_specifications
+    specifications = []
+    puts 'Loaded files:'
+    Dir.glob(ProjectHelper.component_directory + '/*.skp') do |model_file_path|
+      # File scheme is '.../number-name-short_name-weight_in_grams.skp'
+      file_name = File.basename(model_file_path, '.skp')
+      next unless /^\d*-[^-]*-[^-]*-\d*\z/ =~ file_name
+      puts file_name
+      _, name, short_name, weight_in_grams = file_name.split('-')
+      model = {}
+      model[:PATH] = model_file_path
+      model[:NAME] = name
+      model[:SHORT_NAME] = short_name
+      model[:WEIGHT] = weight_in_grams.to_f / 1000
+      specifications.push model
+    end
+    specifications
   end
 end

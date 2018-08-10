@@ -125,12 +125,12 @@ module JsonImport
         edge.first_node.incidents.each do |first_incident|
           edge.second_node.incidents.each do |second_incident|
             next if first_incident == second_incident ||
-                    (first_incident.opposite(edge.first_node) !=
-                    second_incident.opposite(edge.second_node))
+              (first_incident.opposite(edge.first_node) !=
+                second_incident.opposite(edge.second_node))
             triangle = Graph.instance
-                            .create_triangle(edge.first_node,
-                                             edge.second_node,
-                                             first_incident
+                         .create_triangle(edge.first_node,
+                                          edge.second_node,
+                                          first_incident
                                             .opposite(edge.first_node))
             triangles[triangle.id] = triangle
           end
@@ -183,7 +183,13 @@ module JsonImport
         # For backward compatibility with SU2016 JSON files
         link_type = 'bottle_link' if link_type == 'LinkTypes::BOTTLE_LINK'
 
-        bottle_type = edge_json['bottle_type'].nil? ? '' : edge_json['bottle_type']
+        bottle_type = edge_json['bottle_type']
+        unless bottle_type.nil? ||
+          ModelStorage.instance.models['hard'].models.keys.include?(bottle_type)
+          puts "The link type #{bottle_type} is not loaded into TrussFab."
+          puts 'It will be replaced by the by the best fitting type found.'
+          bottle_type = nil
+        end
         edge = Graph.instance.create_edge_from_points(first_position,
                                                       second_position,
                                                       bottle_type: bottle_type,

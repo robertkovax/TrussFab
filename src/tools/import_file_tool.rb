@@ -8,8 +8,9 @@ class ImportFileTool < ImportTool
   end
 
   def activate
+    @path = Configuration::JSON_PATH if @path.nil?
     @path = UI.openpanel('Open JSON',
-                         Configuration::JSON_PATH,
+                         @path,
                          'JSON File|*.json;||')
   end
 
