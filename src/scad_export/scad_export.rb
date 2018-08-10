@@ -264,7 +264,9 @@ class ScadExport
                                                      l1.to_mm,
                                                      l2.to_mm,
                                                      l3.to_mm,
-                                                     direction)
+                                                     direction,
+                                                     edge.bottle_length_short_name
+                                                     )
         export_hub.add_elongation(export_elongation)
       end
 

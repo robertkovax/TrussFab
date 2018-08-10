@@ -67,6 +67,7 @@ module Configuration
   HARD_MODELS = [
     {
       NAME: BIG_BIG_BOTTLE_NAME,
+      SHORT_NAME: 'L',
       WEIGHT: 0.16,
       PATH: ProjectHelper.component_directory +
         '/1-big-big-double-bottle(60cm).skp',
@@ -74,6 +75,7 @@ module Configuration
     },
     {
       NAME: SMALL_BIG_BOTTLE_NAME,
+      SHORT_NAME: 'M',
       WEIGHT: 0.14,
       PATH: ProjectHelper.component_directory +
         '/2-small-big-double-bottle(53cm).skp',
@@ -81,6 +83,7 @@ module Configuration
     },
     {
       NAME: SMALL_SMALL_BOTTLE_NAME,
+      SHORT_NAME: 'S',
       WEIGHT: 0.11,
       PATH: ProjectHelper.component_directory +
         '/3-small-small-double-bottle(46cm).skp',
@@ -88,6 +91,7 @@ module Configuration
     },
     {
       NAME: BIG_BOTTLE_NAME,
+      SHORT_NAME: 'l',
       WEIGHT: 0.078,
       PATH: ProjectHelper.component_directory +
         '/4-big-single-bottle(30cm).skp',
@@ -95,6 +99,7 @@ module Configuration
     },
     {
       NAME: SMALL_BOTTLE_NAME,
+      SHORT_NAME: 's',
       WEIGHT: 0.048,
       PATH: ProjectHelper.component_directory +
         '/5-small-single-bottle(23cm).skp',

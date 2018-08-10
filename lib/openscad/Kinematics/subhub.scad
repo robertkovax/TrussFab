@@ -1,5 +1,6 @@
 use <../Util/line_calculations.scad>
 use <../Util/construct_at_position.scad>
+use <../Util/text_on.scad>
 use <util.scad>
 
 // some small value
@@ -9,6 +10,11 @@ small_point_radius = 0.00001;
 
 // does not really matter, we just have to assigne some propery value to the vectors
 vector_l12_distance_factor = 10;
+
+
+text_size = 7;
+text_spacing = 0.9;
+text_printin = 1; // how much mm goes into
 
 // all credits Robert Kovacs
 function angle_to_distance_to_pull(alpha, r) = sqrt(pow(r / sin((alpha * 1.2) / 2), 2) - pow(r, 2));
@@ -68,13 +74,15 @@ module construct_spheres(outer_radius, inner_radius) {
   }
 }
 
+
+// idea:
+// 1) from the given vectors, calculate vectors that are pushed inwards. That cut away a poligon bases on the pushed in values and substract it. 
+// 2) Push vectors out so we have a wall (thickness: distance between pushed out and pushed in vectors).
 module construct_base_model(vectors, l1, l2, round_size, bottom_radius_play, edge_sphere_push_out, edge_sphere_pull_in) {
   l12 = l1 + l2;
  
   push_out_distances =  edge_sphere_push_out != undef ? edge_sphere_push_out : get_distance_to_pull_put(vectors, round_size);
   pull_in_distances = edge_sphere_pull_in != undef ? edge_sphere_pull_in :  [ for(i = [0 : len(vectors) - 1]) push_out_distances[i] > round_size ? (-push_out_distances[i] - 1) : -round_size - 1];  echo(round_size);
-    
-  echo(push_out_distances, pull_in_distances);
   
   pushed_out = push_or_pull_each_vector(vectors, l12 * vector_l12_distance_factor, push_out_distances);
   pulled_in = push_or_pull_each_vector(vectors, l12 * vector_l12_distance_factor, pull_in_distances);
@@ -85,6 +93,9 @@ module construct_base_model(vectors, l1, l2, round_size, bottom_radius_play, edg
       construct_spheres(outer_radius=l12, inner_radius=l1 + bottom_radius_play);
     }
     union() {
+      // NB: This is a little bit hacky. We add the the vector [0, 0, 0] by including an out of boundary array.
+      // At least I think this is the reason why we have to `len(vectors)` instead of `len(vectors) - 1` to properly cut out.
+      // But I am not 100% sure, but I don't want to debug it now :/.
       for(i = [0 : len(vectors)]) {
         v = vectors[i];
         translate(pushed_out[i][0])
@@ -169,43 +180,38 @@ module construct_screw_hole(vector, l1, l2, l3, connector_end_extra_height, hole
   construct_cylinder_at_position(vector, 0, l1 + l2 + l3 + connector_end_extra_height + fix_rounding_issue, hole_size);
 }
 
-
+// connections are in arrays. The order within the array is crucial. Neighboring connectors have to also be neighbor in the array.
 module draw_subhub(
   normal_vectors, // array of vectors
-  gap_types, // array o
-  connector_types,
-  l1,
-  l2,
-  l3, // array of l3
-  round_size,
-  hole_size,
-  gap_epsilon,
-  gap_extra_round_size,
-  connector_end_round,
-  connector_end_heigth,
-  connector_end_extra_round,
-  connector_end_extra_height,
+  gap_types, // array of gap types
+  connector_types, // array of gap types
+  labels, // array of labels
+  node_label, // string
+  l1, // number
+  l2, // number
+  l3, // array of numbers
+  round_size, // number
+  hole_size, // number
+  gap_epsilon, // number
+  gap_extra_round_size, // number
+  connector_end_round, // number
+  connector_end_heigth, // number
+  connector_end_extra_round, // number
+  connector_end_extra_height, // number
   gap_cut_out_play=1,
   bottom_radius_play=3,
   edge_sphere_push_out=undef,
-  edge_sphere_pull_in=undef
+  edge_sphere_pull_in=undef,
   ) {
   vectors = vector_l12_distance_factor * (l1 + l2) * normal_vectors;
 
   normal_middle_vector = norm_v(get_average_vector(normal_vectors));
-  
-//  echo(normal_middle_vector);
-//  echo(norm(normal_middle_vector));
-//  construct_cylinder_at_position(normal_middle_vector, 0, 200, 5);
-//  construct_cylinder_at_position(normal_vectors[0], 0, 200, 5);
-//  construct_cylinder_at_position(normal_vectors[1], 0, 200, 5);
-//  construct_cylinder_at_position(normal_vectors[2], 0, 200, 5);
 
   difference() {
     union() {
       construct_base_model(vectors, l1, l2, round_size, bottom_radius_play, edge_sphere_push_out, edge_sphere_pull_in);
 
-      for (i=[0:len(normal_vectors)]) {
+      for (i=[0 : len(normal_vectors) - 1]) {
         if (gap_types[i] != undef) {
           construct_cylinder_at_position(normal_vectors[i], l1, l2, round_size);
         }
@@ -216,7 +222,7 @@ module draw_subhub(
       }
     }
     union() {
-      for (i=[0:len(normal_vectors)]) {
+      for (i=[0 : len(normal_vectors) - 1]) {
       construct_screw_hole(normal_vectors[i], l1, l2, l3[i], connector_end_extra_height, hole_size);
         if (gap_types[i] == "a") {
           construct_a_gap(normal_vectors[i], l1, l2, gap_epsilon, gap_extra_round_size, round_size, normal_middle_vector, gap_cut_out_play);
@@ -225,45 +231,52 @@ module draw_subhub(
           construct_b_gap(normal_vectors[i], l1, l2, gap_epsilon, gap_extra_round_size, round_size, normal_middle_vector, gap_cut_out_play);
         }
       }
+      
+        factor_1 = 2/5;
+        factor_2 = 1 - factor_1;
+        for(i = [0 : len(vectors) - 1]) {
+          v = factor_1 * normal_vectors[i] + factor_2 * normal_vectors[next_i(i, len(vectors))];
+          construct_text_on_sphere_at_position(v, r=l1 + l2 - text_printin, t=labels[i], size=text_size, spacing=text_spacing);
+        }
+        
+        v = factor_2 * normal_vectors[0] + factor_1 * normal_vectors[1];
+        construct_text_on_sphere_at_position(v, r=l1 + l2 - text_printin, t=node_label, size=text_size, spacing=text_spacing);
     }
   }
 }
 
 // for dev only
 
-normal_vector1 = [1, 1, 0];
-normal_vector2 = [0, 1, 0];
-normal_vector3 = [0, 0, 1];
-
-
 draw_subhub(
-normal_vectors = [ norm_v(normal_vector1), norm_v(normal_vector2), norm_v(normal_vector3) ],
-//normal_vectors = [
-//- [0.9906250734578931, -0.02591247775002514, -0.13412869690486925],
-//- [0.6035773980223504, -0.13727568779890292, 0.7853978037503716],
-//- [0.5134913486004344, -0.8229693719656428, 0.242998040566138]],
-gap_types = [
-"b",
-"a",
-"a"],
-connector_types = [
+//  edge_sphere_push_out=[10, 10, 10],
+//  edge_sphere_pull_in=[-200, -15, -15],
+  normal_vectors = [
+[-0.46176692401208635, -0.16536591594381367, -0.8714501831616537],
+[-0.6551289426291086, -0.749701407957592, -0.09356210470094439],
+[0.16757988774483643, -0.7477098404652285, -0.6425316923661359]],
+  gap_types = [
 "none",
+"none",
+"b"],
+  connector_types = [
 "bottle",
-"bottle"],
-l1 = 40.0,
-l3 = [
-14.036058111910798,
-14.36289336298551,
-14.851815572367414],
-round_size=12.0,
-gap_epsilon=0.8,
-connector_end_round=15.0,
-connector_end_heigth=3.7,
-connector_end_extra_round=11.45,
-connector_end_extra_height=7.0,
-gap_extra_round_size=0.1,
-hole_size=3.2,
-edge_sphere_push_out=[15,15, 5],
-edge_sphere_pull_in=[-200,-15, -15],
-l2=40.0);
+"bottle",
+"none"],
+labels=["aaa", "bbb", "ccc"],
+node_label="NDD",
+  l1 = 35.0,
+  l3 = [
+13.871094099104516,
+14.788289754398557,
+7.8091161942186185],
+  connector_end_extra_height=7.0,
+  connector_end_extra_round=9.95,
+  connector_end_heigth=3.7,
+  connector_end_round=15.0,
+  gap_epsilon=0.8,
+  gap_extra_round_size=3.0,
+  hole_size=3.2,
+  l2=40.0,
+  round_size=12.0
+);
 
