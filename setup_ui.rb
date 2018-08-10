@@ -1,6 +1,10 @@
 # returns list of all files in folder and all subfolders
 def all_folders(folder)
-  Dir.chdir(folder) { Dir.glob("**/*").map {|path| File.expand_path(path) } }
+  all = Dir.chdir(folder) { Dir.glob("**/*").map { |path| File.expand_path(path) } }
+  filtered = all.select do |file|
+    not File.directory? file
+  end
+  filtered
 end
 
 # returns the date of the last modified file in a directory

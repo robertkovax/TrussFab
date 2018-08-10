@@ -4,6 +4,7 @@ require 'src/algorithms/rigidity_tester.rb'
 require 'src/export/node_export_interface'
 require 'src/export/static_group_analysis'
 require 'src/export/node_export_visualization'
+require 'src/export/elongation_manager'
 
 # This class determines the placement of hubs, subhubs and hinges.
 # For finding out hinge positions, static group analysis is used.
@@ -19,6 +20,7 @@ class NodeExportAlgorithm
   end
 
   def run
+    nodes = Graph.instance.nodes.values
     edges = Graph.instance.edges.values
 
     static_groups = StaticGroupAnalysis.find_static_groups
@@ -62,7 +64,7 @@ class NodeExportAlgorithm
     @export_interface.apply_hinge_algorithm
 
     Sketchup.active_model.start_operation('elongate edges', true)
-    @export_interface.elongate_edges
+    ElongationManager.improve_elongations(@export_interface, nodes, false)
     Sketchup.active_model.commit_operation
 
     Sketchup.active_model.start_operation('visualize export result', true)
