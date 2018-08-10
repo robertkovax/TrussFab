@@ -5,6 +5,7 @@ require 'src/simulation/simulation.rb'
 # Hub
 class Hub < PhysicsSketchupObject
   attr_accessor :position, :body, :mass, :arrow
+  attr_reader :force
 
   def initialize(position, id: nil, incidents: nil, material: 'hub_material')
     super(id, material: material)
@@ -30,19 +31,24 @@ class Hub < PhysicsSketchupObject
     pod
   end
 
-  def add_force_arrow
+  def update_force_arrow
     Sketchup.active_model.start_operation('Hub: Add Force Arrow', true)
     point = Geom::Point3d.new(@position)
-    point.z += 1
-    if @arrow.nil?
-      model = ModelStorage.instance.models['force_arrow']
-      transform = Geom::Transformation.new(point)
-      @arrow = Sketchup.active_model
-                       .active_entities
-                       .add_instance(model.definition, transform)
-    else
-      @arrow.transform!(Geom::Transformation.scaling(point, 1.5))
+    alignment_vec = Geom::Vector3d.new(0, 0, 1)
+    unless @arrow.nil?
+      @arrow.erase!
+      @arrow = nil
     end
+    return if @force.length == 0
+    model = ModelStorage.instance.models['force_arrow']
+    transform = Geom::Transformation.new(point + alignment_vec)
+    @arrow = Sketchup.active_model
+               .active_entities
+               .add_instance(model.definition, transform)
+    @arrow.transform!(
+      Geom::Transformation.scaling(point + alignment_vec, Math::log(@force.length, 2) / 10) *
+        Geometry.rotation_transformation(Geom::Vector3d.new(0, 0, -1), @force, point)
+    )
     Sketchup.active_model.commit_operation
   end
 
@@ -54,8 +60,8 @@ class Hub < PhysicsSketchupObject
       model = ModelStorage.instance.models['weight_indicator']
       transform = Geom::Transformation.new(point)
       @weight_indicator = Sketchup.active_model
-                                  .active_entities
-                                  .add_instance(model.definition, transform)
+                            .active_entities
+                            .add_instance(model.definition, transform)
     else
       @weight_indicator.transform!(Geom::Transformation.scaling(point, 1.5))
     end
@@ -66,7 +72,7 @@ class Hub < PhysicsSketchupObject
     return if object.nil?
     old_pos = object.transformation.origin
     movement_vec = Geom::Transformation.translation(old_pos.vector_to(position +
-                                                                      offset))
+                                                                        offset))
     object.move!(movement_vec * object.transformation)
   end
 
@@ -122,6 +128,7 @@ class Hub < PhysicsSketchupObject
   def delete
     @id_label.erase!
     @arrow.erase! unless @arrow.nil?
+    @arrow = nil
     @sensor_symbol.erase! unless @sensor_symbol.nil?
     @weight_indicator.erase! unless @weight_indicator.nil?
     super
@@ -140,8 +147,8 @@ class Hub < PhysicsSketchupObject
     transform = Geom::Transformation.new(point)
     Sketchup.active_model.start_operation('Hub: Add Sensor Symbol', true)
     @sensor_symbol = Sketchup.active_model
-                             .active_entities
-                             .add_instance(model.definition, transform)
+                       .active_entities
+                       .add_instance(model.definition, transform)
     @sensor_symbol.transform!(Geom::Transformation.scaling(point, 0.2))
     Sketchup.active_model.commit_operation
   end
@@ -169,7 +176,12 @@ class Hub < PhysicsSketchupObject
   end
 
   def add_force(force)
-    @force += force
+    self.force += force
+  end
+
+  def force=(force)
+    @force = force
+    update_force_arrow
   end
 
   def apply_force
