@@ -80,31 +80,6 @@ class NodeExportInterface
     end
   end
 
-  def elongate_edges
-    Edge.enable_bottle_freeze
-
-    nodes = Graph.instance.nodes.values
-
-    # find out all edges that need to be elongated and their corresponding node
-    elongated_edge_map = Hash.new { |h, k| h[k] = Set.new }
-    nodes.each do |node|
-      # edges that are part of a subhub need to be elongated
-      elongated_edges = subhubs_at_node(node).map { |hub| hub.edges }.flatten
-      # edges that are connected by hinges also need to be elongated
-      elongated_edges += hinges_at_node(node)
-                         .map { |hinge| [hinge.edge1, hinge.edge2] }.flatten
-      elongated_edges.uniq!
-      # don't elongated edges that have a dynamic size
-      elongated_edges.reject!(&:dynamic?)
-
-      elongated_edges.each { |edge| elongated_edge_map[edge].add(node) }
-    end
-
-    elongate_edges_with_tuples(elongated_edge_map)
-
-    Edge.disable_bottle_freeze
-  end
-
   private
 
   def find_adjacent_parts(part, parts)
@@ -262,63 +237,5 @@ class NodeExportInterface
     end
 
     new_hinges
-  end
-
-  def elongate_edges_with_tuples(elongated_edge_map)
-    l2 = PRESETS::L2
-    l3_min = PRESETS::L3_MIN
-
-    loop do
-      relaxation = Relaxation.new
-      is_finished = true
-
-      elongated_edge_map.each do |edge, nodes|
-        # if pods are fixed and edge can not be elongated, raise error
-        edge_fixed = edge.nodes.any?(&:fixed?)
-        if edge_fixed
-          raise "#{edge.inspect} is fixed, e.g. by a pod, but needs to be "\
-                'elongated since a hinge connects to it.'
-        end
-
-        new_first_elongation_length = edge.first_elongation_length
-        new_second_elongation_length = edge.second_elongation_length
-
-        nodes.each do |node|
-          l1 = l1_at_node(node)
-          target_elongation = l1 + l2 + l3_min
-
-          if node == edge.first_node
-            new_first_elongation_length = target_elongation
-          elsif node == edge.second_node
-            new_second_elongation_length = target_elongation
-          else
-            raise 'Logic error during node export: '\
-                  'Node ' + node.to_s + ' is not connected to edge ' + edge.to_s
-          end
-        end
-
-        next if new_first_elongation_length <= edge.first_elongation_length &&
-                new_second_elongation_length <= edge.second_elongation_length
-
-        total_old_elongation =
-          edge.first_elongation_length + edge.second_elongation_length
-
-        total_new_elongation =
-          new_first_elongation_length + new_second_elongation_length
-
-        edge.link.elongation_ratio =
-          new_first_elongation_length / total_new_elongation
-
-        relaxation.stretch_to(edge,
-                              edge.length - total_old_elongation +
-                                total_new_elongation + 10.mm)
-
-        is_finished = false
-      end
-
-      break if is_finished
-
-      relaxation.relax
-    end
   end
 end

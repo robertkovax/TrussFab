@@ -159,6 +159,19 @@ module JsonImport
       points
     end
 
+    def parse_elongation(elongation)
+      # For backward compatibility with SU2016 JSON files
+      if elongation.is_a?(String)
+        elongation.sub!('~ ', '') if elongation.include?('~ ')
+        elongation.to_f.mm
+      # Sketchup 2017
+      elsif elongation.is_a?(Numeric)
+        elongation.mm
+      else
+        raise 'Unknown elongation specification during JSON import.'
+      end
+    end
+
     def build_edges(json_objects, positions)
       edges = {}
       nodes = {}
@@ -178,8 +191,8 @@ module JsonImport
 
         # recreate elongation ratio
         unless edge_json['e1'].nil? || edge_json['e2'].nil?
-          first_elongation_length = edge_json['e1'].to_f.mm
-          second_elongation_length = edge_json['e2'].to_f.mm
+          first_elongation_length = parse_elongation(edge_json['e1'])
+          second_elongation_length = parse_elongation(edge_json['e2'])
 
           total_elongation_length =
             first_elongation_length + second_elongation_length
