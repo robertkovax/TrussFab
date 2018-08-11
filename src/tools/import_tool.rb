@@ -16,7 +16,6 @@ class ImportTool < Tool
 
   def onKeyDown(key, _repeat, _flags, _view)
     super
-    puts @angle
     if key == VK_RIGHT
       @angle -= (2.0 / 3) * Math::PI
       rotate_model
