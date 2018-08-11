@@ -28,8 +28,6 @@ class GeneticActuatorPlacementTool < Tool
     Sketchup.active_model.commit_operation
   end
 
-  def activate; end
-
   def deactivate(view)
     super(view)
     reset
