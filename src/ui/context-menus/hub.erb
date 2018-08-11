@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="de">
+<link rel="stylesheet" href="../css/ui.css" type="text/css">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hub Menu</title>
+</head>
+<body onload="init()">
+Hub position:<br>
+<input type="text" id="position-x" onchange="set_position()">m
+<input type="text" id="position-y" onchange="set_position()">m
+<input type="text" id="position-z" onchange="set_position()">m
+<br>
+<button type="button" onclick="set_position()">set</button>
+<br>
+Force: <br>
+<input type="text" id="force-x" onchange="set_force()">N
+<input type="text" id="force-y" onchange="set_force()">N
+<input type="text" id="force-z" onchange="set_force()">N
+<br>
+
+<script type="text/javascript">
+  function init() {
+    var x = document.getElementById("position-x");
+    x.value = <%= @node.position.x.to_m %>;
+    var y = document.getElementById("position-y");
+    y.value = <%= @node.position.y.to_m %>;
+    var z = document.getElementById("position-z");
+    z.value = <%= @node.position.z.to_m %>;
+
+    var force_x = document.getElementById("force-x");
+    force_x.value = <%= @node.hub.force.x %>;
+    var force_y = document.getElementById("force-y");
+    force_y.value = <%= @node.hub.force.y %>;
+    var force_z = document.getElementById("force-z");
+    force_z.value = <%= @node.hub.force.z %>;
+  }
+
+  function set_position() {
+    var x = document.getElementById("position-x");
+    var y = document.getElementById("position-y");
+    var z = document.getElementById("position-z");
+    sketchup.set_position([x.value,y.value,z.value]);
+  }
+  function set_force() {
+    var x = document.getElementById("force-x");
+    var y = document.getElementById("force-y");
+    var z = document.getElementById("force-z");
+    sketchup.set_force([x.value,y.value,z.value]);
+  }
+</script>
+</body>
+</html>

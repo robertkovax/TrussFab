@@ -11,7 +11,8 @@ class ForceChart
                                        '../force-chart/sensor_overview.erb'))
     template = ERB.new(file_content)
     @dialog.set_html(template.result(binding))
-    @dialog.set_size(300, Configuration::UI_HEIGHT)
+    # if this is commented in, the window size will be reset on every start
+    # @dialog.set_size(300, Configuration::UI_HEIGHT)
     @dialog.show
   end
 

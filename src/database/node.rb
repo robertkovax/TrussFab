@@ -30,6 +30,15 @@ class Node < GraphObject
     hub.position = position
   end
 
+  def move_to(position)
+    Sketchup.active_model.start_operation('move node and relax', true)
+    relaxation = Relaxation.new
+    relaxation.move_and_fix_node(self, position)
+    relaxation.relax
+    hub.update_position position
+    Sketchup.active_model.commit_operation
+  end
+
   # Moves all connected components
   # this is very slow. Only do this if necessary (i.e. not in simulation)
   def update_sketchup_object
@@ -117,10 +126,6 @@ class Node < GraphObject
     adjacent_nodes.include?(other_node)
   end
 
-  def dangling?
-    @incidents.empty?
-  end
-
   def connected_component
     return if @incidents.empty?
     @incidents[0].connected_component
@@ -201,5 +206,9 @@ class Node < GraphObject
 
   def create_sketchup_object(id)
     @sketchup_object = Hub.new(@position, id: id, incidents: incidents)
+  end
+
+  def dangling?
+    @incidents.empty?
   end
 end

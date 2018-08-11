@@ -30,12 +30,16 @@ module Configuration
 
   # SketchupObject Properties
   MINIMUM_ELONGATION    = 20.mm.freeze
-  DEFAULT_ELONGATION    = 30.mm.freeze
+  DEFAULT_ELONGATION    = 40.mm.freeze
   MAXIMUM_ELONGATION    = 100.mm.freeze
   BALL_HUB_RADIUS       = 14.mm.freeze
   STANDARD_BOTTLES      = 'hard'.freeze
   COVER_THICKNESS       = 20.mm.freeze
+  # Size of the rendered elongation
   ELONGATION_RADIUS     = 11.mm.freeze
+  # This value is used for finding out the minimum angle of elongations to
+  # each other
+  CONNECTOR_CUFF_RADIUS = 18
 
   # Paths
   JSON_PATH = (ProjectHelper.asset_directory + '/exports/').freeze
@@ -55,56 +59,6 @@ module Configuration
                          '/primitives/parallel.json').freeze
   ASSETS_HINGE_PATH = (ProjectHelper.asset_directory +
                       '/primitives/asset_hinge.json').freeze
-
-  BIG_BIG_BOTTLE_NAME = 'Big Big Double Bottle (60cm)'.freeze
-  SMALL_BIG_BOTTLE_NAME = 'Small Big Double Bottle (53cm)'.freeze
-  SMALL_SMALL_BOTTLE_NAME = 'Small Small Double Bottle (46cm))'.freeze
-  BIG_BOTTLE_NAME = 'Big Single Bottle (30cm)'.freeze
-  SMALL_BOTTLE_NAME = 'Small Single Bottle (30cm)'.freeze
-
-  # Model Settings
-  HARD_MODELS = [
-    {
-      NAME: BIG_BIG_BOTTLE_NAME,
-      SHORT_NAME: 'L',
-      WEIGHT: 0.16,
-      PATH: ProjectHelper.component_directory +
-        '/1-big-big-double-bottle(60cm).skp',
-      MODEL: 'hard'
-    },
-    {
-      NAME: SMALL_BIG_BOTTLE_NAME,
-      SHORT_NAME: 'M',
-      WEIGHT: 0.14,
-      PATH: ProjectHelper.component_directory +
-        '/2-small-big-double-bottle(53cm).skp',
-      MODEL: 'hard'
-    },
-    {
-      NAME: SMALL_SMALL_BOTTLE_NAME,
-      SHORT_NAME: 'S',
-      WEIGHT: 0.11,
-      PATH: ProjectHelper.component_directory +
-        '/3-small-small-double-bottle(46cm).skp',
-      MODEL: 'hard'
-    },
-    {
-      NAME: BIG_BOTTLE_NAME,
-      SHORT_NAME: 'l',
-      WEIGHT: 0.078,
-      PATH: ProjectHelper.component_directory +
-        '/4-big-single-bottle(30cm).skp',
-      MODEL: 'hard'
-    },
-    {
-      NAME: SMALL_BOTTLE_NAME,
-      SHORT_NAME: 's',
-      WEIGHT: 0.048,
-      PATH: ProjectHelper.component_directory +
-        '/5-small-single-bottle(23cm).skp',
-      MODEL: 'hard'
-    }
-  ].freeze
 
   # Colors
   STANDARD_COLOR            = Sketchup::Color.new(1.0, 1.0, 1.0)

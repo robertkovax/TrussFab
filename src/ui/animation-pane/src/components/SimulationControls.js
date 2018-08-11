@@ -94,8 +94,6 @@ class SimulationControls extends React.Component {
         SimulationControls.clearTimelineInterval();
         SimulationControls.removeLines();
 
-        pauseSimulation();
-
         setContainerState({
           timeline: {
             startedSimulationOnce: false,
@@ -314,7 +312,8 @@ class SimulationControls extends React.Component {
           borderRight: '1px solid lightgrey',
           height: '100%',
           paddingRight: '3px',
-          width: devMode ? '40px' : 'auto',
+          width: devMode ? '35px' : 'auto',
+          maxWidth: '30%',
         }}
       >
         <div
@@ -326,7 +325,7 @@ class SimulationControls extends React.Component {
             <button onClick={() => this.toggleSimulation(true)}>
               <img
                 alt="pause play"
-                style={devMode ? {} : { height: 25, width: 25 }}
+                style={{ height: 25, width: 25 }}
                 src={
                   startedSimulationOnce && !simulationPaused
                     ? '../../trussfab-globals/assets/icons/pause.png'
@@ -339,7 +338,7 @@ class SimulationControls extends React.Component {
             <button onClick={() => this.toggleSimulation(false)}>
               <img
                 alt="pause cycle play"
-                style={devMode ? {} : { height: 25, width: 25 }}
+                style={{ height: 25, width: 25 }}
                 src={
                   startedSimulationCycle && !simulationPaused
                     ? '../../trussfab-globals/assets/icons/pause.png'
@@ -352,39 +351,40 @@ class SimulationControls extends React.Component {
             <button onClick={this.triggerStopSimulation}>
               <img
                 alt="stop"
-                style={devMode ? {} : { height: 25, width: 25 }}
+                style={{ height: 25, width: 25 }}
                 src="../../trussfab-globals/assets/icons/stop.png"
               />
             </button>
           </div>
-          <div className={devMode ? 'col' : 'some-padding-top'}>
-            <button
-              onClick={() => {
-                if (windowCollapsed) {
-                  setTimeout(() => {
-                    this._addAllTimeSelectionLines();
-                  }, 100);
-                } else {
-                  this._removeAllTimeselection();
-                }
-                setContainerState({ windowCollapsed: !windowCollapsed });
-                togglePane();
-              }}
-            >
-              {windowCollapsed ? 'show' : 'hide'}
-            </button>
-          </div>
+          {!devMode && (
+            <div className={devMode ? 'col' : 'some-padding-top'}>
+              <button
+                onClick={() => {
+                  if (windowCollapsed) {
+                    setTimeout(() => {
+                      this._addAllTimeSelectionLines();
+                    }, 100);
+                  } else {
+                    this._removeAllTimeselection();
+                  }
+                  setContainerState({ windowCollapsed: !windowCollapsed });
+                  togglePane();
+                }}
+              >
+                {windowCollapsed ? 'show' : 'hide'}
+              </button>
+            </div>
+          )}
         </div>
-        {devMode && (
-          <SimulationForm
-            keyframesMap={keyframesMap}
-            simulationSettings={simulationSettings}
-            setContainerState={setContainerState}
-            timelineSeconds={seconds}
-            startedSimulationCycle={startedSimulationCycle}
-            startedSimulationOnce={startedSimulationOnce}
-          />
-        )}
+        <SimulationForm
+          keyframesMap={keyframesMap}
+          simulationSettings={simulationSettings}
+          setContainerState={setContainerState}
+          timelineSeconds={seconds}
+          startedSimulationCycle={startedSimulationCycle}
+          startedSimulationOnce={startedSimulationOnce}
+          devMode={devMode}
+        />
       </div>
     );
   }

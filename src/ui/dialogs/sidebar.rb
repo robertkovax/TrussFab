@@ -46,6 +46,7 @@ class Sidebar
     @dialog = UI::HtmlDialog.new(props)
     file = File.join(File.dirname(__FILE__), HTML_FILE)
     @dialog.set_file(file)
+    # if this is commented in, the window size will be reset on every start
     @dialog.set_position(@left, @top)
     @dialog.set_size(@width, @height)
     @dialog.show
@@ -76,6 +77,10 @@ class Sidebar
   def refresh
     file = File.join(File.dirname(__FILE__), HTML_FILE)
     @dialog.set_file(file)
+  end
+
+  def toggle_dev_mode
+    @dialog.execute_script('toggleDevMode();')
   end
 
   private
@@ -111,6 +116,7 @@ class Sidebar
     build_tool(BottleCountTool, 'bottle_count_tool')
     build_tool(RigidityTestTool, 'rigidity_test_tool')
     build_tool(HingeAnalysisTool, 'hinge_analysis_tool')
+    build_tool(OptimizeElongationTool, 'optimize_elongation_tool')
     build_tool(AutomaticActuatorsTool, 'automatic_actuators_tool')
     build_tool(GeneticActuatorPlacementTool, 'genetic_actuator_placement_tool')
     build_tool(ForceLimitTool, 'force_limit_tool')

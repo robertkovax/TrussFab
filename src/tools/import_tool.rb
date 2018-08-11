@@ -11,6 +11,40 @@ class ImportTool < Tool
     super
     @mouse_input = MouseInput.new(snap_to_surfaces: true)
     @path = nil
+    @angle = 0
+  end
+
+  def onKeyDown(key, _repeat, _flags, _view)
+    super
+    puts @angle
+    if key == VK_RIGHT
+      @angle -= (2.0 / 3) * Math::PI
+      rotate_model
+    elsif key == VK_LEFT
+      @angle += (2.0 / 3) * Math::PI
+      rotate_model
+    end
+  end
+
+  def rotate_model
+    return if @last_imported_edges.nil?
+    delete_edges @last_imported_edges
+    Sketchup.active_model.start_operation('rotate', true)
+    if @last_graph_object.is_a?(Triangle)
+      _, new_edges, animation = JsonImport.at_triangle(@path,
+                                                       @last_graph_object,
+                                                       angle: @angle)
+    else
+      _, new_edges, animation =
+        JsonImport.at_position(@path, @last_position, angle: @angle)
+    end
+    Sketchup.active_model.commit_operation
+    setup_new_edges(new_edges, animation)
+    @last_imported_edges = new_edges
+  end
+
+  def activate
+    BottleCounter.update_status_text
   end
 
   def onMouseMove(_flags, x, y, view)
@@ -18,6 +52,7 @@ class ImportTool < Tool
   end
 
   def onLButtonDown(_flags, x, y, view)
+    @angle = 0
     @mouse_input.update_positions(view, x, y)
     snapped_object = @mouse_input.snapped_object
     import_from_json(@path, snapped_object, @mouse_input.position)
@@ -57,6 +92,9 @@ class ImportTool < Tool
     else
       raise NotImplementedError
     end
+    @last_imported_edges = new_edges
+    @last_graph_object = graph_object
+    @last_position = position
     Sketchup.active_model.commit_operation
   end
 
@@ -71,12 +109,12 @@ class ImportTool < Tool
       right_back_top = new_bounds.corner(7)
       diagonal = Geom::Vector3d.new(left_front_bottom, right_back_top)
       new_bounds.add(right_back_top.offset(
-                       diagonal,
-                       Configuration::INTERSECTION_OFFSET
+        diagonal,
+        Configuration::INTERSECTION_OFFSET
       ))
       new_bounds.add(left_front_bottom.offset(
-                       diagonal.reverse,
-                       Configuration::INTERSECTION_OFFSET
+        diagonal.reverse,
+        Configuration::INTERSECTION_OFFSET
       ))
       oent = old_triangle.surface.entity
       next unless oent.valid?

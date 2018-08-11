@@ -27,6 +27,39 @@ class GrowShrinkTool < Tool
     view.invalidate
     Sketchup.active_model.commit_operation
   end
+
+  def activate
+    selection = Sketchup.active_model.selection
+    return if selection.nil? or selection.empty?
+
+    edges = []
+    selection.each do |entity|
+      next if entity.nil? || entity.deleted?
+
+      type = entity.get_attribute('attributes', :type)
+      id = entity.get_attribute('attributes', :id)
+
+      next if type.nil? || id.nil?
+
+      if type.include? "Link" or type.include? "PidController"
+        edge = Graph.instance.edges[id]
+        edges.push(edge) if edge
+      end
+    end
+
+    Sketchup.active_model.start_operation('grow/shrink edges and relax', true)
+    relaxation = Relaxation.new
+    edges.each do |edge|
+      alter_edge(edge, relaxation)
+    end
+    relaxation.relax
+    Sketchup.active_model.selection.clear
+    edges.each do |edge|
+      # TODO: Improvement: only select the bottle and not all children
+      Sketchup.active_model.selection.add edge.link.all_entities
+    end
+    Sketchup.active_model.commit_operation
+  end
 end
 
 # increases the size of an edge

@@ -25,7 +25,7 @@ class Edge < GraphObject
 
   def initialize(first_node,
                  second_node,
-                 bottle_type: Configuration::BIG_BIG_BOTTLE_NAME,
+                 bottle_type: nil,
                  id: nil, link_type: 'bottle_link')
     @first_node = first_node
     @second_node = second_node
@@ -33,6 +33,7 @@ class Edge < GraphObject
     @second_node.add_incident(self)
     @bottle_models = ModelStorage.instance.models['hard']
     @bottle_type = bottle_type
+    update_bottle_type if bottle_type.nil?
     @link_type = link_type
     edge_id = id.nil? ? IdManager.instance.generate_next_tag_id('edge') : id
     super(edge_id)

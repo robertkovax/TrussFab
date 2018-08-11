@@ -91,6 +91,7 @@ class Simulation
     @highest_force_mode = false
     @peak_force_mode = false
 
+    @disable_coloring = false
     @display_values = false
 
     hinge_layer = Sketchup.active_model.layers.at(Configuration::HINGE_VIEW)
@@ -165,6 +166,10 @@ class Simulation
     @world.set_gravity(0.0, 0.0, 0.0)
   end
 
+  def disable_coloring
+    @disable_coloring = true
+  end
+
   # Called when activates
   def setup
     @world = TrussFab::World.new
@@ -198,7 +203,7 @@ class Simulation
     begin
       hide_triangle_surfaces
       add_ground
-      assign_unique_materials
+      assign_unique_materials unless @disable_coloring
       @show_edges = rendering_options['EdgeDisplayMode']
       @show_profiles = rendering_options['DrawSilhouettes']
     rescue StandardError => err
@@ -661,14 +666,14 @@ class Simulation
       # we might skip the crucial forces involved
       rec_max_actuator_tensions
       rec_max_link_tensions if @peak_force_mode
-      Sketchup.active_model.start_operation('Sim: Visualize force', true)
-      if @highest_force_mode
-        visualize_highest_tension
-      else
-        visualize_tensions
-      end
-      Sketchup.active_model.commit_operation
     end
+    Sketchup.active_model.start_operation('Sim: Visualize force', true)
+    if @highest_force_mode
+      visualize_highest_tension
+    else
+      visualize_tensions
+    end
+    Sketchup.active_model.commit_operation
   end
 
   def update_world_headless_by(time_step, rec_max_tension = false)
@@ -687,14 +692,14 @@ class Simulation
       # we might skip the crucial forces involved
       rec_max_actuator_tensions
       rec_max_link_tensions if @peak_force_mode
-      Sketchup.active_model.start_operation('Sim: Visualize force', true)
-      if @highest_force_mode
-        visualize_highest_tension
-      else
-        visualize_tensions
-      end
-      Sketchup.active_model.commit_operation
     end
+    Sketchup.active_model.start_operation('Sim: Visualize force', true)
+    if @highest_force_mode
+      visualize_highest_tension
+    else
+      visualize_tensions
+    end
+    Sketchup.active_model.commit_operation
   end
 
   def update_entities

@@ -23,7 +23,6 @@ class AddForceTool < Tool
 
   def add_force_to_node(node)
     node.hub.add_force(Geom::Vector3d.new(0, 0, WEIGHT * GRAVITY)) # in N
-    node.hub.add_force_arrow
   end
 
   def add_force_to_surface(surface)
