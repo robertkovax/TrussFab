@@ -81,18 +81,27 @@ class MoveTool < Tool
   def move(snapped_node)
     @end_position = snapped_node.position unless snapped_node.nil?
     translation = @end_position - @start_node.position
+    return if translation.length.zero?
     nodes = breadth_search(@start_node)
     # While moving, we don't want hub's at the same position at any time,
-    # because they would be joined. Therefore we reverse the array. Then even if
-    # an end position in the same structure is chosen, the start_node will be
-    # moved last, and so no nodes will overlap
-    nodes.reverse.each do |node|
+    # because they would be joined.
+    plane = [@start_node.position, translation]
+    farthest = nodes.map { |p| p.position.distance_to_plane plane }.max
+    scaled_translation = translation
+    scaled_translation.length = farthest
+    # Because distance_to_plane is always > 0 in this implementation, we move
+    # the plane, so that we can be sure that all points are on one side.
+    plane = [@start_node.position + scaled_translation,
+             translation]
+    nodes.sort_by! { |p| p.position.distance_to_plane plane }
+    nodes.each do |node|
       end_position = node.position + translation
       node.update_position(end_position)
       node.update_sketchup_object
     end
     unless snapped_node.nil? || nodes.include?(snapped_node)
       @start_node.merge_into(snapped_node)
+      snapped_node.update_sketchup_object
     end
   end
 
