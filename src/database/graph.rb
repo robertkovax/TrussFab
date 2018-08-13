@@ -14,9 +14,9 @@ class Graph
   CLOSE_NODE_DIST = 50.mm
 
   def initialize
-    @edges = {}       # {(id => edge)}
-    @nodes = {}       # {(id => node)}
-    @triangles = {}   # {(id => triangle)}
+    @edges = {} # {(id => edge)}
+    @nodes = {} # {(id => node)}
+    @triangles = {} # {(id => triangle)}
   end
 
   def all_graph_objects
@@ -34,13 +34,15 @@ class Graph
   def create_edge_from_points(first_position,
                               second_position,
                               bottle_type: nil,
-                              link_type: 'bottle_link')
+                              link_type: 'bottle_link',
+                              use_best_model: false)
     first_node = create_node(first_position)
     second_node = create_node(second_position)
     edge = create_edge(first_node,
                        second_node,
                        bottle_type: bottle_type,
                        link_type: link_type)
+    edge.update_sketchup_object if use_best_model
     edge
   end
 
@@ -179,9 +181,9 @@ class Graph
   #
 
   def clear!
-    @edges = {}       # {(id => edge)}
-    @nodes = {}       # {(id => node)}
-    @triangles = {}   # {(id => triangle)}
+    @edges = {} # {(id => edge)}
+    @nodes = {} # {(id => node)}
+    @triangles = {} # {(id => triangle)}
     Sketchup.active_model.entities.clear!
   end
 
@@ -212,6 +214,7 @@ class Graph
 
   # nodes should never be created without a corresponding edge,
   # therefore private
+
   private
 
   def create_node(position)
