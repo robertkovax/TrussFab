@@ -13,6 +13,9 @@ module Configuration
   HINGE_VIEW = 'Hinge lines'.freeze
   ACTUATOR_VIEW = 'Actuators'.freeze
 
+  PIPE_MODE = true.freeze
+  WEIGHT_IN_GRAMS_PER_CM = 100.freeze
+
   # UI Dialog Properties
   HTML_DIALOG = {
     dialog_title: 'TrussFab',
