@@ -87,7 +87,7 @@ class MoveTool < Tool
     # because they would be joined.
     plane = [@start_node.position, translation]
     farthest = nodes.map { |p| p.position.distance_to_plane plane }.max
-    scaled_translation = translation
+    scaled_translation = Geom::Vector3d.new(translation)
     scaled_translation.length = farthest
     # Because distance_to_plane is always > 0 in this implementation, we move
     # the plane, so that we can be sure that all points are on one side.
