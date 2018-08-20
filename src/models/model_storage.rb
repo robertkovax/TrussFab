@@ -34,7 +34,7 @@ class ModelStorage
       @models['pod'] = PodModel.new
     end
 
-    if @models['hard'].nil? || !@models['hard'].valid
+    if @models['hard'].nil? || !@models['hard'].valid?
       if Configuration::PIPE_MODE
         @models['hard'] = PipeModel.new('hard')
       else
