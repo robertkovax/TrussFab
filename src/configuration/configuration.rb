@@ -14,7 +14,8 @@ module Configuration
   ACTUATOR_VIEW = 'Actuators'.freeze
 
   PIPE_MODE = true.freeze
-  WEIGHT_IN_GRAMS_PER_CM = 100.freeze
+  PIPE_WEIGHT_IN_GRAMS_PER_CM = 100.freeze
+  PIPE_ALLOWED_DIFFERENCE = 1.to_cm.freeze
 
   # UI Dialog Properties
   HTML_DIALOG = {

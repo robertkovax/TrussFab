@@ -40,7 +40,7 @@ class BottleCounter
           counts[edge.link.bottle_link.model.short_name] += 1
         end
       end
-      counts
+      counts.select{ |_,num| num > 0}
     end
   end
 end
