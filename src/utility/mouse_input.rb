@@ -63,13 +63,13 @@ class MouseInput
 
   def snap_to_object
     objects = []
-    if @snap_to_edges
-      edge = Graph.instance.closest_edge(@position)
-      objects.push(edge) unless edge.nil? || out_of_snap_tolerance?(edge)
-    end
     if @snap_to_nodes
       node = Graph.instance.closest_node(@position)
       objects.push(node) unless node.nil? || out_of_snap_tolerance?(node)
+    end
+    if @snap_to_edges
+      edge = Graph.instance.closest_edge(@position)
+      objects.push(edge) unless edge.nil? || out_of_snap_tolerance?(edge)
     end
     if @snap_to_surfaces
       surface = Graph.instance.closest_triangle(@position)
@@ -88,8 +88,6 @@ class MouseInput
       end
     end
     return if objects.empty?
-    @snapped_object = objects.min_by do |object|
-      object.distance(@position)
-    end
+    @snapped_object = objects.first
   end
 end
