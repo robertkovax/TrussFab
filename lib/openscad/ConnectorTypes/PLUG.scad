@@ -1,7 +1,7 @@
 include <../Models/BottlePrecomputed.scad>
 include <../Util/maths.scad>
 
-part="PLUG"; 
+part="PLUG";
 
 function getQuadMatForAngle(angle) = quat_to_mat4(quat([0,0,1],angle));
 
@@ -26,7 +26,7 @@ module drawPLUG() {
         }
     //bottle holder
     translate([0,0,-negativeHeightPLUGHOLE+0.5])
-    cylinder(r=holeRadiusPLUG, h=discHeightPLUGHOLE+2.5);
+    cylinder(r=holeRadiusPLUG, h=discHeightPLUGHOLE+6.5);
 }
 
 // There are differences but I don't know which version is better.
