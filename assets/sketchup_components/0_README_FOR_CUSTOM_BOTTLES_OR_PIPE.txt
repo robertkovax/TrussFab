@@ -17,3 +17,6 @@ Example:
 The 3D-File will be loaded, but the materials in the file will partly be overwritten for the trussfab color scheme. Try to create a Sketchup file with no material in it, as it will take more time to load the file. 
 The length of the connection will be the length of the model on the z-Axis.
 For best results, try to place the models bottom center in the origin of the coordinate system, and then the connection up on the z-Axis, centered around the z-Axis. For an example file just open the models in this folder.
+
+To load your own pipe model:
+Make sure the height of the model is correct, as we will just assume that it is 1cm and scale the connection accordingly.

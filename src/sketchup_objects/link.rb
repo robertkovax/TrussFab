@@ -1,5 +1,6 @@
 require 'src/sketchup_objects/link_entities/elongation.rb'
 require 'src/sketchup_objects/link_entities/bottle_link.rb'
+require 'src/sketchup_objects/link_entities/pipe_link.rb'
 require 'src/sketchup_objects/link_entities/line.rb'
 require 'src/simulation/simulation.rb'
 require 'src/sketchup_objects/physics_sketchup_object.rb'
@@ -96,7 +97,7 @@ class Link < PhysicsSketchupObject
 
   def update_positions(first_position, second_position)
     return if first_position == @first_position &&
-              second_position == @second_position
+      second_position == @second_position
 
     @position = first_position
     @second_position = second_position
@@ -127,15 +128,15 @@ class Link < PhysicsSketchupObject
     # all this work :(
     transform = Geom::Transformation.new(point)
     @sensor_symbol = Sketchup.active_model
-                             .active_entities
-                             .add_instance(model.definition, transform)
+                       .active_entities
+                       .add_instance(model.definition, transform)
     image_normal = Geom::Vector3d.new(0, 0, 1)
     floor_normal = Geom::Vector3d.new(0, 0, 1)
     link_dir = @position.vector_to(@second_position)
     second_angle = link_dir.angle_between(floor_normal)
     rotation = Geom::Transformation
-               .rotation(point, link_dir,
-                         link_dir.angle_between(link_dir.cross(floor_normal)))
+                 .rotation(point, link_dir,
+                           link_dir.angle_between(link_dir.cross(floor_normal)))
     @sensor_symbol.transform!(rotation)
     image_normal.transform!(rotation)
     rotation2 = Geom::Transformation.rotation(point,
@@ -267,10 +268,17 @@ class Link < PhysicsSketchupObject
 
     link_position = @position.offset(@first_elongation.direction)
 
-    add(@first_elongation,
-        BottleLink.new(link_position, direction, @model, id: @id),
-        Line.new(@position, @second_position, LINK_LINE),
-        @second_elongation)
+    if Configuration::PIPE_MODE
+      add(@first_elongation,
+          PipeLink.new(link_position, direction, @model, id: @id),
+          Line.new(@position, @second_position, LINK_LINE),
+          @second_elongation)
+    else
+      add(@first_elongation,
+          BottleLink.new(link_position, direction, @model, id: @id),
+          Line.new(@position, @second_position, LINK_LINE),
+          @second_elongation)
+    end
   end
 
   def create_elongations

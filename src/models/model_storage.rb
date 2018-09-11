@@ -9,6 +9,7 @@ require 'src/models/force_arrow_model.rb'
 require 'src/models/weight_indicator_model.rb'
 require 'src/models/sensor_model.rb'
 require 'src/models/pid_model.rb'
+require 'src/models/pipe_model.rb'
 
 # Model Storage
 class ModelStorage
@@ -34,7 +35,11 @@ class ModelStorage
     end
 
     if @models['hard'].nil? || !@models['hard'].valid?
-      @models['hard'] = BottleModel.new('hard', bottle_specifications)
+      if Configuration::PIPE_MODE
+        @models['hard'] = PipeModel.new('hard')
+      else
+        @models['hard'] = BottleModel.new('hard', bottle_specifications)
+      end
     end
 
     if @models['actuator'].nil? || !@models['actuator'].valid?
