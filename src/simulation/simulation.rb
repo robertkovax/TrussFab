@@ -199,7 +199,6 @@ class Simulation
     # Setup stuff
     model = Sketchup.active_model
     rendering_options = model.rendering_options
-    model.start_operation('Starting Simulation', true)
     begin
       hide_triangle_surfaces
       add_ground
@@ -210,8 +209,6 @@ class Simulation
       model.abort_operation
       raise err
     end
-
-    model.commit_operation
   end
 
   # Called when deactivates
@@ -223,7 +220,6 @@ class Simulation
 
     @sensor_output_csv.close if TrussFab.store_sensor_output?
 
-    model.start_operation('Resetting Simulation', true)
     begin
       remove_ground
       reset_positions if @reset_positions_on_end
@@ -240,7 +236,6 @@ class Simulation
       model.abort_operation
       raise err
     end
-    model.commit_operation
 
     reset_tested_pistons
   end
@@ -363,8 +358,12 @@ class Simulation
     end
   end
 
-  def schedule_piston_for_testing(edge)
-    @moving_pistons.push(id: edge.id.to_i, expanding: true, speed: 0.4)
+  def schedule_piston_for_testing(edge, speed = 0.4)
+    @moving_pistons.push(id: edge.id.to_i, expanding: true, speed: speed)
+  end
+
+  def unschedule_piston_for_testing(edge, speed = 0.4)
+    @moving_pistons.delete(id: edge.id.to_i, expanding: true, speed: speed)
   end
 
   def reset_tested_pistons
@@ -704,7 +703,6 @@ class Simulation
 
   def update_entities
     model = Sketchup.active_model
-    model.start_operation('Update Entities', true)
     @world.update_group_transformations
     Graph.instance.edges.each do |_, edge|
       link = edge.link
@@ -713,7 +711,6 @@ class Simulation
     Graph.instance.nodes.values.each do |node|
       node.update_position(node.hub.body.get_position(1))
     end
-    model.commit_operation
   end
 
   def update_hub_addons

@@ -84,12 +84,14 @@ class PidController < GenericLink
 
   def analyze_static_forces
     puts "Analyzing static forces of selected controller"
+    model = Sketchup.active_model
+    model.start_operation('analyze_static_forces', true)
     pid_edge_id, pid_edge =
       Graph.instance.edges.find { |_, edge| edge.link == self }
     old_link = pid_edge.link
     #TODO: Give the Actuator the correct min/max distances
     pid_edge.link_type = 'actuator'
-    Sketchup.active_model.active_view.invalidate
+    model.active_view.invalidate
     simulation = Simulation.new
     simulation.setup
     forces = []
@@ -109,6 +111,7 @@ class PidController < GenericLink
     end
     old_link.write_parameters_to(new_pid_link)
     new_pid_link.static_forces_lookup = forces
+    model.commit_operation
   end
 
   def write_parameters_to(pid_controller)

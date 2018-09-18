@@ -26,12 +26,14 @@ class ForceLimitTool < Tool
   def activate; end
 
   def deactivate(view)
+    Sketchup.active_model.start_operation('deactivate force limit tool', true)
     view.animation = nil
     @simulation.reset unless @simulation.nil?
     @simulation = nil
     super
     @steps = @force = @previous_force = @min_force = @max_force = 0
     view.invalidate
+    Sketchup.active_model.commit_operation
   end
 
   def update(view, x, y)
@@ -69,6 +71,7 @@ class ForceLimitTool < Tool
   end
 
   def find_limits
+    Sketchup.active_model.start_operation('find force limits', true)
     @simulation = Simulation.new
     setup_simulation
     settled_distance = @edge.link.joint.cur_distance
@@ -102,6 +105,8 @@ class ForceLimitTool < Tool
     p "Maximum Force Before Breaking: #{@max_force} N"
     @simulation.reset
     @simulation = nil
+
+    Sketchup.active_model.commit_operation
   end
 
   def apply_force_increasing(positive_direction)
