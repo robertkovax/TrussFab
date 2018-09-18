@@ -55,7 +55,10 @@ class SimulationControls extends React.Component {
 
   toggleSimulation = playOnce => {
     const {
-      timeline: { startedSimulationOnce, startedSimulationCycle },
+      timeline: {
+        startedSimulationOnce,
+        startedSimulationCycle,
+      },
     } = this.props;
 
     if (playOnce) {
@@ -79,7 +82,12 @@ class SimulationControls extends React.Component {
    */
   _checkIfReachedTimelineEnd = () => {
     const {
-      timeline: { seconds, startedSimulationOnce, currentCycle },
+      timeline: {
+        seconds,
+        startedSimulationOnce,
+        currentCycle,
+        timestep,
+      },
       setContainerState,
     } = this.props;
 
@@ -112,10 +120,13 @@ class SimulationControls extends React.Component {
       }
     }
 
+    var safeTimestep = timestep == undefined ? 1 : timestep;
+    safeTimestep = safeTimestep == 0 ? 1 : safeTimestep;
+
     setContainerState({
       timeline: {
         currentTime:
-          actualTimelineMilliSeconds + UPDATE_INTERVALL * TIMELINE_TIME_FACTOR,
+          actualTimelineMilliSeconds + UPDATE_INTERVALL * safeTimestep,
       },
     });
 

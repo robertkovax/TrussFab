@@ -40,7 +40,7 @@ class SimulationTool < Tool
 
   def activate
     Sketchup.active_model.start_operation('activate simulation', true)
-    @simulation = Simulation.new
+    @simulation = Simulation.new(@ui)
     @simulation.setup
     setup_simulation_parameters
     @simulation.open_sensor_dialog
