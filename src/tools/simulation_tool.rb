@@ -39,6 +39,7 @@ class SimulationTool < Tool
   end
 
   def activate
+    Sketchup.active_model.start_operation('activate simulation', true)
     @simulation = Simulation.new
     @simulation.setup
     setup_simulation_parameters
@@ -46,14 +47,17 @@ class SimulationTool < Tool
     @auto_piston_group = @simulation.auto_piston_group
     Sketchup.active_model.active_view.animation = @simulation
     @simulation.start
+    Sketchup.active_model.commit_operation
   end
 
   def deactivate(_ui)
+    Sketchup.active_model.start_operation('deactivate simulation', true)
     @simulation.stop
     @simulation.reset
     @simulation.close_sensor_dialog
     @simulation = nil
     @ui.stop_simulation
+    Sketchup.active_model.commit_operation
   end
 
   def pause_simulation

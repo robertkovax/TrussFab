@@ -18,6 +18,7 @@ class PoseCheckTool < Tool
   end
 
   def activate
+    Sketchup.active_model.start_operation('Check poses', true)
     @simulation = Simulation.new
     @simulation.setup
     @pistons = @simulation.pistons
@@ -51,6 +52,7 @@ class PoseCheckTool < Tool
     end
 
     reset_simulation
+    Sketchup.active_model.commit_operation
   end
 
   def onMouseMove(_flags, _x, _y, _view); end
