@@ -54,63 +54,63 @@
       "n1": 24,
       "n2": 25,
       "type": "bottle_link",
-      "bottle_type": "Big Big Double Bottle (60cm)"
+      "bottle_type": "big big double bottle(58.9cm)"
     },
     {
       "id": 47,
       "n1": 25,
       "n2": 26,
       "type": "bottle_link",
-      "bottle_type": "Big Big Double Bottle (60cm)"
+      "bottle_type": "big big double bottle(58.9cm)"
     },
     {
       "id": 48,
       "n1": 26,
       "n2": 24,
       "type": "bottle_link",
-      "bottle_type": "Big Big Double Bottle (60cm)"
+      "bottle_type": "big big double bottle(58.9cm)"
     },
     {
       "id": 49,
       "n1": 24,
       "n2": 27,
       "type": "bottle_link",
-      "bottle_type": "Big Big Double Bottle (60cm)"
+      "bottle_type": "big big double bottle(58.9cm)"
     },
     {
       "id": 50,
       "n1": 25,
       "n2": 27,
       "type": "actuator",
-      "bottle_type": "Big Big Double Bottle (60cm)"
+      "bottle_type": "big big double bottle(58.9cm)"
     },
     {
       "id": 51,
       "n1": 26,
       "n2": 27,
       "type": "bottle_link",
-      "bottle_type": "Big Big Double Bottle (60cm)"
+      "bottle_type": "big big double bottle(58.9cm)"
     },
     {
       "id": 52,
       "n1": 25,
       "n2": 28,
       "type": "bottle_link",
-      "bottle_type": "Big Big Double Bottle (60cm)"
+      "bottle_type": "big big double bottle(58.9cm)"
     },
     {
       "id": 53,
       "n1": 28,
       "n2": 24,
       "type": "actuator",
-      "bottle_type": "Big Big Double Bottle (60cm)"
+      "bottle_type": "big big double bottle(58.9cm)"
     },
     {
       "id": 54,
       "n1": 28,
       "n2": 26,
       "type": "bottle_link",
-      "bottle_type": "Big Big Double Bottle (60cm)"
+      "bottle_type": "big big double bottle(58.9cm)"
     }
   ],
   "standard_surface": [
