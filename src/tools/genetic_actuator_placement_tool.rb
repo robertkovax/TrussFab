@@ -17,15 +17,11 @@ class GeneticActuatorPlacementTool < Tool
   end
 
   def create_actuator(edge)
-    Sketchup.active_model.start_operation('toggle edge to actuator', true)
     edge.link_type = 'actuator'
-    Sketchup.active_model.commit_operation
   end
 
   def reset_actuator_type(edge, previous_link_type)
-    Sketchup.active_model.start_operation('toggle actuator to edge', true)
     edge.link_type = previous_link_type
-    Sketchup.active_model.commit_operation
   end
 
   def deactivate(view)
@@ -44,28 +40,33 @@ class GeneticActuatorPlacementTool < Tool
     model = Sketchup.active_model
     closest_distance = Float::INFINITY
     best_piston = nil
+    simulation = Simulation.new
+    model.start_operation('test_pistons', true)
     Graph.instance.edges.each_value do |edge|
       next if edge.fixed?
       previous_link_type = edge.link_type
       create_actuator(edge)
-      simulation = Simulation.new
       simulation.setup
-      simulation.schedule_piston_for_testing(edge)
+      simulation.schedule_piston_for_testing(edge, 10)
       simulation.start
-      model.start_operation('simulate a piston', true)
-      distance = simulation.test_pistons_for(2, @node, @desired_position)
-      model.commit_operation
+      edge.link.joint.rate = 10
+      distance = simulation.test_pistons_for(1, @node, @desired_position)
       if distance < closest_distance
         closest_distance = distance
         best_piston = edge
       end
-      break if distance < 50
-      model.start_operation('reset simulation', true)
       simulation.reset
-      model.commit_operation
+      simulation.unschedule_piston_for_testing(edge, 10)
+      break if distance < 10
       reset_actuator_type(edge, previous_link_type)
     end
-    create_actuator(best_piston) unless best_piston.nil?
+    return if best_piston.nil?
+    create_actuator(best_piston)
+    piston_group = IdManager.instance.maximum_piston_group + 1
+    best_piston.link.piston_group = piston_group
+    @ui.animation_pane.add_piston(piston_group)
+    @ui.animation_pane.sync_hidden_status(Graph.instance.actuator_groups)
+    model.commit_operation
   end
 
   def update(view, x, y)
@@ -96,7 +97,7 @@ class GeneticActuatorPlacementTool < Tool
     return unless @moving
     @moving = false
     @desired_position = @mouse_input.position
-    # test_pistons
+    test_pistons
 
     view.invalidate
     reset
