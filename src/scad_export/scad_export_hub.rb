@@ -103,7 +103,8 @@ class ExportMainHub < ScadExportHub
       end
 
       vector_array << "[#{elongation.direction.to_a.join(', ')}]"
-      addon_array << "[#{length}, \"#{elongation.other_hub_id}\"]"
+      addon_array << "[#{length}, \"#{elongation.other_hub_id}"\
+                     "#{elongation.bottle_size}\"]"
     end
 
     @pods.each do |pod|
