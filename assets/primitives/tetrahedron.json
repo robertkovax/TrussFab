@@ -3,37 +3,37 @@
   "force_unit": "N",
   "nodes": [
     {
-      "id": 19,
-      "x": 5447.293562099231,
-      "y": -1371.5665244214383,
-      "z": 0.0,
+      "id": 1,
+      "x": 239.02423259921056,
+      "y": -78.37376989475092,
+      "z": 14.0,
       "pods": [
 
       ]
     },
     {
-      "id": 20,
-      "x": 6116.575065608788,
-      "y": -1371.5665244214383,
-      "z": 0.0,
+      "id": 2,
+      "x": 908.3057361087671,
+      "y": -78.37376989475092,
+      "z": 14.0,
       "pods": [
 
       ]
     },
     {
-      "id": 21,
-      "x": 5781.93431385401,
-      "y": -791.9517400991186,
-      "z": 0.0,
+      "id": 3,
+      "x": 573.6649843539892,
+      "y": 501.24101442756876,
+      "z": 14.0,
       "pods": [
 
       ]
     },
     {
-      "id": 22,
-      "x": 5781.93431385401,
-      "y": -1178.3615963139985,
-      "z": 546.4660592937206,
+      "id": 4,
+      "x": 573.6649843539892,
+      "y": 114.83115821268885,
+      "z": 560.4660592937206,
       "pods": [
 
       ]
@@ -41,51 +41,72 @@
   ],
   "edges": [
     {
-      "id": 43,
-      "n1": 19,
-      "n2": 20,
+      "id": 1,
+      "n1": 1,
+      "n2": 2,
       "type": "bottle_link",
-      "bottle_type": "Big Big Double Bottle (60cm)"
+      "bottle_type": "big big double bottle(58.9cm)",
+      "piston_group": -1,
+      "e1": 40.00000000000011,
+      "e2": 40.00000000000011
     },
     {
-      "id": 44,
-      "n1": 20,
-      "n2": 21,
+      "id": 2,
+      "n1": 2,
+      "n2": 3,
       "type": "bottle_link",
-      "bottle_type": "Big Big Double Bottle (60cm)"
+      "bottle_type": "big big double bottle(58.9cm)",
+      "piston_group": -1,
+      "e1": 39.99999999999993,
+      "e2": 39.99999999999993
     },
     {
-      "id": 45,
-      "n1": 21,
-      "n2": 19,
+      "id": 3,
+      "n1": 3,
+      "n2": 1,
       "type": "bottle_link",
-      "bottle_type": "Big Big Double Bottle (60cm)"
+      "bottle_type": "big big double bottle(58.9cm)",
+      "piston_group": -1,
+      "e1": 40.00000000000011,
+      "e2": 40.00000000000011
     },
     {
-      "id": 46,
-      "n1": 19,
-      "n2": 22,
+      "id": 4,
+      "n1": 1,
+      "n2": 4,
       "type": "bottle_link",
-      "bottle_type": "Big Big Double Bottle (60cm)"
+      "bottle_type": "big big double bottle(58.9cm)",
+      "piston_group": -1,
+      "e1": 40.00000000000011,
+      "e2": 40.00000000000011
     },
     {
-      "id": 47,
-      "n1": 20,
-      "n2": 22,
+      "id": 5,
+      "n1": 2,
+      "n2": 4,
       "type": "bottle_link",
-      "bottle_type": "Big Big Double Bottle (60cm)"
+      "bottle_type": "big big double bottle(58.9cm)",
+      "piston_group": -1,
+      "e1": 39.99999999999993,
+      "e2": 39.99999999999993
     },
     {
-      "id": 48,
-      "n1": 21,
-      "n2": 22,
+      "id": 6,
+      "n1": 3,
+      "n2": 4,
       "type": "bottle_link",
-      "bottle_type": "Big Big Double Bottle (60cm)"
+      "bottle_type": "big big double bottle(58.9cm)",
+      "piston_group": -1,
+      "e1": 40.000000000000014,
+      "e2": 40.000000000000014
     }
   ],
+  "animation": [
+
+  ],
   "standard_surface": [
-    20,
-    19,
-    22
+    3,
+    1,
+    2
   ]
 }
