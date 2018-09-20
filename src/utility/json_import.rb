@@ -195,8 +195,7 @@ module JsonImport
         bottle_type = edge_json['bottle_type']
         unless bottle_type.nil? ||
           ModelStorage.instance.models['hard'].models.keys.include?(bottle_type)
-          puts "The link type #{bottle_type} is not loaded into TrussFab."
-          puts 'It will be replaced by the by the best fitting type found.'
+          show_changed_models_warning
           bottle_type = nil
         end
         edge = Graph.instance.create_edge_from_points(first_position,
@@ -257,6 +256,18 @@ module JsonImport
                        is_fixed: pod_info['is_fixed'])
         end
       end
+    end
+
+    def show_changed_models_warning
+      return if @warning_showed
+      UI.messagebox("The model was created with primitives(bottles), that "\
+                    "right now are not loaded into Sketchup. TrussFab will "\
+                    "try to replace them by the ones loaded. If you wish to "\
+                    "use the original ones, replace them in "\
+                    "assets/sketchup_components in your TrussFab-Plugin "\
+                    "folder."\
+                    , MB_OK)
+      @warning_showed = true
     end
   end
 end
