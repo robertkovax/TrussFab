@@ -12,30 +12,38 @@ class ImportTool < Tool
     @mouse_input = MouseInput.new(snap_to_surfaces: true)
     @path = nil
     @angle = 0
+    @scale = 1
   end
 
   def onKeyDown(key, _repeat, _flags, _view)
     super
     if key == VK_RIGHT
       @angle -= (2.0 / 3) * Math::PI
-      rotate_model
+      transform_model
     elsif key == VK_LEFT
       @angle += (2.0 / 3) * Math::PI
-      rotate_model
+      transform_model
+    elsif key == VK_UP
+      @scale *= 1.1
+      transform_model
+    elsif key == VK_DOWN
+      @scale /= 1.1
+      transform_model
     end
   end
 
-  def rotate_model
+  def transform_model
     return if @last_imported_edges.nil?
     delete_edges @last_imported_edges
-    Sketchup.active_model.start_operation('rotate', true)
+    Sketchup.active_model.start_operation('transform', true)
     if @last_graph_object.is_a?(Triangle)
-      _, new_edges, animation = JsonImport.at_triangle(@path,
-                                                       @last_graph_object,
-                                                       angle: @angle)
+      _, new_edges, animation =
+        JsonImport.at_triangle(@path, @last_graph_object, angle: @angle,
+                               scale: @scale)
     else
       _, new_edges, animation =
-        JsonImport.at_position(@path, @last_position, angle: @angle)
+        JsonImport.at_position(@path, @last_position, angle: @angle,
+                               scale: @scale)
     end
     Sketchup.active_model.commit_operation
     setup_new_edges(new_edges, animation)
@@ -44,6 +52,8 @@ class ImportTool < Tool
 
   def activate
     BottleCounter.update_status_text
+    @scale = 1
+    @angle = 0
   end
 
   def onMouseMove(_flags, x, y, view)
@@ -75,13 +85,15 @@ class ImportTool < Tool
   def import_from_json(path, graph_object, position)
     Sketchup.active_model.start_operation('import from JSON', true)
     if graph_object.is_a?(Triangle)
-      _, new_edges, animation = JsonImport.at_triangle(path, graph_object)
+      _, new_edges, animation = JsonImport.at_triangle(path, graph_object,
+                                                       angle: @angle,
+                                                       scale: @scale)
       setup_new_edges(new_edges, animation)
     elsif graph_object.nil?
       return unless Graph.instance.find_close_node(position).nil?
       old_triangles = Graph.instance.triangles.values
       new_triangles, new_edges, animation =
-        JsonImport.at_position(path, position)
+        JsonImport.at_position(path, position, angle: @angle, scale: @scale)
       if intersecting?(old_triangles, new_triangles)
         puts('New object intersects with old')
         delete_edges(new_edges)
