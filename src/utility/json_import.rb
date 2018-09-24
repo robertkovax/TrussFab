@@ -63,7 +63,7 @@ module JsonImport
                                                    snap_direction,
                                                    json_center)
 
-      scaling = Geom::Transformation.scaling(scale)
+      scaling = Geom::Transformation.scaling(json_center, scale)
 
       transformation = translation * rotation1 * scaling
 
