@@ -28,7 +28,8 @@ module JsonImport
       points.values.each do |point|
         point.transform!(rotation * scaling)
       end
-      edges, nodes = build_edges(json_objects, points)
+      switch_model = (scale != 1)
+      edges, nodes = build_edges(json_objects, points, switch_model)
       triangles = create_triangles(edges)
       add_joints(json_objects, edges, nodes) unless json_objects['joints'].nil?
       add_pods(json_objects, nodes)
@@ -104,7 +105,8 @@ module JsonImport
         end
       end
 
-      edges, nodes = build_edges(json_objects, json_points)
+      switch_model = (scale != 1)
+      edges, nodes = build_edges(json_objects, json_points, switch_model)
       triangles = create_triangles(edges)
       add_joints(json_objects, edges, nodes) unless json_objects['joints'].nil?
       animation = json_objects['animation'].to_s
@@ -184,7 +186,7 @@ module JsonImport
       end
     end
 
-    def build_edges(json_objects, positions)
+    def build_edges(json_objects, positions, switch_model)
       edges = {}
       nodes = {}
       json_objects['edges'].each do |edge_json|
@@ -201,6 +203,8 @@ module JsonImport
           show_changed_models_warning
           bottle_type = nil
         end
+        bottle_type = nil if switch_model
+
         edge = Graph.instance.create_edge_from_points(first_position,
                                                       second_position,
                                                       bottle_type: bottle_type,
