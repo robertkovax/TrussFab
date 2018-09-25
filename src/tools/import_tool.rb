@@ -51,7 +51,8 @@ class ImportTool < Tool
   end
 
   def activate
-    BottleCounter.update_status_text
+    Sketchup.status_text = "Draw Tool: Use right/left key to rotate, and "\
+                           "up/down key to scale the last imported model"
     @scale = 1
     @angle = 0
   end
