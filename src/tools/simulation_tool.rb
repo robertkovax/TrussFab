@@ -108,8 +108,6 @@ class SimulationTool < Tool
       @node = obj
       @start_position = @end_position = @mouse_input.position
       @mouse_input.disable_snapping
-    elsif obj.is_a?(Edge) && obj.link.is_a?(ActuatorLink)
-      toggle_piston_group(obj)
     end
   end
 
