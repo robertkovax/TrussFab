@@ -44,7 +44,7 @@ class Simulation
     end
   end
 
-  def initialize
+  def initialize(ui = nil)
     # general
     @chart = nil
     @ground_group = nil
@@ -52,6 +52,7 @@ class Simulation
     @world = nil
     @show_edges = true
     @show_profiles = true
+    @ui = ui
 
     # collections
     @edges = []
@@ -686,6 +687,8 @@ class Simulation
   def update_world
     Configuration::WORLD_NUM_ITERATIONS.times do
       update_forces
+      @world.update_timestep = 1.0 / (@fps.nil? ? 60 : @fps)
+      @ui.change_timeline_factor((@fps.nil? ? 60 : @fps) / 60.0)
       @world.advance
       # We need to record this every time the world updates, otherwise,
       # we might skip the crucial forces involved

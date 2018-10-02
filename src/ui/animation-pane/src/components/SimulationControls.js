@@ -21,6 +21,7 @@ import {
 
 class SimulationControls extends React.Component {
   timelineInterval = null;
+  lastKeyframeID = [];
 
   /**
    * add new timeline interval, clears old if present
@@ -55,7 +56,10 @@ class SimulationControls extends React.Component {
 
   toggleSimulation = playOnce => {
     const {
-      timeline: { startedSimulationOnce, startedSimulationCycle },
+      timeline: {
+        startedSimulationOnce,
+        startedSimulationCycle,
+      },
     } = this.props;
 
     if (playOnce) {
@@ -79,7 +83,12 @@ class SimulationControls extends React.Component {
    */
   _checkIfReachedTimelineEnd = () => {
     const {
-      timeline: { seconds, startedSimulationOnce, currentCycle },
+      timeline: {
+        seconds,
+        startedSimulationOnce,
+        currentCycle,
+        timestep,
+      },
       setContainerState,
     } = this.props;
 
@@ -106,20 +115,30 @@ class SimulationControls extends React.Component {
       } else {
         // set current time to 0 because reached the end of a cycle
         actualTimelineMilliSeconds = 0;
+        // Since the first and the last keyframe are 'special' and should
+        // always have the same value, we must not move the joint for the last
+        // keyframe.
+        this.lastKeyframeID = [];
+
         setContainerState({
           timeline: { currentCycle: currentCycle + 1 },
         });
       }
     }
 
+    var safeTimestep = 1;
+    if(timestep !== undefined && timestep !== 0) {
+      safeTimestep = timestep;
+    }
+
     setContainerState({
       timeline: {
         currentTime:
-          actualTimelineMilliSeconds + UPDATE_INTERVALL * TIMELINE_TIME_FACTOR,
+          actualTimelineMilliSeconds + UPDATE_INTERVALL * safeTimestep,
       },
     });
 
-    return actualTimelineMilliSeconds;
+    return actualTimelineMilliSeconds + UPDATE_INTERVALL * safeTimestep;
   };
 
   /**
@@ -149,19 +168,17 @@ class SimulationControls extends React.Component {
     const actualTimelineSeconds = actualTimelineMilliSeconds / 1000;
 
     keyframesMap.forEach((keyframes, jointId) => {
-      for (let i = 0; i < keyframes.length; i++) {
-        const currentKeyframe = keyframes[i];
-        if (actualTimelineSeconds === currentKeyframe.time) {
-          // Since the first and the last keyframe are 'special' and should
-          // always have the same value, we must not move the joint for the last
-          // keyframe.
-          if (i === keyframes.length - 1) {
-            continue;
-          }
-          const newValue = keyframes[i + 1].value;
-          const duration = keyframes[i + 1].time - currentKeyframe.time;
-          moveJoint(jointId, newValue, duration);
-        }
+      if(this.lastKeyframeID[jointId] == null) {
+        this.lastKeyframeID[jointId] = 0;
+      }
+
+      const currentKeyframe = keyframes[this.lastKeyframeID[jointId]];
+      if (actualTimelineSeconds >= currentKeyframe.time) {
+        this.lastKeyframeID[jointId]++;
+        const newValue = keyframes[this.lastKeyframeID[jointId]].value;
+        const duration = keyframes[this.lastKeyframeID[jointId]].time -
+                         currentKeyframe.time;
+        moveJoint(jointId, newValue, duration);
       }
     });
 

@@ -80,6 +80,12 @@ class AnimationPane
     @dialog.execute_script("syncHiddenStatus(#{map.to_json})")
   end
 
+  # a factor of 1 fits, if Sketchup runs with 60fps. If it runs with 30fps, the
+  # factor has to be 0.5
+  def change_timeline_factor(factor)
+    @dialog.execute_script("changeTimelineFactor(#{factor})")
+  end
+
   def toggle_dev_mode
     if @dev_mode
       @dialog.set_size(@width, @height)

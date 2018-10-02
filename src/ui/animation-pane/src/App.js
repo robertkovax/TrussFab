@@ -35,6 +35,7 @@ class App extends Component {
       simulationPaused: true,
       startedSimulationCycle: false,
       startedSimulationOnce: false,
+      timestep: 1,
     },
     groupVisible: {}, // group id => bool
     keyframesMap: new Map(), // maps from piston group id to array of keyframes
@@ -52,6 +53,7 @@ class App extends Component {
     window.fixBrokenModelByReducingMovement = this.fixBrokenModelByReducingMovement;
     window.initSimulationState = this.initSimulationState;
     window.syncHiddenStatus = this.syncHiddenStatus;
+    window.changeTimelineFactor = this.changeTimelineFactor;
     window.toggleDevMode = this.toggleDevMode;
   }
 
@@ -86,6 +88,12 @@ class App extends Component {
       groupVisible: newGroupVisible,
     });
   };
+
+  changeTimelineFactor = factor => {
+    this.setContainerState({
+      timeline: { timestep: parseFloat(factor) },
+    });
+  }
 
   toggleDevMode = () => this.setState({ devMode: !this.state.devMode });
 
