@@ -35,6 +35,7 @@ class SimulationTool < Tool
     @simulation.breaking_force = @breaking_force
     @simulation.peak_force_mode = @peak_force_mode
     @simulation.highest_force_mode = @highest_force_mode
+    @simulation.display_values = @display_values
     @simulation.stiffness = @stiffness
   end
 
