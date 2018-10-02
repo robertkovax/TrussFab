@@ -6,8 +6,8 @@ require 'erb'
 class Simulation
   attr_reader :pistons, :moving_pistons, :bottle_dat, :stiffness,
               :breaking_force
-  attr_accessor :max_speed, :highest_force_mode,
-                :peak_force_mode, :auto_piston_group, :reset_positions_on_end
+  attr_accessor :max_speed, :highest_force_mode, :peak_force_mode,
+                :auto_piston_group, :reset_positions_on_end
 
   class << self
     def create_body(world, entity, collision_type = :box)
@@ -130,8 +130,14 @@ class Simulation
   end
 
   def display_values
-    # TODO: see above
     @display_values
+  end
+
+  def display_values=(param)
+    @display_values = param
+    unless param
+      reset_force_labels
+    end
   end
 
   #
@@ -909,6 +915,7 @@ class Simulation
               else
                 get_directed_force(link)
               end
+      update_force_labels if @display_values
       r = (@breaking_force + force * Configuration::TENSION_SENSITIVITY) *
           @breaking_force_invh
       mat.color = Geometry.blend_colors(Configuration::TENSION_COLORS, r)
@@ -932,6 +939,7 @@ class Simulation
         highest_force_tuple = [link, force]
       end
     end
+    update_force_labels if @display_values
     color_single_link(lowest_force_tuple[0])
     color_single_link(highest_force_tuple[0])
   end
