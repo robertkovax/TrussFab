@@ -18,6 +18,7 @@ class MouseInput
     @snap_to_covers = snap_to_covers
     @position = nil
     @should_highlight = should_highlight
+    @snapping_disabled = false
     soft_reset
   end
 
@@ -29,6 +30,14 @@ class MouseInput
       @snapped_object.un_highlight
     end
     @snapped_object = nil
+  end
+
+  def disable_snapping
+    @snapping_disabled = true
+  end
+
+  def enable_snapping
+    @snapping_disabled = false
   end
 
   # NB: In the old version, there was given a reference point to the InputPoint
@@ -61,31 +70,31 @@ class MouseInput
     object.distance(@position) > Configuration::SNAP_TOLERANCE
   end
 
+  def should_snap?(object)
+    !(object.nil? || out_of_snap_tolerance?(object) || @snapping_disabled)
+  end
+
   def snap_to_object
     objects = []
     if @snap_to_nodes
       node = Graph.instance.closest_node(@position)
-      objects.push(node) unless node.nil? || out_of_snap_tolerance?(node)
+      objects.push(node) if should_snap?(node)
     end
     if @snap_to_edges
       edge = Graph.instance.closest_edge(@position)
-      objects.push(edge) unless edge.nil? || out_of_snap_tolerance?(edge)
+      objects.push(edge) if should_snap?(edge)
     end
     if @snap_to_surfaces
       surface = Graph.instance.closest_triangle(@position)
-      unless surface.nil? || out_of_snap_tolerance?(surface)
-        objects.push(surface)
-      end
+      objects.push(surface) if should_snap?(surface)
     end
     if @snap_to_pods
       pod = Graph.instance.closest_pod(@position)
-      objects.push(pod) unless pod.nil? || out_of_snap_tolerance?(pod)
+      objects.push(pod) if should_snap?(pod)
     end
     if @snap_to_covers
       surface = Graph.instance.closest_triangle(@position)
-      if !surface.nil? && surface.cover? && !out_of_snap_tolerance?(surface)
-        objects.push(surface.cover)
-      end
+      objects.push(surface.cover) if should_snap?(surface) && surface.cover?
     end
     return if objects.empty?
     @snapped_object = objects.first

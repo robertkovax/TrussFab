@@ -108,8 +108,7 @@ class SimulationTool < Tool
       @moving = true
       @node = obj
       @start_position = @end_position = @mouse_input.position
-    elsif obj.is_a?(Edge) && obj.link.is_a?(ActuatorLink)
-      toggle_piston_group(obj)
+      @mouse_input.disable_snapping
     end
   end
 
@@ -119,6 +118,7 @@ class SimulationTool < Tool
 
   def onLButtonUp(_flags, x, y, view)
     update(view, x, y)
+    @mouse_input.enable_snapping
     return unless @moving
     @end_position = @mouse_input.position
     reset
