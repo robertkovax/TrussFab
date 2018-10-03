@@ -11,9 +11,9 @@ class ExportFileTool < Tool
   end
 
   def activate
-    UI.messagebox('Please select a surface to become the standard surface'\
-                  ' that gets attached when added to other objects',
-                  MB_OK)
+    export_with_file_dialog
+    Sketchup.set_status_text('To export with a specific standard surface,'\
+                             'click that surface')
   end
 
   def onMouseMove(_flags, x, y, view)
