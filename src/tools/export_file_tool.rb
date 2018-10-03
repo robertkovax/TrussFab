@@ -37,5 +37,6 @@ class ExportFileTool < Tool
     unless @export_path.nil?
       JsonExport.export(@export_path, triangle, animation)
     end
+    @export_path = File.dirname(@export_path)
   end
 end
