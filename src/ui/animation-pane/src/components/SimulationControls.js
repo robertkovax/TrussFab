@@ -174,7 +174,9 @@ class SimulationControls extends React.Component {
 
       const currentKeyframe = keyframes[this.lastKeyframeID[jointId]];
       if (actualTimelineSeconds >= currentKeyframe.time) {
-        this.lastKeyframeID[jointId]++;
+        if(keyframes[++this.lastKeyframeID[jointId]] === undefined) {
+          return;
+        }
         const newValue = keyframes[this.lastKeyframeID[jointId]].value;
         const duration = keyframes[this.lastKeyframeID[jointId]].time -
                          currentKeyframe.time;
@@ -303,6 +305,11 @@ class SimulationControls extends React.Component {
     this._addAllTimeSelectionLines();
     stopSimulation();
     resetState();
+
+    this.lastKeyframeID = [];
+    setContainerState({
+      timeline: { currentCycle: 0, currentTime: 0 },
+    });
   };
 
   _removeAllTimeselection = () => d3.selectAll('line.timeSelection').remove();
