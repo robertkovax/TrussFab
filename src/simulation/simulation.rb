@@ -952,11 +952,6 @@ class Simulation
     mat = dat[3]
     return unless mat && mat.valid?
     force = get_directed_force(link)
-    if @highest_force_mode && !@peak_force_mode
-      half_breaking_force = @breaking_force / 2.0
-      force = half_breaking_force if force < half_breaking_force && force > 0
-      force = -half_breaking_force if force > -half_breaking_force && force < 0
-    end
     force = @max_link_tensions[link.id] if @peak_force_mode
     r = (@breaking_force + force * Configuration::TENSION_SENSITIVITY) *
         @breaking_force_invh
