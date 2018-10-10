@@ -5,14 +5,22 @@ require 'src/configuration/configuration.rb'
 class ImportFileTool < ImportTool
   def initialize(_ui)
     super
+    puts "initialize called"
   end
 
   def activate
-    @path = Configuration::JSON_PATH if @path.nil?
-    @path = UI.openpanel('Open JSON',
-                         @path,
-                         'JSON File|*.json;||')
+    if @import_path.nil?
+      @import_path = Configuration::JSON_PATH
+    else
+      @import_path = File.dirname(@import_path)
+    end
+    @import_path = UI.openpanel('Open JSON',
+                                @import_path,
+                                'JSON File|*.json;||')
+    @path = @import_path
   end
 
-  def onLButtonUp(_flags, _x, _y, _view); end
+  def onLButtonUp(_flags, _x, _y, _view)
+    ;
+  end
 end
