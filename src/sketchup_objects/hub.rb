@@ -52,19 +52,22 @@ class Hub < PhysicsSketchupObject
     Sketchup.active_model.commit_operation
   end
 
-  def add_weight_indicator
-    Sketchup.active_model.start_operation('Hub: Add Weight Indicator', true)
+  def update_weight_indicator
+    unless @weight_indicator.nil?
+      @weight_indicator.erase!
+      @weight_indicator = nil
+    end
+    return if @mass == 0
+    Sketchup.active_model.start_operation('Hub: Update Weight Indicator', true)
     point = Geom::Point3d.new(@position)
     point.z += 1
-    if @weight_indicator.nil?
-      model = ModelStorage.instance.models['weight_indicator']
-      transform = Geom::Transformation.new(point)
-      @weight_indicator = Sketchup.active_model
-                            .active_entities
-                            .add_instance(model.definition, transform)
-    else
-      @weight_indicator.transform!(Geom::Transformation.scaling(point, 1.5))
-    end
+    model = ModelStorage.instance.models['weight_indicator']
+    transform = Geom::Transformation.new(point)
+    @weight_indicator = Sketchup.active_model
+                          .active_entities
+                          .add_instance(model.definition, transform)
+    @weight_indicator.transform!(
+      Geom::Transformation.scaling(point, Math::log(@mass, 2) / 5))
     Sketchup.active_model.commit_operation
   end
 
@@ -173,6 +176,12 @@ class Hub < PhysicsSketchupObject
   #
   def add_weight(weight)
     @mass += weight
+    update_weight_indicator
+  end
+
+  def weight=(weight)
+    @mass = weight
+    update_weight_indicator
   end
 
   def add_force(force)

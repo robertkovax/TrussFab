@@ -123,7 +123,7 @@ class ComponentProperties
 
   def add_hub_menu(context_menu, erb_file, title)
     context_menu.add_item(title) do
-      show_hub_dialog(erb_file, title, Configuration::UI_WIDTH, 250)
+      show_hub_dialog(erb_file, title, Configuration::UI_WIDTH, 300)
     end
   end
 
@@ -337,6 +337,9 @@ class ComponentProperties
       node.hub.force = Geom::Vector3d.new(param[0].to_f,
                                           param[1].to_f,
                                           param[2].to_f)
+    end
+    dialog.add_action_callback('set_weight') do |_dialog, param|
+      node.hub.weight = param.to_f
     end
   end
 end
