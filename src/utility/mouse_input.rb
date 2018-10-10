@@ -76,6 +76,10 @@ class MouseInput
 
   def snap_to_object
     objects = []
+    if @snap_to_pods
+      pod = Graph.instance.closest_pod(@position)
+      objects.push(pod) if should_snap?(pod)
+    end
     if @snap_to_nodes
       node = Graph.instance.closest_node(@position)
       objects.push(node) if should_snap?(node)
@@ -87,10 +91,6 @@ class MouseInput
     if @snap_to_surfaces
       surface = Graph.instance.closest_triangle(@position)
       objects.push(surface) if should_snap?(surface)
-    end
-    if @snap_to_pods
-      pod = Graph.instance.closest_pod(@position)
-      objects.push(pod) if should_snap?(pod)
     end
     if @snap_to_covers
       surface = Graph.instance.closest_triangle(@position)
