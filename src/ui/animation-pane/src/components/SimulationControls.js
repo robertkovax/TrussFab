@@ -6,7 +6,6 @@ import {
   X_AXIS,
   Y_AXIS,
   UPDATE_INTERVALL,
-  TIMELINE_TIME_FACTOR,
 } from '../config';
 
 import {
@@ -280,9 +279,6 @@ class SimulationControls extends React.Component {
   triggerStopSimulation = () => {
     const {
       timeline: {
-        startedSimulationOnce,
-        startedSimulationCycle,
-        simulationIsPausedAfterOnce,
         simulationIsOnForValueTesting,
       },
       setContainerState,
@@ -295,20 +291,13 @@ class SimulationControls extends React.Component {
       return;
     }
 
-    if (
-      !(startedSimulationOnce || startedSimulationCycle) &&
-      !simulationIsPausedAfterOnce
-    ) {
-      return;
-    }
-
     this._addAllTimeSelectionLines();
     stopSimulation();
     resetState();
 
     this.lastKeyframeID = [];
     setContainerState({
-      timeline: { currentCycle: 0, currentTime: 0 },
+      timeline: { currentCycle: 0, currentTime: 0, simulationBrokeAt: null },
     });
   };
 
