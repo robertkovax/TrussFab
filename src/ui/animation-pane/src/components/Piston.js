@@ -84,7 +84,7 @@ class Piston extends React.Component {
 
     return (
       <div style={{ position: 'relative' }}>
-        {timelineSimluationBrokeAt !== null && (
+        {!isNaN(timelineSimluationBrokeAt) && (
           <div
             className="broken-time-line"
             style={{ left: timelineSimluationBrokeAt / 1000 / 5 * X_AXIS }}

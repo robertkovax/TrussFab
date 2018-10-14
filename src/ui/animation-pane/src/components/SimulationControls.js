@@ -6,7 +6,6 @@ import {
   X_AXIS,
   Y_AXIS,
   UPDATE_INTERVALL,
-  TIMELINE_TIME_FACTOR,
 } from '../config';
 
 import {
@@ -174,7 +173,9 @@ class SimulationControls extends React.Component {
 
       const currentKeyframe = keyframes[this.lastKeyframeID[jointId]];
       if (actualTimelineSeconds >= currentKeyframe.time) {
-        this.lastKeyframeID[jointId]++;
+        if(keyframes[++this.lastKeyframeID[jointId]] === undefined) {
+          return;
+        }
         const newValue = keyframes[this.lastKeyframeID[jointId]].value;
         const duration = keyframes[this.lastKeyframeID[jointId]].time -
                          currentKeyframe.time;
@@ -278,9 +279,6 @@ class SimulationControls extends React.Component {
   triggerStopSimulation = () => {
     const {
       timeline: {
-        startedSimulationOnce,
-        startedSimulationCycle,
-        simulationIsPausedAfterOnce,
         simulationIsOnForValueTesting,
       },
       setContainerState,
@@ -293,16 +291,14 @@ class SimulationControls extends React.Component {
       return;
     }
 
-    if (
-      !(startedSimulationOnce || startedSimulationCycle) &&
-      !simulationIsPausedAfterOnce
-    ) {
-      return;
-    }
-
     this._addAllTimeSelectionLines();
     stopSimulation();
     resetState();
+
+    this.lastKeyframeID = [];
+    setContainerState({
+      timeline: { currentCycle: 0, currentTime: 0, simulationBrokeAt: null },
+    });
   };
 
   _removeAllTimeselection = () => d3.selectAll('line.timeSelection').remove();

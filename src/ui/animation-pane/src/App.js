@@ -113,7 +113,9 @@ class App extends Component {
   };
 
   simulationJustBroke = () => {
-    if (this.state.timeline.simluationBrokeAt === null) {
+    if (this.state.timeline.simluationBrokeAt === null &&
+        (this.state.timeline.startedSimulationOnce ||
+         this.state.timeline.startedSimulationCycle)) {
       window.showModal();
       this.setContainerState({
         timeline: { simluationBrokeAt: this.state.timeline.currentTime },
@@ -297,6 +299,7 @@ class App extends Component {
         timeline: {
           ...this.getIninitialState(),
           seconds: oldSeconds,
+          simluationBrokeAt: null,
         },
       });
     }, 100);
