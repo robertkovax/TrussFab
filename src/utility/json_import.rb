@@ -16,7 +16,7 @@ module JsonImport
       first_z - lowest_z
     end
 
-    def at_position(path, position, angle: 0)
+    def at_position(path, position, angle: 0, scale: 1)
       json_objects = load_json(path)
       points = build_points(json_objects,
                             position,
@@ -24,10 +24,12 @@ module JsonImport
       rotation = Geom::Transformation.rotation(position,
                                                Geom::Vector3d.new(0, 0, -1),
                                                angle)
+      scaling = Geom::Transformation.scaling(position, scale)
       points.values.each do |point|
-        point.transform!(rotation)
+        point.transform!(rotation * scaling)
       end
-      edges, nodes = build_edges(json_objects, points)
+      switch_model = (scale != 1)
+      edges, nodes = build_edges(json_objects, points, switch_model)
       triangles = create_triangles(edges)
       add_joints(json_objects, edges, nodes) unless json_objects['joints'].nil?
       add_pods(json_objects, nodes)
@@ -35,7 +37,7 @@ module JsonImport
       [triangles.values, edges.values, animation]
     end
 
-    def at_triangle(path, snap_triangle, angle: 0)
+    def at_triangle(path, snap_triangle, angle: 0, scale: 1)
       json_objects = load_json(path)
 
       # retrieve points from json
@@ -62,7 +64,9 @@ module JsonImport
                                                    snap_direction,
                                                    json_center)
 
-      transformation = translation * rotation1
+      scaling = Geom::Transformation.scaling(json_center, scale)
+
+      transformation = translation * rotation1 * scaling
 
       # recompute json triangle points and center after transformation
       json_triangle_points.map! { |point| point.transform(transformation) }
@@ -101,7 +105,8 @@ module JsonImport
         end
       end
 
-      edges, nodes = build_edges(json_objects, json_points)
+      switch_model = (scale != 1)
+      edges, nodes = build_edges(json_objects, json_points, switch_model)
       triangles = create_triangles(edges)
       add_joints(json_objects, edges, nodes) unless json_objects['joints'].nil?
       animation = json_objects['animation'].to_s
@@ -181,7 +186,7 @@ module JsonImport
       end
     end
 
-    def build_edges(json_objects, positions)
+    def build_edges(json_objects, positions, switch_model)
       edges = {}
       nodes = {}
       json_objects['edges'].each do |edge_json|
@@ -198,6 +203,8 @@ module JsonImport
           show_changed_models_warning
           bottle_type = nil
         end
+        bottle_type = nil if switch_model
+
         edge = Graph.instance.create_edge_from_points(first_position,
                                                       second_position,
                                                       bottle_type: bottle_type,
