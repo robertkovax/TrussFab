@@ -7,27 +7,23 @@ require 'src/configuration/configuration.rb'
 class ExportFileTool < Tool
   def initialize(user_interface)
     super
-    @mouse_input = MouseInput.new(snap_to_surfaces: true)
   end
 
   def activate
-    export_with_file_dialog
-    Sketchup.set_status_text('To export with a specific standard surface,'\
-                             'click that surface')
-  end
-
-  def onMouseMove(_flags, x, y, view)
-    @mouse_input.update_positions(view, x, y)
-  end
-
-  def onLButtonDown(_flags, x, y, view)
-    @mouse_input.update_positions(view, x, y)
-    snapped_object = @mouse_input.snapped_object
-    if snapped_object.is_a?(Triangle)
-      export_with_file_dialog(snapped_object)
-      deactivate(view)
+    triangle = nil
+    selection = Sketchup.active_model.selection
+    unless selection.nil? or selection.empty?
+      selection.each do |entity|
+        type = entity.get_attribute('attributes', :type)
+        id = entity.get_attribute('attributes', :id)
+        if type.include? 'Surface'
+          triangle = Graph.instance.triangles[id]
+        end
+      end
     end
-    view.invalidate
+    export_with_file_dialog triangle
+    Sketchup.set_status_text('To export with a specific standard surface,'\
+                             'select that surface')
   end
 
   def export_with_file_dialog(triangle = nil)
@@ -36,7 +32,7 @@ class ExportFileTool < Tool
     animation = @ui.animation_pane.animation_values
     unless @export_path.nil?
       JsonExport.export(@export_path, triangle, animation)
+      @export_path = File.dirname(@export_path)
     end
-    @export_path = File.dirname(@export_path)
   end
 end

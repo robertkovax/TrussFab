@@ -5,7 +5,6 @@ require 'src/configuration/configuration.rb'
 class ImportFileTool < ImportTool
   def initialize(_ui)
     super
-    puts "initialize called"
   end
 
   def activate

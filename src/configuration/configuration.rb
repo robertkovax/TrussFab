@@ -15,11 +15,12 @@ module Configuration
 
   # UI Dialog Properties
   HTML_DIALOG = {
+    preferences_key: 'com.trussfab.htmldialog',
     dialog_title: 'TrussFab',
     scrollable: true,
     resizable: true,
     width: 380,
-    height: 900,
+    height: 500,
     left: 10,
     top: 100,
     style: UI::HtmlDialog::STYLE_DIALOG
