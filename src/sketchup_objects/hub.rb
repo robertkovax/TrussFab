@@ -128,12 +128,22 @@ class Hub < PhysicsSketchupObject
     !pods.empty?
   end
 
-  def delete
-    @id_label.erase!
+  def has_addons?
+    !@arrow.nil? || !@weight_indicator.nil? || !@sensor_symbol.nil?
+  end
+
+  def delete_addons
     @arrow.erase! unless @arrow.nil?
     @arrow = nil
     @sensor_symbol.erase! unless @sensor_symbol.nil?
+    @sensor_symbol = nil
     @weight_indicator.erase! unless @weight_indicator.nil?
+    @weight_indicator = nil
+  end
+
+  def delete
+    delete_addons
+    @id_label.erase!
     super
   end
 

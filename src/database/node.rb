@@ -191,6 +191,10 @@ class Node < GraphObject
   end
 
   def delete
+    if !hub.nil? && hub.has_addons?
+      hub.delete_addons
+      return
+    end
     super
     @incidents.clone.each(&:delete)
     @adjacent_triangles.clone.each do |triangle|
