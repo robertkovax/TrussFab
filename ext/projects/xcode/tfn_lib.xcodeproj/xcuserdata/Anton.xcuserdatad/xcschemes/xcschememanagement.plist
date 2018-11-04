@@ -19,6 +19,11 @@
 			<key>orderHint</key>
 			<integer>2</integer>
 		</dict>
+		<key>Ruby 2.5.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>4</integer>
+		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
@@ -28,6 +33,11 @@
 			<true/>
 		</dict>
 		<key>3A33F1351DC47FF600CA768D</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>3A42CFA7218EB2A200AEBEBD</key>
 		<dict>
 			<key>primary</key>
 			<true/>

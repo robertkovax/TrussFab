@@ -539,8 +539,15 @@ Geom::Transformation Geom::Transformation::uniform_transition_to(const Transform
         t2_origin.scale_self((treal)(1.0) / other.m_origin.m_w);
 
     // Compute the normal at which the zaxis should rotate
-    Geom::Vector3d t1_normal_zaxis(fabs(t1_scale.m_z) > M_EPSILON ? m_zaxis.scale((treal)(1.0) / t1_scale.m_z) : m_zaxis);
-    Geom::Vector3d t2_normal_zaxis(fabs(t2_scale.m_z) > M_EPSILON ? other.m_zaxis.scale((treal)(1.0) / t2_scale.m_z) : other.m_zaxis);
+    Geom::Vector3d t1_normal_zaxis, t2_normal_zaxis;
+    if (fabs(t1_scale.m_z) > M_EPSILON)
+        t1_normal_zaxis = m_zaxis.scale((treal)(1.0) / t1_scale.m_z);
+    else
+        t1_normal_zaxis = m_zaxis;
+    if (fabs(t2_scale.m_z) > M_EPSILON)
+        t2_normal_zaxis = other.m_zaxis.scale((treal)(1.0) / t2_scale.m_z);
+    else
+        t2_normal_zaxis = other.m_zaxis;
     treal zcos_theta = t1_normal_zaxis.dot(t2_normal_zaxis);
     Vector3d normal(m_xaxis);
     if (fabs(zcos_theta) < (treal)(0.9999995))

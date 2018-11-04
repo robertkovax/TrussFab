@@ -1114,7 +1114,7 @@ VALUE MSP::World::rbf_create_convex_hull_collision(VALUE self, VALUE v_vertices,
     unsigned int j = 0;
     treal* vertex_cloud = new treal[vertex_count * 3];
     Geom::Vector3d point;
-    for (i; i < vertex_count; ++i) {
+    for (; i < vertex_count; ++i) {
         RU::value_to_vector(rb_ary_entry(v_vertices, i), point);
         vertex_cloud[j] = point.m_x;
         vertex_cloud[j + 1] = point.m_y;
