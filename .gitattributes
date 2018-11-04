@@ -15,10 +15,10 @@
 *.vcxproj text eol=crlf
 *.filters text eol=crlf
 
-.skp binary
-.style binary
-.so binary
-.dll binary
-.dylib binary
-.png binary
-.jpg binary
+*.skp binary
+*.style binary
+*.so binary
+*.dll binary
+*.dylib binary
+*.png binary
+*.jpg binary
