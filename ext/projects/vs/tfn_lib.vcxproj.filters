@@ -1,0 +1,200 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="main">
+      <UniqueIdentifier>{ed6e0b9e-12f2-4d31-83ab-a7c871b5dad4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="win">
+      <UniqueIdentifier>{50c17b0f-0b09-4108-9b0d-456aa26827dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{7b5d0df4-a665-4993-9eed-b84c34971b72}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\source\main\angular_integration.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\main\msp.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\main\msp_angular_spring.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\main\msp_body.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\main\msp_contact.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\main\msp_entity.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\main\msp_fixed.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\main\msp_gear.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\main\msp_generic_point_to_point.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\main\msp_hinge.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\main\msp_hit.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\main\msp_joint.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\main\msp_point_to_point.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\main\msp_point_to_point_actuator.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\main\msp_point_to_point_gas_spring.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\main\msp_world.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\win\stdafx.cpp">
+      <Filter>win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\win\tfn_lib.cpp">
+      <Filter>win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\utils\geom.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\utils\geom_bounding_box.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\utils\geom_color.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\utils\geom_quaternion.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\utils\geom_transformation.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\utils\geom_vector3d.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\utils\geom_vector4d.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\utils\ruby_util.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\utils\thread_hive.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\source\main\angular_integration.h">
+      <Filter>main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\main\msp.h">
+      <Filter>main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\main\msp_angular_spring.h">
+      <Filter>main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\main\msp_body.h">
+      <Filter>main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\main\msp_contact.h">
+      <Filter>main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\main\msp_entity.h">
+      <Filter>main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\main\msp_fixed.h">
+      <Filter>main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\main\msp_gear.h">
+      <Filter>main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\main\msp_generic_point_to_point.h">
+      <Filter>main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\main\msp_hinge.h">
+      <Filter>main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\main\msp_hit.h">
+      <Filter>main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\main\msp_joint.h">
+      <Filter>main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\main\msp_point_to_point.h">
+      <Filter>main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\main\msp_point_to_point_actuator.h">
+      <Filter>main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\main\msp_point_to_point_gas_spring.h">
+      <Filter>main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\main\msp_world.h">
+      <Filter>main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\win\stdafx.h">
+      <Filter>win</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\win\targetver.h">
+      <Filter>win</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\utils\thread_hive.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\utils\common.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\utils\dynamic_array.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\utils\fast_queue.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\utils\geom.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\utils\geom_bounding_box.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\utils\geom_box_space.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\utils\geom_color.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\utils\geom_quaternion.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\utils\geom_transformation.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\utils\geom_vector3d.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\utils\geom_vector4d.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\utils\ruby_prep.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\utils\ruby_util.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ruby_extension.def">
+      <Filter>utils</Filter>
+    </None>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,40 @@
+Follow these instructions to compile tfn_lib on Windows:
+
+To compile for Win32, Ruby 1.8
+  - Set solution configuration to Release (1.8), Win32
+
+To compile for Win32, Ruby 2.0
+  - Set solution configuration to Release (2.0), Win32
+
+To compile for Win64, Ruby 2.0
+  - Set solution configuration to Release (2.0), Win64
+
+To compile for Win64, Ruby 2.2
+  - Set solution configuration to Release (2.2), Win64
+
+
+Follow these instructions to compile msp_lib on Mac OS X:
+
+To compile for OSX32, Ruby 1.8
+  - Set build to "Ruby 1.8", "My Mac 32-bit"
+  - Select "Ruby 1.8" target and set build architecture to "32-bit intel (i386)"
+  - Select "newton" target and set build architecture to "32-bit intel (i386)"
+  - Navigate to (Menu)Product and click Build
+
+To compile for OSX32, Ruby 2.0
+  - Set build to "Ruby 2.0", "My Mac 32-bit"
+  - Select "Ruby 2.0" target and set build architecture to "32-bit intel (i386)"
+  - Select "newton" target and set build architecture to "32-bit intel (i386)"
+  - Navigate to (Menu)Product and click Build
+
+To compile for OSX64, Ruby 2.0
+  - Set build to "Ruby 2.0", "My Mac 64-bit"
+  - Select "Ruby 2.0" target and set build architecture to "64-bit intel (x86_64)"
+  - Select "newton" target and set build architecture to "64-bit intel (x86_64)"
+  - Navigate to (Menu)Product and click Build
+
+To compile for OSX64, Ruby 2.2
+  - Set build to "Ruby 2.2", "My Mac 64-bit"
+  - Select "Ruby 2.2" target and set build architecture to "64-bit intel (x86_64)"
+  - Select "newton" target and set build architecture to "64-bit intel (x86_64)"
+  - Navigate to (Menu)Product and click Build

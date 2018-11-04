@@ -1,4 +1,9 @@
 .idea
+.user
+.vs
+/cext/projects/vs/Win32
+/cext/projects/vs/x64
+
 *assets/exports/*
 anton_demo.rb
 */.sync/*
