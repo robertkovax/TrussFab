@@ -248,7 +248,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (1.8)|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\ruby\include\ruby\1.8\win32;$(SolutionDir)..\..\thirdparty\newton_dynamics\dgNewton;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\ruby\include\1.8\win32;$(SolutionDir)..\..\thirdparty\newton_dynamics\dgNewton;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
@@ -290,7 +290,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (2.0)|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\ruby\include\ruby\2.0\win32;$(SolutionDir)..\..\thirdparty\ruby\include\ruby\2.0\win32\i386-mswin32_100;$(SolutionDir)..\..\thirdparty\newton_dynamics\dgNewton;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\ruby\include\2.0\win32;$(SolutionDir)..\..\thirdparty\ruby\include\2.0\win32\i386-mswin32_100;$(SolutionDir)..\..\thirdparty\newton_dynamics\dgNewton;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
@@ -332,7 +332,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (2.0)|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\ruby\include\ruby\2.0\win32_x64;$(SolutionDir)..\..\thirdparty\ruby\include\ruby\2.0\win32_x64\x64-mswin64_100;$(SolutionDir)..\..\thirdparty\newton_dynamics\dgNewton;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\ruby\include\2.0\win32_x64;$(SolutionDir)..\..\thirdparty\ruby\include\2.0\win32_x64\x64-mswin64_100;$(SolutionDir)..\..\thirdparty\newton_dynamics\dgNewton;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
@@ -374,7 +374,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (2.2)|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\ruby\include\ruby\2.2\win32_x64;$(SolutionDir)..\..\thirdparty\ruby\include\ruby\2.2\win32_x64\x64-mswin64_140;$(SolutionDir)..\..\thirdparty\newton_dynamics\dgNewton;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\ruby\include\2.2\win32_x64;$(SolutionDir)..\..\thirdparty\ruby\include\2.2\win32_x64\x64-mswin64_140;$(SolutionDir)..\..\thirdparty\newton_dynamics\dgNewton;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
@@ -416,7 +416,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (2.5)|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\ruby\include\ruby\2.5\win32_x64;$(SolutionDir)..\..\thirdparty\newton_dynamics\dgNewton;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\ruby\include\2.5\win32_x64;$(SolutionDir)..\..\thirdparty\newton_dynamics\dgNewton;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
@@ -458,7 +458,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (1.8)|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\ruby\include\ruby\1.8\win32;$(SolutionDir)..\..\thirdparty\newton_dynamics\dgNewton;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\ruby\include\1.8\win32;$(SolutionDir)..\..\thirdparty\newton_dynamics\dgNewton;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
@@ -502,7 +502,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (2.0)|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\ruby\include\ruby\2.0\win32;$(SolutionDir)..\..\thirdparty\ruby\include\ruby\2.0\win32\i386-mswin32_100;$(SolutionDir)..\..\thirdparty\newton_dynamics\dgNewton;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\ruby\include\2.0\win32;$(SolutionDir)..\..\thirdparty\ruby\include\2.0\win32\i386-mswin32_100;$(SolutionDir)..\..\thirdparty\newton_dynamics\dgNewton;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
@@ -548,7 +548,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (2.0)|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\ruby\include\ruby\2.0\win32_x64;$(SolutionDir)..\..\thirdparty\ruby\include\ruby\2.0\win32_x64\x64-mswin64_100;$(SolutionDir)..\..\thirdparty\newton_dynamics\dgNewton;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\ruby\include\2.0\win32_x64;$(SolutionDir)..\..\thirdparty\ruby\include\2.0\win32_x64\x64-mswin64_100;$(SolutionDir)..\..\thirdparty\newton_dynamics\dgNewton;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
@@ -593,7 +593,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (2.2)|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\ruby\include\ruby\2.2\win32_x64;$(SolutionDir)..\..\thirdparty\ruby\include\ruby\2.2\win32_x64\x64-mswin64_140;$(SolutionDir)..\..\thirdparty\newton_dynamics\dgNewton;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\ruby\include\2.2\win32_x64;$(SolutionDir)..\..\thirdparty\ruby\include\2.2\win32_x64\x64-mswin64_140;$(SolutionDir)..\..\thirdparty\newton_dynamics\dgNewton;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
@@ -630,7 +630,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (2.5)|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\ruby\include\ruby\2.5\win32_x64;$(SolutionDir)..\..\thirdparty\newton_dynamics\dgNewton;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\thirdparty\ruby\include\2.5\win32_x64;$(SolutionDir)..\..\thirdparty\newton_dynamics\dgNewton;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
