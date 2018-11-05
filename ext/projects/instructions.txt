@@ -1,40 +1,17 @@
-Follow these instructions to compile tfn_lib on Windows:
+Follow instructions below to compile tfn_lib for Windows, on Visual Studio:
 
-To compile for Win32, Ruby 1.8
-  - Set solution configuration to Release (1.8), Win32
+1. Set build configuration to Release (X.Y).
+2. Set build platform to x86 or x64.
+2. Build Solution.
+3. Copy .../vs/[Win32/x64]/Release (X.Y)/tfn_lib/tfn_lib.so
+   to the appropriate binary folder:
+   /bin/[win32/win64]/[X.Y]/
 
-To compile for Win32, Ruby 2.0
-  - Set solution configuration to Release (2.0), Win32
+Follow instructions below to compile tfn_lib for Mac OS X, on xCode:
 
-To compile for Win64, Ruby 2.0
-  - Set solution configuration to Release (2.0), Win64
-
-To compile for Win64, Ruby 2.2
-  - Set solution configuration to Release (2.2), Win64
-
-
-Follow these instructions to compile msp_lib on Mac OS X:
-
-To compile for OSX32, Ruby 1.8
-  - Set build to "Ruby 1.8", "My Mac 32-bit"
-  - Select "Ruby 1.8" target and set build architecture to "32-bit intel (i386)"
-  - Select "newton" target and set build architecture to "32-bit intel (i386)"
-  - Navigate to (Menu)Product and click Build
-
-To compile for OSX32, Ruby 2.0
-  - Set build to "Ruby 2.0", "My Mac 32-bit"
-  - Select "Ruby 2.0" target and set build architecture to "32-bit intel (i386)"
-  - Select "newton" target and set build architecture to "32-bit intel (i386)"
-  - Navigate to (Menu)Product and click Build
-
-To compile for OSX64, Ruby 2.0
-  - Set build to "Ruby 2.0", "My Mac 64-bit"
-  - Select "Ruby 2.0" target and set build architecture to "64-bit intel (x86_64)"
-  - Select "newton" target and set build architecture to "64-bit intel (x86_64)"
-  - Navigate to (Menu)Product and click Build
-
-To compile for OSX64, Ruby 2.2
-  - Set build to "Ruby 2.2", "My Mac 64-bit"
-  - Select "Ruby 2.2" target and set build architecture to "64-bit intel (x86_64)"
-  - Select "newton" target and set build architecture to "64-bit intel (x86_64)"
-  - Navigate to (Menu)Product and click Build
+1. Set active scheme to "Ruby (X.Y) - [32/64]"
+2. Execute (Menu) Product > Archive
+3. Export the built archive to your documents.
+4. Locate tfn_lib.bundle within the exported archive.
+5. Copy tfn_lib.bundle to the appropriate binary folder:
+   /bin/[osx32/osx64]/[X.Y]/
