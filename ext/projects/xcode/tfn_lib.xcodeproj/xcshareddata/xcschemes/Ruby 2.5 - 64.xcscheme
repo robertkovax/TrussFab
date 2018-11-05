@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "3A33F1351DC47FF600CA768D"
+               BlueprintIdentifier = "3A42CFA7218EB2A200AEBEBD"
                BuildableName = "tfn_lib.bundle"
-               BlueprintName = "Ruby 2.2"
+               BlueprintName = "Ruby 2.5 - 64"
                ReferencedContainer = "container:tfn_lib.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,9 +45,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "3A33F1351DC47FF600CA768D"
+            BlueprintIdentifier = "3A42CFA7218EB2A200AEBEBD"
             BuildableName = "tfn_lib.bundle"
-            BlueprintName = "Ruby 2.2"
+            BlueprintName = "Ruby 2.5 - 64"
             ReferencedContainer = "container:tfn_lib.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -63,9 +63,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "3A33F1351DC47FF600CA768D"
+            BlueprintIdentifier = "3A42CFA7218EB2A200AEBEBD"
             BuildableName = "tfn_lib.bundle"
-            BlueprintName = "Ruby 2.2"
+            BlueprintName = "Ruby 2.5 - 64"
             ReferencedContainer = "container:tfn_lib.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

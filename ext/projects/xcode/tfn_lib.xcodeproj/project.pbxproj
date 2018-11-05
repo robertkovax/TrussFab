@@ -235,20 +235,71 @@
 		3A42D103218EBE0200AEBEBD /* thread_hive.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFFF218EBE0100AEBEBD /* thread_hive.h */; };
 		3A42D104218EBE0200AEBEBD /* thread_hive.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFFF218EBE0100AEBEBD /* thread_hive.h */; };
 		3A42D291218ED23600AEBEBD /* Ruby.Framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A42CFB9218EB2CD00AEBEBD /* Ruby.Framework */; };
-		3A42D292218ED24500AEBEBD /* libnewton.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AF9FF711D29CEBF007FC1E1 /* libnewton.dylib */; };
-		3A42D293218ED2B500AEBEBD /* libnewton.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AF9FF711D29CEBF007FC1E1 /* libnewton.dylib */; };
-		3A42D294218ED2B800AEBEBD /* libnewton.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AF9FF711D29CEBF007FC1E1 /* libnewton.dylib */; };
-		3A42D295218ED2BC00AEBEBD /* libnewton.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AF9FF711D29CEBF007FC1E1 /* libnewton.dylib */; };
+		3A5C3B52218FDE5900A72BE6 /* geom_vector4d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFF9218EBE0100AEBEBD /* geom_vector4d.cpp */; };
+		3A5C3B53218FDE5900A72BE6 /* msp_fixed.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFD2218EBE0100AEBEBD /* msp_fixed.cpp */; };
+		3A5C3B54218FDE5900A72BE6 /* msp_joint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFDC218EBE0100AEBEBD /* msp_joint.cpp */; };
+		3A5C3B55218FDE5900A72BE6 /* msp_point_to_point_actuator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFE0218EBE0100AEBEBD /* msp_point_to_point_actuator.cpp */; };
+		3A5C3B56218FDE5900A72BE6 /* tfn_lib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFE7218EBE0100AEBEBD /* tfn_lib.cpp */; };
+		3A5C3B57218FDE5900A72BE6 /* geom_quaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFF3218EBE0100AEBEBD /* geom_quaternion.cpp */; };
+		3A5C3B58218FDE5900A72BE6 /* msp_world.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFE4218EBE0100AEBEBD /* msp_world.cpp */; };
+		3A5C3B59218FDE5900A72BE6 /* msp_gear.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFD4218EBE0100AEBEBD /* msp_gear.cpp */; };
+		3A5C3B5A218FDE5900A72BE6 /* msp_point_to_point_gas_spring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFE2218EBE0100AEBEBD /* msp_point_to_point_gas_spring.cpp */; };
+		3A5C3B5B218FDE5900A72BE6 /* geom_transformation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFF5218EBE0100AEBEBD /* geom_transformation.cpp */; };
+		3A5C3B5C218FDE5900A72BE6 /* msp_hinge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFD8218EBE0100AEBEBD /* msp_hinge.cpp */; };
+		3A5C3B5D218FDE5900A72BE6 /* msp_contact.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFC6218EBE0100AEBEBD /* msp_contact.cpp */; };
+		3A5C3B5E218FDE5900A72BE6 /* msp_point_to_point.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFDE218EBE0100AEBEBD /* msp_point_to_point.cpp */; };
+		3A5C3B5F218FDE5900A72BE6 /* thread_hive.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFFE218EBE0100AEBEBD /* thread_hive.cpp */; };
+		3A5C3B60218FDE5900A72BE6 /* msp_hit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFDA218EBE0100AEBEBD /* msp_hit.cpp */; };
+		3A5C3B61218FDE5900A72BE6 /* msp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFC0218EBE0100AEBEBD /* msp.cpp */; };
+		3A5C3B62218FDE5900A72BE6 /* angular_integration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFBE218EBE0100AEBEBD /* angular_integration.cpp */; };
+		3A5C3B63218FDE5900A72BE6 /* geom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFEC218EBE0100AEBEBD /* geom.cpp */; };
+		3A5C3B64218FDE5900A72BE6 /* msp_body.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFC4218EBE0100AEBEBD /* msp_body.cpp */; };
+		3A5C3B65218FDE5900A72BE6 /* geom_bounding_box.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFEE218EBE0100AEBEBD /* geom_bounding_box.cpp */; };
+		3A5C3B66218FDE5900A72BE6 /* msp_generic_point_to_point.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFD6218EBE0100AEBEBD /* msp_generic_point_to_point.cpp */; };
+		3A5C3B67218FDE5900A72BE6 /* ruby_util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFFC218EBE0100AEBEBD /* ruby_util.cpp */; };
+		3A5C3B68218FDE5900A72BE6 /* msp_angular_spring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFC2218EBE0100AEBEBD /* msp_angular_spring.cpp */; };
+		3A5C3B69218FDE5900A72BE6 /* geom_color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFF1218EBE0100AEBEBD /* geom_color.cpp */; };
+		3A5C3B6A218FDE5900A72BE6 /* msp_entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFC8218EBE0100AEBEBD /* msp_entity.cpp */; };
+		3A5C3B6B218FDE5900A72BE6 /* geom_vector3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CFF7218EBE0100AEBEBD /* geom_vector3d.cpp */; };
+		3A5C3B6E218FDE5900A72BE6 /* Ruby.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A42CFB5218EB2BD00AEBEBD /* Ruby.framework */; };
+		3A5C3B70218FDE5900A72BE6 /* msp_point_to_point_gas_spring.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFE3218EBE0100AEBEBD /* msp_point_to_point_gas_spring.h */; };
+		3A5C3B71218FDE5900A72BE6 /* msp_fixed.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFD3218EBE0100AEBEBD /* msp_fixed.h */; };
+		3A5C3B72218FDE5900A72BE6 /* msp_point_to_point_actuator.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFE1218EBE0100AEBEBD /* msp_point_to_point_actuator.h */; };
+		3A5C3B73218FDE5900A72BE6 /* msp_hinge.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFD9218EBE0100AEBEBD /* msp_hinge.h */; };
+		3A5C3B74218FDE5900A72BE6 /* angular_integration.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFBF218EBE0100AEBEBD /* angular_integration.h */; };
+		3A5C3B75218FDE5900A72BE6 /* geom_vector4d.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFFA218EBE0100AEBEBD /* geom_vector4d.h */; };
+		3A5C3B76218FDE5900A72BE6 /* msp_joint.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFDD218EBE0100AEBEBD /* msp_joint.h */; };
+		3A5C3B77218FDE5900A72BE6 /* msp_generic_point_to_point.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFD7218EBE0100AEBEBD /* msp_generic_point_to_point.h */; };
+		3A5C3B78218FDE5900A72BE6 /* fast_queue.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFEB218EBE0100AEBEBD /* fast_queue.h */; };
+		3A5C3B79218FDE5900A72BE6 /* msp_point_to_point.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFDF218EBE0100AEBEBD /* msp_point_to_point.h */; };
+		3A5C3B7A218FDE5900A72BE6 /* geom.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFED218EBE0100AEBEBD /* geom.h */; };
+		3A5C3B7B218FDE5900A72BE6 /* msp_body.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFC5218EBE0100AEBEBD /* msp_body.h */; };
+		3A5C3B7C218FDE5900A72BE6 /* msp_hit.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFDB218EBE0100AEBEBD /* msp_hit.h */; };
+		3A5C3B7D218FDE5900A72BE6 /* msp_gear.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFD5218EBE0100AEBEBD /* msp_gear.h */; };
+		3A5C3B7E218FDE5900A72BE6 /* dynamic_array.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFEA218EBE0100AEBEBD /* dynamic_array.h */; };
+		3A5C3B7F218FDE5900A72BE6 /* msp_entity.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFC9218EBE0100AEBEBD /* msp_entity.h */; };
+		3A5C3B80218FDE5900A72BE6 /* ruby_util.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFFD218EBE0100AEBEBD /* ruby_util.h */; };
+		3A5C3B81218FDE5900A72BE6 /* msp_angular_spring.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFC3218EBE0100AEBEBD /* msp_angular_spring.h */; };
+		3A5C3B82218FDE5900A72BE6 /* geom_box_space.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFF0218EBE0100AEBEBD /* geom_box_space.h */; };
+		3A5C3B83218FDE5900A72BE6 /* thread_hive.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFFF218EBE0100AEBEBD /* thread_hive.h */; };
+		3A5C3B84218FDE5900A72BE6 /* geom_vector3d.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFF8218EBE0100AEBEBD /* geom_vector3d.h */; };
+		3A5C3B85218FDE5900A72BE6 /* msp_world.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFE5218EBE0100AEBEBD /* msp_world.h */; };
+		3A5C3B86218FDE5900A72BE6 /* msp_contact.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFC7218EBE0100AEBEBD /* msp_contact.h */; };
+		3A5C3B87218FDE5900A72BE6 /* geom_transformation.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFF6218EBE0100AEBEBD /* geom_transformation.h */; };
+		3A5C3B88218FDE5900A72BE6 /* ruby_prep.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFFB218EBE0100AEBEBD /* ruby_prep.h */; };
+		3A5C3B89218FDE5900A72BE6 /* geom_bounding_box.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFEF218EBE0100AEBEBD /* geom_bounding_box.h */; };
+		3A5C3B8A218FDE5900A72BE6 /* geom_color.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFF2218EBE0100AEBEBD /* geom_color.h */; };
+		3A5C3B8B218FDE5900A72BE6 /* geom_quaternion.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFF4218EBE0100AEBEBD /* geom_quaternion.h */; };
+		3A5C3B8C218FDE5900A72BE6 /* common.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFE9218EBE0100AEBEBD /* common.h */; };
+		3A5C3B8D218FDE5900A72BE6 /* msp.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CFC1218EBE0100AEBEBD /* msp.h */; };
+		3A5C3C62218FE26B00A72BE6 /* newton.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A5C3C57218FDF8C00A72BE6 /* newton.a */; };
+		3A5C3C63218FE27200A72BE6 /* newton.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A5C3C57218FDF8C00A72BE6 /* newton.a */; };
+		3A5C3C64218FE27700A72BE6 /* newton.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A5C3C57218FDF8C00A72BE6 /* newton.a */; };
+		3A5C3C65218FE27C00A72BE6 /* newton.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AF9FF711D29CEBF007FC1E1 /* newton.a */; };
+		3A5C3C66218FE28100A72BE6 /* newton.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AF9FF711D29CEBF007FC1E1 /* newton.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		3A33F1371DC47FF600CA768D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 3AF9FF6C1D29CEBE007FC1E1 /* newton.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC06E0554671400DB518D;
-			remoteInfo = newton;
-		};
 		3A3A92BB1D2E511D00B57C8D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 3AF9FF6C1D29CEBE007FC1E1 /* newton.xcodeproj */;
@@ -256,12 +307,33 @@
 			remoteGlobalIDString = D2AAC06E0554671400DB518D;
 			remoteInfo = newton;
 		};
-		3A42CFA9218EB2A200AEBEBD /* PBXContainerItemProxy */ = {
+		3A5C3C56218FDF8C00A72BE6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3AF9FF6C1D29CEBE007FC1E1 /* newton.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3A5C3C54218FDED700A72BE6;
+			remoteInfo = "newton - 64";
+		};
+		3A5C3C5C218FE0E700A72BE6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 3AF9FF6C1D29CEBE007FC1E1 /* newton.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = D2AAC06E0554671400DB518D;
-			remoteInfo = newton;
+			remoteGlobalIDString = 3A5C3B92218FDED700A72BE6;
+			remoteInfo = "newton - 64";
+		};
+		3A5C3C5E218FE0ED00A72BE6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3AF9FF6C1D29CEBE007FC1E1 /* newton.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 3A5C3B92218FDED700A72BE6;
+			remoteInfo = "newton - 64";
+		};
+		3A5C3C60218FE0F200A72BE6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3AF9FF6C1D29CEBE007FC1E1 /* newton.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 3A5C3B92218FDED700A72BE6;
+			remoteInfo = "newton - 64";
 		};
 		3A91ACAA1D311D6B00299CA4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -343,6 +415,7 @@
 		3A42CFFD218EBE0100AEBEBD /* ruby_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ruby_util.h; sourceTree = "<group>"; };
 		3A42CFFE218EBE0100AEBEBD /* thread_hive.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = thread_hive.cpp; sourceTree = "<group>"; };
 		3A42CFFF218EBE0100AEBEBD /* thread_hive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = thread_hive.h; sourceTree = "<group>"; };
+		3A5C3B91218FDE5900A72BE6 /* tfn_lib.bundle */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = tfn_lib.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AF9FF6C1D29CEBE007FC1E1 /* newton.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = newton.xcodeproj; sourceTree = "<group>"; };
 		CE1590E518479EAB0084B06D /* tfn_lib_exports.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = tfn_lib_exports.txt; sourceTree = "<group>"; };
 		CE405E8A184763D300A77187 /* tfn_lib.bundle */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = tfn_lib.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -353,7 +426,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3A42D294218ED2B800AEBEBD /* libnewton.dylib in Frameworks */,
+				3A5C3C65218FE27C00A72BE6 /* newton.a in Frameworks */,
 				3A42CFB6218EB2BD00AEBEBD /* Ruby.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -362,7 +435,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3A42D293218ED2B500AEBEBD /* libnewton.dylib in Frameworks */,
+				3A5C3C63218FE27200A72BE6 /* newton.a in Frameworks */,
 				3A42CFB8218EB2C800AEBEBD /* Ruby.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -371,8 +444,17 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3A42D292218ED24500AEBEBD /* libnewton.dylib in Frameworks */,
+				3A5C3C62218FE26B00A72BE6 /* newton.a in Frameworks */,
 				3A42D291218ED23600AEBEBD /* Ruby.Framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3A5C3B6C218FDE5900A72BE6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3A5C3C64218FE27700A72BE6 /* newton.a in Frameworks */,
+				3A5C3B6E218FDE5900A72BE6 /* Ruby.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -380,7 +462,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3A42D295218ED2BC00AEBEBD /* libnewton.dylib in Frameworks */,
+				3A5C3C66218FE28100A72BE6 /* newton.a in Frameworks */,
 				3A42CFB4218EB2B000AEBEBD /* Ruby.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -406,6 +488,7 @@
 				CE405E8A184763D300A77187 /* tfn_lib.bundle */,
 				3A33F1881DC47FF600CA768D /* tfn_lib.bundle */,
 				3A42CFB2218EB2A200AEBEBD /* tfn_lib.bundle */,
+				3A5C3B91218FDE5900A72BE6 /* tfn_lib.bundle */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -520,7 +603,8 @@
 		3AF9FF6D1D29CEBE007FC1E1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				3AF9FF711D29CEBF007FC1E1 /* libnewton.dylib */,
+				3AF9FF711D29CEBF007FC1E1 /* newton.a */,
+				3A5C3C57218FDF8C00A72BE6 /* newton.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -639,6 +723,43 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3A5C3B6F218FDE5900A72BE6 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3A5C3B70218FDE5900A72BE6 /* msp_point_to_point_gas_spring.h in Headers */,
+				3A5C3B71218FDE5900A72BE6 /* msp_fixed.h in Headers */,
+				3A5C3B72218FDE5900A72BE6 /* msp_point_to_point_actuator.h in Headers */,
+				3A5C3B73218FDE5900A72BE6 /* msp_hinge.h in Headers */,
+				3A5C3B74218FDE5900A72BE6 /* angular_integration.h in Headers */,
+				3A5C3B75218FDE5900A72BE6 /* geom_vector4d.h in Headers */,
+				3A5C3B76218FDE5900A72BE6 /* msp_joint.h in Headers */,
+				3A5C3B77218FDE5900A72BE6 /* msp_generic_point_to_point.h in Headers */,
+				3A5C3B78218FDE5900A72BE6 /* fast_queue.h in Headers */,
+				3A5C3B79218FDE5900A72BE6 /* msp_point_to_point.h in Headers */,
+				3A5C3B7A218FDE5900A72BE6 /* geom.h in Headers */,
+				3A5C3B7B218FDE5900A72BE6 /* msp_body.h in Headers */,
+				3A5C3B7C218FDE5900A72BE6 /* msp_hit.h in Headers */,
+				3A5C3B7D218FDE5900A72BE6 /* msp_gear.h in Headers */,
+				3A5C3B7E218FDE5900A72BE6 /* dynamic_array.h in Headers */,
+				3A5C3B7F218FDE5900A72BE6 /* msp_entity.h in Headers */,
+				3A5C3B80218FDE5900A72BE6 /* ruby_util.h in Headers */,
+				3A5C3B81218FDE5900A72BE6 /* msp_angular_spring.h in Headers */,
+				3A5C3B82218FDE5900A72BE6 /* geom_box_space.h in Headers */,
+				3A5C3B83218FDE5900A72BE6 /* thread_hive.h in Headers */,
+				3A5C3B84218FDE5900A72BE6 /* geom_vector3d.h in Headers */,
+				3A5C3B85218FDE5900A72BE6 /* msp_world.h in Headers */,
+				3A5C3B86218FDE5900A72BE6 /* msp_contact.h in Headers */,
+				3A5C3B87218FDE5900A72BE6 /* geom_transformation.h in Headers */,
+				3A5C3B88218FDE5900A72BE6 /* ruby_prep.h in Headers */,
+				3A5C3B89218FDE5900A72BE6 /* geom_bounding_box.h in Headers */,
+				3A5C3B8A218FDE5900A72BE6 /* geom_color.h in Headers */,
+				3A5C3B8B218FDE5900A72BE6 /* geom_quaternion.h in Headers */,
+				3A5C3B8C218FDE5900A72BE6 /* common.h in Headers */,
+				3A5C3B8D218FDE5900A72BE6 /* msp.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CE405E84184763D300A77187 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -679,9 +800,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		33CDE5E4182703B100F7C6E8 /* Ruby 2.0 */ = {
+		33CDE5E4182703B100F7C6E8 /* Ruby 2.0 - 32 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 33CDE5E9182703B200F7C6E8 /* Build configuration list for PBXNativeTarget "Ruby 2.0" */;
+			buildConfigurationList = 33CDE5E9182703B200F7C6E8 /* Build configuration list for PBXNativeTarget "Ruby 2.0 - 32" */;
 			buildPhases = (
 				33CDE5E1182703B100F7C6E8 /* Sources */,
 				33CDE5E2182703B100F7C6E8 /* Frameworks */,
@@ -692,14 +813,14 @@
 			dependencies = (
 				3A91ACAB1D311D6B00299CA4 /* PBXTargetDependency */,
 			);
-			name = "Ruby 2.0";
+			name = "Ruby 2.0 - 32";
 			productName = "MSPhysics Library";
 			productReference = 33CDE5E5182703B200F7C6E8 /* tfn_lib.bundle */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
-		3A33F1351DC47FF600CA768D /* Ruby 2.2 */ = {
+		3A33F1351DC47FF600CA768D /* Ruby 2.2 - 64 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 3A33F1851DC47FF600CA768D /* Build configuration list for PBXNativeTarget "Ruby 2.2" */;
+			buildConfigurationList = 3A33F1851DC47FF600CA768D /* Build configuration list for PBXNativeTarget "Ruby 2.2 - 64" */;
 			buildPhases = (
 				3A33F13A1DC47FF600CA768D /* Sources */,
 				3A33F15C1DC47FF600CA768D /* Frameworks */,
@@ -708,16 +829,16 @@
 			buildRules = (
 			);
 			dependencies = (
-				3A33F1361DC47FF600CA768D /* PBXTargetDependency */,
+				3A5C3C5F218FE0ED00A72BE6 /* PBXTargetDependency */,
 			);
-			name = "Ruby 2.2";
+			name = "Ruby 2.2 - 64";
 			productName = "MSPhysics Library";
 			productReference = 3A33F1881DC47FF600CA768D /* tfn_lib.bundle */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
-		3A42CFA7218EB2A200AEBEBD /* Ruby 2.5 */ = {
+		3A42CFA7218EB2A200AEBEBD /* Ruby 2.5 - 64 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 3A42CFAF218EB2A200AEBEBD /* Build configuration list for PBXNativeTarget "Ruby 2.5" */;
+			buildConfigurationList = 3A42CFAF218EB2A200AEBEBD /* Build configuration list for PBXNativeTarget "Ruby 2.5 - 64" */;
 			buildPhases = (
 				3A42CFAA218EB2A200AEBEBD /* Sources */,
 				3A42CFAB218EB2A200AEBEBD /* Frameworks */,
@@ -726,16 +847,34 @@
 			buildRules = (
 			);
 			dependencies = (
-				3A42CFA8218EB2A200AEBEBD /* PBXTargetDependency */,
+				3A5C3C61218FE0F200A72BE6 /* PBXTargetDependency */,
 			);
-			name = "Ruby 2.5";
+			name = "Ruby 2.5 - 64";
 			productName = "MSPhysics Library";
 			productReference = 3A42CFB2218EB2A200AEBEBD /* tfn_lib.bundle */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
-		CE405E7E184763D300A77187 /* Ruby 1.8 */ = {
+		3A5C3B4E218FDE5900A72BE6 /* Ruby 2.0 - 64 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = CE405E87184763D300A77187 /* Build configuration list for PBXNativeTarget "Ruby 1.8" */;
+			buildConfigurationList = 3A5C3B8E218FDE5900A72BE6 /* Build configuration list for PBXNativeTarget "Ruby 2.0 - 64" */;
+			buildPhases = (
+				3A5C3B51218FDE5900A72BE6 /* Sources */,
+				3A5C3B6C218FDE5900A72BE6 /* Frameworks */,
+				3A5C3B6F218FDE5900A72BE6 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3A5C3C5D218FE0E700A72BE6 /* PBXTargetDependency */,
+			);
+			name = "Ruby 2.0 - 64";
+			productName = "MSPhysics Library";
+			productReference = 3A5C3B91218FDE5900A72BE6 /* tfn_lib.bundle */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		CE405E7E184763D300A77187 /* Ruby 1.8 - 32 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CE405E87184763D300A77187 /* Build configuration list for PBXNativeTarget "Ruby 1.8 - 32" */;
 			buildPhases = (
 				CE405E7F184763D300A77187 /* Sources */,
 				CE405E82184763D300A77187 /* Frameworks */,
@@ -746,7 +885,7 @@
 			dependencies = (
 				3A3A92BC1D2E511D00B57C8D /* PBXTargetDependency */,
 			);
-			name = "Ruby 1.8";
+			name = "Ruby 1.8 - 32";
 			productName = "MSPhysics Library";
 			productReference = CE405E8A184763D300A77187 /* tfn_lib.bundle */;
 			productType = "com.apple.product-type.library.dynamic";
@@ -769,6 +908,10 @@
 						ProvisioningStyle = Automatic;
 					};
 					3A42CFA7218EB2A200AEBEBD = {
+						DevelopmentTeam = B5Q422W65M;
+						ProvisioningStyle = Automatic;
+					};
+					3A5C3B4E218FDE5900A72BE6 = {
 						DevelopmentTeam = B5Q422W65M;
 						ProvisioningStyle = Automatic;
 					};
@@ -796,19 +939,27 @@
 			);
 			projectRoot = "";
 			targets = (
-				CE405E7E184763D300A77187 /* Ruby 1.8 */,
-				33CDE5E4182703B100F7C6E8 /* Ruby 2.0 */,
-				3A33F1351DC47FF600CA768D /* Ruby 2.2 */,
-				3A42CFA7218EB2A200AEBEBD /* Ruby 2.5 */,
+				CE405E7E184763D300A77187 /* Ruby 1.8 - 32 */,
+				33CDE5E4182703B100F7C6E8 /* Ruby 2.0 - 32 */,
+				3A5C3B4E218FDE5900A72BE6 /* Ruby 2.0 - 64 */,
+				3A33F1351DC47FF600CA768D /* Ruby 2.2 - 64 */,
+				3A42CFA7218EB2A200AEBEBD /* Ruby 2.5 - 64 */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		3AF9FF711D29CEBF007FC1E1 /* libnewton.dylib */ = {
+		3A5C3C57218FDF8C00A72BE6 /* newton.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = libnewton.dylib;
+			path = newton.a;
+			remoteRef = 3A5C3C56218FDF8C00A72BE6 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		3AF9FF711D29CEBF007FC1E1 /* newton.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = newton.a;
 			remoteRef = 3AF9FF701D29CEBF007FC1E1 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -914,6 +1065,39 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3A5C3B51218FDE5900A72BE6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3A5C3B52218FDE5900A72BE6 /* geom_vector4d.cpp in Sources */,
+				3A5C3B53218FDE5900A72BE6 /* msp_fixed.cpp in Sources */,
+				3A5C3B54218FDE5900A72BE6 /* msp_joint.cpp in Sources */,
+				3A5C3B55218FDE5900A72BE6 /* msp_point_to_point_actuator.cpp in Sources */,
+				3A5C3B56218FDE5900A72BE6 /* tfn_lib.cpp in Sources */,
+				3A5C3B57218FDE5900A72BE6 /* geom_quaternion.cpp in Sources */,
+				3A5C3B58218FDE5900A72BE6 /* msp_world.cpp in Sources */,
+				3A5C3B59218FDE5900A72BE6 /* msp_gear.cpp in Sources */,
+				3A5C3B5A218FDE5900A72BE6 /* msp_point_to_point_gas_spring.cpp in Sources */,
+				3A5C3B5B218FDE5900A72BE6 /* geom_transformation.cpp in Sources */,
+				3A5C3B5C218FDE5900A72BE6 /* msp_hinge.cpp in Sources */,
+				3A5C3B5D218FDE5900A72BE6 /* msp_contact.cpp in Sources */,
+				3A5C3B5E218FDE5900A72BE6 /* msp_point_to_point.cpp in Sources */,
+				3A5C3B5F218FDE5900A72BE6 /* thread_hive.cpp in Sources */,
+				3A5C3B60218FDE5900A72BE6 /* msp_hit.cpp in Sources */,
+				3A5C3B61218FDE5900A72BE6 /* msp.cpp in Sources */,
+				3A5C3B62218FDE5900A72BE6 /* angular_integration.cpp in Sources */,
+				3A5C3B63218FDE5900A72BE6 /* geom.cpp in Sources */,
+				3A5C3B64218FDE5900A72BE6 /* msp_body.cpp in Sources */,
+				3A5C3B65218FDE5900A72BE6 /* geom_bounding_box.cpp in Sources */,
+				3A5C3B66218FDE5900A72BE6 /* msp_generic_point_to_point.cpp in Sources */,
+				3A5C3B67218FDE5900A72BE6 /* ruby_util.cpp in Sources */,
+				3A5C3B68218FDE5900A72BE6 /* msp_angular_spring.cpp in Sources */,
+				3A5C3B69218FDE5900A72BE6 /* geom_color.cpp in Sources */,
+				3A5C3B6A218FDE5900A72BE6 /* msp_entity.cpp in Sources */,
+				3A5C3B6B218FDE5900A72BE6 /* geom_vector3d.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CE405E7F184763D300A77187 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -950,20 +1134,25 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		3A33F1361DC47FF600CA768D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = newton;
-			targetProxy = 3A33F1371DC47FF600CA768D /* PBXContainerItemProxy */;
-		};
 		3A3A92BC1D2E511D00B57C8D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = newton;
 			targetProxy = 3A3A92BB1D2E511D00B57C8D /* PBXContainerItemProxy */;
 		};
-		3A42CFA8218EB2A200AEBEBD /* PBXTargetDependency */ = {
+		3A5C3C5D218FE0E700A72BE6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			name = newton;
-			targetProxy = 3A42CFA9218EB2A200AEBEBD /* PBXContainerItemProxy */;
+			name = "newton - 64";
+			targetProxy = 3A5C3C5C218FE0E700A72BE6 /* PBXContainerItemProxy */;
+		};
+		3A5C3C5F218FE0ED00A72BE6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "newton - 64";
+			targetProxy = 3A5C3C5E218FE0ED00A72BE6 /* PBXContainerItemProxy */;
+		};
+		3A5C3C61218FE0F200A72BE6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "newton - 64";
+			targetProxy = 3A5C3C60218FE0F200A72BE6 /* PBXContainerItemProxy */;
 		};
 		3A91ACAB1D311D6B00299CA4 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -977,10 +1166,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = (
-					"$(ARCH_STANDARD_32_BIT)",
-					"$(ARCH_STANDARD_64_BIT)",
-				);
+				ARCHS = "$(ARCH_STANDARD_32_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
@@ -1000,8 +1186,8 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CONFIGURATION_BUILD_DIR = "$(SRCROOT)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)$(CURRENT_ARCH)/$(TARGET_NAME)";
-				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)$(CURRENT_ARCH)/$(TARGET_NAME)";
+				CONFIGURATION_BUILD_DIR = "$(SRCROOT)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/$(TARGET_NAME)";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/$(TARGET_NAME)";
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -1044,10 +1230,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = (
-					"$(ARCH_STANDARD_32_BIT)",
-					"$(ARCH_STANDARD_64_BIT)",
-				);
+				ARCHS = "$(ARCH_STANDARD_32_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
@@ -1067,8 +1250,8 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CONFIGURATION_BUILD_DIR = "$(SRCROOT)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)$(CURRENT_ARCH)/$(TARGET_NAME)";
-				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)$(CURRENT_ARCH)/$(TARGET_NAME)";
+				CONFIGURATION_BUILD_DIR = "$(SRCROOT)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/$(TARGET_NAME)";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/$(TARGET_NAME)";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -1106,7 +1289,7 @@
 		33CDE5EA182703B200F7C6E8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
@@ -1124,20 +1307,20 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../../thirdparty/ruby/include/ruby/2.0/mac\"",
-					"\"$(SRCROOT)/../../thirdparty/ruby/include/ruby/2.0/mac/universal-darwin12.5.0\"",
+					"\"$(SRCROOT)/../../thirdparty/ruby/include/2.0/mac\"",
+					"\"$(SRCROOT)/../../thirdparty/ruby/include/2.0/mac/universal-darwin12.5.0\"",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				VALID_ARCHS = x86_64;
+				VALID_ARCHS = i386;
 			};
 			name = Debug;
 		};
 		33CDE5EB182703B200F7C6E8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
@@ -1155,13 +1338,13 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../../thirdparty/ruby/include/ruby/2.0/mac\"",
-					"\"$(SRCROOT)/../../thirdparty/ruby/include/ruby/2.0/mac/universal-darwin12.5.0\"",
+					"\"$(SRCROOT)/../../thirdparty/ruby/include/2.0/mac\"",
+					"\"$(SRCROOT)/../../thirdparty/ruby/include/2.0/mac/universal-darwin12.5.0\"",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				VALID_ARCHS = x86_64;
+				VALID_ARCHS = i386;
 			};
 			name = Release;
 		};
@@ -1186,8 +1369,8 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../../thirdparty/ruby/include/ruby/2.2/mac\"",
-					"\"$(SRCROOT)/../../thirdparty/ruby/include/ruby/2.2/mac/x86_64-darwin14\"",
+					"\"$(SRCROOT)/../../thirdparty/ruby/include/2.2/mac\"",
+					"\"$(SRCROOT)/../../thirdparty/ruby/include/2.2/mac/x86_64-darwin14\"",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
@@ -1217,8 +1400,8 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../../thirdparty/ruby/include/ruby/2.2/mac\"",
-					"\"$(SRCROOT)/../../thirdparty/ruby/include/ruby/2.2/mac/x86_64-darwin14\"",
+					"\"$(SRCROOT)/../../thirdparty/ruby/include/2.2/mac\"",
+					"\"$(SRCROOT)/../../thirdparty/ruby/include/2.2/mac/x86_64-darwin14\"",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
@@ -1242,7 +1425,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../../thirdparty/ruby/lib/mac/2.5\"",
-					"$(USER_LIBRARY_DIR)/Application\\ Support/SketchUp\\ 2019/SketchUp/Plugins/TrussFab/ext/thirdparty/ruby/lib/mac/2.5",
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1251,8 +1433,8 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../../thirdparty/ruby/include/ruby/2.5/mac\"",
-					"\"$(SRCROOT)/../../thirdparty/ruby/include/ruby/2.5/mac/x86_64-darwin17\"",
+					"\"$(SRCROOT)/../../thirdparty/ruby/include/2.5/mac\"",
+					"\"$(SRCROOT)/../../thirdparty/ruby/include/2.5/mac/x86_64-darwin17\"",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
@@ -1277,7 +1459,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../../thirdparty/ruby/lib/mac/2.5\"",
-					"$(USER_LIBRARY_DIR)/Application\\ Support/SketchUp\\ 2019/SketchUp/Plugins/TrussFab/ext/thirdparty/ruby/lib/mac/2.5",
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1286,11 +1467,75 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../../thirdparty/ruby/include/ruby/2.5/mac\"",
-					"\"$(SRCROOT)/../../thirdparty/ruby/include/ruby/2.5/mac/x86_64-darwin17\"",
+					"\"$(SRCROOT)/../../thirdparty/ruby/include/2.5/mac\"",
+					"\"$(SRCROOT)/../../thirdparty/ruby/include/2.5/mac/x86_64-darwin17\"",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				PRODUCT_NAME = tfn_lib;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				VALID_ARCHS = x86_64;
+			};
+			name = Release;
+		};
+		3A5C3B8F218FDE5900A72BE6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = B5Q422W65M;
+				DYLIB_COMPATIBILITY_VERSION = "";
+				DYLIB_CURRENT_VERSION = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../thirdparty/ruby/lib/mac/2.0\"",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					RUBY_VERSION20,
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../thirdparty/ruby/include/2.0/mac\"",
+					"\"$(SRCROOT)/../../thirdparty/ruby/include/2.0/mac/universal-darwin12.5.0\"",
+				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_NAME = tfn_lib;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				VALID_ARCHS = x86_64;
+			};
+			name = Debug;
+		};
+		3A5C3B90218FDE5900A72BE6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = B5Q422W65M;
+				DYLIB_COMPATIBILITY_VERSION = "";
+				DYLIB_CURRENT_VERSION = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../thirdparty/ruby/lib/mac/2.0\"",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					RUBY_VERSION20,
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../thirdparty/ruby/include/2.0/mac\"",
+					"\"$(SRCROOT)/../../thirdparty/ruby/include/2.0/mac/universal-darwin12.5.0\"",
+				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = tfn_lib;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				VALID_ARCHS = x86_64;
@@ -1318,11 +1563,12 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../../thirdparty/ruby/include/ruby/1.8/mac\"",
+					"\"$(SRCROOT)/../../thirdparty/ruby/include/1.8/mac\"",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				VALID_ARCHS = i386;
 			};
 			name = Debug;
 		};
@@ -1347,11 +1593,12 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../../thirdparty/ruby/include/ruby/1.8/mac\"",
+					"\"$(SRCROOT)/../../thirdparty/ruby/include/1.8/mac\"",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				VALID_ARCHS = i386;
 			};
 			name = Release;
 		};
@@ -1367,7 +1614,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		33CDE5E9182703B200F7C6E8 /* Build configuration list for PBXNativeTarget "Ruby 2.0" */ = {
+		33CDE5E9182703B200F7C6E8 /* Build configuration list for PBXNativeTarget "Ruby 2.0 - 32" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				33CDE5EA182703B200F7C6E8 /* Debug */,
@@ -1376,7 +1623,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		3A33F1851DC47FF600CA768D /* Build configuration list for PBXNativeTarget "Ruby 2.2" */ = {
+		3A33F1851DC47FF600CA768D /* Build configuration list for PBXNativeTarget "Ruby 2.2 - 64" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3A33F1861DC47FF600CA768D /* Debug */,
@@ -1385,7 +1632,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		3A42CFAF218EB2A200AEBEBD /* Build configuration list for PBXNativeTarget "Ruby 2.5" */ = {
+		3A42CFAF218EB2A200AEBEBD /* Build configuration list for PBXNativeTarget "Ruby 2.5 - 64" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3A42CFB0218EB2A200AEBEBD /* Debug */,
@@ -1394,7 +1641,16 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		CE405E87184763D300A77187 /* Build configuration list for PBXNativeTarget "Ruby 1.8" */ = {
+		3A5C3B8E218FDE5900A72BE6 /* Build configuration list for PBXNativeTarget "Ruby 2.0 - 64" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3A5C3B8F218FDE5900A72BE6 /* Debug */,
+				3A5C3B90218FDE5900A72BE6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CE405E87184763D300A77187 /* Build configuration list for PBXNativeTarget "Ruby 1.8 - 32" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CE405E88184763D300A77187 /* Debug */,

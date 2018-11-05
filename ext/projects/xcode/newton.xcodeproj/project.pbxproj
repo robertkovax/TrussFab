@@ -194,6 +194,193 @@
 		3A42D28D218EC14A00AEBEBD /* dgMeshEffect4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1D3218EC14900AEBEBD /* dgMeshEffect4.cpp */; };
 		3A42D28E218EC14A00AEBEBD /* dgMeshEffect5.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1D4218EC14900AEBEBD /* dgMeshEffect5.cpp */; };
 		3A42D28F218EC14A00AEBEBD /* dgMeshEffect6.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1D5218EC14900AEBEBD /* dgMeshEffect6.cpp */; };
+		3A5C3B94218FDED700A72BE6 /* dgProfiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1AE218EC14900AEBEBD /* dgProfiler.h */; };
+		3A5C3B95218FDED700A72BE6 /* dgGraph.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D195218EC14900AEBEBD /* dgGraph.h */; };
+		3A5C3B96218FDED700A72BE6 /* dgCollisionCompoundFractured.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D134218EC14900AEBEBD /* dgCollisionCompoundFractured.h */; };
+		3A5C3B97218FDED700A72BE6 /* dgVectorSimd.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1C6218EC14900AEBEBD /* dgVectorSimd.h */; };
+		3A5C3B98218FDED700A72BE6 /* dgContactSolver.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D15C218EC14900AEBEBD /* dgContactSolver.h */; };
+		3A5C3B99218FDED700A72BE6 /* dgCollisionIncompressibleParticles.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D146218EC14900AEBEBD /* dgCollisionIncompressibleParticles.h */; };
+		3A5C3B9A218FDED700A72BE6 /* dgWorldDynamicUpdate.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D17A218EC14900AEBEBD /* dgWorldDynamicUpdate.h */; };
+		3A5C3B9B218FDED700A72BE6 /* dgObb.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1A3218EC14900AEBEBD /* dgObb.h */; };
+		3A5C3B9C218FDED700A72BE6 /* dgSmallDeterminant.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1B9218EC14900AEBEBD /* dgSmallDeterminant.h */; };
+		3A5C3B9D218FDED700A72BE6 /* dgPolygonSoupDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1A8218EC14900AEBEBD /* dgPolygonSoupDatabase.h */; };
+		3A5C3B9E218FDED700A72BE6 /* dgContact.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D15A218EC14900AEBEBD /* dgContact.h */; };
+		3A5C3B9F218FDED700A72BE6 /* dgVector.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1C4218EC14900AEBEBD /* dgVector.h */; };
+		3A5C3BA0218FDED700A72BE6 /* dgKinematicBody.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D166218EC14900AEBEBD /* dgKinematicBody.h */; };
+		3A5C3BA1218FDED700A72BE6 /* dgCollisionLumpedMassParticles.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D14A218EC14900AEBEBD /* dgCollisionLumpedMassParticles.h */; };
+		3A5C3BA2218FDED700A72BE6 /* dgDebug.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D18B218EC14900AEBEBD /* dgDebug.h */; };
+		3A5C3BA3218FDED700A72BE6 /* dgHeap.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D196218EC14900AEBEBD /* dgHeap.h */; };
+		3A5C3BA4218FDED700A72BE6 /* dgWorldPlugins.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D17C218EC14900AEBEBD /* dgWorldPlugins.h */; };
+		3A5C3BA5218FDED700A72BE6 /* dgCollisionScene.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D152218EC14900AEBEBD /* dgCollisionScene.h */; };
+		3A5C3BA6218FDED700A72BE6 /* dgCollisionBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D12A218EC14900AEBEBD /* dgCollisionBox.h */; };
+		3A5C3BA7218FDED700A72BE6 /* dgCollisionHeightField.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D144218EC14900AEBEBD /* dgCollisionHeightField.h */; };
+		3A5C3BA8218FDED700A72BE6 /* dgCollisionConvexPolygon.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D13C218EC14900AEBEBD /* dgCollisionConvexPolygon.h */; };
+		3A5C3BA9218FDED700A72BE6 /* dgTree.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1C1218EC14900AEBEBD /* dgTree.h */; };
+		3A5C3BAA218FDED700A72BE6 /* dgWorldDynamicsParallelSolver.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D177218EC14900AEBEBD /* dgWorldDynamicsParallelSolver.h */; };
+		3A5C3BAB218FDED700A72BE6 /* dgCollisionSphere.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D154218EC14900AEBEBD /* dgCollisionSphere.h */; };
+		3A5C3BAC218FDED700A72BE6 /* dgCollisionChamferCylinder.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D130218EC14900AEBEBD /* dgCollisionChamferCylinder.h */; };
+		3A5C3BAD218FDED700A72BE6 /* dgRtti.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1B7218EC14900AEBEBD /* dgRtti.h */; };
+		3A5C3BAE218FDED700A72BE6 /* dgMeshEffect.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1CF218EC14900AEBEBD /* dgMeshEffect.h */; };
+		3A5C3BAF218FDED700A72BE6 /* dgPhysicsStdafx.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D169218EC14900AEBEBD /* dgPhysicsStdafx.h */; };
+		3A5C3BB0218FDED700A72BE6 /* newton_prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 3A42CF99218EB19D00AEBEBD /* newton_prefix.pch */; };
+		3A5C3BB1218FDED700A72BE6 /* dgGoogol.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D194218EC14900AEBEBD /* dgGoogol.h */; };
+		3A5C3BB2218FDED700A72BE6 /* NewtonStdAfx.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1CD218EC14900AEBEBD /* NewtonStdAfx.h */; };
+		3A5C3BB3218FDED700A72BE6 /* dgRef.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1B4218EC14900AEBEBD /* dgRef.h */; };
+		3A5C3BB4218FDED700A72BE6 /* dgCollisionUserMesh.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D156218EC14900AEBEBD /* dgCollisionUserMesh.h */; };
+		3A5C3BB5218FDED700A72BE6 /* dgIntersections.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D198218EC14900AEBEBD /* dgIntersections.h */; };
+		3A5C3BB6218FDED700A72BE6 /* dgCorkscrewConstraint.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D15E218EC14900AEBEBD /* dgCorkscrewConstraint.h */; };
+		3A5C3BB7218FDED700A72BE6 /* dgCollisionMesh.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D14E218EC14900AEBEBD /* dgCollisionMesh.h */; };
+		3A5C3BB8218FDED700A72BE6 /* dgGeneralMatrix.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D190218EC14900AEBEBD /* dgGeneralMatrix.h */; };
+		3A5C3BB9218FDED700A72BE6 /* dgMutexThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D19F218EC14900AEBEBD /* dgMutexThread.h */; };
+		3A5C3BBA218FDED700A72BE6 /* dgHingeConstraint.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D162218EC14900AEBEBD /* dgHingeConstraint.h */; };
+		3A5C3BBB218FDED700A72BE6 /* dgConvexHull4d.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D187218EC14900AEBEBD /* dgConvexHull4d.h */; };
+		3A5C3BBC218FDED700A72BE6 /* dgSkeletonContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D16B218EC14900AEBEBD /* dgSkeletonContainer.h */; };
+		3A5C3BBD218FDED700A72BE6 /* dgBroadPhaseSegregated.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D126218EC14900AEBEBD /* dgBroadPhaseSegregated.h */; };
+		3A5C3BBE218FDED700A72BE6 /* dgStack.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1BA218EC14900AEBEBD /* dgStack.h */; };
+		3A5C3BBF218FDED700A72BE6 /* dgUniversalConstraint.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D16F218EC14900AEBEBD /* dgUniversalConstraint.h */; };
+		3A5C3BC0218FDED700A72BE6 /* dg.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D180218EC14900AEBEBD /* dg.h */; };
+		3A5C3BC1218FDED700A72BE6 /* dgBallConstraint.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D118218EC14900AEBEBD /* dgBallConstraint.h */; };
+		3A5C3BC2218FDED700A72BE6 /* dgDelaunayTetrahedralization.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D18D218EC14900AEBEBD /* dgDelaunayTetrahedralization.h */; };
+		3A5C3BC3218FDED700A72BE6 /* dgConstraint.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D158218EC14900AEBEBD /* dgConstraint.h */; };
+		3A5C3BC4218FDED700A72BE6 /* dgUserConstraint.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D173218EC14900AEBEBD /* dgUserConstraint.h */; };
+		3A5C3BC5218FDED700A72BE6 /* dgQuaternion.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1B0218EC14900AEBEBD /* dgQuaternion.h */; };
+		3A5C3BC6218FDED700A72BE6 /* dgWorld.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D175218EC14900AEBEBD /* dgWorld.h */; };
+		3A5C3BC7218FDED700A72BE6 /* dgCollisionCylinder.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D13E218EC14900AEBEBD /* dgCollisionCylinder.h */; };
+		3A5C3BC8218FDED700A72BE6 /* dgRefCounter.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1B6218EC14900AEBEBD /* dgRefCounter.h */; };
+		3A5C3BC9218FDED700A72BE6 /* dgArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D183218EC14900AEBEBD /* dgArray.h */; };
+		3A5C3BCA218FDED700A72BE6 /* dgFastQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D18E218EC14900AEBEBD /* dgFastQueue.h */; };
+		3A5C3BCB218FDED700A72BE6 /* dgBilateralConstraint.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D11A218EC14900AEBEBD /* dgBilateralConstraint.h */; };
+		3A5C3BCC218FDED700A72BE6 /* dgPolyhedra.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1AA218EC14900AEBEBD /* dgPolyhedra.h */; };
+		3A5C3BCD218FDED700A72BE6 /* dgCollisionBVH.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D12C218EC14900AEBEBD /* dgCollisionBVH.h */; };
+		3A5C3BCE218FDED700A72BE6 /* dgBody.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D11C218EC14900AEBEBD /* dgBody.h */; };
+		3A5C3BCF218FDED700A72BE6 /* dgBroadPhaseMixed.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D124218EC14900AEBEBD /* dgBroadPhaseMixed.h */; };
+		3A5C3BD0218FDED700A72BE6 /* dgInverseDynamics.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D164218EC14900AEBEBD /* dgInverseDynamics.h */; };
+		3A5C3BD1218FDED700A72BE6 /* dgCollisionDeformableMesh.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D140218EC14900AEBEBD /* dgCollisionDeformableMesh.h */; };
+		3A5C3BD2218FDED700A72BE6 /* dgNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1A1218EC14900AEBEBD /* dgNode.h */; };
+		3A5C3BD3218FDED700A72BE6 /* dgCollisionCompound.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D132218EC14900AEBEBD /* dgCollisionCompound.h */; };
+		3A5C3BD4218FDED700A72BE6 /* dgPathFinder.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1A4218EC14900AEBEBD /* dgPathFinder.h */; };
+		3A5C3BD5218FDED700A72BE6 /* dgAABBPolygonSoup.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D182218EC14900AEBEBD /* dgAABBPolygonSoup.h */; };
+		3A5C3BD6218FDED700A72BE6 /* dgPolyhedraMassProperties.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1AC218EC14900AEBEBD /* dgPolyhedraMassProperties.h */; };
+		3A5C3BD7218FDED700A72BE6 /* dgCollision.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D128218EC14900AEBEBD /* dgCollision.h */; };
+		3A5C3BD8218FDED700A72BE6 /* dgList.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D199218EC14900AEBEBD /* dgList.h */; };
+		3A5C3BD9218FDED700A72BE6 /* dgCollisionCone.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D136218EC14900AEBEBD /* dgCollisionCone.h */; };
+		3A5C3BDA218FDED700A72BE6 /* NewtonClass.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1CC218EC14900AEBEBD /* NewtonClass.h */; };
+		3A5C3BDB218FDED700A72BE6 /* dgCollisionConvex.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D138218EC14900AEBEBD /* dgCollisionConvex.h */; };
+		3A5C3BDC218FDED700A72BE6 /* dgCollisionCapsule.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D12E218EC14900AEBEBD /* dgCollisionCapsule.h */; };
+		3A5C3BDD218FDED700A72BE6 /* dgRandom.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1B2218EC14900AEBEBD /* dgRandom.h */; };
+		3A5C3BDE218FDED700A72BE6 /* dgDynamicBody.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D160218EC14900AEBEBD /* dgDynamicBody.h */; };
+		3A5C3BDF218FDED700A72BE6 /* dgBroadPhaseAggregate.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D122218EC14900AEBEBD /* dgBroadPhaseAggregate.h */; };
+		3A5C3BE0218FDED700A72BE6 /* dgCRC.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D189218EC14900AEBEBD /* dgCRC.h */; };
+		3A5C3BE1218FDED700A72BE6 /* dgSlidingConstraint.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D16D218EC14900AEBEBD /* dgSlidingConstraint.h */; };
+		3A5C3BE2218FDED700A72BE6 /* dgPlane.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1A5218EC14900AEBEBD /* dgPlane.h */; };
+		3A5C3BE3218FDED700A72BE6 /* dgCollisionDeformableSolidMesh.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D142218EC14900AEBEBD /* dgCollisionDeformableSolidMesh.h */; };
+		3A5C3BE4218FDED700A72BE6 /* dgThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1BD218EC14900AEBEBD /* dgThread.h */; };
+		3A5C3BE5218FDED700A72BE6 /* dgPhysics.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D168218EC14900AEBEBD /* dgPhysics.h */; };
+		3A5C3BE6218FDED700A72BE6 /* dgConvexHull3d.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D185218EC14900AEBEBD /* dgConvexHull3d.h */; };
+		3A5C3BE7218FDED700A72BE6 /* dgCollisionConvexHull.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D13A218EC14900AEBEBD /* dgCollisionConvexHull.h */; };
+		3A5C3BE8218FDED700A72BE6 /* dgStdafx.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1BB218EC14900AEBEBD /* dgStdafx.h */; };
+		3A5C3BE9218FDED700A72BE6 /* dgCollisionNull.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D150218EC14900AEBEBD /* dgCollisionNull.h */; };
+		3A5C3BEA218FDED700A72BE6 /* dgMemory.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D19D218EC14900AEBEBD /* dgMemory.h */; };
+		3A5C3BEB218FDED700A72BE6 /* dgCollisionInstance.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D148218EC14900AEBEBD /* dgCollisionInstance.h */; };
+		3A5C3BEC218FDED700A72BE6 /* dgTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1C3218EC14900AEBEBD /* dgTypes.h */; };
+		3A5C3BED218FDED700A72BE6 /* dgCollisionMassSpringDamperSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D14C218EC14900AEBEBD /* dgCollisionMassSpringDamperSystem.h */; };
+		3A5C3BEE218FDED700A72BE6 /* dgGeneralVector.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D192218EC14900AEBEBD /* dgGeneralVector.h */; };
+		3A5C3BEF218FDED700A72BE6 /* dgMatrix.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D19B218EC14900AEBEBD /* dgMatrix.h */; };
+		3A5C3BF0218FDED700A72BE6 /* Newton.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1CA218EC14900AEBEBD /* Newton.h */; };
+		3A5C3BF1218FDED700A72BE6 /* dgUpVectorConstraint.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D171218EC14900AEBEBD /* dgUpVectorConstraint.h */; };
+		3A5C3BF2218FDED700A72BE6 /* dgPolygonSoupBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1A7218EC14900AEBEBD /* dgPolygonSoupBuilder.h */; };
+		3A5C3BF3218FDED700A72BE6 /* dgThreadHive.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1BF218EC14900AEBEBD /* dgThreadHive.h */; };
+		3A5C3BF4218FDED700A72BE6 /* dgBroadPhase.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D120218EC14900AEBEBD /* dgBroadPhase.h */; };
+		3A5C3BF5218FDED700A72BE6 /* dgVectorScalar.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D1C5218EC14900AEBEBD /* dgVectorScalar.h */; };
+		3A5C3BF6218FDED700A72BE6 /* dgBodyMasterList.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A42D11E218EC14900AEBEBD /* dgBodyMasterList.h */; };
+		3A5C3BF8218FDED700A72BE6 /* dgCollisionCone.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D135218EC14900AEBEBD /* dgCollisionCone.cpp */; };
+		3A5C3BF9218FDED700A72BE6 /* dgMemory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D19C218EC14900AEBEBD /* dgMemory.cpp */; };
+		3A5C3BFA218FDED700A72BE6 /* dgCollisionInstance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D147218EC14900AEBEBD /* dgCollisionInstance.cpp */; };
+		3A5C3BFB218FDED700A72BE6 /* dgRandom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1B1218EC14900AEBEBD /* dgRandom.cpp */; };
+		3A5C3BFC218FDED700A72BE6 /* dgThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1BC218EC14900AEBEBD /* dgThread.cpp */; };
+		3A5C3BFD218FDED700A72BE6 /* dgConvexHull4d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D186218EC14900AEBEBD /* dgConvexHull4d.cpp */; };
+		3A5C3BFE218FDED700A72BE6 /* dgCollisionConvexHull.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D139218EC14900AEBEBD /* dgCollisionConvexHull.cpp */; };
+		3A5C3BFF218FDED700A72BE6 /* dgBody.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D11B218EC14900AEBEBD /* dgBody.cpp */; };
+		3A5C3C00218FDED700A72BE6 /* dgBroadPhaseAggregate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D121218EC14900AEBEBD /* dgBroadPhaseAggregate.cpp */; };
+		3A5C3C01218FDED700A72BE6 /* dgCollisionConvexPolygon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D13B218EC14900AEBEBD /* dgCollisionConvexPolygon.cpp */; };
+		3A5C3C02218FDED700A72BE6 /* dgDynamicBody.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D15F218EC14900AEBEBD /* dgDynamicBody.cpp */; };
+		3A5C3C03218FDED700A72BE6 /* dgSkeletonContainer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D16A218EC14900AEBEBD /* dgSkeletonContainer.cpp */; };
+		3A5C3C04218FDED700A72BE6 /* dgPolyhedraMassProperties.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1AB218EC14900AEBEBD /* dgPolyhedraMassProperties.cpp */; };
+		3A5C3C05218FDED700A72BE6 /* dgBroadPhaseSegregated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D125218EC14900AEBEBD /* dgBroadPhaseSegregated.cpp */; };
+		3A5C3C06218FDED700A72BE6 /* dgCollisionConvex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D137218EC14900AEBEBD /* dgCollisionConvex.cpp */; };
+		3A5C3C07218FDED700A72BE6 /* dgMutexThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D19E218EC14900AEBEBD /* dgMutexThread.cpp */; };
+		3A5C3C08218FDED700A72BE6 /* dgCollisionCapsule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D12D218EC14900AEBEBD /* dgCollisionCapsule.cpp */; };
+		3A5C3C09218FDED700A72BE6 /* dgCollisionBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D129218EC14900AEBEBD /* dgCollisionBox.cpp */; };
+		3A5C3C0A218FDED700A72BE6 /* dgCollisionMassSpringDamperSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D14B218EC14900AEBEBD /* dgCollisionMassSpringDamperSystem.cpp */; };
+		3A5C3C0B218FDED700A72BE6 /* dgCollisionUserMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D155218EC14900AEBEBD /* dgCollisionUserMesh.cpp */; };
+		3A5C3C0C218FDED700A72BE6 /* dgQuaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1AF218EC14900AEBEBD /* dgQuaternion.cpp */; };
+		3A5C3C0D218FDED700A72BE6 /* dgBroadPhaseMixed.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D123218EC14900AEBEBD /* dgBroadPhaseMixed.cpp */; };
+		3A5C3C0E218FDED700A72BE6 /* dgContact.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D159218EC14900AEBEBD /* dgContact.cpp */; };
+		3A5C3C0F218FDED700A72BE6 /* dgWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D174218EC14900AEBEBD /* dgWorld.cpp */; };
+		3A5C3C10218FDED700A72BE6 /* dgUserConstraint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D172218EC14900AEBEBD /* dgUserConstraint.cpp */; };
+		3A5C3C11218FDED700A72BE6 /* dgCollisionHeightField.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D143218EC14900AEBEBD /* dgCollisionHeightField.cpp */; };
+		3A5C3C12218FDED700A72BE6 /* dgPolygonSoupBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1A6218EC14900AEBEBD /* dgPolygonSoupBuilder.cpp */; };
+		3A5C3C13218FDED700A72BE6 /* dgCollisionCompound.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D131218EC14900AEBEBD /* dgCollisionCompound.cpp */; };
+		3A5C3C14218FDED700A72BE6 /* dgCollisionIncompressibleParticles.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D145218EC14900AEBEBD /* dgCollisionIncompressibleParticles.cpp */; };
+		3A5C3C15218FDED700A72BE6 /* dgPolyhedra.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1A9218EC14900AEBEBD /* dgPolyhedra.cpp */; };
+		3A5C3C16218FDED700A72BE6 /* dgThreadHive.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1BE218EC14900AEBEBD /* dgThreadHive.cpp */; };
+		3A5C3C17218FDED700A72BE6 /* dgAABBPolygonSoup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D181218EC14900AEBEBD /* dgAABBPolygonSoup.cpp */; };
+		3A5C3C18218FDED700A72BE6 /* dgCollisionDeformableSolidMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D141218EC14900AEBEBD /* dgCollisionDeformableSolidMesh.cpp */; };
+		3A5C3C19218FDED700A72BE6 /* dgSlidingConstraint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D16C218EC14900AEBEBD /* dgSlidingConstraint.cpp */; };
+		3A5C3C1A218FDED700A72BE6 /* dgCollisionScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D151218EC14900AEBEBD /* dgCollisionScene.cpp */; };
+		3A5C3C1B218FDED700A72BE6 /* dgCollisionMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D14D218EC14900AEBEBD /* dgCollisionMesh.cpp */; };
+		3A5C3C1C218FDED700A72BE6 /* dgBroadPhase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D11F218EC14900AEBEBD /* dgBroadPhase.cpp */; };
+		3A5C3C1D218FDED700A72BE6 /* dg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D17F218EC14900AEBEBD /* dg.cpp */; };
+		3A5C3C1E218FDED700A72BE6 /* dgConstraint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D157218EC14900AEBEBD /* dgConstraint.cpp */; };
+		3A5C3C1F218FDED700A72BE6 /* dgCollision.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D127218EC14900AEBEBD /* dgCollision.cpp */; };
+		3A5C3C20218FDED700A72BE6 /* dgWorldDynamicsSimpleSolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D178218EC14900AEBEBD /* dgWorldDynamicsSimpleSolver.cpp */; };
+		3A5C3C21218FDED700A72BE6 /* dgMeshEffect4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1D3218EC14900AEBEBD /* dgMeshEffect4.cpp */; };
+		3A5C3C22218FDED700A72BE6 /* dgGeneralVector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D191218EC14900AEBEBD /* dgGeneralVector.cpp */; };
+		3A5C3C23218FDED700A72BE6 /* dgMeshEffect5.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1D4218EC14900AEBEBD /* dgMeshEffect5.cpp */; };
+		3A5C3C24218FDED700A72BE6 /* dgObb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1A2218EC14900AEBEBD /* dgObb.cpp */; };
+		3A5C3C25218FDED700A72BE6 /* dgMeshEffect6.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1D5218EC14900AEBEBD /* dgMeshEffect6.cpp */; };
+		3A5C3C26218FDED700A72BE6 /* dgRefCounter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1B5218EC14900AEBEBD /* dgRefCounter.cpp */; };
+		3A5C3C27218FDED700A72BE6 /* dgCollisionNull.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D14F218EC14900AEBEBD /* dgCollisionNull.cpp */; };
+		3A5C3C28218FDED700A72BE6 /* dgGoogol.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D193218EC14900AEBEBD /* dgGoogol.cpp */; };
+		3A5C3C29218FDED700A72BE6 /* dgDebug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D18A218EC14900AEBEBD /* dgDebug.cpp */; };
+		3A5C3C2A218FDED700A72BE6 /* dgRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1B3218EC14900AEBEBD /* dgRef.cpp */; };
+		3A5C3C2B218FDED700A72BE6 /* dgSmallDeterminant.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1B8218EC14900AEBEBD /* dgSmallDeterminant.cpp */; };
+		3A5C3C2C218FDED700A72BE6 /* dgNarrowPhaseCollision.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D167218EC14900AEBEBD /* dgNarrowPhaseCollision.cpp */; };
+		3A5C3C2D218FDED700A72BE6 /* dgBilateralConstraint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D119218EC14900AEBEBD /* dgBilateralConstraint.cpp */; };
+		3A5C3C2E218FDED700A72BE6 /* dgNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1A0218EC14900AEBEBD /* dgNode.cpp */; };
+		3A5C3C2F218FDED700A72BE6 /* dgWorldDynamicsParallelSolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D176218EC14900AEBEBD /* dgWorldDynamicsParallelSolver.cpp */; };
+		3A5C3C30218FDED700A72BE6 /* dgCollisionChamferCylinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D12F218EC14900AEBEBD /* dgCollisionChamferCylinder.cpp */; };
+		3A5C3C31218FDED700A72BE6 /* dgCRC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D188218EC14900AEBEBD /* dgCRC.cpp */; };
+		3A5C3C32218FDED700A72BE6 /* dgWorldDynamicUpdate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D179218EC14900AEBEBD /* dgWorldDynamicUpdate.cpp */; };
+		3A5C3C33218FDED700A72BE6 /* dgCollisionBVH.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D12B218EC14900AEBEBD /* dgCollisionBVH.cpp */; };
+		3A5C3C34218FDED700A72BE6 /* dgBodyMasterList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D11D218EC14900AEBEBD /* dgBodyMasterList.cpp */; };
+		3A5C3C35218FDED700A72BE6 /* dgTree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1C0218EC14900AEBEBD /* dgTree.cpp */; };
+		3A5C3C36218FDED700A72BE6 /* dgWorldPlugins.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D17B218EC14900AEBEBD /* dgWorldPlugins.cpp */; };
+		3A5C3C37218FDED700A72BE6 /* dgCollisionCylinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D13D218EC14900AEBEBD /* dgCollisionCylinder.cpp */; };
+		3A5C3C38218FDED700A72BE6 /* dgConvexHull3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D184218EC14900AEBEBD /* dgConvexHull3d.cpp */; };
+		3A5C3C39218FDED700A72BE6 /* dgCorkscrewConstraint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D15D218EC14900AEBEBD /* dgCorkscrewConstraint.cpp */; };
+		3A5C3C3A218FDED700A72BE6 /* dgContactSolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D15B218EC14900AEBEBD /* dgContactSolver.cpp */; };
+		3A5C3C3B218FDED700A72BE6 /* dgMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D19A218EC14900AEBEBD /* dgMatrix.cpp */; };
+		3A5C3C3C218FDED700A72BE6 /* dgMeshEffect1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1D0218EC14900AEBEBD /* dgMeshEffect1.cpp */; };
+		3A5C3C3D218FDED700A72BE6 /* dgMeshEffect3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1D2218EC14900AEBEBD /* dgMeshEffect3.cpp */; };
+		3A5C3C3E218FDED700A72BE6 /* dgCollisionLumpedMassParticles.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D149218EC14900AEBEBD /* dgCollisionLumpedMassParticles.cpp */; };
+		3A5C3C3F218FDED700A72BE6 /* dgCollisionCompoundFractured.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D133218EC14900AEBEBD /* dgCollisionCompoundFractured.cpp */; };
+		3A5C3C40218FDED700A72BE6 /* dgUpVectorConstraint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D170218EC14900AEBEBD /* dgUpVectorConstraint.cpp */; };
+		3A5C3C41218FDED700A72BE6 /* dgKinematicBody.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D165218EC14900AEBEBD /* dgKinematicBody.cpp */; };
+		3A5C3C42218FDED700A72BE6 /* NewtonClass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1CB218EC14900AEBEBD /* NewtonClass.cpp */; };
+		3A5C3C43218FDED700A72BE6 /* dgProfiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1AD218EC14900AEBEBD /* dgProfiler.cpp */; };
+		3A5C3C44218FDED700A72BE6 /* dgIntersections.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D197218EC14900AEBEBD /* dgIntersections.cpp */; };
+		3A5C3C45218FDED700A72BE6 /* dgMeshEffect2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1D1218EC14900AEBEBD /* dgMeshEffect2.cpp */; };
+		3A5C3C46218FDED700A72BE6 /* dgCollisionSphere.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D153218EC14900AEBEBD /* dgCollisionSphere.cpp */; };
+		3A5C3C47218FDED700A72BE6 /* dgUniversalConstraint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D16E218EC14900AEBEBD /* dgUniversalConstraint.cpp */; };
+		3A5C3C48218FDED700A72BE6 /* dgHingeConstraint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D161218EC14900AEBEBD /* dgHingeConstraint.cpp */; };
+		3A5C3C49218FDED700A72BE6 /* dgDelaunayTetrahedralization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D18C218EC14900AEBEBD /* dgDelaunayTetrahedralization.cpp */; };
+		3A5C3C4A218FDED700A72BE6 /* dgCollisionDeformableMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D13F218EC14900AEBEBD /* dgCollisionDeformableMesh.cpp */; };
+		3A5C3C4B218FDED700A72BE6 /* dgTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1C2218EC14900AEBEBD /* dgTypes.cpp */; };
+		3A5C3C4C218FDED700A72BE6 /* Newton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D1C9218EC14900AEBEBD /* Newton.cpp */; };
+		3A5C3C4D218FDED700A72BE6 /* dgInverseDynamics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D163218EC14900AEBEBD /* dgInverseDynamics.cpp */; };
+		3A5C3C4E218FDED700A72BE6 /* dgBallConstraint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D117218EC14900AEBEBD /* dgBallConstraint.cpp */; };
+		3A5C3C4F218FDED700A72BE6 /* dgGeneralMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A42D18F218EC14900AEBEBD /* dgGeneralMatrix.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -387,10 +574,18 @@
 		3A42D1D3218EC14900AEBEBD /* dgMeshEffect4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dgMeshEffect4.cpp; sourceTree = "<group>"; };
 		3A42D1D4218EC14900AEBEBD /* dgMeshEffect5.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dgMeshEffect5.cpp; sourceTree = "<group>"; };
 		3A42D1D5218EC14900AEBEBD /* dgMeshEffect6.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dgMeshEffect6.cpp; sourceTree = "<group>"; };
+		3A5C3C54218FDED700A72BE6 /* newton.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = newton.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2AAC06F0554671400DB518D /* newton.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = newton.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		3A5C3C50218FDED700A72BE6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D2AAC06D0554671400DB518D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -405,6 +600,7 @@
 			isa = PBXGroup;
 			children = (
 				D2AAC06F0554671400DB518D /* newton.a */,
+				3A5C3C54218FDED700A72BE6 /* newton.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -646,6 +842,112 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		3A5C3B93218FDED700A72BE6 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3A5C3B94218FDED700A72BE6 /* dgProfiler.h in Headers */,
+				3A5C3B95218FDED700A72BE6 /* dgGraph.h in Headers */,
+				3A5C3B96218FDED700A72BE6 /* dgCollisionCompoundFractured.h in Headers */,
+				3A5C3B97218FDED700A72BE6 /* dgVectorSimd.h in Headers */,
+				3A5C3B98218FDED700A72BE6 /* dgContactSolver.h in Headers */,
+				3A5C3B99218FDED700A72BE6 /* dgCollisionIncompressibleParticles.h in Headers */,
+				3A5C3B9A218FDED700A72BE6 /* dgWorldDynamicUpdate.h in Headers */,
+				3A5C3B9B218FDED700A72BE6 /* dgObb.h in Headers */,
+				3A5C3B9C218FDED700A72BE6 /* dgSmallDeterminant.h in Headers */,
+				3A5C3B9D218FDED700A72BE6 /* dgPolygonSoupDatabase.h in Headers */,
+				3A5C3B9E218FDED700A72BE6 /* dgContact.h in Headers */,
+				3A5C3B9F218FDED700A72BE6 /* dgVector.h in Headers */,
+				3A5C3BA0218FDED700A72BE6 /* dgKinematicBody.h in Headers */,
+				3A5C3BA1218FDED700A72BE6 /* dgCollisionLumpedMassParticles.h in Headers */,
+				3A5C3BA2218FDED700A72BE6 /* dgDebug.h in Headers */,
+				3A5C3BA3218FDED700A72BE6 /* dgHeap.h in Headers */,
+				3A5C3BA4218FDED700A72BE6 /* dgWorldPlugins.h in Headers */,
+				3A5C3BA5218FDED700A72BE6 /* dgCollisionScene.h in Headers */,
+				3A5C3BA6218FDED700A72BE6 /* dgCollisionBox.h in Headers */,
+				3A5C3BA7218FDED700A72BE6 /* dgCollisionHeightField.h in Headers */,
+				3A5C3BA8218FDED700A72BE6 /* dgCollisionConvexPolygon.h in Headers */,
+				3A5C3BA9218FDED700A72BE6 /* dgTree.h in Headers */,
+				3A5C3BAA218FDED700A72BE6 /* dgWorldDynamicsParallelSolver.h in Headers */,
+				3A5C3BAB218FDED700A72BE6 /* dgCollisionSphere.h in Headers */,
+				3A5C3BAC218FDED700A72BE6 /* dgCollisionChamferCylinder.h in Headers */,
+				3A5C3BAD218FDED700A72BE6 /* dgRtti.h in Headers */,
+				3A5C3BAE218FDED700A72BE6 /* dgMeshEffect.h in Headers */,
+				3A5C3BAF218FDED700A72BE6 /* dgPhysicsStdafx.h in Headers */,
+				3A5C3BB0218FDED700A72BE6 /* newton_prefix.pch in Headers */,
+				3A5C3BB1218FDED700A72BE6 /* dgGoogol.h in Headers */,
+				3A5C3BB2218FDED700A72BE6 /* NewtonStdAfx.h in Headers */,
+				3A5C3BB3218FDED700A72BE6 /* dgRef.h in Headers */,
+				3A5C3BB4218FDED700A72BE6 /* dgCollisionUserMesh.h in Headers */,
+				3A5C3BB5218FDED700A72BE6 /* dgIntersections.h in Headers */,
+				3A5C3BB6218FDED700A72BE6 /* dgCorkscrewConstraint.h in Headers */,
+				3A5C3BB7218FDED700A72BE6 /* dgCollisionMesh.h in Headers */,
+				3A5C3BB8218FDED700A72BE6 /* dgGeneralMatrix.h in Headers */,
+				3A5C3BB9218FDED700A72BE6 /* dgMutexThread.h in Headers */,
+				3A5C3BBA218FDED700A72BE6 /* dgHingeConstraint.h in Headers */,
+				3A5C3BBB218FDED700A72BE6 /* dgConvexHull4d.h in Headers */,
+				3A5C3BBC218FDED700A72BE6 /* dgSkeletonContainer.h in Headers */,
+				3A5C3BBD218FDED700A72BE6 /* dgBroadPhaseSegregated.h in Headers */,
+				3A5C3BBE218FDED700A72BE6 /* dgStack.h in Headers */,
+				3A5C3BBF218FDED700A72BE6 /* dgUniversalConstraint.h in Headers */,
+				3A5C3BC0218FDED700A72BE6 /* dg.h in Headers */,
+				3A5C3BC1218FDED700A72BE6 /* dgBallConstraint.h in Headers */,
+				3A5C3BC2218FDED700A72BE6 /* dgDelaunayTetrahedralization.h in Headers */,
+				3A5C3BC3218FDED700A72BE6 /* dgConstraint.h in Headers */,
+				3A5C3BC4218FDED700A72BE6 /* dgUserConstraint.h in Headers */,
+				3A5C3BC5218FDED700A72BE6 /* dgQuaternion.h in Headers */,
+				3A5C3BC6218FDED700A72BE6 /* dgWorld.h in Headers */,
+				3A5C3BC7218FDED700A72BE6 /* dgCollisionCylinder.h in Headers */,
+				3A5C3BC8218FDED700A72BE6 /* dgRefCounter.h in Headers */,
+				3A5C3BC9218FDED700A72BE6 /* dgArray.h in Headers */,
+				3A5C3BCA218FDED700A72BE6 /* dgFastQueue.h in Headers */,
+				3A5C3BCB218FDED700A72BE6 /* dgBilateralConstraint.h in Headers */,
+				3A5C3BCC218FDED700A72BE6 /* dgPolyhedra.h in Headers */,
+				3A5C3BCD218FDED700A72BE6 /* dgCollisionBVH.h in Headers */,
+				3A5C3BCE218FDED700A72BE6 /* dgBody.h in Headers */,
+				3A5C3BCF218FDED700A72BE6 /* dgBroadPhaseMixed.h in Headers */,
+				3A5C3BD0218FDED700A72BE6 /* dgInverseDynamics.h in Headers */,
+				3A5C3BD1218FDED700A72BE6 /* dgCollisionDeformableMesh.h in Headers */,
+				3A5C3BD2218FDED700A72BE6 /* dgNode.h in Headers */,
+				3A5C3BD3218FDED700A72BE6 /* dgCollisionCompound.h in Headers */,
+				3A5C3BD4218FDED700A72BE6 /* dgPathFinder.h in Headers */,
+				3A5C3BD5218FDED700A72BE6 /* dgAABBPolygonSoup.h in Headers */,
+				3A5C3BD6218FDED700A72BE6 /* dgPolyhedraMassProperties.h in Headers */,
+				3A5C3BD7218FDED700A72BE6 /* dgCollision.h in Headers */,
+				3A5C3BD8218FDED700A72BE6 /* dgList.h in Headers */,
+				3A5C3BD9218FDED700A72BE6 /* dgCollisionCone.h in Headers */,
+				3A5C3BDA218FDED700A72BE6 /* NewtonClass.h in Headers */,
+				3A5C3BDB218FDED700A72BE6 /* dgCollisionConvex.h in Headers */,
+				3A5C3BDC218FDED700A72BE6 /* dgCollisionCapsule.h in Headers */,
+				3A5C3BDD218FDED700A72BE6 /* dgRandom.h in Headers */,
+				3A5C3BDE218FDED700A72BE6 /* dgDynamicBody.h in Headers */,
+				3A5C3BDF218FDED700A72BE6 /* dgBroadPhaseAggregate.h in Headers */,
+				3A5C3BE0218FDED700A72BE6 /* dgCRC.h in Headers */,
+				3A5C3BE1218FDED700A72BE6 /* dgSlidingConstraint.h in Headers */,
+				3A5C3BE2218FDED700A72BE6 /* dgPlane.h in Headers */,
+				3A5C3BE3218FDED700A72BE6 /* dgCollisionDeformableSolidMesh.h in Headers */,
+				3A5C3BE4218FDED700A72BE6 /* dgThread.h in Headers */,
+				3A5C3BE5218FDED700A72BE6 /* dgPhysics.h in Headers */,
+				3A5C3BE6218FDED700A72BE6 /* dgConvexHull3d.h in Headers */,
+				3A5C3BE7218FDED700A72BE6 /* dgCollisionConvexHull.h in Headers */,
+				3A5C3BE8218FDED700A72BE6 /* dgStdafx.h in Headers */,
+				3A5C3BE9218FDED700A72BE6 /* dgCollisionNull.h in Headers */,
+				3A5C3BEA218FDED700A72BE6 /* dgMemory.h in Headers */,
+				3A5C3BEB218FDED700A72BE6 /* dgCollisionInstance.h in Headers */,
+				3A5C3BEC218FDED700A72BE6 /* dgTypes.h in Headers */,
+				3A5C3BED218FDED700A72BE6 /* dgCollisionMassSpringDamperSystem.h in Headers */,
+				3A5C3BEE218FDED700A72BE6 /* dgGeneralVector.h in Headers */,
+				3A5C3BEF218FDED700A72BE6 /* dgMatrix.h in Headers */,
+				3A5C3BF0218FDED700A72BE6 /* Newton.h in Headers */,
+				3A5C3BF1218FDED700A72BE6 /* dgUpVectorConstraint.h in Headers */,
+				3A5C3BF2218FDED700A72BE6 /* dgPolygonSoupBuilder.h in Headers */,
+				3A5C3BF3218FDED700A72BE6 /* dgThreadHive.h in Headers */,
+				3A5C3BF4218FDED700A72BE6 /* dgBroadPhase.h in Headers */,
+				3A5C3BF5218FDED700A72BE6 /* dgVectorScalar.h in Headers */,
+				3A5C3BF6218FDED700A72BE6 /* dgBodyMasterList.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D2AAC06B0554671400DB518D /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -755,9 +1057,26 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		D2AAC06E0554671400DB518D /* newton */ = {
+		3A5C3B92218FDED700A72BE6 /* newton - 64 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1DEB920108733DBB0010E9CD /* Build configuration list for PBXNativeTarget "newton" */;
+			buildConfigurationList = 3A5C3C51218FDED700A72BE6 /* Build configuration list for PBXNativeTarget "newton - 64" */;
+			buildPhases = (
+				3A5C3B93218FDED700A72BE6 /* Headers */,
+				3A5C3BF7218FDED700A72BE6 /* Sources */,
+				3A5C3C50218FDED700A72BE6 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "newton - 64";
+			productName = newton;
+			productReference = 3A5C3C54218FDED700A72BE6 /* newton.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		D2AAC06E0554671400DB518D /* newton - 32 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1DEB920108733DBB0010E9CD /* Build configuration list for PBXNativeTarget "newton - 32" */;
 			buildPhases = (
 				D2AAC06B0554671400DB518D /* Headers */,
 				D2AAC06C0554671400DB518D /* Sources */,
@@ -767,7 +1086,7 @@
 			);
 			dependencies = (
 			);
-			name = newton;
+			name = "newton - 32";
 			productName = newton;
 			productReference = D2AAC06F0554671400DB518D /* newton.a */;
 			productType = "com.apple.product-type.library.static";
@@ -795,12 +1114,108 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D2AAC06E0554671400DB518D /* newton */,
+				D2AAC06E0554671400DB518D /* newton - 32 */,
+				3A5C3B92218FDED700A72BE6 /* newton - 64 */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		3A5C3BF7218FDED700A72BE6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3A5C3BF8218FDED700A72BE6 /* dgCollisionCone.cpp in Sources */,
+				3A5C3BF9218FDED700A72BE6 /* dgMemory.cpp in Sources */,
+				3A5C3BFA218FDED700A72BE6 /* dgCollisionInstance.cpp in Sources */,
+				3A5C3BFB218FDED700A72BE6 /* dgRandom.cpp in Sources */,
+				3A5C3BFC218FDED700A72BE6 /* dgThread.cpp in Sources */,
+				3A5C3BFD218FDED700A72BE6 /* dgConvexHull4d.cpp in Sources */,
+				3A5C3BFE218FDED700A72BE6 /* dgCollisionConvexHull.cpp in Sources */,
+				3A5C3BFF218FDED700A72BE6 /* dgBody.cpp in Sources */,
+				3A5C3C00218FDED700A72BE6 /* dgBroadPhaseAggregate.cpp in Sources */,
+				3A5C3C01218FDED700A72BE6 /* dgCollisionConvexPolygon.cpp in Sources */,
+				3A5C3C02218FDED700A72BE6 /* dgDynamicBody.cpp in Sources */,
+				3A5C3C03218FDED700A72BE6 /* dgSkeletonContainer.cpp in Sources */,
+				3A5C3C04218FDED700A72BE6 /* dgPolyhedraMassProperties.cpp in Sources */,
+				3A5C3C05218FDED700A72BE6 /* dgBroadPhaseSegregated.cpp in Sources */,
+				3A5C3C06218FDED700A72BE6 /* dgCollisionConvex.cpp in Sources */,
+				3A5C3C07218FDED700A72BE6 /* dgMutexThread.cpp in Sources */,
+				3A5C3C08218FDED700A72BE6 /* dgCollisionCapsule.cpp in Sources */,
+				3A5C3C09218FDED700A72BE6 /* dgCollisionBox.cpp in Sources */,
+				3A5C3C0A218FDED700A72BE6 /* dgCollisionMassSpringDamperSystem.cpp in Sources */,
+				3A5C3C0B218FDED700A72BE6 /* dgCollisionUserMesh.cpp in Sources */,
+				3A5C3C0C218FDED700A72BE6 /* dgQuaternion.cpp in Sources */,
+				3A5C3C0D218FDED700A72BE6 /* dgBroadPhaseMixed.cpp in Sources */,
+				3A5C3C0E218FDED700A72BE6 /* dgContact.cpp in Sources */,
+				3A5C3C0F218FDED700A72BE6 /* dgWorld.cpp in Sources */,
+				3A5C3C10218FDED700A72BE6 /* dgUserConstraint.cpp in Sources */,
+				3A5C3C11218FDED700A72BE6 /* dgCollisionHeightField.cpp in Sources */,
+				3A5C3C12218FDED700A72BE6 /* dgPolygonSoupBuilder.cpp in Sources */,
+				3A5C3C13218FDED700A72BE6 /* dgCollisionCompound.cpp in Sources */,
+				3A5C3C14218FDED700A72BE6 /* dgCollisionIncompressibleParticles.cpp in Sources */,
+				3A5C3C15218FDED700A72BE6 /* dgPolyhedra.cpp in Sources */,
+				3A5C3C16218FDED700A72BE6 /* dgThreadHive.cpp in Sources */,
+				3A5C3C17218FDED700A72BE6 /* dgAABBPolygonSoup.cpp in Sources */,
+				3A5C3C18218FDED700A72BE6 /* dgCollisionDeformableSolidMesh.cpp in Sources */,
+				3A5C3C19218FDED700A72BE6 /* dgSlidingConstraint.cpp in Sources */,
+				3A5C3C1A218FDED700A72BE6 /* dgCollisionScene.cpp in Sources */,
+				3A5C3C1B218FDED700A72BE6 /* dgCollisionMesh.cpp in Sources */,
+				3A5C3C1C218FDED700A72BE6 /* dgBroadPhase.cpp in Sources */,
+				3A5C3C1D218FDED700A72BE6 /* dg.cpp in Sources */,
+				3A5C3C1E218FDED700A72BE6 /* dgConstraint.cpp in Sources */,
+				3A5C3C1F218FDED700A72BE6 /* dgCollision.cpp in Sources */,
+				3A5C3C20218FDED700A72BE6 /* dgWorldDynamicsSimpleSolver.cpp in Sources */,
+				3A5C3C21218FDED700A72BE6 /* dgMeshEffect4.cpp in Sources */,
+				3A5C3C22218FDED700A72BE6 /* dgGeneralVector.cpp in Sources */,
+				3A5C3C23218FDED700A72BE6 /* dgMeshEffect5.cpp in Sources */,
+				3A5C3C24218FDED700A72BE6 /* dgObb.cpp in Sources */,
+				3A5C3C25218FDED700A72BE6 /* dgMeshEffect6.cpp in Sources */,
+				3A5C3C26218FDED700A72BE6 /* dgRefCounter.cpp in Sources */,
+				3A5C3C27218FDED700A72BE6 /* dgCollisionNull.cpp in Sources */,
+				3A5C3C28218FDED700A72BE6 /* dgGoogol.cpp in Sources */,
+				3A5C3C29218FDED700A72BE6 /* dgDebug.cpp in Sources */,
+				3A5C3C2A218FDED700A72BE6 /* dgRef.cpp in Sources */,
+				3A5C3C2B218FDED700A72BE6 /* dgSmallDeterminant.cpp in Sources */,
+				3A5C3C2C218FDED700A72BE6 /* dgNarrowPhaseCollision.cpp in Sources */,
+				3A5C3C2D218FDED700A72BE6 /* dgBilateralConstraint.cpp in Sources */,
+				3A5C3C2E218FDED700A72BE6 /* dgNode.cpp in Sources */,
+				3A5C3C2F218FDED700A72BE6 /* dgWorldDynamicsParallelSolver.cpp in Sources */,
+				3A5C3C30218FDED700A72BE6 /* dgCollisionChamferCylinder.cpp in Sources */,
+				3A5C3C31218FDED700A72BE6 /* dgCRC.cpp in Sources */,
+				3A5C3C32218FDED700A72BE6 /* dgWorldDynamicUpdate.cpp in Sources */,
+				3A5C3C33218FDED700A72BE6 /* dgCollisionBVH.cpp in Sources */,
+				3A5C3C34218FDED700A72BE6 /* dgBodyMasterList.cpp in Sources */,
+				3A5C3C35218FDED700A72BE6 /* dgTree.cpp in Sources */,
+				3A5C3C36218FDED700A72BE6 /* dgWorldPlugins.cpp in Sources */,
+				3A5C3C37218FDED700A72BE6 /* dgCollisionCylinder.cpp in Sources */,
+				3A5C3C38218FDED700A72BE6 /* dgConvexHull3d.cpp in Sources */,
+				3A5C3C39218FDED700A72BE6 /* dgCorkscrewConstraint.cpp in Sources */,
+				3A5C3C3A218FDED700A72BE6 /* dgContactSolver.cpp in Sources */,
+				3A5C3C3B218FDED700A72BE6 /* dgMatrix.cpp in Sources */,
+				3A5C3C3C218FDED700A72BE6 /* dgMeshEffect1.cpp in Sources */,
+				3A5C3C3D218FDED700A72BE6 /* dgMeshEffect3.cpp in Sources */,
+				3A5C3C3E218FDED700A72BE6 /* dgCollisionLumpedMassParticles.cpp in Sources */,
+				3A5C3C3F218FDED700A72BE6 /* dgCollisionCompoundFractured.cpp in Sources */,
+				3A5C3C40218FDED700A72BE6 /* dgUpVectorConstraint.cpp in Sources */,
+				3A5C3C41218FDED700A72BE6 /* dgKinematicBody.cpp in Sources */,
+				3A5C3C42218FDED700A72BE6 /* NewtonClass.cpp in Sources */,
+				3A5C3C43218FDED700A72BE6 /* dgProfiler.cpp in Sources */,
+				3A5C3C44218FDED700A72BE6 /* dgIntersections.cpp in Sources */,
+				3A5C3C45218FDED700A72BE6 /* dgMeshEffect2.cpp in Sources */,
+				3A5C3C46218FDED700A72BE6 /* dgCollisionSphere.cpp in Sources */,
+				3A5C3C47218FDED700A72BE6 /* dgUniversalConstraint.cpp in Sources */,
+				3A5C3C48218FDED700A72BE6 /* dgHingeConstraint.cpp in Sources */,
+				3A5C3C49218FDED700A72BE6 /* dgDelaunayTetrahedralization.cpp in Sources */,
+				3A5C3C4A218FDED700A72BE6 /* dgCollisionDeformableMesh.cpp in Sources */,
+				3A5C3C4B218FDED700A72BE6 /* dgTypes.cpp in Sources */,
+				3A5C3C4C218FDED700A72BE6 /* Newton.cpp in Sources */,
+				3A5C3C4D218FDED700A72BE6 /* dgInverseDynamics.cpp in Sources */,
+				3A5C3C4E218FDED700A72BE6 /* dgBallConstraint.cpp in Sources */,
+				3A5C3C4F218FDED700A72BE6 /* dgGeneralMatrix.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D2AAC06C0554671400DB518D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -902,22 +1317,22 @@
 		1DEB920208733DBB0010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				COMBINE_HIDPI_IMAGES = NO;
 				EXECUTABLE_PREFIX = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = newton_prefix.pch;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				VALID_ARCHS = x86_64;
+				PRODUCT_NAME = newton;
+				VALID_ARCHS = i386;
 			};
 			name = Debug;
 		};
 		1DEB920308733DBB0010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -925,8 +1340,8 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = newton_prefix.pch;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				VALID_ARCHS = x86_64;
+				PRODUCT_NAME = newton;
+				VALID_ARCHS = i386;
 			};
 			name = Release;
 		};
@@ -934,7 +1349,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -955,8 +1370,8 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CONFIGURATION_BUILD_DIR = "$(SRCROOT)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
-				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				CONFIGURATION_BUILD_DIR = "$(SRCROOT)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/$(TARGET_NAME)";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/$(TARGET_NAME)";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				EXECUTABLE_EXTENSION = a;
@@ -980,7 +1395,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
-				VALID_ARCHS = x86_64;
+				VALID_ARCHS = "i386 x86_64";
 			};
 			name = Debug;
 		};
@@ -988,7 +1403,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -1009,8 +1424,8 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CONFIGURATION_BUILD_DIR = "$(SRCROOT)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
-				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				CONFIGURATION_BUILD_DIR = "$(SRCROOT)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/$(TARGET_NAME)";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/$(TARGET_NAME)";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				EXECUTABLE_EXTENSION = a;
 				EXECUTABLE_PREFIX = "";
@@ -1033,6 +1448,37 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = macosx;
+				VALID_ARCHS = "i386 x86_64";
+			};
+			name = Release;
+		};
+		3A5C3C52218FDED700A72BE6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				COMBINE_HIDPI_IMAGES = NO;
+				EXECUTABLE_PREFIX = "";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = newton_prefix.pch;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_NAME = newton;
+				VALID_ARCHS = x86_64;
+			};
+			name = Debug;
+		};
+		3A5C3C53218FDED700A72BE6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_PREFIX = "";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = newton_prefix.pch;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_NAME = newton;
 				VALID_ARCHS = x86_64;
 			};
 			name = Release;
@@ -1040,7 +1486,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1DEB920108733DBB0010E9CD /* Build configuration list for PBXNativeTarget "newton" */ = {
+		1DEB920108733DBB0010E9CD /* Build configuration list for PBXNativeTarget "newton - 32" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB920208733DBB0010E9CD /* Debug */,
@@ -1054,6 +1500,15 @@
 			buildConfigurations = (
 				1DEB920608733DBB0010E9CD /* Debug */,
 				1DEB920708733DBB0010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3A5C3C51218FDED700A72BE6 /* Build configuration list for PBXNativeTarget "newton - 64" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3A5C3C52218FDED700A72BE6 /* Debug */,
+				3A5C3C53218FDED700A72BE6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
