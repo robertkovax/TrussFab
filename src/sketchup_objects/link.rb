@@ -106,6 +106,10 @@ class Link < PhysicsSketchupObject
   def length
     @position.distance(@second_position)
   end
+  
+  def length_current
+    first_node.hub.position.distance(second_node.hub.position).to_m
+  end
 
   def joint_position
     mid_point

@@ -8,8 +8,8 @@ class GenericLink < PhysicsLink
 
   def initialize(first_node, second_node, edge, id: nil, link_type: 'generic')
     super(first_node, second_node, edge, link_type, id: id)
-
-    pt1 = first_node.hub.position
+	
+	pt1 = first_node.hub.position
     pt2 = second_node.hub.position
     @default_length = pt1.distance(pt2).to_m
 
@@ -38,5 +38,10 @@ class GenericLink < PhysicsLink
     return if @joint.nil? || !@joint.valid?
     @joint.force = force
     @joint.update_info
+  end
+  
+  def update_force
+	self.force =  (@default_length - length_current)*10000
+	puts "Länge: #{length_current}, Normallänge: #{@default_length}, F:#{@force}"
   end
 end
