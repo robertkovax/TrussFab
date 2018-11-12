@@ -50,6 +50,7 @@ class Simulation
     @ground_group = nil
     @root_dir = File.join(__dir__, '..')
     @world = nil
+	#setup
     @show_edges = true
     @show_profiles = true
     @ui = ui
@@ -179,8 +180,12 @@ class Simulation
 
   # Called when activates
   def setup
+	puts "Simulation setup called"
+  
+  
     @world = TrussFab::World.new
-    @world.update_timestep = Configuration::WORLD_TIMESTEP
+    #@world.update_timestep = Configuration::WORLD_TIMESTEP
+	@world.update_timestep = Configuration::WORLD_TIMESTEP_SPRING
     @world.solver_model = Configuration::WORLD_SOLVER_MODEL
 
     if TrussFab.store_sensor_output?
@@ -688,6 +693,24 @@ class Simulation
     end
     Sketchup.active_model.commit_operation
   end
+  
+  def update_world_test
+	
+	update_forces
+	@world.advance
+	# We need to record this every time the world updates, otherwise,
+	# we might skip the crucial forces involved
+	rec_max_actuator_tensions
+	rec_max_link_tensions if @peak_force_mode
+    
+    Sketchup.active_model.start_operation('Sim: Visualize force', true)
+    if @highest_force_mode
+      visualize_highest_tension
+    else
+      visualize_tensions
+    end
+    Sketchup.active_model.commit_operation
+  end
 
   def update_world_headless_by(time_step, rec_max_tension = false)
     steps = (time_step.to_f / Configuration::WORLD_TIMESTEP).to_i
@@ -751,7 +774,8 @@ class Simulation
     view.show_frame
     return @running unless @running && !@paused
 
-    update_world
+    #update_world
+	update_world_test
     update_hub_addons
     update_entities
 	

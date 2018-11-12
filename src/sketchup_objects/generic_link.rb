@@ -41,7 +41,7 @@ class GenericLink < PhysicsLink
   end
   
   def update_force
-	self.force =  (@default_length - length_current)*10000
+	self.force =  (@default_length - length_current)*550
 	puts "Länge: #{length_current}, Normallänge: #{@default_length}, F:#{@force}"
   end
 end
