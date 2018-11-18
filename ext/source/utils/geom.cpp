@@ -71,7 +71,7 @@ double Geom::clamp_double(double val, double min_val, double max_val) {
 }
 
 treal Geom::min_treal(treal a, treal b) {
-#ifdef M_USE_DOUBLE
+#ifdef M_GEOM_USE_DOUBLE
     _mm_store_sd(&a, _mm_min_sd(_mm_set_sd(a), _mm_set_sd(b)));
 #else
     _mm_store_ss(&a, _mm_min_ss(_mm_set_ss(a), _mm_set_ss(b)));
@@ -80,7 +80,7 @@ treal Geom::min_treal(treal a, treal b) {
 }
 
 treal Geom::max_treal(treal a, treal b) {
-#ifdef M_USE_DOUBLE
+#ifdef M_GEOM_USE_DOUBLE
     _mm_store_sd(&a, _mm_max_sd(_mm_set_sd(a), _mm_set_sd(b)));
 #else
     _mm_store_ss(&a, _mm_max_ss(_mm_set_ss(a), _mm_set_ss(b)));
@@ -89,7 +89,7 @@ treal Geom::max_treal(treal a, treal b) {
 }
 
 treal Geom::clamp_treal(treal val, treal min_val, treal max_val) {
-#ifdef M_USE_DOUBLE
+#ifdef M_GEOM_USE_DOUBLE
     _mm_store_sd(&val, _mm_min_sd(_mm_max_sd(_mm_set_sd(val), _mm_set_sd(min_val)), _mm_set_sd(max_val)));
 #else
     _mm_store_ss(&val, _mm_min_ss(_mm_max_ss(_mm_set_ss(val), _mm_set_ss(min_val)), _mm_set_ss(max_val)));
@@ -122,7 +122,7 @@ void Geom::clamp_double2(double& val, double min_val, double max_val) {
 }
 
 void Geom::min_treal2(treal& a, treal b) {
-#ifdef M_USE_DOUBLE
+#ifdef M_GEOM_USE_DOUBLE
     _mm_store_sd(&a, _mm_min_sd(_mm_set_sd(a), _mm_set_sd(b)));
 #else
     _mm_store_ss(&a, _mm_min_ss(_mm_set_ss(a), _mm_set_ss(b)));
@@ -130,7 +130,7 @@ void Geom::min_treal2(treal& a, treal b) {
 }
 
 void Geom::max_treal2(treal& a, treal b) {
-#ifdef M_USE_DOUBLE
+#ifdef M_GEOM_USE_DOUBLE
     _mm_store_sd(&a, _mm_max_sd(_mm_set_sd(a), _mm_set_sd(b)));
 #else
     _mm_store_ss(&a, _mm_max_ss(_mm_set_ss(a), _mm_set_ss(b)));
@@ -138,7 +138,7 @@ void Geom::max_treal2(treal& a, treal b) {
 }
 
 void Geom::clamp_treal2(treal& val, treal min_val, treal max_val) {
-#ifdef M_USE_DOUBLE
+#ifdef M_GEOM_USE_DOUBLE
     _mm_store_sd(&val, _mm_min_sd(_mm_max_sd(_mm_set_sd(val), _mm_set_sd(min_val)), _mm_set_sd(max_val)));
 #else
     _mm_store_ss(&val, _mm_min_ss(_mm_max_ss(_mm_set_ss(val), _mm_set_ss(min_val)), _mm_set_ss(max_val)));

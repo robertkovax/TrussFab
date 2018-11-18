@@ -55,15 +55,16 @@ void MSP::PointToPointActuator::c_update_power_limits(Joint::Data* joint_data) {
  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 */
 
-void MSP::PointToPointActuator::on_update(Joint::Data* joint_data, const NewtonJoint* joint, int thread_index) {
+void MSP::PointToPointActuator::on_update(Joint::Data* joint_data, const NewtonJoint* joint, treal dt, int thread_index) {
     ChildData* cj_data = c_get_child_data(joint_data);
-    World::Data* world_data = World::c_to_data(joint_data->m_world);
 
     Geom::Transformation matrix;
     Geom::Vector3d pt1, pt2;
     Geom::Vector3d v1(0.0);
     Geom::Vector3d v2(0.0);
     treal dx, dv, lv;
+
+    treal dt_inv = (treal)(1.0) / dt;
 
     if (joint_data->m_parent) {
         NewtonBodyGetMatrix(joint_data->m_parent, &matrix[0][0]);
@@ -89,7 +90,7 @@ void MSP::PointToPointActuator::on_update(Joint::Data* joint_data, const NewtonJ
     cj_data->m_cur_velocity = (v2 - v1).dot(cj_data->m_cur_normal);
 
     dx = cj_data->m_start_distance + cj_data->m_controller - cj_data->m_cur_distance;
-    dv = dx * world_data->m_timestep_inv;
+    dv = dx * dt_inv;
 
     if (cj_data->m_mrt > M_EPSILON && fabs(dx) < cj_data->m_mrt) {
         lv = cj_data->m_rate * dx * cj_data->m_mrt_inv;
@@ -99,8 +100,8 @@ void MSP::PointToPointActuator::on_update(Joint::Data* joint_data, const NewtonJ
         Geom::clamp_treal2(dv, -cj_data->m_rate, cj_data->m_rate);
 
     NewtonUserJointAddLinearRow(joint, &pt2[0], &pt2[0], &cj_data->m_cur_normal[0]);
-    NewtonUserJointSetRowStiffness(joint, joint_data->m_sf);
-    NewtonUserJointSetRowAcceleration(joint, (dv - cj_data->m_cur_velocity) * world_data->m_timestep_inv);
+    NewtonUserJointSetRowStiffness(joint, joint_data->m_stiffness);
+    NewtonUserJointSetRowAcceleration(joint, (dv - cj_data->m_cur_velocity) * dt_inv);
     cj_data->m_limit_power_proc(joint_data);
 
     // Update tensions

@@ -33,9 +33,6 @@
     <ClCompile Include="..\..\source\main\msp_fixed.cpp">
       <Filter>main</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\main\msp_gear.cpp">
-      <Filter>main</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\main\msp_generic_point_to_point.cpp">
       <Filter>main</Filter>
     </ClCompile>
@@ -93,6 +90,9 @@
     <ClCompile Include="..\..\source\utils\thread_hive.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\main\msp_plane.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\main\angular_integration.h">
@@ -114,9 +114,6 @@
       <Filter>main</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\main\msp_fixed.h">
-      <Filter>main</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\main\msp_gear.h">
       <Filter>main</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\main\msp_generic_point_to_point.h">
@@ -190,6 +187,9 @@
     </ClInclude>
     <ClInclude Include="..\..\source\utils\ruby_util.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\main\msp_plane.h">
+      <Filter>main</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

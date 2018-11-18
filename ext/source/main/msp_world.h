@@ -42,7 +42,6 @@ public:
         VALUE v_self;
         treal m_elapsed_time;
         treal m_timestep;
-        treal m_timestep_inv;
         treal m_material_thickness;
         treal m_drag_coef;
         treal m_damp_coef;
@@ -63,7 +62,6 @@ public:
         Data() :
             m_elapsed_time(0.0f),
             m_timestep(DEFAULT_TIMESTEP),
-            m_timestep_inv((treal)(1.0) / DEFAULT_TIMESTEP),
             m_material_thickness(MATERIAL_THICKNESS),
             m_drag_coef(DEFAULT_DRAG_COEFFICIENT),
             m_damp_coef(DEFAULT_DAMP_COEFFICIENT),
@@ -163,7 +161,6 @@ public:
     static VALUE rbf_continuous_convex_ray_cast(VALUE self, VALUE v_body, VALUE v_matrix, VALUE v_target, VALUE v_max_hits);
 
     static VALUE rbf_draw_collision_wireframe(VALUE self, VALUE v_view, VALUE v_view_bb, VALUE v_sleep_color, VALUE v_active_color, VALUE v_line_width, VALUE v_line_stipple);
-    static VALUE rbf_draw_collision_wireframe2(VALUE self, VALUE v_scale, VALUE v_view, VALUE v_view_bb, VALUE v_color, VALUE v_line_width, VALUE v_line_stipple);
     static VALUE rbf_draw_centre_of_mass(VALUE self, VALUE v_view, VALUE v_view_bb, VALUE v_scale, VALUE v_xaxis_color, VALUE v_yaxis_color, VALUE v_zaxis_color, VALUE v_line_width, VALUE v_line_stipple);
 
     static VALUE rbf_get_aabb(VALUE self);

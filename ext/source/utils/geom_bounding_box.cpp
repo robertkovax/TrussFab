@@ -16,8 +16,8 @@
  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 */
 
-const treal Geom::BoundingBox::MIN_VALUE = -1.0e15;
-const treal Geom::BoundingBox::MAX_VALUE = 1.0e15;
+const treal Geom::BoundingBox::MIN_VALUE = (treal)(-1.0e15);
+const treal Geom::BoundingBox::MAX_VALUE = (treal)(1.0e15);
 
 
 /*

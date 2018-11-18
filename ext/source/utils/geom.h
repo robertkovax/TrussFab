@@ -20,11 +20,9 @@
     #include <mmintrin.h>
 #endif
 
-// Comment out to use floats
-//#define M_USE_DOUBLE
+//#define M_GEOM_USE_DOUBLE
 
-
-#ifdef M_USE_DOUBLE
+#ifdef M_GEOM_USE_DOUBLE
     typedef double treal;
 #else
     typedef float treal;

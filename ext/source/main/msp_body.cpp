@@ -74,53 +74,6 @@ MSP::Body::Data* MSP::Body::c_to_data(const NewtonBody* body) {
     return reinterpret_cast<Body::Data*>(NewtonBodyGetUserData(body));
 }
 
-void MSP::Body::c_apply_drag(Data* data, treal drag_coefficient, const Geom::Vector3d& wind_velocity, const Geom::Vector3d& wind_omega) {
-    Geom::Transformation tra, tra_inv;
-    Geom::Vector3d point_force, centre, radius, velocity, omega;
-    Geom::Vector3d total_force(0.0);
-    Geom::Vector3d total_torque(0.0);
-    Triplet* tr;
-    treal factor1, factor2, nv;
-    unsigned int i;
-
-    factor1 = drag_coefficient * (treal)(-1.0 / 3.0) * M_INCH2_TO_METER2;
-
-    NewtonBodyGetMatrix(data->m_body, &tra[0][0]);
-    NewtonBodyGetVelocity(data->m_body, &velocity[0]);
-    NewtonBodyGetOmega(data->m_body, &omega[0]);
-    NewtonBodyGetCentreOfMass(data->m_body, &centre[0]);
-
-    tra_inv = tra.inverse();
-    velocity = tra_inv.rotate_vector2(velocity - wind_velocity);
-    omega = tra_inv.rotate_vector2(omega - wind_omega);
-
-    for (i = 0; i < data->m_num_triplets; ++i) {
-        tr = &data->m_triplets[i];
-        factor2 = tr->m_area * factor1;
-
-        radius = data->m_points[tr->m_i0] - centre;
-        nv = Geom::max_treal((velocity + omega.cross(radius)).dot(tr->m_normal), 0.0);
-        point_force = tr->m_normal.scale(nv * abs(nv) * factor2);
-        total_force += point_force;
-        total_torque += radius.cross(point_force);
-
-        radius = data->m_points[tr->m_i1] - centre;
-        nv = Geom::max_treal((velocity + omega.cross(radius)).dot(tr->m_normal), 0.0);
-        point_force = tr->m_normal.scale(nv * abs(nv) * factor2);
-        total_force += point_force;
-        total_torque += radius.cross(point_force);
-
-        radius = data->m_points[tr->m_i2] - centre;
-        nv = Geom::max_treal((velocity + omega.cross(radius)).dot(tr->m_normal), 0.0);
-        point_force = tr->m_normal.scale(nv * abs(nv) * factor2);
-        total_force += point_force;
-        total_torque += radius.cross(point_force);
-    }
-
-    data->m_applied_force += tra.rotate_vector2(total_force);
-    data->m_applied_torque += tra.rotate_vector2(total_torque);
-}
-
 
 /*
  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -137,11 +90,6 @@ void MSP::Body::destructor_callback(const NewtonBody* const body) {
 
     if (world_data->m_magnets.find(body) != world_data->m_magnets.end())
         world_data->m_magnets.erase(body);
-
-    if (body_data->m_points)
-        delete body_data->m_points;
-    if (body_data->m_triplets)
-        delete body_data->m_triplets;
 
     body_data->m_body = nullptr;
 }
@@ -207,8 +155,7 @@ VALUE MSP::Body::rbf_initialize(VALUE self, VALUE v_world, VALUE v_collision, VA
     Geom::Transformation matrix;
     Geom::Vector3d angular_damp(world_data->m_damp_coef, world_data->m_damp_coef, world_data->m_damp_coef);
     Geom::Vector3d v1, v2;
-    VALUE v_cname1, v_cname2, v_mesh, v_point, v_triplet;
-    unsigned int i;
+    VALUE v_cname1, v_cname2;
 
     RU::value_to_transformation3(v_matrix, matrix);
     data->m_def_tra_scale = matrix.get_scale();
@@ -285,35 +232,6 @@ VALUE MSP::Body::rbf_initialize(VALUE self, VALUE v_world, VALUE v_collision, VA
     NewtonBodySetUserData(data->m_body, data);
 
     world_data->m_bodies[data->m_body] = self;
-
-    // Get all points and triplets of the generated collision
-    // This will be used to compute drag on the body
-    v_mesh = rb_class_new_instance(0, nullptr, RU::SU_POLYGON_MESH);
-    NewtonCollisionForEachPolygonDo(col, &Geom::Transformation::IDENTITY[0][0], collision_iterator1, (void*)(&v_mesh));
-
-    data->m_num_points = RU::value_to_uint(rb_funcall(v_mesh, RU::INTERN_COUNT_POINTS, 0));
-    data->m_points = new Geom::Vector3d[data->m_num_points];
-    for (i = 0; i < data->m_num_points; ++i) {
-        v_point = rb_funcall(v_mesh, RU::INTERN_POINT_AT, 1, RU::to_value(i + 1));
-        RU::value_to_vector(v_point, data->m_points[i]);
-    }
-    data->m_num_triplets = RU::value_to_uint(rb_funcall(v_mesh, RU::INTERN_COUNT_POLYGONS, 0));
-    data->m_triplets = new Triplet[data->m_num_triplets];
-    for (i = 0; i < data->m_num_triplets; ++i) {
-        v_triplet = rb_funcall(v_mesh, RU::INTERN_POLYGON_AT, 1, RU::to_value(i + 1));
-        Triplet& tr = data->m_triplets[i];
-        tr.m_i0 = abs(RU::value_to_int(rb_ary_entry(v_triplet, 0))) - 1;
-        tr.m_i1 = abs(RU::value_to_int(rb_ary_entry(v_triplet, 1))) - 1;
-        tr.m_i2 = abs(RU::value_to_int(rb_ary_entry(v_triplet, 2))) - 1;
-        v1 = data->m_points[tr.m_i1] - data->m_points[tr.m_i0];
-        v2 = data->m_points[tr.m_i2] - data->m_points[tr.m_i0];
-        tr.m_normal = v1.cross(v2);
-        tr.m_centre = (data->m_points[tr.m_i0] + data->m_points[tr.m_i1] + data->m_points[tr.m_i2]).scale((treal)(1.0 / 3.0));
-        tr.m_area = tr.m_normal.get_length();
-        if (tr.m_area > M_EPSILON)
-            tr.m_normal.scale_self((treal)(1.0) / tr.m_area);
-        tr.m_area *= (treal)(0.5);
-    }
 
     return self;
 }
@@ -1023,8 +941,8 @@ VALUE MSP::Body::rbf_apply_pick_and_drag(VALUE self, VALUE v_pick_pt, VALUE v_de
     NewtonBodyGetOmega(data->m_body, &omega[0]);
     com = matrix.transform_vector2(com);
 
-    des_vel = (dest_pt - pick_pt).scale(((treal)(1.0) - damp) * world_data->m_timestep_inv);
-    force = (des_vel - velocity).scale(world_data->m_timestep_inv * data->m_mass * stiff);
+    des_vel = (dest_pt - pick_pt).scale(((treal)(1.0) - damp) / world_data->m_timestep);
+    force = (des_vel - velocity).scale(data->m_mass * stiff / world_data->m_timestep);
     torque = (pick_pt - com).cross(force);
 
     data->m_applied_force += force;
@@ -1039,20 +957,6 @@ VALUE MSP::Body::rbf_apply_pick_and_drag(VALUE self, VALUE v_pick_pt, VALUE v_de
 VALUE MSP::Body::rbf_apply_buoyancy(VALUE self, VALUE v_plane_origin, VALUE v_plane_normal, VALUE v_density, VALUE v_linear_viscosity, VALUE v_angular_viscosity, VALUE v_linear_current, VALUE v_angular_current) {
     Data* data = c_to_data(self);
     // FIXME
-    return Qnil;
-}
-
-VALUE MSP::Body::rbf_apply_drag(VALUE self, VALUE v_drag_coefficient, VALUE v_wind_velocity, VALUE v_wind_omega) {
-    Data* data = c_to_data(self);
-    Geom::Vector3d wind_velocity, wind_omega;
-    treal drag_coef;
-
-    drag_coef = RU::value_to_treal(v_drag_coefficient);
-    RU::value_to_vector2(v_wind_velocity, wind_velocity, M_METER_TO_INCH);
-    RU::value_to_vector(v_wind_omega, wind_omega);
-
-    c_apply_drag(data, drag_coef, wind_velocity, wind_omega);
-
     return Qnil;
 }
 
@@ -1169,7 +1073,6 @@ void MSP::Body::init_ruby(VALUE mMSP) {
 
     rb_define_method(rba_cBody, "apply_pick_and_drag", VALUEFUNC(rbf_apply_pick_and_drag), 4);
     rb_define_method(rba_cBody, "apply_buoyancy", VALUEFUNC(rbf_apply_buoyancy), 7);
-    rb_define_method(rba_cBody, "apply_drag", VALUEFUNC(rbf_apply_drag), 3);
 
     rb_define_method(rba_cBody, "contacts", VALUEFUNC(rbf_get_contacts), 1);
     rb_define_method(rba_cBody, "touching_bodies", VALUEFUNC(rbf_get_touching_bodies), 1);

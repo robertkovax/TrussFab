@@ -18,6 +18,8 @@
 bool operator == (const Geom::Vector3d& lhs, const Geom::Vector3d& rhs);
 bool operator != (const Geom::Vector3d& lhs, const Geom::Vector3d& rhs);
 
+Geom::Vector3d operator * (Geom::Vector3d v, treal scalar);
+Geom::Vector3d operator * (treal scalar, Geom::Vector3d v);
 Geom::Vector3d operator + (Geom::Vector3d lhs, const Geom::Vector3d& rhs);
 Geom::Vector3d operator - (Geom::Vector3d lhs, const Geom::Vector3d& rhs);
 
@@ -44,6 +46,8 @@ public:
     friend bool (::operator ==) (const Geom::Vector3d& lhs, const Geom::Vector3d& rhs);
     friend bool (::operator !=) (const Geom::Vector3d& lhs, const Geom::Vector3d& rhs);
 
+    friend Geom::Vector3d (::operator *) (Geom::Vector3d v, treal scalar);
+    friend Geom::Vector3d (::operator *) (treal scalar, Geom::Vector3d v);
     friend Geom::Vector3d (::operator +) (Geom::Vector3d lhs, const Geom::Vector3d& rhs);
     friend Geom::Vector3d (::operator -) (Geom::Vector3d lhs, const Geom::Vector3d& rhs);
 
@@ -51,6 +55,7 @@ public:
     treal& operator [] (const int index);
     const treal& operator [] (const int index) const;
 
+    Vector3d& operator *= (treal scalar);
     Vector3d& operator += (const Vector3d& other);
     Vector3d& operator -= (const Vector3d& other);
 

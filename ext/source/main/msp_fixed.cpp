@@ -15,37 +15,37 @@
  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 */
 
-void MSP::Fixed::on_update(Joint::Data* joint_data, const NewtonJoint* joint, int thread_index) {
+void MSP::Fixed::on_update(Joint::Data* joint_data, const NewtonJoint* joint, treal dt, int thread_index) {
     Geom::Transformation matrix0, matrix1;
     MSP::Joint::c_calculate_global_matrix(joint_data, matrix0, matrix1);
 
     NewtonUserJointAddLinearRow(joint, &matrix0.m_origin[0], &matrix1.m_origin[0], &matrix0.m_xaxis[0]);
-    NewtonUserJointSetRowStiffness(joint, joint_data->m_sf);
+    NewtonUserJointSetRowStiffness(joint, joint_data->m_stiffness);
     /*joint_data->m_limit_min_row_proc(joint_data);
     joint_data->m_limit_max_row_proc(joint_data);*/
 
     NewtonUserJointAddLinearRow(joint, &matrix0.m_origin[0], &matrix1.m_origin[0], &matrix0.m_yaxis[0]);
-    NewtonUserJointSetRowStiffness(joint, joint_data->m_sf);
+    NewtonUserJointSetRowStiffness(joint, joint_data->m_stiffness);
     /*joint_data->m_limit_min_row_proc(joint_data);
     joint_data->m_limit_max_row_proc(joint_data);*/
 
     NewtonUserJointAddLinearRow(joint, &matrix0.m_origin[0], &matrix1.m_origin[0], &matrix0.m_zaxis[0]);
-    NewtonUserJointSetRowStiffness(joint, joint_data->m_sf);
+    NewtonUserJointSetRowStiffness(joint, joint_data->m_stiffness);
     /*joint_data->m_limit_min_row_proc(joint_data);
     joint_data->m_limit_max_row_proc(joint_data);*/
 
     NewtonUserJointAddAngularRow(joint, Joint::c_calculate_angle2(matrix1.m_zaxis, matrix0.m_zaxis, matrix0.m_xaxis), &matrix0.m_xaxis[0]);
-    NewtonUserJointSetRowStiffness(joint, joint_data->m_sf);
+    NewtonUserJointSetRowStiffness(joint, joint_data->m_stiffness);
     /*joint_data->m_limit_min_row_proc(joint_data);
     joint_data->m_limit_max_row_proc(joint_data)*/;
 
     NewtonUserJointAddAngularRow(joint, Joint::c_calculate_angle2(matrix1.m_zaxis, matrix0.m_zaxis, matrix0.m_yaxis), &matrix0.m_yaxis[0]);
-    NewtonUserJointSetRowStiffness(joint, joint_data->m_sf);
+    NewtonUserJointSetRowStiffness(joint, joint_data->m_stiffness);
     /*joint_data->m_limit_min_row_proc(joint_data);
     joint_data->m_limit_max_row_proc(joint_data);*/
 
     NewtonUserJointAddAngularRow(joint, Joint::c_calculate_angle2(matrix1.m_xaxis, matrix0.m_xaxis, matrix0.m_zaxis), &matrix0.m_zaxis[0]);
-    NewtonUserJointSetRowStiffness(joint, joint_data->m_sf);
+    NewtonUserJointSetRowStiffness(joint, joint_data->m_stiffness);
     /*joint_data->m_limit_min_row_proc(joint_data);
     joint_data->m_limit_max_row_proc(joint_data);*/
 

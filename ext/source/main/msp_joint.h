@@ -32,7 +32,7 @@ public:
         VALUE v_group;
         VALUE v_self;
 
-        void(*m_on_update)(Data* joint_data, const NewtonJoint* joint, int thread_index);
+        void(*m_on_update)(Data* joint_data, const NewtonJoint* joint, treal dt, int thread_index);
         void(*m_on_destroy)(Data* joint_data);
         void(*m_on_breaking_force_changed)(Data* joint_data);
         void(*m_on_adjust_pin_matrix)(Data* joint_data, Geom::Transformation& pin_matrix);
@@ -48,7 +48,6 @@ public:
         Geom::Vector3d m_tension2;
 
         treal m_stiffness;
-        treal m_sf;
         treal m_breaking_force;
         treal m_breaking_force_sq;
 
@@ -83,7 +82,7 @@ public:
     };
 
     // Typedefines
-    typedef void(*OnUpdate)(Data* joint_data, const NewtonJoint* joint, int thread_index);
+    typedef void(*OnUpdate)(Data* joint_data, const NewtonJoint* joint, treal dt, int thread_index);
     typedef void(*OnDestroy)(Data* joint_data);
     typedef void(*OnBreakingForceChanged)(Data* joint_data);
     typedef void(*OnAdjustPinMatrix)(Data* joint_data, Geom::Transformation& pin_matrix);
@@ -109,7 +108,6 @@ public:
         OnAdjustPinMatrix on_adjust_pin_matrix);
     static void c_create_end(VALUE self, Data* joint_data);
     static void c_update_breaking_info(Data* joint_data);
-    static void c_update_stiffness_factor(Data* joint_data);
 
     static void c_update_local_matrix(Data* joint_data);
     static void c_calculate_global_matrix(Data* joint_data, Geom::Transformation& matrix0, Geom::Transformation& matrix1);

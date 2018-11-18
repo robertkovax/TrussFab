@@ -74,8 +74,6 @@ public:
         bool m_collidable;
         bool m_magnetic;
         bool m_matrix_changed;
-        Geom::Vector3d* m_points;
-        Triplet* m_triplets;
         unsigned int m_num_points;
         unsigned int m_num_triplets;
 
@@ -100,8 +98,6 @@ public:
             m_body = nullptr;
             v_group = Qnil;
             v_self = Qnil;
-            m_points = nullptr;
-            m_triplets = nullptr;
         }
     };
 
@@ -111,7 +107,6 @@ public:
     static void c_class_deallocate(void* data);
     static Data* c_to_data(VALUE self);
     static Data* c_to_data(const NewtonBody* body);
-    static void c_apply_drag(Data* data, treal drag_coefficient, const Geom::Vector3d& wind_velocity, const Geom::Vector3d& wind_omega);
 
     // Callback Functions
     static void destructor_callback(const NewtonBody* const body);
@@ -205,7 +200,6 @@ public:
 
     static VALUE rbf_apply_pick_and_drag(VALUE self, VALUE v_pick_pt, VALUE v_dest_pt, VALUE v_stiffness, VALUE v_damp);
     static VALUE rbf_apply_buoyancy(VALUE self, VALUE v_plane_origin, VALUE v_plane_normal, VALUE v_density, VALUE v_linear_viscosity, VALUE v_angular_viscosity, VALUE v_linear_current, VALUE v_angular_current);
-    static VALUE rbf_apply_drag(VALUE self, VALUE v_drag_coefficient, VALUE v_wind_velocity, VALUE v_wind_omega);
 
     static VALUE rbf_get_contacts(VALUE self, VALUE v_inc_non_collidable);
     static VALUE rbf_get_touching_bodies(VALUE self, VALUE v_inc_non_collidable);

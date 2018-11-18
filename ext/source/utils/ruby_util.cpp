@@ -241,7 +241,7 @@ bool RU::su_b64bit;
 */
 
 VALUE RU::to_value(const char* c_str) {
-    VALUE v_str = rb_str_new_cstr(c_str);
+    VALUE v_str = rb_str_new2(c_str);
 #ifdef HAVE_RUBY_ENCODING_H
     rb_enc_associate_index(v_str, rb_utf8_encindex());
 #endif

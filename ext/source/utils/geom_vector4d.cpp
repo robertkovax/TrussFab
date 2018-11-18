@@ -68,3 +68,69 @@ Geom::Vector4d& Geom::Vector4d::operator=(const Vector3d& other) {
     }
     return *this;
 }
+
+bool operator == (const Geom::Vector4d& lhs, const Geom::Vector4d& rhs) {
+    return (fabs(lhs.m_x - rhs.m_x) < M_EPSILON &&
+        fabs(lhs.m_y - rhs.m_y) < M_EPSILON &&
+        fabs(lhs.m_z - rhs.m_z) < M_EPSILON &&
+        fabs(lhs.m_w - rhs.m_w) < M_EPSILON);
+}
+
+bool operator != (const Geom::Vector4d& lhs, const Geom::Vector4d& rhs) {
+    return !(lhs == rhs);
+}
+
+Geom::Vector4d operator * (Geom::Vector4d v, treal scalar) {
+    v.m_x *= scalar;
+    v.m_y *= scalar;
+    v.m_z *= scalar;
+    v.m_w *= scalar;
+    return v;
+}
+
+Geom::Vector4d operator * (treal scalar, Geom::Vector4d v) {
+    v.m_x *= scalar;
+    v.m_y *= scalar;
+    v.m_z *= scalar;
+    v.m_w *= scalar;
+    return v;
+}
+
+Geom::Vector4d operator + (Geom::Vector4d lhs, const Geom::Vector4d& rhs) {
+    lhs.m_x += rhs.m_x;
+    lhs.m_y += rhs.m_y;
+    lhs.m_z += rhs.m_z;
+    lhs.m_w += rhs.m_w;
+    return lhs;
+}
+
+Geom::Vector4d operator - (Geom::Vector4d lhs, const Geom::Vector4d& rhs) {
+    lhs.m_x -= rhs.m_x;
+    lhs.m_y -= rhs.m_y;
+    lhs.m_z -= rhs.m_z;
+    lhs.m_w -= rhs.m_w;
+    return lhs;
+}
+
+Geom::Vector4d& Geom::Vector4d::operator *= (treal scalar) {
+    m_x *= scalar;
+    m_y *= scalar;
+    m_z *= scalar;
+    return *this;
+}
+
+Geom::Vector4d& Geom::Vector4d::operator += (const Vector4d& other) {
+    m_x += other.m_x;
+    m_y += other.m_y;
+    m_z += other.m_z;
+    m_w += other.m_w;
+    return *this;
+}
+
+Geom::Vector4d& Geom::Vector4d::operator -= (const Vector4d& other) {
+    m_x -= other.m_x;
+    m_y -= other.m_y;
+    m_z -= other.m_z;
+    m_w -= other.m_w;
+    return *this;
+}

@@ -46,7 +46,7 @@
     <ProjectGuid>{3E0D2D8C-5418-4489-BE01-AA00B051399E}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>tfn_lib</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (1.8)|Win32'" Label="Configuration">
@@ -116,7 +116,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>false</UseOfMfc>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release (2.5)|x64'" Label="Configuration">
@@ -124,7 +124,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>false</UseOfMfc>
-    <PlatformToolset>v141_xp</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -639,7 +639,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_USRDLL;_NEWTON_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;NDEBUG;RUBY_VERSION22;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_USRDLL;_NEWTON_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;NDEBUG;RUBY_VERSION25;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -680,11 +680,11 @@
     <ClCompile Include="..\..\source\main\msp_contact.cpp" />
     <ClCompile Include="..\..\source\main\msp_entity.cpp" />
     <ClCompile Include="..\..\source\main\msp_fixed.cpp" />
-    <ClCompile Include="..\..\source\main\msp_gear.cpp" />
     <ClCompile Include="..\..\source\main\msp_generic_point_to_point.cpp" />
     <ClCompile Include="..\..\source\main\msp_hinge.cpp" />
     <ClCompile Include="..\..\source\main\msp_hit.cpp" />
     <ClCompile Include="..\..\source\main\msp_joint.cpp" />
+    <ClCompile Include="..\..\source\main\msp_plane.cpp" />
     <ClCompile Include="..\..\source\main\msp_point_to_point.cpp" />
     <ClCompile Include="..\..\source\main\msp_point_to_point_actuator.cpp" />
     <ClCompile Include="..\..\source\main\msp_point_to_point_gas_spring.cpp" />
@@ -709,11 +709,11 @@
     <ClInclude Include="..\..\source\main\msp_contact.h" />
     <ClInclude Include="..\..\source\main\msp_entity.h" />
     <ClInclude Include="..\..\source\main\msp_fixed.h" />
-    <ClInclude Include="..\..\source\main\msp_gear.h" />
     <ClInclude Include="..\..\source\main\msp_generic_point_to_point.h" />
     <ClInclude Include="..\..\source\main\msp_hinge.h" />
     <ClInclude Include="..\..\source\main\msp_hit.h" />
     <ClInclude Include="..\..\source\main\msp_joint.h" />
+    <ClInclude Include="..\..\source\main\msp_plane.h" />
     <ClInclude Include="..\..\source\main\msp_point_to_point.h" />
     <ClInclude Include="..\..\source\main\msp_point_to_point_actuator.h" />
     <ClInclude Include="..\..\source\main\msp_point_to_point_gas_spring.h" />

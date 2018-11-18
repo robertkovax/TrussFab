@@ -56,15 +56,16 @@ void MSP::GenericPointToPoint::c_update_info(Joint::Data* joint_data) {
  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 */
 
-void MSP::GenericPointToPoint::on_update(Joint::Data* joint_data, const NewtonJoint* joint, int thread_index) {
+void MSP::GenericPointToPoint::on_update(Joint::Data* joint_data, const NewtonJoint* joint, treal dt, int thread_index) {
     ChildData* cj_data = c_get_child_data(joint_data);
-    World::Data* world_data = World::c_to_data(joint_data->m_world);
 
     Geom::Transformation matrix;
     Geom::Vector3d v1(0.0);
     Geom::Vector3d v2(0.0);
     Geom::Vector3d pt1, pt2, ptx, centre1, centre2, force;
     treal dx, dv, sa;
+
+    treal dt_inv = (treal)(1.0) / dt;
 
     if (joint_data->m_parent) {
         NewtonBodyGetMatrix(joint_data->m_parent, &matrix[0][0]);
@@ -104,10 +105,10 @@ void MSP::GenericPointToPoint::on_update(Joint::Data* joint_data, const NewtonJo
         dx = cj_data->m_min_distance - cj_data->m_cur_distance;
         ptx = pt2 + cj_data->m_cur_normal.scale(dx);
         NewtonUserJointAddLinearRow(joint, &pt2[0], &ptx[0], &cj_data->m_cur_normal[0]);
-        NewtonUserJointSetRowStiffness(joint, joint_data->m_sf);
+        NewtonUserJointSetRowStiffness(joint, joint_data->m_stiffness);
         //joint_data->m_limit_min_row_proc(joint_data);
-        dv = (treal)(0.5) * dx * world_data->m_timestep_inv;
-        sa = NewtonUserJointCalculateRowZeroAccelaration(joint) + dv * world_data->m_timestep_inv;
+        dv = (treal)(0.5) * dx * dt_inv;
+        sa = NewtonUserJointCalculateRowZeroAccelaration(joint) + dv * dt_inv;
         NewtonUserJointSetRowAcceleration(joint, sa);
         joint_data->m_tension1 = cj_data->m_cur_normal.scale(NewtonUserJointGetRowForce(joint, 0));
     }
@@ -115,10 +116,10 @@ void MSP::GenericPointToPoint::on_update(Joint::Data* joint_data, const NewtonJo
         dx = cj_data->m_max_distance - cj_data->m_cur_distance;
         ptx = pt2 + cj_data->m_cur_normal.scale(dx);
         NewtonUserJointAddLinearRow(joint, &pt2[0], &ptx[0], &cj_data->m_cur_normal[0]);
-        NewtonUserJointSetRowStiffness(joint, joint_data->m_sf);
+        NewtonUserJointSetRowStiffness(joint, joint_data->m_stiffness);
         //joint_data->m_limit_max_row_proc(joint_data);
-        dv = (treal)(0.5) * dx * world_data->m_timestep_inv;
-        sa = NewtonUserJointCalculateRowZeroAccelaration(joint) + dv * world_data->m_timestep_inv;
+        dv = (treal)(0.5) * dx * dt_inv;
+        sa = NewtonUserJointCalculateRowZeroAccelaration(joint) + dv * dt_inv;
         NewtonUserJointSetRowAcceleration(joint, sa);
         joint_data->m_tension1 = cj_data->m_cur_normal.scale(NewtonUserJointGetRowForce(joint, 0));
     }

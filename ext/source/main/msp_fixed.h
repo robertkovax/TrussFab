@@ -16,7 +16,7 @@ class MSP::Fixed {
 public:
 
     // Callback Functions
-    static void on_update(Joint::Data* joint_data, const NewtonJoint* joint, int thread_index);
+    static void on_update(Joint::Data* joint_data, const NewtonJoint* joint, treal dt, int thread_index);
 
     // Ruby Functions
     static VALUE rbf_initialize(VALUE self, VALUE v_world, VALUE v_parent, VALUE v_child, VALUE v_matrix, VALUE v_group);

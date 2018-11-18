@@ -11,7 +11,8 @@
 
 #include "geom_vector4d.h"
 
-Geom::Transformation operator * (const Geom::Transformation& tA, const Geom::Transformation& tB);
+Geom::Transformation operator * (const Geom::Transformation& tP, const Geom::Transformation& tC);
+Geom::Vector4d operator * (const Geom::Transformation& t, const Geom::Vector4d& v);
 
 class Geom::Transformation
 {
@@ -36,7 +37,8 @@ public:
     Transformation(const Geom::Vector3d& origin, const Geom::Vector3d& normal, treal angle);
 
     // Operators
-    friend Geom::Transformation (::operator *) (const Geom::Transformation& tA, const Geom::Transformation& tB);
+    friend Geom::Transformation (::operator *) (const Geom::Transformation& tP, const Geom::Transformation& tC);
+    friend Geom::Vector4d (::operator *) (const Geom::Transformation& t, const Geom::Vector4d& v);
 
     Transformation& operator = (const Transformation& other);
     Vector4d& operator [] (const int index);

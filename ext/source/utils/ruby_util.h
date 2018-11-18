@@ -22,6 +22,7 @@
 
 #include "dynamic_array.h"
 #include "fast_queue.h"
+#include "thread_hive.h"
 
 namespace RU {
     // Variables

@@ -11,7 +11,6 @@
 #include "msp_contact.h"
 #include "msp_body.h"
 #include "msp_joint.h"
-#include "msp_gear.h"
 
 /*
  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -196,31 +195,22 @@ void MSP::World::c_process_magnets(Data* world_data) {
 }
 
 void MSP::World::c_advance(Data* world_data) {
-    DelayedForceAndTorque* dft;
-    const NewtonBody* body;
-    Body::Data* body_data;
-    Geom::Vector3d wind_omega(0.0);
-
     // Process coninuous forces and torques
     for (std::set<DelayedForceAndTorque*>::iterator it = world_data->m_dfts.begin(); it != world_data->m_dfts.end(); ++it) {
-        dft = *it;
-        body_data = Body::c_to_data(dft->m_body);
+        DelayedForceAndTorque* dft = *it;
+        Body::Data* body_data = Body::c_to_data(dft->m_body);
         body_data->m_applied_force += dft->m_force;
         body_data->m_applied_torque += dft->m_torque;
     }
     // Process magnets
     c_process_magnets(world_data);
-    // Process wind and drag
-    if (world_data->m_drag_coef > M_EPSILON) {
-        for (body = NewtonWorldGetFirstBody(world_data->m_world); body; body = NewtonWorldGetNextBody(world_data->m_world, body)) {
-            body_data = Body::c_to_data(body);
-            Body::c_apply_drag(body_data, world_data->m_drag_coef, world_data->m_wind_velocity, wind_omega);
-        }
-    }
+
     NewtonUpdate(world_data->m_world, world_data->m_timestep);
+
     for (std::vector<const NewtonJoint*>::iterator it = world_data->m_joints_to_destroy.begin(); it != world_data->m_joints_to_destroy.end(); ++it)
         NewtonDestroyJoint(world_data->m_world, *it);
     world_data->m_joints_to_destroy.clear();
+
     world_data->m_elapsed_time += world_data->m_timestep;
 }
 
@@ -461,7 +451,7 @@ VALUE MSP::World::rbf_advance(VALUE self) {
 VALUE MSP::World::rbf_advance_by(VALUE self, VALUE v_time) {
     Data* data = c_to_data(self);
     treal dt = Geom::max_treal(RU::value_to_treal(v_time), MIN_TIMESTEP);
-    unsigned int n = static_cast<unsigned int>(dt * data->m_timestep_inv + (treal)(1.0));
+    unsigned int n = static_cast<unsigned int>(dt / data->m_timestep + (treal)(1.0));
     unsigned int i;
     for (i = 0; i < n; ++i)
         c_advance(data);
@@ -613,7 +603,6 @@ VALUE MSP::World::rbf_get_update_timestep(VALUE self) {
 VALUE MSP::World::rbf_set_update_timestep(VALUE self, VALUE v_timestep) {
     Data* data = c_to_data(self);
     data->m_timestep = Geom::clamp_treal(RU::value_to_treal(v_timestep), MIN_TIMESTEP, MAX_TIMESTEP);
-    data->m_timestep_inv = (treal)(1.0) / data->m_timestep;
     return Qnil;
 }
 
@@ -759,34 +748,6 @@ VALUE MSP::World::rbf_draw_collision_wireframe(VALUE self, VALUE v_view, VALUE v
         else
             rb_funcall(v_view, RU::INTERN_SDRAWING_COLOR, 1, v_active_color);
         NewtonCollisionForEachPolygonDo(collision, &matrix[0][0], draw_collision_iterator, reinterpret_cast<void*>(&v_view));
-    }
-    return Qnil;
-}
-
-VALUE MSP::World::rbf_draw_collision_wireframe2(VALUE self, VALUE v_scale, VALUE v_view, VALUE v_view_bb, VALUE v_color, VALUE v_line_width, VALUE v_line_stipple) {
-    Data* world_data = c_to_data(self);
-    treal scale = RU::value_to_treal(v_scale);
-    rb_funcall(v_view, RU::INTERN_SLINE_WIDTH, 1, v_line_width);
-    rb_funcall(v_view, RU::INTERN_SLINE_STIPPLE, 1, v_line_stipple);
-    rb_funcall(v_view, RU::INTERN_SDRAWING_COLOR, 1, v_color);
-    Geom::Transformation tra;
-    Geom::Vector3d centre, normal;
-    Body::Data* body_data;
-    Body::Triplet* tr;
-    unsigned int i;
-    VALUE v_lines;
-    for (const NewtonBody* body = NewtonWorldGetFirstBody(world_data->m_world); body; body = NewtonWorldGetNextBody(world_data->m_world, body)) {
-        body_data = Body::c_to_data(body);
-        v_lines = rb_ary_new2(body_data->m_num_triplets * 2);
-        NewtonBodyGetMatrix(body, &tra[0][0]);
-        for (i = 0; i < body_data->m_num_triplets; ++i) {
-            tr = &body_data->m_triplets[i];
-            centre = tra.transform_vector(tr->m_centre);
-            normal = tra.rotate_vector(tr->m_normal);
-            rb_ary_store(v_lines, i * 2, RU::point_to_value(centre));
-            rb_ary_store(v_lines, i * 2 + 1, RU::point_to_value(centre + normal.scale(scale)));
-        }
-        rb_funcall(v_view, RU::INTERN_DRAW, 2, RU::SU_GL_LINES, v_lines);
     }
     return Qnil;
 }
@@ -1309,7 +1270,6 @@ void MSP::World::init_ruby(VALUE mMSP) {
     rb_define_method(rba_cWorld, "continuous_convex_ray_cast", VALUEFUNC(rbf_continuous_convex_ray_cast), 4);
 
     rb_define_method(rba_cWorld, "draw_collision_wireframe", VALUEFUNC(rbf_draw_collision_wireframe), 6);
-    rb_define_method(rba_cWorld, "draw_collision_wireframe2", VALUEFUNC(rbf_draw_collision_wireframe2), 6);
     rb_define_method(rba_cWorld, "draw_centre_of_mass", VALUEFUNC(rbf_draw_centre_of_mass), 8);
 
     rb_define_method(rba_cWorld, "bounds", VALUEFUNC(rbf_get_aabb), 0);

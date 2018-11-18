@@ -145,7 +145,6 @@ void MSP::Joint::c_create_end(VALUE self, Data* joint_data) {
     World::Data* world_data = World::c_to_data(joint_data->m_world);
 
     c_update_breaking_info(joint_data);
-    c_update_stiffness_factor(joint_data);
     c_update_local_matrix(joint_data);
 
     joint_data->m_joint = NewtonConstraintCreateUserJoint(world_data->m_world, joint_data->m_dof, submit_constraints, joint_data->m_child, joint_data->m_parent);
@@ -171,11 +170,6 @@ void MSP::Joint::c_update_breaking_info(Data* joint_data) {
     }
     if (joint_data->m_on_breaking_force_changed)
         joint_data->m_on_breaking_force_changed(joint_data);
-}
-
-void MSP::Joint::c_update_stiffness_factor(Data* joint_data) {
-    joint_data->m_sf = (treal)(0.9995) - ((treal)(1.0) - joint_data->m_stiffness) * DEFAULT_STIFFNESS_RANGE;
-    //joint_data->m_sf = joint_data->m_stiffness;
 }
 
 void MSP::Joint::c_update_local_matrix(Data* joint_data) {
@@ -276,7 +270,9 @@ void MSP::Joint::c_get_pin_matrix(Data* joint_data, Geom::Transformation& matrix
 void MSP::Joint::submit_constraints(const NewtonJoint* joint, treal timestep, int thread_index) {
     Data* joint_data = c_to_data(joint);
     // Update
-    joint_data->m_on_update(joint_data, joint, thread_index);
+    if (timestep > M_EPSILON) {
+        joint_data->m_on_update(joint_data, joint, timestep, thread_index);
+    }
 
     // Destroy constraint if force exceeds particular limit
     if (joint_data->m_breaking_force > M_EPSILON && joint_data->m_tension1.get_length_squared() > joint_data->m_breaking_force_sq) {
@@ -382,7 +378,6 @@ VALUE MSP::Joint::rbf_get_stiffness(VALUE self) {
 VALUE MSP::Joint::rbf_set_stiffness(VALUE self, VALUE v_stiffness) {
     Data* joint_data = c_to_data(self);
     joint_data->m_stiffness = Geom::clamp_treal(RU::value_to_treal(v_stiffness), 0.0, 1.0);
-    c_update_stiffness_factor(joint_data);
     return Qnil;
 }
 

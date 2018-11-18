@@ -175,28 +175,36 @@ const Geom::Vector4d& Geom::Transformation::operator [] (const int index) const 
     return (&m_xaxis)[index];
 }
 
-Geom::Transformation operator * (const Geom::Transformation& tA, const Geom::Transformation& tB) {
+Geom::Transformation operator * (const Geom::Transformation& tP, const Geom::Transformation& tC) {
     return Geom::Transformation(
         Geom::Vector4d(
-            tA[0][0] * tB[0][0] + tA[0][1] * tB[1][0] + tA[0][2] * tB[2][0] + tA[0][3] * tB[3][0],
-            tA[0][0] * tB[0][1] + tA[0][1] * tB[1][1] + tA[0][2] * tB[2][1] + tA[0][3] * tB[3][1],
-            tA[0][0] * tB[0][2] + tA[0][1] * tB[1][2] + tA[0][2] * tB[2][2] + tA[0][3] * tB[3][2],
-            tA[0][0] * tB[0][3] + tA[0][1] * tB[1][3] + tA[0][2] * tB[2][3] + tA[0][3] * tB[3][3]),
+            tP[0][0] * tC[0][0] + tP[0][1] * tC[1][0] + tP[0][2] * tC[2][0] + tP[0][3] * tC[3][0],
+            tP[0][0] * tC[0][1] + tP[0][1] * tC[1][1] + tP[0][2] * tC[2][1] + tP[0][3] * tC[3][1],
+            tP[0][0] * tC[0][2] + tP[0][1] * tC[1][2] + tP[0][2] * tC[2][2] + tP[0][3] * tC[3][2],
+            tP[0][0] * tC[0][3] + tP[0][1] * tC[1][3] + tP[0][2] * tC[2][3] + tP[0][3] * tC[3][3]),
         Geom::Vector4d(
-            tA[1][0] * tB[0][0] + tA[1][1] * tB[1][0] + tA[1][2] * tB[2][0] + tA[1][3] * tB[3][0],
-            tA[1][0] * tB[0][1] + tA[1][1] * tB[1][1] + tA[1][2] * tB[2][1] + tA[1][3] * tB[3][1],
-            tA[1][0] * tB[0][2] + tA[1][1] * tB[1][2] + tA[1][2] * tB[2][2] + tA[1][3] * tB[3][2],
-            tA[1][0] * tB[0][3] + tA[1][1] * tB[1][3] + tA[1][2] * tB[2][3] + tA[1][3] * tB[3][3]),
+            tP[1][0] * tC[0][0] + tP[1][1] * tC[1][0] + tP[1][2] * tC[2][0] + tP[1][3] * tC[3][0],
+            tP[1][0] * tC[0][1] + tP[1][1] * tC[1][1] + tP[1][2] * tC[2][1] + tP[1][3] * tC[3][1],
+            tP[1][0] * tC[0][2] + tP[1][1] * tC[1][2] + tP[1][2] * tC[2][2] + tP[1][3] * tC[3][2],
+            tP[1][0] * tC[0][3] + tP[1][1] * tC[1][3] + tP[1][2] * tC[2][3] + tP[1][3] * tC[3][3]),
         Geom::Vector4d(
-            tA[2][0] * tB[0][0] + tA[2][1] * tB[1][0] + tA[2][2] * tB[2][0] + tA[2][3] * tB[3][0],
-            tA[2][0] * tB[0][1] + tA[2][1] * tB[1][1] + tA[2][2] * tB[2][1] + tA[2][3] * tB[3][1],
-            tA[2][0] * tB[0][2] + tA[2][1] * tB[1][2] + tA[2][2] * tB[2][2] + tA[2][3] * tB[3][2],
-            tA[2][0] * tB[0][3] + tA[2][1] * tB[1][3] + tA[2][2] * tB[2][3] + tA[2][3] * tB[3][3]),
+            tP[2][0] * tC[0][0] + tP[2][1] * tC[1][0] + tP[2][2] * tC[2][0] + tP[2][3] * tC[3][0],
+            tP[2][0] * tC[0][1] + tP[2][1] * tC[1][1] + tP[2][2] * tC[2][1] + tP[2][3] * tC[3][1],
+            tP[2][0] * tC[0][2] + tP[2][1] * tC[1][2] + tP[2][2] * tC[2][2] + tP[2][3] * tC[3][2],
+            tP[2][0] * tC[0][3] + tP[2][1] * tC[1][3] + tP[2][2] * tC[2][3] + tP[2][3] * tC[3][3]),
         Geom::Vector4d(
-            tA[3][0] * tB[0][0] + tA[3][1] * tB[1][0] + tA[3][2] * tB[2][0] + tA[3][3] * tB[3][0],
-            tA[3][0] * tB[0][1] + tA[3][1] * tB[1][1] + tA[3][2] * tB[2][1] + tA[3][3] * tB[3][1],
-            tA[3][0] * tB[0][2] + tA[3][1] * tB[1][2] + tA[3][2] * tB[2][2] + tA[3][3] * tB[3][2],
-            tA[3][0] * tB[0][3] + tA[3][1] * tB[1][3] + tA[3][2] * tB[2][3] + tA[3][3] * tB[3][3]));
+            tP[3][0] * tC[0][0] + tP[3][1] * tC[1][0] + tP[3][2] * tC[2][0] + tP[3][3] * tC[3][0],
+            tP[3][0] * tC[0][1] + tP[3][1] * tC[1][1] + tP[3][2] * tC[2][1] + tP[3][3] * tC[3][1],
+            tP[3][0] * tC[0][2] + tP[3][1] * tC[1][2] + tP[3][2] * tC[2][2] + tP[3][3] * tC[3][2],
+            tP[3][0] * tC[0][3] + tP[3][1] * tC[1][3] + tP[3][2] * tC[2][3] + tP[3][3] * tC[3][3]));
+}
+
+Geom::Vector4d operator * (const Geom::Transformation& t, const Geom::Vector4d& v) {
+    return Geom::Vector4d(
+        t[0][0] * v[0] + t[0][1] * v[1] + t[0][2] * v[2] + t[0][3] * v[3],
+        t[1][0] * v[0] + t[1][1] * v[1] + t[1][2] * v[2] + t[1][3] * v[3],
+        t[2][0] * v[0] + t[2][1] * v[1] + t[2][2] * v[2] + t[2][3] * v[3],
+        t[3][0] * v[0] + t[3][1] * v[1] + t[3][2] * v[2] + t[3][3] * v[3]);
 }
 
 

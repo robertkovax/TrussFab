@@ -41,14 +41,15 @@ MSP::AngularSpring::ChildData* MSP::AngularSpring::c_get_child_data(Joint::Data*
  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 */
 
-void MSP::AngularSpring::on_update(Joint::Data* joint_data, const NewtonJoint* joint, int thread_index) {
+void MSP::AngularSpring::on_update(Joint::Data* joint_data, const NewtonJoint* joint, treal dt,  int thread_index) {
     ChildData* cj_data = c_get_child_data(joint_data);
-    World::Data* world_data = World::c_to_data(joint_data->m_world);
 
     treal sin_angle, cos_angle, omega, accel;
     Geom::Vector3d omega0(0.0);
     Geom::Vector3d omega1(0.0);
     Geom::Transformation matrix0, matrix1;
+
+    treal dt_inv = (treal)(1.0) / dt;
 
     MSP::Joint::c_calculate_global_matrix(joint_data, matrix0, matrix1);
     Joint::c_calculate_angle(matrix1.m_xaxis, matrix0.m_xaxis, matrix0.m_zaxis, sin_angle, cos_angle);
@@ -64,44 +65,44 @@ void MSP::AngularSpring::on_update(Joint::Data* joint_data, const NewtonJoint* j
 
     // Restrict translation on axes
     NewtonUserJointAddLinearRow(joint, &matrix0.m_origin[0], &matrix1.m_origin[0], &matrix0.m_xaxis[0]);
-    NewtonUserJointSetRowStiffness(joint, joint_data->m_sf);
+    NewtonUserJointSetRowStiffness(joint, joint_data->m_stiffness);
 
     NewtonUserJointAddLinearRow(joint, &matrix0.m_origin[0], &matrix1.m_origin[0], &matrix0.m_yaxis[0]);
-    NewtonUserJointSetRowStiffness(joint, joint_data->m_sf);
+    NewtonUserJointSetRowStiffness(joint, joint_data->m_stiffness);
 
     NewtonUserJointAddLinearRow(joint, &matrix0.m_origin[0], &matrix1.m_origin[0], &matrix0.m_zaxis[0]);
-    NewtonUserJointSetRowStiffness(joint, joint_data->m_sf);
+    NewtonUserJointSetRowStiffness(joint, joint_data->m_stiffness);
 
     // Restrict rotation on axes orthogonal to axis of rotation
     NewtonUserJointAddAngularRow(joint, Joint::c_calculate_angle2(matrix1.m_zaxis, matrix0.m_zaxis, matrix0.m_xaxis), &matrix0.m_xaxis[0]);
-    NewtonUserJointSetRowStiffness(joint, joint_data->m_sf);
+    NewtonUserJointSetRowStiffness(joint, joint_data->m_stiffness);
 
     NewtonUserJointAddAngularRow(joint, Joint::c_calculate_angle2(matrix1.m_zaxis, matrix0.m_zaxis, matrix0.m_yaxis), &matrix0.m_yaxis[0]);
-    NewtonUserJointSetRowStiffness(joint, joint_data->m_sf);
+    NewtonUserJointSetRowStiffness(joint, joint_data->m_stiffness);
 
     // Apply limits and friction
     if (cj_data->m_limits_enabled && cj_data->m_ai.m_angle < cj_data->m_min) {
         NewtonUserJointAddAngularRow(joint, 0.0, &matrix0.m_zaxis[0]);
-        NewtonUserJointSetRowStiffness(joint, joint_data->m_sf);
+        NewtonUserJointSetRowStiffness(joint, joint_data->m_stiffness);
 
-        omega = 0.5f * (cj_data->m_min - cj_data->m_ai.m_angle) * world_data->m_timestep_inv;
-        accel = NewtonUserJointCalculateRowZeroAccelaration(joint) + omega * world_data->m_timestep_inv;
+        omega = 0.5f * (cj_data->m_min - cj_data->m_ai.m_angle) * dt_inv;
+        accel = NewtonUserJointCalculateRowZeroAccelaration(joint) + omega * dt_inv;
         NewtonUserJointSetRowAcceleration(joint, accel);
     }
     else if (cj_data->m_limits_enabled && cj_data->m_ai.m_angle > cj_data->m_max) {
         NewtonUserJointAddAngularRow(joint, 0.0, &matrix0.m_zaxis[0]);
-        NewtonUserJointSetRowStiffness(joint, joint_data->m_sf);
+        NewtonUserJointSetRowStiffness(joint, joint_data->m_stiffness);
 
-        omega = 0.5f * (cj_data->m_max - cj_data->m_ai.m_angle) * world_data->m_timestep_inv;
-        accel = NewtonUserJointCalculateRowZeroAccelaration(joint) + omega * world_data->m_timestep_inv;
+        omega = 0.5f * (cj_data->m_max - cj_data->m_ai.m_angle) * dt_inv;
+        accel = NewtonUserJointCalculateRowZeroAccelaration(joint) + omega * dt_inv;
         NewtonUserJointSetRowAcceleration(joint, accel);
     }
     else {
         NewtonUserJointAddAngularRow(joint, 0.0, &matrix0.m_zaxis[0]);
-        NewtonUserJointSetRowStiffness(joint, joint_data->m_sf * cj_data->m_v);
+        NewtonUserJointSetRowStiffness(joint, joint_data->m_stiffness * cj_data->m_v);
 
         accel = cj_data->m_k * cj_data->m_ai.m_angle +
-            cj_data->m_d * cj_data->m_cur_omega * world_data->m_timestep_inv;
+            cj_data->m_d * cj_data->m_cur_omega * dt_inv;
 
         NewtonUserJointSetRowAcceleration(joint, -accel);
     }

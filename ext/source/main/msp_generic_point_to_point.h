@@ -51,7 +51,7 @@ public:
     static void c_update_info(Joint::Data* joint_data);
 
     // Callback Functions
-    static void on_update(Joint::Data* joint_data, const NewtonJoint* joint, int thread_index);
+    static void on_update(Joint::Data* joint_data, const NewtonJoint* joint, treal dt, int thread_index);
     static void on_destroy(Joint::Data* joint_data);
 
     // Ruby Functions

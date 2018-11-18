@@ -2,6 +2,7 @@
 
 *.DS_Store
 *.vcxproj.user
+*.lock
 
 /ext/projects/vs/.vs
 /ext/projects/vs/Win32

@@ -55,7 +55,7 @@ public:
     static void c_update_power_limits(Joint::Data* joint_data);
 
     // Callback Functions
-    static void on_update(Joint::Data* joint_data, const NewtonJoint* joint, int thread_index);
+    static void on_update(Joint::Data* joint_data, const NewtonJoint* joint, treal dt, int thread_index);
     static void on_destroy(Joint::Data* joint_data);
     static void on_limit_power(Joint::Data* joint_data);
 

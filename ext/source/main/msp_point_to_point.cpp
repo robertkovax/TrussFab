@@ -27,7 +27,7 @@ MSP::PointToPoint::ChildData* MSP::PointToPoint::c_get_child_data(Joint::Data* j
  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 */
 
-void MSP::PointToPoint::on_update(Joint::Data* joint_data, const NewtonJoint* joint, int thread_index) {
+void MSP::PointToPoint::on_update(Joint::Data* joint_data, const NewtonJoint* joint, treal dt, int thread_index) {
     ChildData* cj_data = c_get_child_data(joint_data);
 
     Geom::Transformation matrix;
@@ -54,7 +54,7 @@ void MSP::PointToPoint::on_update(Joint::Data* joint_data, const NewtonJoint* jo
     pt3 = pt1 + cj_data->m_cur_normal.scale(cj_data->m_start_distance);
 
     NewtonUserJointAddLinearRow(joint, &pt2[0], &pt3[0], &cj_data->m_cur_normal[0]);
-    NewtonUserJointSetRowStiffness(joint, joint_data->m_sf);
+    NewtonUserJointSetRowStiffness(joint, joint_data->m_stiffness);
     //joint_data->m_limit_min_row_proc(joint_data);
     //joint_data->m_limit_max_row_proc(joint_data);
 
