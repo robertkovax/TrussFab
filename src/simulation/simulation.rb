@@ -8,6 +8,9 @@ class Simulation
               :breaking_force
   attr_accessor :max_speed, :highest_force_mode, :peak_force_mode,
                 :auto_piston_group, :reset_positions_on_end
+				
+  @csv_name = 'daten'
+  @csv_dir = 'Aufnahme'
 
   class << self
     def create_body(world, entity, collision_type = :box)
@@ -42,9 +45,20 @@ class Simulation
       world.destroy_collision(col)
       body
     end
+	
+	def pfad
+	  dir = "C:/Daten/Master/HCI Project/Testdaten/#{Simulation.csv_dir}"
+	  Dir.mkdir(dir) unless File.exists?(dir)
+	  
+	  "#{dir}/#{Simulation.csv_name}"
+	end
+	
+	attr_accessor :csv_name, :csv_dir
   end
 
   def initialize(ui = nil)
+    @csv_name = 'daten'
+  
     # general
     @chart = nil
     @ground_group = nil
@@ -661,6 +675,12 @@ class Simulation
   def update_forces
     Graph.instance.nodes.each_value do |node|
       node.hub.apply_force
+	  
+	  if node.hub.mass > 0
+	    open("#{Simulation.pfad}_hub_#{node.hub.id}.csv","a") { |f|
+			f.puts("#{node.hub.id};#{@frame};#{node.hub.body.get_velocity.length.to_f.to_s.sub! '.',','};#{node.hub.body.get_acceleration.length.to_f.to_s.sub! '.',','}")
+		}
+	  end
     end
     Graph.instance.edges.each_value do |edge|
       link = edge.link
@@ -668,8 +688,8 @@ class Simulation
 	  if link.is_a?(GenericLink)
 		#link.force = @frame
 		link.update_force
-		open("C:/Daten/Master/HCI Project/Testdaten/daten.csv","a") { |f|
-			f.puts("#{link.id};#{@frame};#{link.force};#{link.length_current}")
+		open("#{Simulation.pfad}_spring_#{link.id}.csv","a") { |f|
+			f.puts("#{link.id};#{@frame};#{link.force.to_s.sub! '.',','};#{link.length_current.to_s.sub! '.',','}")
 		}
 	  end
     end
