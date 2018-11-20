@@ -100,7 +100,7 @@ module Configuration
   DRAG_FACTOR           = 10
   
   # Simulation Properties Spring System
-  WORLD_TIMESTEP_SPRING       = 1.0 / 240 # in seconds
+  WORLD_TIMESTEP_SPRING       = 1.0 / 1000 # in seconds
 
   # PointToPointActuator Properties
   ACTUATOR_RATE         = 0.5 # in m/s
