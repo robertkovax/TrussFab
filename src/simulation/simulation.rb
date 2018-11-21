@@ -10,7 +10,7 @@ class Simulation
                 :auto_piston_group, :reset_positions_on_end
 
   class << self
-    def create_body(world, entity, collision_type = :box)
+    def create_body(world, entity, collision_type = :box, points = [])
       tr = entity.transformation
       df = if entity.respond_to?(:definition)
              entity.definition
@@ -35,6 +35,8 @@ class Simulation
               world.create_box_collision(sbx, sby, sbz, om)
             when :sphere
               world.create_scaled_sphere_collision(sbx, sby, sbz, om)
+            when :convex_hull
+              world.create_convex_hull_collision(points, points.count, tr)
             else
               raise TypeError, "Invalid collision type '#{collision_type}'"
             end

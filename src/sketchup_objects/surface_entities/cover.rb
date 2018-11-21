@@ -46,7 +46,7 @@ class Cover < PhysicsSketchupObject
   # Physics methods
   #
   def create_body(world)
-    @body = Simulation.create_body(world, @entity, :box)
+    @body = Simulation.create_body(world, @entity, :convex_hull, @points)
     @body.static = false
     @body.collidable = true
     @body.mass = 10
@@ -85,6 +85,8 @@ class Cover < PhysicsSketchupObject
     pm.add_point first_position + @normal
     pm.add_point second_position + @normal
     pm.add_point third_position + @normal
+    @points = [first_position, second_position, third_position,
+               first_position + @normal, second_position + @normal, third_position + @normal]
     pm.add_polygon(1, 2, 3)
     pm.add_polygon(4, 5, 6)
     pm.add_polygon(1, 2, 5, 4)
