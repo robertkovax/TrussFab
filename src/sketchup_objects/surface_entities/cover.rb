@@ -1,6 +1,6 @@
 # Cover
-class Cover < SketchupObject
-  attr_reader :pods
+class Cover < PhysicsSketchupObject
+  attr_reader :pods, :body
   def initialize(first_position, second_position, third_position, normal_vector,
                  pods, id: nil, material: 'wooden_cover')
     super(id, material: material)
@@ -43,7 +43,32 @@ class Cover < SketchupObject
     @pods = []
   end
 
+  # Physics methods
+  #
+  def create_body(world)
+    @body = Simulation.create_body(world, @entity, :box)
+    @body.static = false
+    @body.collidable = true
+    @body.mass = 10
+    @body
+  end
+
+  def joint_position
+    bb = bounding_box
+    bb.center
+  end
+
+  def reset_physics
+    super
+  end
+
   private
+
+  def bounding_box
+    boundingbox = Geom::BoundingBox.new
+    boundingbox.add(@first_node.position, @second_node.position, @third_node.position)
+    boundingbox
+  end
 
   def create_entity
     offset_vector = @normal.clone

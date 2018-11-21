@@ -161,6 +161,12 @@ class Simulation
         @saved_transformations[e2] = e2.transformation
       end
     end
+    Graph.instance.triangles.each_value do |obj|
+      if obj.cover
+        e2 = obj.cover.entity
+        @saved_transformations[e2] = e2.transformation
+      end
+    end
   end
 
   def enable_gravity
@@ -194,6 +200,14 @@ class Simulation
       obj.hub.create_body(@world)
     end
 
+    # create bodies for covers
+    #
+    Graph.instance.triangles.each_value do |obj|
+      if obj.cover
+        obj.cover.create_body(@world)
+      end
+    end
+    
     # save transformation of current bodies for resetting
     save_transformations
 
@@ -322,7 +336,7 @@ class Simulation
   # Note: this must be wrapped in operation
   def hide_triangle_surfaces
     Graph.instance.triangles.each do |_, triangle|
-      triangle.surface.hide
+      triangle.surface.hide_parent # do not hide children so that covers are shown in simulation
     end
     @triangles_hidden = true
   end

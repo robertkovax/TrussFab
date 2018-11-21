@@ -44,8 +44,12 @@ class SketchupObject
   end
 
   def hide
-    @entity.hidden = true if @entity && @entity.valid?
+    hide_parent
     @children.each(&:hide)
+  end
+
+  def hide_parent
+    @entity.hidden = true if @entity && @entity.valid?
   end
 
   def show
