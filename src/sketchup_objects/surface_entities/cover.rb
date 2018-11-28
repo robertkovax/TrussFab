@@ -62,9 +62,12 @@ class Cover < PhysicsSketchupObject
   def create_joints(world, node, breaking_force)
     body = node.hub.body
     pt = body.group.bounds.center
+    # this made structures with covers create energy(!?). First almost no movement and later gets out of control.
+    # maybe this has to do with the type of joint, or the joint configurations. (lower stiffness works well)
+    # Also the body and the hubs are not touching (pods are in between but no physical object, hidden in simulation)
     @joint = TrussFab::Fixed.new(world, @body, body, pt, @body.group)
     @joint.solver_model = Configuration::JOINT_SOLVER_MODEL
-    @joint.stiffness = Configuration::JOINT_STIFFNESS 
+    @joint.stiffness = 0.5
     @joint.breaking_force = breaking_force
   end
 
