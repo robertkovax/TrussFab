@@ -224,6 +224,7 @@ class Simulation
     rendering_options = model.rendering_options
     begin
       hide_triangle_surfaces
+      hide_pods_of_covers
       add_ground
       assign_unique_materials unless @disable_coloring
       @show_edges = rendering_options['EdgeDisplayMode']
@@ -248,6 +249,7 @@ class Simulation
       reset_positions if @reset_positions_on_end
       reset_materials
       show_triangle_surfaces if @triangles_hidden
+      show_pods_of_covers
       reset_force_labels
       reset_force_arrows
       reset_sensor_symbols
@@ -354,6 +356,28 @@ class Simulation
     Graph.instance.nodes.each do |_, node|
       node.hub.arrow.erase! unless node.hub.arrow.nil?
       node.hub.arrow = nil
+    end
+  end
+
+  # Note: this must be wrapped in operation
+  def hide_pods_of_covers
+    Graph.instance.triangles.each do |_, triangle|
+      if triangle.cover?
+        triangle.cover.pods.each do |pod|
+          pod.hide
+        end
+      end
+    end
+  end
+
+  # Note: this must be wrapped in operation
+  def show_pods_of_covers
+    Graph.instance.triangles.each do |_, triangle|
+      if triangle.cover?
+        triangle.cover.pods.each do |pod|
+          pod.show
+        end
+      end
     end
   end
 
