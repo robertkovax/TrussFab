@@ -267,6 +267,12 @@ class Simulation
     Graph.instance.edges.each_value do |edge|
       edge.create_joints(@world, @breaking_force)
     end
+
+    Graph.instance.triangles.each_value do |triangle|
+      if triangle.cover
+        triangle.create_joints(@world, @breaking_force)
+      end
+    end
   end
 
   def reset_bodies_and_joints

@@ -1,6 +1,6 @@
 # Cover
 class Cover < PhysicsSketchupObject
-  attr_reader :pods, :body
+  attr_reader :pods, :body, :joint
   def initialize(first_position, second_position, third_position, normal_vector,
                  pods, id: nil, material: 'wooden_cover')
     super(id, material: material)
@@ -10,6 +10,7 @@ class Cover < PhysicsSketchupObject
     @normal = normal_vector.clone
     @normal.length = Configuration::COVER_THICKNESS
     @pods = pods
+    @joint = nil
     @entity = create_entity
     persist_entity
   end
@@ -56,6 +57,15 @@ class Cover < PhysicsSketchupObject
   def joint_position
     bb = bounding_box
     bb.center
+  end
+
+  def create_joints(world, node, breaking_force)
+    body = node.hub.body
+    pt = body.group.bounds.center
+    @joint = TrussFab::Fixed.new(world, @body, body, pt, @body.group)
+    @joint.solver_model = Configuration::JOINT_SOLVER_MODEL
+    @joint.stiffness = Configuration::JOINT_STIFFNESS 
+    @joint.breaking_force = breaking_force
   end
 
   def reset_physics
