@@ -11,6 +11,7 @@ class Simulation
 				
   @csv_name = 'daten'
   @csv_dir = 'Aufnahme'
+  @timesteps = Configuration::WORLD_TIMESTEP_SPRING
 
   class << self
     def create_body(world, entity, collision_type = :box)
@@ -54,6 +55,7 @@ class Simulation
 	end
 	
 	attr_accessor :csv_name, :csv_dir
+	
   end
 
   def initialize(ui = nil)
@@ -156,6 +158,11 @@ class Simulation
     end
   end
 
+  def timesteps=(value)
+    @timesteps=value
+	@world.update_timestep = @timesteps
+  end			
+  
   #
   # Setup and resetting of the world
   #
@@ -194,15 +201,13 @@ class Simulation
 
   # Called when activates
   def setup
-	puts "Simulation setup called"
-  
-  
-    @world = TrussFab::World.new
+	#puts "Simulation setup called"
+	@world = TrussFab::World.new
     #@world.update_timestep = Configuration::WORLD_TIMESTEP
-	@world.update_timestep = Configuration::WORLD_TIMESTEP_SPRING
+	#@world.update_timestep = Configuration::WORLD_TIMESTEP_SPRING
     @world.solver_model = Configuration::WORLD_SOLVER_MODEL
 
-    if TrussFab.store_sensor_output?
+	if TrussFab.store_sensor_output?
       @sensor_output_csv =
         File.new("#{File.expand_path('~')}/sensor_output.log", 'w')
     end
@@ -399,6 +404,9 @@ class Simulation
   def reset_generic_links
     @generic_links.each_value do |generic_link|
       generic_link.force = generic_link.initial_force
+	  if generic_link.is_a?(DamperLink) or generic_link.is_a?(SpringDamperLink)
+		generic_link.last_length = generic_link.length_current
+	  end
     end
   end
 
@@ -677,20 +685,22 @@ class Simulation
       node.hub.apply_force
 	  
 	  if node.hub.mass > 0
-	    open("#{Simulation.pfad}_hub_#{node.hub.id}.csv","a") { |f|
-			f.puts("#{node.hub.id};#{@frame};#{node.hub.body.get_velocity.length.to_f.to_s.sub! '.',','};#{node.hub.body.get_acceleration.length.to_f.to_s.sub! '.',','}")
-		}
+	    #open("#{Simulation.pfad}_hub_#{node.hub.id}.csv","a") { |f|
+		#	f.puts("#{node.hub.id};#{@frame};#{node.hub.body.get_velocity.length.to_f.to_s.sub! '.',','};#{node.hub.body.get_acceleration.length.to_f.to_s.sub! '.',','}")
+		#}
 	  end
     end
     Graph.instance.edges.each_value do |edge|
       link = edge.link
       link.update_force if link.is_a?(PidController)
-	  if link.is_a?(GenericLink)
+	  if link.is_a?(MetalSpringLink)
 		#link.force = @frame
 		link.update_force
-		open("#{Simulation.pfad}_spring_#{link.id}.csv","a") { |f|
-			f.puts("#{link.id};#{@frame};#{link.force.to_s.sub! '.',','};#{link.length_current.to_s.sub! '.',','}")
-		}
+		#open("#{Simulation.pfad}_spring_#{link.id}.csv","a") { |f|
+		#	f.puts("#{link.id};#{@frame};#{link.force.to_s.sub! '.',','};#{link.length_current.to_s.sub! '.',','}")
+		#}
+	  elsif link.is_a?(DamperLink) or link.is_a?(SpringDamperLink)
+		link.update_force(@timesteps)
 	  end
     end
   end
@@ -799,7 +809,7 @@ class Simulation
     update_hub_addons
     update_entities
 	
-	puts "Frame #{@frame}"
+	#puts "Frame #{@frame}"
 
     if (@frame % 5).zero?
       # shift_chart_data if @frame > 100

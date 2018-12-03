@@ -119,6 +119,9 @@ class Sidebar
     build_tool(GeneticActuatorPlacementTool, 'genetic_actuator_placement_tool')
     build_tool(ForceLimitTool, 'force_limit_tool')
     build_tool(PIDControllerTool, 'pid_controller_tool')
+    build_tool(MetalSpringTool, 'metal_spring_tool')
+    build_tool(DamperTool, 'damper_tool')
+    build_tool(SpringDamperTool, 'spring_damper_tool')
   end
 
   def build_tool(tool_class, tool_id)

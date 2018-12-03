@@ -42,6 +42,10 @@ function changeDisplayValues(checked) {
   window.sketchup.change_display_values(checked);
 }
 
+function changeSimulationTimesteps(value) {
+  window.sketchup.change_simulation_timesteps(value);
+}
+
 function setStiffness(value) {
   window.sketchup.set_stiffness(value);
 }
@@ -77,6 +81,7 @@ export {
   changeDisplayValues,
   changePeakForceMode,
   changePistonValue,
+  changeSimulationTimesteps,
   persistKeyframes,
   onLoad,
 };

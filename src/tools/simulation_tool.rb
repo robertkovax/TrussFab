@@ -28,6 +28,7 @@ class SimulationTool < Tool
     @highest_force_mode = false
     @display_values = false
     @stiffness = Configuration::JOINT_STIFFNESS
+	@timesteps = Configuration::WORLD_TIMESTEP_SPRING
   end
 
   def setup_simulation_parameters
@@ -37,6 +38,7 @@ class SimulationTool < Tool
     @simulation.highest_force_mode = @highest_force_mode
     @simulation.display_values = @display_values
     @simulation.stiffness = @stiffness
+	@simulation.timesteps = @timesteps
   end
 
   def activate
@@ -163,6 +165,15 @@ class SimulationTool < Tool
     setup_simulation_parameters
   end
 
+  def simulation_timesteps=(param)
+	@timesteps = (1.0/param).to_f
+	setup_simulation_parameters
+  end
+  
+  def timesteps
+	(1.0/@timesteps).to_i
+  end
+  
   def max_speed=(param)
     @simulation.max_speed = param.to_f unless @simulation.nil?
   end

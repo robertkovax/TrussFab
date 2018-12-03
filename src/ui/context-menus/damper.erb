@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Damper Menu</title>
+</head>
+<body>
+Damping Coefficient:
+<br>
+<input type="number" min="0.0" value="<%= @damper.damping_coefficient %>" step="1" onchange="set_coefficient(this.value)">
+<br><br>
+<script type="text/javascript">
+    function set_coefficient(newValue) {
+        sketchup.set_coefficient(newValue);
+    }
+</script>
+</body>
+</html>
