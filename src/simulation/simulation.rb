@@ -14,7 +14,7 @@ class Simulation
   @timesteps = Configuration::WORLD_TIMESTEP_SPRING
 
   class << self
-    def create_body(world, entity, collision_type = :box)
+    def create_body(world, entity, collision_type = :box, points = [])
       tr = entity.transformation
       df = if entity.respond_to?(:definition)
              entity.definition
@@ -39,6 +39,8 @@ class Simulation
               world.create_box_collision(sbx, sby, sbz, om)
             when :sphere
               world.create_scaled_sphere_collision(sbx, sby, sbz, om)
+            when :convex_hull
+              world.create_convex_hull_collision(points, points.count, tr)
             else
               raise TypeError, "Invalid collision type '#{collision_type}'"
             end
@@ -183,6 +185,12 @@ class Simulation
         @saved_transformations[e2] = e2.transformation
       end
     end
+    Graph.instance.triangles.each_value do |obj|
+      if obj.cover
+        e2 = obj.cover.entity
+        @saved_transformations[e2] = e2.transformation
+      end
+    end
   end
 
   def enable_gravity
@@ -218,6 +226,14 @@ class Simulation
       obj.hub.create_body(@world)
     end
 
+    # create bodies for covers
+    #
+    Graph.instance.triangles.each_value do |obj|
+      if obj.cover
+        obj.cover.create_body(@world)
+      end
+    end
+    
     # save transformation of current bodies for resetting
     save_transformations
 
@@ -232,6 +248,7 @@ class Simulation
     rendering_options = model.rendering_options
     begin
       hide_triangle_surfaces
+      hide_pods_of_covers
       add_ground
       assign_unique_materials unless @disable_coloring
       @show_edges = rendering_options['EdgeDisplayMode']
@@ -256,6 +273,7 @@ class Simulation
       reset_positions if @reset_positions_on_end
       reset_materials
       show_triangle_surfaces if @triangles_hidden
+      show_pods_of_covers
       reset_force_labels
       reset_force_arrows
       reset_sensor_symbols
@@ -274,6 +292,12 @@ class Simulation
   def create_joints
     Graph.instance.edges.each_value do |edge|
       edge.create_joints(@world, @breaking_force)
+    end
+
+    Graph.instance.triangles.each_value do |triangle|
+      if triangle.cover
+        triangle.create_joints(@world, @breaking_force)
+      end
     end
   end
 
@@ -346,7 +370,7 @@ class Simulation
   # Note: this must be wrapped in operation
   def hide_triangle_surfaces
     Graph.instance.triangles.each do |_, triangle|
-      triangle.surface.hide
+      triangle.surface.hide_parent # do not hide children so that covers are shown in simulation
     end
     @triangles_hidden = true
   end
@@ -356,6 +380,28 @@ class Simulation
     Graph.instance.nodes.each do |_, node|
       node.hub.arrow.erase! unless node.hub.arrow.nil?
       node.hub.arrow = nil
+    end
+  end
+
+  # Note: this must be wrapped in operation
+  def hide_pods_of_covers
+    Graph.instance.triangles.each do |_, triangle|
+      if triangle.cover?
+        triangle.cover.pods.each do |pod|
+          pod.hide
+        end
+      end
+    end
+  end
+
+  # Note: this must be wrapped in operation
+  def show_pods_of_covers
+    Graph.instance.triangles.each do |_, triangle|
+      if triangle.cover?
+        triangle.cover.pods.each do |pod|
+          pod.show
+        end
+      end
     end
   end
 
