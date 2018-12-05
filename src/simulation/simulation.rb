@@ -725,7 +725,6 @@ class Simulation
   end
   
   def update_world_test
-	
 	update_forces
 	@world.advance
 	# We need to record this every time the world updates, otherwise,
@@ -733,7 +732,7 @@ class Simulation
 	rec_max_actuator_tensions
 	rec_max_link_tensions if @peak_force_mode
     
-    Sketchup.active_model.start_operation('Sim: Visualize force', true)
+    #Sketchup.active_model.start_operation('Sim: Visualize force', true)
     if @highest_force_mode
       visualize_highest_tension
     else

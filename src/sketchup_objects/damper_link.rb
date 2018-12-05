@@ -15,8 +15,9 @@ class DamperLink < GenericLink
 	#puts "metal spring object initialized"
 	
     @damping_coefficient = damping_coefficient
-	@force = 0
 	@last_length = length_current
+	@initial_force = 5*9.81
+	@force = @initial_force
 
     persist_entity
   end
@@ -27,11 +28,20 @@ class DamperLink < GenericLink
 
   def update_force(time_per_step)
     velocity = (length_current - @last_length)/time_per_step
-	if (length_current - min_distance) >= 0
-	  self.force = - velocity * damping_coefficient
+	if velocity == 0
+	  self.force = @initial_force
 	else
-	  self.force = 0
+	  if (length_current - min_distance) >= min_distance/1000
+	    force = - velocity * damping_coefficient
+	    #if force > (5*9.81)
+		  #force = 5*9.81
+	    #end
+	    self.force = force
+	  else
+	    self.force = 0
+	  end
 	end
+	
 	if DamperLink.debug
 	  puts "DamperLink: #{id}, Velocity: #{velocity}, F:#{@force}, to_go: #{length_current - min_distance}"
 	end

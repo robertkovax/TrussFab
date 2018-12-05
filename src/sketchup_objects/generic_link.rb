@@ -42,6 +42,7 @@ class GenericLink < PhysicsLink
 
   def force=(force)
     @force = force
+	puts "force changed"
     return if @joint.nil? || !@joint.valid?
     @joint.force = force
     @joint.update_info
@@ -49,6 +50,10 @@ class GenericLink < PhysicsLink
   
   def length_current
     first_node.hub.position.distance(second_node.hub.position).to_m
+  end
+  
+  def angle_current
+	
   end
   
   #def update_force

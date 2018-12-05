@@ -16,7 +16,8 @@ class MetalSpringLink < GenericLink
 	#puts "metal spring object initialized"
 	
     @spring_constant = spring_constant
-	@force = 0
+	@initial_force = 0
+	@force = @initial_force
 
     persist_entity
   end

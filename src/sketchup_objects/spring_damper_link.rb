@@ -17,7 +17,8 @@ class SpringDamperLink < GenericLink
 	
     @spring_constant = spring_constant
     @damping_coefficient = damping_coefficient
-	@force = 0
+	@initial_force = 0
+	@force = @initial_force
 	@last_length = length_current
 
     persist_entity
