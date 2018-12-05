@@ -728,6 +728,7 @@ class Simulation
 
   def update_forces
     Graph.instance.nodes.each_value do |node|
+      node.hub.update_vibration_object(@frame, @timesteps) if node.hub.vibration_object?
       node.hub.apply_force
 	  
 	  if node.hub.mass > 0

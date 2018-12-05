@@ -1,6 +1,7 @@
 require 'src/sketchup_objects/physics_sketchup_object.rb'
 require 'src/models/model_storage.rb'
 require 'src/simulation/simulation.rb'
+require 'src/add_on_objects/vibration.rb'
 
 # Hub
 class Hub < PhysicsSketchupObject
@@ -21,10 +22,9 @@ class Hub < PhysicsSketchupObject
     @sensor_symbol = nil
     @is_sensor = false
     @incidents = incidents
+    @vibration_object = nil
     update_id_label
     persist_entity
-	
-	hat_gewicht = false
   end
 
   def add_pod(direction, id: nil, is_fixed: true)
@@ -130,6 +130,10 @@ class Hub < PhysicsSketchupObject
     !pods.empty?
   end
 
+  def vibration_object?
+      !@vibration_object.nil?
+  end
+
   def has_addons?
     !@arrow.nil? || !@weight_indicator.nil? || !@sensor_symbol.nil?
   end
@@ -208,6 +212,17 @@ class Hub < PhysicsSketchupObject
   def apply_force
     return if @body.nil?
     @body.apply_force(@force)
+  end
+
+  def update_vibration_object(frame, timesteps)
+      if vibration_object?
+          vibration_force_vector = @vibration_object.get_current_force_vector(frame, timesteps)
+          self.force = vibration_force_vector
+      end
+  end
+
+  def add_vibration
+      @vibration_object = Vibration.new
   end
 
   def create_body(world)

@@ -33,7 +33,6 @@ class GenericLink < PhysicsLink
 
   def force=(force)
     @force = force
-	puts "force changed"
     return if @joint.nil? || !@joint.valid?
     @joint.force = force
     @joint.update_info
