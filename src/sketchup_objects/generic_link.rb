@@ -5,12 +5,6 @@ require 'src/configuration/configuration.rb'
 class GenericLink < PhysicsLink
   attr_accessor :min_distance, :max_distance
   attr_reader :initial_force, :default_length, :force
-  
-  #@k = 750
-  
-  #class << self
-	#attr_accessor :k
-  #end
 
   def initialize(first_node, second_node, edge, id: nil, link_type: 'generic')
     super(first_node, second_node, edge, link_type, id: id)
@@ -18,9 +12,6 @@ class GenericLink < PhysicsLink
 	pt1 = first_node.hub.position
     pt2 = second_node.hub.position
     @default_length = pt1.distance(pt2).to_m
-
-    #@force = 0
-	
     @min_distance = @default_length + Configuration::GENERIC_LINK_MIN_DISTANCE
     @max_distance = @default_length + Configuration::GENERIC_LINK_MAX_DISTANCE
     @limits_enabled = true

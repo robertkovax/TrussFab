@@ -113,6 +113,18 @@ Print Steps:
 
 * /src/models/ manages Sketchup ComponentDefinitions created from .skp files. These can be instantiated to Sketchup ComponentInstances with a transformation to put them in the right place.
 
+## Documentation
+
+* Install yard to generate RubyDocs `gem install yard` 
+
+* Generate the RubyDocs locally with running `yardocs` or `yard doc`
+
+* Edit `.yardopts` to define setting for yard. 
+
+* Find the generated Documentation in `/doc`
+
+* Read more about [Yard](https://yardoc.org/) and [RDoc](http://rdoc.sourceforge.net/) and [Documenting Source Code in RubyMine](https://www.jetbrains.com/help/ruby/documenting-source-code.html)
+
 ### Concerning the SketchUp API
 
 * [Sketchup Ruby API](http://www.sketchup.com/intl/en/developer/index), [Tutorials](http://www.sketchup.com/intl/en/developer/docs/tutorial_geometry)
