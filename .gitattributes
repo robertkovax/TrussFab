@@ -1,0 +1,24 @@
+* text=auto eol=lf
+
+*.md text
+*.c text
+*.h text
+*.rb text
+*.js text
+*.css text
+*.html text
+*.cpp text
+*.tex text
+*.txt text
+
+*.sln text eol=crlf
+*.vcxproj text eol=crlf
+*.filters text eol=crlf
+
+*.skp binary
+*.style binary
+*.so binary
+*.dll binary
+*.dylib binary
+*.png binary
+*.jpg binary

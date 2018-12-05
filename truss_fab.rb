@@ -12,16 +12,9 @@ ops = bwin ? 'win' : 'osx'
 bit = b64 ? '64' : '32'
 rbv = RUBY_VERSION[0..2].to_s
 c_ext = bwin ? '.so' : '.bundle'
-l_ext = bwin ? '.dll' : '.dylib'
 
-lib_path =  File.join(dir, 'ext', ops + bit)
-lib_fpath = File.join(lib_path, 'newton' + l_ext)
+lib_path =  File.join(dir, 'bin', ops + bit)
 ext_fpath = File.join(lib_path, rbv, 'tfn_lib' + c_ext)
-
-if bwin
-  require 'fiddle'
-  Fiddle.dlopen(lib_fpath)
-end
 
 require ext_fpath
 
