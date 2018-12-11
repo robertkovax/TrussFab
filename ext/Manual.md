@@ -1,4 +1,5 @@
 ## TrussFab::Joint
+This is an abstract class for all joints.
 
 ```ruby
 valid?
@@ -29,14 +30,26 @@ set_pin_transformation(pin_matrix)
 ## TrussFab::Fixed < TrussFab::Joint
 
 ```ruby
-initialize(world, parent, child, matrix, group = nil)
+# @param [TrussFab::World] world
+# @param [TrussFab::Body, nil] parent
+# @param [TrussFab::Body] child
+# @param [Geom::Transformation] matrix pin dir
+# @param [Sketchup::Group, Sketchup::ComponentInstance, nil] group
+initialize(world, parent, child, matrix, group)
 ```
 
 
 ## TrussFab::PointToPoint < TrussFab::Joint
 
 ```ruby
-initialize(world, parent, child, pt1, pt2, group = nil)
+# @param [TrussFab::World] world
+# @param [TrussFab::Body, nil] parent
+# @param [TrussFab::Body] child
+# @param [Geom::Point3d] pt1
+# @param [Geom::Point3d] pt2
+# @param [Sketchup::Group, Sketchup::ComponentInstance, nil] group
+initialize(world, parent, child, pt1, pt2, group)
+
 get_point1
 set_point1(point)
 get_point2
@@ -51,7 +64,14 @@ cur_normal
 ## TrussFab::PointToPointActuator < TrussFab::Joint
 
 ```ruby
-initialize(world, parent, child, pt1, pt2, group = nil)
+# @param [TrussFab::World] world
+# @param [TrussFab::Body, nil] parent
+# @param [TrussFab::Body] child
+# @param [Geom::Point3d] pt1
+# @param [Geom::Point3d] pt2
+# @param [Sketchup::Group, Sketchup::ComponentInstance, nil] group
+initialize(world, parent, child, pt1, pt2, group)
+
 get_point1
 set_point1(point)
 get_point2
@@ -75,7 +95,14 @@ cur_normal
 ## TrussFab::PointToPointGasSpring < TrussFab::Joint
 
 ```ruby
-initialize(world, parent, child, pt1, pt2, group = nil)
+# @param [TrussFab::World] world
+# @param [TrussFab::Body, nil] parent
+# @param [TrussFab::Body] child
+# @param [Geom::Point3d] pt1
+# @param [Geom::Point3d] pt2
+# @param [Sketchup::Group, Sketchup::ComponentInstance, nil] group
+initialize(world, parent, child, pt1, pt2, group)
+
 get_point1
 set_point1(point)
 get_point2
@@ -100,7 +127,14 @@ update_info # call this whenever setting linked body static/dynamic while runnin
 ## TrussFab::GenericPointToPoint < TrussFab::Joint
 
 ```ruby
-initialize(world, parent, child, pt1, pt2, group = nil)
+# @param [TrussFab::World] world
+# @param [TrussFab::Body, nil] parent
+# @param [TrussFab::Body] child
+# @param [Geom::Point3d] pt1
+# @param [Geom::Point3d] pt2
+# @param [Sketchup::Group, Sketchup::ComponentInstance, nil] group
+initialize(world, parent, child, pt1, pt2, group)
+
 get_point1
 set_point1(point)
 get_point2
@@ -123,7 +157,13 @@ update_info # call this whenever setting linked body static/dynamic while runnin
 ## TrussFab::Plane < TrussFab::Joint
 
 ```ruby
-initialize(world, parent, child, matrix, group = nil)
+# @param [TrussFab::World] world
+# @param [TrussFab::Body, nil] parent
+# @param [TrussFab::Body] child
+# @param [Geom::Transformation] matrix pin dir
+# @param [Sketchup::Group, Sketchup::ComponentInstance, nil] group
+initialize(world, parent, child, matrix, group)
+
 linear_friction
 linear_friction=(value)
 angular_friction
