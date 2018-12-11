@@ -19,7 +19,7 @@ class AddVibrationTool < Tool
   end
 
   def add_vibration_to_node(node)
-    node.hub.add_vibration
+    node.hub.add_frequency
   end
 
   def add_vibration_to_surface(surface)

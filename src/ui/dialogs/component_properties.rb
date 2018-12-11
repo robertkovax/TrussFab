@@ -423,6 +423,9 @@ class ComponentProperties
                                           param[1].to_f,
                                           param[2].to_f)
     end
+    dialog.add_action_callback('set_vibration_frequency') do |_dialog, param|
+        node.hub.frequency = param.to_f
+    end
     dialog.add_action_callback('set_weight') do |_dialog, param|
       node.hub.weight = param.to_f
     end

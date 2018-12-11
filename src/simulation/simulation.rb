@@ -274,6 +274,7 @@ class Simulation
       reset_materials
       show_triangle_surfaces if @triangles_hidden
       show_pods_of_covers
+      reset_hub_force
       reset_force_labels
       reset_force_arrows
       reset_sensor_symbols
@@ -728,7 +729,7 @@ class Simulation
 
   def update_forces
     Graph.instance.nodes.each_value do |node|
-      node.hub.update_vibration_object(@frame, @timesteps) if node.hub.vibration_object?
+      node.hub.update_vibration_force(@frame, @timesteps) unless node.hub.frequency == 0
       node.hub.apply_force
 	  
 	  if node.hub.mass > 0
@@ -1185,5 +1186,11 @@ class Simulation
   # Note: this must be wrapped in operation
   def reset_force_labels
     @force_labels.each { |_, label| label.text = '' }
+    end
+
+  def reset_hub_force
+    Graph.instance.nodes.each_value do |node|
+      node.hub.reset_force
+    end
   end
 end

@@ -1,12 +1,11 @@
 require 'src/sketchup_objects/physics_sketchup_object.rb'
 require 'src/models/model_storage.rb'
 require 'src/simulation/simulation.rb'
-require 'src/add_on_objects/vibration.rb'
 
 # Hub
 class Hub < PhysicsSketchupObject
   attr_accessor :position, :body, :mass, :arrow
-  attr_reader :force
+  attr_reader :force, :frequency
 
   def initialize(position, id: nil, incidents: nil, material: 'hub_material')
     super(id, material: material)
@@ -17,12 +16,14 @@ class Hub < PhysicsSketchupObject
     @id_label = nil
     @mass = 0
     @force = Geom::Vector3d.new(0, 0, 0)
+    @force_direction = nil
+    @force_length = nil
+    @frequency = 0 # sets how fast the object should move back and forth, 0 means no vibrations
     @arrow = nil
     @weight_indicator = nil
     @sensor_symbol = nil
     @is_sensor = false
     @incidents = incidents
-    @vibration_object = nil
     update_id_label
     persist_entity
   end
@@ -35,6 +36,7 @@ class Hub < PhysicsSketchupObject
 
   def update_force_arrow
     Sketchup.active_model.start_operation('Hub: Add Force Arrow', true)
+    model = ModelStorage.instance.models['force_arrow']
     point = Geom::Point3d.new(@position)
     alignment_vec = Geom::Vector3d.new(0, 0, 1)
     unless @arrow.nil?
@@ -42,7 +44,6 @@ class Hub < PhysicsSketchupObject
       @arrow = nil
     end
     return if @force.length == 0
-    model = ModelStorage.instance.models['force_arrow']
     transform = Geom::Transformation.new(point + alignment_vec)
     @arrow = Sketchup.active_model
                .active_entities
@@ -130,10 +131,6 @@ class Hub < PhysicsSketchupObject
     !pods.empty?
   end
 
-  def vibration_object?
-      !@vibration_object.nil?
-  end
-
   def has_addons?
     !@arrow.nil? || !@weight_indicator.nil? || !@sensor_symbol.nil?
   end
@@ -214,15 +211,44 @@ class Hub < PhysicsSketchupObject
     @body.apply_force(@force)
   end
 
-  def update_vibration_object(frame, timesteps)
-      if vibration_object?
-          vibration_force_vector = @vibration_object.get_current_force_vector(frame, timesteps)
-          self.force = vibration_force_vector
+  # recalculates originally set force before simulation
+  def reset_force
+    return if (@force_direction.nil? or @force_length.nil?)
+    self.force = Geom::Vector3d.new(@force_direction.x * @force_length,
+                                    @force_direction.y * @force_length,
+                                    @force_direction.z * @force_length)
+    @force_length = nil
+    @force_direction = nil
+  end
+
+  # adds frequency to hub allowing it to vibrate. can be placed on Hubs by using the 'add Vibration Tool'
+  # when no force set so far then a default value of maximum force on one axis is set
+  # @param [Float] frequency will be added to current value of frequency
+  def add_frequency(frequency=2)
+      self.frequency += frequency
+      if @force == Geom::Vector3d.new(0, 0, 0)
+          self.force = Geom::Vector3d.new(0, 0, 5)
       end
   end
 
-  def add_vibration
-      @vibration_object = Vibration.new
+  # overrides current frequency for hub
+  def frequency= (frequency)
+      @frequency = frequency
+      update_force_arrow
+  end
+
+  # Updates force vector of the hub with calculated vector at a given time in the simulation
+  # @param [Int] frame current frame number
+  # @param [Float] timesteps number of frames per second
+  def update_vibration_force(frame, timesteps)
+      current_time = frame * timesteps
+      @force_direction = @force.normalize if @force_direction.nil?
+      @force_length = @force.length if @force_length.nil?
+      current_force = @force_length * Math.sin(current_time * @frequency * 2 * Math::PI)
+
+      self.force = Geom::Vector3d.new(@force_direction.x * current_force,
+                                      @force_direction.y * current_force,
+                                      @force_direction.z * current_force)
   end
 
   def create_body(world)

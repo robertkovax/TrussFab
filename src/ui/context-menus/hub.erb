@@ -17,6 +17,8 @@ X <input type="text" id="force-x" onchange="set_force()">N<br>
 Y <input type="text" id="force-y" onchange="set_force()">N<br>
 Z <input type="text" id="force-z" onchange="set_force()">N
 <br>
+Vibration Frequency (if 0 then no movement): <br>
+<input type="text" id="vibration-frequency" onchange="set_vibration_frequency()">Hz<br>
 Weight: <br>
 <input type="text" id="weight" onchange="set_weight()">kg
 <br>
@@ -37,6 +39,9 @@ Weight: <br>
     var force_z = document.getElementById("force-z");
     force_z.value = <%= @node.hub.force.z %>;
 
+    var frequency = document.getElementById("vibration-frequency");
+    frequency.value = <%= @node.hub.frequency %>;
+
     var weight = document.getElementById("weight");
     weight.value = <%= @node.hub.mass %>;
   }
@@ -52,6 +57,10 @@ Weight: <br>
     var y = document.getElementById("force-y");
     var z = document.getElementById("force-z");
     sketchup.set_force([x.value,y.value,z.value]);
+  }
+  function set_vibration_frequency() {
+      var frequency = document.getElementById("vibration-frequency");
+      sketchup.set_vibration_frequency(frequency.value);
   }
   function set_weight() {
     var weight = document.getElementById("weight");
