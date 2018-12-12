@@ -227,14 +227,15 @@ class Hub < PhysicsSketchupObject
   def add_frequency(frequency=2)
       self.frequency += frequency
       if @force == Geom::Vector3d.new(0, 0, 0)
-          self.force = Geom::Vector3d.new(0, 0, 5)
+          self.force = Geom::Vector3d.new(0, 5, 0)
+      else
+          update_force_arrow
       end
   end
 
   # overrides current frequency for hub
   def frequency= (frequency)
       @frequency = frequency
-      update_force_arrow
   end
 
   # Updates force vector of the hub with calculated vector at a given time in the simulation
