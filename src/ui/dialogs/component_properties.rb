@@ -159,7 +159,7 @@ class ComponentProperties
 
   def add_hub_menu(context_menu, erb_file, title)
     context_menu.add_item(title) do
-      show_hub_dialog(erb_file, title, Configuration::UI_WIDTH, 300)
+      show_hub_dialog(erb_file, title, Configuration::UI_WIDTH, 450)
     end
   end
 
@@ -425,6 +425,9 @@ class ComponentProperties
     end
     dialog.add_action_callback('set_vibration_frequency') do |_dialog, param|
         node.hub.frequency = param.to_f
+    end
+    dialog.add_action_callback('set_phase_shift') do |_dialog, param|
+        node.hub.phase_shift = param.to_f
     end
     dialog.add_action_callback('set_weight') do |_dialog, param|
       node.hub.weight = param.to_f
