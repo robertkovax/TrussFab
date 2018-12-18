@@ -18,6 +18,7 @@ class DamperLink < GenericLink
 	@last_length = length_current
 	@initial_force = 5*9.81
 	@force = @initial_force
+    change_color(Sketchup.active_model.materials['damper_material'])
 
     persist_entity
   end

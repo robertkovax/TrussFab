@@ -18,6 +18,7 @@ class MetalSpringLink < GenericLink
     @spring_constant = spring_constant
 	@initial_force = 0
 	@force = @initial_force
+    change_color(Sketchup.active_model.materials['spring_material'])
 
     persist_entity
   end

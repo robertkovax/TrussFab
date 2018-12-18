@@ -117,6 +117,12 @@ module ProjectHelper
       material.alpha = 1
     end
 
+    unless materials['spring_texture']
+      material = materials.add('spring_texture')
+      material.texture = asset_directory + '/textures/spring.jpg'
+      material.alpha = 1
+    end
+
     unless materials['pid_material']
       material = materials.add('pid_material')
       material.color = Configuration::PID_COLOR
@@ -126,6 +132,18 @@ module ProjectHelper
     unless materials['generic_link_material']
       material = materials.add('generic_link_material')
       material.color = Configuration::GENERIC_LINK_COLOR
+      material.alpha = 1
+    end
+
+    unless materials['damper_material']
+      material = materials.add('damper_material')
+      material.color = Configuration::DAMPER_COLOR
+      material.alpha = 1
+    end
+
+    unless materials['spring_damper_material']
+      material = materials.add('spring_damper_material')
+      material.color = Configuration::SPRING_DAMPER_COLOR
       material.alpha = 1
     end
 

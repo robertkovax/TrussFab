@@ -20,6 +20,7 @@ class SpringDamperLink < GenericLink
 	@initial_force = 0
 	@force = @initial_force
 	@last_length = length_current
+    change_color(Sketchup.active_model.materials['spring_damper_material'])
 
     persist_entity
   end

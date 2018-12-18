@@ -631,14 +631,6 @@ class Simulation
     end
   end
 
-  def expand_actuator(id)
-    move_joint(id, true)
-  end
-
-  def retract_actuator(id)
-    move_joint(id, false)
-  end
-
   def stop_actuator(id)
     link = nil
     @auto_piston_group.each do |edges|

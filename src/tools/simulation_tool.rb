@@ -237,14 +237,6 @@ class SimulationTool < Tool
     @auto_piston_group = @simulation.auto_piston_group
   end
 
-  def expand_actuator(group_id)
-    @simulation.expand_actuator(group_id)
-  end
-
-  def retract_actuator(group_id)
-    @simulation.retract_actuator(group_id)
-  end
-
   def move_joint(id, new_value, duration)
     @simulation.move_joint(id, new_value, duration) unless @simulation.nil?
   end
