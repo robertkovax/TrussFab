@@ -98,6 +98,9 @@ module Configuration
   BODY_ELASTICITY       = 0.1
   BODY_SOFTNESS         = 0.1
   DRAG_FACTOR           = 10
+  
+  # Simulation Properties Spring System
+  WORLD_TIMESTEP_SPRING       = 1.0 / 240 # in seconds
 
   # PointToPointActuator Properties
   ACTUATOR_RATE         = 0.5 # in m/s

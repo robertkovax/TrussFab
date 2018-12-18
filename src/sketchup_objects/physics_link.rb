@@ -46,11 +46,9 @@ class PhysicsLink < Link
     pt2 = bd2.group.bounds.center
     @joint = case @link_type # NOTE: Add newly created link_types here
              when 'actuator'
-               TrussFab::PointToPointActuator.new(world, bd1, bd2, pt1, pt2,
-                                                  nil)
+               TrussFab::PointToPointActuator.new(world, bd1, bd2, pt1, pt2, nil)
              when 'spring'
-               TrussFab::PointToPointGasSpring.new(world, bd1, bd2, pt1, pt2,
-                                                   nil)
+               TrussFab::PointToPointGasSpring.new(world, bd1, bd2, pt1, pt2, nil)
              when 'generic'
                TrussFab::GenericPointToPoint.new(world, bd1, bd2, pt1, pt2, nil)
              when 'pid_controller'

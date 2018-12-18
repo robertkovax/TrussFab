@@ -6,6 +6,7 @@ import {
   setStiffness,
   changePeakForceMode,
   changeDisplayValues,
+  changeSimulationTimesteps,
 } from '../utils/sketchup-integration';
 
 class SimulationForm extends React.Component {
@@ -64,6 +65,35 @@ class SimulationForm extends React.Component {
           />
           <label className="form-check-label">Display Values</label>
         </div>
+		{devMode && (
+          <div className="form-group row no-gutters">
+            <label className="col-sm-6 col-form-label">Timesteps</label>
+            <div className="input-group input-group-sm col-sm-6">
+              <input
+                type="number"
+                className="form-control form-control-sm"
+                id="input-cycle-length"
+                placeholder="60"
+                min="1"
+                max="1000"
+                value={simulationSettings.timesteps}
+                onChange={event => {
+                  const timesteps = parseFloat(
+                    Math.max(1, Math.min(1000, event.target.value.toString()))
+                  );
+                  
+                  setContainerState({
+                    simulationSettings: {timesteps}
+                  });
+				  changeSimulationTimesteps(timesteps);
+                }}
+              />
+              <div className="input-group-append">
+                <span className="input-group-text">1/s</span>
+              </div>
+            </div>
+          </div>
+        )}
         {devMode && (
           <div className="form-group row no-gutters">
             <label className="col-sm-6 col-form-label">Cycle Length</label>

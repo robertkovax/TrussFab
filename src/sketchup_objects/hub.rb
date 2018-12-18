@@ -22,6 +22,7 @@ class Hub < PhysicsSketchupObject
     @is_sensor = false
     @incidents = incidents
     update_id_label
+    
     persist_entity
   end
 

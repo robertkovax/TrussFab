@@ -8,6 +8,8 @@ class Simulation
               :breaking_force
   attr_accessor :max_speed, :highest_force_mode, :peak_force_mode,
                 :auto_piston_group, :reset_positions_on_end
+                
+  @timesteps = Configuration::WORLD_TIMESTEP_SPRING
 
   class << self
     def create_body(world, entity, collision_type = :box, points = [])
@@ -46,12 +48,13 @@ class Simulation
     end
   end
 
-  def initialize(ui = nil)
+  def initialize(ui = nil)  
     # general
     @chart = nil
     @ground_group = nil
     @root_dir = File.join(__dir__, '..')
     @world = nil
+	#setup
     @show_edges = true
     @show_profiles = true
     @ui = ui
@@ -143,6 +146,11 @@ class Simulation
     end
   end
 
+  def timesteps=(value)
+    @timesteps=value
+	@world.update_timestep = @timesteps
+  end			
+  
   #
   # Setup and resetting of the world
   #
@@ -188,7 +196,6 @@ class Simulation
   # Called when activates
   def setup
     @world = TrussFab::World.new
-    @world.update_timestep = Configuration::WORLD_TIMESTEP
     @world.solver_model = Configuration::WORLD_SOLVER_MODEL
 
     if TrussFab.store_sensor_output?
@@ -426,6 +433,9 @@ class Simulation
   def reset_generic_links
     @generic_links.each_value do |generic_link|
       generic_link.force = generic_link.initial_force
+	  if generic_link.is_a?(DamperLink) or generic_link.is_a?(SpringDamperLink)
+		generic_link.last_length = generic_link.length_current
+	  end
     end
   end
 
@@ -706,6 +716,12 @@ class Simulation
     Graph.instance.edges.each_value do |edge|
       link = edge.link
       link.update_force if link.is_a?(PidController)
+	  if link.is_a?(MetalSpringLink)
+		#link.force = @frame
+		link.update_force
+	  elsif link.is_a?(DamperLink) or link.is_a?(SpringDamperLink)
+		link.update_force(@timesteps)
+	  end
     end
   end
 
@@ -719,6 +735,23 @@ class Simulation
       rec_max_actuator_tensions
       rec_max_link_tensions if @peak_force_mode
     end
+    Sketchup.active_model.start_operation('Sim: Visualize force', true)
+    if @highest_force_mode
+      visualize_highest_tension
+    else
+      visualize_tensions
+    end
+    Sketchup.active_model.commit_operation
+  end
+  
+  def update_world_one_step
+    update_forces
+    @world.advance
+    # We need to record this every time the world updates, otherwise,
+    # we might skip the crucial forces involved
+    rec_max_actuator_tensions
+    rec_max_link_tensions if @peak_force_mode
+    
     Sketchup.active_model.start_operation('Sim: Visualize force', true)
     if @highest_force_mode
       visualize_highest_tension
@@ -790,7 +823,7 @@ class Simulation
     view.show_frame
     return @running unless @running && !@paused
 
-    update_world
+    update_world_one_step
     update_hub_addons
     update_entities
 

@@ -105,11 +105,13 @@ class AnimationPane
     display_values = @simulation_tool.display_values
     highest_force_mode = @simulation_tool.highest_force_mode
     peak_force_mode = @simulation_tool.peak_force_mode
+	timesteps = @simulation_tool.timesteps
     @dialog.execute_script("initSimulationState(#{breaking_force},
                                                 #{stiffness} * 100,
                                                 #{display_values},
                                                 #{highest_force_mode},
-                                                #{peak_force_mode})")
+                                                #{peak_force_mode},
+												#{timesteps})")
   end
 
   def start_simulation_setup_scripts
@@ -181,7 +183,11 @@ class AnimationPane
     @dialog.add_action_callback('change_display_values') do |_context, checked|
       @simulation_tool.change_display_values(checked)
     end
-
+	
+	@dialog.add_action_callback('change_simulation_timesteps') do |_context, value|
+      @simulation_tool.simulation_timesteps = value
+    end
+	
     @dialog.add_action_callback('apply_force') do |_context|
       @simulation_tool.pressurize_generic_link
     end

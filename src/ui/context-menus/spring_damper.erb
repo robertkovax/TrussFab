@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring+Damper Menu</title>
+</head>
+<body>
+Spring constant:
+<br>
+<input type="number" min="0.0" value="<%= @spring_damper.spring_constant %>" step="1" onchange="set_constant(this.value)">
+<br><br>
+Damping coefficient:
+<br>
+<input type="number" min="0.0" value="<%= @spring_damper.damping_coefficient %>" step="1" onchange="set_coefficient(this.value)">
+<br><br>
+<script type="text/javascript">
+    function set_constant(newValue) {
+        sketchup.set_constant(newValue);
+    }
+    function set_coefficient(newValue) {
+        sketchup.set_coefficient(newValue);
+    }
+</script>
+</body>
+</html>

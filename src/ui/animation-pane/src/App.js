@@ -70,7 +70,8 @@ class App extends Component {
     stiffness,
     displayValues,
     highestForceMode,
-    peakForceMode
+    peakForceMode,
+	timesteps
   ) => {
     this.setState({
       simulationSettings: {
@@ -79,6 +80,7 @@ class App extends Component {
         displayValues,
         highestForceMode,
         peakForceMode,
+		timesteps,
       },
     });
   };
