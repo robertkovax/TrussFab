@@ -433,9 +433,9 @@ class Simulation
   def reset_generic_links
     @generic_links.each_value do |generic_link|
       generic_link.force = generic_link.initial_force
-	  if generic_link.is_a?(DamperLink) or generic_link.is_a?(SpringDamperLink)
-		generic_link.last_length = generic_link.length_current
-	  end
+      if generic_link.is_a?(SpringDamperLink)
+        generic_link.last_length = generic_link.length_current
+      end
     end
   end
 
@@ -716,12 +716,9 @@ class Simulation
     Graph.instance.edges.each_value do |edge|
       link = edge.link
       link.update_force if link.is_a?(PidController)
-	  if link.is_a?(MetalSpringLink)
-		#link.force = @frame
-		link.update_force
-	  elsif link.is_a?(DamperLink) or link.is_a?(SpringDamperLink)
-		link.update_force(@timesteps)
-	  end
+      if link.is_a?(SpringDamperLink)
+        link.update_force(@timesteps)
+      end
     end
   end
 

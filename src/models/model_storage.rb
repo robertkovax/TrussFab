@@ -9,9 +9,7 @@ require 'src/models/force_arrow_model.rb'
 require 'src/models/weight_indicator_model.rb'
 require 'src/models/sensor_model.rb'
 require 'src/models/pid_model.rb'
-require 'src/models/metal_spring_model.rb'
 require 'src/models/spring_damper_model.rb'
-require 'src/models/damper_model.rb'
 
 # Model Storage
 class ModelStorage
@@ -46,14 +44,6 @@ class ModelStorage
 
     if @models['generic'].nil? || !@models['generic'].valid?
       @models['generic'] = SpringModel.new
-    end
-	
-	if @models['metal_spring'].nil? || !@models['metal_spring'].valid?
-      @models['metal_spring'] = MetalSpringModel.new
-    end
-	
-	if @models['damper'].nil? || !@models['damper'].valid?
-      @models['damper'] = DamperModel.new
     end
 	
 	if @models['spring_damper'].nil? || !@models['spring_damper'].valid?
