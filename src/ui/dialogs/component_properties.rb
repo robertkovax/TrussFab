@@ -33,18 +33,6 @@ class ComponentProperties
         add_generic_link_menu(context_menu,
                               '../context-menus/generic_link.erb',
                               'TrussFab Generic Link Properties')
-	  when 'MetalSpringLink'
-        metal_spring = Graph.instance.edges[id].link
-        @metal_spring = metal_spring
-        add_metal_spring_menu(context_menu,
-                              '../context-menus/metal_spring.erb',
-                              'TrussFab Metal Spring Properties')
-	  when 'DamperLink'
-        damper = Graph.instance.edges[id].link
-        @damper = damper
-        add_damper_menu(context_menu,
-                              '../context-menus/damper.erb',
-                              'TrussFab Damper Properties')
 	  when 'SpringDamperLink'
         spring_damper = Graph.instance.edges[id].link
         @spring_damper = spring_damper
@@ -121,18 +109,6 @@ class ComponentProperties
     end
   end
 
-  def add_metal_spring_menu(context_menu, erb_file, title)
-    context_menu.add_item(title) do
-      show_metal_spring_dialog(erb_file, title, Configuration::UI_WIDTH, 400)
-    end
-  end
-
-  def add_damper_menu(context_menu, erb_file, title)
-    context_menu.add_item(title) do
-      show_damper_dialog(erb_file, title, Configuration::UI_WIDTH, 400)
-    end
-  end
-
   def add_spring_damper_menu(context_menu, erb_file, title)
     context_menu.add_item(title) do
       show_spring_damper_dialog(erb_file, title, Configuration::UI_WIDTH, 400)
@@ -192,22 +168,6 @@ class ComponentProperties
                            height = Configuration::UI_HEIGHT)
     dialog = show_dialog(file, name, width, height)
     register_actuator_callbacks(@actuator, dialog)
-  end
-  
-  def show_metal_spring_dialog(file,
-                           name,
-                           width = Configuration::UI_WIDTH,
-                           height = Configuration::UI_HEIGHT)
-    dialog = show_dialog(file, name, width, height)
-    register_metal_spring_callbacks(@metal_spring, dialog)
-  end
-  
-  def show_damper_dialog(file,
-                           name,
-                           width = Configuration::UI_WIDTH,
-                           height = Configuration::UI_HEIGHT)
-    dialog = show_dialog(file, name, width, height)
-    register_damper_callbacks(@damper, dialog)
   end
   
   def show_spring_damper_dialog(file,
@@ -328,20 +288,6 @@ class ComponentProperties
     end
     dialog.add_action_callback('set_max') do |_dialog, param|
       link.max_distance = param.to_f
-      link.update_link_properties
-    end
-  end
-  
-  def register_metal_spring_callbacks(link, dialog)
-    dialog.add_action_callback('set_constant') do |_dialog, param|
-      link.spring_constant = param.to_f
-      link.update_link_properties
-    end
-  end
-  
-  def register_damper_callbacks(link, dialog)
-    dialog.add_action_callback('set_coefficient') do |_dialog, param|
-      link.damping_coefficient = param.to_f
       link.update_link_properties
     end
   end

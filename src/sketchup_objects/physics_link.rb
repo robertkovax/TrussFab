@@ -49,8 +49,6 @@ class PhysicsLink < Link
                TrussFab::PointToPointActuator.new(world, bd1, bd2, pt1, pt2, nil)
              when 'spring'
                TrussFab::PointToPointGasSpring.new(world, bd1, bd2, pt1, pt2, nil)
-			   #puts("Spring wird initialisiert.")
-			   #TrussFab::Spring.new(world,bd1, bd2, pt1, pt2,nil)
              when 'generic'
                TrussFab::GenericPointToPoint.new(world, bd1, bd2, pt1, pt2, nil)
              when 'pid_controller'
