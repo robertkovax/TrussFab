@@ -8,8 +8,6 @@ require 'src/sketchup_objects/pid_controller.rb'
 require 'src/models/model_storage.rb'
 require 'src/simulation/thingy_rotation.rb'
 require 'src/configuration/configuration.rb'
-require 'src/sketchup_objects/metal_spring_link.rb'
-require 'src/sketchup_objects/damper_link.rb'
 require 'src/sketchup_objects/spring_damper_link.rb'
 
 # Edge
@@ -264,16 +262,6 @@ class Edge < GraphObject
                        id: id)
       when 'generic'
         GenericLink.new(@first_node,
-                        @second_node,
-                        self,
-                        id: id)
-      when 'metal_spring'
-        MetalSpringLink.new(@first_node,
-                        @second_node,
-                        self,
-                        id: id)
-      when 'damper'
-        DamperLink.new(@first_node,
                         @second_node,
                         self,
                         id: id)
