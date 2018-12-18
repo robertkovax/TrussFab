@@ -6,6 +6,7 @@ require 'src/scad_export/scad_export.rb'
 require 'src/utility/bottle_counter.rb'
 
 # Structure that contains all TrussObjects (i.e. Edges, Nodes and Triangles)
+# rdoc-image:../documentation/DataModel_TrussFab.png
 class Graph
   include Singleton
 
