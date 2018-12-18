@@ -1,6 +1,6 @@
 # Cover
-class Cover < SketchupObject
-  attr_reader :pods
+class Cover < PhysicsSketchupObject
+  attr_reader :pods, :body, :joint
   def initialize(first_position, second_position, third_position, normal_vector,
                  pods, id: nil, material: 'wooden_cover')
     super(id, material: material)
@@ -10,6 +10,7 @@ class Cover < SketchupObject
     @normal = normal_vector.clone
     @normal.length = Configuration::COVER_THICKNESS
     @pods = pods
+    @joint = nil
     @entity = create_entity
     persist_entity
   end
@@ -43,7 +44,44 @@ class Cover < SketchupObject
     @pods = []
   end
 
+  # Physics methods
+  #
+  def create_body(world)
+    @body = Simulation.create_body(world, @entity, :convex_hull, @points)
+    @body.static = false
+    @body.collidable = true
+    @body.mass = 10
+    @body
+  end
+
+  def joint_position
+    bb = bounding_box
+    bb.center
+  end
+
+  def create_joints(world, node, breaking_force)
+    body = node.hub.body
+    pt = body.group.bounds.center
+    # this made structures with covers create energy(!?). First almost no movement and later gets out of control.
+    # maybe this has to do with the type of joint, or the joint configurations. (lower stiffness works well)
+    # Also the body and the hubs are not touching (pods are in between but no physical object, hidden in simulation)
+    @joint = TrussFab::Fixed.new(world, @body, body, pt, @body.group)
+    @joint.solver_model = Configuration::JOINT_SOLVER_MODEL
+    @joint.stiffness = 0.5
+    @joint.breaking_force = breaking_force
+  end
+
+  def reset_physics
+    super
+  end
+
   private
+
+  def bounding_box
+    boundingbox = Geom::BoundingBox.new
+    boundingbox.add(@first_node.position, @second_node.position, @third_node.position)
+    boundingbox
+  end
 
   def create_entity
     offset_vector = @normal.clone
@@ -60,6 +98,8 @@ class Cover < SketchupObject
     pm.add_point first_position + @normal
     pm.add_point second_position + @normal
     pm.add_point third_position + @normal
+    @points = [first_position, second_position, third_position,
+               first_position + @normal, second_position + @normal, third_position + @normal]
     pm.add_polygon(1, 2, 3)
     pm.add_polygon(4, 5, 6)
     pm.add_polygon(1, 2, 5, 4)

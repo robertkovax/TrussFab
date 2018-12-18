@@ -128,6 +128,12 @@ class Triangle < GraphObject
     edges.reduce([]) { |arr, edge| arr | edge.adjacent_triangles } - [self]
   end
 
+  def create_joints(world, breaking_force)
+    surface.cover.create_joints(world, @first_node, breaking_force)
+    surface.cover.create_joints(world, @second_node, breaking_force)
+    surface.cover.create_joints(world, @third_node, breaking_force)
+  end
+
   def add_cover
     cover_pods = []
     nodes.each do |node|
