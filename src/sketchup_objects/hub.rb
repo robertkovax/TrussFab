@@ -22,9 +22,8 @@ class Hub < PhysicsSketchupObject
     @is_sensor = false
     @incidents = incidents
     update_id_label
+    
     persist_entity
-	
-	hat_gewicht = false
   end
 
   def add_pod(direction, id: nil, is_fixed: true)

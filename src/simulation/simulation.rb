@@ -8,9 +8,7 @@ class Simulation
               :breaking_force
   attr_accessor :max_speed, :highest_force_mode, :peak_force_mode,
                 :auto_piston_group, :reset_positions_on_end
-				
-  @csv_name = 'daten'
-  @csv_dir = 'Aufnahme'
+                
   @timesteps = Configuration::WORLD_TIMESTEP_SPRING
 
   class << self
@@ -48,21 +46,9 @@ class Simulation
       world.destroy_collision(col)
       body
     end
-	
-	def pfad
-	  dir = "C:/Daten/Master/HCI Project/Testdaten/#{Simulation.csv_dir}"
-	  Dir.mkdir(dir) unless File.exists?(dir)
-	  
-	  "#{dir}/#{Simulation.csv_name}"
-	end
-	
-	attr_accessor :csv_name, :csv_dir
-	
   end
 
-  def initialize(ui = nil)
-    @csv_name = 'daten'
-  
+  def initialize(ui = nil)  
     # general
     @chart = nil
     @ground_group = nil
@@ -209,13 +195,10 @@ class Simulation
 
   # Called when activates
   def setup
-	#puts "Simulation setup called"
-	@world = TrussFab::World.new
-    #@world.update_timestep = Configuration::WORLD_TIMESTEP
-	#@world.update_timestep = Configuration::WORLD_TIMESTEP_SPRING
+    @world = TrussFab::World.new
     @world.solver_model = Configuration::WORLD_SOLVER_MODEL
 
-	if TrussFab.store_sensor_output?
+    if TrussFab.store_sensor_output?
       @sensor_output_csv =
         File.new("#{File.expand_path('~')}/sensor_output.log", 'w')
     end
@@ -729,12 +712,6 @@ class Simulation
   def update_forces
     Graph.instance.nodes.each_value do |node|
       node.hub.apply_force
-	  
-	  if node.hub.mass > 0
-	    #open("#{Simulation.pfad}_hub_#{node.hub.id}.csv","a") { |f|
-		#	f.puts("#{node.hub.id};#{@frame};#{node.hub.body.get_velocity.length.to_f.to_s.sub! '.',','};#{node.hub.body.get_acceleration.length.to_f.to_s.sub! '.',','}")
-		#}
-	  end
     end
     Graph.instance.edges.each_value do |edge|
       link = edge.link
@@ -742,9 +719,6 @@ class Simulation
 	  if link.is_a?(MetalSpringLink)
 		#link.force = @frame
 		link.update_force
-		#open("#{Simulation.pfad}_spring_#{link.id}.csv","a") { |f|
-		#	f.puts("#{link.id};#{@frame};#{link.force.to_s.sub! '.',','};#{link.length_current.to_s.sub! '.',','}")
-		#}
 	  elsif link.is_a?(DamperLink) or link.is_a?(SpringDamperLink)
 		link.update_force(@timesteps)
 	  end
@@ -770,15 +744,15 @@ class Simulation
     Sketchup.active_model.commit_operation
   end
   
-  def update_world_test
-	update_forces
-	@world.advance
-	# We need to record this every time the world updates, otherwise,
-	# we might skip the crucial forces involved
-	rec_max_actuator_tensions
-	rec_max_link_tensions if @peak_force_mode
+  def update_world_one_step
+    update_forces
+    @world.advance
+    # We need to record this every time the world updates, otherwise,
+    # we might skip the crucial forces involved
+    rec_max_actuator_tensions
+    rec_max_link_tensions if @peak_force_mode
     
-    #Sketchup.active_model.start_operation('Sim: Visualize force', true)
+    Sketchup.active_model.start_operation('Sim: Visualize force', true)
     if @highest_force_mode
       visualize_highest_tension
     else
@@ -849,12 +823,9 @@ class Simulation
     view.show_frame
     return @running unless @running && !@paused
 
-    #update_world
-	update_world_test
+    update_world_one_step
     update_hub_addons
     update_entities
-	
-	#puts "Frame #{@frame}"
 
     if (@frame % 5).zero?
       # shift_chart_data if @frame > 100

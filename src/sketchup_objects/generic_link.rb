@@ -6,21 +6,12 @@ class GenericLink < PhysicsLink
   attr_accessor :min_distance, :max_distance
   attr_reader :initial_force, :default_length, :force
   
-  #@k = 750
-  
-  #class << self
-	#attr_accessor :k
-  #end
-
   def initialize(first_node, second_node, edge, id: nil, link_type: 'generic')
     super(first_node, second_node, edge, link_type, id: id)
 	
-	pt1 = first_node.hub.position
+    pt1 = first_node.hub.position
     pt2 = second_node.hub.position
     @default_length = pt1.distance(pt2).to_m
-
-    #@force = 0
-	
     @min_distance = @default_length + Configuration::GENERIC_LINK_MIN_DISTANCE
     @max_distance = @default_length + Configuration::GENERIC_LINK_MAX_DISTANCE
     @limits_enabled = true
@@ -42,22 +33,13 @@ class GenericLink < PhysicsLink
 
   def force=(force)
     @force = force
-	puts "force changed"
     return if @joint.nil? || !@joint.valid?
     @joint.force = force
     @joint.update_info
   end
   
+  #The length function is not giving the current length of the actuator but the initial one. That's why e need another length_current function
   def length_current
     first_node.hub.position.distance(second_node.hub.position).to_m
   end
-  
-  def angle_current
-	
-  end
-  
-  #def update_force
-	#self.force =  (@default_length - length_current)*GenericLink.k
-	#puts "Länge: #{length_current}, Normallänge: #{@default_length}, F:#{@force}"
-  #end
 end

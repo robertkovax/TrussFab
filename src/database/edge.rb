@@ -263,7 +263,6 @@ class Edge < GraphObject
                        self,
                        id: id)
       when 'generic'
-		puts "edge#create_sketchup_object 'generic'"
         GenericLink.new(@first_node,
                         @second_node,
                         self,
