@@ -40,18 +40,18 @@ class Hub < PhysicsSketchupObject
     Sketchup.active_model.start_operation('Hub: Add Force Arrow', true)
     model = ModelStorage.instance.models['force_arrow']
     point = Geom::Point3d.new(@position)
-    alignment_vec = Geom::Vector3d.new(0, 0, 1)
+    @alignment_vec = Geom::Vector3d.new(0, -2, 1)
     unless @arrow.nil?
       @arrow.erase!
       @arrow = nil
     end
     return if @force.length == 0
-    transform = Geom::Transformation.new(point + alignment_vec)
+    transform = Geom::Transformation.new(point + @alignment_vec)
     @arrow = Sketchup.active_model
                .active_entities
                .add_instance(model.definition, transform)
     @arrow.transform!(
-      Geom::Transformation.scaling(point + alignment_vec, Math::log(@force.length, 2) / 10) *
+      Geom::Transformation.scaling(point + @alignment_vec, Math::log(@force.length, 2) / 10) *
         Geometry.rotation_transformation(Geom::Vector3d.new(0, 0, -1), @force, point)
     )
     Sketchup.active_model.commit_operation
@@ -92,7 +92,7 @@ class Hub < PhysicsSketchupObject
   end
 
   def move_force_arrow(position)
-    move_addon(@arrow, position, Geom::Vector3d.new(0, 0, 1))
+    move_addon(@arrow, position, @alignment_vec)
   end
 
   def move_weight_indicator(position)
