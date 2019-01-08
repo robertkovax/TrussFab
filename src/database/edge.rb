@@ -24,10 +24,7 @@ class Edge < GraphObject
     @@retain_bottle_types = false
   end
 
-  def initialize(first_node,
-                 second_node,
-                 bottle_type: nil,
-                 id: nil, link_type: 'bottle_link')
+  def initialize(first_node, second_node, bottle_type: nil, id: nil, link_type: 'bottle_link')
     @first_node = first_node
     @second_node = second_node
     @first_node.add_incident(self)
@@ -266,10 +263,9 @@ class Edge < GraphObject
                         self,
                         id: id)
       when 'spring_damper'
-        SpringDamperLink.new(@first_node,
-                        @second_node,
-                        self,
-                        id: id)
+        spring_damper = SpringDamperLink.new(@first_node, @second_node, self, id: id)
+        puts(spring_damper.id)
+        spring_damper
       when 'pid_controller'
         PidController.new(@first_node,
                           @second_node,

@@ -13,7 +13,7 @@ class SpringDamperLink < GenericLink
     @initial_force = 0
     @force = @initial_force
     @last_length = length_current
-
+    
     persist_entity
   end
 
