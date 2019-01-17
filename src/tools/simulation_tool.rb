@@ -185,6 +185,8 @@ class SimulationTool < Tool
   def change_display_values(param)
     @display_values = param
     setup_simulation_parameters
+    return if @simulation.nil?
+    @simulation.update_force_labels if param
   end
 
   def pressurize_generic_link
