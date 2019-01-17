@@ -32,6 +32,10 @@ class ForceChart
                            " '#{sensortype}');")
   end
 
+  def update_chart(sensor_id, sensortype, label)
+    @dialog.execute_script("updateChart(#{sensor_id}, '#{sensortype}', '#{label}');")
+  end
+
   def shift_data
     @dialog.execute_script('shiftData();')
   end
