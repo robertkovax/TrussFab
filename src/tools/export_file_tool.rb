@@ -21,7 +21,7 @@ class ExportFileTool < Tool
         end
       end
     end
-    export_with_file_dialog triangle
+    export_with_file_dialog(triangle)
     Sketchup.set_status_text('To export with a specific standard surface,'\
                              'select that surface')
   end
@@ -32,7 +32,16 @@ class ExportFileTool < Tool
     animation = @ui.animation_pane.animation_values
     unless @export_path.nil?
       JsonExport.export(@export_path, triangle, animation)
+      export_animation_to_txt(animation)
       @export_path = File.dirname(@export_path)
     end
+  end
+
+  def export_animation_to_txt(animation)
+    dir_name = File.dirname(@export_path)
+    base_name = File.basename(@export_path, File.extname(@export_path))
+    animation_file = File.open("#{dir_name}/#{base_name}_animation.txt", "w")
+    animation_file.puts(JSON.pretty_generate(JSON.parse(animation)).to_s)
+    animation_file.close
   end
 end
