@@ -208,6 +208,7 @@ class Simulation
     rendering_options = model.rendering_options
     begin
       hide_triangle_surfaces
+      apply_piston_group_color
       add_ground
       assign_unique_materials unless @disable_coloring
       @show_edges = rendering_options['EdgeDisplayMode']
@@ -889,6 +890,13 @@ class Simulation
       end
     end
     @bottle_dat[link] = [bottle, bottle.material, sub_mats, nil]
+  end
+
+  def apply_piston_group_color
+    Graph.instance.edges.each_value do |edge|
+      next unless edge.link.is_a?(PhysicsLink)
+      edge.link.set_piston_group_color
+    end
   end
 
   # This is called when simulation ends and restores original materials,
