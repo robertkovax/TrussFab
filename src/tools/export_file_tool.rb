@@ -58,13 +58,11 @@ class ExportFileTool < Tool
     number_hubs = Graph.instance.nodes.count
     number_bottles = {}
     number_actuators = {}
-    number_screws = 0
     Graph.instance.edges.each_value do |edge|
       if edge.link.is_a?(PhysicsLink)
         # the actuator length is rounded to the closest 10 cm
         actuator_length = (edge.link.length/10.0).round * 10
         increase_number_of(number_actuators, actuator_length)
-        number_screws += 2
       else
         increase_number_of(number_bottles, edge.bottle_type)
       end
@@ -83,7 +81,6 @@ class ExportFileTool < Tool
     number_actuators.each do |actuator_length, count|
       partslist_file.puts("\t#{actuator_length} cm: #{count}\n")
     end
-    partslist_file.puts("Number of screws: #{number_screws}")
     partslist_file.close
   end
 end
