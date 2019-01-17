@@ -4,6 +4,11 @@ SketchUp plug-in to create large-scale 3D-printed truss structures by using read
 
 ## Installation
 
+Run the script `package_trussformer.sh`, if you have a UNIX operating system. The script has to be called from TrussFormer's root directory (i.e. `./scripts/package_trussformer.sh`). This will create a TrussFormer.rbz file.
+If you use Windows, simply follow the steps in the script, i.e. create a directory `TrussFormer` that contains the necessary files and zip this folder together with the `TrussFormer.rb` file. Then rename the zip file to `TrussFormer.rbz`.
+
+To install TrussFormer, open the Extension Manager in SketchUp, click "Install Extension" and select the `TrussFormer.rbz` file. After waiting for a short while, the TrussFormer plugin should start automatically. If not, restart SketchUp.
+
 ### SketchUp Plugin
 
 Find your [Sketchup Plugin directory](http://www.sketchup.com/intl/en/developer/docs/loading), it is usually located at:
