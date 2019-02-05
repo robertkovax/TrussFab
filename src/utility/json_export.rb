@@ -15,6 +15,7 @@ class JsonExport
     json = {distance_unit: 'mm', force_unit: 'N'}
     json[:nodes] = nodes_to_hash(graph.nodes)
     json[:edges] = edges_to_hash(graph.edges)
+    json[:covers] = covers_from_triangles(graph.triangles)
     json[:animation] = animation
     if triangle.nil?
       triangle = Graph.instance.triangles.first[1] # Just take any triangle
@@ -30,7 +31,9 @@ class JsonExport
         x: node.position.x.to_mm,
         y: node.position.y.to_mm,
         z: node.position.z.to_mm,
-        pods: node.pod_export_info
+        pods: node.pod_export_info,
+        weight: node.hub.mass,
+        force: node.hub.force
       }
     end
   end
@@ -48,5 +51,19 @@ class JsonExport
         e2: edge.link.second_elongation_length.to_mm
       }
     end
+  end
+
+  def self.covers_from_triangles(triangles)
+      covers = []
+      triangles.each_value do |triangle|
+        next unless triangle.surface.cover?
+        cover_info =  {
+            first_node_id: triangle.first_node.id,
+            second_node_id: triangle.second_node.id,
+            third_node_id: triangle.third_node.id
+        }
+        covers.push(cover_info)
+      end
+      return covers
   end
 end

@@ -28,7 +28,7 @@ class SimulationTool < Tool
     @highest_force_mode = false
     @display_values = false
     @stiffness = Configuration::JOINT_STIFFNESS
-	@timesteps = Configuration::WORLD_TIMESTEP_SPRING
+    @timesteps = Configuration::WORLD_TIMESTEP_SPRING
   end
 
   def setup_simulation_parameters
@@ -38,7 +38,7 @@ class SimulationTool < Tool
     @simulation.highest_force_mode = @highest_force_mode
     @simulation.display_values = @display_values
     @simulation.stiffness = @stiffness
-	@simulation.timesteps = @timesteps
+    @simulation.timesteps = @timesteps
   end
 
   def activate
@@ -166,12 +166,12 @@ class SimulationTool < Tool
   end
 
   def simulation_timesteps=(param)
-	@timesteps = (1.0/param).to_f
-	setup_simulation_parameters
+    @timesteps = (1.0/param).to_f
+    setup_simulation_parameters
   end
   
   def timesteps
-	(1.0/@timesteps).to_i
+    (1.0/@timesteps).to_i
   end
   
   def max_speed=(param)
@@ -235,14 +235,6 @@ class SimulationTool < Tool
     mat.color = colors[link.piston_group]
     # persist the piston group array
     @auto_piston_group = @simulation.auto_piston_group
-  end
-
-  def expand_actuator(group_id)
-    @simulation.expand_actuator(group_id)
-  end
-
-  def retract_actuator(group_id)
-    @simulation.retract_actuator(group_id)
   end
 
   def move_joint(id, new_value, duration)

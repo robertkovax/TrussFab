@@ -33,6 +33,9 @@ module JsonImport
       triangles = create_triangles(edges)
       add_joints(json_objects, edges, nodes) unless json_objects['joints'].nil?
       add_pods(json_objects, nodes)
+      add_weight(json_objects, nodes)
+      add_force(json_objects, nodes)
+      add_covers(json_objects, nodes)
       animation = json_objects['animation'].to_s
       [triangles.values, edges.values, animation]
     end
@@ -263,6 +266,33 @@ module JsonImport
                        is_fixed: pod_info['is_fixed'])
         end
       end
+    end
+
+    def add_weight(json_objects, nodes)
+        json_objects['nodes'].each do |node_json|
+            next if node_json['weight'].nil?
+            node = nodes[node_json['id']]
+            node.hub.weight = node_json['weight']
+        end
+    end
+
+    def add_force(json_objects, nodes)
+        json_objects['nodes'].each do |node_json|
+            next if node_json['force'].nil?
+            node = nodes[node_json['id']]
+            node.hub.force = string_to_vector3d(node_json['force'])
+        end
+    end
+
+    def add_covers(json_objects, nodes)
+        return if json_objects['covers'].nil? || json_objects['covers'].empty?
+        json_objects['covers'].each do |node_json|
+            first = nodes[node_json['first_node_id']]
+            second = nodes[node_json['second_node_id']]
+            third = nodes[node_json['third_node_id']]
+            triangle = Graph.instance.find_triangle([first, second, third])
+            triangle.add_cover
+        end
     end
 
     def show_changed_models_warning
