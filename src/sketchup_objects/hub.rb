@@ -229,9 +229,9 @@ class Hub < PhysicsSketchupObject
   def add_frequency(frequency=2)
       self.frequency += frequency
       if @force == Geom::Vector3d.new(0, 0, 0)
+          # when no force is set then initial force values != 0 are given to ensure to give visual feedback,
+          # to show that something has happened as force = (0,0,0) will not have any effect no matter the frequency
           self.force = Geom::Vector3d.new(0, 5, 0)
-      else
-          update_force_arrow
       end
   end
 
