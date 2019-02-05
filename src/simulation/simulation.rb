@@ -256,6 +256,7 @@ class Simulation
       reset_materials
       show_triangle_surfaces if @triangles_hidden
       show_pods_of_covers
+      reset_hub_force
       reset_force_labels
       reset_force_arrows
       reset_sensor_symbols
@@ -612,14 +613,6 @@ class Simulation
     end
   end
 
-  def expand_actuator(id)
-    move_joint(id, true)
-  end
-
-  def retract_actuator(id)
-    move_joint(id, false)
-  end
-
   def stop_actuator(id)
     link = nil
     @auto_piston_group.each do |edges|
@@ -710,6 +703,7 @@ class Simulation
 
   def update_forces
     Graph.instance.nodes.each_value do |node|
+      node.hub.update_vibration_force(@frame, @timesteps) unless node.hub.frequency == 0
       node.hub.apply_force
     end
     Graph.instance.edges.each_value do |edge|
@@ -1161,5 +1155,11 @@ class Simulation
   # Note: this must be wrapped in operation
   def reset_force_labels
     @force_labels.each { |_, label| label.text = '' }
+    end
+
+  def reset_hub_force
+    Graph.instance.nodes.each_value do |node|
+      node.hub.reset_force
+    end
   end
 end

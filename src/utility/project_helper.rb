@@ -111,9 +111,9 @@ module ProjectHelper
       material.alpha = 1
     end
 
-    unless materials['spring_material']
-      material = materials.add('spring_material')
-      material.color = Configuration::SPRING_COLOR
+    unless materials['spring_texture']
+      material = materials.add('spring_texture')
+      material.texture = asset_directory + '/textures/bigWaves.jpg'
       material.alpha = 1
     end
 
@@ -126,6 +126,12 @@ module ProjectHelper
     unless materials['generic_link_material']
       material = materials.add('generic_link_material')
       material.color = Configuration::GENERIC_LINK_COLOR
+      material.alpha = 1
+    end
+
+    unless materials['spring_damper_material']
+      material = materials.add('spring_damper_material')
+      material.color = Configuration::SPRING_DAMPER_COLOR
       material.alpha = 1
     end
 

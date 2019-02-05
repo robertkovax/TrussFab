@@ -8,17 +8,23 @@
 </head>
 <body onload="init()">
 Hub position:<br>
-X <input type="text" id="position-x" onchange="set_position()">m<br>
-Y <input type="text" id="position-y" onchange="set_position()">m<br>
-Z <input type="text" id="position-z" onchange="set_position()">m
+X <input type="text" id="position-x" onchange="set_position()"> m<br>
+Y <input type="text" id="position-y" onchange="set_position()"> m<br>
+Z <input type="text" id="position-z" onchange="set_position()"> m<br>
 <br>
 Force: <br>
-X <input type="text" id="force-x" onchange="set_force()">N<br>
-Y <input type="text" id="force-y" onchange="set_force()">N<br>
-Z <input type="text" id="force-z" onchange="set_force()">N
+X <input type="text" id="force-x" onchange="set_force()"> N<br>
+Y <input type="text" id="force-y" onchange="set_force()"> N<br>
+Z <input type="text" id="force-z" onchange="set_force()"> N<br>
+<br>
+Vibration Frequency (if 0 then no movement): <br>
+<input type="text" id="vibration-frequency" onchange="set_vibration_frequency()"> Hz<br>
+<br>
+Force Phase Shift: <br>
+<input type="text" id="vibration-phase-shift" onchange="set_phase_shift()"> Degrees<br>
 <br>
 Weight: <br>
-<input type="text" id="weight" onchange="set_weight()">kg
+<input type="text" id="weight" onchange="set_weight()"> kg
 <br>
 
 <script type="text/javascript">
@@ -37,6 +43,12 @@ Weight: <br>
     var force_z = document.getElementById("force-z");
     force_z.value = <%= @node.hub.force.z %>;
 
+    var frequency = document.getElementById("vibration-frequency");
+    frequency.value = <%= @node.hub.frequency %>;
+
+    var phase_shift = document.getElementById("vibration-phase-shift");
+    phase_shift.value = <%= @node.hub.phase_shift % 360 %>;
+
     var weight = document.getElementById("weight");
     weight.value = <%= @node.hub.mass %>;
   }
@@ -52,6 +64,14 @@ Weight: <br>
     var y = document.getElementById("force-y");
     var z = document.getElementById("force-z");
     sketchup.set_force([x.value,y.value,z.value]);
+  }
+  function set_vibration_frequency() {
+      var frequency = document.getElementById("vibration-frequency");
+      sketchup.set_vibration_frequency(frequency.value);
+  }
+  function set_phase_shift() {
+      var phase_shift = document.getElementById("vibration-phase-shift");
+      sketchup.set_phase_shift(phase_shift.value);
   }
   function set_weight() {
     var weight = document.getElementById("weight");

@@ -5,7 +5,7 @@ require 'src/simulation/simulation.rb'
 # Hub
 class Hub < PhysicsSketchupObject
   attr_accessor :position, :body, :mass, :arrow
-  attr_reader :force
+  attr_reader :force, :frequency, :phase_shift
 
   def initialize(position, id: nil, incidents: nil, material: 'hub_material')
     super(id, material: material)
@@ -16,6 +16,10 @@ class Hub < PhysicsSketchupObject
     @id_label = nil
     @mass = 0
     @force = Geom::Vector3d.new(0, 0, 0)
+    @force_direction = nil
+    @force_length = nil
+    @phase_shift = 0 # defines by how much the force function should be offset
+    @frequency = 0 # sets how fast the object should move back and forth, 0 means no vibrations
     @arrow = nil
     @weight_indicator = nil
     @sensor_symbol = nil
@@ -34,20 +38,20 @@ class Hub < PhysicsSketchupObject
 
   def update_force_arrow
     Sketchup.active_model.start_operation('Hub: Add Force Arrow', true)
+    model = ModelStorage.instance.models['force_arrow']
     point = Geom::Point3d.new(@position)
-    alignment_vec = Geom::Vector3d.new(0, 0, 1)
+    @alignment_vec = Geom::Vector3d.new(0, -2, 1)
     unless @arrow.nil?
       @arrow.erase!
       @arrow = nil
     end
     return if @force.length == 0
-    model = ModelStorage.instance.models['force_arrow']
-    transform = Geom::Transformation.new(point + alignment_vec)
+    transform = Geom::Transformation.new(point + @alignment_vec)
     @arrow = Sketchup.active_model
                .active_entities
                .add_instance(model.definition, transform)
     @arrow.transform!(
-      Geom::Transformation.scaling(point + alignment_vec, Math::log(@force.length, 2) / 10) *
+      Geom::Transformation.scaling(point + @alignment_vec, Math::log(@force.length, 2) / 10) *
         Geometry.rotation_transformation(Geom::Vector3d.new(0, 0, -1), @force, point)
     )
     Sketchup.active_model.commit_operation
@@ -88,7 +92,7 @@ class Hub < PhysicsSketchupObject
   end
 
   def move_force_arrow(position)
-    move_addon(@arrow, position, Geom::Vector3d.new(0, 0, 1))
+    move_addon(@arrow, position, @alignment_vec)
   end
 
   def move_weight_indicator(position)
@@ -207,6 +211,56 @@ class Hub < PhysicsSketchupObject
   def apply_force
     return if @body.nil?
     @body.apply_force(@force)
+  end
+
+  # recalculates originally set force before simulation
+  def reset_force
+    return if (@force_direction.nil? or @force_length.nil?)
+    self.force = Geom::Vector3d.new(@force_direction.x * @force_length,
+                                    @force_direction.y * @force_length,
+                                    @force_direction.z * @force_length)
+    @force_length = nil
+    @force_direction = nil
+  end
+
+  # adds frequency to hub allowing it to vibrate. can be placed on Hubs by using the 'add Vibration Tool'
+  # when no force set so far then a default value of maximum force on one axis is set
+  # @param [Float] frequency will be added to current value of frequency
+  def add_frequency(frequency=2)
+      self.frequency += frequency
+      if @force == Geom::Vector3d.new(0, 0, 0)
+          self.force = Geom::Vector3d.new(0, 5, 0)
+      else
+          update_force_arrow
+      end
+  end
+
+  # overrides current frequency for hub
+  def frequency= (frequency)
+      @frequency = frequency
+  end
+
+  # overrides current phase shift for hub
+  def phase_shift= (phase_shift)
+      @phase_shift = phase_shift
+  end
+
+  # Updates force vector of the hub with calculated vector at a given time in the simulation
+  # @param [Int] frame current frame number
+  # @param [Float] timesteps number of frames per second
+  def update_vibration_force(frame, timesteps)
+      @force_direction = @force.normalize if @force_direction.nil?
+      @force_length = @force.length if @force_length.nil?
+
+      amplitude = @force_length
+      period = @frequency * 2 * Math::PI
+      phase_shift_in_frames = @phase_shift / timesteps / 360 / @frequency
+
+      current_force = amplitude * Math.sin( timesteps * (frame + phase_shift_in_frames) * period )
+
+      self.force = Geom::Vector3d.new(@force_direction.x * current_force,
+                                      @force_direction.y * current_force,
+                                      @force_direction.z * current_force)
   end
 
   def create_body(world)
