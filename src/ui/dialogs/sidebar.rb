@@ -120,6 +120,7 @@ class Sidebar
     build_tool(ForceLimitTool, 'force_limit_tool')
     build_tool(PIDControllerTool, 'pid_controller_tool')
     build_tool(SpringDamperTool, 'spring_damper_tool')
+    build_tool(SpringAutoTool, 'spring_auto_tool')
   end
 
   def build_tool(tool_class, tool_id)

@@ -37,6 +37,7 @@ class GeneticActuatorPlacementTool < Tool
   end
 
   def test_pistons
+    puts("test_pistons")
     model = Sketchup.active_model
     closest_distance = Float::INFINITY
     best_piston = nil

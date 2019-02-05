@@ -5,11 +5,9 @@ require 'erb'
 # Simulation, using MSPhysics
 class Simulation
   attr_reader :pistons, :moving_pistons, :bottle_dat, :stiffness,
-              :breaking_force
+              :breaking_force, :timesteps
   attr_accessor :max_speed, :highest_force_mode, :peak_force_mode,
                 :auto_piston_group, :reset_positions_on_end
-                
-  @timesteps = Configuration::WORLD_TIMESTEP_SPRING
 
   class << self
     def create_body(world, entity, collision_type = :box, points = [])
@@ -54,7 +52,7 @@ class Simulation
     @ground_group = nil
     @root_dir = File.join(__dir__, '..')
     @world = nil
-	#setup
+    #setup
     @show_edges = true
     @show_profiles = true
     @ui = ui
@@ -87,8 +85,7 @@ class Simulation
 
     # physics variables
     @breaking_force = Configuration::JOINT_BREAKING_FORCE
-    @breaking_force_invh =
-      @breaking_force > 1.0e-6 ? 0.5.fdiv(@breaking_force) : 0.0
+    @breaking_force_invh = @breaking_force > 1.0e-6 ? 0.5.fdiv(@breaking_force) : 0.0
     @stiffness = Configuration::JOINT_STIFFNESS
 
     @max_actuator_tensions = {}
@@ -104,6 +101,8 @@ class Simulation
     hinge_layer.visible = false unless hinge_layer.nil?
 
     @sensor_output_csv = nil
+    
+    @timesteps = Configuration::WORLD_TIMESTEP_SPRING
 
     Graph.instance.edges.each_value do |edge|
       edge.link.connect_to_hub
@@ -148,7 +147,7 @@ class Simulation
 
   def timesteps=(value)
     @timesteps=value
-	@world.update_timestep = @timesteps
+    @world.update_timestep = @timesteps
   end			
   
   #
@@ -640,7 +639,7 @@ class Simulation
       edge.link.piston_group = -1
     end
   end
-
+  
   #
   # Animation methods
   #
@@ -765,6 +764,16 @@ class Simulation
       rec_max_link_tensions if rec_max_tension
     end
   end
+  
+  def simulate_headless_for(duration)
+    steps = (duration.to_f / @timesteps).to_i
+    steps.times do
+      break if broken?
+      update_world_one_step
+      update_hub_addons
+      update_entities
+    end
+  end
 
   def update_world
     Configuration::WORLD_NUM_ITERATIONS.times do
@@ -819,7 +828,7 @@ class Simulation
   def nextFrame(view) # rubocop:disable Naming/MethodName
     view.show_frame
     return @running unless @running && !@paused
-
+    
     update_world_one_step
     update_hub_addons
     update_entities

@@ -2,8 +2,7 @@
 class Elongation < SketchupObject
   attr_reader :direction, :radius
 
-  def initialize(position, direction, length,
-                 id: nil, material: 'elongation_material')
+  def initialize(position, direction, length, id: nil, material: 'elongation_material')
     super(id, material: material)
     @position = position
     @direction = direction
