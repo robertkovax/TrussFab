@@ -93,12 +93,15 @@ function shiftData(id) {
 }
 
 function addChartData(id, label, data, datatype, sensortype) {
-  window.charts[sensortype+id].data.labels.push(label);
   var filteredDataset =
     window.charts[sensortype+id].data.datasets.filter(dataset => {
     return dataset.label == datatype;
   });
   if(filteredDataset.length == 0) return;
   filteredDataset[0].data.push(data);
+}
+
+function updateChart(id, sensortype, label) {
+  window.charts[sensortype+id].data.labels.push(label);
   window.charts[sensortype+id].update();
 }

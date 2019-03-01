@@ -208,6 +208,7 @@ class Simulation
     rendering_options = model.rendering_options
     begin
       hide_triangle_surfaces
+      apply_piston_group_color
       add_ground
       assign_unique_materials unless @disable_coloring
       @show_edges = rendering_options['EdgeDisplayMode']
@@ -808,10 +809,12 @@ class Simulation
         accel = sensor.body.get_acceleration.length.to_f
         @sensor_dialog.add_chart_data(sensor.id, ' ', accel,
                                       'Acceleration', 'Hub')
+        @sensor_dialog.update_chart(sensor.id, 'Hub', ' ')
       elsif sensor.is_a?(Link)
         @sensor_dialog.add_chart_data(sensor.id,
                                       ' ', @max_actuator_tensions[sensor.id],
                                       'Force', 'Edge')
+        @sensor_dialog.update_chart(sensor.id, 'Edge', ' ')
         if TrussFab.store_sensor_output?
           @sensor_output_csv
             .write(@max_actuator_tensions[sensor.id].to_s + "\n")
@@ -889,6 +892,13 @@ class Simulation
       end
     end
     @bottle_dat[link] = [bottle, bottle.material, sub_mats, nil]
+  end
+
+  def apply_piston_group_color
+    Graph.instance.edges.each_value do |edge|
+      next unless edge.link.is_a?(PhysicsLink)
+      edge.link.set_piston_group_color
+    end
   end
 
   # This is called when simulation ends and restores original materials,
