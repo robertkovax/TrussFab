@@ -14,4 +14,4 @@ cp Bottle\ Editor\ Style1.style TrussFormer/
 
 zip -r TrussFormer.rbz TrussFormer/ TrussFormer.rb
 
-rm -rf TrussFormer
+#rm -rf TrussFormer

@@ -1,5 +1,5 @@
 # TrussFab is compatible with SU2014 or later
-
+$LOAD_PATH << File.join(File.dirname(__FILE__), "TrussFormer")
 # Load the C extension
 
 dir = File.dirname(__FILE__)
