@@ -34,12 +34,9 @@ require 'src/ui/dialogs/animation_pane'
 require 'src/ui/dialogs/sidebar'
 require 'src/ui/dialogs/component_properties'
 
-# reloader helper
-require 'reloader'
 
 module TrussFab
 
-  @reloader = Reloader.new
   @sidebar_menu = Sidebar.new
   @animation_pane = AnimationPane.new
   @store_sensor_output = false
@@ -93,6 +90,8 @@ module TrussFab
       @store_sensor_output
     end
   end
+
+  TrussFab.start
 end
 
 unless file_loaded?(__FILE__)
