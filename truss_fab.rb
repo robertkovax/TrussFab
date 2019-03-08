@@ -14,7 +14,7 @@ rbv = RUBY_VERSION[0..2].to_s
 c_ext = bwin ? '.so' : '.bundle'
 l_ext = bwin ? '.dll' : '.dylib'
 
-lib_path =  File.join(dir, 'ext', ops + bit)
+lib_path =  File.join(dir, 'TrussFormer/ext', ops + bit)
 lib_fpath = File.join(lib_path, 'newton' + l_ext)
 ext_fpath = File.join(lib_path, rbv, 'tfn_lib' + c_ext)
 

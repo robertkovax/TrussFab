@@ -2,6 +2,7 @@
 echo "This script has to be called from TrussFormer's root directory!"
 mkdir TrussFormer
 
+cp -r ext/ TrussFormer/ext/
 cp -r lib/ TrussFormer/lib/
 cp -r src/ TrussFormer/src/
 cp -r scripts/ TrussFormer/scripts/
