@@ -22,6 +22,11 @@ TrussFab.start # starts the plugin
 
 Restart SketchUp for the changes to take effect. If it works will you see an extra window in SketchUp with the title 'TrussFab'.
 
+#### Setup Ui
+Don't forget to install dependencies needed by UI as described in ui/README.md. 
+
+TL;DR: `ruby setup_ui.rb`
+
 ### Force analysis server
 
 * To run the force analysis server, you need Rhino, Grasshopper, Karamba, and Python 2 installed.
