@@ -28,4 +28,8 @@ class SpringLink < PhysicsLink
     @joint.threshold = @threshold
     @joint.damp = @damp
   end
+
+  def set_piston_group_color
+    # TODO
+  end
 end
