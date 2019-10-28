@@ -10,6 +10,7 @@ class SpringLink < PhysicsLink
     super(first_node, second_node, edge,'spring', id: id)
 
     @stroke_length = Configuration::SPRING_STROKE_LENGTH
+    @resonant_frequency = Configuration::SPRING_RESONANT_FRERQUENCY
     @extended_force = Configuration::SPRING_EXTENDED_FORCE
     @threshold = Configuration::SPRING_THRESHOLD
     @damp = Configuration::SPRING_DAMP
