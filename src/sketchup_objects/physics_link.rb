@@ -105,39 +105,30 @@ class PhysicsLink < Link
   def update_limits; end
 
   def create_children
-    if @link_type ==  'spring'
-      direction_up = @position.vector_to(@second_position)
-      offset_up = direction_up.clone
-      position = @position.offset(offset_up, offset_up.length() / 2)
+    @first_elongation_length =
+      @second_elongation_length = Configuration::MINIMUM_ELONGATION
 
-      spring_model = SpringModel.new
-      @first_cylinder = Spring.new(position, direction_up, self, spring_model.definition, nil);
-    else
-      @first_elongation_length =
-        @second_elongation_length = Configuration::MINIMUM_ELONGATION
+    direction_up = @position.vector_to(@second_position)
+    direction_down = @second_position.vector_to(@position)
 
-      direction_up = @position.vector_to(@second_position)
-      direction_down = @second_position.vector_to(@position)
+    offset_up = direction_up.clone
+    offset_down = direction_down.clone
 
-      offset_up = direction_up.clone
-      offset_down = direction_down.clone
+    offset_up.length = @first_elongation_length
+    offset_down.length = @second_elongation_length
 
-      offset_up.length = @first_elongation_length
-      offset_down.length = @second_elongation_length
+    cylinder_start = @position.offset(offset_up)
+    cylinder_end = @second_position.offset(offset_down)
 
-      cylinder_start = @position.offset(offset_up)
-      cylinder_end = @second_position.offset(offset_down)
+    cylinder_model = PhysicsLinkModel.new(length)
 
-      cylinder_model = PhysicsLinkModel.new(length)
+    @first_cylinder = Cylinder.new(cylinder_start, direction_up, self,
+                                   cylinder_model.outer_cylinder, length)
+    @second_cylinder = Cylinder.new(cylinder_end, direction_down, self,
+                                    cylinder_model.inner_cylinder, length)
 
-      @first_cylinder = Cylinder.new(cylinder_start, direction_up, self,
-                                     cylinder_model.outer_cylinder, length)
-      @second_cylinder = Cylinder.new(cylinder_end, direction_down, self,
-                                      cylinder_model.inner_cylinder, length)
+    update_limits
 
-      update_limits
-
-      add(@first_cylinder, @second_cylinder)
-    end
+    add(@first_cylinder, @second_cylinder)
   end
 end

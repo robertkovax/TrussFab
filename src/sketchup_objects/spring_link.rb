@@ -30,6 +30,17 @@ class SpringLink < PhysicsLink
     @joint.damp = @damp
   end
 
+
+  def create_children
+    direction_up = @position.vector_to(@second_position)
+    offset_up = direction_up.clone
+    position = @position.offset(offset_up, offset_up.length() / 2)
+
+    spring_model = SpringModel.new
+    @first_cylinder = Spring.new(position, direction_up, self, spring_model.definition, nil);
+    @second_cylinder = Spring.new(position, direction_up, self, spring_model.definition, nil);
+  end
+
   def set_piston_group_color
     # TODO
   end
