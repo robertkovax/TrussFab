@@ -33,6 +33,7 @@ require 'src/utility/project_helper'
 require 'src/ui/dialogs/animation_pane'
 require 'src/ui/dialogs/sidebar'
 require 'src/ui/dialogs/component_properties'
+require 'src/models/spirix'
 
 # reloader helper
 require 'reloader'

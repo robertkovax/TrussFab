@@ -242,6 +242,10 @@ class ComponentProperties
       spring.stroke_length = param.to_f
       spring.update_link_properties
     end
+    dialog.add_action_callback('resonant_frequency') do |_dialog, param|
+      spring.resonant_frequency = param.to_f
+      spring.update_link_properties
+    end
     dialog.add_action_callback('set_extended_force') do |_dialog, param|
       spring.extended_force = param.to_f
       spring.update_link_properties

@@ -113,6 +113,8 @@ module Configuration
   SPRING_THRESHOLD = 0.015
   SPRING_DAMP = 10
 
+  SPRING_RESONANT_FRERQUENCY = 0.5;
+
   # GenericPointToPoint Properties
   GENERIC_LINK_FORCE = 0
   GENERIC_LINK_MIN_DISTANCE = -0.2

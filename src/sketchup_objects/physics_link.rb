@@ -1,5 +1,6 @@
 require 'src/sketchup_objects/link.rb'
 require 'src/sketchup_objects/link_entities/cylinder.rb'
+require 'src/sketchup_objects/link_entities/spring.rb'
 require 'src/simulation/simulation.rb'
 
 # SuperClass for moving links
