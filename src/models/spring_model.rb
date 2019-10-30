@@ -8,7 +8,7 @@ class SpringModel
     # super
     @definition = Sketchup.active_model.definitions
                     .load(ProjectHelper.component_directory +
-                            '/spring_model_40poly.skp')
+                            '/spring_model_sketchup_store.skp')
     @definition.name = 'Spring'
 
     @material = Sketchup.active_model.materials['spring_material']

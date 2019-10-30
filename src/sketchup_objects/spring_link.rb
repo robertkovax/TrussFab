@@ -15,6 +15,10 @@ class SpringLink < PhysicsLink
     @threshold = Configuration::SPRING_THRESHOLD
     @damp = Configuration::SPRING_DAMP
 
+    pt1 = @first_node.hub.entity.bounds.center
+    pt2 = @second_node.hub.entity.bounds.center
+    @last_length = pt1.vector_to(pt2).length().to_f()
+
     persist_entity
   end
 
@@ -52,27 +56,25 @@ class SpringLink < PhysicsLink
     pt1 = @first_node.hub.entity.bounds.center
     pt2 = @second_node.hub.entity.bounds.center
     pt3 = Geom::Point3d.linear_combination(0.5, pt1, 0.5, pt2)
-    # dir = pt2 - pt1
-    # return if dir.length.to_f < 1.0e-6
-    # dir.normalize!
-    #
-    # ot = Geometry.scale_vector(dir, Configuration::MINIMUM_ELONGATION / 2)
-    # t1 = Geom::Transformation.new(pt1 + ot, dir)
-    # t2 = Geom::Transformation.new(pt2 - ot, dir.reverse)
 
-    # @first_cylinder.entity.move!(t1)
-    # @second_cylinder.entity.move!(t2)
     move_sensor_symbol(pt3)
 
-
-    direction_up = pt1.vector_to(pt2)
-    offset_up = direction_up.clone
+    # update position calculating a translation from the last to the new position
+    vector_representation = pt1.vector_to(pt2)
+    offset_up = vector_representation.clone
     new_position = pt1.offset(offset_up, offset_up.length() / 2)
     old_position = @first_cylinder.entity.bounds.center
     translation = Geom::Transformation.translation(old_position.vector_to(new_position))
 
-    spring_model = SpringModel.new
-    @first_cylinder.entity.transform!(translation)
+    # scale the entity to make it always connect the two adjacent hubs
+    current_length = vector_representation.length()
+    scale_factor = current_length.to_f() / @last_length
+    # spring is oriented along the x-axis
+    scaling = Geom::Transformation.scaling(old_position, 1, 1, scale_factor);
+    @last_length = current_length;
+
+    transformation = translation * scaling
+    @first_cylinder.entity.transform!(transformation)
   end
 
 
