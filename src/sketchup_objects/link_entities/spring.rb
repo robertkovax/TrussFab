@@ -17,18 +17,21 @@ class Spring < SketchupObject
 
   def create_entity
     return @entity if @entity
-    translation = Geom::Transformation.translation(@center)
+    entity = Sketchup.active_model.active_entities.add_instance(@definition, get_transformation_from_position_direction);
+    entity
+  end
+
+  def get_transformation_from_position_direction(center_position=@center, direction=@vector)
+    translation = Geom::Transformation.translation(center_position)
     rotation_angle = Geometry.rotation_angle_between(Geometry::Z_AXIS,
-                                                     @vector)
+                                                     direction)
     rotation_axis = Geometry.perpendicular_rotation_axis(Geometry::Z_AXIS,
-                                                         @vector)
-    rotation = Geom::Transformation.rotation(@center,
+                                                         direction)
+    rotation = Geom::Transformation.rotation(center_position,
                                              rotation_axis,
                                              rotation_angle)
-
     transformation = rotation * translation
-    entity = Sketchup.active_model.active_entities.add_instance(@definition, transformation);
-    entity
+    transformation
   end
 
   def material=(material)
