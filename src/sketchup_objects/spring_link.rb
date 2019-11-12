@@ -73,7 +73,7 @@ class SpringLink < PhysicsLink
     @first_cylinder.entity.transform!(scaling)
     @first_cylinder.entity.transform!(Geometry.rotation_transformation(Geom::Vector3d.new(0, 0, 1), vector_representation, old_position))
     # is translation needed?
-    # @first_cylinder.entity.transform!(translation)
+    @first_cylinder.entity.transform!(translation)
   end
 
 

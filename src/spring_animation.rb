@@ -22,8 +22,8 @@ class SpringAnimation
     scaled_second_vector = @second_vector.clone
     scaled_second_vector.length = @second_vector.length * value[1].to_f.abs
 
-    @edge.first_node.update_position(@initial_edge_position + scaled_first_vector)
-    @edge.first_node.hub.update_position(@edge.first_node.hub.position)
+    # @edge.first_node.update_position(@initial_edge_position + scaled_first_vector)
+    # @edge.first_node.hub.update_position(@edge.first_node.hub.position)
     @edge.second_node.update_position(@initial_edge_position + scaled_second_vector)
     @edge.second_node.hub.update_position(@edge.second_node.hub.position)
     # @edge.link.update_positions(@initial_edge_position + scaled_first_vector, @initial_edge_position + scaled_second_vector)
@@ -39,7 +39,10 @@ class SpringAnimation
     end
     view.refresh
     @index = @index + 1
-    @index == @data.length
+    if @index == @data.length
+      @index = 0
+      sleep(1)
+    end
 
     return @running
   end
