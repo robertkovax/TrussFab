@@ -2,12 +2,14 @@ require 'csv'
 require 'src/spring_animation.rb'
 
 class SpringAnimationTool < Tool
+  HTML_FILE = '../ui/spring-interact/index.html'.freeze
+
   def initialize(ui)
     super(ui)
 
 
     @data = CSV.read(ProjectHelper.asset_directory +
-               '/exported_plot_data.csv')
+               '/spring_compression_in_one_point_for_time.csv')
 
     @mouse_input = MouseInput.new(snap_to_edges: true, snap_to_nodes: true)
     @edge = nil
@@ -15,6 +17,7 @@ class SpringAnimationTool < Tool
     @initial_edge_length = nil
     @initial_edge_position = nil
     @animation = nil
+    @dialog = nil
   end
 
   def onLButtonDown(_flags, x, y, view)
@@ -33,9 +36,45 @@ class SpringAnimationTool < Tool
 
       @animation = SpringAnimation.new(@data, @first_vector, @second_vector, @initial_edge_position, @edge)
       Sketchup.active_model.active_view.animation = @animation
+      open_dialog(x,y)
     end
 
 
+  end
+
+  def open_dialog(x,y)
+    return if @dialog
+    props = {
+      # resizable: false,
+      preferences_key: 'com.trussfab.spring_interaction',
+      width: 200,
+      height: 250,
+      left: 5,
+      top: 5,
+      min_width: 200,
+      min_height: 150,
+      max_width: 100,
+      # max_height: @height
+      :style => UI::HtmlDialog::STYLE_UTILITY
+    }
+
+    @dialog = UI::HtmlDialog.new(props)
+    file = File.join(File.dirname(__FILE__), HTML_FILE)
+    @dialog.set_file(file)
+    puts("" + x.to_s + " " + y.to_s)
+    @dialog.set_position(x / 2 - 150,y / 2 + 100)
+    @dialog.show
+    register_callbacks
+  end
+
+  def register_callbacks
+    @dialog.add_action_callback('spring_interaction_plus') do |_|
+      puts("plus")
+    end
+
+    @dialog.add_action_callback('spring_interaction_minus') do |_|
+      puts("minus")
+    end
   end
 
   def onMouseMove(_flags, x, y, view)
