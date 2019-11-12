@@ -15,10 +15,6 @@ class SpringLink < PhysicsLink
     @threshold = Configuration::SPRING_THRESHOLD
     @damp = Configuration::SPRING_DAMP
 
-    pt1 = @first_node.hub.entity.bounds.center
-    pt2 = @second_node.hub.entity.bounds.center
-    @last_length = pt1.vector_to(pt2).length().to_f()
-
     persist_entity
   end
 
@@ -62,16 +58,16 @@ class SpringLink < PhysicsLink
     # update position calculating a translation from the last to the new position
     vector_representation = pt1.vector_to(pt2)
     offset_up = vector_representation.clone
-    new_position = pt1.offset(offset_up, offset_up.length() / 2)
+    new_position = pt1.offset(offset_up, offset_up.length / 2)
     old_position = @first_cylinder.entity.bounds.center
     translation = Geom::Transformation.translation(old_position.vector_to(new_position))
 
     # scale the entity to make it always connect the two adjacent hubs
-    current_length = vector_representation.length()
-    scale_factor = current_length.to_f() / @last_length
+    current_length = vector_representation.length
+    scale_factor = current_length.to_f / @last_length
     # spring is oriented along the x-axis
-    scaling = Geom::Transformation.scaling(old_position, 1, 1, scale_factor);
-    @last_length = current_length;
+    scaling = Geom::Transformation.scaling(old_position, 1, 1, scale_factor)
+    @last_length = current_length
 
     transformation = translation * scaling
     @first_cylinder.entity.transform!(transformation)
@@ -81,11 +77,26 @@ class SpringLink < PhysicsLink
   def create_children
     direction_up = @position.vector_to(@second_position)
     offset_up = direction_up.clone
-    position = @position.offset(offset_up, offset_up.length() / 2)
+    position = @position.offset(offset_up, offset_up.length / 2)
+
+    pt1 = @first_node.hub.entity.bounds.center
+    pt2 = @second_node.hub.entity.bounds.center
+
+    # update position calculating a translation from the last to the new position
+    vector_representation = pt1.vector_to(pt2)
+
+    # scale the entity to make it always connect the two adjacent hubs
+    current_length = vector_representation.length
+    if @last_length.nil?
+      @last_length = current_length.to_f
+    end
+    scale_factor = current_length.to_f / @last_length
+
 
     spring_model = SpringModel.new
-    @first_cylinder = Spring.new(position, direction_up, self, spring_model.definition, nil)
+    @first_cylinder = Spring.new(position, direction_up, scale_factor, self, spring_model.definition, nil)
     @second_cylinder = SketchupObject.new #Spring.new(position, direction_up, self, spring_model.definition, nil);
+    add(first_cylinder, second_cylinder)
   end
 
   def set_piston_group_color

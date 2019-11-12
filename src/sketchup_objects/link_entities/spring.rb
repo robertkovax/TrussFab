@@ -5,11 +5,16 @@ require 'src/simulation/simulation.rb'
 class Spring < SketchupObject
   attr_reader :material
 
-  def initialize(center, vector, parent, definition, id = nil)
+  def initialize(center, vector, scale_factor, parent, definition, id = nil)
     super(id)
     @center = center
     @vector = vector
     @definition = definition
+    if scale_factor.nil?
+      @scale_factor = 1.0
+    else
+      @scale_factor = scale_factor
+    end
     @entity = create_entity
     @parent = parent
     persist_entity(type: parent.class.to_s, id: parent.id)
@@ -30,8 +35,10 @@ class Spring < SketchupObject
     rotation = Geom::Transformation.rotation(center_position,
                                              rotation_axis,
                                              rotation_angle)
-    transformation = rotation * translation
-    transformation
+
+    scaling = Geom::Transformation.scaling(center_position, 1, 1, @scale_factor)
+
+    transformation =  rotation * scaling * translation
   end
 
   def material=(material)

@@ -107,6 +107,7 @@ class Sidebar
     build_tool(AddWeightTool, 'add_weight_tool')
     build_tool(ActuatorTool, 'actuator_tool')
     build_tool(SpringTool, 'spring_tool')
+    build_tool(SpringAnimationTool, 'spring_animation_tool')
     build_tool(GenericPhysicsLinkTool, 'generic_physics_link_tool')
     build_tool(PoseCheckTool, 'pose_check_tool')
     build_tool(CoverTool, 'cover_tool')
