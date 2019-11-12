@@ -1,5 +1,5 @@
 class SpringAnimation
-
+  attr_accessor :factor
   def initialize(data, first_vector, second_vector, initial_edge_position, edge)
     @data = data
     @first_vector = first_vector
@@ -8,6 +8,7 @@ class SpringAnimation
     @edge = edge
     @index = 0
     @running = true
+    @factor = 1.0;
 
   end
 
@@ -16,11 +17,12 @@ class SpringAnimation
   end
 
   def nextFrame(view)
-    value = @data[@index]
-    scaled_first_vector = @first_vector.clone
-    scaled_first_vector.length = @first_vector.length * value[1].to_f.abs
+    value = @data[@index];
+    # scaled_first_vector = @first_vector.clone
+    # scaled_first_vector.length = @first_vector.length * value[1].to_f.abs
+
     scaled_second_vector = @second_vector.clone
-    scaled_second_vector.length = @second_vector.length * value[1].to_f.abs
+    scaled_second_vector.length = ((@second_vector.length * 2) * (1.0 + value[1].to_f) * @factor) - @second_vector.length
 
     # @edge.first_node.update_position(@initial_edge_position + scaled_first_vector)
     # @edge.first_node.hub.update_position(@edge.first_node.hub.position)
