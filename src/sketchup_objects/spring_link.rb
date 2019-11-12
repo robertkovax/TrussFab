@@ -52,7 +52,7 @@ class SpringLink < PhysicsLink
     pt1 = @first_node.hub.entity.bounds.center
     pt2 = @second_node.hub.entity.bounds.center
     pt3 = Geom::Point3d.linear_combination(0.5, pt1, 0.5, pt2)
-
+    # puts( "springl: " + pt1.to_s + pt2.to_s)
     move_sensor_symbol(pt3)
 
     # update position calculating a translation from the last to the new position
@@ -69,8 +69,11 @@ class SpringLink < PhysicsLink
     scaling = Geom::Transformation.scaling(old_position, 1, 1, scale_factor)
     @last_length = current_length
 
-    transformation = translation * scaling
-    @first_cylinder.entity.transform!(transformation)
+    @first_cylinder.entity.transform!(Geometry.rotation_transformation(vector_representation, Geom::Vector3d.new(0, 0, 1), old_position))
+    @first_cylinder.entity.transform!(scaling)
+    @first_cylinder.entity.transform!(Geometry.rotation_transformation(Geom::Vector3d.new(0, 0, 1), vector_representation, old_position))
+    # is translation needed?
+    # @first_cylinder.entity.transform!(translation)
   end
 
 

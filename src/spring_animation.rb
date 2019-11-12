@@ -37,7 +37,6 @@ class SpringAnimation
       link.update_link_transformations
       # edge.update_sketchup_object
     end
-    sleep(0.5)
     view.refresh
     @index = @index + 1
     @index == @data.length

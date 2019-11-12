@@ -26,7 +26,7 @@ class Spring < SketchupObject
     entity
   end
 
-  def get_transformation_from_position_direction(center_position=@center, direction=@vector)
+  def get_transformation_from_position_direction(center_position=@center, direction=@vector, scale_factor=@scale_factor)
     translation = Geom::Transformation.translation(center_position)
     rotation_angle = Geometry.rotation_angle_between(Geometry::Z_AXIS,
                                                      direction)
@@ -36,9 +36,9 @@ class Spring < SketchupObject
                                              rotation_axis,
                                              rotation_angle)
 
-    scaling = Geom::Transformation.scaling(center_position, 1, 1, @scale_factor)
+    scaling = Geom::Transformation.scaling(center_position, 1, 1, scale_factor)
 
-    transformation =  rotation * scaling * translation
+    transformation = rotation * scaling * translation
   end
 
   def material=(material)
