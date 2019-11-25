@@ -9,7 +9,7 @@ class SpringAnimationTool < Tool
 
 
     @data = CSV.read(ProjectHelper.asset_directory +
-               '/spring_compression_in_one_point_for_time_normalized.csv')
+               '/SphericalConstraint_res.csv')
 
     @mouse_input = MouseInput.new(snap_to_edges: true, snap_to_nodes: true)
     @edge = nil
@@ -70,12 +70,12 @@ class SpringAnimationTool < Tool
   def register_callbacks
     @dialog.add_action_callback('spring_interaction_plus') do |_|
       puts("plus")
-      @animation.factor = @animation.factor + 0.1
+      @animation.factor = @animation.factor + 2
     end
 
     @dialog.add_action_callback('spring_interaction_minus') do |_|
       puts("minus")
-      @animation.factor = @animation.factor - 0.1
+      @animation.factor = @animation.factor - 2
     end
   end
 

@@ -6,9 +6,9 @@ class SpringAnimation
     @second_vector = second_vector
     @initial_edge_position = initial_edge_position
     @edge = edge
-    @index = 0
+    @index = 1
     @running = true
-    @factor = 1.0;
+    @factor = 10
 
   end
 
@@ -17,7 +17,10 @@ class SpringAnimation
   end
 
   def nextFrame(view)
-    value = @data[@index];
+    value = @data[@index]
+
+    new_position = Geom::Point3d.new(value[1].to_f().mm * 1000, value[2].to_f().mm * 1000, value[3].to_f().mm * 1000)
+
     # scaled_first_vector = @first_vector.clone
     # scaled_first_vector.length = @first_vector.length * value[1].to_f.abs
 
@@ -26,7 +29,10 @@ class SpringAnimation
 
     # @edge.first_node.update_position(@initial_edge_position + scaled_first_vector)
     # @edge.first_node.hub.update_position(@edge.first_node.hub.position)
-    @edge.second_node.update_position(@initial_edge_position + scaled_second_vector)
+
+    @edge.second_node.update_position(new_position)
+    puts(@edge.second_node.id)
+    # @edge.second_node.update_position(@initial_edge_position + scaled_second_vector)
     @edge.second_node.hub.update_position(@edge.second_node.hub.position)
     # @edge.link.update_positions(@initial_edge_position + scaled_first_vector, @initial_edge_position + scaled_second_vector)
 
@@ -40,8 +46,8 @@ class SpringAnimation
       # edge.update_sketchup_object
     end
     view.refresh
-    @index = @index + 1
-    if @index == @data.length
+    @index = @index + @factor
+    if @index + @factor >= @data.length
       @index = 0
       sleep(1)
     end
