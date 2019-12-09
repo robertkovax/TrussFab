@@ -21,6 +21,10 @@ module ProjectHelper
     files.each { |file| require file }
   end
 
+  def self.system_simulation_directory
+    plugin_directory + '/src/system_simulation'
+  end
+
   def self.setup_sketchup
     model = Sketchup.active_model
     model.start_operation('TrussFab Setup', true)

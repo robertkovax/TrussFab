@@ -1,5 +1,6 @@
 require 'csv'
 require 'src/spring_animation.rb'
+require 'src/system_simulation/modellica_export.rb'
 
 class SpringAnimationTool < Tool
   HTML_FILE = '../ui/spring-interact/index.html'.freeze
@@ -8,8 +9,7 @@ class SpringAnimationTool < Tool
     super(ui)
 
 
-    @data = CSV.read(ProjectHelper.asset_directory +
-               '/SphericalConstraint_res.csv')
+    @data = nil
 
     @mouse_input = MouseInput.new(snap_to_edges: true, snap_to_nodes: true)
     @edge = nil
@@ -27,6 +27,8 @@ class SpringAnimationTool < Tool
     @mouse_input.update_positions(view, x, y)
     obj = @mouse_input.snapped_object
     if !obj.nil? && obj.is_a?(Edge) && obj.link_type == 'spring'
+      # TODO adjust paths
+      @data = ModellicaExport.import_csv("src/system_simulation/test.csv")
       @edge = obj
 
       @initial_edge_length = @edge.length

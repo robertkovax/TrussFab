@@ -8,7 +8,7 @@ class SpringAnimation
     @edge = edge
     @index = 1
     @running = true
-    @factor = 10
+    @factor = 16
 
   end
 
@@ -19,7 +19,8 @@ class SpringAnimation
   def nextFrame(view)
     value = @data[@index]
 
-    new_position = Geom::Point3d.new(value[1].to_f().mm * 1000, value[2].to_f().mm * 1000, value[3].to_f().mm * 1000)
+    # new_position = Geom::Point3d.new(value[1].to_f().mm * 1000, value[2].to_f().mm * 1000, value[3].to_f().mm * 1000)
+    new_position = Geom::Point3d.new(value[1], value[2], value[3])
 
     # scaled_first_vector = @first_vector.clone
     # scaled_first_vector.length = @first_vector.length * value[1].to_f.abs
