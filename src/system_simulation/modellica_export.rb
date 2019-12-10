@@ -1,5 +1,6 @@
 require 'erb'
 require 'csv'
+require 'src/animation_data_sample.rb'
 
 class ModellicaExport
   def self.export(path, initial_node)
@@ -8,9 +9,26 @@ class ModellicaExport
     file.close
   end
 
-  def self.import_csv(path)
-    simulation_data = CSV.read(File.join(File.dirname(__FILE__), 'TetrahedronSpring_res.csv'), { headers: :first_row })
-    return modelica_to_trussfab(simulation_data)
+  def self.import_csv(file)
+    raw_data = CSV.read(File.join(File.dirname(__FILE__), file))
+
+    # parse in which columns the coordinates for each node are stored
+    indices_map = AnimationDataSample.indices_map_from_header(raw_data[0])
+
+    #remove header of loaded data
+    raw_data.shift()
+
+    # parse csv
+    data_samples = []
+    raw_data.each do | value |
+      data_samples << AnimationDataSample.from_raw_data(value, indices_map)
+    end
+
+    # todo DEBUG
+    #data_samples.each {|sample| puts sample.inspect}
+    puts indices_map
+
+    return data_samples
 
   end
 
@@ -57,6 +75,9 @@ class ModellicaExport
   end
 
   def self.modelica_to_trussfab(data)
+    if not defined?(@@offset_vector)
+      @@offset_vector = Geom::Vector3d.new()
+    end
     data.map do |line|
       # line[0] contains the timestamp whereas line[1] - line[3] contain the coordinates respectively
       position = Geom::Point3d.new(line[1].to_f().mm * 1000, line[2].to_f().mm * 1000, line[3].to_f().mm * 1000)

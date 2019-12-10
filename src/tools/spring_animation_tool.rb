@@ -1,6 +1,7 @@
 require 'csv'
 require 'src/spring_animation.rb'
 require 'src/system_simulation/modellica_export.rb'
+require 'src/geometry_animation.rb'
 
 class SpringAnimationTool < Tool
   HTML_FILE = '../ui/spring-interact/index.html'.freeze
@@ -28,7 +29,7 @@ class SpringAnimationTool < Tool
     obj = @mouse_input.snapped_object
     if !obj.nil? && obj.is_a?(Edge) && obj.link_type == 'spring'
       # TODO adjust paths
-      @data = ModellicaExport.import_csv("src/system_simulation/test.csv")
+      @data = ModellicaExport.import_csv("seesaw3_res.csv")
       @edge = obj
 
       @initial_edge_length = @edge.length
@@ -36,9 +37,9 @@ class SpringAnimationTool < Tool
       @first_vector = @initial_edge_position.vector_to(@edge.first_node.position)
       @second_vector = @initial_edge_position.vector_to(@edge.second_node.position)
 
-      @animation = SpringAnimation.new(@data, @first_vector, @second_vector, @initial_edge_position, @edge)
+      @animation = GeometryAnimation.new(@data)
+      #@animation = SpringAnimation.new(@data, @first_vector, @second_vector, @initial_edge_position, @edge)
       Sketchup.active_model.active_view.animation = @animation
-      open_dialog(x,y)
     end
 
 
