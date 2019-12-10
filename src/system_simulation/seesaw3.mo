@@ -58,11 +58,11 @@ model seesaw3
     Placement(visible = true, transformation(origin = {-108, -108}, extent = {{-10, -10}, {10, 10}}, rotation = 90)));
   Modelica.Mechanics.MultiBody.Parts.Fixed fixed2(animation = false, r = N[2])  annotation(
     Placement(visible = true, transformation(origin = {74, -108}, extent = {{-10, -10}, {10, 10}}, rotation = 90)));
-  Modelica.Mechanics.MultiBody.Joints.Revolute revolute(n = N[5] -N[7])  annotation(
+  Modelica.Mechanics.MultiBody.Joints.Revolute revoluteLeft(n = N[5] -N[7])  annotation(
     Placement(visible = true, transformation(origin = {-72, -52}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Modelica.Mechanics.MultiBody.Joints.Revolute revolute1(n = N[6] - N[4], useAxisFlange = true)  annotation(
+  Modelica.Mechanics.MultiBody.Joints.Revolute revoluteRight(n = N[6] - N[4], useAxisFlange = true)  annotation(
     Placement(visible = true, transformation(origin = {98, -36}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Modelica.Mechanics.MultiBody.Parts.PointMass childLeft(m = 20, r_0(fixed = true, start = N[20]), v_0(fixed = false, start = {0, 0, -1}))  annotation(
+  Modelica.Mechanics.MultiBody.Parts.PointMass childLeft(m = 70, r_0(fixed = true, start = N[20]), v_0(fixed = false, start = {0, 0, -1}))  annotation(
     Placement(visible = true, transformation(origin = {-6, -40}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Mechanics.MultiBody.Parts.FixedTranslation fixedTranslation(animation = false, r = N[5] - N[3])  annotation(
     Placement(visible = true, transformation(origin = {-108, -74}, extent = {{10, -10}, {-10, 10}}, rotation = -90)));
@@ -70,9 +70,7 @@ model seesaw3
     Placement(visible = true, transformation(origin = {-32, -60}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Mechanics.MultiBody.Parts.BodyCylinder bodyCylinder1(r =  N[20] -N[5], r_0(fixed = false)) annotation(
     Placement(visible = true, transformation(origin = {-32, -40}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Modelica.Mechanics.MultiBody.Forces.SpringDamperParallel springDamperParallel(c = 1000)  annotation(
-    Placement(visible = true, transformation(origin = {48, -76}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Modelica.Mechanics.MultiBody.Parts.PointMass childRight(m = 20, r_0(fixed = true, start = N[18])) annotation(
+  Modelica.Mechanics.MultiBody.Parts.PointMass childRight(m = 70, r_0(fixed = true, start = N[18])) annotation(
     Placement(visible = true, transformation(origin = {172, -26}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Mechanics.MultiBody.Parts.BodyCylinder bodyCylinder2(r = (-N[6]) + N[18]) annotation(
     Placement(visible = true, transformation(origin = {138, -26}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
@@ -80,42 +78,40 @@ model seesaw3
     Placement(visible = true, transformation(origin = {142, -46}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Mechanics.MultiBody.Parts.BodyCylinder bodyCylinder4(r = (-N[5]) + N[10]) annotation(
     Placement(visible = true, transformation(origin = {-32, -80}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Modelica.Mechanics.MultiBody.Forces.SpringDamperParallel springDamperParallel1(c = 2000, d = 1, s_unstretched = 1) annotation(
+  Modelica.Mechanics.MultiBody.Forces.SpringDamperParallel springDamperParallel1(c = 20000, d = 100, s_unstretched = 1) annotation(
     Placement(visible = true, transformation(origin = {-62, -106}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Mechanics.MultiBody.Parts.BodyCylinder bodyCylinder5(r = (-N[6]) + N[9]) annotation(
     Placement(visible = true, transformation(origin = {136, -64}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Modelica.Mechanics.MultiBody.Forces.SpringDamperParallel springDamperParallel2(c = 2000, s_unstretched = 1) annotation(
+  Modelica.Mechanics.MultiBody.Forces.SpringDamperParallel springDamperParallel2(c = 20000, d = 100, s_unstretched = 1) annotation(
     Placement(visible = true, transformation(origin = {138, -98}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Mechanics.MultiBody.Parts.FixedTranslation fixedTranslation1(animation = false, r =  N[6] -N[2]) annotation(
     Placement(visible = true, transformation(origin = {74, -56}, extent = {{10, -10}, {-10, 10}}, rotation = -90)));
+  Modelica.Mechanics.MultiBody.Forces.SpringDamperParallel springDamperParallel(c = 10000, d = 10, s_unstretched = 1) annotation(
+    Placement(visible = true, transformation(origin = {48, -76}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
 equation
   connect(fixed.frame_b, fixedTranslation.frame_a) annotation(
     Line(points = {{-108, -98}, {-108, -84}}, color = {95, 95, 95}));
-  connect(fixedTranslation.frame_b, revolute.frame_a) annotation(
+  connect(fixedTranslation.frame_b, revoluteLeft.frame_a) annotation(
     Line(points = {{-108, -64}, {-108, -52}, {-82, -52}}));
-  connect(revolute.frame_b, bodyCylinder.frame_a) annotation(
+  connect(revoluteLeft.frame_b, bodyCylinder.frame_a) annotation(
     Line(points = {{-62, -52}, {-58, -52}, {-58, -60}, {-42, -60}}));
-  connect(revolute.frame_b, bodyCylinder1.frame_a) annotation(
+  connect(revoluteLeft.frame_b, bodyCylinder1.frame_a) annotation(
     Line(points = {{-62, -52}, {-56, -52}, {-56, -40}, {-42, -40}}, color = {95, 95, 95}));
   connect(bodyCylinder1.frame_b, childLeft.frame_a) annotation(
     Line(points = {{-22, -40}, {-6, -40}}));
   connect(bodyCylinder2.frame_b, childRight.frame_a) annotation(
     Line(points = {{148, -26}, {172, -26}}));
-  connect(bodyCylinder3.frame_b, springDamperParallel.frame_b) annotation(
-    Line(points = {{152, -46}, {156, -46}, {156, -76}, {58, -76}}, color = {95, 95, 95}));
-  connect(revolute1.frame_b, bodyCylinder2.frame_a) annotation(
+  connect(revoluteRight.frame_b, bodyCylinder2.frame_a) annotation(
     Line(points = {{108, -36}, {116, -36}, {116, -26}, {128, -26}}, color = {95, 95, 95}));
-  connect(revolute1.frame_b, bodyCylinder3.frame_a) annotation(
+  connect(revoluteRight.frame_b, bodyCylinder3.frame_a) annotation(
     Line(points = {{108, -36}, {116, -36}, {116, -46}, {132, -46}}));
-  connect(revolute.frame_b, bodyCylinder4.frame_a) annotation(
+  connect(revoluteLeft.frame_b, bodyCylinder4.frame_a) annotation(
     Line(points = {{-62, -52}, {-62, -62}, {-58, -62}, {-58, -80}, {-42, -80}}, color = {95, 95, 95}));
-  connect(bodyCylinder.frame_b, springDamperParallel.frame_a) annotation(
-    Line(points = {{-22, -60}, {24, -60}, {24, -78}, {38, -78}, {38, -76}}, color = {95, 95, 95}));
   connect(bodyCylinder4.frame_b, springDamperParallel1.frame_b) annotation(
     Line(points = {{-22, -80}, {-16, -80}, {-16, -106}, {-52, -106}}, color = {95, 95, 95}));
   connect(springDamperParallel1.frame_a, fixed.frame_b) annotation(
     Line(points = {{-72, -106}, {-82, -106}, {-82, -98}, {-108, -98}}));
-  connect(revolute1.frame_b, bodyCylinder5.frame_a) annotation(
+  connect(revoluteRight.frame_b, bodyCylinder5.frame_a) annotation(
     Line(points = {{108, -36}, {114, -36}, {114, -64}, {126, -64}, {126, -64}}, color = {95, 95, 95}));
   connect(fixed2.frame_b, springDamperParallel2.frame_a) annotation(
     Line(points = {{74, -98}, {128, -98}}, color = {95, 95, 95}));
@@ -123,8 +119,12 @@ equation
     Line(points = {{146, -64}, {176, -64}, {176, -98}, {148, -98}}));
   connect(fixedTranslation1.frame_a, fixed2.frame_b) annotation(
     Line(points = {{74, -66}, {74, -66}, {74, -98}, {74, -98}}));
-  connect(fixedTranslation1.frame_b, revolute1.frame_a) annotation(
+  connect(fixedTranslation1.frame_b, revoluteRight.frame_a) annotation(
     Line(points = {{74, -46}, {74, -46}, {74, -36}, {88, -36}, {88, -36}}));
+  connect(bodyCylinder3.frame_b, springDamperParallel.frame_b) annotation(
+    Line(points = {{152, -46}, {156, -46}, {156, -76}, {58, -76}}, color = {95, 95, 95}));
+  connect(bodyCylinder.frame_b, springDamperParallel.frame_a) annotation(
+    Line(points = {{-22, -60}, {24, -60}, {24, -78}, {38, -78}, {38, -76}}, color = {95, 95, 95}));
   annotation(
     uses(Modelica(version = "3.2.2")));
 end seesaw3;
