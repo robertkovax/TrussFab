@@ -27,7 +27,7 @@ class SpringAnimationTool < Tool
     end
     @mouse_input.update_positions(view, x, y)
     obj = @mouse_input.snapped_object
-    if !obj.nil? && obj.is_a?(Edge) && obj.link_type == 'spring'
+    if !obj.nil? && obj.is_a?(Edge) # && obj.link_type == 'spring'
       # TODO adjust paths
       @data = ModellicaExport.import_csv("seesaw3_res.csv")
       @edge = obj
