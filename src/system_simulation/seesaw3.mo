@@ -24,9 +24,9 @@ model seesaw3
     {2.5764553985251846, 3.104521581005094, 1.2055149456721892}
    };
 
-  Real left_rigid_group_rotation [3, 3] = revLeft.R_rel.T;
-  Real right_rigid_group_rotation [3, 3] = revRight.R_rel.T;
-  
+  Real left_rigid_group_rotation [3, 3] = Modelica.Math.Matrices.inv(revLeft.R_rel.T);
+  Real right_rigid_group_rotation [3, 3] = Modelica.Math.Matrices.inv(revRight.R_rel.T);
+
   // small hack to make also numbers that are only aliases to export to csv
   // https://openmodelica.org/forum/default-topic/1385-openmodelica-output-files
   Real neglectable_number [3] = fill(0.000000000000001, 3);
@@ -40,18 +40,18 @@ model seesaw3
     N[6] + neglectable_number,
     N[7] + neglectable_number,
     N[8] + neglectable_number,
-    right_rigid_group_rotation * N[9] ,
-    left_rigid_group_rotation * N[10],
-    right_rigid_group_rotation * N[11],
-    right_rigid_group_rotation * N[12],
-    right_rigid_group_rotation * N[13],
-    left_rigid_group_rotation * N[14],
-    left_rigid_group_rotation * N[15],
-    left_rigid_group_rotation * N[16],
-    right_rigid_group_rotation * N[17],
-    right_rigid_group_rotation * N[18],
-    left_rigid_group_rotation * N[19],
-    left_rigid_group_rotation * N[20]
+    right_rigid_group_rotation * (N[9] - N[4]) + N[4] ,
+    left_rigid_group_rotation * (N[10] - N[7]) + N[7],
+    right_rigid_group_rotation * (N[11] - N[4]) + N[4],
+    right_rigid_group_rotation * (N[12] - N[4]) + N[4],
+    right_rigid_group_rotation * (N[13] - N[4]) + N[4],
+    left_rigid_group_rotation * (N[14] - N[7])+N[7],
+    left_rigid_group_rotation * (N[15] - N[7])+N[7],
+    left_rigid_group_rotation * (N[16] - N[7]) + N[7],
+    right_rigid_group_rotation * (N[17] - N[4]) + N[4],
+    right_rigid_group_rotation * (N[18] - N[4]) + N[4],
+    left_rigid_group_rotation * (N[19] - N[7]) + N[7],
+    left_rigid_group_rotation * (N[20] - N[7]) + N[7]
   };
 
   Modelica.Mechanics.MultiBody.Parts.Fixed fixed(animation = false, r = N[3])  annotation(
@@ -88,6 +88,10 @@ model seesaw3
     Placement(visible = true, transformation(origin = {74, -56}, extent = {{10, -10}, {-10, 10}}, rotation = -90)));
   Modelica.Mechanics.MultiBody.Forces.SpringDamperParallel springDamperParallel(c = 10000, d = 10, s_unstretched = 1) annotation(
     Placement(visible = true, transformation(origin = {48, -76}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  Modelica.Mechanics.MultiBody.Visualizers.Advanced.Arrow arrow( r_head = node_pos[15] - N[15], r_tail = N[15])  annotation(
+    Placement(visible = true, transformation(origin = {-38, 2}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  Modelica.Mechanics.MultiBody.Visualizers.Advanced.Arrow arrow1(r_head = node_pos[14] - N[14], r_tail = N[14]) annotation(
+    Placement(visible = true, transformation(origin = {-38, 26}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
 equation
   connect(fixed.frame_b, fixedTranslation.frame_a) annotation(
     Line(points = {{-108, -98}, {-108, -84}}, color = {95, 95, 95}));
