@@ -9,14 +9,14 @@ class ModellicaExport
   def self.export(path, initial_node)
     #graph_to_modellica(initial_node)
     nodes = Graph.instance.nodes
-    override_simulation_specification(File.join(File.dirname(__FILE__), "seesaw3_init.xml"), nodes)
+    override_simulation_specification(File.join(File.join(File.dirname(__FILE__), "seesaw3_build"), "seesaw3_init.xml"), nodes)
     #file = File.open(File.join(File.dirname(__FILE__), 'TetrahedronSpring.mo'), 'w')
     #file.write(graph_to_modellica(initial_node))
     #file.close
   end
 
   def self.import_csv(file)
-    raw_data = CSV.read(File.join(File.join(File.dirname(__FILE__), "seesaw3"), file))
+    raw_data = CSV.read(File.join(File.join(File.dirname(__FILE__), "seesaw3_build"), file))
 
     # parse in which columns the coordinates for each node are stored
     indices_map = AnimationDataSample.indices_map_from_header(raw_data[0])
@@ -39,31 +39,46 @@ class ModellicaExport
   end
 
   def self.override_simulation_specification(path, nodes)
-    doc = REXML::Document.new(File.open(path))
-    # nodes[8].position.z.to_m.to_f
+    text = File.read(path)
 
     nodes.each do | node_id, node |
-      search_path_x = "fmiModelDescription/ModelVariables/ScalarVariable[@name='N[#{node_id},1]']/Real/"
-      REXML::XPath.each(doc, search_path_x) do |xml_node|
-        xml_node.attributes['start'] = node.position.x.to_m.to_f
-      end
-      search_path_y = "fmiModelDescription/ModelVariables/ScalarVariable[@name='N[#{node_id},2]']/Real/"
-      REXML::XPath.each(doc, search_path_y) do |xml_node|
-        xml_node.attributes['start'] = node.position.y.to_m.to_f
-      end
-      search_path_z = "fmiModelDescription/ModelVariables/ScalarVariable[@name='N[#{node_id},3]']/Real/"
-      REXML::XPath.each(doc, search_path_z) do |xml_node|
-        xml_node.attributes['start'] = node.position.z.to_m.to_f
-      end
+
+      regex_x = /(name = "N\[#{Regexp.quote(node_id.to_s)},1\]")(.*?)(Real start=")\K([\d|.]*)/m
+      text.gsub!(regex_x, node.position.x.to_m.to_f.to_s)
+      regex_y = /(name = "N\[#{Regexp.quote(node_id.to_s)},2\]")(.*?)(Real start=")\K([\d|.]*)/m
+      text.gsub!(regex_y, node.position.y.to_m.to_f.to_s)
+      regex_z = /(name = "N\[#{Regexp.quote(node_id.to_s)},3\]")(.*?)(Real start=")\K([\d|.]*)/m
+      text.gsub!(regex_z, node.position.z.to_m.to_f.to_s)
+
     end
 
-    #REXML::XPath.each(doc, "Scalar") do |node|
-    #  puts(node.attributes["modelName"]) # => So and so
-    #  node.attributes["modelName"] = "Something else"
-    #  puts(node.attributes["modelName"]) # => Something else
-    #end
+    File.write(path, text)
 
-    doc.write(File.open(path, "r+"))
+    #doc = REXML::Document.new(File.open(path))
+    ## nodes[8].position.z.to_m.to_f
+    #
+    #nodes.each do | node_id, node |
+    #  search_path_x = "fmiModelDescription/ModelVariables/ScalarVariable[@name='N[#{node_id},1]']/Real/"
+    #  REXML::XPath.each(doc, search_path_x) do |xml_node|
+    #    xml_node.attributes['start'] = node.position.x.to_m.to_f
+    #  end
+    #  search_path_y = "fmiModelDescription/ModelVariables/ScalarVariable[@name='N[#{node_id},2]']/Real/"
+    #  REXML::XPath.each(doc, search_path_y) do |xml_node|
+    #    xml_node.attributes['start'] = node.position.y.to_m.to_f
+    #  end
+    #  search_path_z = "fmiModelDescription/ModelVariables/ScalarVariable[@name='N[#{node_id},3]']/Real/"
+    #  REXML::XPath.each(doc, search_path_z) do |xml_node|
+    #    xml_node.attributes['start'] = node.position.z.to_m.to_f
+    #  end
+    #end
+    #
+    ##REXML::XPath.each(doc, "Scalar") do |node|
+    ##  puts(node.attributes["modelName"]) # => So and so
+    ##  node.attributes["modelName"] = "Something else"
+    ##  puts(node.attributes["modelName"]) # => Something else
+    ##end
+    #
+    #doc.write(File.open(path, "r+"))
   end
 
   def self.graph_to_modellica(initial_node)
