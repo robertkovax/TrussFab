@@ -1,4 +1,4 @@
-require 'src/system_simulation/modelica_simulation.rb'
+#require 'src/system_simulation/modelica_simulation.rb'
 require 'src/system_simulation/modellica_export.rb'
 
 class SpringSimulationTool < Tool
@@ -13,7 +13,7 @@ class SpringSimulationTool < Tool
     if !obj.nil? && obj.is_a?(Edge) && obj.link_type == 'spring'
       # TODO adjust paths
       ModellicaExport.export("src/system_simulation/test.om", obj.first_node)
-      ModelicaSimulation.run_simulation
+      #ModelicaSimulation.run_simulation
     end
   end
 

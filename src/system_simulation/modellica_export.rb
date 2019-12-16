@@ -1,16 +1,22 @@
 require 'erb'
 require 'csv'
 require 'src/animation_data_sample.rb'
+require "rexml/document"
+require 'rexml/xpath'
+require 'rexml/formatters/pretty'
 
 class ModellicaExport
   def self.export(path, initial_node)
-    file = File.open(File.join(File.dirname(__FILE__), 'TetrahedronSpring.mo'), 'w')
-    file.write(graph_to_modellica(initial_node))
-    file.close
+    #graph_to_modellica(initial_node)
+    nodes = Graph.instance.nodes
+    override_simulation_specification(File.join(File.dirname(__FILE__), "seesaw3_init.xml"), nodes)
+    #file = File.open(File.join(File.dirname(__FILE__), 'TetrahedronSpring.mo'), 'w')
+    #file.write(graph_to_modellica(initial_node))
+    #file.close
   end
 
   def self.import_csv(file)
-    raw_data = CSV.read(File.join(File.dirname(__FILE__), file))
+    raw_data = CSV.read(File.join(File.join(File.dirname(__FILE__), "seesaw3"), file))
 
     # parse in which columns the coordinates for each node are stored
     indices_map = AnimationDataSample.indices_map_from_header(raw_data[0])
@@ -32,7 +38,39 @@ class ModellicaExport
 
   end
 
+  def self.override_simulation_specification(path, nodes)
+    doc = REXML::Document.new(File.open(path))
+    # nodes[8].position.z.to_m.to_f
+
+    nodes.each do | node_id, node |
+      search_path_x = "fmiModelDescription/ModelVariables/ScalarVariable[@name='N[#{node_id},1]']/Real/"
+      REXML::XPath.each(doc, search_path_x) do |xml_node|
+        xml_node.attributes['start'] = node.position.x.to_m.to_f
+      end
+      search_path_y = "fmiModelDescription/ModelVariables/ScalarVariable[@name='N[#{node_id},2]']/Real/"
+      REXML::XPath.each(doc, search_path_y) do |xml_node|
+        xml_node.attributes['start'] = node.position.y.to_m.to_f
+      end
+      search_path_z = "fmiModelDescription/ModelVariables/ScalarVariable[@name='N[#{node_id},3]']/Real/"
+      REXML::XPath.each(doc, search_path_z) do |xml_node|
+        xml_node.attributes['start'] = node.position.z.to_m.to_f
+      end
+    end
+
+    #REXML::XPath.each(doc, "Scalar") do |node|
+    #  puts(node.attributes["modelName"]) # => So and so
+    #  node.attributes["modelName"] = "Something else"
+    #  puts(node.attributes["modelName"]) # => Something else
+    #end
+
+    doc.write(File.open(path, "r+"))
+  end
+
   def self.graph_to_modellica(initial_node)
+    #doc = File.open(File.join(File.dirname(__FILE__), "seesaw3_res.csv")) { |f| Nokogiri::XML(f) }
+
+    #file = File.new( "mydoc.xml" )
+
     graph = Graph.instance
     nodes = graph.nodes.map{|node| Geom::Point3d.new(node[1].position)}
 
@@ -84,6 +122,10 @@ class ModellicaExport
       position.offset!(@@offset_vector.reverse)
       [line[0], position.x, position.y, position.z]
     end
+  end
+
+  def self.map_nodes_to_ids(graph)
+    #graph
   end
 
 end
