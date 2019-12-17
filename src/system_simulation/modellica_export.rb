@@ -9,14 +9,24 @@ class ModellicaExport
   def self.export(path, initial_node)
     #graph_to_modellica(initial_node)
     nodes = Graph.instance.nodes
-    override_simulation_specification(File.join(File.join(File.dirname(__FILE__), "seesaw3_build"), "seesaw3_init.xml"), nodes)
+
+    # xml replacement approach:
+    # override_simulation_specification(File.join(File.join(File.dirname(__FILE__), "seesaw3_build"), "seesaw3_init.xml"), nodes)
+
+    @nodes = nodes.sort
+    renderer = ERB.new(File.read(File.join(File.dirname(__FILE__), 'seesaw3.mo.erb')))
+
+    file = File.open(File.join(File.dirname(__FILE__), 'seesaw3.mo'), 'w+')
+    file.write(renderer.result(binding))
+    file.close
+
     #file = File.open(File.join(File.dirname(__FILE__), 'TetrahedronSpring.mo'), 'w')
     #file.write(graph_to_modellica(initial_node))
     #file.close
   end
 
   def self.import_csv(file)
-    raw_data = CSV.read(File.join(File.join(File.dirname(__FILE__), "seesaw3_build"), file))
+    raw_data = CSV.read(File.join(File.dirname(__FILE__), file))
 
     # parse in which columns the coordinates for each node are stored
     indices_map = AnimationDataSample.indices_map_from_header(raw_data[0])
@@ -123,8 +133,12 @@ class ModellicaExport
     # end
   end
 
-  def self.string_for_position(identifier, position)
-    "parameter Real #{identifier}[3] = {#{position.x.to_m.to_s}, #{position.y.to_m.to_s}, #{position.z.to_m.to_s}};"
+  def self.parameter_for_position(identifier, position)
+    "parameter Real #{identifier}[3] = #{modelica_variable_for_position(position)};"
+  end
+
+  def self.modelica_variable_for_position(node)
+    "{#{node.position.x.to_m.to_s}, #{node.position.y.to_m.to_s}, #{node.position.z.to_m.to_s}}"
   end
 
   def self.modelica_to_trussfab(data)
