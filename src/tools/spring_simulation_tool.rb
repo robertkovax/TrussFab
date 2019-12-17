@@ -1,4 +1,4 @@
-#require 'src/system_simulation/modelica_simulation.rb'
+require 'src/system_simulation/modelica_simulation.rb'
 require 'src/system_simulation/modellica_export.rb'
 
 class SpringSimulationTool < Tool
@@ -10,10 +10,10 @@ class SpringSimulationTool < Tool
   def onLButtonDown(_flags, x, y, view)
     @mouse_input.update_positions(view, x, y)
     obj = @mouse_input.snapped_object
-    if !obj.nil? && obj.is_a?(Edge) && obj.link_type == 'spring'
+    if !obj.nil? && obj.is_a?(Edge)
       # TODO adjust paths
       ModellicaExport.export("src/system_simulation/test.om", obj.first_node)
-      #ModelicaSimulation.run_simulation
+      ModelicaSimulation.run_simulation
     end
   end
 
