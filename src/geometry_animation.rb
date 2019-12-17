@@ -1,19 +1,24 @@
 class GeometryAnimation
-  attr_accessor :factor
-  def initialize(data)
+  attr_accessor :factor, :running
+  def initialize(data, index = 0)
     @data = data
-    @index = 1
+    @index = index
     @running = true
     @factor = 16
 
   end
 
-  def halt
-    @running = false;
+  def toggle_running
+    @running = !@running;
   end
 
   def nextFrame(view)
+    unless (@running)
+      # last frame before animation stops – so we set value to last data sample and reset index to reset animation
+      @index = 0
+    end
     current_data_sample = @data[@index]
+
     Graph.instance.nodes.each do | node_id, node|
       node.update_position(current_data_sample.position_data[node_id.to_s])
       node.hub.update_position(current_data_sample.position_data[node_id.to_s])

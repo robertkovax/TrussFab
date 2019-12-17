@@ -22,9 +22,7 @@ class SpringAnimationTool < Tool
   end
 
   def onLButtonDown(_flags, x, y, view)
-    if @animation
-      @animation.halt
-    end
+
     @mouse_input.update_positions(view, x, y)
     obj = @mouse_input.snapped_object
     if !obj.nil? && obj.is_a?(Edge) # && obj.link_type == 'spring'
@@ -40,6 +38,16 @@ class SpringAnimationTool < Tool
       @animation = GeometryAnimation.new(@data)
       #@animation = SpringAnimation.new(@data, @first_vector, @second_vector, @initial_edge_position, @edge)
       Sketchup.active_model.active_view.animation = @animation
+    else
+      if @animation
+        if @animation.running
+          @animation.toggle_running()
+        else
+          @animation = GeometryAnimation.new(@data)
+          Sketchup.active_model.active_view.animation = @animation
+        end
+
+      end
     end
 
 
