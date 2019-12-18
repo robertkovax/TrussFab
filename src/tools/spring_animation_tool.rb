@@ -27,7 +27,9 @@ class SpringAnimationTool < Tool
     obj = @mouse_input.snapped_object
     if !obj.nil? && obj.is_a?(Edge) # && obj.link_type == 'spring'
       # TODO adjust paths
-      @data = ModellicaExport.import_csv("seesaw3_res.csv")
+      import_time = Benchmark.realtime { @data = ModellicaExport.import_csv("seesaw3_res.csv") }
+      puts("parse csv time: " + import_time.to_s + "s")
+
       @edge = obj
 
       @initial_edge_length = @edge.length

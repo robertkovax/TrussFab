@@ -1,5 +1,6 @@
 require 'src/system_simulation/modelica_simulation.rb'
 require 'src/system_simulation/modellica_export.rb'
+require 'benchmark'
 
 class SpringSimulationTool < Tool
   def initialize(ui)
@@ -12,8 +13,10 @@ class SpringSimulationTool < Tool
     obj = @mouse_input.snapped_object
     if !obj.nil? && obj.is_a?(Edge)
       # TODO adjust paths
-      ModellicaExport.export("src/system_simulation/test.om", obj.first_node)
-      ModelicaSimulation.run_simulation
+      export_time = Benchmark.realtime { ModellicaExport.export("src/system_simulation/test.om", obj.first_node) }
+      puts("export time: " + export_time.to_s + "s")
+      simulation_time = Benchmark.realtime { ModelicaSimulation.run_simulation }
+      puts("simulation time: " + simulation_time.to_s + "s")
     end
   end
 
