@@ -2,6 +2,7 @@ require 'csv'
 require 'src/spring_animation.rb'
 require 'src/system_simulation/modellica_export.rb'
 require 'src/geometry_animation.rb'
+require 'src/trace_animation.rb'
 
 class SpringAnimationTool < Tool
   HTML_FILE = '../ui/spring-interact/index.html'.freeze
@@ -37,7 +38,8 @@ class SpringAnimationTool < Tool
       @first_vector = @initial_edge_position.vector_to(@edge.first_node.position)
       @second_vector = @initial_edge_position.vector_to(@edge.second_node.position)
 
-      @animation = GeometryAnimation.new(@data)
+      @animation = TraceAnimation.new(@data)
+      #@animation = GeometryAnimation.new(@data)
       #@animation = SpringAnimation.new(@data, @first_vector, @second_vector, @initial_edge_position, @edge)
       Sketchup.active_model.active_view.animation = @animation
     else
@@ -45,7 +47,7 @@ class SpringAnimationTool < Tool
         if @animation.running
           @animation.toggle_running()
         else
-          @animation = GeometryAnimation.new(@data)
+          @animation = TraceAnimation.new(@data)
           Sketchup.active_model.active_view.animation = @animation
         end
 
