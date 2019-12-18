@@ -42,7 +42,6 @@ class ModellicaExport
 
     # todo DEBUG
     #data_samples.each {|sample| puts sample.inspect}
-    puts indices_map
 
     return data_samples
 
@@ -138,7 +137,7 @@ class ModellicaExport
   end
 
   def self.modelica_variable_for_position(node)
-    "{#{node.position.x.to_m.to_s}, #{node.position.y.to_m.to_s}, #{node.position.z.to_m.to_s}}"
+    "{#{node.position.x.to_m.round(3).to_s}, #{node.position.y.to_m.round(3).to_s}, #{node.position.z.to_m.round(3).to_s}}"
   end
 
   def self.modelica_to_trussfab(data)
