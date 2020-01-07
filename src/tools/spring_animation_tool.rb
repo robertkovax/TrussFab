@@ -53,13 +53,13 @@ class SpringAnimationTool < Tool
       #
 
       # add trace visualizing every data point using a points
-      add_trace(["18", "20"])
+      #add_trace(["18", "20"])
 
       # only draw a point for every 500th data point
       #add_sparse_trace(["18", "20"], 500)
 
       # visualize data points using transparent circle or sphere
-      # add_circle_trace(["18", "20"], 80)
+       add_circle_trace(["18", "20"], 80)
       # add_sphere_trace(["18", "20"], 80)
     else
       reset_trace()
@@ -76,6 +76,52 @@ class SpringAnimationTool < Tool
     end
 
 
+  end
+
+  def add_sphere_trace(node_ids, sparse_factor)
+    @data.each_with_index do |current_data_sample, index|
+      # thin out points in trace
+      next unless index % sparse_factor == 0
+
+      @group = Sketchup.active_model.entities.add_group if @group.deleted?
+      entities = @group.entities
+
+      color = Sketchup::Color.new(72,209,204)
+      materialToSet = Sketchup.active_model.materials.add("MyColor_1")
+      materialToSet.color = color
+      materialToSet.alpha = 0.2
+
+      radius = 1
+      num_segments = 20
+      circle = entities.add_circle(current_data_sample.position_data[node_ids[0]], Geom::Vector3d.new(1,0,0), radius, num_segments)
+      face = entities.add_face(circle)
+      face.material = materialToSet unless face.deleted?
+      face.back_material = materialToSet unless face.deleted?
+      face.reverse!
+      # Create a temporary path for follow me to use to perform the revolve.
+      # This path should not touch the face.
+      path = entities.add_circle(current_data_sample.position_data[node_ids[0]], Geom::Vector3d.new(0,0,1), radius * 2, num_segments)
+      # This creates the sphere.
+      face.followme(path)
+
+      entities.erase_entities(path)
+
+
+      circle = entities.add_circle(current_data_sample.position_data[node_ids[1]], Geom::Vector3d.new(1,0,0), radius, num_segments)
+      face = entities.add_face(circle)
+      face.material = materialToSet unless face.deleted?
+      face.back_material = materialToSet unless face.deleted?
+      face.reverse!
+      # Create a temporary path for follow me to use to perform the revolve.
+      # This path should not touch the face.
+      path = entities.add_circle(current_data_sample.position_data[node_ids[1]], Geom::Vector3d.new(0,0,1), radius * 2, num_segments)
+      # This creates the sphere.
+      face.followme(path)
+
+      entities.erase_entities(path)
+
+      #    entities.grep(Sketchup::Edge).each{|e| e.hidden=true }
+    end
   end
 
   def add_circle_trace(node_ids, sparse_factor)
