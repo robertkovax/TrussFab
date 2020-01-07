@@ -22,6 +22,7 @@ class SpringAnimationTool < Tool
     @dialog = nil
 
     @trace_points = []
+    @group = Sketchup.active_model.active_entities.add_group
   end
 
   def onLButtonDown(_flags, x, y, view)
@@ -56,7 +57,13 @@ class SpringAnimationTool < Tool
 
       # only draw a point for every 500th data point
       #add_sparse_trace(["18", "20"], 500)
+
+      # visualize data points using transparent circle or sphere
+      # add_circle_trace(["18", "20"], 80)
+      # add_sphere_trace(["18", "20"], 80)
     else
+      reset_trace()
+      return
       if @animation
         if @animation.running
           @animation.toggle_running()
@@ -69,6 +76,39 @@ class SpringAnimationTool < Tool
     end
 
 
+  end
+
+  def add_circle_trace(node_ids, sparse_factor)
+    @data.each_with_index do |current_data_sample, index|
+      # thin out points in trace
+      next unless index % sparse_factor == 0
+
+      @group = Sketchup.active_model.entities.add_group if @group.deleted?
+      entities = @group.entities
+
+      color = Sketchup::Color.new(72,209,204)
+      materialToSet = Sketchup.active_model.materials.add("MyColor_1")
+      materialToSet.color = color
+      materialToSet.alpha = 0.2
+
+      edgearray = entities.add_circle(current_data_sample.position_data[node_ids[0]], Geom::Vector3d.new(1,0,0), 1, 10)
+      edgearray.each{|e| e.hidden=true }
+      first_edge = edgearray[0]
+      arccurve = first_edge.curve
+      face = entities.add_face(arccurve)
+      face.material = materialToSet unless face == nil
+      @trace_points << edgearray
+
+      edgearray = entities.add_circle(current_data_sample.position_data[node_ids[1]], Geom::Vector3d.new(1,0,0), 1, 10)
+      edgearray.each{|e| e.hidden=true }
+      first_edge = edgearray[1]
+      arccurve = first_edge.curve
+      face = entities.add_face(arccurve)
+      face.material = materialToSet unless face == nil
+      @trace_points << edgearray
+
+      #    entities.grep(Sketchup::Edge).each{|e| e.hidden=true }
+    end
   end
 
   def add_sparse_trace(node_ids, sparse_factor)
@@ -89,6 +129,8 @@ class SpringAnimationTool < Tool
   end
 
   def reset_trace()
+    @group = Sketchup.active_model.entities.add_group if @group.deleted?
+    Sketchup.active_model.active_entities.erase_entities(@group.entities.to_a)
     if @trace_points.count > 0
       Sketchup.active_model.active_entities.erase_entities(@trace_points)
     end
