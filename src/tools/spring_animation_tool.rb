@@ -20,6 +20,8 @@ class SpringAnimationTool < Tool
     @initial_edge_position = nil
     @animation = nil
     @dialog = nil
+
+    @trace_points = []
   end
 
   def onLButtonDown(_flags, x, y, view)
@@ -28,8 +30,11 @@ class SpringAnimationTool < Tool
     obj = @mouse_input.snapped_object
     if !obj.nil? && obj.is_a?(Edge) # && obj.link_type == 'spring'
       # TODO adjust paths
-      import_time = Benchmark.realtime { @data = ModellicaExport.import_csv("seesaw3_res.csv") }
-      puts("parse csv time: " + import_time.to_s + "s")
+      if (@data == nil)
+        import_time = Benchmark.realtime { @data = ModellicaExport.import_csv("seesaw3_res.csv") }
+        puts("parse csv time: " + import_time.to_s + "s")
+      end
+
 
       @edge = obj
 
@@ -39,9 +44,18 @@ class SpringAnimationTool < Tool
       @second_vector = @initial_edge_position.vector_to(@edge.second_node.position)
 
       @animation = TraceAnimation.new(@data)
+      #Sketchup.active_model.active_view.animation = @animation
+
+
       #@animation = GeometryAnimation.new(@data)
       #@animation = SpringAnimation.new(@data, @first_vector, @second_vector, @initial_edge_position, @edge)
-      Sketchup.active_model.active_view.animation = @animation
+      #
+
+      # add trace visualizing every data point using a points
+      add_trace(["18", "20"])
+
+      # only draw a point for every 500th data point
+      #add_sparse_trace(["18", "20"], 500)
     else
       if @animation
         if @animation.running
@@ -55,6 +69,30 @@ class SpringAnimationTool < Tool
     end
 
 
+  end
+
+  def add_sparse_trace(node_ids, sparse_factor)
+    @data.each_with_index do |current_data_sample, index|
+      # thin out points in trace
+      next unless index % sparse_factor == 0
+
+      model = Sketchup.active_model
+      entities = model.active_entities
+      @trace_points << entities.add_cpoint(current_data_sample.position_data[node_ids[0]])
+      @trace_points << entities.add_cpoint(current_data_sample.position_data[node_ids[1]])
+      #puts(current_data_sample.time_stamp)
+    end
+  end
+
+  def add_trace(node_ids)
+    add_sparse_trace(node_ids, 100)
+  end
+
+  def reset_trace()
+    if @trace_points.count > 0
+      Sketchup.active_model.active_entities.erase_entities(@trace_points)
+    end
+    @trace_points = []
   end
 
   def open_dialog(x,y)
