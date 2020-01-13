@@ -2,10 +2,11 @@ model TetrahedronSpring
   extends Modelica.Icons.Example;
   parameter Boolean animation=true "= true, if animation shall be enabled";
 
-  parameter Real N1[3] = {0.0, 0.0, 0.014};
-  parameter Real N2[3] = {0.6692815035095565, 0.0, 0.0140};
-  parameter Real N3[3] = {0.3346407517547786, 0.5796147843223197, 0.0140};
-  parameter Real N4[3] = {0.3346407517547786, 0.19320492810743977, 0.5604660592937206};
+  parameter Real N1[3] = {0.0, 0.0, 0.0};
+  parameter Real N2[3] = {0.6692815035095565, 0.0, 0.0};
+  parameter Real N3[3] = {0.3346407517547786, 0.5796147843223197, 0.0};
+  parameter Real N4[3] = {0.3346407517547786, 0.19320492810743978, 0.5464660592937206};
+
   inner Modelica.Mechanics.MultiBody.World world(n = {0, 0, -1})  ;
   Modelica.Mechanics.MultiBody.Parts.BodyCylinder bodyCylinder(a_0(fixed = true),r = N3 - N1, v_0(fixed = true), w_0_fixed = true, z_0_fixed = true)  ;
   Modelica.Mechanics.MultiBody.Joints.Spherical spherical2(angles_fixed = false, enforceStates = true, w_rel_a_fixed = true, z_rel_a_fixed = false) ;
