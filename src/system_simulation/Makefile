@@ -13,7 +13,7 @@ simulate: seesaw3_build/seesaw3
 	{ \
 	set -e ;\
 	cd seesaw3_build  ;\
-	./seesaw3 -override outputFormat='csv',variableFilter='node_pos.*',stopTime='20' ;\
+	./seesaw3 -override $(overrides) ;\
 	mv seesaw3_res.csv .. ;\
 	cd .. ;\
 	}
