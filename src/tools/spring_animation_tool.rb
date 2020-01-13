@@ -5,7 +5,8 @@ require 'src/geometry_animation.rb'
 require 'src/trace_animation.rb'
 
 class SpringAnimationTool < Tool
-  HTML_FILE = '../ui/spring-interact/index.html'.freeze
+  INTERACT_HTML_FILE = '../ui/spring-interact/index.html'.freeze
+  INSIGHTS_HTML_FILE = '../ui/spring-insights/index.html'.freeze
 
   def initialize(ui)
     super(ui)
@@ -19,13 +20,15 @@ class SpringAnimationTool < Tool
     @initial_edge_length = nil
     @initial_edge_position = nil
     @animation = nil
-    @dialog = nil
+    @interaction_dialog = nil
+    @insights_dialog = nil
 
     @trace_points = []
     @group = Sketchup.active_model.active_entities.add_group
   end
 
   def onLButtonDown(_flags, x, y, view)
+    open_insights_dialog if @insights_dialog == nil
 
     @mouse_input.update_positions(view, x, y)
     obj = @mouse_input.snapped_object
@@ -183,8 +186,8 @@ class SpringAnimationTool < Tool
     @trace_points = []
   end
 
-  def open_dialog(x,y)
-    return if @dialog
+  def open_interaction_dialog(x,y)
+    return if @interaction_dialog
     props = {
       # resizable: false,
       preferences_key: 'com.trussfab.spring_interaction',
@@ -199,22 +202,44 @@ class SpringAnimationTool < Tool
       :style => UI::HtmlDialog::STYLE_UTILITY
     }
 
-    @dialog = UI::HtmlDialog.new(props)
-    file = File.join(File.dirname(__FILE__), HTML_FILE)
-    @dialog.set_file(file)
+    @interaction_dialog = UI::HtmlDialog.new(props)
+    file = File.join(File.dirname(__FILE__), INTERACT_HTML_FILE)
+    @interaction_dialog.set_file(file)
     puts("" + x.to_s + " " + y.to_s)
-    @dialog.set_position(x / 2 - 150,y / 2 + 100)
-    @dialog.show
+    @interaction_dialog.set_position(x / 2 - 150,y / 2 + 100)
+    @interaction_dialog.show
     register_callbacks
   end
 
+  def open_insights_dialog
+    return if @insights_dialog
+    props = {
+        # resizable: false,
+        preferences_key: 'com.trussfab.spring_insights',
+        width: 200,
+        height: 250,
+        left: 5,
+        top: 5,
+        min_width: 400,
+        min_height: 400,
+        # max_height: @height
+        :style => UI::HtmlDialog::STYLE_UTILITY
+    }
+
+    @insights_dialog = UI::HtmlDialog.new(props)
+    file = File.join(File.dirname(__FILE__), INSIGHTS_HTML_FILE)
+    @insights_dialog.set_file(file)
+    @insights_dialog.set_position(500, 500)
+    @insights_dialog.show
+  end
+
   def register_callbacks
-    @dialog.add_action_callback('spring_interaction_plus') do |_|
+    @interaction_dialog.add_action_callback('spring_interaction_plus') do |_|
       puts("plus")
       @animation.factor = @animation.factor + 2
     end
 
-    @dialog.add_action_callback('spring_interaction_minus') do |_|
+    @interaction_dialog.add_action_callback('spring_interaction_minus') do |_|
       puts("minus")
       @animation.factor = @animation.factor - 2
     end
