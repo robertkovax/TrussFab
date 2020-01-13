@@ -62,7 +62,7 @@ class SpringAnimationTool < Tool
       #add_sparse_trace(["18", "20"], 500)
 
       # visualize data points using transparent circle or sphere
-       add_circle_trace(["18", "20"], 80)
+       add_circle_trace(["18", "20"], 120)
       # add_sphere_trace(["18", "20"], 80)
     else
       reset_trace()
@@ -138,7 +138,7 @@ class SpringAnimationTool < Tool
       color = Sketchup::Color.new(72,209,204)
       materialToSet = Sketchup.active_model.materials.add("MyColor_1")
       materialToSet.color = color
-      materialToSet.alpha = 0.2
+      materialToSet.alpha = 0.4
 
       edgearray = entities.add_circle(current_data_sample.position_data[node_ids[0]], Geom::Vector3d.new(1,0,0), 1, 10)
       edgearray.each{|e| e.hidden=true }
