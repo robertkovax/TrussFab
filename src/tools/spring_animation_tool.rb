@@ -3,6 +3,7 @@ require 'src/spring_animation.rb'
 require 'src/system_simulation/modellica_export.rb'
 require 'src/geometry_animation.rb'
 require 'src/trace_animation.rb'
+require 'src/system_simulation/simulation_runner.rb'
 
 class SpringAnimationTool < Tool
   INTERACT_HTML_FILE = '../ui/spring-interact/index.html'.freeze
@@ -22,9 +23,14 @@ class SpringAnimationTool < Tool
     @animation = nil
     @interaction_dialog = nil
     @insights_dialog = nil
+    @simulation_runner = nil
 
     @trace_points = []
     @group = Sketchup.active_model.active_entities.add_group
+  end
+
+  def activate
+    @simulation_runner = SimulationRunner.new unless @simulation_runner
   end
 
   def onLButtonDown(_flags, x, y, view)
@@ -34,10 +40,10 @@ class SpringAnimationTool < Tool
     obj = @mouse_input.snapped_object
     if !obj.nil? && obj.is_a?(Edge) # && obj.link_type == 'spring'
       # TODO adjust paths
-      if (@data == nil)
-        import_time = Benchmark.realtime { @data = ModellicaExport.import_csv("seesaw3_res.csv") }
-        puts("parse csv time: " + import_time.to_s + "s")
-      end
+
+      @simulation_runner.get_hub_time_series(nil, 0, 0)
+      import_time = Benchmark.realtime { @data = ModellicaExport.import_csv("seesaw3_res.csv") }
+      puts("parse csv time: " + import_time.to_s + "s")
 
 
       @edge = obj
@@ -62,7 +68,7 @@ class SpringAnimationTool < Tool
       #add_sparse_trace(["18", "20"], 500)
 
       # visualize data points using transparent circle or sphere
-       add_circle_trace(["18", "20"], 120)
+       add_circle_trace(["18", "20"], 1)
       # add_sphere_trace(["18", "20"], 80)
     else
       reset_trace()
@@ -146,7 +152,6 @@ class SpringAnimationTool < Tool
       arccurve = first_edge.curve
       face = entities.add_face(arccurve)
       face.material = materialToSet unless face == nil
-      @trace_points << edgearray
 
       edgearray = entities.add_circle(current_data_sample.position_data[node_ids[1]], Geom::Vector3d.new(1,0,0), 1, 10)
       edgearray.each{|e| e.hidden=true }
@@ -154,7 +159,6 @@ class SpringAnimationTool < Tool
       arccurve = first_edge.curve
       face = entities.add_face(arccurve)
       face.material = materialToSet unless face == nil
-      @trace_points << edgearray
 
       #    entities.grep(Sketchup::Edge).each{|e| e.hidden=true }
     end
@@ -231,6 +235,23 @@ class SpringAnimationTool < Tool
     @insights_dialog.set_file(file)
     @insights_dialog.set_position(500, 500)
     @insights_dialog.show
+    register_insights_callbacks
+  end
+
+  def simulate(c)
+    @simulation_runner.get_hub_time_series(nil, 0, 0, c.to_i)
+    import_time = Benchmark.realtime { @data = ModellicaExport.import_csv("seesaw3_res.csv") }
+    puts("parse csv time: " + import_time.to_s + "s")
+    add_circle_trace(["18", "20"], 1)
+  end
+
+  def register_insights_callbacks
+    @insights_dialog.add_action_callback('spring_insights_change') do |_, value|
+      puts(value)
+      reset_trace()
+      simulate(value)
+      #@animation.factor = @animation.factor + 2
+    end
   end
 
   def register_callbacks
