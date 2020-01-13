@@ -1,23 +1,6 @@
 #!/usr/bin/env ruby
 
-require 'tracer'
 require 'open3'
-
-Tracer.on
-
-
-#simulation_name = "TetrahedronSpring"
-#mo_file = simulation_name + ".mo"
-#
-#puts(File.dirname(__FILE__))
-#system "cd " + File.dirname(__FILE__)
-#system "pwd"
-#
-#system "/opt/openmodelica/bin/omc -s " + mo_file + " Modelica"
-#system "mv " + simulation_name + ".makefile Makefile"
-#system "make"
-#system "./" + simulation_name + " -override outputFormat='csv',variableFilter='pointMass.r.*',stopTime='10'"
-
 
 class SimulationRunner
 
@@ -30,8 +13,8 @@ class SimulationRunner
     end
   end
 
-  def get_hub_time_series(hubIDs, stepSize, mass)
-      overrides = "outputFormat='csv',variableFilter='node_pos.*',stopTime='20'"
+  def get_hub_time_series(hubIDs, stepSize, mass, constant=50)
+      overrides = "outputFormat='csv',variableFilter='node_pos.*',startTime=0,stopTime=10,stepSize=0.2,springDamperParallel1.c='#{constant}'"
       # make overrides=outputFormat='csv',variableFilter='node_pos.*',stopTime='20' simulate
       command = "make overrides=#{overrides} simulate"
       puts(command)
@@ -43,5 +26,5 @@ class SimulationRunner
 
 end
 
-runner = SimulationRunner.new
-runner.get_hub_time_series(nil, 0, 0)
+#runner = SimulationRunner.new
+#runner.get_hub_time_series(nil, 0, 0)
