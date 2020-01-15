@@ -225,7 +225,7 @@ class SpringAnimationTool < Tool
         left: 5,
         top: 5,
         min_width: 400,
-        min_height: 400,
+        min_height: 120,
         # max_height: @height
         :style => UI::HtmlDialog::STYLE_UTILITY
     }
@@ -242,7 +242,10 @@ class SpringAnimationTool < Tool
     @simulation_runner.get_hub_time_series(nil, 0, 0, c.to_i)
     import_time = Benchmark.realtime { @data = ModellicaExport.import_csv("seesaw3_res.csv") }
     puts("parse csv time: " + import_time.to_s + "s")
-    add_circle_trace(["18", "20"], 1)
+
+    drawing_time = Benchmark.realtime { add_circle_trace(["18", "20"], 2) }
+    puts("drawing time: " + drawing_time.to_s + "s")
+
   end
 
   def register_insights_callbacks

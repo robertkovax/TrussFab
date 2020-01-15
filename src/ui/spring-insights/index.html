@@ -1,0 +1,57 @@
+<html>
+<head>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+<style>
+
+</style>
+
+</head>
+<body>
+
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title">Modify spring parameters</h5>
+      <div class="row no-gutters">
+        <div class="col-5">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text text-monospace">k</span>
+            </div>
+
+            <div class="input-group-append">
+              <span class="input-group-text text-monospace">N/m</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          <input type="range" class="custom-range pt-3" id="customRange1" min="5000" max="30000" step="5000" value="10000" onchange="window.sketchup.spring_insights_change(this.value)">
+        </div>
+      </div>
+
+
+
+<!--    <div class="input-group mb-3">-->
+<!--      <div class="input-group-prepend">-->
+<!--        <span class="input-group-text text-monospace">f</span>-->
+<!--      </div>-->
+<!--      <input type="text" placeholder="1.5" class="form-control">-->
+<!--      <div class="input-group-append">-->
+<!--        <span class="input-group-text text-monospace">1/s</span>-->
+<!--      </div>-->
+<!--    </div>-->
+
+<!--    <div class="input-group mb-3">-->
+<!--      <div class="input-group-prepend">-->
+<!--        <span class="input-group-text text-monospace">A</span>-->
+<!--      </div>-->
+<!--      <input type="text" placeholder="30" class="form-control">-->
+<!--      <div class="input-group-append">-->
+<!--        <span class="input-group-text text-monospace">cm</span>-->
+<!--      </div>-->
+<!--    </div>-->
+
+  </div>
+</div>
+
+</body>
+</html>
