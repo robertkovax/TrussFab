@@ -39,6 +39,7 @@ class ExportFileTool < Tool
   end
 
   def export_animation_to_txt(animation)
+    return if animation == []
     dir_name = File.dirname(@export_path)
     base_name = File.basename(@export_path, File.extname(@export_path))
     animation_file = File.open("#{dir_name}/#{base_name}_animation.txt", "w")
