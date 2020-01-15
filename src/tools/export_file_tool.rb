@@ -58,6 +58,7 @@ class ExportFileTool < Tool
     number_hubs = Graph.instance.nodes.count
     number_bottles = {}
     number_actuators = {}
+    lengths_for_link = []
     Graph.instance.edges.each_value do |edge|
       if edge.link.is_a?(PhysicsLink)
         # the actuator length is rounded to the closest 10 cm
@@ -66,6 +67,7 @@ class ExportFileTool < Tool
       else
         increase_number_of(number_bottles, edge.bottle_type)
       end
+      lengths_for_link.push({:id => edge.inspect(), :length => edge.length().to_s})
     end
 
     dir_name = File.dirname(@export_path)
@@ -80,6 +82,11 @@ class ExportFileTool < Tool
     partslist_file.puts("Number of actuators:\n")
     number_actuators.each do |actuator_length, count|
       partslist_file.puts("\t#{actuator_length} cm: #{count}\n")
+    end
+
+    partslist_file.puts("Distances of each link:\n")
+    lengths_for_link.each do |lenght_for_link|
+      partslist_file.puts("\t#{lenght_for_link[:id]} #{lenght_for_link[:length]}")
     end
     partslist_file.close
   end
