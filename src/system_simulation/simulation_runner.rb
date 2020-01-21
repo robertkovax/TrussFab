@@ -39,5 +39,5 @@ class SimulationRunner
 
 end
 
-runner = SimulationRunner.new
-runner.get_period(70,60)
+# runner = SimulationRunner.new
+# runner.get_period(70,60)
