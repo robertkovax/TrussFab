@@ -24,6 +24,10 @@ class SimulationRunner
       end
   end
 
+  def get_period()
+
+  end 
+
 end
 
 #runner = SimulationRunner.new
