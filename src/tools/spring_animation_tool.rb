@@ -39,12 +39,7 @@ class SpringAnimationTool < Tool
     @mouse_input.update_positions(view, x, y)
     obj = @mouse_input.snapped_object
     if !obj.nil? && obj.is_a?(Edge) # && obj.link_type == 'spring'
-      # TODO adjust paths
-
-      @simulation_runner.get_hub_time_series(nil, 0, 0)
-      import_time = Benchmark.realtime { @data = ModellicaExport.import_csv("seesaw3_res.csv") }
-      puts("parse csv time: " + import_time.to_s + "s")
-
+      @data = @simulation_runner.get_hub_time_series(nil, 0, 0)
 
       @edge = obj
 
@@ -239,6 +234,7 @@ class SpringAnimationTool < Tool
   end
 
   def simulate(c)
+    # TODO make initial simulation call use this method
     @simulation_runner.get_hub_time_series(nil, 0, 0, c.to_i)
     import_time = Benchmark.realtime { @data = ModellicaExport.import_csv("seesaw3_res.csv") }
     puts("parse csv time: " + import_time.to_s + "s")
