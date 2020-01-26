@@ -39,8 +39,7 @@ class SpringAnimationTool < Tool
     @mouse_input.update_positions(view, x, y)
     obj = @mouse_input.snapped_object
     if !obj.nil? && obj.is_a?(Edge) # && obj.link_type == 'spring'
-      @data = @simulation_runner.get_hub_time_series(nil, 0, 0)
-
+      simulate
       @edge = obj
 
       @initial_edge_length = @edge.length
@@ -48,7 +47,7 @@ class SpringAnimationTool < Tool
       @first_vector = @initial_edge_position.vector_to(@edge.first_node.position)
       @second_vector = @initial_edge_position.vector_to(@edge.second_node.position)
 
-      @animation = TraceAnimation.new(@data)
+      #@animation = TraceAnimation.new(@data)
       #Sketchup.active_model.active_view.animation = @animation
 
 
@@ -63,20 +62,11 @@ class SpringAnimationTool < Tool
       #add_sparse_trace(["18", "20"], 500)
 
       # visualize data points using transparent circle or sphere
-       add_circle_trace(["18", "20"], 1)
+      drawing_time = Benchmark.realtime { add_circle_trace(["18", "20"], 2) }
+      puts("drawing time: " + drawing_time.to_s + "s")
       # add_sphere_trace(["18", "20"], 80)
     else
-      reset_trace()
-      return
-      if @animation
-        if @animation.running
-          @animation.toggle_running()
-        else
-          @animation = TraceAnimation.new(@data)
-          Sketchup.active_model.active_view.animation = @animation
-        end
-
-      end
+      reset_trace
     end
 
 
@@ -233,22 +223,13 @@ class SpringAnimationTool < Tool
     register_insights_callbacks
   end
 
-  def simulate(c)
-    # TODO make initial simulation call use this method
-    @simulation_runner.get_hub_time_series(nil, 0, 0, c.to_i)
-    import_time = Benchmark.realtime { @data = ModellicaExport.import_csv("seesaw3_res.csv") }
-    puts("parse csv time: " + import_time.to_s + "s")
-
-    drawing_time = Benchmark.realtime { add_circle_trace(["18", "20"], 2) }
-    puts("drawing time: " + drawing_time.to_s + "s")
-
-  end
-
   def register_insights_callbacks
     @insights_dialog.add_action_callback('spring_insights_change') do |_, value|
       puts(value)
       reset_trace()
       simulate(value)
+      drawing_time = Benchmark.realtime { add_circle_trace(["18", "20"], 2) }
+      puts("drawing time: " + drawing_time.to_s + "s")
       #@animation.factor = @animation.factor + 2
     end
   end
@@ -269,7 +250,11 @@ class SpringAnimationTool < Tool
     @mouse_input.update_positions(view, x, y)
   end
 
+  private
 
-
+  def simulate(spring_constant = 20000.0)
+    # TODO make initial simulation call use this method
+    @data = @simulation_runner.get_hub_time_series(nil, 0, 0, spring_constant.to_i)
+  end
 
 end
