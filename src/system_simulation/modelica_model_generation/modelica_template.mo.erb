@@ -1,0 +1,11 @@
+model LineForceGenerated
+  inner Modelica.Mechanics.MultiBody.World world(n = {0, 0, -1});
+
+  <% modelica_components.each do |component| %>
+    <% if component.is_a?(Modelica_LineForceWithMass) %> Modelica.Mechanics.MultiBody.Forces.LineForceWithMass <%= component[:name] %>(fixedRotationAtFrame_a = <%= component[:orientation_fixed_a].to_s %>, fixedRotationAtFrame_b = <%= component[:orientation_fixed_b].to_s %>, m = <%= component[:mass] %>);
+    <% elsif component.is_a?(Modelica_Rod) %> Modelica.Mechanics.Translational.Components.Rod <%= component[:name] %>(L = <%= component[:length] %>);
+    <% elsif component.is_a?(Modelica_Spring) %> Modelica.Mechanics.Translational.Components.Spring <%= component[:name] %>(c = <%= component[:c] %>); <% end %><% end %>
+equation
+  <% modelica_connections.each do |connection| %>
+  connect(<%= connection[:from] %>, <%= connection[:to] %>);<% end %>
+end LineForceGenerated;
