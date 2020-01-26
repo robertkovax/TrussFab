@@ -1,6 +1,5 @@
 require 'erb'
 require 'csv'
-require 'src/animation_data_sample.rb'
 require "rexml/document"
 require 'rexml/xpath'
 require 'rexml/formatters/pretty'
@@ -23,28 +22,6 @@ class ModellicaExport
     #file = File.open(File.join(File.dirname(__FILE__), 'TetrahedronSpring.mo'), 'w')
     #file.write(graph_to_modellica(initial_node))
     #file.close
-  end
-
-  def self.import_csv(file)
-    raw_data = CSV.read(File.join(File.dirname(__FILE__), file))
-
-    # parse in which columns the coordinates for each node are stored
-    indices_map = AnimationDataSample.indices_map_from_header(raw_data[0])
-
-    #remove header of loaded data
-    raw_data.shift()
-
-    # parse csv
-    data_samples = []
-    raw_data.each do | value |
-      data_samples << AnimationDataSample.from_raw_data(value, indices_map)
-    end
-
-    # todo DEBUG
-    #data_samples.each {|sample| puts sample.inspect}
-
-    return data_samples
-
   end
 
   def self.override_simulation_specification(path, nodes)

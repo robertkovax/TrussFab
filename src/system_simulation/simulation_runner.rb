@@ -1,9 +1,8 @@
 #!/usr/bin/env ruby
 
 require 'csv'
-require 'src/animation_data_sample.rb'
+require_relative './animation_data_sample.rb'
 require 'open3'
-require_relative './modellica_export.rb'
 
 class SimulationRunner
 
@@ -26,7 +25,7 @@ class SimulationRunner
 
   def get_period(mass=70, constant=50)
     run_simulation("revLeft.phi")
-    @data = ModellicaExport.import_csv("seesaw3_res.csv")
+    @data = import_csv(File.join(File.dirname(__FILE__), "seesaw3_res.csv"))
     print @data
     my_array = [[1,2,3.5,4],[3,5.2,7,22]]
     #my_fft = my_array.fft
@@ -71,5 +70,5 @@ class SimulationRunner
 
 end
 
- runner = SimulationRunner.new
- runner.get_period(70,60)
+ #runner = SimulationRunner.new
+ #runner.get_period(70,60)
