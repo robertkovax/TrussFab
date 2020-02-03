@@ -16,7 +16,6 @@ class SpringAnimationTool < Tool
     @data = nil
 
     @mouse_input = MouseInput.new(snap_to_edges: true, snap_to_nodes: true)
-    @edge = nil
     @spring = nil
     @initial_edge_length = nil
     @initial_edge_position = nil
@@ -42,20 +41,13 @@ class SpringAnimationTool < Tool
       find_equilibrium
       return
       simulate
-      @edge = obj
 
-      @initial_edge_length = @edge.length
-      @initial_edge_position = @edge.mid_point
-      @first_vector = @initial_edge_position.vector_to(@edge.first_node.position)
-      @second_vector = @initial_edge_position.vector_to(@edge.second_node.position)
 
       #@animation = TraceAnimation.new(@data)
-      #Sketchup.active_model.active_view.animation = @animation
 
-
-      #@animation = GeometryAnimation.new(@data)
+      @animation = GeometryAnimation.new(@data)
       #@animation = SpringAnimation.new(@data, @first_vector, @second_vector, @initial_edge_position, @edge)
-      #
+      Sketchup.active_model.active_view.animation = @animation
 
       # add trace visualizing every data point using a points
       #add_trace(["18", "20"])
@@ -64,14 +56,27 @@ class SpringAnimationTool < Tool
       #add_sparse_trace(["18", "20"], 500)
 
       # visualize data points using transparent circle or sphere
-      drawing_time = Benchmark.realtime { add_circle_trace(["18", "20"], 2) }
+      #drawing_time = Benchmark.realtime { add_circle_trace(["18", "20"], 2) }
       puts("drawing time: " + drawing_time.to_s + "s")
       # add_sphere_trace(["18", "20"], 80)
     else
       reset_trace
+      if @animation && @animation.running
+        @animation.toggle_running()
+      end
     end
 
 
+  end
+
+  def onMouseMove(_flags, x, y, view)
+    @mouse_input.update_positions(view, x, y)
+  end
+
+  private
+
+  def simulate(spring_constant = 20000.0)
+    @data = @simulation_runner.get_hub_time_series(nil, 0, 0, spring_constant.to_i)
   end
 
   def find_equilibrium
@@ -108,6 +113,11 @@ class SpringAnimationTool < Tool
     end
 
   end
+
+  #
+  # Trace logic
+  #
+  #
   def add_sphere_trace(node_ids, sparse_factor)
     @data.each_with_index do |current_data_sample, index|
       # thin out points in trace
@@ -211,6 +221,10 @@ class SpringAnimationTool < Tool
     @trace_points = []
   end
 
+  #
+  # Dialog logic
+  #
+  #
   def open_interaction_dialog(x,y)
     return if @interaction_dialog
     props = {
@@ -280,17 +294,6 @@ class SpringAnimationTool < Tool
       puts("minus")
       @animation.factor = @animation.factor - 2
     end
-  end
-
-  def onMouseMove(_flags, x, y, view)
-    @mouse_input.update_positions(view, x, y)
-  end
-
-  private
-
-  def simulate(spring_constant = 20000.0)
-    # TODO make initial simulation call use this method
-    @data = @simulation_runner.get_hub_time_series(nil, 0, 0, spring_constant.to_i)
   end
 
 end
