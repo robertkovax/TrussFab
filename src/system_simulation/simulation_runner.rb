@@ -3,11 +3,15 @@
 require 'csv'
 require_relative './animation_data_sample.rb'
 require 'open3'
+require 'gsl'
+
+# Gem.install "gsl"
 
 class SimulationRunner
 
   def initialize
     @directory = File.dirname(__FILE__)
+    @sampling_rate = 10
 
     Open3.popen2e("make compile", :chdir => @directory) do |i, o, t|
       o.each {|l| puts l }
@@ -25,17 +29,24 @@ class SimulationRunner
 
   def get_period(mass=70, constant=50)
     run_simulation("revLeft.phi")
-    @data = import_csv(File.join(File.dirname(__FILE__), "seesaw3_res.csv"))
-    print @data
-    my_array = [[1,2,3.5,4],[3,5.2,7,22]]
-    #my_fft = my_array.fft
-    #print my_fft
+    data = CSV.read((File.join(File.dirname(__FILE__), "seesaw3_res.csv")), :headers=>true)['revLeft.phi']
+
+    vector = data.map{ |v| v.to_f }.to_gv
+
+    # https://github.com/SciRuby/rb-gsl/blob/master/examples/fft/fft.rb
+    y2 = vector.fft.subvector(1, data.length - 2).to_complex2
+    mag = y2.abs
+    f = GSL::Vector.linspace(0, @sampling_rate/2, mag.size)
+    p mag.to_a
+    p f.to_a
+    return 1 / f[mag.max_index]
   end
 
 
   private
 
   def run_simulation(constant, filter="*")
+    # TODO adjust sampling rate dynamically
     overrides = "outputFormat='csv',variableFilter='#{filter}',startTime=0,stopTime=10,stepSize=0.2,springDamperParallel1.c='#{constant}'"
     # make overrides=outputFormat='csv',variableFilter='node_pos.*',stopTime='20' simulate
     command = "make overrides=#{overrides} simulate"
@@ -70,5 +81,5 @@ class SimulationRunner
 
 end
 
- #runner = SimulationRunner.new
- #runner.get_period(70,60)
+runner = SimulationRunner.new
+p runner.get_period(70,60)
