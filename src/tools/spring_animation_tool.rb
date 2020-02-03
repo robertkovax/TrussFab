@@ -39,6 +39,8 @@ class SpringAnimationTool < Tool
     @mouse_input.update_positions(view, x, y)
     obj = @mouse_input.snapped_object
     if !obj.nil? && obj.is_a?(Edge) # && obj.link_type == 'spring'
+      find_equilibrium
+      return
       simulate
       @edge = obj
 
@@ -72,6 +74,40 @@ class SpringAnimationTool < Tool
 
   end
 
+  def find_equilibrium
+    equilibrium_points = @simulation_runner.find_equilibrium().position_data
+    added_edges = []
+    Graph.instance.edges.to_a.each do |edge_id, edge|
+      new_first_position = equilibrium_points[edge.first_node.id.to_s]
+      new_second_position = equilibrium_points[edge.second_node.id.to_s]
+      first = nil
+      second = nil
+      if new_first_position.distance(edge.first_node.position) > 30.cm
+        # first node of edge was moved during finding equilibrium
+        first = new_first_position
+      else
+        first = edge.first_node.position
+      end
+      if new_second_position.distance(edge.second_node.position) > 30.cm
+        # second node of edge was moved during finding equilibrium
+        second = new_second_position
+      else
+        second = edge.second_node.position
+      end
+      new_edge = Graph.instance.create_edge_from_points(first,
+                                             second,
+                                             link_type: "bottle_link",
+                                             use_best_model: true)
+      if new_edge != edge
+        materialToSet = Sketchup.active_model.materials.add("MyColor_1")
+        color = Sketchup::Color.new("white")
+        materialToSet.color = color
+        materialToSet.alpha = 0.1
+        new_edge.link.material=(materialToSet)
+      end
+    end
+
+  end
   def add_sphere_trace(node_ids, sparse_factor)
     @data.each_with_index do |current_data_sample, index|
       # thin out points in trace
