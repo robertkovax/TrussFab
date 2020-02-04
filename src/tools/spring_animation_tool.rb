@@ -38,16 +38,18 @@ class SpringAnimationTool < Tool
     @mouse_input.update_positions(view, x, y)
     obj = @mouse_input.snapped_object
     if !obj.nil? && obj.is_a?(Edge) # && obj.link_type == 'spring'
-      find_equilibrium
-      return
       simulate
+      @insights_dialog.execute_script("set_period(#{get_period})")
+      @animation = GeometryAnimation.new(@data)
+      add_circle_trace(["18", "20"], 2)
+
 
 
       #@animation = TraceAnimation.new(@data)
 
-      @animation = GeometryAnimation.new(@data)
+      #@animation = GeometryAnimation.new(@data)
       #@animation = SpringAnimation.new(@data, @first_vector, @second_vector, @initial_edge_position, @edge)
-      Sketchup.active_model.active_view.animation = @animation
+      #Sketchup.active_model.active_view.animation = @animation
 
       # add trace visualizing every data point using a points
       #add_trace(["18", "20"])
@@ -57,13 +59,11 @@ class SpringAnimationTool < Tool
 
       # visualize data points using transparent circle or sphere
       #drawing_time = Benchmark.realtime { add_circle_trace(["18", "20"], 2) }
-      puts("drawing time: " + drawing_time.to_s + "s")
+      #puts("drawing time: " + drawing_time.to_s + "s")
       # add_sphere_trace(["18", "20"], 80)
     else
       reset_trace
-      if @animation && @animation.running
-        @animation.toggle_running()
-      end
+      toggle_animation
     end
 
 
@@ -75,10 +75,32 @@ class SpringAnimationTool < Tool
 
   private
 
+  def toggle_animation
+    if @animation
+      if @animation.running
+        @animation.toggle_running()
+      else
+        create_animation
+      end
+    end
+
+  end
+
+  def create_animation
+    @animation = GeometryAnimation.new(@data)
+    Sketchup.active_model.active_view.animation = @animation
+  end
+
+  def get_period
+    @simulation_runner.get_period()
+  end
+
+
   def simulate(spring_constant = 20000.0)
     @data = @simulation_runner.get_hub_time_series(nil, 0, 0, spring_constant.to_i)
   end
 
+  # Retrieves the equilibrium from the simulation runner and draws transparent, changed links.
   def find_equilibrium
     equilibrium_points = @simulation_runner.find_equilibrium().position_data
     added_edges = []
@@ -281,6 +303,10 @@ class SpringAnimationTool < Tool
       drawing_time = Benchmark.realtime { add_circle_trace(["18", "20"], 2) }
       puts("drawing time: " + drawing_time.to_s + "s")
       #@animation.factor = @animation.factor + 2
+    end
+
+    @insights_dialog.add_action_callback('spring_insights_toggle_play') do |_, value|
+      toggle_animation
     end
   end
 
