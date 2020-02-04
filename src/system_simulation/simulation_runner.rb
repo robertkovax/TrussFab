@@ -4,6 +4,8 @@ require 'csv'
 require_relative './animation_data_sample.rb'
 require 'open3'
 
+RUBY_EXECUTABLE_WITH_GSL = 'ruby'
+
 class SimulationRunner
 
   def initialize
@@ -24,14 +26,31 @@ class SimulationRunner
     data
   end
 
-  def get_period(mass=20, constant=50)
+  def get_period(mass=20, constant=5)
     run_simulation(constant, mass, "revLeft.phi")
-    @data = import_csv(File.join(File.dirname(__FILE__), "seesaw3_res.csv"))
-    print @data
-    3.5
-    my_array = [[1,2,3.5,4],[3,5.2,7,22]]
-    #my_fft = my_array.fft
-    #print my_fft
+    # Since Sketchup makes Installation of Gems really hard, we have to run the script in an ruby environement somewhere outside
+    output, signal = Open3.capture2e("#{RUBY_EXECUTABLE_WITH_GSL} -r #{__FILE__} -e \"p SimulationRunner.get_period_from_file\"", :chdir => @directory)
+    return output.split("\n")[0].to_f
+  end
+
+
+  def self.get_period_from_file()
+    require 'gsl'
+    require 'csv'
+
+    sampling_rate = 10
+
+    data = CSV.read((File.join(File.dirname(__FILE__), "seesaw3_res.csv")), :headers=>true)['revLeft.phi']
+
+    vector = data.map{ |v| v.to_f }.to_gv
+
+    # https://github.com/SciRuby/rb-gsl/blob/master/examples/fft/fft.rb
+    y2 = vector.fft.subvector(1, data.length - 2).to_complex2
+    mag = y2.abs
+    f = GSL::Vector.linspace(0, sampling_rate/2, mag.size)
+    # p mag.to_a
+    # p f.to_a
+    return 1 / f[mag.max_index]
   end
 
   def find_equilibrium(mass=20, constant=50)
@@ -47,6 +66,7 @@ class SimulationRunner
   private
 
   def run_simulation(constant, mass, filter="*")
+    # TODO adjust sampling rate dynamically
     overrides = "outputFormat='csv',variableFilter='#{filter}',startTime=0.3,stopTime=10,stepSize=0.02,springDamperParallel1.c='#{constant}'"
     # make overrides=outputFormat='csv',variableFilter='node_pos.*',stopTime='20' simulate
     command = "make overrides=#{overrides} simulate"
@@ -81,5 +101,6 @@ class SimulationRunner
 
 end
 
- #runner = SimulationRunner.new
- #runner.get_period(70,60)
+# runner = SimulationRunner.new
+# p 'yo'
+# p runner.get_period(70,60)
