@@ -4,7 +4,7 @@ class GeometryAnimation
     @data = data
     @index = index
     @running = true
-    @factor = 16
+    @factor = 1
 
   end
 
@@ -22,6 +22,7 @@ class GeometryAnimation
     Graph.instance.nodes.each do | node_id, node|
       node.update_position(current_data_sample.position_data[node_id.to_s])
       node.hub.update_position(current_data_sample.position_data[node_id.to_s])
+      node.hub.update_user_indicator()
     end
 
     Graph.instance.edges.each do |_, edge|
