@@ -21,19 +21,19 @@
   <div class="card-body">
     <h5 class="card-title">Modify spring parameters</h5>
       <div class="row">
-        <div class="col-5">
+        <div class="col-6">
           <div class="input-group mb-3">
             <div class="input-group-prepend">
               <span class="input-group-text text-monospace">k</span>
             </div>
-            <input id="spring_constant" type="text" placeholder="3000" readonly class="form-control">
+            <input id="spring_constant" type="text" placeholder="20000" readonly class="form-control">
             <div class="input-group-append">
               <span class="input-group-text text-monospace">N/m</span>
             </div>
           </div>
         </div>
         <div class="col-6">
-          <input type="range" class="custom-range pt-3" id="customRange1" min="5000" max="30000" step="5000" value="10000" onchange="window.sketchup.spring_insights_change(this.value); set_constant(this.value)">
+          <input type="range" class="custom-range pt-3" id="customRange1" min="10000" max="50000" step="10000" value="20000" onchange="window.sketchup.spring_insights_change(this.value); set_constant(this.value)">
         </div>
       </div>
 
