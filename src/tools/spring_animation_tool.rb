@@ -23,6 +23,7 @@ class SpringAnimationTool < Tool
     @interaction_dialog = nil
     @insights_dialog = nil
     @simulation_runner = nil
+    @constant = 20000
 
     @trace_points = []
     @group = Sketchup.active_model.active_entities.add_group
@@ -37,11 +38,13 @@ class SpringAnimationTool < Tool
 
     @mouse_input.update_positions(view, x, y)
     obj = @mouse_input.snapped_object
-    if !obj.nil? && obj.is_a?(Edge) # && obj.link_type == 'spring'
+    if !obj.nil? && obj.is_a?(Node) # && obj.link_type == 'spring'
+      obj.hub.toggle_attached_user
+
       simulate
-      @insights_dialog.execute_script("set_period(#{get_period})")
-      @animation = GeometryAnimation.new(@data)
-      add_circle_trace(["18", "20"], 2)
+      #@insights_dialog.execute_script("set_period(#{get_period})")
+      set_graph_to_data_sample(0)
+      add_circle_trace(["18", "20"], 4)
 
 
 
@@ -91,13 +94,33 @@ class SpringAnimationTool < Tool
     Sketchup.active_model.active_view.animation = @animation
   end
 
-  def get_period
-    @simulation_runner.get_period()
+  def get_period(constant=2000)
+    period = @simulation_runner.get_period(constant)
+    update_period(period)
+  end
+
+  def update_period(value)
+    @insights_dialog.execute_script("set_period(#{value})")
   end
 
 
-  def simulate(spring_constant = 20000.0)
-    @data = @simulation_runner.get_hub_time_series(nil, 0, 0, spring_constant.to_i)
+  def simulate
+    @data = @simulation_runner.get_hub_time_series(nil, 0, 0, @constant.to_i)
+  end
+
+  def set_graph_to_data_sample(index)
+    current_data_sample = @data[index]
+
+    Graph.instance.nodes.each do | node_id, node|
+      node.update_position(current_data_sample.position_data[node_id.to_s])
+      node.hub.update_position(current_data_sample.position_data[node_id.to_s])
+      node.hub.update_user_indicator()
+    end
+
+    Graph.instance.edges.each do |_, edge|
+      link = edge.link
+      link.update_link_transformations
+    end
   end
 
   # Retrieves the equilibrium from the simulation runner and draws transparent, changed links.
@@ -299,14 +322,20 @@ class SpringAnimationTool < Tool
     @insights_dialog.add_action_callback('spring_insights_change') do |_, value|
       puts(value)
       reset_trace()
-      simulate(value)
-      drawing_time = Benchmark.realtime { add_circle_trace(["18", "20"], 2) }
+      @constant = value
+      simulate
+      drawing_time = Benchmark.realtime { add_circle_trace(["18", "20"], 4) }
       puts("drawing time: " + drawing_time.to_s + "s")
+      #get_period(value)
       #@animation.factor = @animation.factor + 2
     end
 
     @insights_dialog.add_action_callback('spring_insights_toggle_play') do |_, value|
-      toggle_animation
+      if @animation
+        toggle_animation
+      else
+        create_animation
+      end
     end
   end
 
