@@ -26,11 +26,13 @@ class SimulationRunner
     data
   end
 
-  def get_period(mass=20, constant=5)
+  def get_period(mass=20, constant=50000)
     run_simulation(constant, mass, "revLeft.phi")
     # Since Sketchup makes Installation of Gems really hard, we have to run the script in an ruby environement somewhere outside
-    output, signal = Open3.capture2e("#{RUBY_EXECUTABLE_WITH_GSL} -r #{__FILE__} -e \"p SimulationRunner.get_period_from_file\"", :chdir => @directory)
-    return output.split("\n")[0].to_f
+    output, signal = Open3.capture2e("#{RUBY_EXECUTABLE_WITH_GSL} -r ./simulation_runner.rb -e \"p SimulationRunner.get_period_from_file\"", :chdir => @directory)
+    p output
+    p output.to_f
+    output.to_f
   end
 
 
@@ -38,18 +40,20 @@ class SimulationRunner
     require 'gsl'
     require 'csv'
 
-    sampling_rate = 10
+    stop_time = 10
 
     data = CSV.read((File.join(File.dirname(__FILE__), "seesaw3_res.csv")), :headers=>true)['revLeft.phi']
-
     vector = data.map{ |v| v.to_f }.to_gv
+
+    sample_rate = vector.length / stop_time
 
     # https://github.com/SciRuby/rb-gsl/blob/master/examples/fft/fft.rb
     y2 = vector.fft.subvector(1, data.length - 2).to_complex2
     mag = y2.abs
-    f = GSL::Vector.linspace(0, sampling_rate/2, mag.size)
-    # p mag.to_a
-    # p f.to_a
+    f = GSL::Vector.linspace(0, sample_rate/2, mag.size)
+    #p mag.to_a
+    #p mag.max_index
+    #p f.to_a
     return 1 / f[mag.max_index]
   end
 
@@ -101,6 +105,6 @@ class SimulationRunner
 
 end
 
-# runner = SimulationRunner.new
-# p 'yo'
-# p runner.get_period(70,60)
+ #runner = SimulationRunner.new
+ #p 'yo'
+ #p runner.get_period(70,60)
