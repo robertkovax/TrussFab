@@ -7,6 +7,7 @@ require 'src/models/generic_link_model.rb'
 require 'src/models/pod_model.rb'
 require 'src/models/force_arrow_model.rb'
 require 'src/models/weight_indicator_model.rb'
+require 'src/models/user_indicator_model.rb'
 require 'src/models/sensor_model.rb'
 require 'src/models/pid_model.rb'
 
@@ -59,6 +60,10 @@ class ModelStorage
 
     if @models['weight_indicator'].nil? || !@models['weight_indicator'].valid?
       @models['weight_indicator'] = WeightIndicatorModel.new
+    end
+
+    if @models['user_indicator'].nil? || !@models['user_indicator'].valid?
+      @models['user_indicator'] = UserIndicatorModel.new
     end
 
     if @models['sensor'].nil? || !@models['sensor'].valid?

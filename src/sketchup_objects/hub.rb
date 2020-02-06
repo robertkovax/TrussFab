@@ -21,6 +21,8 @@ class Hub < PhysicsSketchupObject
     @sensor_symbol = nil
     @is_sensor = false
     @incidents = incidents
+    @is_user_attached = false
+    @user_indicator = nil
     update_id_label
     persist_entity
   end
@@ -68,6 +70,37 @@ class Hub < PhysicsSketchupObject
                           .add_instance(model.definition, transform)
     @weight_indicator.transform!(
       Geom::Transformation.scaling(point, Math::log(@mass, 2) / 5))
+    Sketchup.active_model.commit_operation
+  end
+
+  # TODO Extract shared behavior with weight indicator
+  def update_user_indicator
+    unless @user_indicator.nil?
+      @user_indicator.erase!
+      @user_indicator = nil
+    end
+    return unless @is_user_attached
+    Sketchup.active_model.start_operation('Hub: Update User Indicator', true)
+    point = Geom::Point3d.new(@position)
+    point.z += 1
+    model = ModelStorage.instance.models['user_indicator']
+    transform = Geom::Transformation.new(point)
+    @user_indicator = Sketchup.active_model
+                            .active_entities
+                            .add_instance(model.definition, transform)
+    @user_indicator.transform!(
+        Geom::Transformation.scaling(point, 0.2))
+
+    # TODO fix wrong rotation
+    temp_vector = Geom::Vector3d.new(point.x, point.y, 0).normalize!
+    vector_to_origin = Geom::Vector3d.new(temp_vector.x, temp_vector.y, 0).reverse!
+
+    rotation_angle = Geometry.rotation_angle_between(Geom::Vector3d.new(0, -1, 0),
+                                                     vector_to_origin)
+    @user_indicator.transform!(
+        Geom::Transformation.rotation(position,
+                                      Geom::Vector3d.new(0, 0, 1),
+                                      rotation_angle))
     Sketchup.active_model.commit_operation
   end
 
@@ -179,6 +212,11 @@ class Hub < PhysicsSketchupObject
 
   def sensor?
     @is_sensor
+  end
+
+  def toggle_attached_user
+    @is_user_attached = !@is_user_attached
+    update_user_indicator
   end
 
   #

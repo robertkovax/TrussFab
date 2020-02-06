@@ -58,11 +58,11 @@ model seesaw3
     Placement(visible = true, transformation(origin = {-108, -108}, extent = {{-10, -10}, {10, 10}}, rotation = 90)));
   Modelica.Mechanics.MultiBody.Parts.Fixed fixed2(animation = false, r = N[2])  annotation(
     Placement(visible = true, transformation(origin = {74, -108}, extent = {{-10, -10}, {10, 10}}, rotation = 90)));
-  Modelica.Mechanics.MultiBody.Joints.Revolute revLeft(n = N[5] -N[7])  annotation(
+  Modelica.Mechanics.MultiBody.Joints.Revolute revLeft(a(fixed = true), n = N[5] - N[7], w(fixed = true))  annotation(
     Placement(visible = true, transformation(origin = {-72, -52}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Mechanics.MultiBody.Joints.Revolute revRight(n = N[6] - N[4])  annotation(
     Placement(visible = true, transformation(origin = {98, -36}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Modelica.Mechanics.MultiBody.Parts.PointMass childLeft(m = 70, r_0(fixed = true, start = N[20]), v_0(fixed = false, start = {0, 0, -1}))  annotation(
+  Modelica.Mechanics.MultiBody.Parts.PointMass childLeft(a_0(fixed = false),m = 70, r_0(fixed = false, start = N[20]), v_0(fixed = false, start = {0, 0, 0}))  annotation(
     Placement(visible = true, transformation(origin = {-6, -40}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Mechanics.MultiBody.Parts.FixedTranslation fixedTranslation(animation = false, r = N[5] - N[3])  annotation(
     Placement(visible = true, transformation(origin = {-108, -74}, extent = {{10, -10}, {-10, 10}}, rotation = -90)));
@@ -78,11 +78,11 @@ model seesaw3
     Placement(visible = true, transformation(origin = {142, -46}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Mechanics.MultiBody.Parts.BodyCylinder bodyCylinder4(r = (-N[5]) + N[10]) annotation(
     Placement(visible = true, transformation(origin = {-32, -80}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Modelica.Mechanics.MultiBody.Forces.SpringDamperParallel springDamperParallel1(c = 20000, d = 100, s_unstretched = 1) annotation(
+  Modelica.Mechanics.MultiBody.Forces.SpringDamperParallel springDamperParallel1(c = 20000, d = 100, s_unstretched = .3) annotation(
     Placement(visible = true, transformation(origin = {-62, -106}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Mechanics.MultiBody.Parts.BodyCylinder bodyCylinder5(r = (-N[6]) + N[9]) annotation(
     Placement(visible = true, transformation(origin = {136, -64}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Modelica.Mechanics.MultiBody.Forces.SpringDamperParallel springDamperParallel2(c = 20000, d = 100, s_unstretched = 1) annotation(
+  Modelica.Mechanics.MultiBody.Forces.SpringDamperParallel springDamperParallel2(c = 20000, d = 100, s_unstretched = .3) annotation(
     Placement(visible = true, transformation(origin = {138, -98}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Mechanics.MultiBody.Parts.FixedTranslation fixedTranslation1(animation = false, r =  N[6] -N[2]) annotation(
     Placement(visible = true, transformation(origin = {74, -56}, extent = {{10, -10}, {-10, 10}}, rotation = -90)));

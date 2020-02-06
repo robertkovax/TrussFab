@@ -16,7 +16,6 @@ class SpringAnimationTool < Tool
     @data = nil
 
     @mouse_input = MouseInput.new(snap_to_edges: true, snap_to_nodes: true)
-    @edge = nil
     @spring = nil
     @initial_edge_length = nil
     @initial_edge_position = nil
@@ -24,6 +23,7 @@ class SpringAnimationTool < Tool
     @interaction_dialog = nil
     @insights_dialog = nil
     @simulation_runner = nil
+    @constant = 20000
 
     @trace_points = []
     @group = Sketchup.active_model.active_entities.add_group
@@ -38,28 +38,21 @@ class SpringAnimationTool < Tool
 
     @mouse_input.update_positions(view, x, y)
     obj = @mouse_input.snapped_object
-    if !obj.nil? && obj.is_a?(Edge) # && obj.link_type == 'spring'
-      # TODO adjust paths
+    if !obj.nil? && obj.is_a?(Node) # && obj.link_type == 'spring'
+      obj.hub.toggle_attached_user
 
-      @simulation_runner.get_hub_time_series(nil, 0, 0)
-      import_time = Benchmark.realtime { @data = ModellicaExport.import_csv("seesaw3_res.csv") }
-      puts("parse csv time: " + import_time.to_s + "s")
+      simulate
+      #@insights_dialog.execute_script("set_period(#{get_period})")
+      set_graph_to_data_sample(0)
+      add_circle_trace(["18", "20"], 4)
 
 
-      @edge = obj
 
-      @initial_edge_length = @edge.length
-      @initial_edge_position = @edge.mid_point
-      @first_vector = @initial_edge_position.vector_to(@edge.first_node.position)
-      @second_vector = @initial_edge_position.vector_to(@edge.second_node.position)
-
-      @animation = TraceAnimation.new(@data)
-      #Sketchup.active_model.active_view.animation = @animation
-
+      #@animation = TraceAnimation.new(@data)
 
       #@animation = GeometryAnimation.new(@data)
       #@animation = SpringAnimation.new(@data, @first_vector, @second_vector, @initial_edge_position, @edge)
-      #
+      #Sketchup.active_model.active_view.animation = @animation
 
       # add trace visualizing every data point using a points
       #add_trace(["18", "20"])
@@ -68,25 +61,108 @@ class SpringAnimationTool < Tool
       #add_sparse_trace(["18", "20"], 500)
 
       # visualize data points using transparent circle or sphere
-       add_circle_trace(["18", "20"], 1)
+      #drawing_time = Benchmark.realtime { add_circle_trace(["18", "20"], 2) }
+      #puts("drawing time: " + drawing_time.to_s + "s")
       # add_sphere_trace(["18", "20"], 80)
     else
-      reset_trace()
-      return
-      if @animation
-        if @animation.running
-          @animation.toggle_running()
-        else
-          @animation = TraceAnimation.new(@data)
-          Sketchup.active_model.active_view.animation = @animation
-        end
-
-      end
+      reset_trace
+      toggle_animation
     end
 
 
   end
 
+  def onMouseMove(_flags, x, y, view)
+    @mouse_input.update_positions(view, x, y)
+  end
+
+  private
+
+  def toggle_animation
+    if @animation
+      if @animation.running
+        @animation.toggle_running()
+      else
+        create_animation
+      end
+    end
+
+  end
+
+  def create_animation
+    @animation = GeometryAnimation.new(@data)
+    Sketchup.active_model.active_view.animation = @animation
+  end
+
+  def get_period(constant=2000)
+    period = @simulation_runner.get_period(constant)
+    update_period(period)
+  end
+
+  def update_period(value)
+    @insights_dialog.execute_script("set_period(#{value})")
+  end
+
+
+  def simulate
+    @data = @simulation_runner.get_hub_time_series(nil, 0, 0, @constant.to_i)
+  end
+
+  def set_graph_to_data_sample(index)
+    current_data_sample = @data[index]
+
+    Graph.instance.nodes.each do | node_id, node|
+      node.update_position(current_data_sample.position_data[node_id.to_s])
+      node.hub.update_position(current_data_sample.position_data[node_id.to_s])
+      node.hub.update_user_indicator()
+    end
+
+    Graph.instance.edges.each do |_, edge|
+      link = edge.link
+      link.update_link_transformations
+    end
+  end
+
+  # Retrieves the equilibrium from the simulation runner and draws transparent, changed links.
+  def find_equilibrium
+    equilibrium_points = @simulation_runner.find_equilibrium().position_data
+    added_edges = []
+    Graph.instance.edges.to_a.each do |edge_id, edge|
+      new_first_position = equilibrium_points[edge.first_node.id.to_s]
+      new_second_position = equilibrium_points[edge.second_node.id.to_s]
+      first = nil
+      second = nil
+      if new_first_position.distance(edge.first_node.position) > 30.cm
+        # first node of edge was moved during finding equilibrium
+        first = new_first_position
+      else
+        first = edge.first_node.position
+      end
+      if new_second_position.distance(edge.second_node.position) > 30.cm
+        # second node of edge was moved during finding equilibrium
+        second = new_second_position
+      else
+        second = edge.second_node.position
+      end
+      new_edge = Graph.instance.create_edge_from_points(first,
+                                             second,
+                                             link_type: "bottle_link",
+                                             use_best_model: true)
+      if new_edge != edge
+        materialToSet = Sketchup.active_model.materials.add("MyColor_1")
+        color = Sketchup::Color.new("white")
+        materialToSet.color = color
+        materialToSet.alpha = 0.1
+        new_edge.link.material=(materialToSet)
+      end
+    end
+
+  end
+
+  #
+  # Trace logic
+  #
+  #
   def add_sphere_trace(node_ids, sparse_factor)
     @data.each_with_index do |current_data_sample, index|
       # thin out points in trace
@@ -190,6 +266,10 @@ class SpringAnimationTool < Tool
     @trace_points = []
   end
 
+  #
+  # Dialog logic
+  #
+  #
   def open_interaction_dialog(x,y)
     return if @interaction_dialog
     props = {
@@ -238,22 +318,24 @@ class SpringAnimationTool < Tool
     register_insights_callbacks
   end
 
-  def simulate(c)
-    @simulation_runner.get_hub_time_series(nil, 0, 0, c.to_i)
-    import_time = Benchmark.realtime { @data = ModellicaExport.import_csv("seesaw3_res.csv") }
-    puts("parse csv time: " + import_time.to_s + "s")
-
-    drawing_time = Benchmark.realtime { add_circle_trace(["18", "20"], 2) }
-    puts("drawing time: " + drawing_time.to_s + "s")
-
-  end
-
   def register_insights_callbacks
     @insights_dialog.add_action_callback('spring_insights_change') do |_, value|
       puts(value)
       reset_trace()
-      simulate(value)
+      @constant = value
+      simulate
+      drawing_time = Benchmark.realtime { add_circle_trace(["18", "20"], 4) }
+      puts("drawing time: " + drawing_time.to_s + "s")
+      #get_period(value)
       #@animation.factor = @animation.factor + 2
+    end
+
+    @insights_dialog.add_action_callback('spring_insights_toggle_play') do |_, value|
+      if @animation
+        toggle_animation
+      else
+        create_animation
+      end
     end
   end
 
@@ -268,12 +350,5 @@ class SpringAnimationTool < Tool
       @animation.factor = @animation.factor - 2
     end
   end
-
-  def onMouseMove(_flags, x, y, view)
-    @mouse_input.update_positions(view, x, y)
-  end
-
-
-
 
 end
