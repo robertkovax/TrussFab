@@ -34,7 +34,7 @@ module Configuration
   DEFAULT_ELONGATION    = 40.mm.freeze
   MAXIMUM_ELONGATION    = 100.mm.freeze
   BALL_HUB_RADIUS       = 14.mm.freeze
-  STANDARD_BOTTLES      = 'hard'
+  STANDARD_BOTTLES      = 'hard'.freeze
   COVER_THICKNESS       = 20.mm.freeze
   # Size of the rendered elongation
   ELONGATION_RADIUS     = 11.mm.freeze
