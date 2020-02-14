@@ -71,7 +71,6 @@ class SimulationRunner
   private
 
   def run_compilation()
-    # stdout_str, status = Open3.capture2e(:chdir => @directory)
     `cp #{@model_name}.mo  #{@directory}`
     `cd #{@directory} && omc -s #{@model_name}.mo && mv #{@model_name}.makefile Makefile && make -j 8`
   end
