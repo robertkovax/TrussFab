@@ -104,4 +104,4 @@ Naming/MethodParameterName:
   Enabled: false
 
 Naming/MethodName:
-  EnforcedStyle: camelCase
+  Enabled: false
