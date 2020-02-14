@@ -85,6 +85,7 @@ class Sidebar
 
   def register_callbacks
     return if @dialog.nil?
+
     build_tool(TetrahedronTool, 'tetrahedron_tool')
     build_tool(AssetsLegTool, 'assets_leg_tool')
     build_tool(AssetsBendTool, 'assets_bend_tool')
