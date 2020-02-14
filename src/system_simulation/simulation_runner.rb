@@ -28,7 +28,7 @@ class SimulationRunner
   def get_hub_time_series(hubIDs, stepSize, mass, constant=50)
     data = []
     simulation_time = Benchmark.realtime { run_simulation(constant, mass, "node_pos.*") }
-    import_time = Benchmark.realtime { data = import_csv(File.join(File.dirname(__FILE__), "seesaw3_res.csv")) }
+    import_time = Benchmark.realtime { data = import_csv(File.join(@directory, "#{@model_name}_res.csv")) }
     puts("simulation time: #{simulation_time.to_s}s csv parsing time: #{import_time.to_s}s")
     data
   end
@@ -71,8 +71,10 @@ class SimulationRunner
   private
 
   def run_compilation()
-    `cp #{@model_name}.mo  #{@directory}`
-    `cd #{@directory} && omc -s #{@model_name}.mo && mv #{@model_name}.makefile Makefile && make -j 8`
+    output, signal = Open3.capture2e("cp #{@model_name}.mo  #{@directory}", :chdir => File.dirname(__FILE__))
+    p output
+    output, signal = Open3.capture2e("omc -s #{@model_name}.mo && mv #{@model_name}.makefile Makefile && make -j 8", :chdir => @directory)
+    p output
   end
 
   def run_simulation(constant, mass, filter="*")
