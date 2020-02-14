@@ -1,21 +1,17 @@
-# frozen_string_literal: true
-
-# rubocop:disable Metrics/ModuleLength
-
 require 'src/utility/project_helper.rb'
 
 module Configuration
   # Sketchup Layers
-  LINE_VIEW = 'Link lines'
-  COMPONENT_VIEW = 'Bottles'
-  HUB_VIEW = 'Hubs'
-  HUB_ID_VIEW = 'Hub IDs'
-  TRIANGLE_SURFACES_VIEW = 'Triangle Surfaces'
-  DRAW_TOOLTIPS_VIEW = 'Drawing Tooltips'
-  FORCE_LABEL_VIEW = 'Force Labels'
-  FORCE_VIEW = 'Forces'
-  HINGE_VIEW = 'Hinge lines'
-  ACTUATOR_VIEW = 'Actuators'
+  LINE_VIEW = 'Link lines'.freeze
+  COMPONENT_VIEW = 'Bottles'.freeze
+  HUB_VIEW = 'Hubs'.freeze
+  HUB_ID_VIEW = 'Hub IDs'.freeze
+  TRIANGLE_SURFACES_VIEW = 'Triangle Surfaces'.freeze
+  DRAW_TOOLTIPS_VIEW = 'Drawing Tooltips'.freeze
+  FORCE_LABEL_VIEW = 'Force Labels'.freeze
+  FORCE_VIEW = 'Forces'.freeze
+  HINGE_VIEW = 'Hinge lines'.freeze
+  ACTUATOR_VIEW = 'Actuators'.freeze
 
   # UI Dialog Properties
   HTML_DIALOG = {
@@ -147,5 +143,3 @@ module Configuration
   # PID_Controller
   STATIC_FORCE_ANALYSIS_STEPS = 20
 end
-
-# rubocop:enable Metrics/ModuleLength

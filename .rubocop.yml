@@ -92,7 +92,13 @@ Metrics/MethodLength:
 Metrics/ModuleLength:
   Exclude:
     - 'spec/**/*.rb'
+    - 'src/configuration.rb'
 
 Metrics/PerceivedComplexity:
   Enabled: false
 
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Naming/MethodParameterName:
+  Enabled: false
