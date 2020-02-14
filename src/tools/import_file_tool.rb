@@ -8,6 +8,7 @@ class ImportFileTool < ImportTool
   end
 
   def activate
+    super
     if @import_path.nil?
       @import_path = Configuration::JSON_PATH
     else
