@@ -52,6 +52,8 @@ module Configuration
                              '/primitives/dynamic_tetrahedron.json').freeze
   DYNAMIC_OCTAHEDRON_PATH = (ProjectHelper.asset_directory +
                             '/primitives/dynamic_octahedron.json').freeze
+  TRUSS_CUBE_PATH = (ProjectHelper.asset_directory +
+                    '/primitives/truss_cube.json')
   ASSETS_LEG_PATH = (ProjectHelper.asset_directory +
                     '/primitives/leg.json').freeze
   ASSETS_BEND_PATH = (ProjectHelper.asset_directory +
