@@ -1,0 +1,23 @@
+require "./simulation_runner.rb"
+
+task default: %w[test]
+
+task :compile do
+  sh "mkdir -p seesaw3_build"
+  sh "cp seesaw3.mo  seesaw3_build/"
+  sh "cd seesaw3_build && omc -s seesaw3.mo && mv seesaw3.makefile Makefile && make -j 8"
+end
+
+task :test do
+  ruby "./modelica_model_generation/generate_modelica_model.rb ./modelica_model_generation/triangle.json > LineForceGenerated.mo"
+  SimulationRunner.new('LineForceGenerated')
+end
+
+task :test_get_period do
+  sim = SimulationRunner.new()
+  p sim.get_period()
+end
+
+
+task default: %w[test]
+
