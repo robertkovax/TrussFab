@@ -2,6 +2,7 @@
 
 require:
   - rubocop/cop/internal_affairs
+  - rubocop-rspec
 
 AllCops:
   Exclude:
@@ -95,4 +96,3 @@ Metrics/ModuleLength:
 
 Metrics/PerceivedComplexity:
   Enabled: false
-
