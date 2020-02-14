@@ -1,17 +1,21 @@
+# frozen_string_literal: true
+
+# rubocop:disable Metrics/ModuleLength
+
 require 'src/utility/project_helper.rb'
 
 module Configuration
   # Sketchup Layers
-  LINE_VIEW = 'Link lines'.freeze
-  COMPONENT_VIEW = 'Bottles'.freeze
-  HUB_VIEW = 'Hubs'.freeze
-  HUB_ID_VIEW = 'Hub IDs'.freeze
-  TRIANGLE_SURFACES_VIEW = 'Triangle Surfaces'.freeze
-  DRAW_TOOLTIPS_VIEW = 'Drawing Tooltips'.freeze
-  FORCE_LABEL_VIEW = 'Force Labels'.freeze
-  FORCE_VIEW = 'Forces'.freeze
-  HINGE_VIEW = 'Hinge lines'.freeze
-  ACTUATOR_VIEW = 'Actuators'.freeze
+  LINE_VIEW = 'Link lines'
+  COMPONENT_VIEW = 'Bottles'
+  HUB_VIEW = 'Hubs'
+  HUB_ID_VIEW = 'Hub IDs'
+  TRIANGLE_SURFACES_VIEW = 'Triangle Surfaces'
+  DRAW_TOOLTIPS_VIEW = 'Drawing Tooltips'
+  FORCE_LABEL_VIEW = 'Force Labels'
+  FORCE_VIEW = 'Forces'
+  HINGE_VIEW = 'Hinge lines'
+  ACTUATOR_VIEW = 'Actuators'
 
   # UI Dialog Properties
   HTML_DIALOG = {
@@ -34,7 +38,7 @@ module Configuration
   DEFAULT_ELONGATION    = 40.mm.freeze
   MAXIMUM_ELONGATION    = 100.mm.freeze
   BALL_HUB_RADIUS       = 14.mm.freeze
-  STANDARD_BOTTLES      = 'hard'.freeze
+  STANDARD_BOTTLES      = 'hard'
   COVER_THICKNESS       = 20.mm.freeze
   # Size of the rendered elongation
   ELONGATION_RADIUS     = 11.mm.freeze
@@ -53,7 +57,7 @@ module Configuration
   DYNAMIC_OCTAHEDRON_PATH = (ProjectHelper.asset_directory +
                             '/primitives/dynamic_octahedron.json').freeze
   TRUSS_CUBE_PATH = (ProjectHelper.asset_directory +
-                    '/primitives/truss_cube.json')
+                    '/primitives/truss_cube.json').freeze
   ASSETS_LEG_PATH = (ProjectHelper.asset_directory +
                     '/primitives/leg.json').freeze
   ASSETS_BEND_PATH = (ProjectHelper.asset_directory +
@@ -115,7 +119,7 @@ module Configuration
   SPRING_THRESHOLD = 0.015
   SPRING_DAMP = 10
 
-  SPRING_RESONANT_FRERQUENCY = 0.5;
+  SPRING_RESONANT_FRERQUENCY = 0.5
 
   # GenericPointToPoint Properties
   GENERIC_LINK_FORCE = 0
@@ -140,6 +144,8 @@ module Configuration
   HUB_MASS          = 0.12
   POD_MASS          = 0.1
 
-  #PID_Controller
+  # PID_Controller
   STATIC_FORCE_ANALYSIS_STEPS = 20
 end
+
+# rubocop:enable Metrics/ModuleLength
