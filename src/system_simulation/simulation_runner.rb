@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'csv'
+require 'math'
 require_relative './animation_data_sample.rb'
 require 'open3'
 
@@ -62,14 +63,62 @@ class SimulationRunner
   def find_equilibrium(mass=20, constant=50)
     # run simulation mit startTime 0.3; get first frame
     run_simulation(constant, mass, "node_pos.*")
-    import_csv(File.join(@directory, "#{@model_name}_res.csv"))
+    import_csv
 
     #mocked_position_data = {"1"=>Geom::Point3d.new(0, 0, 0.748031), "2"=>Geom::Point3d.new(26.3386, 0, 0.748031), "3"=>Geom::Point3d.new(13.189, 22.8346, 0.748031), "4"=>Geom::Point3d.new(39.3307, 11.1811, 20.7874), "5"=>Geom::Point3d.new(4.48819, 12.5197, 23.4646), "6"=>Geom::Point3d.new(21.1417, -7.83465, 22.5197), "7"=>Geom::Point3d.new(22.4803, 31.378, 20.8661), "8"=>Geom::Point3d.new(42.5197, 19.8031, 0.551181), "9"=>Geom::Point3d.new(43.3376, -12.6202, 9.80675), "10"=>Geom::Point3d.new(-1.66332, 36.4207, 13.9296), "11"=>Geom::Point3d.new(57.1895, -5.2645, 31.0651), "12"=>Geom::Point3d.new(34.7027, -0.466413, 43.951), "13"=>Geom::Point3d.new(38.8624, -24.0667, 33.0068), "14"=>Geom::Point3d.new(7.85218, 47.7481, 35.3248), "15"=>Geom::Point3d.new(-10.4259, 28.9441, 37.8413), "16"=>Geom::Point3d.new(14.5224, 24.1121, 44.8706), "17"=>Geom::Point3d.new(61.3135, -28.9076, 20.0817), "18"=>Geom::Point3d.new(61.4532, -26.3095, 66.3204), "19"=>Geom::Point3d.new(-16.9368, 52.5334, 27.9541), "20"=>Geom::Point3d.new(-11.0442, 50.1143, 53.5318)}
     #AnimationDataSample.new(0.0, mocked_position_data)
   end
 
+  def optimize_constant_for_constrained_angle(initial_constant = 500, mass=20, spring_id = 0, angle_id = 0, allowed_angle_delta = Math::PI / 2.0)
+    # steps which the algorithm uses to approximate the valid spring constant
+    step_sizes = [1500, 1000, 200, 50, 5]
+    constant = initial_constant
+    step_size = step_sizes.shift
+    keep_searching = true
+    abort_threshold = 50000
+    while keep_searching
+      puts "Current k: #{constant} Step size: #{step_size}"
+      run_simulation(constant, mass, "revLeft.phi")
+      if !angle_valid(read_csv, allowed_angle_delta)
+        # increase spring constant to decrease angle delta
+        constant += step_size
+      else if step_sizes.length > 0
+             # go back last step_size
+             constant -= step_size
+             # reduce step size and continue
+             step_size = step_sizes.shift
+           else
+             # we reached smallest step size and found a valid spring constant, so we're done
+             keep_searching = false
+           end
+      end
+
+      if constant >= abort_threshold
+        keep_searching = false
+      end
+    end
+
+    puts "Found constant: #{constant}"
+    data = read_csv.map { |data_sample| data_sample[1].to_f }
+    data.shift
+    puts "min: #{data.min} max: #{data.max}"
+
+  end
+
+
+
 
   private
+
+  def angle_valid(data, max_allowed_delta = Math::PI / 2.0)
+    data = data.map { |data_sample| data_sample[1].to_f }
+    # remove initial data point
+    data.shift
+
+    delta = data.max - data.min
+    puts "delta: #{delta} maxdelta: #{max_allowed_delta}"
+    delta < max_allowed_delta
+  end
 
   def run_compilation()
     output, signal = Open3.capture2e("cp #{@model_name}.mo  #{@directory}", :chdir => File.dirname(__FILE__))
