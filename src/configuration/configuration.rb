@@ -3,6 +3,7 @@ require 'src/utility/project_helper.rb'
 module Configuration
   # Sketchup Layers
   LINE_VIEW = 'Link lines'.freeze
+  test = 'tewtewt'.freeze
   COMPONENT_VIEW = 'Bottles'.freeze
   HUB_VIEW = 'Hubs'.freeze
   HUB_ID_VIEW = 'Hub IDs'.freeze
