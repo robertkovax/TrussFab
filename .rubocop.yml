@@ -92,7 +92,7 @@ Metrics/MethodLength:
 Metrics/ModuleLength:
   Exclude:
     - 'spec/**/*.rb'
-    - 'src/configuration.rb'
+    - 'src/configuration/configuration.rb'
 
 Metrics/PerceivedComplexity:
   Enabled: false
