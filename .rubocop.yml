@@ -2,6 +2,7 @@
 
 require:
   - rubocop/cop/internal_affairs
+  - rubocop-rspec
 
 AllCops:
   Exclude:
@@ -17,7 +18,7 @@ AllCops:
     - '**/Gemfile'
     - '**/Rakefile'
 
-  TargetRubyVersion: 2.1
+  TargetRubyVersion: 2.4
 
 Naming/PredicateName:
   # Method define macros for dynamically generated method.
@@ -52,7 +53,7 @@ Layout/ClassStructure:
       - protected_methods
       - private_methods
 
-Layout/IndentHeredoc:
+Layout/HeredocIndentation:
   EnforcedStyle: powerpack
 
 Lint/AmbiguousBlockAssociation:
@@ -95,10 +96,6 @@ Metrics/ModuleLength:
 
 Metrics/PerceivedComplexity:
   Enabled: false
-
-Performance/Caller:
-  Exclude:
-    - spec/rubocop/cop/performance/caller_spec.rb
 
 RSpec/PredicateMatcher:
   EnforcedStyle: explicit
