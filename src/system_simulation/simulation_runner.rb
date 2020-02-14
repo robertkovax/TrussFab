@@ -28,7 +28,7 @@ class SimulationRunner
   def get_hub_time_series(hubIDs, stepSize, mass, constant=50)
     data = []
     simulation_time = Benchmark.realtime { run_simulation(constant, mass, "node_pos.*") }
-    import_time = Benchmark.realtime { data = import_csv(File.join(@directory, "#{@model_name}_res.csv")) }
+    import_time = Benchmark.realtime { data = read_csv }
     puts("simulation time: #{simulation_time.to_s}s csv parsing time: #{import_time.to_s}s")
     data
   end
@@ -43,6 +43,7 @@ class SimulationRunner
 
     stop_time = 10
 
+    # TODO make this call use read_csv
     data = CSV.read((File.join(@directory, "#{@model_name}_res.csv")), :headers=>true)['revLeft.phi']
     vector = data.map{ |v| v.to_f }.to_gv
 
@@ -88,8 +89,12 @@ class SimulationRunner
     end
   end
 
-  def import_csv(file)
-    raw_data = CSV.read(file)
+  def read_csv()
+    CSV.read(File.join(@directory, "#{@model_name}_res.csv"))
+  end
+
+  def import_csv()
+    raw_data = read_csv
 
     # parse in which columns the coordinates for each node are stored
     indices_map = AnimationDataSample.indices_map_from_header(raw_data[0])
