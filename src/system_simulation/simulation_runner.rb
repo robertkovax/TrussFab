@@ -79,7 +79,7 @@ class SimulationRunner
 
   def run_simulation(constant, mass, filter="*")
     # TODO adjust sampling rate dynamically
-    overrides = "outputFormat='csv',variableFilter='#{filter}',startTime=0.3,stopTime=10,stepSize=0.02,springDamperParallel1.c='#{constant}'"
+    overrides = "outputFormat='csv',variableFilter='#{filter}',startTime=0.3,stopTime=10,stepSize=0.1,springDamperParallel1.c='#{constant}'"
     command = "./#{@model_name} -override #{overrides}"
     puts(command)
     Open3.popen2e(command, :chdir => @directory) do |i, o, t|
