@@ -24,6 +24,9 @@ class NodeExportAlgorithm
     edges = Graph.instance.edges.values
 
     static_groups = StaticGroupAnalysis.find_static_groups
+
+    check_for_only_simple_hinges static_groups
+
     static_groups.select! { |group| group.size > 1 }
     static_groups.sort! { |a, b| b.size <=> a.size }
     static_groups = prioritise_pod_groups(static_groups)
@@ -86,7 +89,33 @@ class NodeExportAlgorithm
     edge1.direction.normalize.dot(edge2.direction.normalize).abs
   end
 
-  # HACK: always choose the next edge, that has the minimum angle to the current
+  # Make sure that if static groups touch, they touch at exactly 2 points,
+  # otherwise, the structure will be bended, and not fabricateable with welding
+  # (statement yet to proof)
+  def check_for_only_simple_hinges static_groups
+    static_groups_as_sets_of_node_ids = static_groups.map do |triangles|
+      node_ids = Set.new
+      triangles.each do |triangle|
+        node_ids << triangle.first_node.id
+        node_ids << triangle.second_node.id
+        node_ids << triangle.third_node.id
+      end
+      puts node_ids
+      node_ids
+    end
+    static_groups_as_sets_of_node_ids.product(static_groups_as_sets_of_node_ids) do |one, two|
+      next if one == two
+      difference_size = (one & two).size
+      unless [0, 2].include? difference_size
+        puts "Structure has hinges that won't be buildable "
+      end
+    end
+  end
+
+
+
+
+    # HACK: always choose the next edge, that has the minimum angle to the current
   # one. For the cases we encountered so far this works.
   def sort_edges_clockwise(edges)
     result = []

@@ -6,7 +6,7 @@
 # to each other. Afterwards, a recursive walk through the
 # structure determines all static groups.
 module StaticGroupAnalysis
-  # return a an array of groups of triangles that do not change their angle in
+  # return an array of groups of triangles that do not change their angle in
   # regards to each other
   # we call these groups static substructures
   def self.find_static_groups
