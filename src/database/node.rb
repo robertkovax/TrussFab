@@ -45,7 +45,7 @@ class Node < GraphObject
     @incidents.each(&:update_sketchup_object)
     @adjacent_triangles.each(&:update_sketchup_object)
     pods.each { |pod| pod.update_position(@position) }
-    hub.entity.move!(Geom::Transformation.new(@position))
+    hub.update_position @position
   end
 
   def distance(point)

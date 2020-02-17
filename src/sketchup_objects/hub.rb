@@ -182,7 +182,7 @@ class Hub < PhysicsSketchupObject
 
   def update_position(position)
     @position = position
-    @entity.move!(Geom::Transformation.new(position))
+    @entity.move!(Geom::Transformation.new(position) * @model.scaling)
     @id_label.point = position
     move_addons(position)
   end
