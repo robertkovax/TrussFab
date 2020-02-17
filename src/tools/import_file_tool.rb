@@ -8,18 +8,17 @@ class ImportFileTool < ImportTool
   end
 
   def activate
-    if @import_path.nil?
-      @import_path = Configuration::JSON_PATH
-    else
-      @import_path = File.dirname(@import_path)
-    end
+    super
+    @import_path = if @import_path.nil?
+                     Configuration::JSON_PATH
+                   else
+                     File.dirname(@import_path)
+                   end
     @import_path = UI.openpanel('Open JSON',
                                 @import_path,
                                 'JSON File|*.json;||')
     @path = @import_path
   end
 
-  def onLButtonUp(_flags, _x, _y, _view)
-    ;
-  end
+  def onLButtonUp(_flags, _x, _y, _view); end
 end

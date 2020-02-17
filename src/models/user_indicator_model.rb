@@ -4,7 +4,7 @@ class UserIndicatorModel
 
   def initialize
     @definition = Sketchup.active_model.definitions
-                      .load(ProjectHelper.component_directory +
+                          .load(ProjectHelper.component_directory +
                                 '/child.skp')
     @definition.name = 'User Indicator'
   end
