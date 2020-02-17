@@ -33,8 +33,20 @@ module JsonImport
       triangles = create_triangles(edges)
       add_joints(json_objects, edges, nodes) unless json_objects['joints'].nil?
       add_pods(json_objects, nodes)
+
+      add_pods_if_near_ground(nodes)
+
       animation = json_objects['animation'].to_s
       [triangles.values, edges.values, animation]
+    end
+
+    def add_pods_if_near_ground(nodes)
+      nodes.each do |_, node|
+        puts node.position.z
+        if node.position.z < Configuration::DISTANCE_FROM_GROUND_TO_PLACE_PODS
+          node.add_pod Geom::Vector3d.new(0, 0, -1)
+        end
+      end
     end
 
     def at_triangle(path, snap_triangle, angle: 0, scale: 1)
