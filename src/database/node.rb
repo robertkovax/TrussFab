@@ -76,6 +76,7 @@ class Node < GraphObject
   def pod(id)
     possible_pods = pods.select { |pod| pod.id == id }
     raise "Node #{@id} does not have exactly one pod" if possible_pods.size != 1
+
     possible_pods.first
   end
 
@@ -128,6 +129,7 @@ class Node < GraphObject
 
   def connected_component
     return if @incidents.empty?
+
     @incidents[0].connected_component
   end
 
@@ -179,6 +181,7 @@ class Node < GraphObject
     direction = direction.nil? ? Geometry::Z_AXIS.reverse : direction.normalize
     existing_pod = find_pod(direction)
     return existing_pod unless existing_pod.nil?
+
     hub.add_pod(direction, id: id, is_fixed: is_fixed)
   end
 
