@@ -138,6 +138,7 @@ class Node < GraphObject
     @incidents.each do |edge|
       edge_opposite_node = edge.opposite(self)
       next if other_node.edge_to?(edge_opposite_node)
+
       edge.exchange_node(self, other_node)
       other_node.add_incident(edge)
       merged_incidents << edge
@@ -155,6 +156,7 @@ class Node < GraphObject
     @adjacent_triangles.each do |triangle|
       new_triangle = triangle.nodes - [self] + [other_node]
       next unless Graph.instance.find_triangle(new_triangle).nil?
+
       triangle.exchange_node(self, other_node)
       other_node.add_adjacent_triangle(triangle)
       if triangle.cover?
