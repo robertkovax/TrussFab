@@ -1,5 +1,6 @@
 require 'src/sketchup_objects/sketchup_object.rb'
 require 'src/simulation/simulation.rb'
+require 'src/models/parametric_spring_model.rb'
 
 # Spring
 class Spring < SketchupObject

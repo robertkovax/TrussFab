@@ -95,7 +95,7 @@ class SpringLink < PhysicsLink
     scale_factor = current_length.to_f / @last_length
 
 
-    spring_model = SpringModel.new
+    spring_model = ParametricSpringModel.new current_length.to_f, 1
     @first_cylinder = Spring.new(position, direction_up, scale_factor, self, spring_model.definition, nil)
     @second_cylinder = SketchupObject.new #Spring.new(position, direction_up, self, spring_model.definition, nil);
     add(first_cylinder, second_cylinder)
