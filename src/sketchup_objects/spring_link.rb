@@ -65,16 +65,16 @@ class SpringLink < PhysicsLink
     # scale the entity to make it always connect the two adjacent hubs
     current_length = vector_representation.length
     scale_factor = current_length.to_f / @last_length
-    # spring is oriented along the x-axis
+    # spring is oriented along the z-axis
     scaling = Geom::Transformation.scaling(old_position, 1, 1, scale_factor)
     @last_length = current_length
 
-    @first_cylinder.entity.transform!(Geometry.rotation_transformation(vector_representation, Geom::Vector3d.new(0, 0, 1), old_position))
+    @first_cylinder.entity.transform!(Geometry.rotation_transformation(@last_vector_representation, Geom::Vector3d.new(0, 0, 1), old_position))
     @first_cylinder.entity.transform!(scaling)
     @first_cylinder.entity.transform!(Geometry.rotation_transformation(Geom::Vector3d.new(0, 0, 1), vector_representation, old_position))
     @first_cylinder.entity.transform!(translation)
+    @last_vector_representation = vector_representation
   end
-
 
   def create_children
     direction_up = @position.vector_to(@second_position)
@@ -86,6 +86,7 @@ class SpringLink < PhysicsLink
 
     # update position calculating a translation from the last to the new position
     vector_representation = pt1.vector_to(pt2)
+    @last_vector_representation = vector_representation
 
     # scale the entity to make it always connect the two adjacent hubs
     current_length = vector_representation.length
@@ -96,9 +97,9 @@ class SpringLink < PhysicsLink
 
 
     spring_model = ParametricSpringModel.new current_length.to_f, 1
-    @first_cylinder = Spring.new(position, direction_up, scale_factor, self, spring_model.definition, nil)
-    @second_cylinder = SketchupObject.new #Spring.new(position, direction_up, self, spring_model.definition, nil);
-    add(first_cylinder, second_cylinder)
+    @first_cylinder = Spring.new(pt1, direction_up, scale_factor, self, spring_model.definition, nil)
+    # @second_cylinder = SketchupObject.new #Spring.new(position, direction_up, self, spring_model.definition, nil)
+    add(first_cylinder)
   end
 
   def set_piston_group_color

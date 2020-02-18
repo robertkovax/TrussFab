@@ -6,9 +6,9 @@ require 'src/models/parametric_spring_model.rb'
 class Spring < SketchupObject
   attr_reader :material
 
-  def initialize(center, vector, scale_factor, parent, definition, id = nil)
+  def initialize(start_position, vector, scale_factor, parent, definition, id = nil)
     super(id)
-    @center = center
+    @start = start_position
     @vector = vector
     @definition = definition
     if scale_factor.nil?
@@ -27,17 +27,19 @@ class Spring < SketchupObject
     entity
   end
 
-  def get_transformation_from_position_direction(center_position=@center, direction=@vector, scale_factor=@scale_factor)
-    translation = Geom::Transformation.translation(center_position)
+  def get_transformation_from_position_direction(start_position = @start,
+                                                 direction = @vector,
+                                                 scale_factor = @scale_factor)
+    translation = Geom::Transformation.translation(start_position)
     rotation_angle = Geometry.rotation_angle_between(Geometry::Z_AXIS,
                                                      direction)
     rotation_axis = Geometry.perpendicular_rotation_axis(Geometry::Z_AXIS,
                                                          direction)
-    rotation = Geom::Transformation.rotation(center_position,
+    rotation = Geom::Transformation.rotation(start_position,
                                              rotation_axis,
                                              rotation_angle)
 
-    scaling = Geom::Transformation.scaling(center_position, 1, 1, scale_factor)
+    scaling = Geom::Transformation.scaling(start_position, 1, 1, scale_factor)
 
     transformation = rotation * scaling * translation
   end

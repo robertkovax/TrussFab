@@ -15,8 +15,6 @@ class ParametricSpringModel
     entities = @definition.entities
 
     # Draw a circle on the ground plane around the origin.
-
-
     curve = entities.add_curve(generate_spring_curve free_length, 1, 10, 100)
 
     first_edge = curve[0]
