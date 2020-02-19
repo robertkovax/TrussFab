@@ -2,12 +2,12 @@ require 'src/sketchup_objects/physics_link.rb'
 require 'src/configuration/configuration.rb'
 
 # PhysicsLink that behaves like a gas spring
-class SpringLink < PhysicsLink
+class SpringLink < ActuatorLink
   attr_reader :spring_parameter_k
 
   def initialize(first_node, second_node, edge, id: nil)
     @spring_parameter_k = 200
-    super(first_node, second_node, edge, 'spring', id: id)
+    super(first_node, second_node, edge, id: id)
     persist_entity
   end
 
