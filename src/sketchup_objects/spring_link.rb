@@ -3,19 +3,17 @@ require 'src/configuration/configuration.rb'
 
 # PhysicsLink that behaves like a gas spring
 class SpringLink < PhysicsLink
-  attr_accessor :extended_length, :stroke_length, :extended_force, :threshold,
-                :damp
+  attr_reader :spring_parameter_k
 
   def initialize(first_node, second_node, edge, id: nil)
+    @spring_parameter_k = 200
     super(first_node, second_node, edge, 'spring', id: id)
-
-    @stroke_length = Configuration::SPRING_STROKE_LENGTH
-    @resonant_frequency = Configuration::SPRING_RESONANT_FRERQUENCY
-    @extended_force = Configuration::SPRING_EXTENDED_FORCE
-    @threshold = Configuration::SPRING_THRESHOLD
-    @damp = Configuration::SPRING_DAMP
-
     persist_entity
+  end
+
+  def spring_parameter_k=(k)
+    @spring_parameter_k = k
+    update_link_properties
   end
 
   def change_color(color)
@@ -41,12 +39,9 @@ class SpringLink < PhysicsLink
   #
 
   def update_link_properties
-    return unless @joint&.valid?
+    recreate_children
+    return unless @joint && @joint.valid?
 
-    @joint.stroke_length = @stroke_length
-    @joint.extended_force = @extended_force
-    @joint.threshold = @threshold
-    @joint.damp = @damp
   end
 
   def update_link_transformations
@@ -80,7 +75,8 @@ class SpringLink < PhysicsLink
 
     # scale the entity to make it always connect the two adjacent hubs
     @initial_spring_length = pt1.vector_to(pt2).length.to_f
-    spring_model = ParametricSpringModel.new @initial_spring_length, 1
+    spring_model =
+      ParametricSpringModel.new(@initial_spring_length, @spring_parameter_k)
     @first_cylinder = Spring.new(self, spring_model.definition, nil)
     add(first_cylinder)
     # Update the link_transformation, that we're previously just initialized

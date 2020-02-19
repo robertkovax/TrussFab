@@ -2,9 +2,9 @@
 class ParametricSpringModel
   attr_reader :definition, :material
 
-  def initialize free_length, k
+  def initialize(free_length, k)
     @definition = Sketchup.active_model.definitions
-                      .load(ProjectHelper.component_directory +
+                          .load(ProjectHelper.component_directory +
                                 '/spring_model_sketchup_store.skp')
     @definition.name = 'Spring'
 
@@ -15,13 +15,13 @@ class ParametricSpringModel
     entities = @definition.entities
 
     # Draw a circle on the ground plane around the origin.
-    curve = entities.add_curve(generate_spring_curve free_length, 1, 10, 100)
+    curve = entities.add_curve(generate_spring_curve free_length, 1, 20 - k / 10000.to_f, 200)
 
     first_edge = curve[0]
 
     normal_vector = first_edge.end.position - first_edge.start.position
     center_point = Geom::Point3d.new(1, 0, 0)
-    radius = 5 * k.mm
+    radius = 0.01 * Math.log2(k)
 
     edgearray = entities.add_circle center_point, normal_vector, radius, 10
     circle_face = entities.add_face(edgearray)
