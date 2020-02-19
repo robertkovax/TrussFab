@@ -42,7 +42,6 @@ module JsonImport
 
     def add_pods_if_near_ground(nodes)
       nodes.each do |_, node|
-        puts node.position.z
         if node.position.z < Configuration::DISTANCE_FROM_GROUND_TO_PLACE_PODS
           node.add_pod Geom::Vector3d.new(0, 0, -1)
         end
