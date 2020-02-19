@@ -11,7 +11,7 @@ class ParametricSpringModel
     # Construct a spring out of a circle and a path
     model = Sketchup.active_model
     definitions = model.definitions
-    @definition = definitions.add "bamboozled"
+    @definition = definitions.add "Spring {#{free_length.to_s}, #{k}}"
     entities = @definition.entities
 
     # Draw a circle on the ground plane around the origin.

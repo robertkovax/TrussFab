@@ -7,7 +7,7 @@ class SpringLink < PhysicsLink
                 :damp
 
   def initialize(first_node, second_node, edge, id: nil)
-    super(first_node, second_node, edge,'spring', id: id)
+    super(first_node, second_node, edge, 'spring', id: id)
 
     @stroke_length = Configuration::SPRING_STROKE_LENGTH
     @resonant_frequency = Configuration::SPRING_RESONANT_FRERQUENCY
@@ -41,7 +41,8 @@ class SpringLink < PhysicsLink
   #
 
   def update_link_properties
-    return unless @joint && @joint.valid?
+    return unless @joint&.valid?
+
     @joint.stroke_length = @stroke_length
     @joint.extended_force = @extended_force
     @joint.threshold = @threshold
@@ -57,49 +58,34 @@ class SpringLink < PhysicsLink
 
     # update position calculating a translation from the last to the new position
     vector_representation = pt1.vector_to(pt2)
-    offset_up = vector_representation.clone
-    new_position = pt1.offset(offset_up, offset_up.length / 2)
-    old_position = @first_cylinder.entity.bounds.center
-    translation = Geom::Transformation.translation(old_position.vector_to(new_position))
+    new_position = pt1
 
     # scale the entity to make it always connect the two adjacent hubs
     current_length = vector_representation.length
-    scale_factor = current_length.to_f / @last_length
+    scale_factor = current_length.to_f / @initial_spring_length
     # spring is oriented along the z-axis
-    scaling = Geom::Transformation.scaling(old_position, 1, 1, scale_factor)
-    @last_length = current_length
+    scaling = Geom::Transformation.scaling(1, 1, scale_factor)
+    rotation = Geometry.rotation_transformation(Geom::Vector3d.new(0, 0, 1),
+                                                vector_representation,
+                                                Geom::Point3d.new(0, 0, 0))
 
-    @first_cylinder.entity.transform!(Geometry.rotation_transformation(@last_vector_representation, Geom::Vector3d.new(0, 0, 1), old_position))
-    @first_cylinder.entity.transform!(scaling)
-    @first_cylinder.entity.transform!(Geometry.rotation_transformation(Geom::Vector3d.new(0, 0, 1), vector_representation, old_position))
-    @first_cylinder.entity.transform!(translation)
-    @last_vector_representation = vector_representation
+    translation = Geom::Transformation.translation(new_position)
+
+    @first_cylinder.entity.transformation=(translation * rotation * scaling)
   end
 
   def create_children
-    direction_up = @position.vector_to(@second_position)
-    offset_up = direction_up.clone
-    position = @position.offset(offset_up, offset_up.length / 2)
-
     pt1 = @first_node.hub.entity.bounds.center
     pt2 = @second_node.hub.entity.bounds.center
 
-    # update position calculating a translation from the last to the new position
-    vector_representation = pt1.vector_to(pt2)
-    @last_vector_representation = vector_representation
-
     # scale the entity to make it always connect the two adjacent hubs
-    current_length = vector_representation.length
-    if @last_length.nil?
-      @last_length = current_length.to_f
-    end
-    scale_factor = current_length.to_f / @last_length
-
-
-    spring_model = ParametricSpringModel.new current_length.to_f, 1
-    @first_cylinder = Spring.new(pt1, direction_up, scale_factor, self, spring_model.definition, nil)
-    # @second_cylinder = SketchupObject.new #Spring.new(position, direction_up, self, spring_model.definition, nil)
+    @initial_spring_length = pt1.vector_to(pt2).length.to_f
+    spring_model = ParametricSpringModel.new @initial_spring_length, 1
+    @first_cylinder = Spring.new(self, spring_model.definition, nil)
     add(first_cylinder)
+    # Update the link_transformation, that we're previously just initialized
+    # with identity
+    update_link_transformations
   end
 
   def set_piston_group_color
