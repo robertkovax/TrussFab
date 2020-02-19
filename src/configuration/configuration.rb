@@ -142,4 +142,7 @@ module Configuration
 
   # PID_Controller
   STATIC_FORCE_ANALYSIS_STEPS = 20
+
+  # Automatic Pod Placement
+  DISTANCE_FROM_GROUND_TO_PLACE_PODS = 50.mm # in mm
 end
