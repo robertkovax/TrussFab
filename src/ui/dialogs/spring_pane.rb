@@ -1,6 +1,6 @@
 # Ruby integration for spring insights dialog
 class SpringPane
-  INSIGHTS_HTML_FILE = '../spring-insights/index.html'.freeze
+  INSIGHTS_HTML_FILE = '../spring-pane/index.html'.freeze
 
   def initialize(visualization, constant, animation, refresh_callback, toggle_animation_callback)
     @refresh_callback = refresh_callback
