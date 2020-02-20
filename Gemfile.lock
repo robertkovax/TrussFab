@@ -21,10 +21,14 @@ GEM
 PLATFORMS
   ruby
   x64-mingw32
+  x86-mingw32
 
 DEPENDENCIES
   rubocop (~> 0.68.1)
   sketchup-api-stubs
 
+RUBY VERSION
+   ruby 2.2.6p396
+
 BUNDLED WITH
-   1.17.2
+   1.17.3
