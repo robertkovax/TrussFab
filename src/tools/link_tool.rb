@@ -45,7 +45,7 @@ class LinkTool < Tool
   def change_link_to_physics_link(view, edge)
     Sketchup.active_model.start_operation("toggle edge to #{@link_type}", true)
     edge.link_type = @link_type
-    if @link_type == 'actuator'
+    if @link_type == 'actuator' || @link_type == 'spring'
       edge.link.piston_group = IdManager.instance.maximum_piston_group + 1
     end
     @edge = edge

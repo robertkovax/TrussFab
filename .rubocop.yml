@@ -17,7 +17,7 @@ AllCops:
     - '**/Gemfile'
     - '**/Rakefile'
 
-  TargetRubyVersion: 2.4
+  TargetRubyVersion: 2.2
 
 Naming/PredicateName:
   # Method define macros for dynamically generated method.
@@ -52,7 +52,7 @@ Layout/ClassStructure:
       - protected_methods
       - private_methods
 
-Layout/HeredocIndentation:
+Layout/IndentHeredoc:
   EnforcedStyle: powerpack
 
 Lint/AmbiguousBlockAssociation:
@@ -100,7 +100,7 @@ Metrics/PerceivedComplexity:
 Style/FrozenStringLiteralComment:
   Enabled: false
 
-Naming/MethodParameterName:
+Naming/UncommunicativeMethodParamName:
   Enabled: false
 
 Naming/MethodName:

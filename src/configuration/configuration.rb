@@ -33,7 +33,7 @@ module Configuration
   MINIMUM_ELONGATION    = 20.mm.freeze
   DEFAULT_ELONGATION    = 40.mm.freeze
   MAXIMUM_ELONGATION    = 100.mm.freeze
-  BALL_HUB_RADIUS       = 14.mm.freeze
+  BALL_HUB_RADIUS       = 30.mm.freeze
   STANDARD_BOTTLES      = 'hard'.freeze
   COVER_THICKNESS       = 20.mm.freeze
   # Size of the rendered elongation
@@ -142,4 +142,7 @@ module Configuration
 
   # PID_Controller
   STATIC_FORCE_ANALYSIS_STEPS = 20
+
+  # Automatic Pod Placement
+  DISTANCE_FROM_GROUND_TO_PLACE_PODS = 50.mm # in mm
 end
