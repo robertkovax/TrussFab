@@ -3,3 +3,6 @@
 # Valid options: 'modified'
 # Default: nil
 check_scope: 'modified'
+
+versions:
+  - rubocop: '0.68.1'
