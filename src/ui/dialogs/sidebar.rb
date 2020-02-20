@@ -109,8 +109,9 @@ class Sidebar
     build_tool(AddWeightTool, 'add_weight_tool')
     build_tool(ActuatorTool, 'actuator_tool')
     build_tool(SpringTool, 'spring_tool')
-    build_tool(SpringAnimationTool, 'spring_animation_tool')
-    build_tool(SpringDebugTool, 'spring_debug_tool')
+    build_tool(PlaceUserTool, 'place_user_tool')
+    build_tool(PlaceUserTool, 'spring_animation_tool')
+    build_tool(DemonstrateAmplitudeTool, 'demonstrate_amplitude_tool')
     build_tool(GenericPhysicsLinkTool, 'generic_physics_link_tool')
     build_tool(PoseCheckTool, 'pose_check_tool')
     build_tool(CoverTool, 'cover_tool')
@@ -123,7 +124,6 @@ class Sidebar
     build_tool(GeneticActuatorPlacementTool, 'genetic_actuator_placement_tool')
     build_tool(ForceLimitTool, 'force_limit_tool')
     build_tool(PIDControllerTool, 'pid_controller_tool')
-    build_tool(PlaceUserTool, 'place_user_tool')
   end
 
   def build_tool(tool_class, tool_id)
