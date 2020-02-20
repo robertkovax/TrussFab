@@ -5,10 +5,10 @@ require 'src/geometry_animation.rb'
 require 'src/trace_animation.rb'
 require 'src/system_simulation/simulation_runner.rb'
 require 'src/system_simulation/trace_visualization.rb'
+require 'src/ui/dialogs/spring_pane.rb'
 
 # TODO rename to place user tool, delete old one and add documentation here.
 class SpringAnimationTool < Tool
-  INSIGHTS_HTML_FILE = '../ui/spring-insights/index.html'.freeze
 
   def initialize(ui)
     super(ui)
@@ -23,8 +23,7 @@ class SpringAnimationTool < Tool
     # Instance of the simulation runner used as an interface to the system simulation.
     @simulation_runner = nil
 
-    # TODO factor out
-    @insights_dialog = nil
+    @insights_pane = nil
 
     # TODO replace by map edgeID => springConstant to support multiple springs
     # Spring constant
@@ -41,9 +40,6 @@ class SpringAnimationTool < Tool
   end
 
   def onLButtonDown(_flags, x, y, view)
-    # Open spring insights dialog.
-    open_insights_dialog if @insights_dialog == nil
-
     @mouse_input.update_positions(view, x, y)
     obj = @mouse_input.snapped_object
     if !obj.nil? && obj.is_a?(Node) # && obj.link_type == 'spring'
@@ -57,8 +53,15 @@ class SpringAnimationTool < Tool
       set_graph_to_data_sample(0)
 
       # Visualize for current spring constant.
-      @trace_visualization = TraceVisualization.new(@simulation_data)
-      @trace_visualization.add_trace(["18", "20"], 4)
+      @trace_visualization = TraceVisualization.new
+      @trace_visualization.add_trace(["18", "20"], 4, @simulation_data)
+
+      # Open spring insights dialog.
+      if @insights_pane == nil
+        @insights_pane = SpringPane.new(@trace_visualization, @constant, @animation,
+                                        Proc.new{|value| spring_constant_changed(value)},
+                                        Proc.new{toggle_animation})
+      end
 
     else
       # Reset trace visualization.
@@ -71,6 +74,15 @@ class SpringAnimationTool < Tool
 
   end
 
+  def spring_constant_changed(value)
+    puts(value)
+    @trace_visualization.reset_trace
+    @constant = value
+    simulate
+    drawing_time = Benchmark.realtime { @trace_visualization.add_trace(["18", "20"], 4, @simulation_data) }
+    puts("drawing time: " + drawing_time.to_s + "s")
+  end
+
   def onMouseMove(_flags, x, y, view)
     @mouse_input.update_positions(view, x, y)
   end
@@ -78,12 +90,10 @@ class SpringAnimationTool < Tool
   private
 
   def toggle_animation
-    if @animation
-      if @animation.running
-        @animation.toggle_running()
-      else
-        create_animation
-      end
+    if @animation && @animation.running
+      @animation.toggle_running
+    else
+      create_animation
     end
 
   end
@@ -99,7 +109,8 @@ class SpringAnimationTool < Tool
   end
 
   def update_period(value)
-    @insights_dialog.execute_script("set_period(#{value})")
+    @insights_pane.set_period(value)
+
   end
 
 
@@ -122,51 +133,5 @@ class SpringAnimationTool < Tool
     end
   end
 
-  #
-  # Dialog logic
-  #
-  #
-  def open_insights_dialog
-    return if @insights_dialog
-    props = {
-        # resizable: false,
-        preferences_key: 'com.trussfab.spring_insights',
-        width: 200,
-        height: 250,
-        left: 5,
-        top: 5,
-        min_width: 400,
-        min_height: 120,
-        # max_height: @height
-        :style => UI::HtmlDialog::STYLE_UTILITY
-    }
-
-    @insights_dialog = UI::HtmlDialog.new(props)
-    file = File.join(File.dirname(__FILE__), INSIGHTS_HTML_FILE)
-    @insights_dialog.set_file(file)
-    @insights_dialog.set_position(500, 500)
-    @insights_dialog.show
-    register_insights_callbacks
-  end
-
-  def register_insights_callbacks
-    @insights_dialog.add_action_callback('spring_insights_change') do |_, value|
-      puts(value)
-      @trace_visualization.reset_trace
-      @constant = value
-      simulate
-      drawing_time = Benchmark.realtime { @trace_visualization.add_trace(["18", "20"], 4) }
-      puts("drawing time: " + drawing_time.to_s + "s")
-      #get_period(value)
-    end
-
-    @insights_dialog.add_action_callback('spring_insights_toggle_play') do |_, value|
-      if @animation
-        toggle_animation
-      else
-        create_animation
-      end
-    end
-  end
 
 end
