@@ -5,3 +5,5 @@ group :development do
 end
 
 gem 'rubocop', '~> 0.68.1', require: false
+
+ruby '2.2.6'
