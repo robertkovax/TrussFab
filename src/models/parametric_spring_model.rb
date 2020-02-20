@@ -3,11 +3,6 @@ class ParametricSpringModel
   attr_reader :definition, :material
 
   def initialize(free_length, k)
-    @definition = Sketchup.active_model.definitions
-                          .load(ProjectHelper.component_directory +
-                                '/spring_model_sketchup_store.skp')
-    @definition.name = 'Spring'
-
     # Construct a spring out of a circle and a path
     model = Sketchup.active_model
     definitions = model.definitions
