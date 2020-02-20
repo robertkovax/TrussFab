@@ -1,7 +1,4 @@
-#!/usr/bin/env ruby
-
 require 'csv'
-require 'math'
 require_relative './animation_data_sample.rb'
 require 'open3'
 
@@ -29,7 +26,7 @@ class SimulationRunner
   def get_hub_time_series(hubIDs, stepSize, mass, constant=50)
     data = []
     simulation_time = Benchmark.realtime { run_simulation(constant, mass, "node_pos.*") }
-    import_time = Benchmark.realtime { data = read_csv }
+    import_time = Benchmark.realtime { data = import_csv }
     puts("simulation time: #{simulation_time.to_s}s csv parsing time: #{import_time.to_s}s")
     data
   end
