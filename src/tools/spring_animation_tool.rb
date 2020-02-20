@@ -11,29 +11,38 @@ class SpringAnimationTool < Tool
 
   def initialize(ui)
     super(ui)
-
-
-    @data = nil
-
     @mouse_input = MouseInput.new(snap_to_edges: true, snap_to_nodes: true)
-    @spring = nil
-    @initial_edge_length = nil
-    @initial_edge_position = nil
+
+    # Array of AnimationDataSamples, each containing geometry information for hubs for a certain point in time.
+    @simulation_data = nil
+
+    # Animation that makes the geometry move according to the specified simulation data.
     @animation = nil
-    @interaction_dialog = nil
-    @insights_dialog = nil
+
+    # Instance of the simulation runner used as an interface to the system simulation.
     @simulation_runner = nil
+
+    # TODO factor out
+    @insights_dialog = nil
+
+    # TODO replace by map edgeID => springConstant to support multiple springs
+    # Spring constant
     @constant = 20000
 
+    # Visualizing animation samples by plotting a circle.
     @trace_points = []
+
+    # Group containing trace circles.
     @group = Sketchup.active_model.active_entities.add_group
   end
 
   def activate
+    # Instantiates SimulationRunner and compiles model.
     @simulation_runner = SimulationRunner.new unless @simulation_runner
   end
 
   def onLButtonDown(_flags, x, y, view)
+    # Open spring insights dialog.
     open_insights_dialog if @insights_dialog == nil
 
     @mouse_input.update_positions(view, x, y)
@@ -41,31 +50,21 @@ class SpringAnimationTool < Tool
     if !obj.nil? && obj.is_a?(Node) # && obj.link_type == 'spring'
       obj.hub.toggle_attached_user
 
+      # Populate simulation data.
       simulate
       #@insights_dialog.execute_script("set_period(#{get_period})")
+
+      # Set geometry into equilibrium.
       set_graph_to_data_sample(0)
+
+      # Visualize for current spring constant.
       add_circle_trace(["18", "20"], 4)
 
-
-
-      #@animation = TraceAnimation.new(@data)
-
-      #@animation = GeometryAnimation.new(@data)
-      #@animation = SpringAnimation.new(@data, @first_vector, @second_vector, @initial_edge_position, @edge)
-      #Sketchup.active_model.active_view.animation = @animation
-
-      # add trace visualizing every data point using a points
-      #add_trace(["18", "20"])
-
-      # only draw a point for every 500th data point
-      #add_sparse_trace(["18", "20"], 500)
-
-      # visualize data points using transparent circle or sphere
-      #drawing_time = Benchmark.realtime { add_circle_trace(["18", "20"], 2) }
-      #puts("drawing time: " + drawing_time.to_s + "s")
-      # add_sphere_trace(["18", "20"], 80)
     else
+      # Reset trace visualization.
       reset_trace
+
+      # Stop Animation.
       toggle_animation
     end
 
@@ -90,7 +89,7 @@ class SpringAnimationTool < Tool
   end
 
   def create_animation
-    @animation = GeometryAnimation.new(@data)
+    @animation = GeometryAnimation.new(@simulation_data)
     Sketchup.active_model.active_view.animation = @animation
   end
 
@@ -105,11 +104,11 @@ class SpringAnimationTool < Tool
 
 
   def simulate
-    @data = @simulation_runner.get_hub_time_series(nil, 0, 0, @constant.to_i)
+    @simulation_data = @simulation_runner.get_hub_time_series(nil, 0, 0, @constant.to_i)
   end
 
   def set_graph_to_data_sample(index)
-    current_data_sample = @data[index]
+    current_data_sample = @simulation_data[index]
 
     Graph.instance.nodes.each do | node_id, node|
       node.update_position(current_data_sample.position_data[node_id.to_s])
@@ -123,48 +122,12 @@ class SpringAnimationTool < Tool
     end
   end
 
-  # Retrieves the equilibrium from the simulation runner and draws transparent, changed links.
-  def find_equilibrium
-    equilibrium_points = @simulation_runner.find_equilibrium().position_data
-    added_edges = []
-    Graph.instance.edges.to_a.each do |edge_id, edge|
-      new_first_position = equilibrium_points[edge.first_node.id.to_s]
-      new_second_position = equilibrium_points[edge.second_node.id.to_s]
-      first = nil
-      second = nil
-      if new_first_position.distance(edge.first_node.position) > 30.cm
-        # first node of edge was moved during finding equilibrium
-        first = new_first_position
-      else
-        first = edge.first_node.position
-      end
-      if new_second_position.distance(edge.second_node.position) > 30.cm
-        # second node of edge was moved during finding equilibrium
-        second = new_second_position
-      else
-        second = edge.second_node.position
-      end
-      new_edge = Graph.instance.create_edge_from_points(first,
-                                             second,
-                                             link_type: "bottle_link",
-                                             use_best_model: true)
-      if new_edge != edge
-        materialToSet = Sketchup.active_model.materials.add("MyColor_1")
-        color = Sketchup::Color.new("white")
-        materialToSet.color = color
-        materialToSet.alpha = 0.1
-        new_edge.link.material=(materialToSet)
-      end
-    end
-
-  end
-
   #
   # Trace logic
   #
   #
   def add_sphere_trace(node_ids, sparse_factor)
-    @data.each_with_index do |current_data_sample, index|
+    @simulation_data.each_with_index do |current_data_sample, index|
       # thin out points in trace
       next unless index % sparse_factor == 0
 
@@ -210,7 +173,7 @@ class SpringAnimationTool < Tool
   end
 
   def add_circle_trace(node_ids, sparse_factor)
-    @data.each_with_index do |current_data_sample, index|
+    @simulation_data.each_with_index do |current_data_sample, index|
       # thin out points in trace
       next unless index % sparse_factor == 0
 
@@ -241,7 +204,7 @@ class SpringAnimationTool < Tool
   end
 
   def add_sparse_trace(node_ids, sparse_factor)
-    @data.each_with_index do |current_data_sample, index|
+    @simulation_data.each_with_index do |current_data_sample, index|
       # thin out points in trace
       next unless index % sparse_factor == 0
 
@@ -270,31 +233,6 @@ class SpringAnimationTool < Tool
   # Dialog logic
   #
   #
-  def open_interaction_dialog(x,y)
-    return if @interaction_dialog
-    props = {
-      # resizable: false,
-      preferences_key: 'com.trussfab.spring_interaction',
-      width: 200,
-      height: 250,
-      left: 5,
-      top: 5,
-      min_width: 200,
-      min_height: 150,
-      max_width: 100,
-      # max_height: @height
-      :style => UI::HtmlDialog::STYLE_UTILITY
-    }
-
-    @interaction_dialog = UI::HtmlDialog.new(props)
-    file = File.join(File.dirname(__FILE__), INTERACT_HTML_FILE)
-    @interaction_dialog.set_file(file)
-    puts("" + x.to_s + " " + y.to_s)
-    @interaction_dialog.set_position(x / 2 - 150,y / 2 + 100)
-    @interaction_dialog.show
-    register_callbacks
-  end
-
   def open_insights_dialog
     return if @insights_dialog
     props = {
@@ -336,18 +274,6 @@ class SpringAnimationTool < Tool
       else
         create_animation
       end
-    end
-  end
-
-  def register_callbacks
-    @interaction_dialog.add_action_callback('spring_interaction_plus') do |_|
-      puts("plus")
-      @animation.factor = @animation.factor + 2
-    end
-
-    @interaction_dialog.add_action_callback('spring_interaction_minus') do |_|
-      puts("minus")
-      @animation.factor = @animation.factor - 2
     end
   end
 
