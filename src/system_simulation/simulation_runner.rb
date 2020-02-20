@@ -66,7 +66,7 @@ class SimulationRunner
     #AnimationDataSample.new(0.0, mocked_position_data)
   end
 
-  def optimize_constant_for_constrained_angle(initial_constant = 500, mass=20, spring_id = 0, angle_id = 0, allowed_angle_delta = Math::PI / 2.0)
+  def optimize_constant_for_constrained_angle(allowed_angle_delta = Math::PI / 2.0, initial_constant = 500, mass=20, spring_id = 0, angle_id = 0)
     # steps which the algorithm uses to approximate the valid spring constant
     step_sizes = [1500, 1000, 200, 50, 5]
     constant = initial_constant
@@ -74,7 +74,7 @@ class SimulationRunner
     keep_searching = true
     abort_threshold = 50000
     while keep_searching
-      puts "Current k: #{constant} Step size: #{step_size}"
+      #puts "Current k: #{constant} Step size: #{step_size}"
       run_simulation(constant, mass, "revLeft.phi")
       if !angle_valid(read_csv, allowed_angle_delta)
         # increase spring constant to decrease angle delta
@@ -99,7 +99,7 @@ class SimulationRunner
     data = read_csv.map { |data_sample| data_sample[1].to_f }
     data.shift
     puts "min: #{data.min} max: #{data.max}"
-
+    constant
   end
 
 
