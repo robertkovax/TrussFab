@@ -45,7 +45,7 @@ class Node < GraphObject
     @incidents.each(&:update_sketchup_object)
     @adjacent_triangles.each(&:update_sketchup_object)
     pods.each { |pod| pod.update_position(@position) }
-    hub.entity.move!(Geom::Transformation.new(@position))
+    hub.update_position @position
   end
 
   def distance(point)
@@ -76,6 +76,7 @@ class Node < GraphObject
   def pod(id)
     possible_pods = pods.select { |pod| pod.id == id }
     raise "Node #{@id} does not have exactly one pod" if possible_pods.size != 1
+
     possible_pods.first
   end
 
@@ -128,6 +129,7 @@ class Node < GraphObject
 
   def connected_component
     return if @incidents.empty?
+
     @incidents[0].connected_component
   end
 
@@ -136,6 +138,7 @@ class Node < GraphObject
     @incidents.each do |edge|
       edge_opposite_node = edge.opposite(self)
       next if other_node.edge_to?(edge_opposite_node)
+
       edge.exchange_node(self, other_node)
       other_node.add_incident(edge)
       merged_incidents << edge
@@ -153,6 +156,7 @@ class Node < GraphObject
     @adjacent_triangles.each do |triangle|
       new_triangle = triangle.nodes - [self] + [other_node]
       next unless Graph.instance.find_triangle(new_triangle).nil?
+
       triangle.exchange_node(self, other_node)
       other_node.add_adjacent_triangle(triangle)
       if triangle.cover?
@@ -179,6 +183,7 @@ class Node < GraphObject
     direction = direction.nil? ? Geometry::Z_AXIS.reverse : direction.normalize
     existing_pod = find_pod(direction)
     return existing_pod unless existing_pod.nil?
+
     hub.add_pod(direction, id: id, is_fixed: is_fixed)
   end
 
