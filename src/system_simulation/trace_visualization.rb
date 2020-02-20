@@ -1,17 +1,22 @@
 # Simulate data samples of a system simulation by plotting a trace consisting of transparent circles into the scene.
 class TraceVisualization
-  def initialize(data)
+  def initialize
     # Simulation data to visualize
-    @simulation_data = data
+    @simulation_data = nil
 
     # Group containing trace circles.
     @group = Sketchup.active_model.active_entities.add_group
 
     # List of trace circles.
     @trace_points = []
+
+    # Visualization parameters
+    @color = Sketchup::Color.new(72,209,204)
+    @alpha = 0.4
   end
 
-  def add_trace(node_ids, sparce_factor)
+  def add_trace(node_ids, sparce_factor, data)
+    @simulation_data = data
     add_circle_trace(node_ids, sparce_factor)
   end
 
@@ -34,10 +39,9 @@ class TraceVisualization
       @group = Sketchup.active_model.entities.add_group if @group.deleted?
       entities = @group.entities
 
-      color = Sketchup::Color.new(72,209,204)
       materialToSet = Sketchup.active_model.materials.add("MyColor_1")
-      materialToSet.color = color
-      materialToSet.alpha = 0.4
+      materialToSet.color = @color
+      materialToSet.alpha = @alpha
 
       edgearray = entities.add_circle(current_data_sample.position_data[node_ids[0]], Geom::Vector3d.new(1,0,0), 1, 10)
       edgearray.each{|e| e.hidden=true }
@@ -68,10 +72,9 @@ class TraceVisualization
       @group = Sketchup.active_model.entities.add_group if @group.deleted?
       entities = @group.entities
 
-      color = Sketchup::Color.new(72,209,204)
       materialToSet = Sketchup.active_model.materials.add("MyColor_1")
-      materialToSet.color = color
-      materialToSet.alpha = 0.2
+      materialToSet.color = @color
+      materialToSet.alpha = @alpha
 
       radius = 1
       num_segments = 20
