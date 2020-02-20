@@ -32,11 +32,17 @@ class SpringAnimationTool < Tool
     # Visualize oscillation as a trace, will be instantiated with simulation data.
     @trace_visualization = nil
 
+    # All spring links in the scene right now
+    @spring_links = []
+
   end
 
   def activate
     # Instantiates SimulationRunner and compiles model.
     @simulation_runner = SimulationRunner.new unless @simulation_runner
+    @spring_links = Graph.instance.edges.values.
+        select { |edge| edge.link_type == 'spring' }.
+        map(&:link)
   end
 
   def onLButtonDown(_flags, x, y, view)
@@ -54,12 +60,12 @@ class SpringAnimationTool < Tool
 
       # Visualize for current spring constant.
       @trace_visualization = TraceVisualization.new
-      @trace_visualization.add_trace(["18", "20"], 4, @simulation_data)
+      @trace_visualization.add_trace(['18', '20'], 4, @simulation_data)
 
       # Open spring insights dialog.
       if @insights_pane == nil
         @insights_pane = SpringPane.new(@trace_visualization, @constant, @animation,
-                                        Proc.new{|value| spring_constant_changed(value)},
+                                        Proc.new{|spring_id, value| spring_constant_changed(spring_id, value)},
                                         Proc.new{toggle_animation})
       end
 
@@ -74,8 +80,9 @@ class SpringAnimationTool < Tool
 
   end
 
-  def spring_constant_changed(value)
+  def spring_constant_changed(spring_id, value)
     puts(value)
+    @spring_links.select{ |spring| spring.id == spring_id }[0].spring_parameter_k = value.to_f
     @trace_visualization.reset_trace
     @constant = value
     simulate
