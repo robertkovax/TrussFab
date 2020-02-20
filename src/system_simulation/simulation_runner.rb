@@ -1,11 +1,14 @@
 require 'csv'
 require_relative './animation_data_sample.rb'
 require 'open3'
+require 'singleton'
+require 'benchmark'
 
 require 'fileutils'
 require 'tmpdir'
 
 class SimulationRunner
+  include Singleton
 
   def initialize(suppress_compilation=false, keep_temp_dir=false)
     @model_name = "seesaw3"
