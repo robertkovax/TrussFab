@@ -652,6 +652,10 @@ class Simulation
     end
 
     Graph.instance.triangles.each_value(&:update_sketchup_object)
+
+    Graph.instance.edges.each_value do |edge|
+      edge.link.update_link_transformations
+    end
   end
 
   def update_forces

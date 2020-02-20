@@ -41,11 +41,12 @@ class Node < GraphObject
 
   # Moves all connected components
   # this is very slow. Only do this if necessary (i.e. not in simulation)
+  # It is important to first update the hubs, as some edges will use the hub
   def update_sketchup_object
-    @incidents.each(&:update_sketchup_object)
-    @adjacent_triangles.each(&:update_sketchup_object)
     pods.each { |pod| pod.update_position(@position) }
     hub.update_position @position
+    @incidents.each(&:update_sketchup_object)
+    @adjacent_triangles.each(&:update_sketchup_object)
   end
 
   def distance(point)

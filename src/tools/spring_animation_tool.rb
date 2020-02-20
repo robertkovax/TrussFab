@@ -6,8 +6,8 @@ require 'src/trace_animation.rb'
 require 'src/system_simulation/simulation_runner.rb'
 
 class SpringAnimationTool < Tool
-  INTERACT_HTML_FILE = '../ui/spring-interact/index.html'.freeze
-  INSIGHTS_HTML_FILE = '../ui/spring-insights/index.html'.freeze
+  INTERACT_HTML_FILE = '../ui/spring-interact/index.erb'.freeze
+  INSIGHTS_HTML_FILE = '../ui/spring-insights/index.erb'.freeze
 
   def initialize(ui)
     super(ui)
@@ -34,7 +34,7 @@ class SpringAnimationTool < Tool
   end
 
   def onLButtonDown(_flags, x, y, view)
-    open_insights_dialog if @insights_dialog == nil
+    open_insights_dialog
 
     @mouse_input.update_positions(view, x, y)
     obj = @mouse_input.snapped_object
@@ -44,7 +44,7 @@ class SpringAnimationTool < Tool
       simulate
       #@insights_dialog.execute_script("set_period(#{get_period})")
       set_graph_to_data_sample(0)
-      add_circle_trace(["18", "20"], 4)
+      add_circle_trace(['18', '20'], 4)
 
 
 
@@ -146,11 +146,11 @@ class SpringAnimationTool < Tool
       end
       new_edge = Graph.instance.create_edge_from_points(first,
                                              second,
-                                             link_type: "bottle_link",
+                                             link_type: 'bottle_link',
                                              use_best_model: true)
       if new_edge != edge
-        materialToSet = Sketchup.active_model.materials.add("MyColor_1")
-        color = Sketchup::Color.new("white")
+        materialToSet = Sketchup.active_model.materials.add('MyColor_1')
+        color = Sketchup::Color.new('white')
         materialToSet.color = color
         materialToSet.alpha = 0.1
         new_edge.link.material=(materialToSet)
@@ -171,35 +171,35 @@ class SpringAnimationTool < Tool
       @group = Sketchup.active_model.entities.add_group if @group.deleted?
       entities = @group.entities
 
-      color = Sketchup::Color.new(72,209,204)
-      materialToSet = Sketchup.active_model.materials.add("MyColor_1")
+      color = Sketchup::Color.new(72, 209, 204)
+      materialToSet = Sketchup.active_model.materials.add('MyColor_1')
       materialToSet.color = color
       materialToSet.alpha = 0.2
 
       radius = 1
       num_segments = 20
-      circle = entities.add_circle(current_data_sample.position_data[node_ids[0]], Geom::Vector3d.new(1,0,0), radius, num_segments)
+      circle = entities.add_circle(current_data_sample.position_data[node_ids[0]], Geom::Vector3d.new(1, 0, 0), radius, num_segments)
       face = entities.add_face(circle)
       face.material = materialToSet unless face.deleted?
       face.back_material = materialToSet unless face.deleted?
       face.reverse!
       # Create a temporary path for follow me to use to perform the revolve.
       # This path should not touch the face.
-      path = entities.add_circle(current_data_sample.position_data[node_ids[0]], Geom::Vector3d.new(0,0,1), radius * 2, num_segments)
+      path = entities.add_circle(current_data_sample.position_data[node_ids[0]], Geom::Vector3d.new(0, 0, 1), radius * 2, num_segments)
       # This creates the sphere.
       face.followme(path)
 
       entities.erase_entities(path)
 
 
-      circle = entities.add_circle(current_data_sample.position_data[node_ids[1]], Geom::Vector3d.new(1,0,0), radius, num_segments)
+      circle = entities.add_circle(current_data_sample.position_data[node_ids[1]], Geom::Vector3d.new(1, 0, 0), radius, num_segments)
       face = entities.add_face(circle)
       face.material = materialToSet unless face.deleted?
       face.back_material = materialToSet unless face.deleted?
       face.reverse!
       # Create a temporary path for follow me to use to perform the revolve.
       # This path should not touch the face.
-      path = entities.add_circle(current_data_sample.position_data[node_ids[1]], Geom::Vector3d.new(0,0,1), radius * 2, num_segments)
+      path = entities.add_circle(current_data_sample.position_data[node_ids[1]], Geom::Vector3d.new(0, 0, 1), radius * 2, num_segments)
       # This creates the sphere.
       face.followme(path)
 
@@ -217,20 +217,20 @@ class SpringAnimationTool < Tool
       @group = Sketchup.active_model.entities.add_group if @group.deleted?
       entities = @group.entities
 
-      color = Sketchup::Color.new(72,209,204)
-      materialToSet = Sketchup.active_model.materials.add("MyColor_1")
+      color = Sketchup::Color.new(72, 209, 204)
+      materialToSet = Sketchup.active_model.materials.add('MyColor_1')
       materialToSet.color = color
       materialToSet.alpha = 0.4
 
-      edgearray = entities.add_circle(current_data_sample.position_data[node_ids[0]], Geom::Vector3d.new(1,0,0), 1, 10)
-      edgearray.each{|e| e.hidden=true }
+      edgearray = entities.add_circle(current_data_sample.position_data[node_ids[0]], Geom::Vector3d.new(1, 0, 0), 1, 10)
+      edgearray.each { |e| e.hidden=true }
       first_edge = edgearray[0]
       arccurve = first_edge.curve
       face = entities.add_face(arccurve)
       face.material = materialToSet unless face == nil
 
-      edgearray = entities.add_circle(current_data_sample.position_data[node_ids[1]], Geom::Vector3d.new(1,0,0), 1, 10)
-      edgearray.each{|e| e.hidden=true }
+      edgearray = entities.add_circle(current_data_sample.position_data[node_ids[1]], Geom::Vector3d.new(1, 0, 0), 1, 10)
+      edgearray.each { |e| e.hidden=true }
       first_edge = edgearray[1]
       arccurve = first_edge.curve
       face = entities.add_face(arccurve)
@@ -270,7 +270,7 @@ class SpringAnimationTool < Tool
   # Dialog logic
   #
   #
-  def open_interaction_dialog(x,y)
+  def open_interaction_dialog(x, y)
     return if @interaction_dialog
     props = {
       # resizable: false,
@@ -283,7 +283,7 @@ class SpringAnimationTool < Tool
       min_height: 150,
       max_width: 100,
       # max_height: @height
-      :style => UI::HtmlDialog::STYLE_UTILITY
+      style: UI::HtmlDialog::STYLE_UTILITY
     }
 
     @interaction_dialog = UI::HtmlDialog.new(props)
@@ -296,36 +296,41 @@ class SpringAnimationTool < Tool
   end
 
   def open_insights_dialog
-    return if @insights_dialog
+    return if @insights_dialog && @insights_dialog.visible?
+
+    @spring_links = Graph.instance.edges.values.
+                    select { |edge| edge.link_type == 'spring' }.
+                    map(&:link)
     props = {
-        # resizable: false,
+        resizable: true,
         preferences_key: 'com.trussfab.spring_insights',
         width: 200,
-        height: 250,
+        height: 50 + @spring_links.length * 200,
         left: 5,
         top: 5,
-        min_width: 400,
-        min_height: 120,
         # max_height: @height
-        :style => UI::HtmlDialog::STYLE_UTILITY
+        style: UI::HtmlDialog::STYLE_DIALOG
     }
 
     @insights_dialog = UI::HtmlDialog.new(props)
-    file = File.join(File.dirname(__FILE__), INSIGHTS_HTML_FILE)
-    @insights_dialog.set_file(file)
+    file_path = File.join(File.dirname(__FILE__), INSIGHTS_HTML_FILE)
+    content = File.read(file_path)
+    t = ERB.new(content)
+    @insights_dialog.set_html(t.result(binding))
     @insights_dialog.set_position(500, 500)
     @insights_dialog.show
     register_insights_callbacks
   end
 
   def register_insights_callbacks
-    @insights_dialog.add_action_callback('spring_insights_change') do |_, value|
-      puts(value)
+    @insights_dialog.add_action_callback('spring_insights_change') do |_, spring_id, value|
+      puts "Spring_id: #{spring_id}, value: #{value}"
+      @spring_links.select{ |spring| spring.id == spring_id }[0].spring_parameter_k = value.to_f
       reset_trace()
       @constant = value
       simulate
-      drawing_time = Benchmark.realtime { add_circle_trace(["18", "20"], 4) }
-      puts("drawing time: " + drawing_time.to_s + "s")
+      drawing_time = Benchmark.realtime { add_circle_trace(['18', '20'], 4) }
+      puts('drawing time: ' + drawing_time.to_s + 's')
       #get_period(value)
       #@animation.factor = @animation.factor + 2
     end
@@ -341,12 +346,12 @@ class SpringAnimationTool < Tool
 
   def register_callbacks
     @interaction_dialog.add_action_callback('spring_interaction_plus') do |_|
-      puts("plus")
+      puts('plus')
       @animation.factor = @animation.factor + 2
     end
 
     @interaction_dialog.add_action_callback('spring_interaction_minus') do |_|
-      puts("minus")
+      puts('minus')
       @animation.factor = @animation.factor - 2
     end
   end
