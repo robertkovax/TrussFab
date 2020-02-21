@@ -64,8 +64,7 @@ class SpringAnimationTool < Tool
 
       # Open spring insights dialog.
       if @insights_pane == nil
-        @insights_pane = SpringPane.new(@trace_visualization, @constant, @animation,
-                                        Proc.new{|spring_id, value| spring_constant_changed(spring_id, value)},
+        @insights_pane = SpringPane.new(Proc.new{|spring_id, value| spring_constant_changed(spring_id, value)},
                                         Proc.new{toggle_animation})
       end
 
