@@ -60,34 +60,43 @@ class ExportFileTool < Tool
     number_bottles = {}
     number_actuators = {}
     lengths_for_link = []
+    springs = []
     Graph.instance.edges.each_value do |edge|
-      if edge.link.is_a?(PhysicsLink)
+      if edge.link_type == 'actuator'
         # the actuator length is rounded to the closest 10 cm
         actuator_length = (edge.link.length/10.0).round * 10
         increase_number_of(number_actuators, actuator_length)
+      elsif edge.link_type == 'spring'
+        springs << edge.link
       else
         increase_number_of(number_bottles, edge.bottle_type)
       end
-      lengths_for_link.push({:id => edge.inspect(), :length => edge.length().to_s})
+      lengths_for_link.push(id: edge.inspect, length: (edge.length - 2 * Configuration::BALL_HUB_RADIUS).to_mm)
     end
 
     dir_name = File.dirname(@export_path)
     base_name = File.basename(@export_path, File.extname(@export_path))
+    puts "dir_name: #{dir_name}, base_name: #{base_name}"
     partslist_file = File.open("#{dir_name}/#{base_name}_partslist.txt", "w")
     partslist_file.puts("Parts for #{base_name}:\n\n")
     partslist_file.puts("Number of hubs: #{number_hubs}\n")
-    partslist_file.puts("Number of bottles:\n")
-    number_bottles.each do |bottle_type, count|
-      partslist_file.puts("\t#{bottle_type}: #{count}\n")
-    end
     partslist_file.puts("Number of actuators:\n")
     number_actuators.each do |actuator_length, count|
       partslist_file.puts("\t#{actuator_length} cm: #{count}\n")
     end
 
-    partslist_file.puts("Distances of each link:\n")
-    lengths_for_link.each do |lenght_for_link|
-      partslist_file.puts("\t#{lenght_for_link[:id]} #{lenght_for_link[:length]}")
+    springs.sort_by!(&:initial_spring_length)
+    partslist_file.puts("Spring parameters:\n")
+    springs.each do |spring|
+      partslist_file.puts("     " + spring.inspect + "\n")
+    end
+
+
+    partslist_file.puts("Length of the pipes:\n")
+
+    lengths_for_link.sort_by! { |obj| obj[:length]}
+    lengths_for_link.each do |length_for_link|
+      partslist_file.puts("\t#{length_for_link[:id]} #{length_for_link[:length].round(2)}mm")
     end
     partslist_file.close
   end
