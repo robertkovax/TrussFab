@@ -15,9 +15,9 @@ class TraceVisualization
     @alpha = 0.4
   end
 
-  def add_trace(node_ids, sparce_factor, data)
+  def add_trace(node_ids, sampling_rate, data)
     @simulation_data = data
-    add_circle_trace(node_ids, sparce_factor)
+    add_circle_trace(node_ids, sampling_rate)
   end
 
   def reset_trace()
@@ -31,10 +31,10 @@ class TraceVisualization
 
   private
 
-  def add_circle_trace(node_ids, sparse_factor)
+  def add_circle_trace(node_ids, sampling_rate)
     @simulation_data.each_with_index do |current_data_sample, index|
       # thin out points in trace
-      next unless index % sparse_factor == 0
+      next unless index % sampling_rate == 0
 
       @group = Sketchup.active_model.entities.add_group if @group.deleted?
       entities = @group.entities
@@ -64,10 +64,10 @@ class TraceVisualization
   ### Currently unused trace visualizations:
 
   # Visualize trace using spheres.
-  def add_sphere_trace(node_ids, sparse_factor)
+  def add_sphere_trace(node_ids, sampling_rate)
     @simulation_data.each_with_index do |current_data_sample, index|
       # thin out points in trace
-      next unless index % sparse_factor == 0
+      next unless index % sampling_rate == 0
 
       @group = Sketchup.active_model.entities.add_group if @group.deleted?
       entities = @group.entities
@@ -111,10 +111,10 @@ class TraceVisualization
 
 
   # Visualize trace using construction points.
-  def add_point_trace(node_ids, sparse_factor)
+  def add_point_trace(node_ids, sampling_rate)
     @simulation_data.each_with_index do |current_data_sample, index|
       # thin out points in trace
-      next unless index % sparse_factor == 0
+      next unless index % sampling_rate == 0
 
       model = Sketchup.active_model
       entities = model.active_entities
