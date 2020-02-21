@@ -116,7 +116,7 @@ class NodeExportAlgorithm
         edges_from_hinge_into_inset.each(&:delete)
 
         inset_vector = node_to_inset.position.vector_to(other_node_to_inset.position)
-        inset_vector.length = 100.mm
+        inset_vector.length = Configuration::DISTANCE_TO_INSET_ROTARY_HUBS
         inset_position = node_to_inset.position + inset_vector
 
         nodes_to_reconnect_to.each do |node_information|

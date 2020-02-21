@@ -145,4 +145,7 @@ module Configuration
 
   # Automatic Pod Placement
   DISTANCE_FROM_GROUND_TO_PLACE_PODS = 50.mm # in mm
+
+  # TrussSprings
+  DISTANCE_TO_INSET_ROTARY_HUBS = 100.mm
 end
