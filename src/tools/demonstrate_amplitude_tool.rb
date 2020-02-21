@@ -2,7 +2,6 @@ require_relative 'spring_simulation_tool.rb'
 require 'src/system_simulation/trace_visualization.rb'
 
 class DemonstrateAmplitudeTool < SpringSimulationTool
-  LINE_STIPPLE = '_'.freeze
 
   def initialize(ui)
     super(ui)
@@ -88,7 +87,8 @@ class DemonstrateAmplitudeTool < SpringSimulationTool
 
   def draw(view)
     return unless @moving
-    view.line_stipple = LINE_STIPPLE
+    view.line_stipple = ""
+    view.line_width = 7
     view.drawing_color = 'black'
     view.draw_lines(@start_position, @end_position)
   end
