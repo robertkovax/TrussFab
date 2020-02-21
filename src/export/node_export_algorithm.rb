@@ -23,11 +23,10 @@ class NodeExportAlgorithm
     nodes = Graph.instance.nodes.values
     edges = Graph.instance.edges.values
 
-    static_groups = StaticGroupAnalysis.find_static_groups
+    constant_static_groups = StaticGroupAnalysis.find_static_groups
 
-    rotary_hinges_ids = check_for_only_simple_hinges static_groups
+    static_groups = constant_static_groups.clone
 
-    offset_rotary_hinge_hubs(rotary_hinges_ids, static_groups)
 
     static_groups.select! { |group| group.size > 1 }
     static_groups.sort! { |a, b| b.size <=> a.size }
@@ -83,23 +82,31 @@ class NodeExportAlgorithm
     Sketchup.active_model.start_operation('visualize export result', true)
     NodeExportVisualization.visualize(@export_interface)
     Sketchup.active_model.commit_operation
+
+    rotary_hinge_pairs = check_for_only_simple_hinges constant_static_groups
+    offset_rotary_hinge_hubs(rotary_hinge_pairs, constant_static_groups)
   end
 
   private
 
   def offset_rotary_hinge_hubs(rotary_hinges, static_groups)
-    static_groups_as_sets_of_nodes = static_groups.map do |triangles|
-      nodes = Set.new
-      triangles.each do |triangle|
-        nodes << triangle.first_node
-        nodes << triangle.second_node
-        nodes << triangle.third_node
-      end
-      nodes
-    end
-
+    static_groups_as_sets_of_nodes = map_to_set_of_nodes static_groups
     rotary_hinges.each do |node_pair|
-      static_groups_pair = static_groups_as_sets_of_nodes.select { |node_set| node_set.include?(node_pair[0]) && node_set.include?(node_pair[1]) }
+
+      if node_pair.length != 2
+        raise "Expected #{node_pair} to only contain two hinges, we currently
+don't handle the case of > 2 nodes on one rotation axis"
+      end
+
+      static_groups_pair =
+        static_groups_as_sets_of_nodes
+        .select { |node_set| node_pair.all? { |node| node_set.include?(node) } }
+
+      if static_groups_pair.length != 2
+        raise "Expected #{static_groups_pair} to only contain two static groups
+ to rotate around one hinge. Currently we don't support more than two moving
+structures at the same hinge"
+      end
 
       substructure_to_inset = choose_structure_to_inset static_groups_pair.to_a
 
@@ -129,7 +136,7 @@ class NodeExportAlgorithm
   def choose_structure_to_inset(static_groups_pair)
     # 1. Criterion: Offset which has no pods
     has_pods = static_groups_pair.map do |static_group|
-      static_group.to_a.any? { |node| node.pods.size > 0 }
+      static_group.to_a.any? { |node| !node.pods.empty? }
     end
     return static_groups_pair[0] if !has_pods[0] && has_pods[1]
     return static_groups_pair[1] if has_pods[0] && !has_pods[1]
@@ -148,10 +155,31 @@ class NodeExportAlgorithm
 
   # Make sure that if static groups touch, they touch at exactly 2 points,
   # otherwise, the structure will be bended, and not fabricateable with welding
-  # (statement yet to proof)
+  # (Actually, it would be okay to have more than 2 touching points, of which
+  # all lie on the same rotation axis. We don't consider that case right now)
   def check_for_only_simple_hinges(static_groups)
     rotary_hinges = []
-    static_groups_as_sets_of_nodes = static_groups.map do |triangles|
+    static_groups_as_sets_of_nodes = map_to_set_of_nodes static_groups
+    static_groups_as_sets_of_nodes.product(static_groups_as_sets_of_nodes) do |one, two|
+      next if one == two
+
+      difference = (one & two)
+
+      if difference.size == 2
+        rotary_hinges.push(difference.to_a)
+      elsif difference.size != 0
+        puts 'Structure has hinges that might not be buildable\n
+This error can wrongly occure if rotary hinge hubs lie on the
+same rotation axis'
+      end
+    end
+    rotary_hinges
+  end
+
+  # Takes an array of triangles in static groups, and maps them to an array
+  # of sets, which contain the nodes in the static groups
+  def map_to_set_of_nodes(static_groups)
+    static_groups.map do |triangles|
       nodes = Set.new
       triangles.each do |triangle|
         nodes << triangle.first_node
@@ -160,25 +188,9 @@ class NodeExportAlgorithm
       end
       nodes
     end
-    static_groups_as_sets_of_nodes.product(static_groups_as_sets_of_nodes) do |one, two|
-      next if one == two
-
-      difference = (one & two)
-      unless [0, 2].include? difference.size
-        puts "Structure has hinges that won't be buildable "
-      end
-      if difference.size == 2
-        difference_array = difference.to_a
-        rotary_hinges.push([difference_array[0], difference_array[1]])
-      end
-    end
-    rotary_hinges
   end
 
-
-
-
-    # HACK: always choose the next edge, that has the minimum angle to the current
+  # HACK: always choose the next edge, that has the minimum angle to the current
   # one. For the cases we encountered so far this works.
   def sort_edges_clockwise(edges)
     result = []
