@@ -3,7 +3,7 @@ require 'src/tools/simulation_tool.rb'
 # Ruby integration for animation pane js
 class AnimationPane
   attr_accessor :sidebar_menu, :animation_values
-  HTML_FILE = '../animation-pane/build/index.erb'.freeze
+  HTML_FILE = '../animation-pane/build/index.html'.freeze
 
   def initialize
     @simulation_tool = SimulationTool.new(self)
