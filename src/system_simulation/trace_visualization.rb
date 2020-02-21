@@ -16,6 +16,7 @@ class TraceVisualization
   end
 
   def add_trace(node_ids, sampling_rate, data)
+    reset_trace
     @simulation_data = data
     node_ids.each do |node_id|
       add_circle_trace(node_id, sampling_rate)
@@ -23,8 +24,9 @@ class TraceVisualization
   end
 
   def reset_trace
-    @group = Sketchup.active_model.entities.add_group if @group.deleted?
-    Sketchup.active_model.active_entities.erase_entities(@group.entities.to_a)
+    if @group && !@group.deleted?
+      Sketchup.active_model.active_entities.erase_entities(@group.entities.to_a)
+    end
     if @trace_points.count > 0
       Sketchup.active_model.active_entities.erase_entities(@trace_points)
     end
@@ -34,16 +36,15 @@ class TraceVisualization
   private
 
   def add_circle_trace(node_id, sampling_rate)
+    materialToSet = Sketchup.active_model.materials.add("VisualizationColor")
+    materialToSet.color = @color
+    materialToSet.alpha = @alpha
+
     @simulation_data.each_with_index do |current_data_sample, index|
       # thin out points in trace
       next unless index % sampling_rate == 0
 
-      @group = Sketchup.active_model.entities.add_group if @group.deleted?
       entities = @group.entities
-
-      materialToSet = Sketchup.active_model.materials.add("VisualizationColor")
-      materialToSet.color = @color
-      materialToSet.alpha = @alpha
 
       edgearray = entities.add_circle(current_data_sample.position_data[node_id], Geom::Vector3d.new(1,0,0), 1, 10)
       edgearray.each{|e| e.hidden=true }
