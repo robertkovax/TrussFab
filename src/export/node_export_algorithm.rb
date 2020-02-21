@@ -29,7 +29,6 @@ class NodeExportAlgorithm
 
     offset_rotary_hinge_hubs(rotary_hinges_ids, static_groups)
 
-    return
     static_groups.select! { |group| group.size > 1 }
     static_groups.sort! { |a, b| b.size <=> a.size }
     static_groups = prioritise_pod_groups(static_groups)
@@ -112,7 +111,7 @@ class NodeExportAlgorithm
                               end
 
         edges_from_hinge_into_inset = node_to_inset.incidents.select { |edge| substructure_to_inset.include? edge.other_node(node_to_inset) }.select { |edge| edge.opposite(node_to_inset) != other_node_to_inset }
-        nodes_to_reconnect_to = edges_from_hinge_into_inset.map { |edge| edge.opposite(node_to_inset) }
+        nodes_to_reconnect_to = edges_from_hinge_into_inset.map { |edge| { :node =>  edge.opposite(node_to_inset), :type => edge.link_type} }
 
         edges_from_hinge_into_inset.each(&:delete)
 
@@ -120,8 +119,8 @@ class NodeExportAlgorithm
         inset_vector.length = 100.mm
         inset_position = node_to_inset.position + inset_vector
 
-        nodes_to_reconnect_to.each do |node|
-          Graph.instance.create_edge_from_points(inset_position, node.position)
+        nodes_to_reconnect_to.each do |node_information|
+          Graph.instance.create_edge_from_points(inset_position, node_information[:node].position, link_type: node_information[:type])
         end
       end
     end
