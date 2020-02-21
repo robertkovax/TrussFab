@@ -46,7 +46,8 @@ class DemonstrateAmplitudeTool < SpringSimulationTool
     @constant = @simulation_runner.optimize_constant_for_constrained_angle(angle)
 
     simulate
-    set_graph_to_data_sample(0)
+    equilibrium_index = @simulation_runner.find_equilibrium(@constant)
+    set_graph_to_data_sample(equilibrium_index)
     @trace_visualization.add_trace(["18", "20"], 4, @simulation_data)
 
 
