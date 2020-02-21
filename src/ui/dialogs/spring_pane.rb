@@ -2,7 +2,7 @@
 class SpringPane
   INSIGHTS_HTML_FILE = '../spring-pane/index.erb'.freeze
 
-  def initialize(visualization, constant, animation, refresh_callback, toggle_animation_callback)
+  def initialize(refresh_callback, toggle_animation_callback)
     @refresh_callback = refresh_callback
     @toggle_animation_callback = toggle_animation_callback
 
@@ -20,8 +20,6 @@ class SpringPane
 
   def open_dialog
     return if @insights_dialog && @insights_dialog.visible?
-
-
 
     props = {
         resizable: true,
@@ -51,7 +49,7 @@ class SpringPane
       @refresh_callback.call(spring_id, value)
     end
 
-    @dialog.add_action_callback('spring_insights_toggle_play') do |_, value|
+    @dialog.add_action_callback('spring_insights_toggle_play') do
       @toggle_animation_callback.call
     end
   end
