@@ -18,7 +18,9 @@ module StaticGroupAnalysis
   class Analysis
     def perform
       edges = Graph.instance.edges.values
-      actuators = edges.select { |e| e.link_type == 'actuator' }
+      actuators = edges.select do |edge|
+        edge.link_type == 'actuator' || edge.link_type == 'spring'
+      end
 
       # Maps from a triangle to all triangles rotating with it around a common
       # axis
