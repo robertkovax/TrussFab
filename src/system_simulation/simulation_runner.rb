@@ -7,18 +7,21 @@ require 'benchmark'
 require 'fileutils'
 require 'tmpdir'
 
+# This class encapsulates the way of how system simulations are run. Right now we use Modelica and compile / simulate
+# a modelica model of our geometry when necessary. This class provides public interfaces for different results of the
+# simulation.
 class SimulationRunner
   include Singleton
 
   def initialize(suppress_compilation=false, keep_temp_dir=false)
-    @model_name = "seesaw3"
+    @model_name = 'seesaw3'
 
     if suppress_compilation
       @directory = File.dirname(__FILE__)
     else
       @directory = Dir.mktmpdir
       puts @directory
-      if not keep_temp_dir
+      unless keep_temp_dir
         ObjectSpace.define_finalizer(self, proc { FileUtils.remove_entry @directory })
       end
 
@@ -28,16 +31,15 @@ class SimulationRunner
 
   def get_hub_time_series(hubIDs, stepSize, mass, constant=50)
     data = []
-    simulation_time = Benchmark.realtime { run_simulation(constant, mass, "node_pos.*") }
+    simulation_time = Benchmark.realtime { run_simulation(constant, mass, 'node_pos.*') }
     import_time = Benchmark.realtime { data = parse_data(read_csv) }
     puts("simulation time: #{simulation_time.to_s}s csv parsing time: #{import_time.to_s}s")
     data
   end
 
-
   def get_period(mass=20, constant=5000)
-    # TODO confirm correct result
-    run_simulation(constant, mass, "revLeft.phi")
+    # TODO: confirm correct result
+    run_simulation(constant, mass, 'revLeft.phi')
 
     require 'gsl'
     require 'csv'
@@ -45,8 +47,8 @@ class SimulationRunner
     stop_time = 10
 
     # TODO make this call use read_csv
-    data = CSV.read((File.join(@directory, "#{@model_name}_res.csv")), :headers=>true)['revLeft.phi']
-    vector = data.map{ |v| v.to_f }.to_gv
+    data = CSV.read(File.join(@directory, "#{@model_name}_res.csv"), headers: true)['revLeft.phi']
+    vector = data.map(&:to_f).to_gv
 
     sample_rate = vector.length / stop_time
 
@@ -54,15 +56,13 @@ class SimulationRunner
     y2 = vector.fft.subvector(1, data.length - 2).to_complex2
     mag = y2.abs
     f = GSL::Vector.linspace(0, sample_rate/2, mag.size)
-    #p mag.to_a
-    #p mag.max_index
-    #p f.to_a
-    return 1 / f[mag.max_index]
+
+    1 / f[mag.max_index]
   end
 
   # Returns index of animation frame when system is in equilibrium i.e. the mean of the angle difference
-  def find_equilibrium(constant=50, mass=20)
-    run_simulation(constant, mass, "revLeft.phi")
+  def find_equilibrium(constant = 50, mass = 20)
+    run_simulation(constant, mass, 'revLeft.phi')
     raw_data = read_csv
 
     # remove initial data point, the header
@@ -90,19 +90,18 @@ class SimulationRunner
     abort_threshold = 50000
     while keep_searching
       # puts "Current k: #{constant} Step size: #{step_size}"
-      run_simulation(constant, mass, "revLeft.phi")
+      run_simulation(constant, mass, 'revLeft.phi')
       if !angle_valid(read_csv, allowed_angle_delta)
         # increase spring constant to decrease angle delta
         constant += step_size
-      else if step_sizes.length > 0
-             # go back last step_size
-             constant -= step_size
-             # reduce step size and continue
-             step_size = step_sizes.shift
-           else
-             # we reached smallest step size and found a valid spring constant, so we're done
-             keep_searching = false
-           end
+      elsif !step_sizes.empty?
+        # go back last step_size
+        constant -= step_size
+        # reduce step size and continue
+        step_size = step_sizes.shift
+      else
+        # we reached smallest step size and found a valid spring constant, so we're done
+        keep_searching = false
       end
 
       if constant >= abort_threshold
@@ -128,20 +127,21 @@ class SimulationRunner
     delta < max_allowed_delta
   end
 
-  def run_compilation()
-    output, signal = Open3.capture2e("cp #{@model_name}.mo  #{@directory}", :chdir => File.dirname(__FILE__))
+  def run_compilation
+    output, signal = Open3.capture2e("cp #{@model_name}.mo  #{@directory}", chdir: File.dirname(__FILE__))
     p output
-    output, signal = Open3.capture2e("omc -s #{@model_name}.mo && mv #{@model_name}.makefile Makefile && make -j 8", :chdir => @directory)
+    output, signal = Open3.capture2e("omc -s #{@model_name}.mo && mv #{@model_name}.makefile Makefile && make -j 8",
+                                     chdir: @directory)
     p output
   end
 
-  def run_simulation(constant, mass, filter="*")
+  def run_simulation(constant, mass, filter='*')
     # TODO adjust sampling rate dynamically
     overrides = "outputFormat='csv',variableFilter='#{filter}',startTime=0.3,stopTime=10,stepSize=0.1,springDamperParallel1.c='#{constant}'"
     command = "./#{@model_name} -override #{overrides}"
     puts(command)
-    Open3.popen2e(command, :chdir => @directory) do |i, o, t|
-      o.each {|l| puts l }
+    Open3.popen2e(command, chdir: @directory) do |i, o, t|
+      o.each { |l| puts l }
       status = t.value
     end
   end
@@ -154,7 +154,7 @@ class SimulationRunner
     # parse in which columns the coordinates for each node are stored
     indices_map = AnimationDataSample.indices_map_from_header(raw_data[0])
 
-    #remove header of loaded data
+    # remove header of loaded data
     raw_data.shift()
 
     # parse csv
@@ -162,9 +162,6 @@ class SimulationRunner
     raw_data.each do | value |
       data_samples << AnimationDataSample.from_raw_data(value, indices_map)
     end
-
-    # todo DEBUG
-    #data_samples.each {|sample| puts sample.inspect}
 
     data_samples
 
