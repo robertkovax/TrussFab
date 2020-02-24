@@ -8,7 +8,8 @@ require 'src/system_simulation/simulation_runner.rb'
 require 'src/system_simulation/trace_visualization.rb'
 require 'src/ui/dialogs/spring_pane.rb'
 
-# TODO rename to place user tool, delete old one and add documentation here.
+# Places a user into the geometry i.e. someone who is injecting force into the system. This tool simulates the system
+# and opens a panel that shows information and the possiblity to change parameters of the springs.
 class PlaceUserTool < SpringSimulationTool
 
   def initialize(ui)
@@ -33,7 +34,6 @@ class PlaceUserTool < SpringSimulationTool
 
       # Populate simulation data.
       simulate
-      #@insights_dialog.execute_script("set_period(#{get_period})")
 
       # Set geometry into equilibrium.
       set_graph_to_data_sample(0)
@@ -49,10 +49,7 @@ class PlaceUserTool < SpringSimulationTool
       end
 
     else
-      # Reset trace visualization.
       @trace_visualization.reset_trace
-
-      # Stop Animation.
       toggle_animation
     end
 

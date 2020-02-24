@@ -60,7 +60,7 @@ class SimulationRunner
     return 1 / f[mag.max_index]
   end
 
-  # Returns index of animation frame when system is in equilibrium
+  # Returns index of animation frame when system is in equilibrium i.e. the mean of the angle difference
   def find_equilibrium(constant=50, mass=20)
     run_simulation(constant, mass, "revLeft.phi")
     raw_data = read_csv
@@ -68,6 +68,7 @@ class SimulationRunner
     # remove initial data point, the header
     raw_data.shift
     angles = raw_data.map { |data_sample| data_sample[1].to_f }
+
     # center of oscillation
     equilibrium_angle = angles.min + (angles.max - angles.min) / 2
     equilibrium_data_row = raw_data.min_by do | data_row |
@@ -79,7 +80,8 @@ class SimulationRunner
     raw_data.index(equilibrium_data_row)
   end
 
-  def optimize_constant_for_constrained_angle(allowed_angle_delta = Math::PI / 2.0, initial_constant = 500, mass=20, spring_id = 0, angle_id = 0)
+  def constant_for_constrained_angle(allowed_angle_delta = Math::PI / 2.0, initial_constant = 500, mass = 20,
+                                     spring_id = 0, angle_id = 0)
     # steps which the algorithm uses to approximate the valid spring constant
     step_sizes = [1500, 1000, 200, 50, 5]
     constant = initial_constant
@@ -87,7 +89,7 @@ class SimulationRunner
     keep_searching = true
     abort_threshold = 50000
     while keep_searching
-      #puts "Current k: #{constant} Step size: #{step_size}"
+      # puts "Current k: #{constant} Step size: #{step_size}"
       run_simulation(constant, mass, "revLeft.phi")
       if !angle_valid(read_csv, allowed_angle_delta)
         # increase spring constant to decrease angle delta
@@ -108,10 +110,6 @@ class SimulationRunner
       end
     end
 
-    puts "Found constant: #{constant}"
-    data = read_csv.map { |data_sample| data_sample[1].to_f }
-    data.shift
-    puts "min: #{data.min} max: #{data.max}"
     constant
   end
 
