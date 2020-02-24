@@ -37,9 +37,9 @@ class DemonstrateAmplitudeTool < SpringSimulationTool
     return if @start_node.nil?
     puts @end_position
 
-    hinge = get_mock_hinge_information
-    initial_vector = @start_position - hinge[:hinge_center]
-    max_amplitude_vector = @end_position - hinge[:hinge_center]
+    hinge_center = get_hinge_edge(@start_node).mid_point
+    initial_vector = @start_position - hinge_center
+    max_amplitude_vector = @end_position - hinge_center
     # user inputs only half of the amplitude since we want to have the oscillation symmetric around the equililbirum.
     angle = 2 * initial_vector.angle_between(max_amplitude_vector)
 
@@ -96,12 +96,16 @@ class DemonstrateAmplitudeTool < SpringSimulationTool
 
   private
 
-  # TODO replace with dynamically retrieved hinge information
-  def get_mock_hinge_information
-    node_a = Graph.instance.nodes[5]
-    node_b = Graph.instance.nodes[7]
-    edge = Graph.instance.create_edge(node_a, node_b)
-    { :hinge_axis => edge.direction, :hinge_center => edge.mid_point }
+  def get_hinge_edge(node)
+    static_groups = StaticGroupAnalysis.find_static_groups
+    # get first static group the node is in, should be only one anyways
+    nodes = StaticGroupAnalysis.get_static_groups_for_node(node)[0]
+    rotary_hinge_pairs = NodeExportAlgorithm.instance.check_for_only_simple_hinges static_groups
+    rotary_hinge_pairs.select! do |node_pair|
+      nodes.include?(node_pair[0]) && nodes.include?(node_pair[1])
+    end
+    # rotary hinge paris contain duplicates (for each hinge both directions), we can just use the first one
+    Graph.instance.find_edge(rotary_hinge_pairs[0])
   end
 end
 
