@@ -9,8 +9,10 @@ require 'tmpdir'
 
 class SimulationRunner
 
-  def initialize(suppress_compilation=false, keep_temp_dir=false)
-    @model_name = "seesaw3"
+  def initialize(model_name="seesaw3", suppress_compilation=false, keep_temp_dir=false)
+    @model_name = model_name
+    @simulation_options = "-abortSlowSimulation -lv=LOG_INIT_V,LOG_SIMULATION,LOG_STATS,LOG_JAC,LOG_NLS"
+    # @simulation_options += "LOG_SOTI,LOG_DSS"
 
     if suppress_compilation
       @directory = File.dirname(__FILE__)
@@ -71,16 +73,16 @@ class SimulationRunner
   private
 
   def run_compilation()
-    output, signal = Open3.capture2e("cp #{@model_name}.mo  #{@directory}", :chdir => File.dirname(__FILE__))
+    output, signal = Open3.capture2("cp #{@model_name}.mo  #{@directory}", :chdir => File.dirname(__FILE__))
     p output
-    output, signal = Open3.capture2e("omc -s #{@model_name}.mo && mv #{@model_name}.makefile Makefile && make -j 8", :chdir => @directory)
+    output, signal = Open3.capture2("omc -s #{@model_name}.mo Modelica && mv #{@model_name}.makefile Makefile && make -j 8", :chdir => @directory)
     p output
   end
 
   def run_simulation(constant, mass, filter="*")
     # TODO adjust sampling rate dynamically
-    overrides = "outputFormat='csv',variableFilter='#{filter}',startTime=0.3,stopTime=10,stepSize=0.02,springDamperParallel1.c='#{constant}'"
-    command = "./#{@model_name} -override #{overrides}"
+    overrides = "outputFormat='csv',variableFilter='#{filter}',startTime=0,stopTime=10,stepSize=0.02,springDamperParallel1.c='#{constant}'"
+    command = "./#{@model_name} #{@simulation_options} -override #{overrides}"
     puts(command)
     Open3.popen2e(command, :chdir => @directory) do |i, o, t|
       o.each {|l| puts l }

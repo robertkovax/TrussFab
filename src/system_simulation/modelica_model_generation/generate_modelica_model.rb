@@ -8,9 +8,13 @@ require 'pp'
 
 NODE_WEIGHT_KG = 1
 PIPE_WEIGHT_KG = 1
-SPRING_CONSTANT = 70
+SPRING_CONSTANT = 10000
+POINT_MASS_GENERATION_ENABLED = true
 
-# DOCS
+def sketchup_to_modelica_units(x)
+  (x / 1000).round(10)
+end
+
 # Aussumptions: n1 -> frame_a / n2 -> frame_b
 
 # Phase 1: LOADING
@@ -32,39 +36,41 @@ nodes.each { |key, node|
   node[:primary_edge] = nil
   node[:connecting_edges] = Array.new
   node[:fixed] = node.key?('pods') && node['pods'].any? && node['pods'][0]['is_fixed']
+  node[:x] = sketchup_to_modelica_units(node['x'])
+  node[:y] = sketchup_to_modelica_units(node['y'])
+  node[:z] = sketchup_to_modelica_units(node['z'])
 }
 
+
+# Delete all edges that are in between fixed nodes and don't contribute to the simulation
+edges.delete_if { |edgeID, edge|
+  nodes[edge['n1']][:fixed] && nodes[edge['n2']][:fixed]
+}
 
 edges.each { |edgeID, edge|
   n1 = nodes[edge['n1']]
   n2 = nodes[edge['n2']]
 
-  edge[:length] = edge['e1']
-
-  # if node is fixed, the orientation should not be defined by the line force component
-  # TODO document orientation behavior
-  edge[:n1_orientation_fixed] = !n1[:visited] && !n1[:fixed]
-  edge[:n2_orientation_fixed] = !n2[:visited] && !n2[:fixed]
-
-  # store for correct orientation in modelica file
-  if n1[:primary_edge].nil?
-    n1[:primary_edge] = edge
-  elsif n2[:primary_edge].nil?
-    n2[:primary_edge] = edge
-  end
+  edge[:length] = sketchup_to_modelica_units(edge['e1'])
 
   n1[:connecting_edges].append(edge)
   n2[:connecting_edges].append(edge)
 
-  unless n1[:visited]
-    n1[:visited] = true
-  end
-
-  unless n2[:visited]
-    n2[:visited] = true
-  end
+  edge[:n1_orientation_fixed] = false
+  edge[:n2_orientation_fixed] = false
 }
 
+nodes.each { |nodeId, node|
+  node[:primary_edge] = node[:connecting_edges][0]
+
+  if not node[:fixed]
+    if node[:primary_edge]['n1'] == nodeId
+      node[:primary_edge][:n1_orientation_fixed] = true
+    else node[:primary_edge]['n2'] == nodeId
+      node[:primary_edge][:n2_orientation_fixed] = true
+    end
+  end
+}
 
 # Phase 3 Modelica Component Generation
 Modelica_LineForceWithMass = Struct.new(:name, :mass, :orientation_fixed_a, :orientation_fixed_b)
@@ -73,7 +79,6 @@ Modelica_Spring = Struct.new(:name, :c, :length)
 Modelica_Connection = Struct.new(:from, :to)
 Modelica_Fixture = Struct.new(:name, :x, :y, :z)
 Modelica_PointMass = Struct.new(:name, :mass, :x_start, :y_start, :z_start)
-# TODO implement generation of PointMasses
 
 modelica_components = Array.new
 modelica_connections = Array.new
@@ -136,6 +141,7 @@ edges.each { |edgeID, edge|
   modelica_connections.append(*generate_force_connections(edge_component, force_translator))
 }
 
+
 # Phase 3.2 Generate links between components
 nodes.each { |nodeId, node|
   primary_edge_connection_direction = get_direction(node, node[:primary_edge])
@@ -153,19 +159,21 @@ nodes.each { |nodeId, node|
 }
 
 # Phase 3.3 Generate Point Masses on all nodes
-# nodes.each { |nodeId, node|
-#   primary_edge_connection_direction = get_direction(node, node[:primary_edge])
+if POINT_MASS_GENERATION_ENABLED
+  nodes.each { |nodeId, node|
+    primary_edge_connection_direction = get_direction(node, node[:primary_edge])
 
-#   # Generate PointMasses
-#   point_mass_component = Modelica_PointMass.new("node_#{nodeId}_mass", NODE_WEIGHT_KG, node['x'], node['y'], node['z'])
-#   modelica_components.append(point_mass_component)
-#   modelica_connections.append(generate_mutlibody_connection(node[:primary_edge], primary_edge_connection_direction, point_mass_component, :a))
-# }
+    # Generate PointMasses
+    point_mass_component = Modelica_PointMass.new("node_#{nodeId}_mass", NODE_WEIGHT_KG, node[:x], node[:y], node[:z])
+    modelica_components.append(point_mass_component)
+    modelica_connections.append(generate_mutlibody_connection(node[:primary_edge], primary_edge_connection_direction, point_mass_component, :a))
+  }
+end
 
 # Phase 3.3 Generate Fixtures
 nodes.select{|id, node| node[:fixed]}.each { |id, node|
   fixture_name = "node_#{id}_fixture"
-  modelica_components.append(Modelica_Fixture.new(fixture_name, node['x'].to_f, node['y'].to_f, node['z'].to_f))
+  modelica_components.append(Modelica_Fixture.new(fixture_name, node[:x], node[:y], node[:z]))
   modelica_connections.append(Modelica_Connection.new(fixture_name + ".frame_b", edge_to_modelica_name(node[:primary_edge]) + ".frame_a"))
 }
 
