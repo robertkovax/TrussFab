@@ -13,7 +13,7 @@ require 'tmpdir'
 class SimulationRunner
   include Singleton
 
-  def initialize(suppress_compilation=false, keep_temp_dir=false)
+  def initialize(suppress_compilation = false, keep_temp_dir = false)
     @model_name = 'seesaw3'
 
     if suppress_compilation
@@ -21,23 +21,21 @@ class SimulationRunner
     else
       @directory = Dir.mktmpdir
       puts @directory
-      unless keep_temp_dir
-        ObjectSpace.define_finalizer(self, proc { FileUtils.remove_entry @directory })
-      end
+      ObjectSpace.define_finalizer(self, proc { FileUtils.remove_entry @directory }) unless keep_temp_dir
 
       run_compilation
     end
   end
 
-  def get_hub_time_series(hubIDs, stepSize, mass, constant=50)
+  def get_hub_time_series(hub_ids, step_size, mass, constant = 50)
     data = []
     simulation_time = Benchmark.realtime { run_simulation(constant, mass, 'node_pos.*') }
     import_time = Benchmark.realtime { data = parse_data(read_csv) }
-    puts("simulation time: #{simulation_time.to_s}s csv parsing time: #{import_time.to_s}s")
+    puts("simulation time: #{simulation_time}s csv parsing time: #{import_time}s")
     data
   end
 
-  def get_period(mass=20, constant=5000)
+  def get_period(mass = 20, constant = 5000)
     # TODO: confirm correct result
     run_simulation(constant, mass, 'revLeft.phi')
 
@@ -46,7 +44,7 @@ class SimulationRunner
 
     stop_time = 10
 
-    # TODO make this call use read_csv
+    # TODO: make this call use read_csv
     data = CSV.read(File.join(@directory, "#{@model_name}_res.csv"), headers: true)['revLeft.phi']
     vector = data.map(&:to_f).to_gv
 
@@ -55,7 +53,7 @@ class SimulationRunner
     # https://github.com/SciRuby/rb-gsl/blob/master/examples/fft/fft.rb
     y2 = vector.fft.subvector(1, data.length - 2).to_complex2
     mag = y2.abs
-    f = GSL::Vector.linspace(0, sample_rate/2, mag.size)
+    f = GSL::Vector.linspace(0, sample_rate / 2, mag.size)
 
     1 / f[mag.max_index]
   end
@@ -71,7 +69,7 @@ class SimulationRunner
 
     # center of oscillation
     equilibrium_angle = angles.min + (angles.max - angles.min) / 2
-    equilibrium_data_row = raw_data.min_by do | data_row |
+    equilibrium_data_row = raw_data.min_by do |data_row|
       # find data row with angle that is the closest to the equilibrium
       # (can't check for equality since we only have samples in time)
       (equilibrium_angle - data_row[1].to_f).abs
@@ -87,7 +85,7 @@ class SimulationRunner
     constant = initial_constant
     step_size = step_sizes.shift
     keep_searching = true
-    abort_threshold = 50000
+    abort_threshold = 50_000
     while keep_searching
       # puts "Current k: #{constant} Step size: #{step_size}"
       run_simulation(constant, mass, 'revLeft.phi')
@@ -104,16 +102,11 @@ class SimulationRunner
         keep_searching = false
       end
 
-      if constant >= abort_threshold
-        keep_searching = false
-      end
+      keep_searching = false if constant >= abort_threshold
     end
 
     constant
   end
-
-
-
 
   private
 
@@ -128,25 +121,24 @@ class SimulationRunner
   end
 
   def run_compilation
-    output, signal = Open3.capture2e("cp #{@model_name}.mo  #{@directory}", chdir: File.dirname(__FILE__))
+    output, _ = Open3.capture2e("cp #{@model_name}.mo  #{@directory}", chdir: File.dirname(__FILE__))
     p output
-    output, signal = Open3.capture2e("omc -s #{@model_name}.mo && mv #{@model_name}.makefile Makefile && make -j 8",
-                                     chdir: @directory)
+    output, _ = Open3.capture2e("omc -s #{@model_name}.mo && mv #{@model_name}.makefile Makefile && make -j 8",
+                                chdir: @directory)
     p output
   end
 
-  def run_simulation(constant, mass, filter='*')
+  def run_simulation(constant, mass, filter = '*')
     # TODO adjust sampling rate dynamically
     overrides = "outputFormat='csv',variableFilter='#{filter}',startTime=0.3,stopTime=10,stepSize=0.1,springDamperParallel1.c='#{constant}'"
     command = "./#{@model_name} -override #{overrides}"
     puts(command)
     Open3.popen2e(command, chdir: @directory) do |i, o, t|
       o.each { |l| puts l }
-      status = t.value
     end
   end
 
-  def read_csv()
+  def read_csv
     CSV.read(File.join(@directory, "#{@model_name}_res.csv"))
   end
 
@@ -155,11 +147,11 @@ class SimulationRunner
     indices_map = AnimationDataSample.indices_map_from_header(raw_data[0])
 
     # remove header of loaded data
-    raw_data.shift()
+    raw_data.shift
 
     # parse csv
     data_samples = []
-    raw_data.each do | value |
+    raw_data.each do |value|
       data_samples << AnimationDataSample.from_raw_data(value, indices_map)
     end
 
