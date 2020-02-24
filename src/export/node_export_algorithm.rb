@@ -20,68 +20,37 @@ class NodeExportAlgorithm
   end
 
   def run
-    nodes = Graph.instance.nodes.values
-    edges = Graph.instance.edges.values
-
     static_groups = StaticGroupAnalysis.find_static_groups
 
     rotary_hinge_pairs = check_for_only_simple_hinges static_groups
     offset_rotary_hinge_hubs(rotary_hinge_pairs, static_groups)
 
-    # static_groups.select! { |group| group.size > 1 }
-    # static_groups.sort! { |a, b| b.size <=> a.size }
-    # static_groups = prioritise_pod_groups(static_groups)
-    #
-    # @export_interface = NodeExportInterface.new(static_groups)
-    #
-    # group_edge_map = {}
-    #
-    # # generate hubs for all groups with size > 1
-    # static_groups.each do |group|
-    #   group_nodes = Set.new(group.flat_map(&:nodes))
-    #   group_edges = Set.new(group.flat_map(&:edges))
-    #
-    #   group_edge_map[group] = group_edges
-    #
-    #   group_nodes.each do |node|
-    #     hub_edges = group_edges.select { |edge| edge.nodes.include? node }
-    #     hub_edges = sort_edges_clockwise(hub_edges)
-    #
-    #     hub = HubExportInterface.new(hub_edges)
-    #     @export_interface.add_hub(node, hub)
-    #   end
-    # end
+    static_groups.sort! { |a, b| b.size <=> a.size }
+    static_groups = prioritise_pod_groups(static_groups)
 
-    # put hinges everywhere possible
-    # triangles = Set.new(edges.flat_map(&:adjacent_triangles))
-    #
-    # triangles.each do |tri|
-    #   tri.edges.combination(2).each do |e1, e2|
-    #     hinge = generate_hinge_if_necessary(
-    #       e1, e2, tri, static_groups, group_edge_map
-    #     )
-    #
-    #     node = e1.shared_node(e2)
-    #
-    #     if !@export_interface.has_mainhub_at_node(node) &&
-    #        !hinge.is_double_hinge
-    #       hub = HubExportInterface.new([e1, e2])
-    #       @export_interface.add_hub(node, hub)
-    #     else
-    #       @export_interface.add_hinge(node, hinge) unless hinge.nil?
-    #     end
-    #   end
-    # end
+    @export_interface = NodeExportInterface.new(static_groups)
 
-    # @export_interface.apply_hinge_algorithm
+    group_edge_map = {}
 
-    # Sketchup.active_model.start_operation('elongate edges', true)
-    # ElongationManager.improve_elongations(@export_interface, nodes, false)
-    # Sketchup.active_model.commit_operation
+    # generate hubs for all groups
+    static_groups.each do |group|
+      group_nodes = Set.new(group.flat_map(&:nodes))
+      group_edges = Set.new(group.flat_map(&:edges))
 
-    # Sketchup.active_model.start_operation('visualize export result', true)
-    # NodeExportVisualization.visualize(@export_interface)
-    # Sketchup.active_model.commit_operation
+      group_edge_map[group] = group_edges
+
+      group_nodes.each do |node|
+        hub_edges = group_edges.select { |edge| edge.nodes.include? node }
+        hub_edges = sort_edges_clockwise(hub_edges)
+
+        hub = HubExportInterface.new(hub_edges)
+        @export_interface.add_hub(node, hub)
+      end
+    end
+
+    Sketchup.active_model.start_operation('visualize export result', true)
+    NodeExportVisualization.visualize(@export_interface)
+    Sketchup.active_model.commit_operation
 
   end
 
@@ -89,6 +58,7 @@ class NodeExportAlgorithm
 
   def offset_rotary_hinge_hubs(rotary_hinges, static_groups)
     static_groups_as_sets_of_nodes = map_to_set_of_nodes static_groups
+    puts "rotary_hinges: #{rotary_hinges}"
     rotary_hinges.each do |node_pair|
 
       if node_pair.length != 2
@@ -108,6 +78,17 @@ structures at the same hinge"
 
       substructure_to_inset = choose_structure_to_inset static_groups_pair.to_a
 
+      # Clear the current substructure from the static_groups, it will later
+      # be added again
+      static_groups.reject! do |static_group_triangles|
+        nodes = Set.new(static_group_triangles.flat_map(&:nodes))
+        nodes.to_set == substructure_to_inset
+      end
+
+      inset_substructure_nodes = Set.new
+      inset_substructure_nodes.merge substructure_to_inset
+      inset_substructure_nodes.subtract node_pair
+
       node_pair.each do |node_to_inset|
         other_node_to_inset = if node_pair[0] == node_to_inset
                                 node_pair[1]
@@ -115,7 +96,10 @@ structures at the same hinge"
                                 node_pair[0]
                               end
 
-        edges_from_hinge_into_inset = node_to_inset.incidents.select { |edge| substructure_to_inset.include? edge.other_node(node_to_inset) }.select { |edge| edge.opposite(node_to_inset) != other_node_to_inset }
+        edges_from_hinge_into_inset = node_to_inset.incidents
+           .select { |edge| substructure_to_inset.include? edge.other_node(node_to_inset) }
+           .reject { |edge| edge.opposite(node_to_inset) == other_node_to_inset }
+
         nodes_to_reconnect_to = edges_from_hinge_into_inset.map { |edge| { :node =>  edge.opposite(node_to_inset), :type => edge.link_type} }
 
         edges_from_hinge_into_inset.each(&:delete)
@@ -125,10 +109,31 @@ structures at the same hinge"
         inset_position = node_to_inset.position + inset_vector
 
         nodes_to_reconnect_to.each do |node_information|
-          edge = Graph.instance.create_edge_from_points(inset_position, node_information[:node].position, link_type: node_information[:type])
-
+          Graph.instance.create_edge_from_points(
+            inset_position, node_information[:node].position,
+            link_type: node_information[:type]
+          )
         end
+
+        inset_hub_edge = Graph.instance.create_edge_from_points(
+          inset_position, other_node_to_inset.position - inset_vector
+        )
+        inset_substructure_nodes.merge inset_hub_edge.nodes
       end
+
+      # Append the new triangles from the static group that was inset to the
+      # static group
+      triangles_to_add = Set.new
+      inset_substructure_nodes.each do |node|
+        triangles = node.adjacent_triangles
+        triangles.select! do |triangle|
+          triangle.nodes.all? do |triangle_node|
+          inset_substructure_nodes.include? triangle_node
+          end
+        end
+        triangles_to_add.merge triangles
+      end
+      static_groups.push triangles_to_add
     end
   end
 
@@ -159,7 +164,7 @@ structures at the same hinge"
   def check_for_only_simple_hinges(static_groups)
     rotary_hinges = []
     static_groups_as_sets_of_nodes = map_to_set_of_nodes static_groups
-    static_groups_as_sets_of_nodes.product(static_groups_as_sets_of_nodes) do |one, two|
+    static_groups_as_sets_of_nodes.combination(2) do |one, two|
       next if one == two
 
       difference = (one & two)
@@ -198,6 +203,7 @@ same rotation axis'
     loop do
       result.push(current)
       return result if result.size == edges.size
+
       remaining_edges = edges - result
 
       current = remaining_edges.min do |a, b|
