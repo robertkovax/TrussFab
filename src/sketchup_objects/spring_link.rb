@@ -39,6 +39,7 @@ class SpringLink < ActuatorLink
   #
 
   def update_link_properties
+    super
     recreate_children
     return unless @joint && @joint.valid?
 
