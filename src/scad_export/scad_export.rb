@@ -279,6 +279,9 @@ class ScadExport
     node_export_algorithm = NodeExportAlgorithm.instance
     node_export_algorithm.run
 
+    # TODO: Fix export
+    return
+
     export_interface = node_export_algorithm.export_interface
 
     export_hinges = []

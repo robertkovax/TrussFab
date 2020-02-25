@@ -139,6 +139,8 @@ class Edge < GraphObject
 
   def sorted_adjacent_triangles
     triangles = adjacent_triangles
+    raise "Edge has no adjacent triangle" if triangles.length.zero?
+
     ref_vector = mid_point.vector_to(triangles[0].other_node_for(self).position)
     normal = direction.normalize
     triangles.sort_by do |t|
