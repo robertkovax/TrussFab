@@ -76,7 +76,6 @@ class ExportFileTool < Tool
 
     dir_name = File.dirname(@export_path)
     base_name = File.basename(@export_path, File.extname(@export_path))
-    puts "dir_name: #{dir_name}, base_name: #{base_name}"
     partslist_file = File.open("#{dir_name}/#{base_name}_partslist.txt", "w")
     partslist_file.puts("Parts for #{base_name}:\n\n")
     partslist_file.puts("Number of hubs: #{number_hubs}\n")
