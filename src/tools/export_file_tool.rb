@@ -2,6 +2,7 @@ require 'src/tools/tool.rb'
 require 'src/utility/mouse_input.rb'
 require 'src/utility/json_export.rb'
 require 'src/configuration/configuration.rb'
+require 'src/system_simulation/simulation_runner_client.rb'
 
 # Exports Object to JSON
 class ExportFileTool < Tool
@@ -27,15 +28,20 @@ class ExportFileTool < Tool
   end
 
   def export_with_file_dialog(triangle = nil)
-    @export_path = Configuration::JSON_PATH if @export_path.nil?
-    @export_path = UI.savepanel('Export JSON', @export_path, 'export.json')
+    # @export_path = Configuration::JSON_PATH if @export_path.nil?
+    # @export_path = UI.savepanel('Export JSON', @export_path, 'export.json')
+    # unless @export_path.nil?
+    #   JsonExport.export(@export_path, triangle, animation)
+    #   export_animation_to_txt(animation)
+    #   export_partslist
+    #   @export_path = File.dirname(@export_path)
+    # end
     animation = @ui.animation_pane.animation_values
-    unless @export_path.nil?
-      JsonExport.export(@export_path, triangle, animation)
-      export_animation_to_txt(animation)
-      export_partslist
-      @export_path = File.dirname(@export_path)
-    end
+    json_string = JsonExport.graph_to_json(triangle, animation)
+
+    SimulationRunnerClient.update_model(json_string)
+    p "compilation finished"
+    p SimulationRunnerClient.get_period()
   end
 
   def export_animation_to_txt(animation)

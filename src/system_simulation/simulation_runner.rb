@@ -3,16 +3,20 @@
 require 'csv'
 require_relative './animation_data_sample.rb'
 require 'open3'
-
 require 'fileutils'
 require 'tmpdir'
-
-
+require 'csv'
 
 class SimulationRunner
 
-  # def self.new_from_export(export_json)
-    #
+  def self.new_from_json_export(json_export_string)
+    require "./generate_modelica_model.rb"
+    modelica_model_string = generate_modelica_file(json_export_string)
+    model_name = "LineForceGenerated"
+    File.open(model_name + ".mo", 'w') { |file| file.write(modelica_model_string) }
+
+    SimulationRunner.new(model_name)
+  end
 
   def initialize(model_name="seesaw3", suppress_compilation=false, keep_temp_dir=false)
     @model_name = model_name
@@ -47,7 +51,6 @@ class SimulationRunner
     run_simulation(constant, mass, "revLeft.phi")
 
     require 'gsl'
-    require 'csv'
 
     stop_time = 10
 

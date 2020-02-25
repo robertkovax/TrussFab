@@ -1,20 +1,15 @@
 require "./simulation_runner.rb"
-require "./generate_modelica_model.rb"
 
 task default: %w[test]
 
 task :compile do
-  sim = SimulationRunner.new()
+  sim = SimulationRunner.new_from_json_export()
 end
 
 task :test_simple_seesaw do
   file = File.read("./modelica_model_generation/simple_seesaw.json")
-  modelica_model_string = generate_modelica_file(file)
-  model_name = "LineForceGenerated"
 
-  File.open(model_name + ".mo", 'w') { |file| file.write(modelica_model_string) }
-
-  sim = SimulationRunner.new(model_name='LineForceGenerated')
+  sim = SimulationRunner.new_from_json_export(file)
   p sim.get_period()
 end
 
