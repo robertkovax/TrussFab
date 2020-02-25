@@ -86,10 +86,11 @@ class SpringLink < ActuatorLink
 
   def inspect
     initial_length =
-      @initial_spring_length - 2 * Configuration::BALL_HUB_RADIUS.to_mm.round(2)
-    "Spring #{id} (#{@first_node.id}, #{@second_node.id}):
- initial Length: #{initial_length},
- spring parameter k: #{@spring_parameter_k}"
+      (@initial_spring_length - 2 * Configuration::BALL_HUB_RADIUS)
+      .to_mm.round(2)
+    "Spring #{id} (#{@first_node.id}, #{@second_node.id}): " \
+    "initial Length: #{initial_length}mm, " \
+    "spring parameter k: #{@spring_parameter_k}"
   end
 
   def set_piston_group_color
