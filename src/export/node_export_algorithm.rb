@@ -51,90 +51,108 @@ class NodeExportAlgorithm
     Sketchup.active_model.start_operation('visualize export result', true)
     NodeExportVisualization.visualize(@export_interface)
     Sketchup.active_model.commit_operation
-
   end
 
   private
 
   def offset_rotary_hinge_hubs(rotary_hinges, static_groups)
-    static_groups_as_sets_of_nodes = map_to_set_of_nodes static_groups
-    puts "rotary_hinges: #{rotary_hinges}"
     rotary_hinges.each do |node_pair|
+      offset_rotary_hinge_node_pair node_pair, static_groups
+    end
+  end
 
-      if node_pair.length != 2
-        raise "Expected #{node_pair} to only contain two hinges, we currently
+  def offset_rotary_hinge_node_pair(node_pair, static_groups)
+    static_groups_as_sets_of_nodes = map_to_set_of_nodes static_groups
+    if node_pair.length != 2
+      raise "Expected #{node_pair} to only contain two hinges, we currently
 don't handle the case of > 2 nodes on one rotation axis"
-      end
+    end
 
-      static_groups_pair =
-        static_groups_as_sets_of_nodes
-        .select { |node_set| node_pair.all? { |node| node_set.include?(node) } }
+    static_groups_pair =
+      static_groups_as_sets_of_nodes
+      .select { |node_set| node_pair.all? { |node| node_set.include?(node) } }
 
-      if static_groups_pair.length != 2
-        raise "Expected #{static_groups_pair} to only contain two static groups
+    if static_groups_pair.length != 2
+      raise "Expected #{static_groups_pair} to only contain two static groups
  to rotate around one hinge. Currently we don't support more than two moving
 structures at the same hinge"
-      end
-
-      substructure_to_inset = choose_structure_to_inset static_groups_pair.to_a
-
-      # Clear the current substructure from the static_groups, it will later
-      # be added again
-      static_groups.reject! do |static_group_triangles|
-        nodes = Set.new(static_group_triangles.flat_map(&:nodes))
-        nodes.to_set == substructure_to_inset
-      end
-
-      inset_substructure_nodes = Set.new
-      inset_substructure_nodes.merge substructure_to_inset
-      inset_substructure_nodes.subtract node_pair
-
-      node_pair.each do |node_to_inset|
-        other_node_to_inset = if node_pair[0] == node_to_inset
-                                node_pair[1]
-                              else
-                                node_pair[0]
-                              end
-
-        edges_from_hinge_into_inset = node_to_inset.incidents
-           .select { |edge| substructure_to_inset.include? edge.other_node(node_to_inset) }
-           .reject { |edge| edge.opposite(node_to_inset) == other_node_to_inset }
-
-        nodes_to_reconnect_to = edges_from_hinge_into_inset.map { |edge| { :node =>  edge.opposite(node_to_inset), :type => edge.link_type} }
-
-        edges_from_hinge_into_inset.each(&:delete)
-
-        inset_vector = node_to_inset.position.vector_to(other_node_to_inset.position)
-        inset_vector.length = Configuration::DISTANCE_TO_INSET_ROTARY_HUBS
-        inset_position = node_to_inset.position + inset_vector
-
-        nodes_to_reconnect_to.each do |node_information|
-          Graph.instance.create_edge_from_points(
-            inset_position, node_information[:node].position,
-            link_type: node_information[:type]
-          )
-        end
-
-        inset_hub_edge = Graph.instance.create_edge_from_points(
-          inset_position, other_node_to_inset.position - inset_vector
-        )
-        inset_substructure_nodes.merge inset_hub_edge.nodes
-      end
-
-      # Append the new triangles from the static group that was inset to the
-      # static group
-      triangles_to_add = Set.new
-      inset_substructure_nodes.each do |node|
-        triangles = node.adjacent_triangles
-        triangles.select! do |triangle|
-          triangle.nodes.all? do |triangle_node|
-          inset_substructure_nodes.include? triangle_node
-          end
-        end
-        triangles_to_add.merge triangles
-      end
-      static_groups.push triangles_to_add
     end
+
+    substructure_to_inset = choose_structure_to_inset static_groups_pair.to_a
+
+    # Clear the current substructure from the static_groups, it will later
+    # be added again
+    static_groups.reject! do |static_group_triangles|
+      nodes = Set.new(static_group_triangles.flat_map(&:nodes))
+      nodes.to_set == substructure_to_inset
+    end
+
+
+    inset_substructure_nodes = Set.new
+    inset_substructure_nodes.merge substructure_to_inset
+    inset_substructure_nodes.subtract node_pair
+
+    inset_node_pair_from_substructure node_pair, inset_substructure_nodes
+
+    # Append the new triangles from the static group that was inset to the
+    # static group
+    static_groups << find_contained_triangles(inset_substructure_nodes)
+  end
+
+  # Insets the given node pair, by recreating edges to the substructure_nodes
+  # that previously had edges.
+  # Substructure_nodes should not contain the node_pair anymore.
+  # The newly created (inset) nodes will be added to substructure_nodes.
+  def inset_node_pair_from_substructure(node_pair, substructure_nodes)
+    inset_positions = []
+    node_pair.each do |node_to_inset|
+      other_node_to_inset = if node_pair[0] == node_to_inset
+                              node_pair[1]
+                            else
+                              node_pair[0]
+                            end
+
+      edges_from_hinge_into_inset = node_to_inset.incidents
+        .select { |e| substructure_nodes.include? e.other_node(node_to_inset) }
+        .reject { |e| e.opposite(node_to_inset) == other_node_to_inset }
+
+      nodes_to_reconnect_to = edges_from_hinge_into_inset.map do |edge|
+        { node: edge.opposite(node_to_inset), type: edge.link_type }
+      end
+
+      edges_from_hinge_into_inset.each(&:delete)
+
+      inset_vector = node_to_inset.position.vector_to(other_node_to_inset.position)
+      inset_vector.length = Configuration::DISTANCE_TO_INSET_ROTARY_HUBS
+      inset_position = node_to_inset.position + inset_vector
+      inset_positions << inset_position
+
+      nodes_to_reconnect_to.each do |node_information|
+        Graph.instance.create_edge_from_points(
+          inset_position, node_information[:node].position,
+          link_type: node_information[:type]
+        )
+      end
+    end
+    inset_hub_edge = Graph.instance.create_edge_from_points(
+      inset_positions[0], inset_positions[1]
+    )
+    substructure_nodes.merge inset_hub_edge.nodes
+  end
+
+  # Finds all triangles that only have nodes in the given array
+  def find_contained_triangles(nodes)
+    contained_triangles = Set.new
+    nodes.each do |node|
+      triangles = node.adjacent_triangles
+      triangles.select! do |triangle|
+        triangle.nodes.all? do |triangle_node|
+          nodes.include? triangle_node
+        end
+      end
+      contained_triangles.merge triangles
+    end
+    contained_triangles
   end
 
   def choose_structure_to_inset(static_groups_pair)
