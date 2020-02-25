@@ -9,7 +9,7 @@ class SpringLink < ActuatorLink
     @spring_parameter_k = 200
     super(first_node, second_node, edge, id: id)
     @first_elongation_length =
-        @second_elongation_length = Configuration::MINIMUM_ELONGATION
+      @second_elongation_length = Configuration::MINIMUM_ELONGATION
     persist_entity
   end
 
@@ -42,8 +42,6 @@ class SpringLink < ActuatorLink
 
   def update_link_properties
     recreate_children
-    return unless @joint && @joint.valid?
-
   end
 
   def update_link_transformations
@@ -68,7 +66,7 @@ class SpringLink < ActuatorLink
 
     translation = Geom::Transformation.translation(new_position)
 
-    @first_cylinder.entity.transformation=(translation * rotation * scaling)
+    @first_cylinder.entity.transformation = translation * rotation * scaling
   end
 
   def create_children
@@ -87,7 +85,11 @@ class SpringLink < ActuatorLink
   end
 
   def inspect
-    "Spring #{self.id} (#{@first_node.id}, #{@second_node.id}): initial Length: #{(@initial_spring_length - 2 * Configuration::BALL_HUB_RADIUS).to_mm.round(2)}, spring parameter k: #{@spring_parameter_k}"
+    initial_length =
+      @initial_spring_length - 2 * Configuration::BALL_HUB_RADIUS.to_mm.round(2)
+    "Spring #{id} (#{@first_node.id}, #{@second_node.id}):
+ initial Length: #{initial_length},
+ spring parameter k: #{@spring_parameter_k}"
   end
 
   def set_piston_group_color
