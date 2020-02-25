@@ -8,7 +8,16 @@ AllCops:
     - 'vendor/**/*'
     - 'spec/fixtures/**/*'
     - 'tmp/**/*'
-  TargetRubyVersion: 2.1
+  Include:
+    - '**/*.rb'
+    - '**/*.gemfile'
+    - '**/*.gemspec'
+    - '**/*.rake'
+    - '**/*.ru'
+    - '**/Gemfile'
+    - '**/Rakefile'
+
+  TargetRubyVersion: 2.2
 
 Naming/PredicateName:
   # Method define macros for dynamically generated method.
@@ -83,16 +92,16 @@ Metrics/MethodLength:
 Metrics/ModuleLength:
   Exclude:
     - 'spec/**/*.rb'
+    - 'src/configuration/configuration.rb'
 
 Metrics/PerceivedComplexity:
   Enabled: false
 
-Performance/Caller:
-  Exclude:
-    - spec/rubocop/cop/performance/caller_spec.rb
+Style/FrozenStringLiteralComment:
+  Enabled: false
 
-RSpec/PredicateMatcher:
-  EnforcedStyle: explicit
+Naming/UncommunicativeMethodParamName:
+  Enabled: false
 
-RSpec/NestedGroups:
-  Max: 7
+Naming/MethodName:
+  Enabled: false

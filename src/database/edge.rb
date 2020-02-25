@@ -139,6 +139,8 @@ class Edge < GraphObject
 
   def sorted_adjacent_triangles
     triangles = adjacent_triangles
+    raise "Edge has no adjacent triangle" if triangles.length.zero?
+
     ref_vector = mid_point.vector_to(triangles[0].other_node_for(self).position)
     normal = direction.normalize
     triangles.sort_by do |t|
@@ -193,12 +195,20 @@ class Edge < GraphObject
     @bottle_type = model.name
   end
 
+  def update_parametric_spring_model
+    link.recreate_children
+  end
+
   def update_sketchup_object
     if @link_type == 'bottle_link'
       update_bottle_type unless @@retain_bottle_types
 
       model = @bottle_models.models[@bottle_type]
       link.model = model
+    end
+
+    if @link_type == 'spring'
+      update_parametric_spring_model
     end
 
     link.update_positions(@first_node.position, @second_node.position)

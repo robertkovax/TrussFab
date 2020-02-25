@@ -33,7 +33,7 @@ module Configuration
   MINIMUM_ELONGATION    = 20.mm.freeze
   DEFAULT_ELONGATION    = 40.mm.freeze
   MAXIMUM_ELONGATION    = 100.mm.freeze
-  BALL_HUB_RADIUS       = 14.mm.freeze
+  BALL_HUB_RADIUS       = 30.mm.freeze
   STANDARD_BOTTLES      = 'hard'.freeze
   COVER_THICKNESS       = 20.mm.freeze
   # Size of the rendered elongation
@@ -52,6 +52,8 @@ module Configuration
                              '/primitives/dynamic_tetrahedron.json').freeze
   DYNAMIC_OCTAHEDRON_PATH = (ProjectHelper.asset_directory +
                             '/primitives/dynamic_octahedron.json').freeze
+  TRUSS_CUBE_PATH = (ProjectHelper.asset_directory +
+                    '/primitives/truss_cube.json').freeze
   ASSETS_LEG_PATH = (ProjectHelper.asset_directory +
                     '/primitives/leg.json').freeze
   ASSETS_BEND_PATH = (ProjectHelper.asset_directory +
@@ -113,7 +115,7 @@ module Configuration
   SPRING_THRESHOLD = 0.015
   SPRING_DAMP = 10
 
-  SPRING_RESONANT_FRERQUENCY = 0.5;
+  SPRING_RESONANT_FRERQUENCY = 0.5
 
   # GenericPointToPoint Properties
   GENERIC_LINK_FORCE = 0
@@ -138,6 +140,12 @@ module Configuration
   HUB_MASS          = 0.12
   POD_MASS          = 0.1
 
-  #PID_Controller
+  # PID_Controller
   STATIC_FORCE_ANALYSIS_STEPS = 20
+
+  # Automatic Pod Placement
+  DISTANCE_FROM_GROUND_TO_PLACE_PODS = 50.mm # in mm
+
+  # TrussSprings
+  DISTANCE_TO_INSET_ROTARY_HUBS = 100.mm
 end
