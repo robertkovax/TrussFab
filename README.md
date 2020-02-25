@@ -36,6 +36,9 @@ Restart SketchUp for the changes to take effect. If it works will you see an ext
 
 * To kill it if unresponsive, run `sc queryex "Fea Server"` which will print the PID, say 3582, then run `taskkill /F /PID 3582`
 
+### Installation on Linux
+
+We recommend to use VMWare Workstation with a Windows VM to run Sketchp with the plugin in a Linux environment. (Comment: VirtualBox didn't work because of poor OpenGL support, WINE works but is really slow.)
 
 ## Usage
 
