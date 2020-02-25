@@ -7,7 +7,12 @@ require 'open3'
 require 'fileutils'
 require 'tmpdir'
 
+
+
 class SimulationRunner
+
+  # def self.new_from_export(export_json)
+    #
 
   def initialize(model_name="seesaw3", suppress_compilation=false, keep_temp_dir=false)
     @model_name = model_name

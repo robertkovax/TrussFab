@@ -1,4 +1,5 @@
 require "./simulation_runner.rb"
+require "./generate_modelica_model.rb"
 
 task default: %w[test]
 
@@ -7,35 +8,12 @@ task :compile do
 end
 
 task :test_simple_seesaw do
-  ruby "./modelica_model_generation/generate_modelica_model.rb ./modelica_model_generation/simple_seesaw.json > LineForceGenerated.mo"
-  sim = SimulationRunner.new(model_name='LineForceGenerated')
-  p sim.get_period()
-end
+  file = File.read("./modelica_model_generation/simple_seesaw.json")
+  modelica_model_string = generate_modelica_file(file)
+  model_name = "LineForceGenerated"
 
-task :test_doubltetrahedron_2DOF_spring do
-  ruby "./modelica_model_generation/generate_modelica_model.rb ./modelica_model_generation/doubltetrahedron_2DOF_spring.json > LineForceGenerated.mo"
-  `cat LineForceGenerated.mo`
-  sim = SimulationRunner.new(model_name='LineForceGenerated')
-  p sim.get_period()
-end
+  File.open(model_name + ".mo", 'w') { |file| file.write(modelica_model_string) }
 
-task :test_doubltetrahedron do
-  ruby "./modelica_model_generation/generate_modelica_model.rb ./modelica_model_generation/doubltetrahedron.json > LineForceGenerated.mo"
-  `cat LineForceGenerated.mo`
-  sim = SimulationRunner.new(model_name='LineForceGenerated')
-  p sim.get_period()
-end
-
-task :test_sketchup_tetrahedron do
-  ruby "./modelica_model_generation/generate_modelica_model.rb ./modelica_model_generation/sketchup_tetrahedron.json > LineForceGenerated.mo"
-  `cat LineForceGenerated.mo`
-  sim = SimulationRunner.new(model_name='LineForceGenerated')
-  p sim.get_period()
-end
-
-task :test_seesaw do
-  ruby "./modelica_model_generation/generate_modelica_model.rb ./modelica_model_generation/seesaw_3.json > LineForceGenerated.mo"
-  `cat LineForceGenerated.mo`
   sim = SimulationRunner.new(model_name='LineForceGenerated')
   p sim.get_period()
 end
@@ -45,6 +23,4 @@ task :test_get_period do
   p sim.get_period()
 end
 
-
 task default: %w[test]
-
