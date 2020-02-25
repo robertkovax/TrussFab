@@ -2,17 +2,22 @@
 require 'json'
 require 'erb'
 
-require 'pp'
-
-# TODO move to modelica file
-
 NODE_WEIGHT_KG = 1
 PIPE_WEIGHT_KG = 1
-SPRING_CONSTANT = 10000
+SPRING_CONSTANT = 1000
 POINT_MASS_GENERATION_ENABLED = true
 
 def sketchup_to_modelica_units(x)
   (x / 1000).round(10)
+end
+
+def euclidean_distance(vector1, vector2)
+  sum = 0
+  vector1.zip(vector2).each do |v1, v2|
+    component = (v1 - v2)**2
+    sum += component
+  end
+  Math.sqrt(sum)
 end
 
 # Aussumptions: n1 -> frame_a / n2 -> frame_b
@@ -36,9 +41,7 @@ nodes.each { |key, node|
   node[:primary_edge] = nil
   node[:connecting_edges] = Array.new
   node[:fixed] = node.key?('pods') && node['pods'].any? && node['pods'][0]['is_fixed']
-  node[:x] = sketchup_to_modelica_units(node['x'])
-  node[:y] = sketchup_to_modelica_units(node['y'])
-  node[:z] = sketchup_to_modelica_units(node['z'])
+  node[:pos] = [node['x'], node['y'], node['z']].map {|x| sketchup_to_modelica_units(x) }
 }
 
 
@@ -51,7 +54,7 @@ edges.each { |edgeID, edge|
   n1 = nodes[edge['n1']]
   n2 = nodes[edge['n2']]
 
-  edge[:length] = sketchup_to_modelica_units(edge['e1'])
+  edge[:length] = euclidean_distance(n1[:pos], n2[:pos])
 
   n1[:connecting_edges].append(edge)
   n2[:connecting_edges].append(edge)
@@ -160,11 +163,11 @@ nodes.each { |nodeId, node|
 
 # Phase 3.3 Generate Point Masses on all nodes
 if POINT_MASS_GENERATION_ENABLED
-  nodes.each { |nodeId, node|
+  nodes.select {|nodeId, node| not node[:fixed]}.each{ |nodeId, node|
     primary_edge_connection_direction = get_direction(node, node[:primary_edge])
 
     # Generate PointMasses
-    point_mass_component = Modelica_PointMass.new("node_#{nodeId}_mass", NODE_WEIGHT_KG, node[:x], node[:y], node[:z])
+    point_mass_component = Modelica_PointMass.new("node_#{nodeId}_mass", NODE_WEIGHT_KG, *node[:pos])
     modelica_components.append(point_mass_component)
     modelica_connections.append(generate_mutlibody_connection(node[:primary_edge], primary_edge_connection_direction, point_mass_component, :a))
   }
@@ -173,7 +176,7 @@ end
 # Phase 3.3 Generate Fixtures
 nodes.select{|id, node| node[:fixed]}.each { |id, node|
   fixture_name = "node_#{id}_fixture"
-  modelica_components.append(Modelica_Fixture.new(fixture_name, node[:x], node[:y], node[:z]))
+  modelica_components.append(Modelica_Fixture.new(fixture_name, *node[:pos]))
   modelica_connections.append(Modelica_Connection.new(fixture_name + ".frame_b", edge_to_modelica_name(node[:primary_edge]) + ".frame_a"))
 }
 

@@ -11,8 +11,9 @@ class SimulationRunner
 
   def initialize(model_name="seesaw3", suppress_compilation=false, keep_temp_dir=false)
     @model_name = model_name
-    @simulation_options = "-abortSlowSimulation -lv=LOG_INIT_V,LOG_SIMULATION,LOG_STATS,LOG_JAC,LOG_NLS"
-    # @simulation_options += "LOG_SOTI,LOG_DSS"
+    @simulation_options = "-abortSlowSimulation"
+    # @simulation += "lv=LOG_INIT_V,LOG_SIMULATION,LOG_STATS,LOG_JAC,LOG_NLS"
+    @compilation_options = "--maxSizeLinearTearing=300 -n=4"
 
     if suppress_compilation
       @directory = File.dirname(__FILE__)
@@ -54,9 +55,7 @@ class SimulationRunner
     y2 = vector.fft.subvector(1, data.length - 2).to_complex2
     mag = y2.abs
     f = GSL::Vector.linspace(0, sample_rate/2, mag.size)
-    #p mag.to_a
     #p mag.max_index
-    #p f.to_a
     return 1 / f[mag.max_index]
   end
 
@@ -75,7 +74,7 @@ class SimulationRunner
   def run_compilation()
     output, signal = Open3.capture2("cp #{@model_name}.mo  #{@directory}", :chdir => File.dirname(__FILE__))
     p output
-    output, signal = Open3.capture2("omc -s #{@model_name}.mo Modelica && mv #{@model_name}.makefile Makefile && make -j 8", :chdir => @directory)
+    output, signal = Open3.capture2("omc #{@compilation_options} -s #{@model_name}.mo Modelica && mv #{@model_name}.makefile Makefile && make -j 8", :chdir => @directory)
     p output
   end
 
