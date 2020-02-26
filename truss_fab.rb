@@ -31,6 +31,7 @@ require 'src/utility/project_helper'
 
 # ui files
 require 'src/ui/dialogs/animation_pane'
+require 'src/ui/dialogs/spring_pane'
 require 'src/ui/dialogs/sidebar'
 require 'src/ui/dialogs/component_properties'
 require 'src/models/spirix'
@@ -43,6 +44,7 @@ module TrussFab
   @reloader = Reloader.new
   @sidebar_menu = Sidebar.new
   @animation_pane = AnimationPane.new
+  @spring_pane = SpringPane.new
   @store_sensor_output = false
 
   class << self
@@ -60,9 +62,12 @@ module TrussFab
       @sidebar_menu.open_dialog
 
       @animation_pane.open_dialog(@sidebar_menu.width + @sidebar_menu.left, @sidebar_menu.height + @sidebar_menu.top)
+      @spring_pane.open_dialog
 
       @sidebar_menu.animation_pane = @animation_pane
       @animation_pane.sidebar_menu = @sidebar_menu
+
+      @sidebar_menu.spring_pane = @spring_pane
     end
 
     def stop
