@@ -83,6 +83,7 @@ class DemonstrateAmplitudeTool < SpringSimulationTool
   def get_hinge_edge(node)
     all_static_groups = StaticGroupAnalysis.find_static_groups
     static_groups_with_node = StaticGroupAnalysis.get_static_groups_for_node(node)
+    raise 'No static group found.' unless static_groups_with_node
 
     # get first static group the node is in, should be only one anyways
     nodes = static_groups_with_node[0]

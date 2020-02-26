@@ -42,7 +42,5 @@ class SpringSimulationTool < Tool
     end
 
     Graph.instance.edges.each { |_, edge| edge.link.update_link_transformations }
-
   end
-
 end
