@@ -20,17 +20,14 @@ class SpringSimulationTool < Tool
 
   def activate
     # Instantiates SimulationRunner and compiles model.
-    @simulation_runner = SimulationRunner.instance unless @simulation_runner
-    @spring_links = Graph.instance.edges.values.
-        select { |edge| edge.link_type == 'spring' }.
-        map(&:link)
+    @simulation_runner ||= SimulationRunner.instance
   end
 
 
   private
 
   def simulate
-    @simulation_data = @simulation_runner.get_hub_time_series(nil, 0, 0, @constant.to_i)
+    @simulation_data = @simulation_runner.get_hub_time_series
   end
 
   def set_graph_to_data_sample(index)

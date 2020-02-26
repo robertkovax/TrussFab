@@ -25,11 +25,15 @@ class SimulationRunner
 
       run_compilation
     end
+
+    # maps spring edge id => spring constant
+    @constants_for_springs = { 21 => 7000, 23 => 7000 }
   end
 
-  def get_hub_time_series(hub_ids, step_size, mass, constant = 50)
+  def get_hub_time_series
     data = []
-    simulation_time = Benchmark.realtime { run_simulation(constant, mass, 'node_pos.*') }
+    update_spring_data_from_graph
+    simulation_time = Benchmark.realtime { run_simulation('node_pos.*') }
     import_time = Benchmark.realtime { data = parse_data(read_csv) }
     puts("simulation time: #{simulation_time}s csv parsing time: #{import_time}s")
     data
@@ -78,8 +82,8 @@ class SimulationRunner
     raw_data.index(equilibrium_data_row)
   end
 
-  def constant_for_constrained_angle(allowed_angle_delta = Math::PI / 2.0, initial_constant = 500, mass = 20,
-                                     spring_id = 0, angle_id = 0)
+  def constant_for_constrained_angle(allowed_angle_delta = Math::PI / 2.0, spring_id = 25, initial_constant = 500, mass = 20,
+                                     angle_id = 0)
     # steps which the algorithm uses to approximate the valid spring constant
     step_sizes = [1500, 1000, 200, 50, 5]
     constant = initial_constant
@@ -88,7 +92,8 @@ class SimulationRunner
     abort_threshold = 50_000
     while keep_searching
       # puts "Current k: #{constant} Step size: #{step_size}"
-      run_simulation(constant, mass, 'revLeft.phi')
+      @constants_for_springs[spring_id] = constant
+      run_simulation('revLeft.phi')
       if !angle_valid(read_csv, allowed_angle_delta)
         # increase spring constant to decrease angle delta
         constant += step_size
@@ -110,6 +115,15 @@ class SimulationRunner
 
   private
 
+  def update_spring_data_from_graph
+    spring_links = Graph.instance.edges.values.
+        select { |edge| edge.link_type == 'spring' }.
+        map(&:link)
+    spring_links.each do |link|
+      @constants_for_springs[link.edge.id] = link.spring_parameter_k
+    end
+  end
+
   def angle_valid(data, max_allowed_delta = Math::PI / 2.0)
     data = data.map { |data_sample| data_sample[1].to_f }
     # remove initial data point
@@ -128,9 +142,11 @@ class SimulationRunner
     p output
   end
 
-  def run_simulation(constant, mass, filter = '*')
+  def run_simulation(filter = '*')
     # TODO adjust sampling rate dynamically
-    overrides = "outputFormat='csv',variableFilter='#{filter}',startTime=0.3,stopTime=10,stepSize=0.1,springDamperParallel1.c='#{constant}'"
+    constant1 = @constants_for_springs[25]
+    constant2 = @constants_for_springs[21]
+    overrides = "outputFormat='csv',variableFilter='#{filter}',startTime=0.0,stopTime=10,stepSize=0.1,springDamperParallel1.c='#{constant1}',springDamperParallel2.c='#{constant2}'"
     command = "./#{@model_name} -override #{overrides}"
     puts(command)
     Open3.popen2e(command, chdir: @directory) do |i, o, t|
