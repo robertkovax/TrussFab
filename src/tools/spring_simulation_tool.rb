@@ -1,11 +1,12 @@
 require_relative 'tool.rb'
+# A tool that modifies the scene according to results from system simulations.
 class SpringSimulationTool < Tool
   def initialize(ui)
     super(ui)
 
     # TODO replace by map edgeID => springConstant to support multiple springs
     # Spring constant
-    @constant = 20000
+    @constant = 20_000
 
     # Array of AnimationDataSamples, each containing geometry information for hubs for a certain point in time.
     @simulation_data = nil
@@ -20,10 +21,8 @@ class SpringSimulationTool < Tool
 
   def activate
     # Instantiates SimulationRunner and compiles model.
-    @simulation_runner = SimulationRunner.instance unless @simulation_runner
-    @spring_links = Graph.instance.edges.values.
-        select { |edge| edge.link_type == 'spring' }.
-        map(&:link)
+    @simulation_runner ||= SimulationRunner.instance
+    @spring_links = Graph.instance.edges.values.select { |edge| edge.link_type == 'spring' }.map(&:link)
   end
 
 
@@ -36,16 +35,14 @@ class SpringSimulationTool < Tool
   def set_graph_to_data_sample(index)
     current_data_sample = @simulation_data[index]
 
-    Graph.instance.nodes.each do | node_id, node|
+    Graph.instance.nodes.each do |node_id, node|
       node.update_position(current_data_sample.position_data[node_id.to_s])
       node.hub.update_position(current_data_sample.position_data[node_id.to_s])
-      node.hub.update_user_indicator()
+      node.hub.update_user_indicator
     end
 
-    Graph.instance.edges.each do |_, edge|
-      link = edge.link
-      link.update_link_transformations
-    end
+    Graph.instance.edges.each { |_, edge| edge.link.update_link_transformations }
+
   end
 
 end

@@ -57,7 +57,6 @@ class PlaceUserTool < SpringSimulationTool
   end
 
   def spring_constant_changed(spring_id, value)
-    puts(value)
     @spring_links.select{ |spring| spring.id == spring_id }[0].spring_parameter_k = value.to_f
     @trace_visualization.reset_trace
     @constant = value
