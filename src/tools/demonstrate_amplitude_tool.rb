@@ -35,23 +35,28 @@ class DemonstrateAmplitudeTool < SpringSimulationTool
     update(view, x, y)
     return unless @moving
     return if @start_node.nil?
+    edge_id_to_spring_id = {13 => 25, 6 => 21}
 
-    hinge_center = get_hinge_edge(@start_node).mid_point
+    hinge_edge = get_hinge_edge(@start_node)
+    hinge_center = hinge_edge.mid_point
+
     initial_vector = @start_position - hinge_center
     max_amplitude_vector = @end_position - hinge_center
     # user inputs only half of the amplitude since we want to have the oscillation symmetric around the equililbirum.
     angle = 2 * initial_vector.angle_between(max_amplitude_vector)
 
-    @constant = @simulation_runner.constant_for_constrained_angle(angle)
+    constant = @simulation_runner.constant_for_constrained_angle(angle)
+    @ui.spring_pane.update_constant_for_spring(relevant_spring_id_for_node(@start_node), constant)
 
     simulate
-    equilibrium_index = @simulation_runner.find_equilibrium(@constant)
-    set_graph_to_data_sample(equilibrium_index)
+    #equilibrium_index = @simulation_runner.find_equilibrium(@constant)
+    #set_graph_to_data_sample(equilibrium_index)
+    @trace_visualization.reset_trace
     @trace_visualization.add_trace(['18', '20'], 4, @simulation_data)
-
     view.invalidate
     reset
   end
+
 
   def update(view, x, y)
     @mouse_input.update_positions(view, x, y, point_on_plane_from_camera_normal: @start_position || nil)
@@ -79,6 +84,23 @@ class DemonstrateAmplitudeTool < SpringSimulationTool
   end
 
   private
+
+  # TODO: probably a bit inefficient, we should think about a hash like data structure to store springs for static groups
+  # Returns the spring that makes the static group the node is in movable.
+  def relevant_spring_id_for_node(node)
+    static_groups = StaticGroupAnalysis.get_static_groups_for_node(node)
+    raise 'No satic groups detected' unless static_groups
+
+    static_group = static_groups[0]
+    all_spring_edges = Graph.instance.edges.values.select { |edge| edge.link_type == 'spring' }
+    spring_edges = all_spring_edges.select do |spring_edge|
+      static_group.include?(spring_edge.first_node) || static_group.include?(spring_edge.second_node)
+    end
+    raise 'no spring found for group' if spring_edges.empty?
+    raise 'more than one spring found for group' if spring_edges.size > 1
+    spring_edges[0].id
+
+  end
 
   def get_hinge_edge(node)
     static_groups = StaticGroupAnalysis.find_static_groups

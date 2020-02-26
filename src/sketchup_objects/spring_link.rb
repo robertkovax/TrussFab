@@ -3,7 +3,8 @@ require 'src/configuration/configuration.rb'
 
 # PhysicsLink that behaves like a gas spring
 class SpringLink < ActuatorLink
-  attr_reader :spring_parameter_k
+  attr_accessor :spring_parameter_k
+  attr_reader :edge
 
   def initialize(first_node, second_node, edge, id: nil)
     @spring_parameter_k = 200
