@@ -1,26 +1,46 @@
-require 'src/system_simulation/modelica_simulation.rb'
-require 'src/system_simulation/modellica_export.rb'
-require 'benchmark'
-
+require_relative 'tool.rb'
+# A tool that modifies the scene according to results from system simulations.
 class SpringSimulationTool < Tool
   def initialize(ui)
     super(ui)
-    @mouse_input = MouseInput.new(snap_to_edges: true, snap_to_nodes: true)
+
+    # TODO replace by map edgeID => springConstant to support multiple springs
+    # Spring constant
+    @constant = 20_000
+
+    # Array of AnimationDataSamples, each containing geometry information for hubs for a certain point in time.
+    @simulation_data = nil
+
+    # Instance of the simulation runner used as an interface to the system simulation.
+    @simulation_runner = nil
+
+    # All spring links in the scene right now
+    @spring_links = []
+
   end
 
-  def onLButtonDown(_flags, x, y, view)
-    @mouse_input.update_positions(view, x, y)
-    obj = @mouse_input.snapped_object
-    if !obj.nil? && obj.is_a?(Edge)
-      # TODO adjust paths
-      export_time = Benchmark.realtime { ModellicaExport.export("src/system_simulation/test.om", obj.first_node) }
-      puts("export time: " + export_time.to_s + "s")
-      simulation_time = Benchmark.realtime { ModelicaSimulation.run_simulation }
-      puts("simulation time: " + simulation_time.to_s + "s")
+  def activate
+    # Instantiates SimulationRunner and compiles model.
+    @simulation_runner ||= SimulationRunner.instance
+    @spring_links = Graph.instance.edges.values.select { |edge| edge.link_type == 'spring' }.map(&:link)
+  end
+
+
+  private
+
+  def simulate
+    @simulation_data = @simulation_runner.get_hub_time_series(nil, 0, 0, @constant.to_i)
+  end
+
+  def set_graph_to_data_sample(index)
+    current_data_sample = @simulation_data[index]
+
+    Graph.instance.nodes.each do |node_id, node|
+      node.update_position(current_data_sample.position_data[node_id.to_s])
+      node.hub.update_position(current_data_sample.position_data[node_id.to_s])
+      node.hub.update_user_indicator
     end
-  end
 
-  def onMouseMove(_flags, x, y, view)
-    @mouse_input.update_positions(view, x, y)
+    Graph.instance.edges.each { |_, edge| edge.link.update_link_transformations }
   end
 end

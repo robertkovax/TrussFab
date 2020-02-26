@@ -19,7 +19,7 @@ class SpringPane
   end
 
   def open_dialog
-    return if @insights_dialog && @insights_dialog.visible?
+    return if @dialog && @dialog.visible?
 
     props = {
         resizable: true,
