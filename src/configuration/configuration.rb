@@ -147,5 +147,5 @@ module Configuration
   DISTANCE_FROM_GROUND_TO_PLACE_PODS = 50.mm # in mm
 
   # TrussSprings
-  DISTANCE_TO_INSET_ROTARY_HUBS = 100.mm
+  DISTANCE_TO_INSET_ROTARY_HUBS = 65.mm
 end
