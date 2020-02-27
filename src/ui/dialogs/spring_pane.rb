@@ -1,3 +1,6 @@
+require 'src/system_simulation/simulation_runner.rb'
+require 'src/system_simulation/geometry_animation.rb'
+
 # Ruby integration for spring insights dialog
 class SpringPane
   INSIGHTS_HTML_FILE = '../spring-pane/index.erb'.freeze
