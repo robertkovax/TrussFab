@@ -87,7 +87,6 @@ structures at the same hinge"
       nodes.to_set == substructure_to_inset
     end
 
-
     inset_substructure_nodes = Set.new
     inset_substructure_nodes.merge substructure_to_inset
     inset_substructure_nodes.subtract node_pair
@@ -128,6 +127,7 @@ structures at the same hinge"
       inset_positions << inset_position
 
       nodes_to_reconnect_to.each do |node_information|
+        # This automatically creates the required nodes, if they don't yet exist
         Graph.instance.create_edge_from_points(
           inset_position, node_information[:node].position,
           link_type: node_information[:type]

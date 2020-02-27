@@ -53,6 +53,11 @@ module StaticGroupAnalysis
                                rotation_partners)
       end
 
+      actuators.each do |actuator|
+        actuator.link.power = 0.0
+        actuator.link.update_link_properties
+      end
+
       start_static_group_search(edges.reject(&:dynamic?),
                                 rotation_partners)
     end
