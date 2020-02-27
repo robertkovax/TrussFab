@@ -36,8 +36,12 @@ module NodeExportVisualization
       end
 
       # color static groups differently
+      color_static_groups export_interface.static_groups
+    end
+
+    def color_static_groups(static_groups)
       group_nr = 0
-      export_interface.static_groups.reverse.each do |group|
+      static_groups.reverse.each do |group|
         color_group(group, group_nr)
         group_nr += 1
       end
@@ -64,7 +68,7 @@ module NodeExportVisualization
 
       group.each do |triangle|
         triangle.edges.each do |edge|
-          edge.link.change_color(group_color)
+          edge.link.material = group_color
         end
       end
     end
