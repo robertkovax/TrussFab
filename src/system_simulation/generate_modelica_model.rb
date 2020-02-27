@@ -171,9 +171,11 @@ def generate_modelica_file(json_string)
 
   # Phase 3.3 Generate Fixtures
   nodes.select{|id, node| node[:fixed]}.each { |id, node|
-    fixture_name = "node_#{id}_fixture"
-    modelica_components.append(Modelica_Fixture.new(fixture_name, *node[:pos]))
-    modelica_connections.append(Modelica_Connection.new(fixture_name + ".frame_b", edge_to_modelica_name(node[:primary_edge]) + ".frame_a"))
+    primary_edge_connection_direction = get_direction(node, node[:primary_edge])
+
+    fixture = Modelica_Fixture.new("node_#{id}_fixture", *node[:pos])
+    modelica_components.append(fixture)
+    modelica_connections.append(generate_mutlibody_connection(fixture, :b, node[:primary_edge], primary_edge_connection_direction))
   }
 
 
