@@ -8,24 +8,66 @@ class SpringPane
 
     update_springs
 
-    @animation = nil
+    # Instance of the simulation runner used as an interface to the system simulation.
     @simulation_runner = nil
+    # Array of AnimationDataSamples, each containing geometry information for hubs for a certain point in time.
+    @simulation_data = nil
+    # Sketchup animation object which animates the graph according to simulation data frames.
+    @animation = nil
+    # A simple visualization for simulation data, plotting circles into the scene.
+    @trace_visualization = nil
 
     @dialog = nil
     open_dialog
 
   end
 
+  # spring / graph manipulation logic:
+
   def update_constant_for_spring(spring_id, new_constant)
     edge = @spring_edges.find { |edge| edge.id == spring_id }
     edge.link.spring_parameter_k = new_constant
-    update_springs
+
+    # update simulation data and visualizations with adjusted results
+    simulate
+    put_geometry_into_equilibrium(spring_id)
+    update_trace_visualization
+
+    update_dialog if @dialog
   end
 
   def update_springs
     @spring_edges = Graph.instance.edges.values.select { |edge| edge.link_type == 'spring' }
     update_dialog if @dialog
   end
+
+  def update_trace_visualization
+    @trace_visualization ||= TraceVisualization.new
+    @trace_visualization.reset_trace
+    @trace_visualization.add_trace(['18', '20'], 4, @simulation_data)
+  end
+
+  def put_geometry_into_equilibrium(spring_id)
+    equilibrium_index = @simulation_runner.find_equilibrium(spring_id)
+    set_graph_to_data_sample(equilibrium_index)
+  end
+
+  def set_graph_to_data_sample(index)
+    current_data_sample = @simulation_data[index]
+
+    Graph.instance.nodes.each do | node_id, node|
+      node.update_position(current_data_sample.position_data[node_id.to_s])
+      node.hub.update_position(current_data_sample.position_data[node_id.to_s])
+      node.hub.update_user_indicator()
+    end
+
+    Graph.instance.edges.each do |_, edge|
+      link = edge.link
+      link.update_link_transformations
+    end
+  end
+
+  # dialog logic:
 
   def set_period(value)
     @dialog.execute_script("set_period(#{value})")
@@ -70,6 +112,14 @@ class SpringPane
     register_callbacks
   end
 
+  # compilation / simulation logic:
+
+  def try_compile
+    @simulation_runner ||= SimulationRunner.instance
+    @simulation_data ||= simulate
+    @simulation_runner
+  end
+
   private
 
   def register_callbacks
@@ -86,15 +136,13 @@ class SpringPane
     end
   end
 
-  def try_compile
-    @simulation_runner ||= SimulationRunner.instance
-    @simulation_data ||= simulate
-  end
+  # compilation / simulation logic:
 
   def simulate
     @simulation_data = @simulation_runner.get_hub_time_series
   end
 
+  # animation logic:
 
   def toggle_animation
     simulate

@@ -27,7 +27,10 @@ class SimulationRunner
     end
 
     # maps spring edge id => spring constant
-    @constants_for_springs = { 21 => 7000, 23 => 7000 }
+    @constants_for_springs = { 21 => 7000, 25 => 7000 }
+    # TODO: this just mocks the mapping between springs and the corresponding revolute joint angles. Will be changed
+    # TODO: as soon as we generate the geometry dynamically.
+    @angles_for_springs = { 21 => 'revRight.phi', 25 => 'revLeft.phi' }
   end
 
   def get_hub_time_series
@@ -63,8 +66,8 @@ class SimulationRunner
   end
 
   # Returns index of animation frame when system is in equilibrium i.e. the mean of the angle difference
-  def find_equilibrium(constant = 50, mass = 20)
-    run_simulation(constant, mass, 'revLeft.phi')
+  def find_equilibrium(spring_id)
+    run_simulation(@angles_for_springs[spring_id])
     raw_data = read_csv
 
     # remove initial data point, the header
@@ -82,9 +85,11 @@ class SimulationRunner
     raw_data.index(equilibrium_data_row)
   end
 
-  def constant_for_constrained_angle(allowed_angle_delta = Math::PI / 2.0, spring_id = 25, initial_constant = 500, mass = 20,
-                                     angle_id = 0)
+  def constant_for_constrained_angle(allowed_angle_delta = Math::PI / 2.0, spring_id = 25, initial_constant = 500)
     # steps which the algorithm uses to approximate the valid spring constant
+
+    update_spring_data_from_graph
+    angle_filter = @angles_for_springs[spring_id]
     step_sizes = [1500, 1000, 200, 50, 5]
     constant = initial_constant
     step_size = step_sizes.shift
@@ -93,7 +98,7 @@ class SimulationRunner
     while keep_searching
       # puts "Current k: #{constant} Step size: #{step_size}"
       @constants_for_springs[spring_id] = constant
-      run_simulation('revLeft.phi')
+      run_simulation(angle_filter)
       if !angle_valid(read_csv, allowed_angle_delta)
         # increase spring constant to decrease angle delta
         constant += step_size
@@ -102,6 +107,8 @@ class SimulationRunner
         constant -= step_size
         # reduce step size and continue
         step_size = step_sizes.shift
+        # make sure we don't exceed the sample space
+        constant = initial_constant if constant < initial_constant
       else
         # we reached smallest step size and found a valid spring constant, so we're done
         keep_searching = false
