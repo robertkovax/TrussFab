@@ -6,9 +6,8 @@ task :compile do
   sim = SimulationRunner.new_from_json_export()
 end
 
-task :test_simple_seesaw do
-  file = File.read("./modelica_model_generation/simple_seesaw.json")
-
+task :test_seesaw do
+  file = File.read("./test_models/seesaw_3.json")
   sim = SimulationRunner.new_from_json_export(file)
   p sim.get_period()
 end

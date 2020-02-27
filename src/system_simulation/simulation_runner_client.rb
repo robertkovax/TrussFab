@@ -4,7 +4,7 @@ require 'net/http'
 require "uri"
 
 
-SIMULATION_RUNNER_HOST = "http://172.16.78.199:8080"
+SIMULATION_RUNNER_HOST = "http://ec2-3-127-56-156.eu-central-1.compute.amazonaws.com:8080/"
 
 class SimulationRunnerClient
   def self.update_model(json_string)
