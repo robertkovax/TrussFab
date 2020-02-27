@@ -53,6 +53,30 @@ class NodeExportAlgorithm
     Sketchup.active_model.commit_operation
   end
 
+  # Make sure that if static groups touch, they touch at exactly 2 points,
+  # otherwise, the structure will be bended, and not fabricateable with welding
+  # (Actually, it would be okay to have more than 2 touching points, of which
+  # all lie on the same rotation axis. We don't consider that case right now)
+  def check_for_only_simple_hinges(static_groups)
+    rotary_hinges = []
+    static_groups_as_sets_of_nodes = map_to_set_of_nodes static_groups
+    static_groups_as_sets_of_nodes.combination(2) do |one, two|
+      next if one == two
+
+      difference = (one & two)
+
+      if difference.size == 2
+        rotary_hinges.push(difference.to_a)
+      elsif difference.size != 0
+        puts 'Structure has hinges that might not be buildable\n
+This error can wrongly occure if rotary hinge hubs lie on the
+same rotation axis'
+      end
+    end
+    rotary_hinges
+  end
+
+
   private
 
   def offset_rotary_hinge_hubs(rotary_hinges, static_groups)
@@ -173,29 +197,6 @@ structures at the same hinge"
 
   def edge_angle(edge1, edge2)
     edge1.direction.normalize.dot(edge2.direction.normalize).abs
-  end
-
-  # Make sure that if static groups touch, they touch at exactly 2 points,
-  # otherwise, the structure will be bended, and not fabricateable with welding
-  # (Actually, it would be okay to have more than 2 touching points, of which
-  # all lie on the same rotation axis. We don't consider that case right now)
-  def check_for_only_simple_hinges(static_groups)
-    rotary_hinges = []
-    static_groups_as_sets_of_nodes = map_to_set_of_nodes static_groups
-    static_groups_as_sets_of_nodes.combination(2) do |one, two|
-      next if one == two
-
-      difference = (one & two)
-
-      if difference.size == 2
-        rotary_hinges.push(difference.to_a)
-      elsif difference.size != 0
-        puts 'Structure has hinges that might not be buildable\n
-This error can wrongly occure if rotary hinge hubs lie on the
-same rotation axis'
-      end
-    end
-    rotary_hinges
   end
 
   # Takes an array of triangles in static groups, and maps them to an array
