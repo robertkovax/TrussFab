@@ -20,6 +20,10 @@ class BottleLink < SketchupObject
 
   def create_entity
     return @entity if @entity
+
+    scaling =
+        Geom::Transformation.scaling(1, 1, @direction.length / @model.length)
+
     translation = Geom::Transformation.translation(@position)
 
     rotation_angle = Geometry.rotation_angle_between(Geometry::Z_AXIS,
@@ -30,7 +34,7 @@ class BottleLink < SketchupObject
                                              rotation_axis,
                                              rotation_angle)
 
-    transformation = rotation * translation
+    transformation = rotation * translation * scaling
 
     entity = Sketchup.active_model
                      .active_entities

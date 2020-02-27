@@ -2,15 +2,19 @@ require 'src/export/presets.rb'
 
 # Export hub to SCAD file
 class ScadExportHub
+  attr_accessor :pipe_lengths
+
   def initialize(id, l1)
     @id = id
     @l1 = l1
     @elongations = []
+    @pipe_lengths = []
   end
 
   def add_elongation(elongation)
     @elongations.push(elongation)
   end
+
 end
 
 # Export sub hub to SCAD file
@@ -127,6 +131,9 @@ class ExportMainHub < ScadExportHub
         "printVectorInteger = 8;\n" \
         "dataFileVectorArray = [\n" \
         "#{vector_array.join(",\n")}\n" \
+        "];\n" \
+        "connectionLengthArray = [\n" \
+        "#{@pipe_lengths.join(",\n")}\n" \
         "];\n" \
         "dataFileAddonParameterArray = [\n" \
         "#{addon_array.join(",\n")}\n" \

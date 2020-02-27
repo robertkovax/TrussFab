@@ -22,11 +22,11 @@ class DemonstrateAmplitudeTool < Tool
   def onLButtonDown(_flags, x, y, view)
     @mouse_input.update_positions(view, x, y)
     obj = @mouse_input.snapped_object
-    if !obj.nil? && obj.is_a?(Node)
-      @moving = true
-      @start_node = obj
-      @start_position = @end_position = obj.position
-    end
+    return if obj.nil? || !obj.is_a?(Node)
+
+    @moving = true
+    @start_node = obj
+    @start_position = @end_position = obj.position
   end
 
   def onMouseMove(_flags, x, y, view)
@@ -100,10 +100,13 @@ class DemonstrateAmplitudeTool < Tool
   end
 
   def get_hinge_edge(node)
-    static_groups = StaticGroupAnalysis.find_static_groups
+    all_static_groups = StaticGroupAnalysis.find_static_groups
+    static_groups_with_node = StaticGroupAnalysis.get_static_groups_for_node(node)
+    raise 'No static group found.' unless static_groups_with_node
+
     # get first static group the node is in, should be only one anyways
-    nodes = StaticGroupAnalysis.get_static_groups_for_node(node)[0]
-    rotary_hinge_pairs = NodeExportAlgorithm.instance.check_for_only_simple_hinges static_groups
+    nodes = static_groups_with_node[0]
+    rotary_hinge_pairs = NodeExportAlgorithm.instance.check_for_only_simple_hinges all_static_groups
     rotary_hinge_pairs.select! do |node_pair|
       nodes.include?(node_pair[0]) && nodes.include?(node_pair[1])
     end

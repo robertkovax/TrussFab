@@ -55,13 +55,31 @@ module StaticGroupAnalysis
 
       original_angles = triangle_pair_angles(triangle_pairs)
 
-      start_simulation(actuators)
+      actuators.each do |actuator|
 
-      simulation_angles = triangle_pair_angles(triangle_pairs, true)
+        # Make all other actuators really weak
+        actuators.each do |a|
+          a.link.power = if a == actuator
+                           0.0 # This actually means maxiumum power
+                         else
+                           0.000001
+                         end
+          a.link.update_link_properties
+        end
 
-      process_triangle_pairs(triangle_pairs, original_angles,
-                             simulation_angles,
-                             rotation_partners)
+        start_simulation([actuator])
+
+        simulation_angles = triangle_pair_angles(triangle_pairs, true)
+
+        process_triangle_pairs(triangle_pairs, original_angles,
+                               simulation_angles,
+                               rotation_partners)
+      end
+
+      actuators.each do |actuator|
+        actuator.link.power = 0.0
+        actuator.link.update_link_properties
+      end
 
       start_static_group_search(edges.reject(&:dynamic?),
                                 rotation_partners)

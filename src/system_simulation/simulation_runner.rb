@@ -7,9 +7,9 @@ require 'benchmark'
 require 'fileutils'
 require 'tmpdir'
 
-# This class encapsulates the way of how system simulations are run. Right now we use Modelica and compile / simulate
-# a modelica model of our geometry when necessary. This class provides public interfaces for different results of the
-# simulation.
+# This class encapsulates the way of how system simulations (physically correct simulations of the dynamic system,
+# including spring oscillations) are run. Right now we use Modelica and compile / simulate a modelica model of our
+# geometry when necessary. This class provides public interfaces for different results of the simulation.
 class SimulationRunner
   include Singleton
 
@@ -65,7 +65,8 @@ class SimulationRunner
     1 / f[mag.max_index]
   end
 
-  # Returns index of animation frame when system is in equilibrium i.e. the mean of the angle difference
+  # Returns index of animation frame when system is in equilibrium by finding the arithmetic mean of the angle
+  # differences and the according index.
   def find_equilibrium(spring_id)
     run_simulation(@angles_for_springs[spring_id])
     raw_data = read_csv
@@ -133,7 +134,7 @@ class SimulationRunner
 
   def angle_valid(data, max_allowed_delta = Math::PI / 2.0)
     data = data.map { |data_sample| data_sample[1].to_f }
-    # remove initial data point
+    # remove initial data point since it's only containing the column header
     data.shift
 
     delta = data.max - data.min
@@ -157,6 +158,7 @@ class SimulationRunner
     command = "./#{@model_name} -override #{overrides}"
     puts(command)
     Open3.popen2e(command, chdir: @directory) do |i, o, t|
+      # prints out std out of the command
       o.each { |l| puts l }
     end
   end
