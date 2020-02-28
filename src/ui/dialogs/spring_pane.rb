@@ -148,6 +148,7 @@ class SpringPane
   # animation logic:
 
   def toggle_animation
+    puts "toggle_animation"
     simulate
     if @animation && @animation.running
       @animation.toggle_running
@@ -158,6 +159,7 @@ class SpringPane
   end
 
   def create_animation
+    puts "create_animation"
     @animation = GeometryAnimation.new(@simulation_data)
     Sketchup.active_model.active_view.animation = @animation
   end

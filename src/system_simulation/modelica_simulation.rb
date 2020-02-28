@@ -6,7 +6,9 @@ class ModelicaSimulation
 
     result_file = simulation_name + "_res.csv"
 
+    puts 'Searching in:'
     directory = File.dirname(__FILE__)
+    puts directory
 
     Open3.popen2e("rm #{result_file}", :chdir => directory) do |i, o, t|
       o.each {|l| puts l }

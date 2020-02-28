@@ -16,7 +16,9 @@ class SimulationRunner
   def initialize(suppress_compilation = false, keep_temp_dir = false)
     @model_name = 'seesaw3'
 
-    if suppress_compilation
+    puts "suppress_compilation: #{suppress_compilation}"
+
+    if suppress_compilation || true
       @directory = File.dirname(__FILE__)
     else
       @directory = Dir.mktmpdir
@@ -36,9 +38,9 @@ class SimulationRunner
   def get_hub_time_series
     data = []
     update_spring_data_from_graph
-    simulation_time = Benchmark.realtime { run_simulation('node_pos.*') }
+    #simulation_time = Benchmark.realtime { run_simulation('node_pos.*') }
     import_time = Benchmark.realtime { data = parse_data(read_csv) }
-    puts("simulation time: #{simulation_time}s csv parsing time: #{import_time}s")
+    # puts("simulation time: #{simulation_time}s csv parsing time: #{import_time}s")
     data
   end
 
@@ -164,7 +166,7 @@ class SimulationRunner
   end
 
   def read_csv
-    CSV.read(File.join(@directory, "#{@model_name}_res.csv"))
+    CSV.read(File.join("D:/TrussFab/TrussFab_new/src/system_simulation", "seesaw3_res.csv"))
   end
 
   def parse_data(raw_data)
