@@ -7,14 +7,16 @@ class SketchupObject
   attr_accessor :parent
 
   def initialize(id = nil,
-                 material: 'standard_material',
-                 highlight_material: 'highlight_material')
+                 material:
+                   Sketchup.active_model.materials['standard_material'],
+                 highlight_material:
+                   Sketchup.active_model.materials['highlight_material'])
     @id = id.nil? ? IdManager.instance.generate_next_id : id
     @children = []
     @entity = nil
     @parent = nil
-    @material = Sketchup.active_model.materials[material]
-    @highlight_material = Sketchup.active_model.materials[highlight_material]
+    @material = material
+    @highlight_material = highlight_material
     @deleted = false
   end
 
