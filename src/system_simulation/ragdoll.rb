@@ -39,17 +39,17 @@ class Ragdoll
     end
 
     @rightArmDownJoint.solver_model = Configuration::JOINT_SOLVER_MODEL
-    @rightArmDownJoint.extended_length = 0.6
-    @rightArmDownJoint.stroke_length = 0.2
+    @rightArmDownJoint.extended_length = 0.56
+    @rightArmDownJoint.stroke_length = 0.15
     @rightArmDownJoint.extended_force = 0.0001
     @rightArmDownJoint.threshold = 0.2
-    @rightArmDownJoint.damp = 999
+    @rightArmDownJoint.damp = 0
     puts "Current length: #{@rightArmDownJoint.cur_length}"
   end
 
   def position=(position)
     @position = position
-    # @rightArmDownJoint.set_point2 downBodyPosition @position
+    @rightArmDownJoint.set_point2 downBodyPosition @position
     @frontRightJoint.set_point1 frontBodyPosition @position
     @backRightJoint.set_point1 backBodyPosition @position
   end
@@ -83,7 +83,8 @@ class Ragdoll
   end
 
   def draw_cylinder(center, radius, direction)
-    # This is actually harder than I thought, cause after pushpull, the references
+    # This is actually harder than I thought, and does not work right now,
+    # cause after pushpull, the references
     # to the faces are gone
     @group = Sketchup.active_model.entities.add_group if @group.deleted?
     entities = @group.entities
@@ -110,7 +111,7 @@ class Ragdoll
   end
 
   def downBodyPosition position
-    position + Geom::Vector3d.new(-5, -10, -10)
+    position + Geom::Vector3d.new(-5, 0, -10)
   end
 
   def rightArmBodyPosition position

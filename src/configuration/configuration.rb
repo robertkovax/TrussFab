@@ -90,7 +90,7 @@ module Configuration
   # Simulation Properties
   WORLD_GRAVITY         = -9.8 # in m/s/s
   WORLD_SOLVER_MODEL    = 8 # 1 - 64
-  WORLD_TIMESTEP        = 1.0 / 60 # in seconds
+  WORLD_TIMESTEP        = 1.0 / 120 # in seconds
   WORLD_NUM_ITERATIONS  = ((1.0 / 60) / WORLD_TIMESTEP).to_i
   JOINT_SOLVER_MODEL    = 2 # 0 or 2
   JOINT_STIFFNESS       = 0.95 # ratio (0.0 - 1.0)

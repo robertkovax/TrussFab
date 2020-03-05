@@ -25,7 +25,7 @@ class GeometryAnimation
       # last frame before animation stops – so we set value to last data sample and reset index to reset animation
       @index = 0
     end
-    @index = 8
+    # @index = 8 # Disables animation to debug ragdoll
     current_data_sample = @data[@index]
 
     Graph.instance.nodes.each do |node_id, node|
