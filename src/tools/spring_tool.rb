@@ -9,6 +9,7 @@ class SpringTool < ActuatorTool
 
   def onLButtonDown(flags, x, y, view)
     super
+    @ui.spring_pane.update_springs
     Sketchup.active_model.start_operation('Color static groups', true)
     static_groups = StaticGroupAnalysis.find_static_groups
     visualizer = NodeExportVisualization::Visualizer.new

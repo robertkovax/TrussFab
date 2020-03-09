@@ -3,10 +3,11 @@ require 'src/configuration/configuration.rb'
 
 # PhysicsLink that behaves like a gas spring
 class SpringLink < ActuatorLink
-  attr_reader :spring_parameter_k, :initial_spring_length
+  attr_accessor :spring_parameter_k
+  attr_reader :edge, :initial_spring_length
 
   def initialize(first_node, second_node, edge, id: nil)
-    @spring_parameter_k = 200
+    @spring_parameter_k = 7000
     super(first_node, second_node, edge, id: id)
     @first_elongation_length =
       @second_elongation_length = Configuration::MINIMUM_ELONGATION
