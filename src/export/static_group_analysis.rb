@@ -74,6 +74,7 @@ module StaticGroupAnalysis
         process_triangle_pairs(triangle_pairs, original_angles,
                                simulation_angles,
                                rotation_partners)
+        @simulation.show_triangle_surfaces
       end
 
       actuators.each do |actuator|

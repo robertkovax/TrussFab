@@ -5,7 +5,8 @@ class BottleLink < SketchupObject
   attr_reader :model, :direction
 
   def initialize(position, direction, model,
-                 id: nil, material: 'bottle_material')
+                 id: nil, material:
+                   Sketchup.active_model.materials['standard_material'])
     super(id, material: material)
     @position = position
     @direction = direction

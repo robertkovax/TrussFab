@@ -265,7 +265,7 @@ class Link < PhysicsSketchupObject
     create_elongations
 
     add(@first_elongation,
-        BottleLink.new(@position, direction, @model, id: @id),
+        BottleLink.new(@position, direction, @model, id: @id, material: @material),
         Line.new(@position, @second_position, LINK_LINE),
         @second_elongation)
   end
