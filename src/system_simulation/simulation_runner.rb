@@ -130,9 +130,9 @@ class SimulationRunner
   private
 
   def update_spring_data_from_graph
-    spring_links = Graph.instance.edges.values.
-        select { |edge| edge.link_type == 'spring' }.
-        map(&:link)
+    spring_links = Graph.instance.edges.values
+                        .select { |edge| edge.link_type == 'spring' }
+                        .map(&:link)
     spring_links.each do |link|
       @constants_for_springs[link.edge.id] = link.spring_parameter_k
     end
@@ -158,7 +158,7 @@ class SimulationRunner
   end
 
   def run_simulation(filter = '*')
-    # TODO adjust sampling rate dynamically
+    # TODO: adjust sampling rate dynamically
     constant1 = @constants_for_springs[25]
     constant2 = @constants_for_springs[21]
     overrides = "outputFormat='csv',variableFilter='#{filter}',startTime=0.0,stopTime=10,stepSize=0.1,springDamperParallel1.c='#{constant1}',springDamperParallel2.c='#{constant2}'"
