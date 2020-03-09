@@ -81,22 +81,25 @@ class DemonstrateAmplitudeTool < Tool
 
   private
 
-  # TODO: probably a bit inefficient, we should think about a hash like data structure to store springs for static groups
+  # TODO: Probably a bit inefficient, we should think about a hash like data structure to store springs for
+  # TODO: static groups.
   # Returns the spring that makes the static group the node is in movable.
   def relevant_spring_id_for_node(node)
     static_groups = StaticGroupAnalysis.get_static_groups_for_node(node)
     raise 'No static groups detected' unless static_groups
 
-    static_group = static_groups[0]
     all_spring_edges = Graph.instance.edges.values.select { |edge| edge.link_type == 'spring' }
+
+    # get all springs that are connected to one of the static groups the node is in
     spring_edges = all_spring_edges.select do |spring_edge|
-      static_group.include?(spring_edge.first_node) || static_group.include?(spring_edge.second_node)
+      static_groups.any? do |static_group|
+        static_group.include?(spring_edge.first_node) || static_group.include?(spring_edge.second_node)
+      end
     end
     raise 'no spring found for group' if spring_edges.empty?
     raise 'more than one spring found for group' if spring_edges.size > 1
 
     spring_edges[0].id
-
   end
 
   def get_hinge_edge(node)
