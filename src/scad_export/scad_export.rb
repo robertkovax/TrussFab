@@ -222,7 +222,10 @@ class ScadExport
                        edge.second_elongation_length
                      end
         other_node = edge.other_node(node)
-        direction = node.position.vector_to(other_node.position).normalize
+        direction = node.position.vector_to(other_node.position)
+        connection_length =
+          (direction.length - 2 * Configuration::BALL_HUB_RADIUS).to_mm.round(1)
+        direction = direction.normalize
 
         hinge_connection = NO_HINGE
         hinge_connection = B_HINGE unless a_hinges.empty?
@@ -268,6 +271,7 @@ class ScadExport
                                                      edge.bottle_length_short_name
                                                      )
         export_hub.add_elongation(export_elongation)
+        export_hub.pipe_lengths << connection_length
       end
 
       export_hubs.push(export_hub)
@@ -278,9 +282,6 @@ class ScadExport
   def self.export_to_scad(path)
     node_export_algorithm = NodeExportAlgorithm.instance
     node_export_algorithm.run
-
-    # TODO: Fix export
-    return
 
     export_interface = node_export_algorithm.export_interface
 

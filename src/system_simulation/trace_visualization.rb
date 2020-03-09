@@ -44,6 +44,7 @@ class TraceVisualization
       # thin out points in trace
       next unless index % sampling_rate == 0
 
+      @group = Sketchup.active_model.entities.add_group if @group.deleted?
       entities = @group.entities
 
       edgearray = entities.add_circle(current_data_sample.position_data[node_id], Geom::Vector3d.new(1,0,0), 1, 10)

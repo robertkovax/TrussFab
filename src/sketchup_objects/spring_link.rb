@@ -3,11 +3,13 @@ require 'src/configuration/configuration.rb'
 
 # PhysicsLink that behaves like a gas spring
 class SpringLink < ActuatorLink
-  attr_reader :spring_parameter_k
+  attr_reader :spring_parameter_k, :initial_spring_length
 
   def initialize(first_node, second_node, edge, id: nil)
     @spring_parameter_k = 200
     super(first_node, second_node, edge, id: id)
+    @first_elongation_length =
+      @second_elongation_length = Configuration::MINIMUM_ELONGATION
     persist_entity
   end
 
@@ -39,9 +41,8 @@ class SpringLink < ActuatorLink
   #
 
   def update_link_properties
+    super
     recreate_children
-    return unless @joint && @joint.valid?
-
   end
 
   def update_link_transformations
@@ -66,7 +67,7 @@ class SpringLink < ActuatorLink
 
     translation = Geom::Transformation.translation(new_position)
 
-    @first_cylinder.entity.transformation=(translation * rotation * scaling)
+    @first_cylinder.entity.transformation = translation * rotation * scaling
   end
 
   def create_children
@@ -82,6 +83,15 @@ class SpringLink < ActuatorLink
     # Update the link_transformation, that we're previously just initialized
     # with identity
     update_link_transformations
+  end
+
+  def inspect
+    initial_length =
+      (@initial_spring_length - 2 * Configuration::BALL_HUB_RADIUS)
+      .to_mm.round(2)
+    "Spring #{id} (#{@first_node.id}, #{@second_node.id}): " \
+    "initial Length: #{initial_length}mm, " \
+    "spring parameter k: #{@spring_parameter_k}"
   end
 
   def set_piston_group_color

@@ -198,9 +198,8 @@ class Link < PhysicsSketchupObject
     dir.normalize!
     t1 = Geom::Transformation.new(pt1, dir) * scale1
     t2 = Geom::Transformation.new(pt2, dir.reverse) * scale2
-    t3 = Geom::Transformation.new(pt2 - Geometry.scale_vector(dir,
-                                                              elong2.length),
-                                  dir.reverse)
+    t3 = Geom::Transformation.new(pt2, dir.reverse) *
+         Geom::Transformation.scaling(1, 1, (pt2 - pt1).length / @model.length)
 
     elong1.entity.move!(t1)
     elong2.entity.move!(t2)
@@ -265,10 +264,8 @@ class Link < PhysicsSketchupObject
   def create_children
     create_elongations
 
-    link_position = @position.offset(@first_elongation.direction)
-
     add(@first_elongation,
-        BottleLink.new(link_position, direction, @model, id: @id),
+        BottleLink.new(@position, direction, @model, id: @id, material: @material),
         Line.new(@position, @second_position, LINK_LINE),
         @second_elongation)
   end
