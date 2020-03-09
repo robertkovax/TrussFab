@@ -5,6 +5,7 @@ class Sidebar
   attr_reader :width, :height, :top, :left
 
   attr_accessor :animation_pane
+  attr_accessor :spring_pane
 
   HTML_FILE = '../sidebar/index.html'.freeze
 

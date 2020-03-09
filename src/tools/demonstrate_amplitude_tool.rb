@@ -1,8 +1,7 @@
-require_relative 'spring_simulation_tool.rb'
 require 'src/system_simulation/trace_visualization.rb'
 
 # Enables users to drag a line starting from a node to demonstrate the amplitude they want for the oscillation.
-class DemonstrateAmplitudeTool < SpringSimulationTool
+class DemonstrateAmplitudeTool < Tool
   def initialize(ui)
     super(ui)
     @mouse_input = MouseInput.new(snap_to_edges: true, snap_to_nodes: true)
@@ -12,7 +11,12 @@ class DemonstrateAmplitudeTool < SpringSimulationTool
     @end_position = nil
     @moving = false
 
-    @trace_visualization = TraceVisualization.new
+    @simulation_runner = nil
+  end
+
+  def activate
+    # Instantiates SimulationRunner and compiles model.
+    @simulation_runner = @ui.spring_pane.try_compile
   end
 
   def onLButtonDown(_flags, x, y, view)
@@ -23,8 +27,6 @@ class DemonstrateAmplitudeTool < SpringSimulationTool
     @moving = true
     @start_node = obj
     @start_position = @end_position = obj.position
-
-    @trace_visualization.reset_trace
   end
 
   def onMouseMove(_flags, x, y, view)
@@ -36,18 +38,17 @@ class DemonstrateAmplitudeTool < SpringSimulationTool
     return unless @moving
     return if @start_node.nil?
 
-    hinge_center = get_hinge_edge(@start_node).mid_point
+    hinge_edge = get_hinge_edge(@start_node)
+    hinge_center = hinge_edge.mid_point
+
     initial_vector = @start_position - hinge_center
     max_amplitude_vector = @end_position - hinge_center
     # user inputs only half of the amplitude since we want to have the oscillation symmetric around the equililbirum.
     angle = 2 * initial_vector.angle_between(max_amplitude_vector)
 
-    @constant = @simulation_runner.constant_for_constrained_angle(angle)
-
-    simulate
-    equilibrium_index = @simulation_runner.find_equilibrium(@constant)
-    set_graph_to_data_sample(equilibrium_index)
-    @trace_visualization.add_trace(['18', '20'], 4, @simulation_data)
+    spring_id = relevant_spring_id_for_node(@start_node)
+    constant = @simulation_runner.constant_for_constrained_angle(angle, spring_id)
+    @ui.spring_pane.update_constant_for_spring(spring_id, constant)
 
     view.invalidate
     reset
@@ -79,6 +80,27 @@ class DemonstrateAmplitudeTool < SpringSimulationTool
   end
 
   private
+
+  # TODO: Probably a bit inefficient, we should think about a hash like data structure to store springs for
+  # TODO: static groups.
+  # Returns the spring that makes the static group the node is in movable.
+  def relevant_spring_id_for_node(node)
+    static_groups = StaticGroupAnalysis.get_static_groups_for_node(node)
+    raise 'No static groups detected' unless static_groups
+
+    all_spring_edges = Graph.instance.edges.values.select { |edge| edge.link_type == 'spring' }
+
+    # get all springs that are connected to one of the static groups the node is in
+    spring_edges = all_spring_edges.select do |spring_edge|
+      static_groups.any? do |static_group|
+        static_group.include?(spring_edge.first_node) || static_group.include?(spring_edge.second_node)
+      end
+    end
+    raise 'no spring found for group' if spring_edges.empty?
+    raise 'more than one spring found for group' if spring_edges.size > 1
+
+    spring_edges[0].id
+  end
 
   def get_hinge_edge(node)
     all_static_groups = StaticGroupAnalysis.find_static_groups

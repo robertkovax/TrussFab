@@ -25,11 +25,19 @@ class SimulationRunner
 
       run_compilation
     end
+
+    # maps spring edge id => spring constant
+    @constants_for_springs = {}
+    @constants_for_springs = update_spring_data_from_graph
+    # TODO: this just mocks the mapping between springs and the corresponding revolute joint angles. Will be changed
+    # TODO: as soon as we generate the geometry dynamically.
+    @angles_for_springs = { 21 => 'revRight.phi', 25 => 'revLeft.phi' }
   end
 
-  def get_hub_time_series(hub_ids, step_size, mass, constant = 50)
+  def get_hub_time_series
     data = []
-    simulation_time = Benchmark.realtime { run_simulation(constant, mass, 'node_pos.*') }
+    update_spring_data_from_graph
+    simulation_time = Benchmark.realtime { run_simulation('node_pos.*') }
     import_time = Benchmark.realtime { data = parse_data(read_csv) }
     puts("simulation time: #{simulation_time}s csv parsing time: #{import_time}s")
     data
@@ -60,8 +68,8 @@ class SimulationRunner
 
   # Returns index of animation frame when system is in equilibrium by finding the arithmetic mean of the angle
   # differences and the according index.
-  def find_equilibrium(constant = 50, mass = 20)
-    run_simulation(constant, mass, 'revLeft.phi')
+  def find_equilibrium(spring_id)
+    run_simulation(@angles_for_springs[spring_id])
     raw_data = read_csv
 
     # remove initial data point, the header
@@ -79,9 +87,16 @@ class SimulationRunner
     raw_data.index(equilibrium_data_row)
   end
 
-  def constant_for_constrained_angle(allowed_angle_delta = Math::PI / 2.0, initial_constant = 500, mass = 20,
-                                     spring_id = 0, angle_id = 0)
+  # This function approximates a optimum (= the biggest spring constant that makes the spring still stay in the angle
+  # constrains) by starting with a very low spring constant (which leads to a very high oscillation => high angle delta)
+  # and approaches the optimum by approaching with different step sizes (= resolutions of the search), decreasing the
+  # step size as soon as the spring constant is not valid anymore and thus approximating the highest valid spring
+  # constant.
+  def constant_for_constrained_angle(allowed_angle_delta = Math::PI / 2.0, spring_id = 25, initial_constant = 500)
     # steps which the algorithm uses to approximate the valid spring constant
+
+    update_spring_data_from_graph
+    angle_filter = @angles_for_springs[spring_id]
     step_sizes = [1500, 1000, 200, 50, 5]
     constant = initial_constant
     step_size = step_sizes.shift
@@ -89,7 +104,8 @@ class SimulationRunner
     abort_threshold = 50_000
     while keep_searching
       # puts "Current k: #{constant} Step size: #{step_size}"
-      run_simulation(constant, mass, 'revLeft.phi')
+      @constants_for_springs[spring_id] = constant
+      run_simulation(angle_filter)
       if !angle_valid(read_csv, allowed_angle_delta)
         # increase spring constant to decrease angle delta
         constant += step_size
@@ -98,6 +114,8 @@ class SimulationRunner
         constant -= step_size
         # reduce step size and continue
         step_size = step_sizes.shift
+        # make sure we don't exceed the sample space
+        constant = initial_constant if constant < initial_constant
       else
         # we reached smallest step size and found a valid spring constant, so we're done
         keep_searching = false
@@ -110,6 +128,16 @@ class SimulationRunner
   end
 
   private
+
+  def update_spring_data_from_graph
+    spring_links = Graph.instance.edges.values
+                        .select { |edge| edge.link_type == 'spring' }
+                        .map(&:link)
+    spring_links.each do |link|
+      @constants_for_springs[link.edge.id] = link.spring_parameter_k
+    end
+    @constants_for_springs
+  end
 
   def angle_valid(data, max_allowed_delta = Math::PI / 2.0)
     data = data.map { |data_sample| data_sample[1].to_f }
@@ -129,9 +157,11 @@ class SimulationRunner
     p output
   end
 
-  def run_simulation(constant, mass, filter = '*')
-    # TODO adjust sampling rate dynamically
-    overrides = "outputFormat='csv',variableFilter='#{filter}',startTime=0.3,stopTime=10,stepSize=0.1,springDamperParallel1.c='#{constant}'"
+  def run_simulation(filter = '*')
+    # TODO: adjust sampling rate dynamically
+    constant1 = @constants_for_springs[25]
+    constant2 = @constants_for_springs[21]
+    overrides = "outputFormat='csv',variableFilter='#{filter}',startTime=0.0,stopTime=10,stepSize=0.1,springDamperParallel1.c='#{constant1}',springDamperParallel2.c='#{constant2}'"
     command = "./#{@model_name} -override #{overrides}"
     puts(command)
     Open3.popen2e(command, chdir: @directory) do |i, o, t|
