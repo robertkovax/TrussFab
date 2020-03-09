@@ -54,7 +54,6 @@ class DemonstrateAmplitudeTool < Tool
     reset
   end
 
-
   def update(view, x, y)
     @mouse_input.update_positions(view, x, y, point_on_plane_from_camera_normal: @start_position || nil)
 
@@ -95,6 +94,7 @@ class DemonstrateAmplitudeTool < Tool
     end
     raise 'no spring found for group' if spring_edges.empty?
     raise 'more than one spring found for group' if spring_edges.size > 1
+
     spring_edges[0].id
 
   end

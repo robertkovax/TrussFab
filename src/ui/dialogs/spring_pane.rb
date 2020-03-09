@@ -95,14 +95,14 @@ class SpringPane
     return if @dialog && @dialog.visible?
 
     props = {
-        resizable: true,
-        preferences_key: 'com.trussfab.spring_insights',
-        width: 200,
-        height: 50 + @spring_edges.length * 200,
-        left: 5,
-        top: 5,
-        # max_height: @height
-        style: UI::HtmlDialog::STYLE_DIALOG
+      resizable: true,
+      preferences_key: 'com.trussfab.spring_insights',
+      width: 200,
+      height: 50 + @spring_edges.length * 200,
+      left: 5,
+      top: 5,
+      # max_height: @height
+      style: UI::HtmlDialog::STYLE_DIALOG
     }
 
     @dialog = UI::HtmlDialog.new(props)
@@ -119,25 +119,11 @@ class SpringPane
 
   def try_compile
     @simulation_runner ||= SimulationRunner.instance
-    @simulation_data ||= simulate
+    simulate
     @simulation_runner
   end
 
   private
-
-  def register_callbacks
-    @dialog.add_action_callback('spring_constants_change') do |_, spring_id, value|
-      update_constant_for_spring(spring_id, value.to_i)
-    end
-
-    @dialog.add_action_callback('spring_insights_compile') do
-      try_compile
-    end
-
-    @dialog.add_action_callback('spring_insights_toggle_play') do
-      toggle_animation
-    end
-  end
 
   # compilation / simulation logic:
 
@@ -160,6 +146,20 @@ class SpringPane
   def create_animation
     @animation = GeometryAnimation.new(@simulation_data)
     Sketchup.active_model.active_view.animation = @animation
+  end
+
+  def register_callbacks
+    @dialog.add_action_callback('spring_constants_change') do |_, spring_id, value|
+      update_constant_for_spring(spring_id, value.to_i)
+    end
+
+    @dialog.add_action_callback('spring_insights_compile') do
+      try_compile
+    end
+
+    @dialog.add_action_callback('spring_insights_toggle_play') do
+      toggle_animation
+    end
   end
 
 end

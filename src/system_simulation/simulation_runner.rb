@@ -27,7 +27,8 @@ class SimulationRunner
     end
 
     # maps spring edge id => spring constant
-    @constants_for_springs = { 21 => 7000, 25 => 7000 }
+    @constants_for_springs = {}
+    @constants_for_springs = update_spring_data_from_graph
     # TODO: this just mocks the mapping between springs and the corresponding revolute joint angles. Will be changed
     # TODO: as soon as we generate the geometry dynamically.
     @angles_for_springs = { 21 => 'revRight.phi', 25 => 'revLeft.phi' }
@@ -86,6 +87,11 @@ class SimulationRunner
     raw_data.index(equilibrium_data_row)
   end
 
+  # This function approximates a optimum (= the biggest spring constant that makes the spring still stay in the angle
+  # constrains) by starting with a very low spring constant (which leads to a very high oscillation => high angle delta)
+  # and approaches the optimum by approaching with different step sizes (= resolutions of the search), decreasing the
+  # step size as soon as the spring constant is not valid anymore and thus approximating the highest valid spring
+  # constant.
   def constant_for_constrained_angle(allowed_angle_delta = Math::PI / 2.0, spring_id = 25, initial_constant = 500)
     # steps which the algorithm uses to approximate the valid spring constant
 
@@ -130,6 +136,7 @@ class SimulationRunner
     spring_links.each do |link|
       @constants_for_springs[link.edge.id] = link.spring_parameter_k
     end
+    @constants_for_springs
   end
 
   def angle_valid(data, max_allowed_delta = Math::PI / 2.0)

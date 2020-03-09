@@ -7,7 +7,7 @@ class SpringTool < ActuatorTool
   end
 
   def onLButtonDown(flags, x, y, view)
-    super(flags, x, y, view)
+    super
     @ui.spring_pane.update_springs
   end
 end
