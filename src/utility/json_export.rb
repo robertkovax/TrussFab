@@ -21,6 +21,14 @@ class JsonExport
     end
     json[:standard_surface] = triangle.nodes_ids_towards_user
     json[:spring_constants] = spring_constants_for_ids if spring_constants_for_ids
+    mounted_users = {}
+    graph.nodes.each do |node_id, node|
+      hub = node.hub
+      next unless hub.is_user_attached
+
+      mounted_users[node_id] = hub.user_force
+    end
+    json[:mounted_users] = mounted_users
     JSON.pretty_generate(json)
   end
 

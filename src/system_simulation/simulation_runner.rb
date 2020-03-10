@@ -20,20 +20,23 @@ class SimulationRunner
     model_name = "LineForceGenerated"
     File.open(File.join(File.dirname(__FILE__), model_name + ".mo"), 'w') { |file| file.write(modelica_model_string) }
 
-    graph = JSON.parse(json_export_string)
+    trussfab_geometry = JSON.parse(json_export_string)
 
     # build modelica model identifiers for each spring from their ids
-    identifiers_for_springs = graph['spring_constants'].map do |edge_id, constant|
-      edges = graph['edges'].map { |edge| [edge['id'].to_s, edge] }.to_h
+    identifiers_for_springs = trussfab_geometry['spring_constants'].map do |edge_id, constant|
+      edges = trussfab_geometry['edges'].map { |edge| [edge['id'].to_s, edge] }.to_h
       edge_with_spring = edges[edge_id]
       [edge_id, "edge_from_#{edge_with_spring['n1']}_to_#{edge_with_spring['n2']}_spring"]
     end.to_h
 
     # TODO: why is :spring_constants key syntax not working here?
-    SimulationRunner.new(model_name, graph['spring_constants'], identifiers_for_springs)
+    SimulationRunner.new(model_name, trussfab_geometry['spring_constants'], identifiers_for_springs,
+                         trussfab_geometry['mounted_users'])
   end
 
-  def initialize(model_name = "seesaw3", spring_constants = {}, spring_identifiers = {}, suppress_compilation = false, keep_temp_dir = false)
+  def initialize(model_name = "seesaw3", spring_constants = {}, spring_identifiers = {}, mounted_users = {},
+                 suppress_compilation = false, keep_temp_dir = false)
+
     @model_name = model_name
     @simulation_options = "-abortSlowSimulation"
     # @simulation += "lv=LOG_INIT_V,LOG_SIMULATION,LOG_STATS,LOG_JAC,LOG_NLS"
@@ -51,6 +54,8 @@ class SimulationRunner
 
     update_spring_constants(spring_constants)
     @identifiers_for_springs = spring_identifiers
+
+    @mounted_users = mounted_users
 
   end
 
