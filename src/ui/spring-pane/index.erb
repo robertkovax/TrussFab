@@ -11,7 +11,8 @@
     document.getElementById('period').value = value;
   }
   function set_constant(id, value) {
-    document.getElementById('spring_constant_' + id).value = value;
+    document.getElementById('spring_constant_' + id).placeholder = value;
+    document.getElementById('spring_constant_range_' + id).value = value;
   }
 </script>
 
@@ -21,21 +22,21 @@
 <div class="card">
   <div class="card-body">
     <h5 class="card-title">Modify spring parameters</h5>
-    <% @spring_links.each { |spring_link| %>
+    <% @spring_edges.each { |spring_edge| %>
     <div class="row">
           <div class="col-6">
             <div class="input-group mb-3">
               <div class="input-group-prepend">
                 <span class="input-group-text text-monospace">k</span>
               </div>
-              <input id="spring_constant_<%=  spring_link.id  %>" type="text" placeholder="20000" readonly class="form-control">
+              <input id="spring_constant_<%= spring_edge.id %>" type="text" placeholder="<%= spring_edge.link.spring_parameter_k  %>" readonly class="form-control">
               <div class="input-group-append">
                 <span class="input-group-text text-monospace">N/m</span>
               </div>
             </div>
           </div>
       <div class="col-6">
-        <input type="range" class="custom-range pt-3" id="customRange1" min="10000" max="50000" step="10000" value="20000" onchange="window.sketchup.spring_insights_change(<%= spring_link.id %>, this.value); set_constant(<%= spring_link.id %>, this.value)">
+        <input type="range" class="custom-range pt-3" id="spring_constant_range_<%=  spring_edge.id  %>" min="500" max="30000" step="50" value="<%= spring_edge.link.spring_parameter_k  %>" onchange="window.sketchup.spring_constants_change(<%= spring_edge.id %>, this.value); set_constant(<%= spring_edge.id %>, this.value)">
       </div>
     </div>
 
@@ -55,6 +56,14 @@
       <div class="row no-gutters">
         <button class="btn btn-primary" onClick="window.sketchup.spring_insights_toggle_play()">
           play animation
+        </button>
+      </div>
+    </div>
+
+    <div class="input-group mb-3">
+      <div class="row no-gutters">
+        <button class="btn btn-warning" onClick="window.sketchup.spring_insights_compile()">
+          compile
         </button>
       </div>
     </div>

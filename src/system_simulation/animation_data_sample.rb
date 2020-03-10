@@ -14,7 +14,7 @@ class AnimationDataSample
 
     indices_map.each do | node_id, indices |
       node = Graph.instance.nodes.find do | node |
-        node[0] == node_id
+        node[0] == node_id.to_i
       end
 
       position = Geom::Point3d.new(data[indices[0]].to_f().mm * 1000,
@@ -41,7 +41,7 @@ class AnimationDataSample
     validate_header_for_model(Graph.instance, header)
 
     strings_for_hub_ids = header.group_by do | value |
-      if (match = value.match(/(\d+),/))
+      if (match = value.match(/node_(\d+)/))
         match.captures[0]
       end
     end

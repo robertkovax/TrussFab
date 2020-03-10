@@ -14,11 +14,36 @@ module StaticGroupAnalysis
     analysis.perform
   end
 
+  # returns sets for all static groups the node is part of
+  def self.get_static_groups_for_node(node)
+    static_groups = find_static_groups
+    nodes = map_to_set_of_nodes static_groups
+    nodes.select! do |static_group|
+      static_group.include? node
+    end
+  end
+
+  # Takes an array of triangles in static groups, and maps them to an array
+  # of sets, which contain the nodes in the static groups
+  def self.map_to_set_of_nodes(static_groups)
+    static_groups.map do |triangles|
+      nodes = Set.new
+      triangles.each do |triangle|
+        nodes << triangle.first_node
+        nodes << triangle.second_node
+        nodes << triangle.third_node
+      end
+      nodes
+    end
+  end
+
   # hide implementation details
   class Analysis
     def perform
       edges = Graph.instance.edges.values
-      actuators = edges.select { |e| e.link_type == 'actuator' }
+      actuators = edges.select do |edge|
+        edge.link_type == 'actuator' || edge.link_type == 'spring'
+      end
 
       # Maps from a triangle to all triangles rotating with it around a common
       # axis
@@ -30,13 +55,32 @@ module StaticGroupAnalysis
 
       original_angles = triangle_pair_angles(triangle_pairs)
 
-      start_simulation(actuators)
+      actuators.each do |actuator|
 
-      simulation_angles = triangle_pair_angles(triangle_pairs, true)
+        # Make all other actuators really weak
+        actuators.each do |a|
+          a.link.power = if a == actuator
+                           0.0 # This actually means maxiumum power
+                         else
+                           0.000001
+                         end
+          a.link.update_link_properties
+        end
 
-      process_triangle_pairs(triangle_pairs, original_angles,
-                             simulation_angles,
-                             rotation_partners)
+        start_simulation([actuator])
+
+        simulation_angles = triangle_pair_angles(triangle_pairs, true)
+
+        process_triangle_pairs(triangle_pairs, original_angles,
+                               simulation_angles,
+                               rotation_partners)
+        @simulation.show_triangle_surfaces
+      end
+
+      actuators.each do |actuator|
+        actuator.link.power = 0.0
+        actuator.link.update_link_properties
+      end
 
       start_static_group_search(edges.reject(&:dynamic?),
                                 rotation_partners)

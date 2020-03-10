@@ -5,7 +5,8 @@ class BottleLink < SketchupObject
   attr_reader :model, :direction
 
   def initialize(position, direction, model,
-                 id: nil, material: 'bottle_material')
+                 id: nil, material:
+                   Sketchup.active_model.materials['standard_material'])
     super(id, material: material)
     @position = position
     @direction = direction
@@ -20,6 +21,10 @@ class BottleLink < SketchupObject
 
   def create_entity
     return @entity if @entity
+
+    scaling =
+        Geom::Transformation.scaling(1, 1, @direction.length / @model.length)
+
     translation = Geom::Transformation.translation(@position)
 
     rotation_angle = Geometry.rotation_angle_between(Geometry::Z_AXIS,
@@ -30,7 +35,7 @@ class BottleLink < SketchupObject
                                              rotation_axis,
                                              rotation_angle)
 
-    transformation = rotation * translation
+    transformation = rotation * translation * scaling
 
     entity = Sketchup.active_model
                      .active_entities

@@ -5,7 +5,7 @@ require 'src/simulation/simulation.rb'
 # Hub
 class Hub < PhysicsSketchupObject
   attr_accessor :position, :body, :mass, :arrow
-  attr_reader :force
+  attr_reader :force, :is_user_attached, :user_force
 
   def initialize(position, id: nil, incidents: nil, material: 'hub_material')
     super(id, material: material)
@@ -23,6 +23,8 @@ class Hub < PhysicsSketchupObject
     @incidents = incidents
     @is_user_attached = false
     @user_indicator = nil
+    # force the user applies on that hub in newton
+    @user_force = 0
     update_id_label
     persist_entity
   end
@@ -214,8 +216,15 @@ class Hub < PhysicsSketchupObject
     @is_sensor
   end
 
-  def toggle_attached_user
-    @is_user_attached = !@is_user_attached
+  def attach_user(force)
+    @is_user_attached = true
+    @user_force = force
+    update_user_indicator
+  end
+
+  def remove_user
+    @is_user_attached = false
+    @user_force = 0
     update_user_indicator
   end
 
