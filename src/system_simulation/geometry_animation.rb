@@ -19,12 +19,16 @@ class GeometryAnimation
     end
     current_data_sample = @data[@index]
 
-    Graph.instance.nodes.each do | node_id, node|
-      node.update_position(current_data_sample.position_data[node_id.to_s])
-      node.hub.update_position(current_data_sample.position_data[node_id.to_s])
+    # try to find a matching node (by id) in the graph and move it to the position parsed from current data sample
+    current_data_sample.position_data.each do |node_id, position|
+      node = Graph.instance.nodes[node_id.to_i]
+      next unless node
+
+      node.update_position(position)
+      node.hub.update_position(position)
       node.hub.update_user_indicator()
     end
-
+    
     Graph.instance.edges.each do |_, edge|
       link = edge.link
       link.update_link_transformations
