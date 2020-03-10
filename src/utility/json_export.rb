@@ -10,7 +10,7 @@ class JsonExport
     file.close
   end
 
-  def self.graph_to_json(triangle = nil, animation)
+  def self.graph_to_json(triangle = nil, animation, spring_constants_for_ids)
     graph = Graph.instance
     json = {distance_unit: 'mm', force_unit: 'N'}
     json[:nodes] = nodes_to_hash(graph.nodes)
@@ -20,6 +20,7 @@ class JsonExport
       triangle = Graph.instance.triangles.first[1] # Just take any triangle
     end
     json[:standard_surface] = triangle.nodes_ids_towards_user
+    json[:spring_constants] = spring_constants_for_ids if spring_constants_for_ids
     JSON.pretty_generate(json)
   end
 
