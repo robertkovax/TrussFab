@@ -59,8 +59,8 @@ def generate_modelica_file(json_string)
 
     edge[:length] = euclidean_distance(n1[:pos], n2[:pos])
 
-    n1[:connecting_edges].append(edge)
-    n2[:connecting_edges].append(edge)
+    n1[:connecting_edges].push(edge)
+    n2[:connecting_edges].push(edge)
 
     edge[:n1_orientation_fixed] = false
     edge[:n2_orientation_fixed] = false
@@ -129,15 +129,15 @@ def generate_modelica_file(json_string)
 
     if edge['type'] == 'bottle_link'
       force_translator = Modelica_Rod.new(edge[:name] + "_rod", edge[:length].to_f)
-    elsif edge['type'] == 'actuator'
+    elsif edge['type'] == 'spring'
       force_translator = Modelica_Spring.new(edge[:name] + "_spring", SPRING_CONSTANT, edge[:length])
     end
 
     # store for constructing connections
     edge[:modelica_component] = edge_component
 
-    modelica_components.append(edge_component, force_translator)
-    modelica_connections.append(*generate_force_connections(edge_component, force_translator))
+    modelica_components.push(edge_component, force_translator)
+    modelica_connections.push(*generate_force_connections(edge_component, force_translator))
   }
 
 
@@ -147,7 +147,7 @@ def generate_modelica_file(json_string)
     # Connect all rods
     node[:connecting_edges].each { |edge|
       unless edge == node[:primary_edge]
-        modelica_connections.append(
+        modelica_connections.push(
           generate_mutlibody_connection(
             node[:primary_edge][:modelica_component], primary_edge_connection_direction,
             edge[:modelica_component], get_direction(node, edge)
@@ -163,9 +163,9 @@ def generate_modelica_file(json_string)
       primary_edge_connection_direction = get_direction(node, node[:primary_edge])
 
       # Generate PointMasses
-      point_mass_component = Modelica_PointMass.new("node_#{nodeId}_mass", NODE_WEIGHT_KG, *node[:pos])
-      modelica_components.append(point_mass_component)
-      modelica_connections.append(generate_mutlibody_connection(node[:primary_edge], primary_edge_connection_direction, point_mass_component, :a))
+      point_mass_component = Modelica_PointMass.new("node_#{nodeId}", NODE_WEIGHT_KG, *node[:pos])
+      modelica_components.push(point_mass_component)
+      modelica_connections.push(generate_mutlibody_connection(node[:primary_edge], primary_edge_connection_direction, point_mass_component, :a))
     }
   end
 
@@ -174,8 +174,8 @@ def generate_modelica_file(json_string)
     primary_edge_connection_direction = get_direction(node, node[:primary_edge])
 
     fixture = Modelica_Fixture.new("node_#{id}_fixture", *node[:pos])
-    modelica_components.append(fixture)
-    modelica_connections.append(generate_mutlibody_connection(fixture, :b, node[:primary_edge], primary_edge_connection_direction))
+    modelica_components.push(fixture)
+    modelica_connections.push(generate_mutlibody_connection(fixture, :b, node[:primary_edge], primary_edge_connection_direction))
   }
 
 
