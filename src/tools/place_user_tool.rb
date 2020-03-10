@@ -13,7 +13,8 @@ class PlaceUserTool < Tool
     if !obj.nil? && obj.is_a?(Node)
       hub = obj.hub
       # TODO remove this default force value here
-      hub.is_user_attached ? hub.remove_user : hub.attach_user(60)
+      hub.is_user_attached ? hub.remove_user : hub.attach_user(100)
+      @ui.spring_pane.update_mounted_users
     end
   end
 

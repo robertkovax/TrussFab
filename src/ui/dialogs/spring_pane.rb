@@ -48,6 +48,10 @@ class SpringPane
     update_dialog if @dialog
   end
 
+  def update_mounted_users
+    SimulationRunnerClient.update_mounted_users(mounted_users)
+  end
+
   def update_trace_visualization
     @trace_visualization ||= TraceVisualization.new
     @trace_visualization.reset_trace
@@ -122,7 +126,9 @@ class SpringPane
   # compilation / simulation logic:
 
   def compile
-    SimulationRunnerClient.update_model(JsonExport.graph_to_json(nil, [], constants_for_springs))
+    # TODO: remove mounted users here in future and only update it (to keep the correct, empty default values in the
+    # TODO: modelica file)
+    SimulationRunnerClient.update_model(JsonExport.graph_to_json(nil, [], constants_for_springs, mounted_users))
   end
 
   private
@@ -133,6 +139,17 @@ class SpringPane
       spring_constants[link.edge.id] = link.spring_parameter_k
     end
     spring_constants
+  end
+
+  def mounted_users
+    mounted_users = {}
+    Graph.instance.nodes.each do |node_id, node|
+      hub = node.hub
+      next unless hub.is_user_attached
+
+      mounted_users[node_id] = hub.user_force
+    end
+    mounted_users
   end
 
   # compilation / simulation logic:

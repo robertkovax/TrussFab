@@ -20,13 +20,21 @@ class SimulationRunnerClient
   end
 
   def self.update_spring_constants(spring_constants)
-    uri = URI.parse("#{SIMULATION_RUNNER_HOST}/update_spring_constants")
+    patch_updated_data('update_spring_constants', JSON.pretty_generate(spring_constants))
+  end
+
+  def self.update_mounted_users(mounted_users)
+    patch_updated_data('update_mounted_users', JSON.pretty_generate(mounted_users))
+  end
+
+  def self.patch_updated_data(route, json_data)
+    uri = URI.parse("#{SIMULATION_RUNNER_HOST}/#{route}")
     header = {'Content-Type' => 'text/json'}
 
     http = Net::HTTP.new(uri.host, uri.port)
 
     request = Net::HTTP::Patch.new(uri.request_uri, header)
-    request.body = JSON.pretty_generate(spring_constants)
+    request.body = json_data
 
     response = http.request(request)
   end

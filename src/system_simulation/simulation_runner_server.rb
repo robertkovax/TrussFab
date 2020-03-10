@@ -19,7 +19,10 @@ patch '/update_spring_constants' do
   return ""
 end
 
-# TODO: add route here for updating the mounted users and their forces ()
+patch '/update_mounted_users' do
+  sim.update_mounted_users(JSON.parse(request.body.read))
+  return ""
+end
 
 get '/get_period' do
   return_message = { period: sim.get_period.to_s }

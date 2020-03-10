@@ -67,6 +67,10 @@ class SimulationRunner
     @angles_for_springs = { 21 => 'revRight.phi', 25 => 'revLeft.phi' }
   end
 
+  def update_mounted_users(mounted_users)
+    @mounted_users = mounted_users
+  end
+
 
   def get_hub_time_series
     data = []
@@ -164,6 +168,10 @@ class SimulationRunner
     override_string = ''
     @identifiers_for_springs.each do |edge_id, spring_identifier|
       override_string += "#{spring_identifier}.c='#{@constants_for_springs[edge_id]}',"
+    end
+
+    @mounted_users.each do |node_id, force|
+      override_string += "node_#{node_id}.m='#{force}',"
     end
 
     # remove last comma
