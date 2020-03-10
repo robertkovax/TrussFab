@@ -1,5 +1,6 @@
-require 'src/system_simulation/simulation_runner.rb'
 require 'src/system_simulation/geometry_animation.rb'
+require 'src/system_simulation/simulation_runner_client.rb'
+require 'src/utility/json_export.rb'
 
 # Ruby integration for spring insights dialog
 class SpringPane
@@ -30,6 +31,9 @@ class SpringPane
   def update_constant_for_spring(spring_id, new_constant)
     edge = @spring_edges.find { |edge| edge.id == spring_id }
     edge.link.spring_parameter_k = new_constant
+
+    # notify simulation runner about changed constants
+    SimulationRunnerClient.update_spring_constants(constants_for_springs)
 
     # update simulation data and visualizations with adjusted results
     simulate
@@ -117,18 +121,24 @@ class SpringPane
 
   # compilation / simulation logic:
 
-  def try_compile
-    @simulation_runner ||= SimulationRunner.instance
-    simulate
-    @simulation_runner
+  def compile
+    SimulationRunnerClient.update_model(JsonExport.graph_to_json(nil, [], constants_for_springs))
   end
 
   private
 
+  def constants_for_springs
+    spring_constants = {}
+    @spring_edges.map(&:link).each do |link|
+      spring_constants[link.edge.id] = link.spring_parameter_k
+    end
+    spring_constants
+  end
+
   # compilation / simulation logic:
 
   def simulate
-    @simulation_data = @simulation_runner.get_hub_time_series
+    @simulation_data = SimulationRunnerClient.get_hub_time_series
   end
 
   # animation logic:
@@ -154,7 +164,7 @@ class SpringPane
     end
 
     @dialog.add_action_callback('spring_insights_compile') do
-      try_compile
+      compile
     end
 
     @dialog.add_action_callback('spring_insights_toggle_play') do
