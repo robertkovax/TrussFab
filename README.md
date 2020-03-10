@@ -144,9 +144,9 @@ Available commands are:
 
 1. Go to  [Gute Kunst Federshop](https://www.federnshop.com/de/produkte/druckfedern.html)
 2. Click on the export icon right next to "Search Results"
-4. Convert File to UTF-8 with your go-to Text Editor (Sublime Text)
-5. Place the downloaded CSV in `assets/compression_springs.csv`
-6. Done
+3. Convert File to UTF-8 with your go-to Text Editor (Sublime Text)
+4. Place the downloaded CSV in `assets/compression_springs.csv`
+5. Done
 
 # Contact handles
 
