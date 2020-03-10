@@ -2,9 +2,9 @@
 require 'json'
 require 'erb'
 
-NODE_WEIGHT_KG = 1
+NODE_WEIGHT_KG = 30
 PIPE_WEIGHT_KG = 1
-SPRING_CONSTANT = 1000
+SPRING_CONSTANT = 7000
 POINT_MASS_GENERATION_ENABLED = true
 
 Modelica_LineForceWithMass = Struct.new(:name, :mass, :orientation_fixed_a, :orientation_fixed_b)
