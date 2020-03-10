@@ -28,7 +28,7 @@ class GeometryAnimation
       node.hub.update_position(position)
       node.hub.update_user_indicator()
     end
-    
+
     Graph.instance.edges.each do |_, edge|
       link = edge.link
       link.update_link_transformations

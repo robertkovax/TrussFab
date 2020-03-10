@@ -12,18 +12,28 @@ require 'csv'
 # including spring oscillations) are run. Right now we use Modelica and compile / simulate a modelica model of our
 # geometry when necessary. This class provides public interfaces for different results of the simulation.
 class SimulationRunner
-  include Singleton
+  NODE_COORDINATES_FILTER = 'node_[0-9]+.r_0.*'.freeze
 
   def self.new_from_json_export(json_export_string)
-    require "./generate_modelica_model.rb"
+    require_relative 'generate_modelica_model.rb'
     modelica_model_string = generate_modelica_file(json_export_string)
     model_name = "LineForceGenerated"
-    File.open(model_name + ".mo", 'w') { |file| file.write(modelica_model_string) }
+    File.open(File.join(File.dirname(__FILE__), model_name + ".mo"), 'w') { |file| file.write(modelica_model_string) }
 
-    SimulationRunner.new(model_name)
+    graph = JSON.parse(json_export_string)
+
+    # build modelica model identifiers for each spring from their ids
+    identifiers_for_springs = graph['spring_constants'].map do |edge_id, constant|
+      edges = graph['edges'].map { |edge| [edge['id'].to_s, edge] }.to_h
+      edge_with_spring = edges[edge_id]
+      [edge_id, "edge_from_#{edge_with_spring['n1']}_to_#{edge_with_spring['n2']}_spring"]
+    end.to_h
+
+    # TODO: why is :spring_constants key syntax not working here?
+    SimulationRunner.new(model_name, graph['spring_constants'], identifiers_for_springs)
   end
 
-  def initialize(model_name="seesaw3", suppress_compilation=false, keep_temp_dir=false)
+  def initialize(model_name = "seesaw3", spring_constants = {}, spring_identifiers = {}, suppress_compilation = false, keep_temp_dir = false)
     @model_name = model_name
     @simulation_options = "-abortSlowSimulation"
     # @simulation += "lv=LOG_INIT_V,LOG_SIMULATION,LOG_STATS,LOG_JAC,LOG_NLS"
@@ -39,26 +49,31 @@ class SimulationRunner
       run_compilation
     end
 
+    update_spring_constants(spring_constants)
+    @identifiers_for_springs = spring_identifiers
+
+  end
+
+  def update_spring_constants(spring_constants)
     # maps spring edge id => spring constant
-    @constants_for_springs = {}
-    @constants_for_springs = update_spring_data_from_graph
+    @constants_for_springs = spring_constants
     # TODO: this just mocks the mapping between springs and the corresponding revolute joint angles. Will be changed
     # TODO: as soon as we generate the geometry dynamically.
     @angles_for_springs = { 21 => 'revRight.phi', 25 => 'revLeft.phi' }
   end
 
+
   def get_hub_time_series
     data = []
-    update_spring_data_from_graph
-    simulation_time = Benchmark.realtime { run_simulation('node_pos.*') }
-    import_time = Benchmark.realtime { data = parse_data(read_csv) }
+    simulation_time = Benchmark.realtime { run_simulation(NODE_COORDINATES_FILTER) }
+    import_time = Benchmark.realtime { data = read_csv }
     puts("simulation time: #{simulation_time}s csv parsing time: #{import_time}s")
     data
   end
 
   def get_period(mass = 20, constant = 5000)
     # TODO: confirm correct result
-    run_simulation()
+    run_simulation
 
     require 'gsl'
 
@@ -107,7 +122,6 @@ class SimulationRunner
   def constant_for_constrained_angle(allowed_angle_delta = Math::PI / 2.0, spring_id = 25, initial_constant = 500)
     # steps which the algorithm uses to approximate the valid spring constant
 
-    update_spring_data_from_graph
     angle_filter = @angles_for_springs[spring_id]
     step_sizes = [1500, 1000, 200, 50, 5]
     constant = initial_constant
@@ -141,14 +155,14 @@ class SimulationRunner
 
   private
 
-  def update_spring_data_from_graph
-    spring_links = Graph.instance.edges.values
-                        .select { |edge| edge.link_type == 'spring' }
-                        .map(&:link)
-    spring_links.each do |link|
-      @constants_for_springs[link.edge.id] = link.spring_parameter_k
+  def override_constants_string
+    override_string = ''
+    @identifiers_for_springs.each do |edge_id, spring_identifier|
+      override_string += "#{spring_identifier}.c='#{@constants_for_springs[edge_id]}',"
     end
-    @constants_for_springs
+
+    # remove last comma
+    override_string[0...-1]
   end
 
   def angle_valid(data, max_allowed_delta = Math::PI / 2.0)
@@ -164,16 +178,14 @@ class SimulationRunner
   def run_compilation
     output, _ = Open3.capture2e("cp #{@model_name}.mo  #{@directory}", chdir: File.dirname(__FILE__))
     p output
-    output, _ = Open3.capture2e("omc -s #{@model_name}.mo && mv #{@model_name}.makefile Makefile && make -j 8",
+    output, _ = Open3.capture2e("omc #{@compilation_options} -s #{@model_name}.mo Modelica && mv #{@model_name}.makefile Makefile && make -j 8",
                                 chdir: @directory)
     p output
   end
 
   def run_simulation(filter = '*')
     # TODO adjust sampling rate dynamically
-    constant1 = @constants_for_springs[25]
-    constant2 = @constants_for_springs[21]
-    overrides = "outputFormat='csv',variableFilter='#{filter}',startTime=0.3,stopTime=10,stepSize=0.1,springDamperParallel1.c='#{constant1}',springDamperParallel2.c='#{constant2}'"
+    overrides = "outputFormat='csv',variableFilter='#{filter}',startTime=0.3,stopTime=10,stepSize=0.1,#{override_constants_string}"
     command = "./#{@model_name} -override #{overrides}"
     puts(command)
     Open3.popen2e(command, chdir: @directory) do |i, o, t|
@@ -184,23 +196,6 @@ class SimulationRunner
 
   def read_csv
     CSV.read(File.join(@directory, "#{@model_name}_res.csv"))
-  end
-
-  def parse_data(raw_data)
-    # parse in which columns the coordinates for each node are stored
-    indices_map = AnimationDataSample.indices_map_from_header(raw_data[0])
-
-    # remove header of loaded data
-    raw_data.shift
-
-    # parse csv
-    data_samples = []
-    raw_data.each do |value|
-      data_samples << AnimationDataSample.from_raw_data(value, indices_map)
-    end
-
-    data_samples
-
   end
 
 end
