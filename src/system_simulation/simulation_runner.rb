@@ -46,24 +46,37 @@ class SimulationRunner
 
 
   def get_period(mass=20, constant=5000)
-    # TODO confirm correct result
-    run_simulation(constant, mass, "revLeft.phi")
+    id = "node_4_mass.r_0"
+    filter = "#{id}.*"
+    run_simulation(constant, mass, filter)
 
     require 'gsl'
 
-    stop_time = 10
+    data = CSV.read(File.join(@directory, "#{@model_name}_res.csv"), :headers=>true, :converters => :numeric)
 
-    data = CSV.read((File.join(@directory, "#{@model_name}_res.csv")), :headers=>true)['revLeft.phi']
-    vector = data.map{ |v| v.to_f }.to_gv
-
-    sample_rate = vector.length / stop_time
+    time_steps = data.length
+    time_step_size = data['time'][1] - data['time'][0]
+    sample_rate = time_step_size * time_steps
 
     # https://github.com/SciRuby/rb-gsl/blob/master/examples/fft/fft.rb
-    y2 = vector.fft.subvector(1, data.length - 2).to_complex2
-    mag = y2.abs
+    x = data["#{id}[1]"].to_gv.fft.subvector(1, time_steps - 2).to_complex2
+    y = data["#{id}[2]"].to_gv.fft.subvector(1, time_steps - 2).to_complex2
+    z = data["#{id}[3]"].to_gv.fft.subvector(1, time_steps - 2).to_complex2
+
+    mag = x.abs + y.abs + z.abs
     f = GSL::Vector.linspace(0, sample_rate/2, mag.size)
-    #p mag.max_index
-    return 1 / f[mag.max_index]
+
+    # p f.to_a
+    # p mag.to_a
+    # GSL::graph(f, mag, "-C -g 3 -x 0 200 -X 'Frequency [Hz]'")
+
+    frequency = f[mag.max_index]
+
+    if frequency != 0
+      return 1 / f[mag.max_index]
+    else
+      return nil
+    end
   end
 
   def find_equilibrium(mass=20, constant=50)
