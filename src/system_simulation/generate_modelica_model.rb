@@ -162,8 +162,13 @@ def generate_modelica_file(json_string)
     nodes.select {|nodeId, node| not node[:fixed]}.each{ |nodeId, node|
       primary_edge_connection_direction = get_direction(node, node[:primary_edge])
 
+      # get mass from truss fab geometry if set
+      mass = json_model['mounted_users'][nodeId.to_s]
+      # fall back to default mass otherwise
+      mass ||= NODE_WEIGHT_KG
+
       # Generate PointMasses
-      point_mass_component = Modelica_PointMass.new("node_#{nodeId}", NODE_WEIGHT_KG, *node[:pos])
+      point_mass_component = Modelica_PointMass.new("node_#{nodeId}", mass, *node[:pos])
       modelica_components.push(point_mass_component)
       modelica_connections.push(generate_mutlibody_connection(node[:primary_edge], primary_edge_connection_direction, point_mass_component, :a))
     }
