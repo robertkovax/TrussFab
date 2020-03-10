@@ -3,8 +3,7 @@
 require 'net/http'
 require "uri"
 
-
-SIMULATION_RUNNER_HOST = "http://ec2-3-127-56-156.eu-central-1.compute.amazonaws.com:8080/"
+SIMULATION_RUNNER_HOST = "http://0.0.0.0:8080".freeze
 
 class SimulationRunnerClient
   def self.update_model(json_string)
@@ -17,15 +16,77 @@ class SimulationRunnerClient
     request.body = json_string.to_s
 
     response = http.request(request)
-    p response
+  end
+
+  def self.update_spring_constants(spring_constants)
+    uri = URI.parse("#{SIMULATION_RUNNER_HOST}/update_spring_constants")
+    header = {'Content-Type' => 'text/json'}
+
+    http = Net::HTTP.new(uri.host, uri.port)
+
+    request = Net::HTTP::Patch.new(uri.request_uri, header)
+    request.body = JSON.pretty_generate(spring_constants)
+
+    response = http.request(request)
   end
 
   def self.get_period
-    uri = URI.parse("#{SIMULATION_RUNNER_HOST}/get_period")
+    # TODO implement
+    p json_response_from_server('get_period')
+  end
+
+  def self.get_hub_time_series
+    json_result = json_response_from_server('get_hub_time_series')
+    parse_data(json_result["data"])
+  end
+
+  def self.get_equilibrium
+    # TODO implement
+    p json_response_from_server('get_equilibrium')
+  end
+
+  def self.get_constant_for_constrained_angle
+    # TODO implement
+    p json_response_from_server('get_constant_for_constrained_angle')
+  end
+
+  private
+
+  def self.json_response_from_server(route)
+    uri = URI.parse("#{SIMULATION_RUNNER_HOST}/#{route}")
     http = Net::HTTP.new(uri.host, uri.port)
     request = Net::HTTP::Get.new(uri.request_uri)
     response = http.request(request)
-    p response
+    JSON.parse(response.body)
+  end
+
+  # Parses data retrieved from a csv, must contain header at the first index.
+  def self.parse_data(data_array)
+    # parse in which columns the coordinates for each node are stored
+    indices_map = AnimationDataSample.indices_map_from_header(data_array[0])
+
+    # remove header of loaded data
+    data_array.shift
+
+    # parse csv
+    data_samples = []
+    data_array.each do |value|
+      data_samples << AnimationDataSample.from_raw_data(value, indices_map)
+    end
+
+    data_samples
+
+  end
+
+  def self.spring_data_from_graph
+    constants_for_springs = {}
+    spring_links = Graph.instance.edges.values
+                       .select { |edge| edge.link_type == 'spring' }
+                       .map(&:link)
+    spring_links.each do |link|
+      constants_for_springs[link.edge.id] = link.spring_parameter_k
+    end
+    constants_for_springs
   end
 
 end
