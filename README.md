@@ -140,6 +140,14 @@ Available commands are:
     TrussFab.reload - reloads ruby and js files for faster development (do this after you changed code you want to test)
     TrussFab.store_sensor_output - toggles writing the output of the sensors into a .csv-style file, which will be located in the home folder (called sensor_output.log)
 
+# Update Spring Catalog
+
+1. Go to  [Gute Kunst Federshop](https://www.federnshop.com/de/produkte/druckfedern.html)
+2. Click on the export icon right next to "Search Results"
+4. Convert File to UTF-8 with your go-to Text Editor (Sublime Text)
+5. Place the downloaded CSV in `assets/compression_springs.csv`
+6. Done
+
 # Contact handles
 
 robert.kovacs@hpi.de
