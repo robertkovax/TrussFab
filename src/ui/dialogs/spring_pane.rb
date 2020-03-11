@@ -62,7 +62,10 @@ class SpringPane
 
   def update_periods
     mounted_users.keys.each do |node_id|
-      period = SimulationRunnerClient.get_period(node_id).round(2)
+      period = SimulationRunnerClient.get_period(node_id)
+      period = period.round(2) if period
+      # catch invalid periods
+      period ||= 'NaN'
       @user_periods[node_id] = period
       set_period(node_id, period)
     end
