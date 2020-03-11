@@ -1,12 +1,7 @@
 #!/usr/bin/env ruby
 require 'json'
 require 'erb'
-
-NODE_WEIGHT_KG = 30
-PIPE_WEIGHT_KG = 1
-SPRING_CONSTANT = 7000
-STATIC_SPRING_CONSTANT = 100000
-POINT_MASS_GENERATION_ENABLED = true
+require_relative '../configuration/modelica_configuration.rb'
 
 Modelica_LineForceWithMass = Struct.new(:name, :mass, :orientation_fixed_a, :orientation_fixed_b)
 Modelica_Rod = Struct.new(:name, :length, :static_constant)
@@ -126,12 +121,12 @@ def generate_modelica_file(json_string)
   # Phase 3.1 Generate Main Components
   edges.each { |edgeID, edge|
     edge[:name] = edge_to_modelica_name(edge)
-    edge_component = Modelica_LineForceWithMass.new(edge[:name], PIPE_WEIGHT_KG, edge[:n1_orientation_fixed], edge[:n2_orientation_fixed] )
+    edge_component = Modelica_LineForceWithMass.new(edge[:name], ModelicaConfiguration::PIPE_WEIGHT_KG, edge[:n1_orientation_fixed], edge[:n2_orientation_fixed] )
 
     if edge['type'] == 'bottle_link'
-      force_translator = Modelica_Rod.new(edge[:name] + "_rod", edge[:length].to_f, STATIC_SPRING_CONSTANT)
+      force_translator = Modelica_Rod.new(edge[:name] + "_rod", edge[:length].to_f, ModelicaConfiguration::STATIC_SPRING_CONSTANT)
     elsif edge['type'] == 'spring'
-      force_translator = Modelica_Spring.new(edge[:name] + "_spring", SPRING_CONSTANT, edge[:length])
+      force_translator = Modelica_Spring.new(edge[:name] + "_spring", ModelicaConfiguration::SPRING_CONSTANT, edge[:length])
     end
 
     # store for constructing connections
@@ -159,14 +154,14 @@ def generate_modelica_file(json_string)
   }
 
   # Phase 3.3 Generate Point Masses on all nodes
-  if POINT_MASS_GENERATION_ENABLED
+  if ModelicaConfiguration::POINT_MASS_GENERATION_ENABLED
     nodes.select {|nodeId, node| not node[:fixed]}.each{ |nodeId, node|
       primary_edge_connection_direction = get_direction(node, node[:primary_edge])
 
       # get mass from truss fab geometry if set
       mass = json_model['mounted_users'][nodeId.to_s]
       # fall back to default mass otherwise
-      mass ||= NODE_WEIGHT_KG
+      mass ||= ModelicaConfiguration::NODE_WEIGHT_KG
 
       # Generate PointMasses
       point_mass_component = Modelica_PointMass.new("node_#{nodeId}", mass, *node[:pos])
