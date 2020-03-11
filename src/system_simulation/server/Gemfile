@@ -1,3 +1,4 @@
+source 'https://rubygems.org'
 ruby '~> 2.4'
 
 gem "gsl", "~> 2.1"
