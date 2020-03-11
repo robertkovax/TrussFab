@@ -1,5 +1,4 @@
 require 'src/utility/project_helper.rb'
-require 'modelica_configuration.rb'
 
 module Configuration
   # Sketchup Layers
