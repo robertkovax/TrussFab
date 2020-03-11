@@ -37,7 +37,8 @@ class SpringPane
 
     # update simulation data and visualizations with adjusted results
     simulate
-    put_geometry_into_equilibrium(spring_id)
+    # TODO: fix and reenable
+    #put_geometry_into_equilibrium(spring_id)
     update_trace_visualization
 
     update_dialog if @dialog
@@ -50,12 +51,14 @@ class SpringPane
 
   def update_mounted_users
     SimulationRunnerClient.update_mounted_users(mounted_users)
+    update_trace_visualization
   end
 
   def update_trace_visualization
     @trace_visualization ||= TraceVisualization.new
     @trace_visualization.reset_trace
-    @trace_visualization.add_trace(['18', '20'], 4, @simulation_data)
+    # visualize every node with a mounted user
+    @trace_visualization.add_trace(mounted_users.keys.map(&:to_s), 4, @simulation_data)
   end
 
   def put_geometry_into_equilibrium(spring_id)
