@@ -63,10 +63,8 @@ class SpringPane
   def update_periods
     mounted_users.keys.each do |node_id|
       period = SimulationRunnerClient.get_period(node_id).round(2)
-      p "set_period(#{node_id}, #{period})"
       @user_periods[node_id] = period
       set_period(node_id, period)
-    # TODO: Add user section to dialog
     end
   end
 
