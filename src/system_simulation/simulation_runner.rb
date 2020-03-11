@@ -1,12 +1,13 @@
 require 'csv'
-require_relative './animation_data_sample.rb'
 require 'open3'
 require 'singleton'
 require 'benchmark'
-
 require 'fileutils'
 require 'tmpdir'
 require 'csv'
+
+require_relative './animation_data_sample.rb'
+require_relative './generate_modelica_model.rb'
 
 # This class encapsulates the way of how system simulations (physically correct simulations of the dynamic system,
 # including spring oscillations) are run. Right now we use Modelica and compile / simulate a modelica model of our
@@ -16,7 +17,7 @@ class SimulationRunner
 
   def self.new_from_json_export(json_export_string)
     require_relative 'generate_modelica_model.rb'
-    modelica_model_string = generate_modelica_file(json_export_string)
+    modelica_model_string = ModelicaModelGenerator.generate_modelica_file(json_export_string)
     model_name = "LineForceGenerated"
     File.open(File.join(File.dirname(__FILE__), model_name + ".mo"), 'w') { |file| file.write(modelica_model_string) }
 
@@ -80,26 +81,34 @@ class SimulationRunner
     data
   end
 
-  def get_period(mass = 20, constant = 5000)
-    # TODO: confirm correct result
-    run_simulation
+  def get_period(node_id)
+    id = "#{ModelicaModelGenerator.identifier_for_node_id(node_id)}.r_0"
+    filter = "#{id}.*"
+    run_simulation(filter)
 
     require 'gsl'
 
-    stop_time = 10
+    data = CSV.read(File.join(@directory, "#{@model_name}_res.csv"), :headers=>true, :converters => :numeric)
 
-    # TODO: make this call use read_csv
-    data = CSV.read(File.join(@directory, "#{@model_name}_res.csv"), headers: true)['revLeft.phi']
-    vector = data.map(&:to_f).to_gv
-
-    sample_rate = vector.length / stop_time
+    time_steps = data.length
+    time_step_size = data['time'][1] - data['time'][0]
+    sample_rate = time_step_size * time_steps
 
     # https://github.com/SciRuby/rb-gsl/blob/master/examples/fft/fft.rb
-    y2 = vector.fft.subvector(1, data.length - 2).to_complex2
-    mag = y2.abs
+    x = data["#{id}[1]"].to_gv.fft.subvector(1, time_steps - 2).to_complex2
+    y = data["#{id}[2]"].to_gv.fft.subvector(1, time_steps - 2).to_complex2
+    z = data["#{id}[3]"].to_gv.fft.subvector(1, time_steps - 2).to_complex2
+
+    mag = x.abs + y.abs + z.abs
     f = GSL::Vector.linspace(0, sample_rate/2, mag.size)
-    #p mag.max_index
-    1 / f[mag.max_index]
+
+    # p f.to_a
+    # p mag.to_a
+    # GSL::graph(f, mag, "-C -g 3 -x 0 200 -X 'Frequency [Hz]'")
+
+    frequency = f[mag.max_index]
+
+    frequency != 0 ? 1 / frequency : nil
   end
 
   # Returns index of animation frame when system is in equilibrium by finding the arithmetic mean of the angle

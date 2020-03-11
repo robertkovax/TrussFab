@@ -39,9 +39,8 @@ class SimulationRunnerClient
     response = http.request(request)
   end
 
-  def self.get_period
-    # TODO implement
-    p json_response_from_server('get_period')
+  def self.get_period(node_id)
+    json_response_from_server("get_period/#{node_id}")['period']
   end
 
   def self.get_hub_time_series

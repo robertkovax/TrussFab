@@ -24,8 +24,8 @@ patch '/update_mounted_users' do
   return ""
 end
 
-get '/get_period' do
-  return_message = { period: sim.get_period.to_s }
+get '/get_period/:node_id' do
+  return_message = { period: sim.get_period(params['node_id']) }
   return_message.to_json
 end
 
@@ -40,6 +40,7 @@ get '/get_equilibrium' do
 end
 
 get '/get_constant_for_constrained_angle' do
+  # We don't do that for now...
   return_message = { constant: sim.get_period.to_s }
   return_message.to_json
 end
