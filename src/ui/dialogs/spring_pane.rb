@@ -21,6 +21,9 @@ class SpringPane
     # A simple visualization for simulation data, plotting circles into the scene.
     @trace_visualization = nil
 
+    # node_id => period
+    @user_periods = {}
+
     @dialog = nil
     open_dialog
 
@@ -40,6 +43,7 @@ class SpringPane
     # TODO: fix and reenable
     #put_geometry_into_equilibrium(spring_id)
     update_trace_visualization
+    update_periods
 
     update_dialog if @dialog
   end
@@ -51,7 +55,19 @@ class SpringPane
 
   def update_mounted_users
     SimulationRunnerClient.update_mounted_users(mounted_users)
+    update_periods
+    update_dialog if @dialog
     update_trace_visualization
+  end
+
+  def update_periods
+    mounted_users.keys.each do |node_id|
+      period = SimulationRunnerClient.get_period(node_id).round(2)
+      p "set_period(#{node_id}, #{period})"
+      @user_periods[node_id] = period
+      set_period(node_id, period)
+    # TODO: Add user section to dialog
+    end
   end
 
   def update_trace_visualization
@@ -83,8 +99,8 @@ class SpringPane
 
   # dialog logic:
 
-  def set_period(value)
-    @dialog.execute_script("set_period(#{value})")
+  def set_period(node_id, value)
+    @dialog.execute_script("set_period(#{node_id}, #{value})")
   end
 
   def set_constant(value, spring_id = 25)
@@ -108,7 +124,7 @@ class SpringPane
     props = {
       resizable: true,
       preferences_key: 'com.trussfab.spring_insights',
-      width: 200,
+      width: 250,
       height: 50 + @spring_edges.length * 200,
       left: 5,
       top: 5,
