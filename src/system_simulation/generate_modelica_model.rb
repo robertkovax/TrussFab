@@ -5,10 +5,11 @@ require 'erb'
 NODE_WEIGHT_KG = 30
 PIPE_WEIGHT_KG = 1
 SPRING_CONSTANT = 7000
+STATIC_SPRING_CONSTANT = 100000
 POINT_MASS_GENERATION_ENABLED = true
 
 Modelica_LineForceWithMass = Struct.new(:name, :mass, :orientation_fixed_a, :orientation_fixed_b)
-Modelica_Rod = Struct.new(:name, :length)
+Modelica_Rod = Struct.new(:name, :length, :static_constant)
 Modelica_Spring = Struct.new(:name, :c, :length)
 Modelica_Connection = Struct.new(:from, :to)
 Modelica_Fixture = Struct.new(:name, :x, :y, :z)
@@ -128,7 +129,7 @@ def generate_modelica_file(json_string)
     edge_component = Modelica_LineForceWithMass.new(edge[:name], PIPE_WEIGHT_KG, edge[:n1_orientation_fixed], edge[:n2_orientation_fixed] )
 
     if edge['type'] == 'bottle_link'
-      force_translator = Modelica_Rod.new(edge[:name] + "_rod", edge[:length].to_f)
+      force_translator = Modelica_Rod.new(edge[:name] + "_rod", edge[:length].to_f, STATIC_SPRING_CONSTANT)
     elsif edge['type'] == 'spring'
       force_translator = Modelica_Spring.new(edge[:name] + "_spring", SPRING_CONSTANT, edge[:length])
     end
