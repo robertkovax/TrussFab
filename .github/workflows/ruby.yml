@@ -19,6 +19,7 @@ jobs:
           ruby-version: 2.4.x
       - name: Build and test with Rake
         run: |
+          sudo apt-get install libgsl-dev
           cd src/system_simulation/server
           gem install bundler
           bundle install --jobs 4 --retry 3
