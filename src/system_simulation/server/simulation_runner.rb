@@ -6,7 +6,7 @@ require 'fileutils'
 require 'tmpdir'
 require 'csv'
 
-require_relative './animation_data_sample.rb'
+require_relative '../animation_data_sample.rb'
 require_relative './generate_modelica_model.rb'
 
 # This class encapsulates the way of how system simulations (physically correct simulations of the dynamic system,
@@ -16,7 +16,7 @@ class SimulationRunner
   NODE_COORDINATES_FILTER = 'node_[0-9]+.r_0.*'.freeze
 
   def self.new_from_json_export(json_export_string)
-    require_relative 'generate_modelica_model.rb'
+    require_relative './generate_modelica_model.rb'
     modelica_model_string = ModelicaModelGenerator.generate_modelica_file(json_export_string)
     model_name = "LineForceGenerated"
     File.open(File.join(File.dirname(__FILE__), model_name + ".mo"), 'w') { |file| file.write(modelica_model_string) }

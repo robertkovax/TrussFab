@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require 'sinatra'
-require_relative 'simulation_runner.rb'
-require_relative 'generate_modelica_model.rb'
+require_relative './simulation_runner.rb'
+require_relative './generate_modelica_model.rb'
 
 set :port, 8080
 set :environment, :production

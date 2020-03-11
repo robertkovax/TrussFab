@@ -15,7 +15,7 @@ RUN gem install rb-gsl
 
 COPY . /opt/code
 
-WORKDIR /opt/code
+WORKDIR /opt/code/server
 
 # # Change the container to non-root "openmodelicauser" and set the env
 # USER openmodelicausers

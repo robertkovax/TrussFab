@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require 'json'
 require 'erb'
-require_relative '../configuration/modelica_configuration.rb'
+require_relative 'modelica_configuration.rb'
 
 Modelica_LineForceWithMass = Struct.new(:name, :mass, :orientation_fixed_a, :orientation_fixed_b)
 Modelica_Rod = Struct.new(:name, :length, :static_constant)

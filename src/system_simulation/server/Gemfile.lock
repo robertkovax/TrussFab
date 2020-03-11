@@ -1,0 +1,15 @@
+GEM
+  specs:
+    gsl (2.1.0.3)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  gsl (~> 2.1)
+
+RUBY VERSION
+   ruby 2.4.6p354
+
+BUNDLED WITH
+   2.1.4
