@@ -207,7 +207,7 @@
       "id": 11,
       "n1": 2,
       "n2": 6,
-      "type": "actuator",
+      "type": "spring",
       "bottle_type": "Pipe(60cm)",
       "piston_group": 0,
       "e1": 34.640751754777895,

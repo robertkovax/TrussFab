@@ -9,12 +9,12 @@ end
 task :test_seesaw do
   file = File.read("./test_models/seesaw_3.json")
   sim = SimulationRunner.new_from_json_export(file)
-  p sim.get_period()
+  p sim.get_period('20')
 end
 
 task :test_get_period do
   sim = SimulationRunner.new()
-  p sim.get_period()
+  p sim.get_period('20')
 end
 
 task default: %w[test]

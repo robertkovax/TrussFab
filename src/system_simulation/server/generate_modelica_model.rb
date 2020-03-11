@@ -121,7 +121,7 @@ class ModelicaModelGenerator
         primary_edge_connection_direction = get_direction(node, node[:primary_edge])
 
         # get mass from truss fab geometry if set
-        mass = json_model['mounted_users'][nodeId.to_s]
+        mass = json_model['mounted_users'][nodeId.to_s] if json_model['mounted_users']
         # fall back to default mass otherwise
         mass ||= ModelicaConfiguration::NODE_WEIGHT_KG
 

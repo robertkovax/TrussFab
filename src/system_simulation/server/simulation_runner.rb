@@ -23,16 +23,23 @@ class SimulationRunner
 
     trussfab_geometry = JSON.parse(json_export_string)
 
-    # build modelica model identifiers for each spring from their ids
-    identifiers_for_springs = trussfab_geometry['spring_constants'].map do |edge_id, constant|
-      edges = trussfab_geometry['edges'].map { |edge| [edge['id'].to_s, edge] }.to_h
-      edge_with_spring = edges[edge_id]
-      [edge_id, "edge_from_#{edge_with_spring['n1']}_to_#{edge_with_spring['n2']}_spring"]
-    end.to_h
+    spring_constants = {}
+    identifiers_for_springs = {}
+    mounted_users = {}
+
+    if trussfab_geometry['spring_constants']
+      # build modelica model identifiers for each spring from their ids
+      identifiers_for_springs = trussfab_geometry['spring_constants'].map do |edge_id, constant|
+        edges = trussfab_geometry['edges'].map { |edge| [edge['id'].to_s, edge] }.to_h
+        edge_with_spring = edges[edge_id]
+        [edge_id, "edge_from_#{edge_with_spring['n1']}_to_#{edge_with_spring['n2']}_spring"]
+      end.to_h
+    end
+    spring_constants = trussfab_geometry['spring_constants'] if trussfab_geometry['spring_constants']
+    mounted_users = trussfab_geometry['mounted_users'] if trussfab_geometry['mounted_users']
 
     # TODO: why is :spring_constants key syntax not working here?
-    SimulationRunner.new(model_name, trussfab_geometry['spring_constants'], identifiers_for_springs,
-                         trussfab_geometry['mounted_users'])
+    SimulationRunner.new(model_name, spring_constants, identifiers_for_springs, mounted_users)
   end
 
   def initialize(model_name = "seesaw3", spring_constants = {}, spring_identifiers = {}, mounted_users = {},
@@ -184,7 +191,7 @@ class SimulationRunner
     end
 
     # remove last comma
-    override_string[0...-1]
+    override_string[0...-1] if override_string.length != 0
   end
 
   def angle_valid(data, max_allowed_delta = Math::PI / 2.0)
