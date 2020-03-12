@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'csv'
+require 'src/utility/project_helper.rb'
 
 K_SPRING_PICKING_TOLERANCE = 0.05
 
@@ -77,7 +78,7 @@ class SpringPicker
       end
     }
 
-    @table = CSV.read(File.join(File.dirname(__FILE__), '../../assets/compression_springs.csv'),  :headers => true, :col_sep => ";", :converters => column_converter, :header_converters => lambda { |name| header_aliases[name] })
+    @table = CSV.read(File.join(ProjectHelper.spring_catalogue_directory, 'compression_springs.csv'),  :headers => true, :col_sep => ";", :converters => column_converter, :header_converters => lambda { |name| header_aliases[name] })
   end
 
   def get_spring(spring_parameter_k, spring_length_l)
