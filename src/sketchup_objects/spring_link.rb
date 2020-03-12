@@ -7,12 +7,13 @@ class SpringLink < ActuatorLink
   attr_accessor :spring_parameter_k
   attr_reader :edge, :initial_spring_length
 
-  def initialize(first_node, second_node, edge, id: nil)
+  def initialize(first_node, second_node, edge, spring_parameters, id: nil)
     @spring_parameter_k = 7000
     @initial_edge_length = first_node.hub.entity.bounds.center.vector_to(second_node.hub.entity.bounds.center)
                                      .length.to_f
     # TODO: set from catalog
-    @actual_spring_length = @initial_edge_length / 2
+    @actual_spring_length = 285.mm
+    @spring_parameters = spring_parameters
     super(first_node, second_node, edge, id: id)
     @first_elongation_length =
       @second_elongation_length = Configuration::MINIMUM_ELONGATION
@@ -93,7 +94,7 @@ class SpringLink < ActuatorLink
 
     # scale the entity to make it always connect the two adjacent hubs
 
-    spring_model = ParametricSpringModel.new(@actual_spring_length, @spring_parameter_k)
+    spring_model = ParametricSpringModel.new(@actual_spring_length, @spring_parameter_k, @spring_parameters)
     @first_cylinder = Spring.new(self, spring_model.definition, nil)
     add(@first_cylinder)
 

@@ -2,21 +2,29 @@
 class ParametricSpringModel
   attr_reader :definition, :material
 
-  def initialize(free_length, spring_strength)
+  def initialize(free_length, spring_strength, spring_parameters)
     # Construct a spring out of a circle and a path
     model = Sketchup.active_model
     definitions = model.definitions
     @definition = definitions.add "Spring {#{free_length.to_s}, #{spring_strength}}"
     entities = @definition.entities
 
+    spring_radius = spring_parameters[:spring_radius]
+    spring_windings = spring_parameters[:spring_windings]
+    material_thickness = spring_parameters[:material_thickness]
+
+    spring_radius = 45.mm
+    spring_windings = 8.5
+    material_thickness = 8.mm
     # Draw a circle on the ground plane around the origin.
-    curve = entities.add_curve(generate_spring_curve free_length, 1, 20 - spring_strength / 10000.to_f, 200)
+    #curve = entities.add_curve(generate_spring_curve free_length, 1, 20 - spring_strength / 10000.to_f, 200)
+    curve = entities.add_curve(generate_spring_curve free_length, spring_radius, spring_windings, 200)
 
     first_edge = curve[0]
 
     normal_vector = first_edge.end.position - first_edge.start.position
-    center_point = Geom::Point3d.new(1, 0, 0)
-    radius = 0.01 * Math.log2(spring_strength)
+    center_point = Geom::Point3d.new(spring_radius, 0, 0)
+    radius = material_thickness / 2
 
     edgearray = entities.add_circle center_point, normal_vector, radius, 10
     circle_face = entities.add_face(edgearray)
