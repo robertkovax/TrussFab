@@ -16,6 +16,10 @@ module ProjectHelper
     asset_directory + '/sketchup_components'
   end
 
+  def self.spring_catalogue_directory
+    asset_directory + '/spring_catalogues'
+  end
+
   def self.require_multiple(path_wildcard)
     files = Dir.glob(plugin_directory + '/' + path_wildcard)
     files.each { |file| require file }
