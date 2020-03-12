@@ -80,11 +80,11 @@ class SpringPicker
     @table = CSV.read(File.join(File.dirname(__FILE__), '../../assets/compression_springs.csv'),  :headers => true, :col_sep => ";", :converters => column_converter, :header_converters => lambda { |name| header_aliases[name] })
   end
 
-  def get_spring(spring_parater_k, spring_length_l)
-    k_tolerance = spring_parater_k * K_SPRING_PICKING_TOLERANCE
+  def get_spring(spring_parameter_k, spring_length_l)
+    k_tolerance = spring_parameter_k * K_SPRING_PICKING_TOLERANCE
 
     @table.select{|line|
-      spring_parater_k - k_tolerance < line[:k] && line[:k] < spring_parater_k + k_tolerance && line[:unstreched_length] <= spring_length_l
+      spring_parameter_k - k_tolerance < line[:k] && line[:k] < spring_parameter_k + k_tolerance && line[:unstreched_length] <= spring_length_l
     }.max_by{ |line|  line[:unstreched_length] }.to_h
   end
 end
