@@ -7,8 +7,8 @@
 </style>
 
 <script type="text/javascript">
-  function set_period(value) {
-    document.getElementById('period').value = value;
+  function set_period(id, value) {
+    document.getElementById('period_' + id).placeholder = value;
   }
   function set_constant(id, value) {
     document.getElementById('spring_constant_' + id).placeholder = value;
@@ -19,9 +19,9 @@
 </head>
 <body>
 
-<div class="card">
+<div class="card m-2 p-2">
+  <h5 class="card-title">Modify spring parameters</h5>
   <div class="card-body">
-    <h5 class="card-title">Modify spring parameters</h5>
     <% @spring_edges.each { |spring_edge| %>
     <div class="row">
           <div class="col-6">
@@ -39,37 +39,58 @@
         <input type="range" class="custom-range pt-3" id="spring_constant_range_<%=  spring_edge.id  %>" min="500" max="30000" step="50" value="<%= spring_edge.link.spring_parameter_k  %>" onchange="window.sketchup.spring_constants_change(<%= spring_edge.id %>, this.value); set_constant(<%= spring_edge.id %>, this.value)">
       </div>
     </div>
-
-
-    <div class="input-group mb-3">
-      <div class="input-group-prepend">
-        <span class="input-group-text text-monospace">p</span>
-      </div>
-      <input id="period" type="text" placeholder="1.5" readonly class="form-control" style="text-align: right;">
-      <div class="input-group-append">
-        <span class="input-group-text text-monospace">s</span>
-      </div>
-    </div>
     <%  } %>
-
-    <div class="input-group mb-3">
-      <div class="row no-gutters">
-        <button class="btn btn-primary" onClick="window.sketchup.spring_insights_toggle_play()">
-          play animation
-        </button>
-      </div>
-    </div>
-
-    <div class="input-group mb-3">
-      <div class="row no-gutters">
-        <button class="btn btn-warning" onClick="window.sketchup.spring_insights_compile()">
-          compile
-        </button>
-      </div>
-    </div>
 
   </div>
 </div>
+<div class="card m-2 p-2">
+  <h5 class="card-title">User parameters</h5>
+  <div class="card-body">
+    <% mounted_users.each { |node_id, user_force| %>
+      <h6>#<%= node_id %></h6>
+      <div class="row">
+        <div class="col-7">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text text-monospace">p</span>
+            </div>
+            <input id="period_<%= node_id %>" type="text" placeholder="<%= @user_periods[node_id] %>" readonly class="form-control" style="text-align: right;">
+            <div class="input-group-append">
+              <span class="input-group-text text-monospace">s</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-5">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text text-monospace">m</span>
+            </div>
+            <input id="mass_<%= node_id %>" type="text" placeholder="<%= user_force %>" readonly class="form-control" style="text-align: right;">
+            <div class="input-group-append">
+              <span class="input-group-text text-monospace">kg</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    <%  } %>
+  </div>
+</div>
+
+<div class="card m-2 p-2">
+  <div class="card-body">
+    <div class="row">
+        <button class="btn btn-warning mb-3 col-md-6" onClick="window.sketchup.spring_insights_compile()">
+          compile
+        </button>
+
+        <button class="btn btn-primary mb-3 col-md-6" onClick="window.sketchup.spring_insights_toggle_play()">
+          play animation
+        </button>
+    </div>
+  </div>
+</div>
+
+
 
 </body>
 </html>

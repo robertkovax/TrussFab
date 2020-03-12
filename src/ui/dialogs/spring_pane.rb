@@ -1,5 +1,6 @@
-require 'src/system_simulation/simulation_runner.rb'
 require 'src/system_simulation/geometry_animation.rb'
+require 'src/system_simulation/simulation_runner_client.rb'
+require 'src/utility/json_export.rb'
 
 # Ruby integration for spring insights dialog
 class SpringPane
@@ -20,6 +21,9 @@ class SpringPane
     # A simple visualization for simulation data, plotting circles into the scene.
     @trace_visualization = nil
 
+    # node_id => period
+    @user_periods = {}
+
     @dialog = nil
     open_dialog
 
@@ -31,10 +35,15 @@ class SpringPane
     edge = @spring_edges.find { |edge| edge.id == spring_id }
     edge.link.spring_parameter_k = new_constant
 
+    # notify simulation runner about changed constants
+    SimulationRunnerClient.update_spring_constants(constants_for_springs)
+
     # update simulation data and visualizations with adjusted results
     simulate
-    put_geometry_into_equilibrium(spring_id)
+    # TODO: fix and reenable
+    #put_geometry_into_equilibrium(spring_id)
     update_trace_visualization
+    update_periods
 
     update_dialog if @dialog
   end
@@ -44,10 +53,29 @@ class SpringPane
     update_dialog if @dialog
   end
 
+  def update_mounted_users
+    SimulationRunnerClient.update_mounted_users(mounted_users)
+    update_periods
+    update_dialog if @dialog
+    update_trace_visualization
+  end
+
+  def update_periods
+    mounted_users.keys.each do |node_id|
+      period = SimulationRunnerClient.get_period(node_id)
+      period = period.round(2) if period
+      # catch invalid periods
+      period ||= 'NaN'
+      @user_periods[node_id] = period
+      set_period(node_id, period)
+    end
+  end
+
   def update_trace_visualization
     @trace_visualization ||= TraceVisualization.new
     @trace_visualization.reset_trace
-    @trace_visualization.add_trace(['18', '20'], 4, @simulation_data)
+    # visualize every node with a mounted user
+    @trace_visualization.add_trace(mounted_users.keys.map(&:to_s), 4, @simulation_data)
   end
 
   def put_geometry_into_equilibrium(spring_id)
@@ -72,8 +100,8 @@ class SpringPane
 
   # dialog logic:
 
-  def set_period(value)
-    @dialog.execute_script("set_period(#{value})")
+  def set_period(node_id, value)
+    @dialog.execute_script("set_period(#{node_id}, #{value})")
   end
 
   def set_constant(value, spring_id = 25)
@@ -97,7 +125,7 @@ class SpringPane
     props = {
       resizable: true,
       preferences_key: 'com.trussfab.spring_insights',
-      width: 200,
+      width: 250,
       height: 50 + @spring_edges.length * 200,
       left: 5,
       top: 5,
@@ -117,18 +145,37 @@ class SpringPane
 
   # compilation / simulation logic:
 
-  def try_compile
-    @simulation_runner ||= SimulationRunner.instance
-    simulate
-    @simulation_runner
+  def compile
+    # TODO: remove mounted users here in future and only update it (to keep the correct, empty default values in the
+    # TODO: modelica file)
+    SimulationRunnerClient.update_model(JsonExport.graph_to_json(nil, [], constants_for_springs, mounted_users))
   end
 
   private
 
+  def constants_for_springs
+    spring_constants = {}
+    @spring_edges.map(&:link).each do |link|
+      spring_constants[link.edge.id] = link.spring_parameter_k
+    end
+    spring_constants
+  end
+
+  def mounted_users
+    mounted_users = {}
+    Graph.instance.nodes.each do |node_id, node|
+      hub = node.hub
+      next unless hub.is_user_attached
+
+      mounted_users[node_id] = hub.user_force
+    end
+    mounted_users
+  end
+
   # compilation / simulation logic:
 
   def simulate
-    @simulation_data = @simulation_runner.get_hub_time_series
+    @simulation_data = SimulationRunnerClient.get_hub_time_series
   end
 
   # animation logic:
@@ -154,7 +201,7 @@ class SpringPane
     end
 
     @dialog.add_action_callback('spring_insights_compile') do
-      try_compile
+      compile
     end
 
     @dialog.add_action_callback('spring_insights_toggle_play') do
