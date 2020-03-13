@@ -1,27 +1,28 @@
 require 'src/sketchup_objects/physics_link.rb'
 require 'src/configuration/configuration.rb'
 require 'src/sketchup_objects/link_entities/spring_cylinder.rb'
+require 'src/system_simulation/spring_picker.rb'
 
 # PhysicsLink that behaves like a gas spring
 class SpringLink < ActuatorLink
-  attr_accessor :spring_parameter_k
+  attr_accessor :spring_parameters, :actual_spring_length
   attr_reader :edge, :initial_spring_length
 
-  def initialize(first_node, second_node, edge, spring_parameters, id: nil)
-    @spring_parameter_k = 7000
+  def initialize(first_node, second_node, edge, spring_parameters: nil, id: nil)
     @initial_edge_length = first_node.hub.entity.bounds.center.vector_to(second_node.hub.entity.bounds.center)
                                      .length.to_f
-    # TODO: set from catalog
-    @actual_spring_length = 285.mm
-    @spring_parameters = spring_parameters
+    @spring_parameters = spring_parameters ? spring_parameters : SpringPicker.instance.get_default_spring
+    @actual_spring_length = @spring_parameters[:unstreched_length].m
+    p @actual_spring_length
     super(first_node, second_node, edge, id: id)
     @first_elongation_length =
       @second_elongation_length = Configuration::MINIMUM_ELONGATION
     persist_entity
   end
 
-  def spring_parameter_k=(k)
-    @spring_parameter_k = k
+  def spring_parameters=(parameters)
+    @spring_parameters = parameters
+    @actual_spring_length = @spring_parameters[:unstreched_length].m
     update_link_properties
   end
 
@@ -94,7 +95,7 @@ class SpringLink < ActuatorLink
 
     # scale the entity to make it always connect the two adjacent hubs
 
-    spring_model = ParametricSpringModel.new(@actual_spring_length, @spring_parameter_k, @spring_parameters)
+    spring_model = ParametricSpringModel.new(@actual_spring_length, @spring_parameters)
     @first_cylinder = Spring.new(self, spring_model.definition, nil)
     add(@first_cylinder)
 
@@ -112,7 +113,7 @@ class SpringLink < ActuatorLink
       .to_mm.round(2)
     "Spring #{id} (#{@first_node.id}, #{@second_node.id}): " \
     "initial Length: #{initial_length}mm, " \
-    "spring parameter k: #{@spring_parameter_k}"
+    "spring parameters: #{@spring_parameters}"
   end
 
   def set_piston_group_color

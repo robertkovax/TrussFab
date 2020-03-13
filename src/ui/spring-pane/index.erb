@@ -29,14 +29,14 @@
               <div class="input-group-prepend">
                 <span class="input-group-text text-monospace">k</span>
               </div>
-              <input id="spring_constant_<%= spring_edge.id %>" type="text" placeholder="<%= spring_edge.link.spring_parameter_k  %>" readonly class="form-control">
+              <input id="spring_constant_<%= spring_edge.id %>" type="text" placeholder="<%= spring_edge.link.spring_parameters[:k].to_i %>" readonly class="form-control">
               <div class="input-group-append">
                 <span class="input-group-text text-monospace">N/m</span>
               </div>
             </div>
           </div>
       <div class="col-6">
-        <input type="range" class="custom-range pt-3" id="spring_constant_range_<%=  spring_edge.id  %>" min="500" max="30000" step="50" value="<%= spring_edge.link.spring_parameter_k  %>" onchange="window.sketchup.spring_constants_change(<%= spring_edge.id %>, this.value); set_constant(<%= spring_edge.id %>, this.value)">
+        <input type="range" class="custom-range pt-3" id="spring_constant_range_<%=  spring_edge.id  %>" min="500" max="30000" step="50" value="<%= spring_edge.link.spring_parameters[:k]  %>" onchange="window.sketchup.spring_constants_change(<%= spring_edge.id %>, this.value); set_constant(<%= spring_edge.id %>, this.value)">
       </div>
     </div>
     <%  } %>
