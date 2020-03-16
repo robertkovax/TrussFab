@@ -1,4 +1,5 @@
 require 'src/system_simulation/geometry_animation.rb'
+require 'src/system_simulation/spring_picker.rb'
 require 'src/system_simulation/simulation_runner_client.rb'
 require 'src/utility/json_export.rb'
 
@@ -24,6 +25,9 @@ class SpringPane
     # node_id => period
     @user_periods = {}
 
+    @spring_picker = SpringPicker.instance
+
+
     @dialog = nil
     open_dialog
 
@@ -33,8 +37,10 @@ class SpringPane
 
   def update_constant_for_spring(spring_id, new_constant)
     edge = @spring_edges.find { |edge| edge.id == spring_id }
-    edge.link.spring_parameter_k = new_constant
-
+    parameters = get_spring(edge, new_constant)
+    p parameters
+    edge.link.spring_parameters = parameters
+    edge.link.actual_spring_length = parameters[:unstreched_length].m
     # notify simulation runner about changed constants
     SimulationRunnerClient.update_spring_constants(constants_for_springs)
 
@@ -46,6 +52,10 @@ class SpringPane
     update_periods
 
     update_dialog if @dialog
+  end
+
+  def get_spring(edge, new_constant)
+    @spring_picker.get_spring(new_constant, edge.length.to_m)
   end
 
   def update_springs
@@ -156,7 +166,7 @@ class SpringPane
   def constants_for_springs
     spring_constants = {}
     @spring_edges.map(&:link).each do |link|
-      spring_constants[link.edge.id] = link.spring_parameter_k
+      spring_constants[link.edge.id] = link.spring_parameters[:k]
     end
     spring_constants
   end

@@ -92,7 +92,7 @@ class SimulationRunnerClient
                        .select { |edge| edge.link_type == 'spring' }
                        .map(&:link)
     spring_links.each do |link|
-      constants_for_springs[link.edge.id] = link.spring_parameter_k
+      constants_for_springs[link.edge.id] = link.spring_parameters[:k]
     end
     constants_for_springs
   end

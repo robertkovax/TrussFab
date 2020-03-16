@@ -2,10 +2,13 @@
 
 require 'csv'
 require 'src/utility/project_helper.rb'
+require 'singleton'
 
 K_SPRING_PICKING_TOLERANCE = 0.05
 
 class SpringPicker
+  include Singleton
+
   def initialize
     # Instructions to update the CSV
 
@@ -87,5 +90,9 @@ class SpringPicker
     @table.select{|line|
       spring_parameter_k - k_tolerance < line[:k] && line[:k] < spring_parameter_k + k_tolerance && line[:unstreched_length] <= spring_length_l
     }.max_by{ |line|  line[:unstreched_length] }.to_h
+  end
+
+  def get_default_spring
+    get_spring(3500, 0.6)
   end
 end
