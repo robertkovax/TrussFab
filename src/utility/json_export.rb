@@ -6,7 +6,8 @@ require 'src/utility/geometry.rb'
 class JsonExport
   def self.export(path, triangle = nil, animation)
     file = File.open(path, 'w')
-    file.write(graph_to_json(triangle, animation))
+    # TODO: also export spring parameters and mounted users to json
+    file.write(graph_to_json(triangle, animation, {}, {}))
     file.close
   end
 
