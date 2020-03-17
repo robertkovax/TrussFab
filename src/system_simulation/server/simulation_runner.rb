@@ -80,9 +80,9 @@ class SimulationRunner
   end
 
 
-  def get_hub_time_series
+  def get_hub_time_series(force_vectors = [])
     data = []
-    simulation_time = Benchmark.realtime { run_simulation(NODE_COORDINATES_FILTER) }
+    simulation_time = Benchmark.realtime { run_simulation(NODE_COORDINATES_FILTER, force_vectors) }
     import_time = Benchmark.realtime { data = read_csv }
     puts("simulation time: #{simulation_time}s csv parsing time: #{import_time}s")
     data
@@ -194,6 +194,18 @@ class SimulationRunner
     override_string[0...-1] if override_string.length != 0
   end
 
+  def force_vector_string(force_vectors)
+    force_vectors_string = ''
+    force_vectors.each do |force_vector|
+      override_string = "node_#{force_vector['node_id']}_force_val[1]='#{force_vector['x']}'" \
+                        "node_#{force_vector['node_id']}_force_val[2]='#{force_vector['y']}'," \
+                        "node_#{force_vector['node_id']}_force_val[3]='#{force_vector['z']}'"
+      force_vectors_string += override_string
+      force_vectors_string += ','
+    end
+    force_vectors_string[0...-1] if force_vectors_string.length != 0
+  end
+
   def angle_valid(data, max_allowed_delta = Math::PI / 2.0)
     data = data.map { |data_sample| data_sample[1].to_f }
     # remove initial data point since it's only containing the column header
@@ -212,9 +224,10 @@ class SimulationRunner
     p output
   end
 
-  def run_simulation(filter = '*')
+  def run_simulation(filter = '*', force_vectors = [])
     # TODO adjust sampling rate dynamically
-    overrides = "outputFormat='csv',variableFilter='#{filter}',startTime=0.3,stopTime=10,stepSize=0.1,#{override_constants_string}"
+    overrides = "outputFormat='csv',variableFilter='#{filter}',startTime=0.3,stopTime=10,stepSize=0.1," \
+                "#{force_vector_string(force_vectors)},#{override_constants_string}"
     command = "./#{@model_name} -override #{overrides}"
     puts(command)
     Open3.popen2e(command, chdir: @directory) do |i, o, t|

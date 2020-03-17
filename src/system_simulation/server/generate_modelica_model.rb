@@ -9,6 +9,7 @@ Modelica_Spring = Struct.new(:name, :c, :length)
 Modelica_Connection = Struct.new(:from, :to)
 Modelica_Fixture = Struct.new(:name, :x, :y, :z)
 Modelica_PointMass = Struct.new(:name, :mass, :x_start, :y_start, :z_start)
+Modelica_Force = Struct.new(:name)
 
 # Generates a modelica model with a given truss fab geometry.
 class ModelicaModelGenerator
@@ -139,6 +140,15 @@ class ModelicaModelGenerator
       fixture = Modelica_Fixture.new("node_#{id}_fixture", *node[:pos])
       modelica_components.push(fixture)
       modelica_connections.push(generate_mutlibody_connection(fixture, :b, node[:primary_edge], primary_edge_connection_direction))
+    }
+
+    # Phase 3.4 Generate Force Handles to enable interaction with the structure
+    nodes.each { |id, node|
+      primary_edge_connection_direction = get_direction(node, node[:primary_edge])
+
+      force = Modelica_Force.new("node_#{id}_force")
+      modelica_components.push(force)
+      modelica_connections.push(generate_mutlibody_connection(force, :b, node[:primary_edge], primary_edge_connection_direction))
     }
 
 

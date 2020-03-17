@@ -2,15 +2,14 @@ model LineForceGenerated
   inner Modelica.Mechanics.MultiBody.World world(n = {0, 0, -1});
 
   <% modelica_components.each do |component| %>
-    <% if component.is_a?(Modelica_LineForceWithMass) %> Modelica.Mechanics.MultiBody.Forces.LineForceWithMass <%= component[:name] %>(fixedRotationAtFrame_a = <%= component[:orientation_fixed_a].to_s %>, fixedRotationAtFrame_b = <%= component[:orientation_fixed_b].to_s %>, m = <%= component[:mass] %>);
-    <% elsif component.is_a?(Modelica_Rod) %> Modelica.Mechanics.Translational.Components.SpringDamper <%= component[:name] %>(s_rel0 = <%= component[:length] %>, c = <%= component[:static_constant] %>, d=10);
-    <% elsif component.is_a?(Modelica_Spring) %> Modelica.Mechanics.Translational.Components.SpringDamper <%= component[:name] %>(c = <%= component[:c] %>, s_rel0 = <%= component[:length] %>, d = 100);
-    <% elsif component.is_a?(Modelica_PointMass) %> Modelica.Mechanics.MultiBody.Parts.PointMass <%= component[:name] %>(m = <%= component[:mass] %><% unless component[:x_start].nil? or component[:y_start].nil? or component[:z_start].nil? %>, r_0(fixed = false, start = <%= "{#{component[:x_start]}, #{component[:y_start]}, #{component[:z_start]}}" %>)<% end %>);
-    <% elsif component.is_a?(Modelica_Fixture) %> Modelica.Mechanics.MultiBody.Parts.Fixed <%= component[:name] %>(r = <%= "{#{component[:x]}, #{component[:y]}, #{component[:z]}}" %>); <% end %><% end %>
-
-initial equation
-  <% modelica_components.select{|component| component.is_a?(Modelica_LineForceWithMass)}.each do |component| %>
-  <%= component[:name] %>.v_CM_0 = {0,0,0}; <% end %>
+  <% if component.is_a?(Modelica_LineForceWithMass) %> Modelica.Mechanics.MultiBody.Forces.LineForceWithMass <%= component[:name] %>(fixedRotationAtFrame_a = <%= component[:orientation_fixed_a].to_s %>, fixedRotationAtFrame_b = <%= component[:orientation_fixed_b].to_s %>, m = <%= component[:mass] %>, v_CM_0(start = {0,0,0}));
+  <% elsif component.is_a?(Modelica_Rod) %> Modelica.Mechanics.Translational.Components.SpringDamper <%= component[:name] %>(s_rel0 = <%= component[:length] %>, c = <%= component[:static_constant] %>, d=10);
+  <% elsif component.is_a?(Modelica_Spring) %> Modelica.Mechanics.Translational.Components.SpringDamper <%= component[:name] %>(c = <%= component[:c] %>, s_rel0 = <%= component[:length] %>, d = 100);
+  <% elsif component.is_a?(Modelica_Force) %> Modelica.Mechanics.MultiBody.Forces.WorldForce <%= component[:name] %>(force = <%= component[:name] %>_val);
+  parameter Real <%= component[:name] %>_val [3] = {0,0,0};
+  <% elsif component.is_a?(Modelica_PointMass) %> Modelica.Mechanics.MultiBody.Parts.PointMass <%= component[:name] %>(m = <%= component[:mass] %><% unless component[:x_start].nil? or component[:y_start].nil? or component[:z_start].nil? %>, r_0(fixed = false, start = <%= "{#{component[:x_start]}, #{component[:y_start]}, #{component[:z_start]}}" %>)<% end %>);
+  <% elsif component.is_a?(Modelica_Fixture) %> Modelica.Mechanics.MultiBody.Parts.Fixed <%= component[:name] %>(r = <%= "{#{component[:x]}, #{component[:y]}, #{component[:z]}}" %>);
+  <% end %><% end %>
 equation
   <% modelica_connections.each do |connection| %>
   connect(<%= connection[:from] %>, <%= connection[:to] %>);<% end %>
