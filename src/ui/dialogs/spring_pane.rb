@@ -60,6 +60,7 @@ class SpringPane
     @force_vectors = vectors
     simulate
     update_trace_visualization
+    play_animation
   end
 
   def get_spring(edge, new_constant)
@@ -197,6 +198,11 @@ class SpringPane
   end
 
   # animation logic:
+
+  def play_animation
+    # recreate animation
+    create_animation
+  end
 
   def toggle_animation
     simulate
