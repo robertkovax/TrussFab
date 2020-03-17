@@ -31,15 +31,7 @@ class AnimationDataSample
     return AnimationDataSample.new(time_stamp, position_data)
   end
 
-  def self.validate_header_for_model(graph_instance, header)
-    if (header.size != graph_instance.nodes.size * 3 + 1)
-      puts("WARNING: loaded animation data doesn't match current model")
-    end
-  end
-
   def self.indices_map_from_header(header)
-    validate_header_for_model(Graph.instance, header)
-
     strings_for_hub_ids = header.group_by do | value |
       if (match = value.match(/node_(\d+)/))
         match.captures[0]

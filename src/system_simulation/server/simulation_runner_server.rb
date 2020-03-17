@@ -30,7 +30,12 @@ get '/get_period/:node_id' do
 end
 
 get '/get_hub_time_series' do
-  return_message = { data: sim.get_hub_time_series }
+  return_message = { data: sim.get_hub_time_series([]) }
+  return_message.to_json
+end
+
+get '/get_hub_time_series_with_force_vector' do
+  return_message = { data: sim.get_hub_time_series(JSON.parse(request.body.read)) }
   return_message.to_json
 end
 

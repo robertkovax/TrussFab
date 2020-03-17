@@ -5,6 +5,7 @@ require 'src/utility/json_export.rb'
 
 # Ruby integration for spring insights dialog
 class SpringPane
+  attr_accessor :force_vectors
   INSIGHTS_HTML_FILE = '../spring-pane/index.erb'.freeze
 
   def initialize
@@ -27,6 +28,7 @@ class SpringPane
 
     @spring_picker = SpringPicker.instance
 
+    @force_vectors = [{ node_id: 4, x: 1000, y: 0, z: 0 }]
 
     @dialog = nil
     open_dialog
@@ -52,6 +54,12 @@ class SpringPane
     update_periods
 
     update_dialog if @dialog
+  end
+
+  def force_vectors=(vectors)
+    @force_vectors = vectors
+    simulate
+    update_trace_visualization
   end
 
   def get_spring(edge, new_constant)
@@ -185,7 +193,7 @@ class SpringPane
   # compilation / simulation logic:
 
   def simulate
-    @simulation_data = SimulationRunnerClient.get_hub_time_series
+    @simulation_data = SimulationRunnerClient.get_hub_time_series(@force_vectors)
   end
 
   # animation logic:

@@ -43,8 +43,12 @@ class SimulationRunnerClient
     json_response_from_server("get_period/#{node_id}")['period']
   end
 
-  def self.get_hub_time_series
-    json_result = json_response_from_server('get_hub_time_series')
+  def self.get_hub_time_series(force_vectors = nil)
+    json_result = if force_vectors
+                    json_response_from_server('get_hub_time_series_with_force_vector', JSON.pretty_generate(force_vectors))
+                  else
+                    json_response_from_server('get_hub_time_series')
+                  end
     parse_data(json_result["data"])
   end
 
@@ -60,10 +64,11 @@ class SimulationRunnerClient
 
   private
 
-  def self.json_response_from_server(route)
+  def self.json_response_from_server(route, json_data = nil)
     uri = URI.parse("#{SIMULATION_RUNNER_HOST}/#{route}")
     http = Net::HTTP.new(uri.host, uri.port)
     request = Net::HTTP::Get.new(uri.request_uri)
+    request.body = json_data if json_data
     response = http.request(request)
     JSON.parse(response.body)
   end
