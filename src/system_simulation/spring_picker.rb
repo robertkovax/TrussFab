@@ -55,7 +55,7 @@ class SpringPicker
     # PG A - price group
 
     header_aliases = {
-      "Part Number" => :part_number,
+      "Part number" => :part_number,
       "R (N/mm)" => :k,
       "n (pc.)" => :windings,
       "Lndyn (mm)" => :min_length,

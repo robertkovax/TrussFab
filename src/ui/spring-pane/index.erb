@@ -23,7 +23,12 @@
   <h5 class="card-title">Modify spring parameters</h5>
   <div class="card-body">
     <% @spring_edges.each { |spring_edge| %>
-    <div class="row">
+      <h6>
+        <a href="https://www.federnshop.com/en/products/compression_springs/<%= spring_edge.link.spring_parameters[:part_number] %>.html">
+          <%= spring_edge.link.spring_parameters[:part_number] %>
+        </a>
+      </h6>
+      <div class="row">
           <div class="col-6">
             <div class="input-group mb-3">
               <div class="input-group-prepend">
