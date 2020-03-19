@@ -11,8 +11,9 @@ class TraceVisualization
     @trace_points = []
 
     # Visualization parameters
-    @color = Sketchup::Color.new(72,209,204)
-    @alpha = 0.4
+    #@color = Sketchup::Color.new(72,209,204)
+    @colors = [Sketchup::Color.new(255,0,0), Sketchup::Color.new(255,255,0), Sketchup::Color.new(0,255,0)]
+    @alpha = 0.2
   end
 
   def add_trace(node_ids, sampling_rate, data)
@@ -36,9 +37,14 @@ class TraceVisualization
   private
 
   def add_circle_trace(node_id, sampling_rate)
-    materialToSet = Sketchup.active_model.materials.add("VisualizationColor")
-    materialToSet.color = @color
-    materialToSet.alpha = @alpha
+    materials = @colors.map do |color, index|
+      materialToSet = Sketchup.active_model.materials.add("VisualizationColor #{index}")
+      materialToSet.color = color
+      materialToSet.alpha = @alpha
+      materialToSet
+    end
+
+    last_position = @simulation_data[0].position_data[node_id]
 
     @simulation_data.each_with_index do |current_data_sample, index|
       # thin out points in trace
@@ -46,13 +52,29 @@ class TraceVisualization
 
       @group = Sketchup.active_model.entities.add_group if @group.deleted?
       entities = @group.entities
+      position = current_data_sample.position_data[node_id]
 
-      edgearray = entities.add_circle(current_data_sample.position_data[node_id], Geom::Vector3d.new(1,0,0), 1, 10)
+      distance = position.distance(last_position)
+      p distance
+
+      edgearray = entities.add_circle(position, Geom::Vector3d.new(1,0,0), 1, 10)
       edgearray.each{|e| e.hidden=true }
       first_edge = edgearray[0]
       arccurve = first_edge.curve
       face = entities.add_face(arccurve)
-      face.material = materialToSet unless face == nil
+
+      case distance
+      when 0.0..0.5
+        face.material = materials[2] unless face == nil
+        p "green"
+      when 0.5..5
+        face.material = materials[1] unless face == nil
+        p "orange"
+      else
+        face.material = materials[0] unless face == nil
+        p "red"
+      end
+      last_position = position
     end
   end
 end
