@@ -22,6 +22,7 @@ class SpringPane
     @animation = nil
     # A simple visualization for simulation data, plotting circles into the scene.
     @trace_visualization = nil
+    @animation_running = false
 
     # node_id => period
     @user_periods = {}
@@ -207,15 +208,20 @@ class SpringPane
   def toggle_animation
     simulate
     if @animation && @animation.running
-      @animation.toggle_running
+      @animation.stop
+      @animation_running = false
     else
       create_animation
+      @animation_running = true
     end
-
+    update_dialog
   end
 
   def create_animation
-    @animation = GeometryAnimation.new(@simulation_data)
+    @animation = GeometryAnimation.new(@simulation_data) do
+      @animation_running = false
+      update_dialog
+    end
     Sketchup.active_model.active_view.animation = @animation
   end
 
