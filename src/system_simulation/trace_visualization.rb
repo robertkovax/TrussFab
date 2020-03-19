@@ -44,11 +44,13 @@ class TraceVisualization
       materialToSet
     end
 
+    start_position = @simulation_data[0].position_data[node_id]
     last_position = @simulation_data[0].position_data[node_id]
+    last_distance = 0
 
     @simulation_data.each_with_index do |current_data_sample, index|
       # thin out points in trace
-      next unless index % sampling_rate == 0
+      #next unless index % sampling_rate == 0
 
       @group = Sketchup.active_model.entities.add_group if @group.deleted?
       entities = @group.entities
@@ -75,6 +77,9 @@ class TraceVisualization
         p "red"
       end
       last_position = position
+      break if last_distance > distance
+
+      last_distance = distance
     end
   end
 end
