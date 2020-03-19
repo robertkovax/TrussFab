@@ -226,7 +226,7 @@ class SimulationRunner
 
   def run_simulation(filter = '*', force_vectors = [])
     # TODO adjust sampling rate dynamically
-    overrides = "outputFormat='csv',variableFilter='#{filter}',startTime=0.3,stopTime=10,stepSize=0.1," \
+    overrides = "outputFormat='csv',variableFilter='#{filter}',startTime=0.3,stopTime=10,stepSize=0.01," \
                 "#{force_vector_string(force_vectors)},#{override_constants_string}"
     command = "./#{@model_name} -override #{overrides}"
     puts(command)
