@@ -278,13 +278,20 @@ module JsonImport
 
     def show_changed_models_warning
       return if @warning_showed
-      UI.messagebox("The model was created with primitives(bottles), that "\
-                    "right now are not loaded into Sketchup. TrussFab will "\
-                    "try to replace them by the ones loaded. If you wish to "\
-                    "use the original ones, replace them in "\
-                    "assets/sketchup_components in your TrussFab-Plugin "\
-                    "folder."\
-                    , MB_OK)
+
+      # UI.messagebox("The model was created with primitives(bottles), that "\
+      #              "right now are not loaded into Sketchup. TrussFab will "\
+      #              "try to replace them by the ones loaded. If you wish to "\
+      #              "use the original ones, replace them in "\
+      #              "assets/sketchup_components in your TrussFab-Plugin "\
+      #              "folder."\
+      #              , MB_OK)
+      puts 'Warning: The model was created with primitives(bottles), that '\
+                    'right now are not loaded into Sketchup. TrussFab will '\
+                    'try to replace them by the ones loaded. If you wish to '\
+                    'use the original ones, replace them in '\
+                    'assets/sketchup_components in your TrussFab-Plugin '\
+                    'folder.'
       @warning_showed = true
     end
   end
