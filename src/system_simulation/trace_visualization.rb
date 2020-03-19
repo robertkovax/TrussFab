@@ -47,6 +47,7 @@ class TraceVisualization
     start_position = @simulation_data[0].position_data[node_id]
     last_position = @simulation_data[0].position_data[node_id]
     last_distance = 0
+    curve_points = []
 
     @simulation_data.each_with_index do |current_data_sample, index|
       # thin out points in trace
@@ -76,10 +77,17 @@ class TraceVisualization
         face.material = materials[0] unless face == nil
         p "red"
       end
-      last_position = position
+
+      curve_points << position
       break if last_distance > distance
 
       last_distance = distance
     end
+
+    # connect points with curve
+    @group = Sketchup.active_model.entities.add_group if @group.deleted?
+    entities = @group.entities
+    entities.add_curve(curve_points)
+
   end
 end
