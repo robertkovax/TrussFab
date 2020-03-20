@@ -1,3 +1,5 @@
+require 'benchmark'
+
 require 'src/system_simulation/geometry_animation.rb'
 require 'src/system_simulation/spring_picker.rb'
 require 'src/system_simulation/simulation_runner_client.rb'
@@ -22,6 +24,7 @@ class SpringPane
     @animation = nil
     # A simple visualization for simulation data, plotting circles into the scene.
     @trace_visualization = nil
+    @animation_running = false
 
     # node_id => period
     @user_periods = {}
@@ -167,7 +170,11 @@ class SpringPane
   def compile
     # TODO: remove mounted users here in future and only update it (to keep the correct, empty default values in the
     # TODO: modelica file)
-    SimulationRunnerClient.update_model(JsonExport.graph_to_json(nil, [], constants_for_springs, mounted_users))
+    compile_time = Benchmark.realtime do
+      SimulationRunnerClient.update_model(
+          JsonExport.graph_to_json(nil, [], constants_for_springs, mounted_users))
+    end
+    puts "Compiled the modelica model in #{compile_time.round(2)} seconds."
   end
 
   private
@@ -194,7 +201,10 @@ class SpringPane
   # compilation / simulation logic:
 
   def simulate
-    @simulation_data = SimulationRunnerClient.get_hub_time_series(@force_vectors)
+    simulation_time = Benchmark.realtime do
+      @simulation_data = SimulationRunnerClient.get_hub_time_series(@force_vectors)
+    end
+    puts "Simulated the compiled model in #{simulation_time.round(2)} seconds."
   end
 
   # animation logic:
@@ -207,15 +217,20 @@ class SpringPane
   def toggle_animation
     simulate
     if @animation && @animation.running
-      @animation.toggle_running
+      @animation.stop
+      @animation_running = false
     else
       create_animation
+      @animation_running = true
     end
-
+    update_dialog
   end
 
   def create_animation
-    @animation = GeometryAnimation.new(@simulation_data)
+    @animation = GeometryAnimation.new(@simulation_data) do
+      @animation_running = false
+      update_dialog
+    end
     Sketchup.active_model.active_view.animation = @animation
   end
 

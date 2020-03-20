@@ -1,15 +1,19 @@
 class GeometryAnimation
   attr_accessor :factor, :running
-  def initialize(data, index = 0)
+  def initialize(data, index = 0, &on_stop)
     @data = data
     @index = index
     @running = true
     @factor = 1
+    @on_stop_block = on_stop
 
   end
 
-  def toggle_running
-    @running = !@running;
+  def stop
+    @running = false
+    @index = 0
+    update_graph_with_data_sample @data[@index]
+    @on_stop_block.call
   end
 
   def nextFrame(view)
@@ -17,14 +21,13 @@ class GeometryAnimation
 
     view.refresh
 
-    if @index + @factor >= @data.length
-      @running = false
-      update_graph_with_data_sample @data[0]
-    end
+    stop if @index + @factor >= @data.length
+
     @index += @factor
 
     view.refresh
 
+    # Sketchup animations will continue to run as long as this method returns true and stop as soon as it returns false
     @running
   end
 
