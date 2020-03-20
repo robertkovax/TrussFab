@@ -1,11 +1,17 @@
 class GeometryAnimation
   attr_accessor :factor, :running
   def initialize(data, index = 0, &on_stop)
+    # simulation data
     @data = data
     @index = index
     @running = true
     @factor = 1
+
+    # callback to notify listeners about animation stop
     @on_stop_block = on_stop
+
+    # time keeping
+    @start_time = Time.now.to_f
 
   end
 
@@ -14,21 +20,25 @@ class GeometryAnimation
     @index = 0
     update_graph_with_data_sample @data[@index]
     @on_stop_block.call
+    @running
   end
 
   def nextFrame(view)
+    now = Time.now.to_f
+    @index = next_valid_index(now - @start_time)
+
+    return stop unless @index
+
     update_graph_with_data_sample @data[@index]
-
-    view.refresh
-
-    stop if @index + @factor >= @data.length
-
-    @index += @factor
 
     view.refresh
 
     # Sketchup animations will continue to run as long as this method returns true and stop as soon as it returns false
     @running
+  end
+
+  def next_valid_index(time_stamp)
+    @data.find_index { |data_sample| data_sample.time_stamp.to_f >= time_stamp }
   end
 
   def update_graph_with_data_sample(data_sample)
