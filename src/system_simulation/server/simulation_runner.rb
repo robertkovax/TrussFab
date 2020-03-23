@@ -46,10 +46,11 @@ class SimulationRunner
                  suppress_compilation = false, keep_temp_dir = false)
 
     @model_name = model_name
-    #@simulation_options = "-abortSlowSimulation"
-    @simulation_options += " -lv=LOG_STATS "
+    @simulation_options = ''
+    # @simulation_options += "-abortSlowSimulation"
+    @simulation_options += ' -lv=LOG_STATS '
     # @simulation += "lv=LOG_INIT_V,LOG_SIMULATION,LOG_STATS,LOG_JAC,LOG_NLS"
-    @compilation_options = "--disableLinearTearing --maxMixedDeterminedIndex=100 -n=4"
+    @compilation_options = '--disableLinearTearing --maxMixedDeterminedIndex=100 -n=4'
 
     if suppress_compilation
       @directory = File.dirname(__FILE__)
