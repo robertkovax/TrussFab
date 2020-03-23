@@ -16,11 +16,11 @@ class TraceVisualization
     @alpha = 0.6
   end
 
-  def add_trace(node_ids, sampling_rate, data)
+  def add_trace(node_ids, sampling_rate, data, periods)
     reset_trace
     @simulation_data = data
     node_ids.each do |node_id|
-      add_circle_trace(node_id, sampling_rate)
+      add_circle_trace(node_id, sampling_rate, periods[node_id.to_i])
     end
   end
 
@@ -36,7 +36,9 @@ class TraceVisualization
 
   private
 
-  def add_circle_trace(node_id, sampling_rate)
+  def add_circle_trace(node_id, sampling_rate, period)
+    period ||= 3.0
+
     materials = @colors.map do |color, index|
       materialToSet = Sketchup.active_model.materials.add("VisualizationColor #{index}")
       materialToSet.color = color

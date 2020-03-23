@@ -49,10 +49,11 @@ class SpringPane
 
     # update simulation data and visualizations with adjusted results
     simulate
+    update_periods
     # TODO: fix and reenable
     #put_geometry_into_equilibrium(spring_id)
     update_trace_visualization
-    update_periods
+
 
     update_dialog if @dialog
   end
@@ -95,7 +96,7 @@ class SpringPane
     @trace_visualization ||= TraceVisualization.new
     @trace_visualization.reset_trace
     # visualize every node with a mounted user
-    @trace_visualization.add_trace(mounted_users.keys.map(&:to_s), 4, @simulation_data)
+    @trace_visualization.add_trace(mounted_users.keys.map(&:to_s), 4, @simulation_data, @user_periods)
   end
 
   def put_geometry_into_equilibrium(spring_id)
@@ -206,7 +207,7 @@ class SpringPane
   end
 
   def toggle_animation
-    simulate
+    simulate unless @simulation_data
     if @animation && @animation.running
       @animation.stop
       @animation_running = false
