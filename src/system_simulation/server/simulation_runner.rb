@@ -46,7 +46,8 @@ class SimulationRunner
                  suppress_compilation = false, keep_temp_dir = false)
 
     @model_name = model_name
-    @simulation_options = "-abortSlowSimulation"
+    #@simulation_options = "-abortSlowSimulation"
+    @simulation_options += " -lv=LOG_STATS "
     # @simulation += "lv=LOG_INIT_V,LOG_SIMULATION,LOG_STATS,LOG_JAC,LOG_NLS"
     @compilation_options = "--disableLinearTearing --maxMixedDeterminedIndex=100 -n=4"
 
@@ -228,7 +229,7 @@ class SimulationRunner
     # TODO adjust sampling rate dynamically
     overrides = "outputFormat=csv,variableFilter=#{filter},startTime=0.3,stopTime=10,stepSize=0.1," \
                 "#{force_vector_string(force_vectors)},#{override_constants_string}"
-    command = "./#{@model_name} -override=\"#{overrides}\""
+    command = "./#{@model_name} #{@simulation_options} -override=\"#{overrides}\""
     puts(command)
     Open3.popen2e(command, chdir: @directory) do |i, o, t|
       # prints out std out of the command
