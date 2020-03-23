@@ -51,33 +51,44 @@ class TraceVisualization
     last_distance = 0
     distance_to_start = 0
     curve_points = []
+    returning_oscillation = false
+    max_distance = find_max_distance node_id, period
+    puts "max distance: #{max_distance}"
 
     @simulation_data.each_with_index do |current_data_sample, index|
       # thin out points in trace
       #next unless index % sampling_rate == 0
 
+      position = current_data_sample.position_data[node_id]
+
+      curve_points << position
+
+      # only plot dots for first period, after that only draw the curve line
+      next if current_data_sample.time_stamp.to_f >= period
+
       @group = Sketchup.active_model.entities.add_group if @group.deleted?
       entities = @group.entities
-      position = current_data_sample.position_data[node_id]
 
       distance_to_last = position.distance(last_position)
       distance_to_start = position.distance(start_position)
       p distance_to_last
+      mocked_ratio = (distance_to_last / max_distance)
 
-      edgearray = entities.add_circle(position, Geom::Vector3d.new(1,0,0), 1, 10)
+      edgearray = entities.add_circle(position, Geom::Vector3d.new(1,0,0), 1 - mocked_ratio, 10)
       edgearray.each{|e| e.hidden=true }
       first_edge = edgearray[0]
       arccurve = first_edge.curve
       face = entities.add_face(arccurve)
 
 
-      mocked_ratio = (distance_to_last / 0.7)
 
-      face.material = material_from_hsv((1 - mocked_ratio) * 130, 100, 100)
+      p "ratio #{mocked_ratio}"
+      mocked_ratio = 1.0 if mocked_ratio > 1.0
+      face.material = material_from_hsv((1 - mocked_ratio) * 130, 100, 100) if face
 
-      curve_points << position
       # detect turing point of oscillation
-      break if last_distance > distance_to_start
+      #returning_oscillation if last_distance > distance_to_start
+      #break if returning_oscillation && last_distance < distance_to_start
 
       last_distance = distance_to_start
       last_position = position
@@ -88,6 +99,19 @@ class TraceVisualization
     entities = @group.entities
     entities.add_curve(curve_points)
 
+  end
+
+  def find_max_distance(node_id, period)
+    last_position = @simulation_data[0].position_data[node_id]
+    max_distance = 0
+    @simulation_data.each_with_index do |current_data_sample, index|
+      position = current_data_sample.position_data[node_id]
+      distance_to_last = position.distance(last_position)
+      max_distance = distance_to_last if distance_to_last > max_distance
+      last_position = position
+      return max_distance if current_data_sample.time_stamp.to_f >= period
+    end
+    max_distance
   end
 
   def material_from_hsv(h,s,v)
