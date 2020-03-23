@@ -50,7 +50,7 @@ class SimulationRunner
     # @simulation_options += "-abortSlowSimulation"
     @simulation_options += ' -lv=LOG_STATS '
     # @simulation += "lv=LOG_INIT_V,LOG_SIMULATION,LOG_STATS,LOG_JAC,LOG_NLS"
-    @compilation_options = '--disableLinearTearing --maxMixedDeterminedIndex=100 -n=4'
+    @compilation_options = ' --maxMixedDeterminedIndex=100 -n=4'
 
     if suppress_compilation
       @directory = File.dirname(__FILE__)
@@ -228,7 +228,7 @@ class SimulationRunner
 
   def run_simulation(filter = '*', force_vectors = [])
     # TODO adjust sampling rate dynamically
-    overrides = "outputFormat=csv,variableFilter=#{filter},startTime=0.3,stopTime=10,stepSize=0.1," \
+    overrides = "outputFormat=csv,variableFilter=#{filter},startTime=0.3,stopTime=10,stepSize=0.05," \
                 "#{force_vector_string(force_vectors)},#{override_constants_string}"
     command = "./#{@model_name} #{@simulation_options} -override=\"#{overrides}\""
     puts(command)
