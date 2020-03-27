@@ -1,5 +1,10 @@
 # Simulate data samples of a system simulation by plotting a trace consisting of transparent circles into the scene.
 class TraceVisualization
+  # Delta of oscillation positions to plane that still counts as planar.
+  DISTANCE_TO_PLANE_THRESHOLD = 2.0
+  # What duration the trace visualization should span if the oscillation is not planar, in seconds.
+  NON_PLANAR_TRACE_DURATION = 2
+
   def initialize
     # Simulation data to visualize
     @simulation_data = nil
@@ -39,21 +44,20 @@ class TraceVisualization
   def add_circle_trace(node_id, sampling_rate, period)
     period ||= 3.0
 
-    materials = @colors.map do |color, index|
-      materialToSet = Sketchup.active_model.materials.add("VisualizationColor #{index}")
-      materialToSet.color = color
-      materialToSet.alpha = 0.6
-      materialToSet
-    end
-
     start_position = @simulation_data[0].position_data[node_id]
     last_position = @simulation_data[0].position_data[node_id]
     last_distance = 0
     distance_to_start = 0
     curve_points = []
     returning_oscillation = false
-    max_distance = find_max_distance node_id, period
-    puts "max distance: #{max_distance}"
+    trace_analyzation = (analyze_trace node_id, period)
+    max_distance = trace_analyzation[:max_distance]
+
+    puts "Trace maximum distance: #{max_distance}"
+    puts "Trace is planar: #{trace_analyzation[:is_planar]}"
+
+    # Plot dots for either the period or a certain time span, if oscillation is not planar
+    trace_time_limit = trace_analyzation[:is_planar] ? period : NON_PLANAR_TRACE_DURATION
 
     @simulation_data.each_with_index do |current_data_sample, index|
       # thin out points in trace
@@ -64,14 +68,13 @@ class TraceVisualization
       curve_points << position
 
       # only plot dots for first period, after that only draw the curve line
-      next if current_data_sample.time_stamp.to_f >= period
+      next if current_data_sample.time_stamp.to_f >= trace_time_limit
 
       @group = Sketchup.active_model.entities.add_group if @group.deleted?
       entities = @group.entities
 
       distance_to_last = position.distance(last_position)
       distance_to_start = position.distance(start_position)
-      p distance_to_last
       mocked_ratio = (distance_to_last / max_distance)
 
       edgearray = entities.add_circle(position, Geom::Vector3d.new(1,0,0), 1 - mocked_ratio, 10)
@@ -80,15 +83,8 @@ class TraceVisualization
       arccurve = first_edge.curve
       face = entities.add_face(arccurve)
 
-
-
-      p "ratio #{mocked_ratio}"
       mocked_ratio = 1.0 if mocked_ratio > 1.0
-      face.material = material_from_hsv((1 - mocked_ratio) * 130, 100, 100) if face
-
-      # detect turing point of oscillation
-      #returning_oscillation if last_distance > distance_to_start
-      #break if returning_oscillation && last_distance < distance_to_start
+      face.material = material_from_hsv(113, (1 - mocked_ratio) * 130, 100) if face
 
       last_distance = distance_to_start
       last_position = position
@@ -101,17 +97,28 @@ class TraceVisualization
 
   end
 
-  def find_max_distance(node_id, period)
+  # analyzes the simulation data for certain criterions
+  def analyze_trace(node_id, period)
+
     last_position = @simulation_data[0].position_data[node_id]
     max_distance = 0
+    is_planar = true
+    plane = Geom.fit_plane_to_points([last_position, @simulation_data[1].position_data[node_id],
+                                      @simulation_data[2].position_data[node_id]])
     @simulation_data.each_with_index do |current_data_sample, index|
       position = current_data_sample.position_data[node_id]
       distance_to_last = position.distance(last_position)
       max_distance = distance_to_last if distance_to_last > max_distance
+      is_planar = position.distance_to_plane(plane) < DISTANCE_TO_PLANE_THRESHOLD
       last_position = position
-      return max_distance if current_data_sample.time_stamp.to_f >= period
+      return { max_distance: max_distance, is_planar: is_planar } if current_data_sample.time_stamp.to_f >= period
     end
-    max_distance
+    { max_distance: max_distance, is_planar: is_planar }
+  end
+
+  def difference_plane(plane_a, plane_b)
+    return [0, 0, 0, 0] unless plane_a && plane_b
+    plane_a.map.with_index { |coefficient_a, index| (coefficient_a - plane_b[index]).abs }
   end
 
   def material_from_hsv(h,s,v)
