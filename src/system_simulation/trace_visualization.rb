@@ -57,7 +57,7 @@ class TraceVisualization
     puts "Trace is planar: #{trace_analyzation[:is_planar]}"
 
     # Plot dots for either the period or a certain time span, if oscillation is not planar
-    trace_time_limit = trace_analyzation[:is_planar] ? period : NON_PLANAR_TRACE_DURATION
+    trace_time_limit = trace_analyzation[:is_planar] ? period.to_f : NON_PLANAR_TRACE_DURATION
 
     @simulation_data.each_with_index do |current_data_sample, index|
       # thin out points in trace
@@ -111,7 +111,7 @@ class TraceVisualization
       max_distance = distance_to_last if distance_to_last > max_distance
       is_planar = position.distance_to_plane(plane) < DISTANCE_TO_PLANE_THRESHOLD
       last_position = position
-      return { max_distance: max_distance, is_planar: is_planar } if current_data_sample.time_stamp.to_f >= period
+      return { max_distance: max_distance, is_planar: is_planar } if current_data_sample.time_stamp.to_f >= period.to_f
     end
     { max_distance: max_distance, is_planar: is_planar }
   end
