@@ -50,6 +50,7 @@ class GeometryAnimation
       node.update_position(position)
       node.hub.update_position(position)
       node.hub.update_user_indicator
+      node.adjacent_triangles.each { |triangle| triangle.update_sketchup_object if triangle.cover }
     end
 
     Graph.instance.edges.each do |_, edge|
