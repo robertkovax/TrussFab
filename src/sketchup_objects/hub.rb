@@ -90,8 +90,6 @@ class Hub < PhysicsSketchupObject
     @user_indicator = Sketchup.active_model
                             .active_entities
                             .add_instance(model.definition, transform)
-    @user_indicator.transform!(
-        Geom::Transformation.scaling(point, 0.2))
 
     # TODO fix wrong rotation
     temp_vector = Geom::Vector3d.new(point.x, point.y, 0).normalize!
@@ -174,6 +172,7 @@ class Hub < PhysicsSketchupObject
     @sensor_symbol = nil
     @weight_indicator.erase! unless @weight_indicator.nil?
     @weight_indicator = nil
+    remove_user
   end
 
   def delete

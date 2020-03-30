@@ -4,7 +4,7 @@ class PlaceUserTool < Tool
 
   def initialize(ui)
     super(ui)
-    @mouse_input = MouseInput.new(snap_to_edges: true, snap_to_nodes: true)
+    @mouse_input = MouseInput.new(snap_to_nodes: true)
   end
 
   def onLButtonDown(_flags, x, y, view)
@@ -16,6 +16,10 @@ class PlaceUserTool < Tool
       hub.is_user_attached ? hub.remove_user : hub.attach_user(100)
       @ui.spring_pane.update_mounted_users
     end
+  end
+
+  def onMouseMove(_flags, x, y, view)
+    @mouse_input.update_positions(view, x, y)
   end
 
 end
