@@ -44,24 +44,21 @@ class TraceVisualization
   def add_circle_trace(node_id, sampling_rate, period)
     period ||= 3.0
 
-    start_position = @simulation_data[0].position_data[node_id]
     last_position = @simulation_data[0].position_data[node_id]
-    last_distance = 0
-    distance_to_start = 0
     curve_points = []
-    returning_oscillation = false
+
     trace_analyzation = (analyze_trace node_id, period)
     max_distance = trace_analyzation[:max_distance]
-
+    # Plot dots for either the period or a certain time span, if oscillation is not planar
+    trace_time_limit = trace_analyzation[:is_planar] ? period.to_f : NON_PLANAR_TRACE_DURATION
     puts "Trace maximum distance: #{max_distance}"
     puts "Trace is planar: #{trace_analyzation[:is_planar]}"
 
-    # Plot dots for either the period or a certain time span, if oscillation is not planar
-    trace_time_limit = trace_analyzation[:is_planar] ? period.to_f : NON_PLANAR_TRACE_DURATION
+    circle_definition = create_circle_definition
 
     @simulation_data.each_with_index do |current_data_sample, index|
       # thin out points in trace
-      #next unless index % sampling_rate == 0
+      # next unless index % sampling_rate == 0
 
       position = current_data_sample.position_data[node_id]
 
@@ -70,27 +67,26 @@ class TraceVisualization
       # only plot dots for first period, after that only draw the curve line
       next if current_data_sample.time_stamp.to_f >= trace_time_limit
 
-      @group = Sketchup.active_model.entities.add_group if @group.deleted?
-      entities = @group.entities
-
+      # distance to last point basically representing the speed (since time interval between data samples is fixed)
       distance_to_last = position.distance(last_position)
-      distance_to_start = position.distance(start_position)
-      mocked_ratio = (distance_to_last / max_distance)
+      distance_ratio = (distance_to_last / max_distance)
 
-      edgearray = entities.add_circle(position, Geom::Vector3d.new(1,0,0), 1 - mocked_ratio, 10)
-      edgearray.each{|e| e.hidden=true }
-      first_edge = edgearray[0]
-      arccurve = first_edge.curve
-      face = entities.add_face(arccurve)
+      # invert distance ratio since high distance should plot a small and lightly colored dot
+      scale_factor = 1 - distance_ratio
 
-      mocked_ratio = 1.0 if mocked_ratio > 1.0
-      face.material = material_from_hsv(113, (1 - mocked_ratio) * 130, 100) if face
+      # Transform circle definition to match current data sample
+      scaling = Geom::Transformation.scaling(scale_factor, 1.0, scale_factor)
+      translation = Geom::Transformation.translation(position)
+      transformation = translation * scaling
 
-      last_distance = distance_to_start
+      @group = Sketchup.active_model.entities.add_group if @group.deleted?
+      circle_instance = @group.entities.add_instance(circle_definition, transformation)
+      circle_instance.material = material_from_hsv(113, scale_factor * 130, 100)
+
       last_position = position
     end
 
-    # connect points with curve
+    # plot curve connecting all data points
     @group = Sketchup.active_model.entities.add_group if @group.deleted?
     entities = @group.entities
     entities.add_curve(curve_points)
@@ -119,6 +115,19 @@ class TraceVisualization
   def difference_plane(plane_a, plane_b)
     return [0, 0, 0, 0] unless plane_a && plane_b
     plane_a.map.with_index { |coefficient_a, index| (coefficient_a - plane_b[index]).abs }
+  end
+
+  def create_circle_definition
+    circle_definition = Sketchup.active_model.definitions.add "Circle Trace Visualization"
+    circle_definition.behavior.always_face_camera = true
+    entities = circle_definition.entities
+    # always_face_camera will try to always make y axis face the camera
+    edgearray = entities.add_circle(Geom::Point3d.new, Geom::Vector3d.new(0, -1, 0), 1, 10)
+    edgearray.each{ |e| e.hidden = true }
+    first_edge = edgearray[0]
+    arccurve = first_edge.curve
+    entities.add_face(arccurve)
+    circle_definition
   end
 
   def material_from_hsv(h,s,v)
