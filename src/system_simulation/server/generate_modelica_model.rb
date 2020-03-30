@@ -84,7 +84,8 @@ class ModelicaModelGenerator
     # Phase 3.1 Generate Main Components
     edges.each { |edgeID, edge|
       edge[:name] = edge_to_modelica_name(edge)
-      edge_component = Modelica_LineForceWithMass.new(edge[:name], ModelicaConfiguration::PIPE_WEIGHT_KG, edge[:n1_orientation_fixed], edge[:n2_orientation_fixed] )
+      edge_mass = edge[:length] * ModelicaConfiguration::PIPE_WEIGHT_KG_PER_M
+      edge_component = Modelica_LineForceWithMass.new(edge[:name], edge_mass, edge[:n1_orientation_fixed], edge[:n2_orientation_fixed] )
 
       if edge['type'] == 'bottle_link'
         force_translator = Modelica_Rod.new(edge[:name] + "_rod", edge[:length].to_f, ModelicaConfiguration::STATIC_SPRING_CONSTANT)
