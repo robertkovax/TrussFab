@@ -5,6 +5,7 @@ require 'benchmark'
 require 'fileutils'
 require 'tmpdir'
 require 'csv'
+require 'matrix'
 
 require_relative '../animation_data_sample.rb'
 require_relative './generate_modelica_model.rb'
@@ -90,11 +91,31 @@ class SimulationRunner
     data
   end
 
-  def get_period(node_id)
-    id = "#{ModelicaModelGenerator.identifier_for_node_id(node_id)}.r_0"
+  def get_user_stats(node_id)
+    id = "#{ModelicaModelGenerator.identifier_for_node_id(node_id)}.[r,a,v]_0"
     filter = "#{id}.*"
     run_simulation(filter)
+    period_id = "#{ModelicaModelGenerator.identifier_for_node_id(node_id)}.r_0"
+    velocity_id = "#{ModelicaModelGenerator.identifier_for_node_id(node_id)}.v_0"
+    acceleration_id = "#{ModelicaModelGenerator.identifier_for_node_id(node_id)}.a_0"
+    {
+      period: get_period(period_id),
+      max_acceleration: get_max_norm(acceleration_id),
+      max_velocity: get_max_norm(velocity_id)
+    }
+  end
 
+  def get_max_norm(id)
+    data = CSV.read(File.join(@directory, "#{@model_name}_res.csv"), :headers=>true, :converters => :numeric)
+    max_norm = 0
+    data["#{id}[1]"].each_with_index do |value, index|
+      norm = Vector.elements([value.to_f, data["#{id}[2]"][index].to_f, data["#{id}[3]"][index].to_f]).norm
+      max_norm = norm if norm > max_norm
+    end
+    max_norm
+  end
+
+  def get_period(id)
     require 'gsl'
 
     data = CSV.read(File.join(@directory, "#{@model_name}_res.csv"), :headers=>true, :converters => :numeric)

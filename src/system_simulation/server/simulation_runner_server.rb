@@ -24,8 +24,8 @@ patch '/update_mounted_users' do
   return ""
 end
 
-get '/get_period/:node_id' do
-  return_message = { period: sim.get_period(params['node_id']) }
+get '/get_user_stats/:node_id' do
+  return_message = sim.get_user_stats(params['node_id'])
   return_message.to_json
 end
 
