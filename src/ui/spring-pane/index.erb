@@ -7,8 +7,10 @@
 </style>
 
 <script type="text/javascript">
-  function set_period(id, value) {
-    document.getElementById('period_' + id).placeholder = value;
+  function set_user_stats(id, period, max_a, max_v) {
+    document.getElementById('period_' + id).placeholder = period;
+    document.getElementById('max_a_' + id).placeholder = max_a;
+    document.getElementById('max_v_' + id).placeholder = max_v;
   }
   function set_constant(id, value) {
     document.getElementById('spring_constant_' + id).placeholder = value;
@@ -54,7 +56,7 @@
     <% mounted_users.each { |node_id, user_force| %>
       <h6>#<%= node_id %></h6>
       <div class="row">
-        <div class="col-7">
+        <div class="col-6">
           <div class="input-group mb-3">
             <div class="input-group-prepend">
               <span class="input-group-text text-monospace">p</span>
@@ -65,7 +67,7 @@
             </div>
           </div>
         </div>
-        <div class="col-5">
+        <div class="col-6">
           <div class="input-group mb-3">
             <div class="input-group-prepend">
               <span class="input-group-text text-monospace">m</span>
@@ -73,6 +75,30 @@
             <input id="mass_<%= node_id %>" type="text" placeholder="<%= user_force %>" readonly class="form-control" style="text-align: right;">
             <div class="input-group-append">
               <span class="input-group-text text-monospace">kg</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-6">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text text-monospace">a<sub>max</sub></span>
+            </div>
+            <input id="max_a_<%= node_id %>" type="text" placeholder="<%= @user_max_as[node_id] %>" readonly class="form-control" style="text-align: right;">
+            <div class="input-group-append">
+              <span class="input-group-text text-monospace">m/s<sup>2</sup></span>
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text text-monospace">v<sub>max</sub></span>
+            </div>
+            <input id="max_v_<%= node_id %>" type="text" placeholder="<%= @user_max_vs[node_id] %>" readonly class="form-control" style="text-align: right;">
+            <div class="input-group-append">
+              <span class="input-group-text text-monospace">m/s</span>
             </div>
           </div>
         </div>

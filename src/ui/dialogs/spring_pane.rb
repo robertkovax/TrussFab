@@ -28,6 +28,8 @@ class SpringPane
 
     # node_id => period
     @user_periods = {}
+    @user_max_as = {}
+    @user_max_vs = {}
 
     @spring_picker = SpringPicker.instance
 
@@ -51,7 +53,7 @@ class SpringPane
 
     # update simulation data and visualizations with adjusted results
     simulate
-    update_periods
+    update_stats
     # TODO: fix and reenable
     #put_geometry_into_equilibrium(spring_id)
     update_trace_visualization
@@ -78,19 +80,22 @@ class SpringPane
 
   def update_mounted_users
     SimulationRunnerClient.update_mounted_users(mounted_users)
-    update_periods
+    update_stats
     update_dialog if @dialog
     update_trace_visualization
   end
 
-  def update_periods
+  def update_stats
     mounted_users.keys.each do |node_id|
-      period = SimulationRunnerClient.get_period(node_id)
+      stats = SimulationRunnerClient.get_user_stats(node_id)
+      period = stats['period']
       period = period.round(2) if period
       # catch invalid periods
       period ||= 'NaN'
       @user_periods[node_id] = period
-      set_period(node_id, period)
+      @user_max_as[node_id] = stats['max_acceleration'].round(2)
+      @user_max_vs[node_id] = stats['max_velocity'].round(2)
+      set_stats(node_id, stats)
     end
   end
 
@@ -123,7 +128,7 @@ class SpringPane
 
   # dialog logic:
 
-  def set_period(node_id, value)
+  def set_stats(node_id, value)
     @dialog.execute_script("set_period(#{node_id}, #{value})")
   end
 
