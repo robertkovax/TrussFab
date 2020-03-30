@@ -33,7 +33,8 @@ class JsonExport
         x: node.position.x.to_mm,
         y: node.position.y.to_mm,
         z: node.position.z.to_mm,
-        pods: node.pod_export_info
+        pods: node.pod_export_info,
+        added_mass: node.hub.mass
       }
     end
   end

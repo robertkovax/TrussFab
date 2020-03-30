@@ -84,7 +84,8 @@ class ModelicaModelGenerator
     # Phase 3.1 Generate Main Components
     edges.each { |edgeID, edge|
       edge[:name] = edge_to_modelica_name(edge)
-      edge_component = Modelica_LineForceWithMass.new(edge[:name], ModelicaConfiguration::PIPE_WEIGHT_KG, edge[:n1_orientation_fixed], edge[:n2_orientation_fixed] )
+      edge_mass = edge[:length] * ModelicaConfiguration::PIPE_WEIGHT_KG_PER_M
+      edge_component = Modelica_LineForceWithMass.new(edge[:name], edge_mass, edge[:n1_orientation_fixed], edge[:n2_orientation_fixed] )
 
       if edge['type'] == 'bottle_link'
         force_translator = Modelica_Rod.new(edge[:name] + "_rod", edge[:length].to_f, ModelicaConfiguration::STATIC_SPRING_CONSTANT)
@@ -121,10 +122,13 @@ class ModelicaModelGenerator
       nodes.select {|nodeId, node| not node[:fixed]}.each{ |nodeId, node|
         primary_edge_connection_direction = get_direction(node, node[:primary_edge])
 
-        # get mass from truss fab geometry if set
-        mass = json_model['mounted_users'][nodeId.to_s] if json_model['mounted_users']
-        # fall back to default mass otherwise
-        mass ||= ModelicaConfiguration::NODE_WEIGHT_KG
+        # get added mass placed by user from truss fab geometry
+        mass = node['added_mass']
+        if json_model['mounted_users'] && json_model['mounted_users'][nodeId.to_s]
+          mass += json_model['mounted_users'][nodeId.to_s]
+        end
+        # add weight of node structure
+        mass += ModelicaConfiguration::NODE_WEIGHT_KG
 
         # Generate PointMasses
         point_mass_component = Modelica_PointMass.new(identifier_for_node_id(nodeId), mass, *node[:pos])
