@@ -25,6 +25,7 @@ class Hub < PhysicsSketchupObject
     @user_indicator = nil
     # force the user applies on that hub in newton
     @user_force = 0
+    @user_rotation = 0
     update_id_label
     persist_entity
   end
@@ -75,34 +76,21 @@ class Hub < PhysicsSketchupObject
     Sketchup.active_model.commit_operation
   end
 
-  # TODO Extract shared behavior with weight indicator
+  # TODO: Extract shared behavior with weight indicator
   def update_user_indicator
     unless @user_indicator.nil?
       @user_indicator.erase!
       @user_indicator = nil
     end
     return unless @is_user_attached
+
     Sketchup.active_model.start_operation('Hub: Update User Indicator', true)
     point = Geom::Point3d.new(@position)
     point.z += 1
     model = ModelStorage.instance.models['user_indicator']
-    transform = Geom::Transformation.new(point)
-    @user_indicator = Sketchup.active_model
-                            .active_entities
-                            .add_instance(model.definition, transform)
-    @user_indicator.transform!(
-        Geom::Transformation.scaling(point, 0.2))
-
-    # TODO fix wrong rotation
-    temp_vector = Geom::Vector3d.new(point.x, point.y, 0).normalize!
-    vector_to_origin = Geom::Vector3d.new(temp_vector.x, temp_vector.y, 0).reverse!
-
-    rotation_angle = Geometry.rotation_angle_between(Geom::Vector3d.new(0, -1, 0),
-                                                     vector_to_origin)
-    @user_indicator.transform!(
-        Geom::Transformation.rotation(position,
-                                      Geom::Vector3d.new(0, 0, 1),
-                                      rotation_angle))
+    translation = Geom::Transformation.translation(point)
+    rotation = Geom::Transformation.rotation(Geom::Point3d.new, Geom::Vector3d.new(0, 0, 1), @user_rotation)
+    @user_indicator = Sketchup.active_model.active_entities.add_instance(model.definition, translation * rotation)
     Sketchup.active_model.commit_operation
   end
 
@@ -174,6 +162,7 @@ class Hub < PhysicsSketchupObject
     @sensor_symbol = nil
     @weight_indicator.erase! unless @weight_indicator.nil?
     @weight_indicator = nil
+    remove_user
   end
 
   def delete
@@ -225,6 +214,12 @@ class Hub < PhysicsSketchupObject
   def remove_user
     @is_user_attached = false
     @user_force = 0
+    @user_rotation = 0
+    update_user_indicator
+  end
+
+  def rotate_user(angle)
+    @user_rotation += angle
     update_user_indicator
   end
 

@@ -46,9 +46,11 @@ class SimulationRunner
                  suppress_compilation = false, keep_temp_dir = false)
 
     @model_name = model_name
-    @simulation_options = "-abortSlowSimulation"
+    @simulation_options = ''
+    # @simulation_options += "-abortSlowSimulation"
+    @simulation_options += ' -lv=LOG_STATS '
     # @simulation += "lv=LOG_INIT_V,LOG_SIMULATION,LOG_STATS,LOG_JAC,LOG_NLS"
-    @compilation_options = "--disableLinearTearing --maxMixedDeterminedIndex=100 -n=4"
+    @compilation_options = ' --maxMixedDeterminedIndex=100 -n=4'
 
     if suppress_compilation
       @directory = File.dirname(__FILE__)
@@ -183,11 +185,11 @@ class SimulationRunner
   def override_constants_string
     override_string = ''
     @identifiers_for_springs.each do |edge_id, spring_identifier|
-      override_string += "#{spring_identifier}.c='#{@constants_for_springs[edge_id]}',"
+      override_string += "#{spring_identifier}.c=#{@constants_for_springs[edge_id]},"
     end
 
     @mounted_users.each do |node_id, force|
-      override_string += "node_#{node_id}.m='#{force}',"
+      override_string += "node_#{node_id}.m=#{force},"
     end
 
     # remove last comma
@@ -197,9 +199,9 @@ class SimulationRunner
   def force_vector_string(force_vectors)
     force_vectors_string = ''
     force_vectors.each do |force_vector|
-      override_string = "node_#{force_vector['node_id']}_force_val[1]='#{force_vector['x']}'" \
-                        "node_#{force_vector['node_id']}_force_val[2]='#{force_vector['y']}'," \
-                        "node_#{force_vector['node_id']}_force_val[3]='#{force_vector['z']}'"
+      override_string = "node_#{force_vector['node_id']}_force_val[1]=#{force_vector['x']}," \
+                        "node_#{force_vector['node_id']}_force_val[2]=#{force_vector['y']}," \
+                        "node_#{force_vector['node_id']}_force_val[3]=#{force_vector['z']}"
       force_vectors_string += override_string
       force_vectors_string += ','
     end
@@ -226,9 +228,9 @@ class SimulationRunner
 
   def run_simulation(filter = '*', force_vectors = [])
     # TODO adjust sampling rate dynamically
-    overrides = "outputFormat='csv',variableFilter='#{filter}',startTime=0.3,stopTime=10,stepSize=0.1," \
+    overrides = "outputFormat=csv,variableFilter=#{filter},startTime=0.3,stopTime=10,stepSize=0.05," \
                 "#{force_vector_string(force_vectors)},#{override_constants_string}"
-    command = "./#{@model_name} -override #{overrides}"
+    command = "./#{@model_name} #{@simulation_options} -override=\"#{overrides}\""
     puts(command)
     Open3.popen2e(command, chdir: @directory) do |i, o, t|
       # prints out std out of the command
