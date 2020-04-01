@@ -49,8 +49,6 @@ class SpringPane
     # notify simulation runner about changed constants
     SimulationRunnerClient.update_spring_constants(constants_for_springs)
 
-    # update simulation data and visualizations with adjusted results
-    simulate
     update_stats
     # TODO: fix and reenable
     #put_geometry_into_equilibrium(spring_id)
@@ -62,7 +60,6 @@ class SpringPane
 
   def force_vectors=(vectors)
     @force_vectors = vectors
-    simulate
     update_trace_visualization
     play_animation
   end
@@ -91,6 +88,9 @@ class SpringPane
   end
 
   def update_trace_visualization
+    # update simulation data and visualizations with adjusted results
+    simulate
+
     @trace_visualization ||= TraceVisualization.new
     @trace_visualization.reset_trace
     # visualize every node with a mounted user

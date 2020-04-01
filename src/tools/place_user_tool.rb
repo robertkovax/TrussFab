@@ -14,6 +14,8 @@ class PlaceUserTool < Tool
       hub = obj.hub
       # TODO remove this default force value here
       hub.is_user_attached ? hub.remove_user : hub.attach_user(100)
+      # TODO: at some point springe pane should compile automatically when geometry changes
+      @ui.spring_pane.compile
       @ui.spring_pane.update_mounted_users
     end
   end
