@@ -82,7 +82,6 @@ class SimulationRunner
     @mounted_users = mounted_users
   end
 
-
   def get_hub_time_series(force_vectors = [])
     data = []
     simulation_time = Benchmark.realtime { run_simulation(NODE_COORDINATES_FILTER, force_vectors) }
@@ -106,7 +105,7 @@ class SimulationRunner
   end
 
   def get_max_norm(id)
-    data = CSV.read(File.join(@directory, "#{@model_name}_res.csv"), :headers=>true, :converters => :numeric)
+    data = CSV.read(File.join(@directory, "#{@model_name}_res.csv"), headers: true, converters: :numeric)
     max_norm = 0
     data["#{id}[1]"].each_with_index do |value, index|
       norm = Vector.elements([value.to_f, data["#{id}[2]"][index].to_f, data["#{id}[3]"][index].to_f]).norm

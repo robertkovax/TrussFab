@@ -36,7 +36,7 @@ class SimulationRunnerClient
     request = Net::HTTP::Patch.new(uri.request_uri, header)
     request.body = json_data
 
-    response = http.request(request)
+    http.request(request)
   end
 
   def self.get_user_stats(node_id)

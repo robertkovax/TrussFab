@@ -51,7 +51,7 @@ class SpringPane
 
     update_stats
     # TODO: fix and reenable
-    #put_geometry_into_equilibrium(spring_id)
+    # put_geometry_into_equilibrium(spring_id)
     update_trace_visualization
 
 

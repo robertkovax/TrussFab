@@ -11,17 +11,17 @@ sim = nil
 post '/update_model' do
   sim = SimulationRunner.new_from_json_export(request.body.read)
   p sim
-  return ""
+  return ''
 end
 
 patch '/update_spring_constants' do
   sim.update_spring_constants(JSON.parse(request.body.read))
-  return ""
+  return ''
 end
 
 patch '/update_mounted_users' do
   sim.update_mounted_users(JSON.parse(request.body.read))
-  return ""
+  return ''
 end
 
 get '/get_user_stats/:node_id' do
