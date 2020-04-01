@@ -21,11 +21,11 @@ class TraceVisualization
     @alpha = 0.6
   end
 
-  def add_trace(node_ids, sampling_rate, data, periods)
+  def add_trace(node_ids, sampling_rate, data, user_stats)
     reset_trace
     @simulation_data = data
     node_ids.each do |node_id|
-      add_circle_trace(node_id, sampling_rate, periods[node_id.to_i])
+      add_circle_trace(node_id, sampling_rate, user_stats[node_id.to_i])
     end
   end
 
@@ -41,7 +41,8 @@ class TraceVisualization
 
   private
 
-  def add_circle_trace(node_id, sampling_rate, period)
+  def add_circle_trace(node_id, sampling_rate, stats)
+    period = stats['period']
     period ||= 3.0
 
     last_position = @simulation_data[0].position_data[node_id]

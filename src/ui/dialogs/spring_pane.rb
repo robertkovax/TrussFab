@@ -26,10 +26,8 @@ class SpringPane
     @trace_visualization = nil
     @animation_running = false
 
-    # node_id => period
-    @user_periods = {}
-    @user_max_as = {}
-    @user_max_vs = {}
+    # { node_id => {period: float, max_a: float, max_v: float } }
+    @user_stats = {}
 
     @spring_picker = SpringPicker.instance
 
@@ -88,14 +86,7 @@ class SpringPane
   def update_stats
     mounted_users.keys.each do |node_id|
       stats = SimulationRunnerClient.get_user_stats(node_id)
-      period = stats['period']
-      period = period.round(2) if period
-      # catch invalid periods
-      period ||= 'NaN'
-      @user_periods[node_id] = period
-      @user_max_as[node_id] = stats['max_acceleration'].round(2)
-      @user_max_vs[node_id] = stats['max_velocity'].round(2)
-      set_stats(node_id, stats)
+      @user_stats[node_id] = stats
     end
   end
 
@@ -103,7 +94,7 @@ class SpringPane
     @trace_visualization ||= TraceVisualization.new
     @trace_visualization.reset_trace
     # visualize every node with a mounted user
-    @trace_visualization.add_trace(mounted_users.keys.map(&:to_s), 4, @simulation_data, @user_periods)
+    @trace_visualization.add_trace(mounted_users.keys.map(&:to_s), 4, @simulation_data, @user_stats)
   end
 
   def put_geometry_into_equilibrium(spring_id)
@@ -127,11 +118,6 @@ class SpringPane
   end
 
   # dialog logic:
-
-  def set_stats(node_id, value)
-    @dialog.execute_script("set_period(#{node_id}, #{value})")
-  end
-
   def set_constant(value, spring_id = 25)
     @dialog.execute_script("set_constant(#{spring_id},#{value})")
   end
@@ -153,7 +139,7 @@ class SpringPane
     props = {
       resizable: true,
       preferences_key: 'com.trussfab.spring_insights',
-      width: 250,
+      width: 300,
       height: 50 + @spring_edges.length * 200,
       left: 5,
       top: 5,
