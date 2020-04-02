@@ -13,7 +13,7 @@ class SpringLink < ActuatorLink
                                      .length.to_f
     @spring_parameters = spring_parameters ? spring_parameters : SpringPicker.instance.get_default_spring
     @actual_spring_length = @spring_parameters[:unstreched_length].m
-    p @actual_spring_length
+    @spring_coil_diameter = @spring_parameters[:coil_diameter].m
     super(first_node, second_node, edge, id: id)
     @first_elongation_length =
       @second_elongation_length = Configuration::MINIMUM_ELONGATION
@@ -23,6 +23,7 @@ class SpringLink < ActuatorLink
   def spring_parameters=(parameters)
     @spring_parameters = parameters
     @actual_spring_length = @spring_parameters[:unstreched_length].m
+    @spring_coil_diameter = @spring_parameters[:coil_diameter].m
     update_link_properties
   end
 
@@ -99,7 +100,8 @@ class SpringLink < ActuatorLink
     @first_cylinder = Spring.new(self, spring_model.definition, nil)
     add(@first_cylinder)
 
-    @second_cylinder = SpringCylinder.new(self, @initial_edge_length, 0.5, nil)
+    @second_cylinder = SpringCylinder.new(self, @initial_edge_length, @actual_spring_length,
+                                          @spring_coil_diameter, nil)
     add(@second_cylinder)
 
     # Update the link_transformation, that we're previously just initialized
