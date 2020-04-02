@@ -26,7 +26,7 @@ class ExportFileTool < Tool
 
   def export_with_file_dialog(triangle = nil)
     @export_path = Configuration::JSON_PATH if @last_export_path.nil?
-    @export_path = UI.savepanel('Export JSON', @export_path, 'export.json')
+    @export_path = UI.savepanel('Export JSON', @last_export_path, 'export.json')
     @last_export_path = File.dirname(@export_path) unless @export_path.nil?
     animation = @ui.animation_pane.animation_values
     return if @export_path.nil?
