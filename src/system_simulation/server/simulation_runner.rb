@@ -9,11 +9,15 @@ require 'csv'
 require_relative '../animation_data_sample.rb'
 require_relative './generate_modelica_model.rb'
 
+
 # This class encapsulates the way of how system simulations (physically correct simulations of the dynamic system,
 # including spring oscillations) are run. Right now we use Modelica and compile / simulate a modelica model of our
 # geometry when necessary. This class provides public interfaces for different results of the simulation.
 class SimulationRunner
   NODE_COORDINATES_FILTER = 'node_[0-9]+.r_0.*'.freeze
+
+  class SimulationError < StandardError
+  end
 
   def self.new_from_json_export(json_export_string)
     require_relative './generate_modelica_model.rb'
@@ -43,7 +47,7 @@ class SimulationRunner
   end
 
   def initialize(model_name = "seesaw3", spring_constants = {}, spring_identifiers = {}, mounted_users = {},
-                 suppress_compilation = false, keep_temp_dir = false)
+                 suppress_compilation = false, keep_temp_dir = true)
 
     @model_name = model_name
     @simulation_options = ''
@@ -180,6 +184,11 @@ class SimulationRunner
     constant
   end
 
+
+  def get_system_matrix
+    run_linearization
+  end
+
   private
 
   def override_constants_string
@@ -219,11 +228,18 @@ class SimulationRunner
   end
 
   def run_compilation
-    output, _ = Open3.capture2e("cp #{@model_name}.mo  #{@directory}", chdir: File.dirname(__FILE__))
-    p output
-    output, _ = Open3.capture2e("omc #{@compilation_options} -s #{@model_name}.mo Modelica && mv #{@model_name}.makefile Makefile && make -j 8",
+    Open3.capture2e("cp #{@model_name}.mo  #{@directory}", chdir: File.dirname(__FILE__))
+    Open3.capture2e("cp ./modelica_assets/AdaptiveSpringDamper.mo  #{@directory}", chdir: File.dirname(__FILE__))
+
+    dependencies = ["AdaptiveSpringDamper.mo", "Modelica"]
+    output, status = Open3.capture2e("omc #{@compilation_options} -s #{@model_name}.mo #{dependencies.join(' ')} && mv #{@model_name}.makefile Makefile && make -j 8",
                                 chdir: @directory)
-    p output
+    if status.success?
+      puts("Compilation Successful")
+    else
+      p output
+      raise SimulationError, "Modelica compilation failed."
+    end
   end
 
   def run_simulation(filter = '*', force_vectors = [])
@@ -235,8 +251,25 @@ class SimulationRunner
     Open3.popen2e(command, chdir: @directory) do |i, o, t|
       # prints out std out of the command
       o.each { |l| puts l }
+      if not t.value.success?
+        raise SimulationError, "Modelica simulation returned with non-zero exit code (See console output for more information)."
+      end
     end
   end
+
+  def run_linearization()
+    # TODO properly parse where users sit as output
+    command = "./#{@model_name} #{@simulation_options} -l=0"
+    puts(command)
+    Open3.popen2e(command, chdir: @directory) do |i, o, t|
+      o.each { |l| puts l }
+      if not t.value.success?
+        raise SimulationError, "Linearization failed."
+      end
+      LinearStateSpaceModel.new(File.join(@directory, "linear_#{@model_name}.mo"))
+    end
+  end
+
 
   def read_csv
     CSV.read(File.join(@directory, "#{@model_name}_res.csv"))

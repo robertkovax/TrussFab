@@ -6,10 +6,10 @@ model seesaw3
   output Real [3] childRightPos = childRight.r_0;
   output Real springAcc(start=0) = der(springLeft.s);
   // output Real springForce = der(springLeft.f);
-  Real springLeftC = 2.89883548;
-  Real springLeftS = 0;
-  Real springRightC = 80846133;
-  Real springRightS = 1;
+  input Real springLeftC(start = 2.89883548);
+  Real springLeftS(start = 1);
+  Real springRightC(start = 80846133);
+  Real springRightS(start = 1);
   Real[3] qf = force.force;
   Modelica.Mechanics.MultiBody.Parts.Fixed fixed(animation = false, r = N[3]) annotation(
     Placement(visible = true, transformation(origin = {-108, -108}, extent = {{-10, -10}, {10, 10}}, rotation = 90)));

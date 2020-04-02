@@ -8,7 +8,7 @@ Modelica_Rod = Struct.new(:name, :length, :static_constant)
 Modelica_Spring = Struct.new(:name, :c, :length)
 Modelica_Connection = Struct.new(:from, :to)
 Modelica_Fixture = Struct.new(:name, :x, :y, :z)
-Modelica_PointMass = Struct.new(:name, :mass, :x_start, :y_start, :z_start)
+Modelica_PointMass = Struct.new(:name, :mass, :x_start, :y_start, :z_start, :is_user)
 Modelica_Force = Struct.new(:name)
 
 # Generates a modelica model with a given truss fab geometry.
@@ -87,11 +87,7 @@ class ModelicaModelGenerator
       edge_mass = edge[:length] * ModelicaConfiguration::PIPE_WEIGHT_KG_PER_M
       edge_component = Modelica_LineForceWithMass.new(edge[:name], edge_mass, edge[:n1_orientation_fixed], edge[:n2_orientation_fixed] )
 
-      if edge['type'] == 'bottle_link'
-        force_translator = Modelica_Rod.new(edge[:name] + "_rod", edge[:length].to_f, ModelicaConfiguration::STATIC_SPRING_CONSTANT)
-      elsif edge['type'] == 'spring'
-        force_translator = Modelica_Spring.new(edge[:name] + "_spring", ModelicaConfiguration::SPRING_CONSTANT, edge[:length])
-      end
+      force_translator = Modelica_Spring.new("#{edge[:name]}_spring", ModelicaConfiguration::STATIC_SPRING_CONSTANT, edge[:length])
 
       # store for constructing connections
       edge[:modelica_component] = edge_component
@@ -124,14 +120,17 @@ class ModelicaModelGenerator
 
         # get added mass placed by user from truss fab geometry
         mass = node['added_mass']
+        is_user = false
         if json_model['mounted_users'] && json_model['mounted_users'][nodeId.to_s]
+          is_user = true
           mass += json_model['mounted_users'][nodeId.to_s]
         end
         # add weight of node structure
+
         mass += ModelicaConfiguration::NODE_WEIGHT_KG
 
         # Generate PointMasses
-        point_mass_component = Modelica_PointMass.new(identifier_for_node_id(nodeId), mass, *node[:pos])
+        point_mass_component = Modelica_PointMass.new(identifier_for_node_id(nodeId), mass, *node[:pos], is_user)
         modelica_components.push(point_mass_component)
         modelica_connections.push(generate_mutlibody_connection(node[:primary_edge], primary_edge_connection_direction, point_mass_component, :a))
       }

@@ -1,4 +1,5 @@
 require "./simulation_runner.rb"
+require "./linear_state_space_model.rb"
 
 task default: %w[test]
 
@@ -6,15 +7,24 @@ task :compile do
   sim = SimulationRunner.new_from_json_export()
 end
 
-task :test_seesaw do
+task :test_seesaw_simulation do
   file = File.read("./test_models/seesaw_3.json")
   sim = SimulationRunner.new_from_json_export(file)
-  p sim.get_period('20')
+  p sim.get_period
+end
+
+task :test_seesaw_linearization do
+  file = File.read("./test_models/seesaw_3.json")
+  sim = SimulationRunner.new_from_json_export(file)
+  p sim.get_system_matrix
 end
 
 task :test_get_period do
   sim = SimulationRunner.new()
-  p sim.get_period('20')
+end
+
+task :parse_linear_state_space_model do
+  model = LinearStateSpaceModel.new("./test_models/linear_seesaw.mo")
 end
 
 task default: %w[test]
