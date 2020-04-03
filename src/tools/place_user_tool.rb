@@ -14,7 +14,20 @@ class PlaceUserTool < Tool
     if !obj.nil? && obj.is_a?(Node)
       @hub = obj.hub
       # TODO remove this default force value here
-      @hub.is_user_attached ? @hub.remove_user : @hub.attach_user(100)
+      possible_names = ModelStorage.instance.possible_attachable_user_names
+      if @hub.is_user_attached
+        current_name = @hub.user_indicator_name
+        puts current_name
+        current_index = possible_names.find_index current_name
+        puts current_index
+        if current_index == possible_names.length - 1
+          @hub.remove_user
+        else
+          @hub.attach_user(100, name: possible_names[current_index + 1])
+        end
+      else
+        @hub.attach_user(100, name: possible_names[0])
+      end
       @ui.spring_pane.update_mounted_users
     end
   end

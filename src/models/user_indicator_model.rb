@@ -2,11 +2,10 @@
 class UserIndicatorModel
   attr_reader :definition
 
-  def initialize
+  def initialize(name: 'child')
     @definition = Sketchup.active_model.definitions
                           .load(ProjectHelper.component_directory +
-                                '/child.skp')
-    @definition.name = 'User Indicator'
+                                  "/attachable_users/#{name}.skp")
   end
 
   def valid?

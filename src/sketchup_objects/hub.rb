@@ -4,7 +4,7 @@ require 'src/simulation/simulation.rb'
 
 # Hub
 class Hub < PhysicsSketchupObject
-  attr_accessor :position, :body, :mass, :arrow
+  attr_accessor :position, :body, :mass, :arrow, :user_transformation
   attr_reader :force, :is_user_attached, :user_force
 
   def initialize(position, id: nil, incidents: nil, material: 'hub_material')
@@ -25,7 +25,7 @@ class Hub < PhysicsSketchupObject
     @user_indicator = nil
     # force the user applies on that hub in newton
     @user_force = 0
-    @user_rotation = 0
+    @user_transformation = Geom::Transformation.new
     update_id_label
     persist_entity
   end
@@ -87,11 +87,13 @@ class Hub < PhysicsSketchupObject
     Sketchup.active_model.start_operation('Hub: Update User Indicator', true)
     point = Geom::Point3d.new(@position)
     point.z += 1
-    model = ModelStorage.instance.models['user_indicator']
     translation = Geom::Transformation.translation(point)
-    rotation = Geom::Transformation.rotation(Geom::Point3d.new, Geom::Vector3d.new(0, 0, 1), @user_rotation)
-    @user_indicator = Sketchup.active_model.active_entities.add_instance(model.definition, translation * rotation)
+    @user_indicator = Sketchup.active_model.active_entities.add_instance(@user_indicator_definition, translation * @user_transformation)
     Sketchup.active_model.commit_operation
+  end
+
+  def user_indicator_name
+    @user_indicator_name
   end
 
   def move_addon(object, position, offset = Geom::Vector3d.new(0, 0, 0))
@@ -205,9 +207,11 @@ class Hub < PhysicsSketchupObject
     @is_sensor
   end
 
-  def attach_user(force)
+  def attach_user(force, name:)
     @is_user_attached = true
     @user_force = force
+    @user_indicator_definition = ModelStorage.instance.attachable_users[name]
+    @user_indicator_name = name
     update_user_indicator
   end
 
@@ -219,7 +223,11 @@ class Hub < PhysicsSketchupObject
   end
 
   def rotate_user(angle)
-    @user_rotation += angle
+    @user_transformation *= Geom::Transformation.rotation(
+                              Geom::Point3d.new,
+                              Geom::Vector3d.new(0, 0, 1),
+                              angle
+                            )
     update_user_indicator
   end
 

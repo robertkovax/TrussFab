@@ -121,6 +121,7 @@ module JsonImport
       triangles = create_triangles(edges)
       add_joints(json_objects, edges, nodes) unless json_objects['joints'].nil?
       animation = json_objects['animation'].to_s
+      add_mounted_users json_objects, nodes, rotation_around_center
       [triangles.values, edges.values, animation]
     end
 
@@ -273,6 +274,17 @@ module JsonImport
           node.add_pod(string_to_vector3d(pod_info['direction']),
                        is_fixed: pod_info['is_fixed'])
         end
+      end
+    end
+
+    def add_mounted_users(json_objects, nodes, rotation_around_center)
+      return if json_objects['mounted_users'].nil?
+      json_objects['mounted_users'].each do |user_json|
+        node = nodes[user_json['id']]
+        node.hub.attach_user 200, name: user_json['name']
+        puts user_json['transformation']
+        node.hub.user_transformation =
+          (Geom::Transformation.new.set! user_json['transformation']) * rotation_around_center
       end
     end
 

@@ -57,10 +57,6 @@ class ModelStorage
       @models['weight_indicator'] = WeightIndicatorModel.new
     end
 
-    if @models['user_indicator'].nil? || !@models['user_indicator'].valid?
-      @models['user_indicator'] = UserIndicatorModel.new
-    end
-
     if @models['sensor'].nil? || !@models['sensor'].valid?
       @models['sensor'] = SensorModel.new
     end
@@ -83,5 +79,31 @@ class ModelStorage
       specifications.push model
     end
     specifications
+  end
+
+  def possible_attachable_user_names
+    return @possible_names unless @possible_names.nil?
+
+    @possible_names = []
+    puts 'Loaded files:'
+    Dir.glob(ProjectHelper.component_directory + '/attachable_users/*.skp') do |model_file_path|
+      # File scheme is '.../number-name-short_name-weight_in_grams.skp'
+      file_name = File.basename(model_file_path, '.skp')
+      puts file_name
+      @possible_names.push file_name
+    end
+    @possible_names
+  end
+
+  def attachable_users
+    return @attachable_users unless @attachable_users.nil?
+
+    @attachable_users = {}
+    @possible_names.each do |name|
+      @attachable_users[name] = UserIndicatorModel.new(name: name).definition
+    end
+    puts @attachable_users
+
+    @attachable_users
   end
 end

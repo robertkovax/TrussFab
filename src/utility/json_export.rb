@@ -7,7 +7,7 @@ class JsonExport
   def self.export(path, triangle = nil, animation)
     file = File.open(path, 'w')
     # TODO: also export spring parameters and mounted users to json
-    file.write(graph_to_json(triangle, animation, {}, {}))
+    file.write(graph_to_json(triangle, animation, {}, mounted_users_to_hash(Graph.instance.nodes)))
     file.close
   end
 
@@ -52,5 +52,18 @@ class JsonExport
         e2: edge.link.second_elongation_length.to_mm
       }
     end
+  end
+
+  def self.mounted_users_to_hash(nodes)
+    users = []
+    nodes.each do |id, node|
+      next unless node.hub.is_user_attached
+      users << {
+        id: id,
+        name: node.hub.user_indicator_name,
+        transformation: node.hub.user_transformation.to_a
+      }
+    end
+    users
   end
 end
