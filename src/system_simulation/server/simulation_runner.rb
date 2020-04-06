@@ -97,36 +97,35 @@ class SimulationRunner
     period_id = "#{ModelicaModelGenerator.identifier_for_node_id(node_id)}.r_0"
     velocity_id = "#{ModelicaModelGenerator.identifier_for_node_id(node_id)}.v_0"
     acceleration_id = "#{ModelicaModelGenerator.identifier_for_node_id(node_id)}.a_0"
+
+    csv_data = CSV.read(File.join(@directory, "#{@model_name}_res.csv"), headers: true, converters: :numeric)
     {
-      period: get_period(period_id),
-      max_acceleration: get_max_norm(acceleration_id),
-      max_velocity: get_max_norm(velocity_id)
+      period: get_period(period_id, csv_data),
+      max_acceleration: get_max_norm(acceleration_id, csv_data),
+      max_velocity: get_max_norm(velocity_id, csv_data)
     }
   end
 
-  def get_max_norm(id)
-    data = CSV.read(File.join(@directory, "#{@model_name}_res.csv"), headers: true, converters: :numeric)
+  def get_max_norm(id, csv_data)
     max_norm = 0
-    data["#{id}[1]"].each_with_index do |value, index|
-      norm = Vector.elements([value.to_f, data["#{id}[2]"][index].to_f, data["#{id}[3]"][index].to_f]).norm
+    csv_data["#{id}[1]"].each_with_index do |value, index|
+      norm = Vector.elements([value.to_f, csv_data["#{id}[2]"][index].to_f, csv_data["#{id}[3]"][index].to_f]).norm
       max_norm = norm if norm > max_norm
     end
     max_norm
   end
 
-  def get_period(id)
+  def get_period(id, csv_data)
     require 'gsl'
 
-    data = CSV.read(File.join(@directory, "#{@model_name}_res.csv"), :headers=>true, :converters => :numeric)
-
-    time_steps = data.length
-    time_step_size = data['time'][1] - data['time'][0]
+    time_steps = csv_data.length
+    time_step_size = csv_data['time'][1] - csv_data['time'][0]
     sample_rate = time_step_size * time_steps
 
     # https://github.com/SciRuby/rb-gsl/blob/master/examples/fft/fft.rb
-    x = data["#{id}[1]"].to_gv.fft.subvector(1, time_steps - 2).to_complex2
-    y = data["#{id}[2]"].to_gv.fft.subvector(1, time_steps - 2).to_complex2
-    z = data["#{id}[3]"].to_gv.fft.subvector(1, time_steps - 2).to_complex2
+    x = csv_data["#{id}[1]"].to_gv.fft.subvector(1, time_steps - 2).to_complex2
+    y = csv_data["#{id}[2]"].to_gv.fft.subvector(1, time_steps - 2).to_complex2
+    z = csv_data["#{id}[3]"].to_gv.fft.subvector(1, time_steps - 2).to_complex2
 
     mag = x.abs + y.abs + z.abs
     f = GSL::Vector.linspace(0, sample_rate/2, mag.size)
