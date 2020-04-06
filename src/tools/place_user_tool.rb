@@ -1,7 +1,6 @@
 # Places a user into the geometry i.e. someone who is injecting force into the system. This tool simulates the system
 # and opens a panel that shows information and the possibility to change parameters of the springs.
 class PlaceUserTool < Tool
-
   def initialize(ui)
     super(ui)
     @mouse_input = MouseInput.new(snap_to_nodes: true)
@@ -28,6 +27,8 @@ class PlaceUserTool < Tool
       else
         @hub.attach_user(100, name: possible_names[0])
       end
+      # TODO: at some point springe pane should compile automatically when geometry changes
+      @ui.spring_pane.compile
       @ui.spring_pane.update_mounted_users
     end
   end
