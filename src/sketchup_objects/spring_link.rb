@@ -5,8 +5,8 @@ require 'src/system_simulation/spring_picker.rb'
 
 # PhysicsLink that behaves like a gas spring
 class SpringLink < ActuatorLink
-  attr_accessor :spring_parameters, :actual_spring_length
-  attr_reader :edge, :initial_spring_length
+  attr_accessor :actual_spring_length
+  attr_reader :edge, :initial_spring_length, :spring_parameters
 
   def initialize(first_node, second_node, edge, spring_parameters: nil, id: nil)
     @initial_edge_length = first_node.hub.entity.bounds.center.vector_to(second_node.hub.entity.bounds.center)
@@ -101,7 +101,7 @@ class SpringLink < ActuatorLink
     add(@first_cylinder)
 
     @second_cylinder = SpringCylinder.new(self, @initial_edge_length, @actual_spring_length,
-                                          @spring_coil_diameter, nil)
+                                          @spring_coil_diameter)
     add(@second_cylinder)
 
     # Update the link_transformation, that we're previously just initialized
