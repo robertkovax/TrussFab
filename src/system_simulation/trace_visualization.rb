@@ -4,6 +4,7 @@ class TraceVisualization
   DISTANCE_TO_PLANE_THRESHOLD = 2.0
   # What duration the trace visualization should span if the oscillation is not planar, in seconds.
   NON_PLANAR_TRACE_DURATION = 2
+  TRACE_DOT_ALPHA = 0.7
 
   def initialize
     # Simulation data to visualize
@@ -18,7 +19,6 @@ class TraceVisualization
     # Visualization parameters
     #@color = Sketchup::Color.new(72,209,204)
     @colors = [Sketchup::Color.new(255,0,0), Sketchup::Color.new(255,255,0), Sketchup::Color.new(0,255,0)]
-    @alpha = 0.6
   end
 
   def add_trace(node_ids, sampling_rate, data, user_stats)
@@ -80,9 +80,11 @@ class TraceVisualization
       translation = Geom::Transformation.translation(position)
       transformation = translation * scaling
 
+      color_weight = scale_factor * 50.0;
+
       @group = Sketchup.active_model.entities.add_group if @group.deleted?
       circle_instance = @group.entities.add_instance(circle_definition, transformation)
-      circle_instance.material = material_from_hsv(113, scale_factor * 130, 100)
+      circle_instance.material = material_from_hsv(117, 50 + color_weight, 100 - color_weight)
 
       last_position = position
     end
@@ -132,7 +134,7 @@ class TraceVisualization
   def material_from_hsv(h,s,v)
     material = Sketchup.active_model.materials.add("VisualizationColor #{v}")
     material.color = hsv_to_rgb(h, s, v)
-    material.alpha = 0.6
+    material.alpha = TRACE_DOT_ALPHA
     material
   end
 
