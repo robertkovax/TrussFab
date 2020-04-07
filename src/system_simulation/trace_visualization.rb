@@ -73,14 +73,16 @@ class TraceVisualization
       distance_ratio = (distance_to_last / max_distance)
 
       # invert distance ratio since high distance should plot a small and lightly colored dot
-      scale_factor = 1 - distance_ratio
+      ratio = 1 - distance_ratio
 
       # Transform circle definition to match current data sample
+      # dots shouldn't be scaled down below half the original size
+      scale_factor = Geometry.clamp(ratio, 0.5, 1.0)
       scaling = Geom::Transformation.scaling(scale_factor, 1.0, scale_factor)
       translation = Geom::Transformation.translation(position)
       transformation = translation * scaling
 
-      color_weight = scale_factor * 50.0;
+      color_weight = ratio * 50.0
 
       @group = Sketchup.active_model.entities.add_group if @group.deleted?
       circle_instance = @group.entities.add_instance(circle_definition, transformation)
