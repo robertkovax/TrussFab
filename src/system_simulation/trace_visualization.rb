@@ -66,7 +66,7 @@ class TraceVisualization
       curve_points << position
 
       # only plot dots for first period, after that only draw the curve line
-      next if current_data_sample.time_stamp.to_f >= trace_time_limit
+      break if current_data_sample.time_stamp.to_f >= trace_time_limit
 
       # distance to last point basically representing the speed (since time interval between data samples is fixed)
       distance_to_last = position.distance(last_position)
