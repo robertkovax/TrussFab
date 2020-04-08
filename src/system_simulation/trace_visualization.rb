@@ -4,7 +4,7 @@ class TraceVisualization
   DISTANCE_TO_PLANE_THRESHOLD = 10.0
   # What duration the trace visualization should span if the oscillation is not planar, in seconds.
   NON_PLANAR_TRACE_DURATION = 10
-  TRACE_DOT_ALPHA = 0.7
+  TRACE_DOT_ALPHA = 0.6
 
   def initialize
     # Simulation data to visualize
@@ -45,6 +45,8 @@ class TraceVisualization
     period = stats['period']
     period ||= 3.0
 
+    max_acceleration_index = stats['max_acceleration']['index']
+
     last_position = @simulation_data[0].position_data[node_id]
     curve_points = []
 
@@ -57,9 +59,9 @@ class TraceVisualization
 
     circle_definition = create_circle_definition
 
-    @simulation_data.each_with_index do |current_data_sample, _index|
+    @simulation_data.each_with_index do |current_data_sample, index|
       # thin out points in trace
-      # next unless _index % _sampling_rate == 0
+      # next unless index % _sampling_rate == 0
 
       position = current_data_sample.position_data[node_id]
 
@@ -89,8 +91,14 @@ class TraceVisualization
 
       @group = Sketchup.active_model.entities.add_group if @group.deleted?
       circle_instance = @group.entities.add_instance(circle_definition, transformation)
-      circle_instance.material = material_from_hsv(color_hue, color_min_value + color_weight,
-                                                   color_max_value - color_weight)
+      if max_acceleration_index == index
+        puts "maximum acceleration index: #{index}"
+        circle_instance.material = "red"
+      else
+        circle_instance.material = material_from_hsv(color_hue, color_min_value + color_weight,
+                                                     color_max_value - color_weight)
+      end
+
 
       last_position = position
     end
