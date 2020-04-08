@@ -1,9 +1,9 @@
 # Simulate data samples of a system simulation by plotting a trace consisting of transparent circles into the scene.
 class TraceVisualization
   # Delta of oscillation positions to plane that still counts as planar.
-  DISTANCE_TO_PLANE_THRESHOLD = 2.0
+  DISTANCE_TO_PLANE_THRESHOLD = 10.0
   # What duration the trace visualization should span if the oscillation is not planar, in seconds.
-  NON_PLANAR_TRACE_DURATION = 2
+  NON_PLANAR_TRACE_DURATION = 10
   TRACE_DOT_ALPHA = 0.7
 
   def initialize
