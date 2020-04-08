@@ -82,11 +82,15 @@ class TraceVisualization
       translation = Geom::Transformation.translation(position)
       transformation = translation * scaling
 
-      color_weight = ratio * 50.0
+      color_min_value = 50.0
+      color_max_value = 100.0
+      color_hue = 117
+      color_weight = ratio * color_min_value
 
       @group = Sketchup.active_model.entities.add_group if @group.deleted?
       circle_instance = @group.entities.add_instance(circle_definition, transformation)
-      circle_instance.material = material_from_hsv(117, 50 + color_weight, 100 - color_weight)
+      circle_instance.material = material_from_hsv(color_hue, color_min_value + color_weight,
+                                                   color_max_value - color_weight)
 
       last_position = position
     end
