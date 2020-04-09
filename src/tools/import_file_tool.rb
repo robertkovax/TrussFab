@@ -9,14 +9,15 @@ class ImportFileTool < ImportTool
 
   def activate
     super
-    @import_path = if @import_path.nil?
+    @import_path = if @last_loaded_path.nil?
                      Configuration::JSON_PATH
                    else
-                     File.dirname(@import_path)
+                     @last_loaded_path
                    end
     @import_path = UI.openpanel('Open JSON',
                                 @import_path,
                                 'JSON File|*.json;||')
+    @last_loaded_path = File.dirname(@import_path) unless @import_path.nil?
     @path = @import_path
   end
 

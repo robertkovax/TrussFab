@@ -141,9 +141,8 @@ class SpringPane
       preferences_key: 'com.trussfab.spring_insights',
       width: 300,
       height: 50 + @spring_edges.length * 200,
-      left: 5,
-      top: 5,
-      # max_height: @height
+      left: 500,
+      top: 500,
       style: UI::HtmlDialog::STYLE_DIALOG
     }
 
@@ -152,7 +151,6 @@ class SpringPane
     content = File.read(file_path)
     t = ERB.new(content)
     @dialog.set_html(t.result(binding))
-    @dialog.set_position(500, 500)
     @dialog.show
     register_callbacks
   end
