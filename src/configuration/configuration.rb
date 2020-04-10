@@ -62,6 +62,8 @@ module Configuration
                          '/primitives/parallel.json').freeze
   ASSETS_HINGE_PATH = (ProjectHelper.asset_directory +
                       '/primitives/asset_hinge.json').freeze
+  ASSETS_USER_PATH = (ProjectHelper.asset_directory +
+                     '/primitives/asset_user.json').freeze
 
   # Colors
   STANDARD_COLOR            = Sketchup::Color.new(1.0, 1.0, 1.0)

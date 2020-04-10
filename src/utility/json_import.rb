@@ -37,6 +37,7 @@ module JsonImport
       add_pods_if_near_ground(nodes)
 
       animation = json_objects['animation'].to_s
+      add_mounted_users json_objects, nodes, Geom::Transformation.rotation(Geom::Point3d.new, Geom::Vector3d.new(0,0,-1), angle)
       [triangles.values, edges.values, animation]
     end
 
@@ -121,7 +122,11 @@ module JsonImport
       triangles = create_triangles(edges)
       add_joints(json_objects, edges, nodes) unless json_objects['joints'].nil?
       animation = json_objects['animation'].to_s
-      add_mounted_users json_objects, nodes, rotation_around_center
+      user_transformation =
+        Geom::Transformation.rotation(Geom::Point3d.new, snap_direction, angle) *
+        Geometry.rotation_transformation(vector_json, vector_snap, Geom::Point3d.new) *
+        Geometry.rotation_transformation(json_direction, snap_direction, Geom::Point3d.new)
+      add_mounted_users json_objects, nodes, user_transformation
       [triangles.values, edges.values, animation]
     end
 
@@ -284,7 +289,8 @@ module JsonImport
         node.hub.attach_user 200, name: user_json['name']
         puts user_json['transformation']
         node.hub.user_transformation =
-          (Geom::Transformation.new.set! user_json['transformation']) * rotation_around_center
+          rotation_around_center * (Geom::Transformation.new.set! user_json['transformation'])
+        node.hub.update_user_indicator
       end
     end
 

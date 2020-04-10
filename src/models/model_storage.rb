@@ -99,7 +99,7 @@ class ModelStorage
     return @attachable_users unless @attachable_users.nil?
 
     @attachable_users = {}
-    @possible_names.each do |name|
+    possible_attachable_user_names.each do |name|
       @attachable_users[name] = UserIndicatorModel.new(name: name).definition
     end
     puts @attachable_users

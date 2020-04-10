@@ -4,8 +4,8 @@ require 'src/simulation/simulation.rb'
 
 # Hub
 class Hub < PhysicsSketchupObject
-  attr_accessor :position, :body, :mass, :arrow, :user_transformation
-  attr_reader :force, :is_user_attached, :user_force
+  attr_accessor :position, :body, :mass, :arrow
+  attr_reader :force, :is_user_attached, :user_force, :user_transformation
 
   def initialize(position, id: nil, incidents: nil, material: 'hub_material')
     super(id, material: material)
@@ -77,7 +77,7 @@ class Hub < PhysicsSketchupObject
   end
 
   # TODO: Extract shared behavior with weight indicator
-  def update_user_indicator
+  def update_user_indicator(additional_transformation: Geom::Transformation.new)
     unless @user_indicator.nil?
       @user_indicator.erase!
       @user_indicator = nil
@@ -88,12 +88,17 @@ class Hub < PhysicsSketchupObject
     point = Geom::Point3d.new(@position)
     point.z += 1
     translation = Geom::Transformation.translation(point)
-    @user_indicator = Sketchup.active_model.active_entities.add_instance(@user_indicator_definition, translation * @user_transformation)
+    @user_indicator = Sketchup.active_model.active_entities.add_instance(@user_indicator_definition, translation * additional_transformation *@user_transformation)
     Sketchup.active_model.commit_operation
   end
 
   def user_indicator_name
     @user_indicator_name
+  end
+
+  def user_transformation=(transformation)
+    @user_transformation = transformation
+    update_user_indicator
   end
 
   def move_addon(object, position, offset = Geom::Vector3d.new(0, 0, 0))

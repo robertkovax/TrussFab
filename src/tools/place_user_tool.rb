@@ -37,12 +37,24 @@ class PlaceUserTool < Tool
     @mouse_input.update_positions(view, x, y)
   end
 
-  def onKeyDown(key, _repeat, _flags, _view)
+  def onKeyDown(key, _repeat, flags, _view)
     super
+    angle_step = 5.degrees
+
     if key == VK_RIGHT
-      @hub.rotate_user(45.degrees)
+      @hub.rotate_user(angle_step)
     elsif key == VK_LEFT
-      @hub.rotate_user(-45.degrees)
+      @hub.rotate_user(-angle_step)
+    elsif key == VK_UP
+      @hub.user_transformation *=
+        Geom::Transformation.rotation(
+          Geom::Point3d.new, Geom::Vector3d.new(1, 0, 0), angle_step
+        )
+    elsif key == VK_DOWN
+      @hub.user_transformation *=
+        Geom::Transformation.rotation(
+          Geom::Point3d.new, Geom::Vector3d.new(1, 0, 0), -angle_step
+        )
     end
   end
 
