@@ -1,16 +1,18 @@
 class AnimationDataSample
-  attr_reader :time_stamp, :position_data
+  attr_reader :time_stamp, :position_data, :rotation_data
 
-  def initialize(time_stamp, position_data)
+  def initialize(time_stamp, position_data, rotation_data)
     @time_stamp = time_stamp
     # hash map mapping from each hub to its position at the point in time which time_stamp defines
     @position_data = position_data
+    @rotation_data = rotation_data
   end
 
   # Matches raw coordinates to hubs in the current graph. Matching will be made based on ids provided in header.
   def self.from_raw_data(data, indices_map, offset_vector = Geom::Vector3d.new())
     time_stamp = data[0]
     position_data = Hash.new(0)
+    rotation_data = Hash.new(0)
 
     indices_map.each do | node_id, indices |
       node = Graph.instance.nodes.find do | node |
@@ -23,20 +25,36 @@ class AnimationDataSample
       position.offset!(offset_vector.reverse)
 
       position_data[node_id] = position
-
-
-
+      puts "indices: #{indices}"
+      if indices.length > 10
+        rotation_matrix = [
+          data[indices[3]].to_f, data[indices[4]].to_f, data[indices[5]].to_f, 0,
+          data[indices[6]].to_f, data[indices[7]].to_f, data[indices[8]].to_f, 0,
+          data[indices[9]].to_f, data[indices[10]].to_f, data[indices[11]].to_f, 0,
+          0, 0, 0, 1
+        ]
+        rotation_data[node_id] = Geom::Transformation.new.set! rotation_matrix
+      end
     end
-
-    return AnimationDataSample.new(time_stamp, position_data)
+    AnimationDataSample.new(time_stamp, position_data, rotation_data)
   end
 
+  # This code is hard to understand, take this example:
+  # e.g.: header:
+  # ["time", "node_4.r_0[1]", "node_4.r_0[2]", "node_4.r_0[3]"]
+  # e.g.: strings_for_hub_ids:
+  # {nil=>["time"], "4"=>["node_4.r_0[1]", "node_4.r_0[2]", "node_4.r_0[3]"]}
+  # e.g.: indices_for_hub_ids: first the position, then 9 values for the rotation
+  # {"4"=>[1, 2, 3]}
   def self.indices_map_from_header(header)
+    puts "header: #{header}"
     strings_for_hub_ids = header.group_by do | value |
       if (match = value.match(/node_(\d+)/))
         match.captures[0]
       end
     end
+
+    puts "strings_for_hub_ids: #{strings_for_hub_ids}"
 
     # remove header and unnecessary lines
     strings_for_hub_ids.delete_if {| value | value.nil?}
