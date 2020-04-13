@@ -17,7 +17,6 @@ class SpringTool < ActuatorTool
     @simulation.setup
     @simulation.disable_gravity
 
-
     Sketchup.active_model.active_view.animation = @simulation
     @simulation.start
     Sketchup.active_model.commit_operation
@@ -48,21 +47,21 @@ class SpringTool < ActuatorTool
     activate
   end
 
+  # Adds springs into the @scheduled_pistons, and removes them if their are not
+  # hovered any more
   def onMouseMove(_flags, x, y, view)
     super
     snapped_object = @mouse_input.snapped_object
-    if snapped_object.is_a?(Edge) && snapped_object.link.is_a?(SpringLink) && !@scheduled_pistons.include?(snapped_object)
+    if snapped_object.is_a?(Edge) && snapped_object.link.is_a?(SpringLink) &&
+       !@scheduled_pistons.include?(snapped_object)
       @simulation.schedule_piston_for_testing(snapped_object, PISTON_SPEED)
       @scheduled_pistons.push snapped_object
-      puts "added #{snapped_object}"
     end
     @scheduled_pistons.delete_if do |piston|
       if piston != snapped_object
         @simulation.unschedule_piston_for_testing piston, PISTON_SPEED
-        puts "deleted: #{piston}"
       end
       piston != snapped_object
     end
-    puts @scheduled_pistons
   end
 end

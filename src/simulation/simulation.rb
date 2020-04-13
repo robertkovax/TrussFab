@@ -370,22 +370,22 @@ class Simulation
     @moving_pistons.push(id: edge.id.to_i, expanding: true, speed: speed)
   end
 
+  # Remove the edge from the scheduled pistons that are moved
   def unschedule_piston_for_testing(edge, speed = 0.4)
     edge_id = edge.id.to_i
-    index = @moving_pistons.find_index do |each|
+    moving_piston_index = @moving_pistons.find_index do |each|
       each[:id] == edge_id
     end
-    return unless index
-    entry = @moving_pistons[index]
-    puts "entry: #{entry}"
-    link = @pistons[entry[:id]]
+    return unless moving_piston_index
+
+    moving_piston_entry = @moving_pistons[moving_piston_index]
+    link = @pistons[moving_piston_entry[:id]]
     joint = link.joint
     if joint && joint.valid?
-      puts "start_distance: #{joint.start_distance}"
-      puts "controller: #{joint.controller}"
-      joint.controller = 0
+      joint.controller = 0 # Reset to neutral position
     end
 
+    # Remove the entry out of the array
     @moving_pistons.delete_if do |each|
       each[:id] == edge_id
     end

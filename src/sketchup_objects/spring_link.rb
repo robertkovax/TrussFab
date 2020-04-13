@@ -34,16 +34,12 @@ class SpringLink < ActuatorLink
   end
 
   def highlight(highlight_material = @highlight_material)
-    # Move the spring to show the movement
-    puts "highlight"
-
     # [@first_cylinder, @second_cylinder].each do |cylinder|
     #   cylinder.change_color(highlight_material)
     # end
   end
 
   def un_highlight
-    puts "un_highlight"
     # [@first_cylinder, @second_cylinder].each do |cylinder|
     #   cylinder.change_color(cylinder.material)
     # end
