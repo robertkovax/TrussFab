@@ -131,19 +131,15 @@ class SpringPane
 
     # display updated html
 
-    # Normally, one would just use:
-    # @dialog.set_html(t.result(binding))
-    # but unfortunately, this gives the dialog focus, preventing the use of
-    # arrow keys to rotate the added object afterwards. (Try to comment
-    # this out, and then add a simple tetra, and try to scale it using arrow up)
-    # That's why we use javascript to replace the window content, which does not
-    # has that problem.
-    # TODO: When the added primitive contains a spring, rotation is still not
-    # possible
+    @dialog.set_html(t.result(binding))
+    focus_main_window
+  end
 
-    html = t.result(binding).dump
-    reload_command = "document.open();document.write(#{html});document.close();"
-    @dialog.execute_script reload_command
+  # Opens a dummy dialog, to focus the main Sketchup Window again
+  def focus_main_window
+    dialog = UI::WebDialog.new("", true, "", 0, 0, 10000, 10000, true)
+    dialog.show
+    dialog.close
   end
 
   def open_dialog
