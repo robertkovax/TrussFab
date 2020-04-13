@@ -3,11 +3,12 @@ require 'src/export/node_export_visualization'
 
 # creates a gas spring-type link
 class SpringTool < ActuatorTool
+
+  PISTON_SPEED = 0.5
+
   def initialize(ui)
     super(ui, 'spring')
   end
-
-  PISTON_SPEED = 10
 
   def activate
     @scheduled_pistons = []
