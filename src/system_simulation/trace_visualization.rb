@@ -1,9 +1,5 @@
 # Simulate data samples of a system simulation by plotting a trace consisting of transparent circles into the scene.
 class TraceVisualization
-  # Delta of oscillation positions to plane that still counts as planar.
-  DISTANCE_TO_PLANE_THRESHOLD = 10.0
-  # What duration the trace visualization should span if the oscillation is not planar, in seconds.
-  NON_PLANAR_TRACE_DURATION = 10
   TRACE_DOT_ALPHA = 0.6
 
   def initialize
@@ -53,7 +49,7 @@ class TraceVisualization
     trace_analyzation = (analyze_trace node_id, period)
     max_distance = trace_analyzation[:max_distance]
     # Plot dots for either the period or a certain time span, if oscillation is not planar
-    trace_time_limit = trace_analyzation[:is_planar] ? period.to_f : NON_PLANAR_TRACE_DURATION
+    trace_time_limit = trace_analyzation[:is_planar] ? period.to_f : Configuration::NON_PLANAR_TRACE_DURATION
     puts "Trace maximum distance: #{max_distance}"
     puts "Trace is planar: #{trace_analyzation[:is_planar]}"
 
@@ -120,7 +116,7 @@ class TraceVisualization
       position = current_data_sample.position_data[node_id]
       distance_to_last = position.distance(last_position)
       max_distance = distance_to_last if distance_to_last > max_distance
-      is_planar = position.distance_to_plane(plane) < DISTANCE_TO_PLANE_THRESHOLD
+      is_planar = position.distance_to_plane(plane) < Configuration::DISTANCE_TO_PLANE_THRESHOLD
       last_position = position
       return { max_distance: max_distance, is_planar: is_planar } if current_data_sample.time_stamp.to_f >= period.to_f
     end
