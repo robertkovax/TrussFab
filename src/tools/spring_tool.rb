@@ -30,6 +30,7 @@ class SpringTool < ActuatorTool
 
   def reset
     Sketchup.active_model.start_operation('deactivate simulation', true)
+    Sketchup.active_model.active_view.animation = nil
     @simulation.stop
     @simulation.reset
     Sketchup.active_model.commit_operation
