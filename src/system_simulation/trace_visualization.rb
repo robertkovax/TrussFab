@@ -1,9 +1,6 @@
 # Simulate data samples of a system simulation by plotting a trace consisting of transparent circles into the scene.
 class TraceVisualization
-  # Delta of oscillation positions to plane that still counts as planar.
-  DISTANCE_TO_PLANE_THRESHOLD = 2.0
-  # What duration the trace visualization should span if the oscillation is not planar, in seconds.
-  NON_PLANAR_TRACE_DURATION = 2
+  TRACE_DOT_ALPHA = 0.6
 
   def initialize
     # Simulation data to visualize
@@ -18,7 +15,6 @@ class TraceVisualization
     # Visualization parameters
     #@color = Sketchup::Color.new(72,209,204)
     @colors = [Sketchup::Color.new(255,0,0), Sketchup::Color.new(255,255,0), Sketchup::Color.new(0,255,0)]
-    @alpha = 0.6
   end
 
   def add_trace(node_ids, sampling_rate, data, user_stats)
@@ -45,44 +41,60 @@ class TraceVisualization
     period = stats['period']
     period ||= 3.0
 
+    max_acceleration_index = stats['max_acceleration']['index']
+
     last_position = @simulation_data[0].position_data[node_id]
     curve_points = []
 
     trace_analyzation = (analyze_trace node_id, period)
     max_distance = trace_analyzation[:max_distance]
     # Plot dots for either the period or a certain time span, if oscillation is not planar
-    trace_time_limit = trace_analyzation[:is_planar] ? period.to_f : NON_PLANAR_TRACE_DURATION
+    trace_time_limit = trace_analyzation[:is_planar] ? period.to_f : Configuration::NON_PLANAR_TRACE_DURATION
     puts "Trace maximum distance: #{max_distance}"
     puts "Trace is planar: #{trace_analyzation[:is_planar]}"
 
     circle_definition = create_circle_definition
 
-    @simulation_data.each_with_index do |current_data_sample, _index|
+    @simulation_data.each_with_index do |current_data_sample, index|
       # thin out points in trace
-      # next unless _index % _sampling_rate == 0
+      # next unless index % _sampling_rate == 0
 
       position = current_data_sample.position_data[node_id]
 
       curve_points << position
 
       # only plot dots for first period, after that only draw the curve line
-      next if current_data_sample.time_stamp.to_f >= trace_time_limit
+      break if current_data_sample.time_stamp.to_f >= trace_time_limit
 
       # distance to last point basically representing the speed (since time interval between data samples is fixed)
       distance_to_last = position.distance(last_position)
       distance_ratio = (distance_to_last / max_distance)
 
       # invert distance ratio since high distance should plot a small and lightly colored dot
-      scale_factor = 1 - distance_ratio
+      ratio = 1 - distance_ratio
 
       # Transform circle definition to match current data sample
+      # dots shouldn't be scaled down below half the original size
+      scale_factor = Geometry.clamp(ratio, 0.5, 1.0)
       scaling = Geom::Transformation.scaling(scale_factor, 1.0, scale_factor)
       translation = Geom::Transformation.translation(position)
       transformation = translation * scaling
 
+      color_min_value = 50.0
+      color_max_value = 100.0
+      color_hue = 117
+      color_weight = ratio * color_min_value
+
       @group = Sketchup.active_model.entities.add_group if @group.deleted?
       circle_instance = @group.entities.add_instance(circle_definition, transformation)
-      circle_instance.material = material_from_hsv(113, scale_factor * 130, 100)
+      if max_acceleration_index == index
+        puts "maximum acceleration index: #{index}"
+        circle_instance.material = "red"
+      else
+        circle_instance.material = material_from_hsv(color_hue, color_min_value + color_weight,
+                                                     color_max_value - color_weight)
+      end
+
 
       last_position = position
     end
@@ -104,7 +116,7 @@ class TraceVisualization
       position = current_data_sample.position_data[node_id]
       distance_to_last = position.distance(last_position)
       max_distance = distance_to_last if distance_to_last > max_distance
-      is_planar = position.distance_to_plane(plane) < DISTANCE_TO_PLANE_THRESHOLD
+      is_planar = position.distance_to_plane(plane) < Configuration::DISTANCE_TO_PLANE_THRESHOLD
       last_position = position
       return { max_distance: max_distance, is_planar: is_planar } if current_data_sample.time_stamp.to_f >= period.to_f
     end
@@ -132,7 +144,7 @@ class TraceVisualization
   def material_from_hsv(h,s,v)
     material = Sketchup.active_model.materials.add("VisualizationColor #{v}")
     material.color = hsv_to_rgb(h, s, v)
-    material.alpha = 0.6
+    material.alpha = TRACE_DOT_ALPHA
     material
   end
 

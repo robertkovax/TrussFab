@@ -205,7 +205,7 @@ class SpringPane
   end
 
   def toggle_animation
-    simulate unless @simulation_data
+    simulate
     if @animation && @animation.running
       @animation.stop
       @animation_running = false

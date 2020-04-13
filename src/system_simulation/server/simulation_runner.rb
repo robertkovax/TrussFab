@@ -101,18 +101,22 @@ class SimulationRunner
     csv_data = CSV.read(File.join(@directory, "#{@model_name}_res.csv"), headers: true, converters: :numeric)
     {
       period: get_period(period_id, csv_data),
-      max_acceleration: get_max_norm(acceleration_id, csv_data),
-      max_velocity: get_max_norm(velocity_id, csv_data)
+      max_acceleration: get_max_norm_and_index(acceleration_id, csv_data),
+      max_velocity: get_max_norm_and_index(velocity_id, csv_data)
     }
   end
 
-  def get_max_norm(id, csv_data)
+  def get_max_norm_and_index(id, csv_data)
     max_norm = 0
+    max_index = 0
     csv_data["#{id}[1]"].each_with_index do |value, index|
       norm = Vector.elements([value.to_f, csv_data["#{id}[2]"][index].to_f, csv_data["#{id}[3]"][index].to_f]).norm
-      max_norm = norm if norm > max_norm
+      if norm > max_norm
+        max_norm = norm
+        max_index = index
+      end
     end
-    max_norm
+    { value: max_norm, index: max_index }
   end
 
   def get_period(id, csv_data)
