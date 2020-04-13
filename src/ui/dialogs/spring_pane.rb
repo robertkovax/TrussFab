@@ -130,7 +130,6 @@ class SpringPane
     t = ERB.new(content)
 
     # display updated html
-
     @dialog.set_html(t.result(binding))
     focus_main_window
   end
