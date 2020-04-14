@@ -48,14 +48,14 @@ class AnimationDataSample
         if (match = header_string.match(/,(\d+)/))
           match.captures[0]
         else
-          ''
+          -1
         end
       end
 
       # map header names to index
       indices_for_hub_ids[key] = value.map { | string | header.index(string) }
     end
-    indices_for_hub_ids
+    return indices_for_hub_ids
   end
 
   def inspect

@@ -16,9 +16,7 @@ class PlaceUserTool < Tool
       possible_names = ModelStorage.instance.possible_attachable_user_names
       if @hub.is_user_attached
         current_name = @hub.user_indicator_name
-        puts current_name
         current_index = possible_names.find_index current_name
-        puts current_index
         if current_index == possible_names.length - 1
           @hub.remove_user
         else

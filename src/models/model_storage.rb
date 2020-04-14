@@ -88,8 +88,8 @@ class ModelStorage
     puts 'Loaded files:'
     Dir.glob(ProjectHelper.component_directory + '/attachable_users/*.skp') do |model_file_path|
       # File scheme is '.../number-name-short_name-weight_in_grams.skp'
+      # TODO: Read in the weight
       file_name = File.basename(model_file_path, '.skp')
-      puts file_name
       @possible_names.push file_name
     end
     @possible_names
