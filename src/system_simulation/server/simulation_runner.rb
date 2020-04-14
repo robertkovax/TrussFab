@@ -211,8 +211,8 @@ class SimulationRunner
       override_string += "#{spring_identifier}.c=#{@constants_for_springs[edge_id]},"
     end
 
-    @mounted_users.each do |node_id, force|
-      override_string += "node_#{node_id}.m=#{force},"
+    @mounted_users.each do |node_id, weight|
+      override_string += "node_#{node_id}.m=#{weight},"
     end
 
     # remove last comma

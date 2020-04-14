@@ -49,7 +49,7 @@
   <h5 class="card-title">User parameters</h5>
   <div class="card-body">
     <%
-      mounted_users.each { |node_id, user_force|
+      mounted_users.each { |node_id, user_weight|
         stats = @user_stats[node_id]
         digits_precision = 2
     %>
@@ -72,7 +72,7 @@
             <div class="input-group-prepend">
               <span class="input-group-text text-monospace">m</span>
             </div>
-            <input id="mass_<%= node_id %>" type="text" placeholder="<%= user_force %>" readonly class="form-control" style="text-align: right;">
+            <input id="mass_<%= node_id %>" type="text" placeholder="<%= user_weight %>" class="form-control" onchange="window.sketchup.user_weight_change(<%= node_id %>, this.value);"  style="text-align: right;">
             <div class="input-group-append">
               <span class="input-group-text text-monospace">kg</span>
             </div>
