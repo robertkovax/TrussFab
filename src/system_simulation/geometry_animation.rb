@@ -12,14 +12,13 @@ class GeometryAnimation
 
     # time keeping
     @start_time = Time.now.to_f
-  end
 
+  end
 
   def stop
     @running = false
     @index = 0
     update_graph_with_data_sample @data[@index]
-    puts "on_stop_block: #{@on_stop_block}"
     @on_stop_block.call
     @running
   end
@@ -50,13 +49,7 @@ class GeometryAnimation
 
       node.update_position(position)
       node.hub.update_position(position)
-      if node.hub.is_user_attached
-        additional_transformation = data_sample.rotation_data[node_id]
-        puts "Rotation matrix: #{additional_transformation.to_a}"
-        node.hub.update_user_indicator additional_transformation: additional_transformation
-      else
-        node.hub.update_user_indicator
-      end
+      node.hub.update_user_indicator
       node.adjacent_triangles.each { |triangle| triangle.update_sketchup_object if triangle.cover }
     end
 

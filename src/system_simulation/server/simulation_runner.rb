@@ -15,7 +15,6 @@ require_relative './generate_modelica_model.rb'
 # geometry when necessary. This class provides public interfaces for different results of the simulation.
 class SimulationRunner
   NODE_COORDINATES_FILTER = 'node_[0-9]+.r_0.*'.freeze
-  NODE_RESULT_FILTER = 'node_[0-9]+.r_0.*|node_[0-9]+.frame_a.R.T.*'.freeze
 
   def self.new_from_json_export(json_export_string)
     require_relative './generate_modelica_model.rb'
@@ -85,7 +84,7 @@ class SimulationRunner
 
   def get_hub_time_series(force_vectors = [])
     data = []
-    simulation_time = Benchmark.realtime { run_simulation(NODE_RESULT_FILTER, force_vectors) }
+    simulation_time = Benchmark.realtime { run_simulation(NODE_COORDINATES_FILTER, force_vectors) }
     import_time = Benchmark.realtime { data = read_csv }
     puts("simulation time: #{simulation_time}s csv parsing time: #{import_time}s")
     data
@@ -247,7 +246,6 @@ class SimulationRunner
   end
 
   def run_simulation(filter = '*', force_vectors = [])
-    puts "run_simulation with filter: #{filter}"
     # TODO adjust sampling rate dynamically
     overrides = "outputFormat=csv,variableFilter=#{filter},startTime=0.3,stopTime=10,stepSize=0.05," \
                 "#{force_vector_string(force_vectors)},#{override_constants_string}"
