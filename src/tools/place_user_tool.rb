@@ -1,6 +1,9 @@
 # Places a user into the geometry i.e. someone who is injecting force into the system. This tool simulates the system
 # and opens a panel that shows information and the possibility to change parameters of the springs.
 class PlaceUserTool < Tool
+
+  ANGLE_ROTATION_STEP = 5.degrees
+
   def initialize(ui)
     super(ui)
     @mouse_input = MouseInput.new(snap_to_nodes: true)
@@ -37,21 +40,20 @@ class PlaceUserTool < Tool
 
   def onKeyDown(key, _repeat, flags, _view)
     super
-    angle_step = 5.degrees
 
     if key == VK_RIGHT
-      @hub.rotate_user(angle_step)
+      @hub.rotate_user(ANGLE_ROTATION_STEP)
     elsif key == VK_LEFT
-      @hub.rotate_user(-angle_step)
+      @hub.rotate_user(-ANGLE_ROTATION_STEP)
     elsif key == VK_UP
       @hub.user_transformation *=
         Geom::Transformation.rotation(
-          Geom::Point3d.new, Geom::Vector3d.new(1, 0, 0), angle_step
+          Geom::Point3d.new, Geom::Vector3d.new(1, 0, 0), ANGLE_ROTATION_STEP
         )
     elsif key == VK_DOWN
       @hub.user_transformation *=
         Geom::Transformation.rotation(
-          Geom::Point3d.new, Geom::Vector3d.new(1, 0, 0), -angle_step
+          Geom::Point3d.new, Geom::Vector3d.new(1, 0, 0), -ANGLE_ROTATION_STEP
         )
     end
   end

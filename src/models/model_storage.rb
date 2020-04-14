@@ -85,7 +85,7 @@ class ModelStorage
     return @possible_names unless @possible_names.nil?
 
     @possible_names = []
-    puts 'Loaded files:'
+    puts 'Loaded files for attachable users:'
     Dir.glob(ProjectHelper.component_directory + '/attachable_users/*.skp') do |model_file_path|
       # File scheme is '.../number-name-short_name-weight_in_grams.skp'
       # TODO: Read in the weight
