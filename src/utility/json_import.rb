@@ -287,7 +287,6 @@ module JsonImport
       json_objects['mounted_users'].each do |user_json|
         node = nodes[user_json['id']]
         node.hub.attach_user 200, name: user_json['name']
-        puts user_json['transformation']
         node.hub.user_transformation =
           rotation_around_center * (Geom::Transformation.new.set! user_json['transformation'])
         node.hub.update_user_indicator
