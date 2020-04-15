@@ -197,7 +197,6 @@ class SimulationRunner
     while keep_searching
       # puts "Current k: #{constant} Step size: #{step_size}"
       @constants_for_springs[spring_id] = constant
-      # TODO: make sure user_id is precise enough for filter
       run_simulation(filter)
       puts "constant #{constant}"
       if !data_valid_for_constrain(read_csv_numeric, id, constrain_kind)
