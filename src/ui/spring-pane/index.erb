@@ -72,7 +72,7 @@
             <div class="input-group-prepend">
               <span class="input-group-text text-monospace">m</span>
             </div>
-            <input id="mass_<%= node_id %>" type="text" placeholder="<%= user_weight %>" class="form-control" onchange="window.sketchup.user_weight_change(<%= node_id %>, this.value);"  style="text-align: right;">
+            <input id="mass_<%= node_id %>" type="text" value="<%= user_weight %>" class="form-control" onchange="window.sketchup.user_weight_change(<%= node_id %>, this.value);"  style="text-align: right;">
             <div class="input-group-append">
               <span class="input-group-text text-monospace">kg</span>
             </div>
