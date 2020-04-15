@@ -131,6 +131,14 @@ class SpringPane
 
     # display updated html
     @dialog.set_html(t.result(binding))
+    focus_main_window
+  end
+
+  # Opens a dummy dialog, to focus the main Sketchup Window again
+  def focus_main_window
+    dialog = UI::WebDialog.new("", true, "", 0, 0, 10000, 10000, true)
+    dialog.show
+    dialog.close
   end
 
   def open_dialog
