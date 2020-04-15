@@ -12,6 +12,7 @@ module Configuration
   FORCE_VIEW = 'Forces'.freeze
   HINGE_VIEW = 'Hinge lines'.freeze
   ACTUATOR_VIEW = 'Actuators'.freeze
+  MOTION_TRACE_VIEW = 'Motion Trace'.freeze
 
   # UI Dialog Properties
   HTML_DIALOG = {
