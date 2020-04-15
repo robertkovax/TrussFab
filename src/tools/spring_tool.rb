@@ -61,5 +61,8 @@ class SpringTool < ActuatorTool
       @simulation.unschedule_piston_for_testing piston, PISTON_SPEED if piston != snapped_object
       piston != snapped_object
     end
+
+    Sketchup.active_model.layers[Configuration::MOTION_TRACE_VIEW].visible =
+      @scheduled_pistons.empty?
   end
 end
