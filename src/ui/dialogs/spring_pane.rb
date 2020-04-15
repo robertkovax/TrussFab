@@ -165,6 +165,7 @@ class SpringPane
           JsonExport.graph_to_json(nil, [], constants_for_springs, mounted_users))
     end
     puts "Compiled the modelica model in #{compile_time.round(2)} seconds."
+    update_trace_visualization if @trace_visualization
   end
 
   private
