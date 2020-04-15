@@ -15,6 +15,7 @@ require_relative './generate_modelica_model.rb'
 # geometry when necessary. This class provides public interfaces for different results of the simulation.
 class SimulationRunner
   NODE_COORDINATES_FILTER = 'node_[0-9]+.r_0.*'.freeze
+  CONSTRAINS = %i[hitting_ground flipping min_max_compression].freeze
 
   def self.new_from_json_export(json_export_string)
     require_relative './generate_modelica_model.rb'
@@ -98,7 +99,7 @@ class SimulationRunner
     velocity_id = "#{ModelicaModelGenerator.identifier_for_node_id(node_id)}.v_0"
     acceleration_id = "#{ModelicaModelGenerator.identifier_for_node_id(node_id)}.a_0"
 
-    csv_data = CSV.read(File.join(@directory, "#{@model_name}_res.csv"), headers: true, converters: :numeric)
+    csv_data = read_csv_numeric
     {
       period: get_period(period_id, csv_data),
       max_acceleration: get_max_norm_and_index(acceleration_id, csv_data),
@@ -252,14 +253,34 @@ class SimulationRunner
     force_vectors_string[0...-1] if force_vectors_string.length != 0
   end
 
-  def angle_valid(data, max_allowed_delta = Math::PI / 2.0)
-    data = data.map { |data_sample| data_sample[1].to_f }
-    # remove initial data point since it's only containing the column header
-    data.shift
+  # @param [Symbol] constrain_kind specifying the kind of constrain
+  # @param [Array<Array<String>>] csv_data
+  def data_valid_for_constrain(csv_data, user_filter, constrain_kind)
+    # TODO: for now we only optimize for not hitting the ground
+    case constrain_kind
+    when :hitting_ground
+      vectors = csv_result_to_vectors(user_filter, csv_data)
+      z_coordinates = vectors.map { |v| v[2] }
+      puts "min z #{z_coordinates.min}"
+      return z_coordinates.min > 0
+    when :flipping
+      raise NotImplementedError
+    when :min_max_compression
+      raise NotImplementedError
+    end
+    return false
+  end
 
-    delta = data.max - data.min
-    puts "delta: #{delta} maxdelta: #{max_allowed_delta} max: #{data.max}, min: #{data.min}, "
-    delta < max_allowed_delta
+  # @param [String] key
+  # @param [Array] csv_data
+  # @return [Array<Vector>] vectors
+  def csv_result_to_vectors(key, csv_data)
+    vectors = []
+    csv_data["#{key}[1]"].each_with_index do |value, index|
+      vector = Vector.elements([value.to_f, csv_data["#{key}[2]"][index].to_f, csv_data["#{key}[3]"][index].to_f])
+      vectors << vector
+    end
+    vectors
   end
 
   def run_compilation
@@ -284,6 +305,10 @@ class SimulationRunner
 
   def read_csv
     CSV.read(File.join(@directory, "#{@model_name}_res.csv"))
+  end
+
+  def read_csv_numeric
+    CSV.read(File.join(@directory, "#{@model_name}_res.csv"), headers: true, converters: :numeric)
   end
 
 end
