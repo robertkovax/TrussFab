@@ -164,25 +164,42 @@ class SimulationRunner
     raw_data.index(equilibrium_data_row)
   end
 
+  # OPTIMIZATION LOGIC
+
+  # TODO: adjust comment
   # This function approximates a optimum (= the biggest spring constant that makes the spring still stay in the angle
   # constrains) by starting with a very low spring constant (which leads to a very high oscillation => high angle delta)
   # and approaches the optimum by approaching with different step sizes (= resolutions of the search), decreasing the
   # step size as soon as the spring constant is not valid anymore and thus approximating the highest valid spring
   # constant.
-  def constant_for_constrained_angle(allowed_angle_delta = Math::PI / 2.0, spring_id = 25, initial_constant = 500)
-    # steps which the algorithm uses to approximate the valid spring constant
+  # @param [Symbol] constrain_kind specifying the kind of constrain
+  # @param [String] spring_id
+  def optimize_spring_for_constrain(spring_id, user_id, constrain_kind)
+    # TODO: probably we want to specify into which direction we want to go (in our search), right now we decrease the constant
+    # TODO: this only works for one spring atm
+    # TODO: make sure constant is small enough in the beginning
 
-    angle_filter = @angles_for_springs[spring_id]
+    # TODO: remove these mocked spring and user ids
+    spring_id = @constants_for_springs.keys[0]
+    user_id = @mounted_users.keys[0]
+    #constant = initial_constant = @constants_for_springs[spring_id]
+    constant = initial_constant = 100
+    id = "#{ModelicaModelGenerator.identifier_for_node_id(user_id)}.r_0"
+    filter = "#{id}.*"
+
     step_sizes = [1500, 1000, 200, 50, 5]
-    constant = initial_constant
+
     step_size = step_sizes.shift
     keep_searching = true
     abort_threshold = 50_000
+
     while keep_searching
       # puts "Current k: #{constant} Step size: #{step_size}"
       @constants_for_springs[spring_id] = constant
-      run_simulation(angle_filter)
-      if !angle_valid(read_csv, allowed_angle_delta)
+      # TODO: make sure user_id is precise enough for filter
+      run_simulation(filter)
+      puts "constant #{constant}"
+      if !data_valid_for_constrain(read_csv_numeric, id, constrain_kind)
         # increase spring constant to decrease angle delta
         constant += step_size
       elsif !step_sizes.empty?
@@ -200,7 +217,11 @@ class SimulationRunner
       keep_searching = false if constant >= abort_threshold
     end
 
-    constant
+    @constants_for_springs[spring_id] = constant
+
+    # TODO: use spring catalog / picking logic from spring_picker.rb to pick the fitting spring (get_spring)
+    # TODO: right now we're just setting the constant to the exact value (without checking if there really is a spring
+    # TODO: with that constant)
   end
 
   private
