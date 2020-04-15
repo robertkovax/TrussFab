@@ -62,6 +62,11 @@ class SimulationRunnerClient
     p json_response_from_server('get_constant_for_constrained_angle')
   end
 
+  def self.optimize_spring_for_constrain
+    # we don't do that for now.
+    p json_response_from_server("optimize/hitting_ground", json_data = nil)
+  end
+
   private
 
   def self.json_response_from_server(route, json_data = nil)

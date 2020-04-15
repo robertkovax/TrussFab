@@ -31,7 +31,7 @@ class SpringPane
 
     @spring_picker = SpringPicker.instance
 
-    @force_vectors = [{ node_id: 4, x: 1000, y: 0, z: 0 }]
+    @force_vectors = []
 
     @dialog = nil
     open_dialog
@@ -224,6 +224,12 @@ class SpringPane
     update_dialog
   end
 
+  def optimize
+    SimulationRunnerClient.optimize_spring_for_constrain()
+    update_stats
+    update_trace_visualization
+  end
+
   def create_animation
     @animation = GeometryAnimation.new(@simulation_data) do
       @animation_running = false
@@ -243,6 +249,10 @@ class SpringPane
 
     @dialog.add_action_callback('spring_insights_toggle_play') do
       toggle_animation
+    end
+
+    @dialog.add_action_callback('spring_insights_optimize') do
+      optimize
     end
 
     @dialog.add_action_callback('user_weight_change') do |_, node_id, value|
