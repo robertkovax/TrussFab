@@ -49,7 +49,7 @@
   <h5 class="card-title">User parameters</h5>
   <div class="card-body">
     <%
-      mounted_users.each { |node_id, user_force|
+      mounted_users.each { |node_id, user_weight|
         stats = @user_stats[node_id]
         digits_precision = 2
     %>
@@ -72,7 +72,7 @@
             <div class="input-group-prepend">
               <span class="input-group-text text-monospace">m</span>
             </div>
-            <input id="mass_<%= node_id %>" type="text" placeholder="<%= user_force %>" readonly class="form-control" style="text-align: right;">
+            <input id="mass_<%= node_id %>" type="text" value="<%= user_weight %>" class="form-control" onchange="window.sketchup.user_weight_change(<%= node_id %>, this.value);"  style="text-align: right;">
             <div class="input-group-append">
               <span class="input-group-text text-monospace">kg</span>
             </div>
@@ -85,7 +85,7 @@
             <div class="input-group-prepend">
               <span class="input-group-text text-monospace">a<sub>max</sub></span>
             </div>
-            <input id="max_a_<%= node_id %>" type="text" placeholder="<%= stats['max_acceleration'].round(digits_precision) %>" readonly class="form-control" style="text-align: right;">
+            <input id="max_a_<%= node_id %>" type="text" placeholder="<%= stats['max_acceleration']['value'].round(digits_precision) %>" readonly class="form-control" style="text-align: right;">
             <div class="input-group-append">
               <span class="input-group-text text-monospace">m/s<sup>2</sup></span>
             </div>
@@ -96,7 +96,7 @@
             <div class="input-group-prepend">
               <span class="input-group-text text-monospace">v<sub>max</sub></span>
             </div>
-            <input id="max_v_<%= node_id %>" type="text" placeholder="<%= stats['max_velocity'].round(digits_precision) %>" readonly class="form-control" style="text-align: right;">
+            <input id="max_v_<%= node_id %>" type="text" placeholder="<%= stats['max_velocity']['value'].round(digits_precision) %>" readonly class="form-control" style="text-align: right;">
             <div class="input-group-append">
               <span class="input-group-text text-monospace">m/s</span>
             </div>

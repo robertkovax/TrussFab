@@ -150,4 +150,9 @@ module Configuration
 
   # TrussSprings
   DISTANCE_TO_INSET_ROTARY_HUBS = 65.mm
+  # Trace visualization constants:
+  # Delta of oscillation positions to plane that still counts as planar.
+  DISTANCE_TO_PLANE_THRESHOLD = 10.0
+  # What duration the trace visualization should span if the oscillation is not planar, in seconds.
+  NON_PLANAR_TRACE_DURATION = 10
 end

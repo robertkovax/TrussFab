@@ -131,6 +131,14 @@ class SpringPane
 
     # display updated html
     @dialog.set_html(t.result(binding))
+    focus_main_window
+  end
+
+  # Opens a dummy dialog, to focus the main Sketchup Window again
+  def focus_main_window
+    dialog = UI::WebDialog.new("", true, "", 0, 0, 10000, 10000, true)
+    dialog.show
+    dialog.close
   end
 
   def open_dialog
@@ -183,7 +191,7 @@ class SpringPane
       hub = node.hub
       next unless hub.is_user_attached
 
-      mounted_users[node_id] = hub.user_force
+      mounted_users[node_id] = hub.user_weight
     end
     mounted_users
   end
@@ -205,7 +213,7 @@ class SpringPane
   end
 
   def toggle_animation
-    simulate unless @simulation_data
+    simulate
     if @animation && @animation.running
       @animation.stop
       @animation_running = false
@@ -235,6 +243,13 @@ class SpringPane
 
     @dialog.add_action_callback('spring_insights_toggle_play') do
       toggle_animation
+    end
+
+    @dialog.add_action_callback('user_weight_change') do |_, node_id, value|
+      weight = value.to_i
+      Graph.instance.nodes[node_id].hub.attach_user(weight)
+      update_mounted_users
+      puts "Update user weight: #{weight}"
     end
   end
 
