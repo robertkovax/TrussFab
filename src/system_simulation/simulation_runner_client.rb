@@ -36,11 +36,11 @@ class SimulationRunnerClient
     request = Net::HTTP::Patch.new(uri.request_uri, header)
     request.body = json_data
 
-    response = http.request(request)
+    http.request(request)
   end
 
-  def self.get_period(node_id)
-    json_response_from_server("get_period/#{node_id}")['period']
+  def self.get_user_stats(node_id)
+    json_response_from_server("get_user_stats/#{node_id}")
   end
 
   def self.get_hub_time_series(force_vectors = nil)
