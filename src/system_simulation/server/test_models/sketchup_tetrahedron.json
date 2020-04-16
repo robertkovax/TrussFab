@@ -97,7 +97,7 @@
       "id": 5,
       "n1": 2,
       "n2": 4,
-      "type": "bottle_link",
+      "type": "spring",
       "bottle_type": "Pipe(60cm)",
       "piston_group": -1,
       "e1": 34.6407517547778,
@@ -121,5 +121,9 @@
     3,
     2,
     1
-  ]
+  ],
+
+  "spring_constants" : {
+    "5": 500
+  }
 }
