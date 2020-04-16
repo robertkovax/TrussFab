@@ -1,7 +1,6 @@
 # Places a user into the geometry i.e. someone who is injecting force into the system. This tool simulates the system
 # and opens a panel that shows information and the possibility to change parameters of the springs.
 class PlaceUserTool < Tool
-
   ANGLE_ROTATION_STEP = 5.degrees
 
   def initialize(ui)

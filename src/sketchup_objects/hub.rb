@@ -88,7 +88,7 @@ class Hub < PhysicsSketchupObject
     point = Geom::Point3d.new(@position)
     point.z += 1
     translation = Geom::Transformation.translation(point)
-    @user_indicator = Sketchup.active_model.active_entities.add_instance(@user_indicator_definition, translation * additional_transformation *@user_transformation)
+    @user_indicator = Sketchup.active_model.active_entities.add_instance(@user_indicator_definition, translation * additional_transformation * @user_transformation)
     Sketchup.active_model.commit_operation
   end
 
