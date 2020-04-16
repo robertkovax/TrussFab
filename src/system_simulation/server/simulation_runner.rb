@@ -14,7 +14,7 @@ require_relative './generate_modelica_model.rb'
 # including spring oscillations) are run. Right now we use Modelica and compile / simulate a modelica model of our
 # geometry when necessary. This class provides public interfaces for different results of the simulation.
 class SimulationRunner
-  NODE_RESULT_FILTER = 'node_[0-9]+.r_0.*'.freeze
+  NODE_RESULT_FILTER = 'node_[0-9]+\.r_0\[\d+\]'.freeze
 
   class SimulationError < StandardError
   end
@@ -47,7 +47,7 @@ class SimulationRunner
   end
 
   def initialize(model_name = "seesaw3", spring_constants = {}, spring_identifiers = {}, mounted_users = {},
-                 suppress_compilation = false, keep_temp_dir = true)
+                 suppress_compilation = false, keep_temp_dir = false)
 
     @model_name = model_name
     @simulation_options = ''
@@ -122,7 +122,7 @@ class SimulationRunner
     z = data["#{id}[3]"].to_gv.fft.subvector(1, time_steps - 2).to_complex2
 
     mag = x.abs + y.abs + z.abs
-    f = GSL::Vector.linspace(0, sample_rate/2, mag.size)
+    f = GSL::Vector.linspace(0, sample_rate, mag.size)
 
     # p f.to_a
     # p mag.to_a

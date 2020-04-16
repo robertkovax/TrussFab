@@ -8,7 +8,7 @@ task :compile do
 end
 
 task :test_seesaw_simulation do
-  file = File.read("./test_models/sketchup_tetrahedron.json")
+  file = File.read("./test_models/seesaw_3.json")
   sim = SimulationRunner.new_from_json_export(file)
   p sim.run_simulation
 end
@@ -22,8 +22,6 @@ end
 task :test_seesaw_linearization do
   file = File.read("./test_models/sketchup_tetrahedron.json")
   sim = SimulationRunner.new_from_json_export(file)
-  # run_simulation
-  # p sim.get_system_matrix
 end
 
 task :test_get_period do
@@ -32,10 +30,7 @@ end
 
 task :parse_linear_state_space_model do
   model = LinearStateSpaceModel.new("./test_models/linear_tetra.mo")
-  # puts model.inspect
   puts model.eigenfreq
-  # model.resolve_inputs
-  # model.cp_to_jupyter
 end
 
 task default: %w[test]

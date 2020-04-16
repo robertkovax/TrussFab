@@ -1,12 +1,29 @@
-include Math
 require 'gsl'
 
-
 class LinearStateSpaceModel
+  ##
+  # This class represents (in control theory terms) a (MIMO) system that has been linarized
+  # A system here is a entity that takes one or multiple time-series as inputs and returns one
+  # or multiple time series
+  #
+  # Linearization is a process where all non-linear equations are approximated with a
+  # linar representation to be able to conduct further analysis
+  #
+  # Every Linear Model is defined by 4 matricies and 2 Vectors:
+  # A: System Matrix (governs how the model behaves ie. how internal states are changing themselves)
+  # B: Input Matrix (governs how the input influences the system)
+  # C: Ouput Matrix (how the internal states translte into the output)
+  # D: Passtrhough Matrix (used if inputs can directly alter outputs (seldom in this use-case))
+  # vector u0: Initial/default inputs
+  # vector x0: Initial conditions of the internal states
+  #
+  # The class is created by parsing the result of a Modelica linarization (see SimulationRunner)
+  # This file also contains semantic labels to make sense of inputs, outputs and internal states.
+
   def initialize(path)
 
     File.readlines(path).each do |line|
-      # TODO parse initial condition
+      # TODO parse initial condition (x0) of system
       if LinearStateSpaceModel.is_matrix(line)
 
         is_zero = false
