@@ -14,7 +14,7 @@ require_relative './generate_modelica_model.rb'
 # including spring oscillations) are run. Right now we use Modelica and compile / simulate a modelica model of our
 # geometry when necessary. This class provides public interfaces for different results of the simulation.
 class SimulationRunner
-  NODE_RESULT_FILTER = 'node_[0-9]+\.r_0\[\d+\]'.freeze
+  NODE_RESULT_FILTER = 'node_[0-9]+\.r_0.*'.freeze
 
   class SimulationError < StandardError
   end
@@ -53,7 +53,8 @@ class SimulationRunner
     @simulation_options = ''
     @simulation_options += ' -lv=LOG_STATS '
     # @simulation += "lv=LOG_INIT_V,LOG_SIMULATION,LOG_STATS,LOG_JAC,LOG_NLS"
-    @compilation_options = ' --maxMixedDeterminedIndex=100 -n=4 --generateSymbolicLinearization --generateSymbolicJacobian'
+    @compilation_options = '-n=4'
+    #@compilation_options += ' --maxMixedDeterminedIndex=100 -n=4 --generateSymbolicLinearization --generateSymbolicJacobian'
 
     if suppress_compilation
       @directory = File.dirname(__FILE__)

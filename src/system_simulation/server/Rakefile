@@ -10,7 +10,7 @@ end
 task :test_seesaw_simulation do
   file = File.read("./test_models/seesaw_3.json")
   sim = SimulationRunner.new_from_json_export(file)
-  p sim.run_simulation
+  p sim.get_hub_time_series
 end
 
 task :test_spring_length_initilization do
