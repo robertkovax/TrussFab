@@ -93,6 +93,16 @@ class SimulationRunner
     data
   end
 
+  def get_spring_extensions
+    run_compilation
+    run_simulation("edge_from_[0-9]+_to_[0-9]+_spring.*")
+    result = read_csv
+    frame0 = Hash[result[0].zip(result[1].map{|val| val.to_f})]
+    @identifiers_for_springs.map{|spring_id, modelica_spring|
+      [spring_id, frame0["#{modelica_spring}.s_rel0"] - (frame0["#{modelica_spring}.f"] / frame0["#{modelica_spring}.c"])]
+    }.to_h
+  end
+
   def get_period(node_id)
     id = "#{ModelicaModelGenerator.identifier_for_node_id(node_id)}.r_0"
     filter = "#{id}.*"
