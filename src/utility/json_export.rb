@@ -61,7 +61,7 @@ class JsonExport
 
       users << {
         id: id,
-        name: node.hub.user_indicator_name,
+        filename: node.hub.user_indicator_filename,
         transformation: node.hub.user_transformation.to_a,
         weight: node.hub.user_weight
       }

@@ -89,9 +89,10 @@ class ModelStorage
       # File scheme is '.../name-weight_in_kilograms.skp'
       # e.g.: '../child-100.skp' would have the name child with the weight of
       # 100 kg
-      file_name = File.basename(model_file_path, '.skp')
-      name, weight = file_name.split('-')
-      @attachable_users[name] = UserIndicatorModel.new(name: name, weight: weight)
+      filename = File.basename(model_file_path)
+      next unless /^[^-]*-\d*.skp\z/ =~ filename
+
+      @attachable_users[filename] = UserIndicatorModel.new(filename: filename)
     end
     @attachable_users
   end

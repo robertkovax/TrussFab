@@ -5,7 +5,7 @@ require 'src/simulation/simulation.rb'
 # Hub
 class Hub < PhysicsSketchupObject
   attr_accessor :position, :body, :mass, :arrow, :user_weight
-  attr_reader :force, :is_user_attached, :user_transformation
+  attr_reader :force, :is_user_attached, :user_transformation, :user_indicator_filename
 
   def initialize(position, id: nil, incidents: nil, material: 'hub_material')
     super(id, material: material)
@@ -90,10 +90,6 @@ class Hub < PhysicsSketchupObject
     translation = Geom::Transformation.translation(point)
     @user_indicator = Sketchup.active_model.active_entities.add_instance(@user_indicator_definition, translation * additional_transformation * @user_transformation)
     Sketchup.active_model.commit_operation
-  end
-
-  def user_indicator_name
-    @user_indicator_name
   end
 
   def user_transformation=(transformation)
@@ -212,17 +208,17 @@ class Hub < PhysicsSketchupObject
     @is_sensor
   end
 
-  def attach_user(weight: nil, name:)
+  def attach_user(weight: nil, filename:)
     @is_user_attached = true
-    user_indicator = ModelStorage.instance.attachable_users[name]
+    user_indicator = ModelStorage.instance.attachable_users[filename]
     @user_indicator_definition = user_indicator.definition
 
     # If weight is set, overwrite it, otherwise take the default from the
     # definition
-    @user_weight = user_indicator.weight unless weight
+    @user_weight = user_indicator.default_weight unless weight
     @user_weight = weight if weight
 
-    @user_indicator_name = name
+    @user_indicator_filename = user_indicator.filename
     update_user_indicator
   end
 

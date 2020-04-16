@@ -67,6 +67,7 @@ class ImportTool < Tool
     snapped_object = @mouse_input.snapped_object
     import_from_json(@path, snapped_object, @mouse_input.position)
     @ui.animation_pane.sync_hidden_status(Graph.instance.actuator_groups)
+    @ui.spring_pane.update_mounted_users
     @ui.spring_pane.update_springs
 
     @mouse_input.update_positions(view, x, y)
@@ -76,6 +77,7 @@ class ImportTool < Tool
   def setup_new_edges(new_edges, animation)
     new_edges.each do |edge|
       next unless edge.link.is_a?(ActuatorLink)
+
       if edge.link.piston_group < 0
         edge.link.piston_group = IdManager.instance.maximum_piston_group + 1
       end
