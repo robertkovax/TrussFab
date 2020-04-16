@@ -193,7 +193,7 @@ class SimulationRunner
     id = "#{ModelicaModelGenerator.identifier_for_node_id(user_id)}.r_0"
     filter = "#{id}.*"
 
-    step_sizes = [1500, 1000, 200, 50, 5]
+    step_sizes = [10000, 1000, 200, 50]
 
     step_size = step_sizes.shift
     keep_searching = true
