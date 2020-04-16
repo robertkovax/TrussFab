@@ -45,7 +45,8 @@ get '/get_equilibrium' do
 end
 
 get '/optimize/hitting_ground' do
-  sim.optimize_spring_for_constrain("", "", :hitting_ground)
+
+  sim.optimize_springs(:hitting_ground)
   # TODO: return status
   return_message = { }
   return_message.to_json

@@ -167,6 +167,14 @@ class SimulationRunner
 
   # OPTIMIZATION LOGIC
 
+  def optimize_springs(constrain_kind)
+    # TODO: remove these mocked spring and user ids
+    user_id = @mounted_users.keys[0]
+    @constants_for_springs.each do |spring_id, constant|
+      optimize_spring_for_constrain(spring_id, user_id, constrain_kind)
+    end
+  end
+
   # TODO: adjust comment
   # This function approximates a optimum (= the biggest spring constant that makes the spring still stay in the angle
   # constrains) by starting with a very low spring constant (which leads to a very high oscillation => high angle delta)
@@ -180,9 +188,6 @@ class SimulationRunner
     # TODO: this only works for one spring atm
     # TODO: make sure constant is small enough in the beginning
 
-    # TODO: remove these mocked spring and user ids
-    spring_id = @constants_for_springs.keys[0]
-    user_id = @mounted_users.keys[0]
     #constant = initial_constant = @constants_for_springs[spring_id]
     constant = initial_constant = 100
     id = "#{ModelicaModelGenerator.identifier_for_node_id(user_id)}.r_0"
@@ -217,6 +222,7 @@ class SimulationRunner
       keep_searching = false if constant >= abort_threshold
     end
 
+    puts "Optimized spring ##{spring_id} – constant: #{constant}N/m"
     @constants_for_springs[spring_id] = constant
 
     # TODO: use spring catalog / picking logic from spring_picker.rb to pick the fitting spring (get_spring)
