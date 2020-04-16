@@ -14,7 +14,7 @@ require_relative './generate_modelica_model.rb'
 # including spring oscillations) are run. Right now we use Modelica and compile / simulate a modelica model of our
 # geometry when necessary. This class provides public interfaces for different results of the simulation.
 class SimulationRunner
-  NODE_COORDINATES_FILTER = 'node_[0-9]+.r_0.*'.freeze
+  NODE_RESULT_FILTER = 'node_[0-9]+.r_0.*'.freeze
 
   class SimulationError < StandardError
   end
@@ -51,10 +51,9 @@ class SimulationRunner
 
     @model_name = model_name
     @simulation_options = ''
-    # @simulation_options += "-abortSlowSimulation"
     @simulation_options += ' -lv=LOG_STATS '
     # @simulation += "lv=LOG_INIT_V,LOG_SIMULATION,LOG_STATS,LOG_JAC,LOG_NLS"
-    @compilation_options = ' --maxMixedDeterminedIndex=100 -n=4'
+    @compilation_options = ' --maxMixedDeterminedIndex=100 -n=4 --generateSymbolicLinearization --generateSymbolicJacobian'
 
     if suppress_compilation
       @directory = File.dirname(__FILE__)
@@ -88,7 +87,7 @@ class SimulationRunner
 
   def get_hub_time_series(force_vectors = [])
     data = []
-    simulation_time = Benchmark.realtime { run_simulation(NODE_COORDINATES_FILTER, force_vectors) }
+    simulation_time = Benchmark.realtime { run_simulation(NODE_RESULT_FILTER, force_vectors) }
     import_time = Benchmark.realtime { data = read_csv }
     puts("simulation time: #{simulation_time}s csv parsing time: #{import_time}s")
     data
@@ -244,7 +243,7 @@ class SimulationRunner
 
   def run_simulation(filter = '*', force_vectors = [])
     # TODO adjust sampling rate dynamically
-    overrides = "outputFormat=csv,variableFilter=#{filter},startTime=0.3,stopTime=10,stepSize=0.05," \
+    overrides = "outputFormat=csv,variableFilter=#{filter},startTime=0.3,stopTime=10,stepSize=0.05" \
                 "#{force_vector_string(force_vectors)},#{override_constants_string}"
     command = "./#{@model_name} #{@simulation_options} -override=\"#{overrides}\""
     puts(command)

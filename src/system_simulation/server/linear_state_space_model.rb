@@ -1,23 +1,13 @@
+include Math
 require 'gsl'
 
-def is_matrix(line)
-  /^  parameter Real [A-D]/.match?(line)
-end
-
-def is_vector(line)
-  /^  parameter Real [ux]0/.match?(line)
-end
-
-def is_label(line)
-  /^  Real \'/.match?(line)
-end
 
 class LinearStateSpaceModel
   def initialize(path)
 
     File.readlines(path).each do |line|
       # TODO parse initial condition
-      if is_matrix(line)
+      if LinearStateSpaceModel.is_matrix(line)
 
         is_zero = false
         line_match = /^  parameter Real (?<matrix_name>[A-D]).*= \[(?<matrix_data>.*)\];$/.match(line)
@@ -33,17 +23,28 @@ class LinearStateSpaceModel
             raise "Invalid Matrix format in linearized Modelica output file"
           end
         end
-          # TODO generate empty matrix
-      # TODO finishe GSL to Matrix parsing
-
-      elsif is_vector(line)
+          # TODO generate zero matrices
+      elsif LinearStateSpaceModel.is_vector(line)
         line_match = /^  parameter Real (?<vector_name>[ux]0).*= \{(?<vector_data>.*)\};$/.match(line)
-        vec = line_match[:vector_data].split(', ').map{|cell| cell.to_f }
+        vec = line_match[:vector_data].split(', ').map{|cell| "%f" % cell.to_f }
         store_vector(line_match[:vector_name], GSL::Vector[*vec])
-      elsif is_label(line)
+      elsif LinearStateSpaceModel.is_label(line)
         line_match = /^  Real \'(?<label_name>.*)\' = (?<label_category>[ux])\[(?<label_number>\d+)\];/.match(line)
       end
     end
+  end
+
+  def eigenfreq
+    val, vec = @A.eigen_nonsymm
+    p val.to_a
+    p vec.to_a
+
+    # f = GSL::Vector.linspace(0, 100, val.size)
+    GSL::graph(val.re, val.im, "-C -g 3")
+  end
+
+  def check_input(input_vector)
+    @A * @x0 == @B * input_vector
   end
 
   def store_vector(identifyer, vector)
@@ -65,4 +66,17 @@ class LinearStateSpaceModel
       @D = matrix
     end
   end
+
+  def self.is_matrix(line)
+    /^  parameter Real [A-D]/.match?(line)
+  end
+
+  def self.is_vector(line)
+    /^  parameter Real [ux]0/.match?(line)
+  end
+
+  def self.is_label(line)
+    /^  Real \'/.match?(line)
+  end
+
 end
