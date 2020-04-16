@@ -5,10 +5,10 @@ require 'benchmark'
 require 'fileutils'
 require 'tmpdir'
 require 'csv'
+require 'matrix'
 
 require_relative '../animation_data_sample.rb'
 require_relative './generate_modelica_model.rb'
-
 
 # This class encapsulates the way of how system simulations (physically correct simulations of the dynamic system,
 # including spring oscillations) are run. Right now we use Modelica and compile / simulate a modelica model of our
@@ -84,7 +84,6 @@ class SimulationRunner
     @mounted_users = mounted_users
   end
 
-
   def get_hub_time_series(force_vectors = [])
     data = []
     simulation_time = Benchmark.realtime { run_simulation(NODE_RESULT_FILTER, force_vectors) }
@@ -103,23 +102,46 @@ class SimulationRunner
     }.to_h
   end
 
-  def get_period(node_id)
-    id = "#{ModelicaModelGenerator.identifier_for_node_id(node_id)}.r_0"
+  def get_user_stats(node_id)
+    id = "#{ModelicaModelGenerator.identifier_for_node_id(node_id)}.[r,a,v]_0"
     filter = "#{id}.*"
     run_simulation(filter)
+    period_id = "#{ModelicaModelGenerator.identifier_for_node_id(node_id)}.r_0"
+    velocity_id = "#{ModelicaModelGenerator.identifier_for_node_id(node_id)}.v_0"
+    acceleration_id = "#{ModelicaModelGenerator.identifier_for_node_id(node_id)}.a_0"
 
+    csv_data = CSV.read(File.join(@directory, "#{@model_name}_res.csv"), headers: true, converters: :numeric)
+    {
+      period: get_period(period_id, csv_data),
+      max_acceleration: get_max_norm_and_index(acceleration_id, csv_data),
+      max_velocity: get_max_norm_and_index(velocity_id, csv_data)
+    }
+  end
+
+  def get_max_norm_and_index(id, csv_data)
+    max_norm = 0
+    max_index = 0
+    csv_data["#{id}[1]"].each_with_index do |value, index|
+      norm = Vector.elements([value.to_f, csv_data["#{id}[2]"][index].to_f, csv_data["#{id}[3]"][index].to_f]).norm
+      if norm > max_norm
+        max_norm = norm
+        max_index = index
+      end
+    end
+    { value: max_norm, index: max_index }
+  end
+
+  def get_period(id, csv_data)
     require 'gsl'
 
-    data = CSV.read(File.join(@directory, "#{@model_name}_res.csv"), :headers=>true, :converters => :numeric)
-
-    time_steps = data.length
-    time_step_size = data['time'][1] - data['time'][0]
+    time_steps = csv_data.length
+    time_step_size = csv_data['time'][1] - csv_data['time'][0]
     sample_rate = time_step_size * time_steps
 
     # https://github.com/SciRuby/rb-gsl/blob/master/examples/fft/fft.rb
-    x = data["#{id}[1]"].to_gv.fft.subvector(1, time_steps - 2).to_complex2
-    y = data["#{id}[2]"].to_gv.fft.subvector(1, time_steps - 2).to_complex2
-    z = data["#{id}[3]"].to_gv.fft.subvector(1, time_steps - 2).to_complex2
+    x = csv_data["#{id}[1]"].to_gv.fft.subvector(1, time_steps - 2).to_complex2
+    y = csv_data["#{id}[2]"].to_gv.fft.subvector(1, time_steps - 2).to_complex2
+    z = csv_data["#{id}[3]"].to_gv.fft.subvector(1, time_steps - 2).to_complex2
 
     mag = x.abs + y.abs + z.abs
     f = GSL::Vector.linspace(0, sample_rate, mag.size)
@@ -193,7 +215,6 @@ class SimulationRunner
     constant
   end
 
-
   def get_system_matrix
     run_linearization
   end
@@ -206,8 +227,8 @@ class SimulationRunner
       override_string += "#{spring_identifier}.c=#{@constants_for_springs[edge_id]},"
     end
 
-    @mounted_users.each do |node_id, force|
-      override_string += "node_#{node_id}.m=#{force},"
+    @mounted_users.each do |node_id, weight|
+      override_string += "node_#{node_id}.m=#{weight},"
     end
 
     # remove last comma
@@ -272,7 +293,7 @@ class SimulationRunner
     puts(command)
     Open3.popen2e(command, chdir: @directory) do |i, o, t|
       o.each { |l| puts l }
-      if not t.value.success?
+      unless t.value.success?
         raise SimulationError, "Linearization failed."
       end
       LinearStateSpaceModel.new(File.join(@directory, "linear_#{@model_name}.mo"))
@@ -285,4 +306,3 @@ class SimulationRunner
   end
 
 end
-

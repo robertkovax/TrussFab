@@ -370,8 +370,25 @@ class Simulation
     @moving_pistons.push(id: edge.id.to_i, expanding: true, speed: speed)
   end
 
+  # Remove the edge from the scheduled pistons that are moved
   def unschedule_piston_for_testing(edge, speed = 0.4)
-    @moving_pistons.delete(id: edge.id.to_i, expanding: true, speed: speed)
+    edge_id = edge.id.to_i
+    moving_piston_index = @moving_pistons.find_index do |each|
+      each[:id] == edge_id
+    end
+    return unless moving_piston_index
+
+    moving_piston_entry = @moving_pistons[moving_piston_index]
+    link = @pistons[moving_piston_entry[:id]]
+    joint = link.joint
+    if joint && joint.valid?
+      joint.controller = 0 # Reset to neutral position
+    end
+
+    # Remove the entry out of the array
+    @moving_pistons.delete_if do |each|
+      each[:id] == edge_id
+    end
   end
 
   def reset_tested_pistons
@@ -699,7 +716,7 @@ class Simulation
     Configuration::WORLD_NUM_ITERATIONS.times do
       update_forces
       @world.update_timestep = 1.0 / (@fps.nil? ? 60 : @fps)
-      @ui.change_timeline_factor((@fps.nil? ? 60 : @fps) / 60.0)
+      @ui.change_timeline_factor((@fps.nil? ? 60 : @fps) / 60.0) if @ui
       @world.advance
       # We need to record this every time the world updates, otherwise,
       # we might skip the crucial forces involved
@@ -730,6 +747,9 @@ class Simulation
   def update_hub_addons
     Graph.instance.nodes.values.each do |node|
       node.hub.move_addons(node.position)
+
+      # TODO(XPerianer): this is a little bit laggy
+      node.hub.update_user_indicator
     end
   end
 

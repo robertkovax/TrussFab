@@ -26,8 +26,8 @@ class SpringPane
     @trace_visualization = nil
     @animation_running = false
 
-    # node_id => period
-    @user_periods = {}
+    # { node_id => {period: float, max_a: float, max_v: float } }
+    @user_stats = {}
 
     @spring_picker = SpringPicker.instance
 
@@ -49,11 +49,9 @@ class SpringPane
     # notify simulation runner about changed constants
     SimulationRunnerClient.update_spring_constants(constants_for_springs)
 
-    # update simulation data and visualizations with adjusted results
-    simulate
-    update_periods
+    update_stats
     # TODO: fix and reenable
-    #put_geometry_into_equilibrium(spring_id)
+    # put_geometry_into_equilibrium(spring_id)
     update_trace_visualization
 
 
@@ -62,7 +60,6 @@ class SpringPane
 
   def force_vectors=(vectors)
     @force_vectors = vectors
-    simulate
     update_trace_visualization
     play_animation
   end
@@ -78,27 +75,26 @@ class SpringPane
 
   def update_mounted_users
     SimulationRunnerClient.update_mounted_users(mounted_users)
-    update_periods
+    update_stats
     update_dialog if @dialog
     update_trace_visualization
   end
 
-  def update_periods
+  def update_stats
     mounted_users.keys.each do |node_id|
-      period = SimulationRunnerClient.get_period(node_id)
-      period = period.round(2) if period
-      # catch invalid periods
-      period ||= 'NaN'
-      @user_periods[node_id] = period
-      set_period(node_id, period)
+      stats = SimulationRunnerClient.get_user_stats(node_id)
+      @user_stats[node_id] = stats
     end
   end
 
   def update_trace_visualization
+    # update simulation data and visualizations with adjusted results
+    simulate
+
     @trace_visualization ||= TraceVisualization.new
     @trace_visualization.reset_trace
     # visualize every node with a mounted user
-    @trace_visualization.add_trace(mounted_users.keys.map(&:to_s), 4, @simulation_data, @user_periods)
+    @trace_visualization.add_trace(mounted_users.keys.map(&:to_s), 4, @simulation_data, @user_stats)
   end
 
   def put_geometry_into_equilibrium(spring_id)
@@ -122,11 +118,6 @@ class SpringPane
   end
 
   # dialog logic:
-
-  def set_period(node_id, value)
-    @dialog.execute_script("set_period(#{node_id}, #{value})")
-  end
-
   def set_constant(value, spring_id = 25)
     @dialog.execute_script("set_constant(#{spring_id},#{value})")
   end
@@ -140,6 +131,14 @@ class SpringPane
 
     # display updated html
     @dialog.set_html(t.result(binding))
+    focus_main_window
+  end
+
+  # Opens a dummy dialog, to focus the main Sketchup Window again
+  def focus_main_window
+    dialog = UI::WebDialog.new("", true, "", 0, 0, 10000, 10000, true)
+    dialog.show
+    dialog.close
   end
 
   def open_dialog
@@ -148,11 +147,10 @@ class SpringPane
     props = {
       resizable: true,
       preferences_key: 'com.trussfab.spring_insights',
-      width: 250,
+      width: 300,
       height: 50 + @spring_edges.length * 200,
-      left: 5,
-      top: 5,
-      # max_height: @height
+      left: 500,
+      top: 500,
       style: UI::HtmlDialog::STYLE_DIALOG
     }
 
@@ -161,7 +159,6 @@ class SpringPane
     content = File.read(file_path)
     t = ERB.new(content)
     @dialog.set_html(t.result(binding))
-    @dialog.set_position(500, 500)
     @dialog.show
     register_callbacks
   end
@@ -194,7 +191,7 @@ class SpringPane
       hub = node.hub
       next unless hub.is_user_attached
 
-      mounted_users[node_id] = hub.user_force
+      mounted_users[node_id] = hub.user_weight
     end
     mounted_users
   end
@@ -216,7 +213,7 @@ class SpringPane
   end
 
   def toggle_animation
-    simulate unless @simulation_data
+    simulate
     if @animation && @animation.running
       @animation.stop
       @animation_running = false
@@ -246,6 +243,13 @@ class SpringPane
 
     @dialog.add_action_callback('spring_insights_toggle_play') do
       toggle_animation
+    end
+
+    @dialog.add_action_callback('user_weight_change') do |_, node_id, value|
+      weight = value.to_i
+      Graph.instance.nodes[node_id].hub.attach_user(weight)
+      update_mounted_users
+      puts "Update user weight: #{weight}"
     end
   end
 
