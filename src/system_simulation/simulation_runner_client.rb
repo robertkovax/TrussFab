@@ -64,14 +64,16 @@ class SimulationRunnerClient
 
   def self.optimize_spring_for_constrain
     # we don't do that for now.
-    p json_response_from_server("optimize/hitting_ground", json_data = nil)
+    p json_response_from_server("optimize/hitting_ground", json_data = nil, 120)
   end
 
   private
 
-  def self.json_response_from_server(route, json_data = nil)
+  # @param [Integer] timeout in seconds
+  def self.json_response_from_server(route, json_data = nil, timeout = 25)
     uri = URI.parse("#{SIMULATION_RUNNER_HOST}/#{route}")
     http = Net::HTTP.new(uri.host, uri.port)
+    http.read_timeout = timeout
     request = Net::HTTP::Get.new(uri.request_uri)
     request.body = json_data if json_data
     response = http.request(request)
