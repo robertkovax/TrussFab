@@ -13,6 +13,7 @@ class ImportTool < Tool
     @path = nil
     @angle = 0
     @scale = 1
+    @update_springs = false
   end
 
   def onKeyDown(key, _repeat, _flags, _view)
@@ -67,8 +68,12 @@ class ImportTool < Tool
     snapped_object = @mouse_input.snapped_object
     import_from_json(@path, snapped_object, @mouse_input.position)
     @ui.animation_pane.sync_hidden_status(Graph.instance.actuator_groups)
-    @ui.spring_pane.update_mounted_users
-    @ui.spring_pane.update_springs
+
+    if @update_springs
+      @ui.spring_pane.update_mounted_users
+      @ui.spring_pane.compile
+      @ui.spring_pane.update_springs
+    end
 
     @mouse_input.update_positions(view, x, y)
     view.invalidate

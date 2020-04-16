@@ -5,5 +5,6 @@ class AssetsUserTool < ImportTool
   def initialize(_ui)
     super
     @path = Configuration::ASSETS_USER_PATH
+    @update_springs = true
   end
 end
