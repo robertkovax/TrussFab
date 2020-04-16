@@ -10,7 +10,6 @@ require 'matrix'
 require_relative '../animation_data_sample.rb'
 require_relative './generate_modelica_model.rb'
 
-
 # This class encapsulates the way of how system simulations (physically correct simulations of the dynamic system,
 # including spring oscillations) are run. Right now we use Modelica and compile / simulate a modelica model of our
 # geometry when necessary. This class provides public interfaces for different results of the simulation.
@@ -216,7 +215,6 @@ class SimulationRunner
     constant
   end
 
-
   def get_system_matrix
     run_linearization
   end
@@ -295,7 +293,7 @@ class SimulationRunner
     puts(command)
     Open3.popen2e(command, chdir: @directory) do |i, o, t|
       o.each { |l| puts l }
-      if not t.value.success?
+      unless t.value.success?
         raise SimulationError, "Linearization failed."
       end
       LinearStateSpaceModel.new(File.join(@directory, "linear_#{@model_name}.mo"))
@@ -308,4 +306,3 @@ class SimulationRunner
   end
 
 end
-

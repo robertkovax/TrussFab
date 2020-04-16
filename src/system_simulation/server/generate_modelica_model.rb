@@ -126,7 +126,6 @@ class ModelicaModelGenerator
           mass += json_model['mounted_users'][nodeId.to_s]
         end
         # add weight of node structure
-
         mass += ModelicaConfiguration::NODE_WEIGHT_KG
 
         # Generate PointMasses
