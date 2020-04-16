@@ -247,7 +247,7 @@ class SpringPane
 
     @dialog.add_action_callback('user_weight_change') do |_, node_id, value|
       weight = value.to_i
-      Graph.instance.nodes[node_id].hub.attach_user(weight)
+      Graph.instance.nodes[node_id].hub.user_weight = weight
       update_mounted_users
       puts "Update user weight: #{weight}"
     end

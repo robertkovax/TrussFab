@@ -4,8 +4,8 @@ require 'src/simulation/simulation.rb'
 
 # Hub
 class Hub < PhysicsSketchupObject
-  attr_accessor :position, :body, :mass, :arrow
-  attr_reader :force, :is_user_attached, :user_weight, :user_transformation
+  attr_accessor :position, :body, :mass, :arrow, :user_weight
+  attr_reader :force, :is_user_attached, :user_transformation
 
   def initialize(position, id: nil, incidents: nil, material: 'hub_material')
     super(id, material: material)
@@ -212,10 +212,16 @@ class Hub < PhysicsSketchupObject
     @is_sensor
   end
 
-  def attach_user(weight, name:)
+  def attach_user(weight: nil, name:)
     @is_user_attached = true
-    @user_weight = weight
-    @user_indicator_definition = ModelStorage.instance.attachable_users[name]
+    user_indicator = ModelStorage.instance.attachable_users[name]
+    @user_indicator_definition = user_indicator.definition
+
+    # If weight is set, overwrite it, otherwise take the default from the
+    # definition
+    @user_weight = user_indicator.weight unless weight
+    @user_weight = weight if weight
+
     @user_indicator_name = name
     update_user_indicator
   end

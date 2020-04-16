@@ -16,17 +16,17 @@ class PlaceUserTool < Tool
     if !obj.nil? && obj.is_a?(Node)
       @hub = obj.hub
       # TODO remove this default force value here
-      possible_names = ModelStorage.instance.possible_attachable_user_names
+      possible_names = ModelStorage.instance.attachable_users.keys
       if @hub.is_user_attached
         current_name = @hub.user_indicator_name
         current_index = possible_names.find_index current_name
         if current_index == possible_names.length - 1
           @hub.remove_user
         else
-          @hub.attach_user(100, name: possible_names[current_index + 1])
+          @hub.attach_user(name: possible_names[current_index + 1])
         end
       else
-        @hub.attach_user(100, name: possible_names[0])
+        @hub.attach_user(name: possible_names[0])
       end
       # TODO: at some point springe pane should compile automatically when geometry changes
       @ui.spring_pane.compile

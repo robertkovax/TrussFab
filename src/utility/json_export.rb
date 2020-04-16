@@ -58,10 +58,12 @@ class JsonExport
     users = []
     nodes.each do |id, node|
       next unless node.hub.is_user_attached
+
       users << {
         id: id,
         name: node.hub.user_indicator_name,
-        transformation: node.hub.user_transformation.to_a
+        transformation: node.hub.user_transformation.to_a,
+        weight: node.hub.user_weight
       }
     end
     users

@@ -81,29 +81,18 @@ class ModelStorage
     specifications
   end
 
-  def possible_attachable_user_names
-    return @possible_names unless @possible_names.nil?
-
-    @possible_names = []
-    puts 'Loaded files for attachable users:'
-    Dir.glob(ProjectHelper.component_directory + '/attachable_users/*.skp') do |model_file_path|
-      # File scheme is '.../number-name-short_name-weight_in_grams.skp'
-      # TODO: Read in the weight
-      file_name = File.basename(model_file_path, '.skp')
-      @possible_names.push file_name
-    end
-    @possible_names
-  end
-
   def attachable_users
     return @attachable_users unless @attachable_users.nil?
 
     @attachable_users = {}
-    possible_attachable_user_names.each do |name|
-      @attachable_users[name] = UserIndicatorModel.new(name: name).definition
+    Dir.glob(ProjectHelper.component_directory + '/attachable_users/*.skp') do |model_file_path|
+      # File scheme is '.../name-weight_in_kilograms.skp'
+      # e.g.: '../child-100.skp' would have the name child with the weight of
+      # 100 kg
+      file_name = File.basename(model_file_path, '.skp')
+      name, weight = file_name.split('-')
+      @attachable_users[name] = UserIndicatorModel.new(name: name, weight: weight)
     end
-    puts @attachable_users
-
     @attachable_users
   end
 end
