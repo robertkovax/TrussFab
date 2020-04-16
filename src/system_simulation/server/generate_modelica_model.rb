@@ -8,7 +8,7 @@ Modelica_Rod = Struct.new(:name, :length, :static_constant)
 Modelica_Spring = Struct.new(:name, :c, :length)
 Modelica_Connection = Struct.new(:from, :to)
 Modelica_Fixture = Struct.new(:name, :x, :y, :z)
-Modelica_PointMass = Struct.new(:name, :mass, :x_start, :y_start, :z_start, :is_user)
+Modelica_PointMass = Struct.new(:name, :mass, :is_user, :x_start, :y_start, :z_start)
 Modelica_Force = Struct.new(:name)
 
 # Generates a modelica model with a given truss fab geometry.
@@ -130,7 +130,7 @@ class ModelicaModelGenerator
         mass += ModelicaConfiguration::NODE_WEIGHT_KG
 
         # Generate PointMasses
-        point_mass_component = Modelica_PointMass.new(identifier_for_node_id(nodeId), mass, *node[:pos], is_user)
+        point_mass_component = Modelica_PointMass.new(identifier_for_node_id(nodeId), mass, is_user, *node[:pos])
         modelica_components.push(point_mass_component)
         modelica_connections.push(generate_mutlibody_connection(node[:primary_edge], primary_edge_connection_direction, point_mass_component, :a))
       }
