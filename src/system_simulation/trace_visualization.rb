@@ -98,7 +98,6 @@ class TraceVisualization
                                                      color_max_value - color_weight)
       end
 
-
       last_position = position
     end
 
@@ -106,6 +105,9 @@ class TraceVisualization
     @group = Sketchup.active_model.entities.add_group if @group.deleted?
     entities = @group.entities
     entities.add_curve(curve_points)
+    entities.each do |entity|
+      entity.layer = circle_trace_layer
+    end
   end
 
   # analyzes the simulation data for certain criterions
