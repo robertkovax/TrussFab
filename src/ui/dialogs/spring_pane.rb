@@ -136,7 +136,7 @@ class SpringPane
 
   # Opens a dummy dialog, to focus the main Sketchup Window again
   def focus_main_window
-    dialog = UI::WebDialog.new("", true, "", 0, 0, 10000, 10000, true)
+    dialog = UI::WebDialog.new('', true, '', 0, 0, 10_000, 10_000, true)
     dialog.show
     dialog.close
   end
@@ -170,7 +170,8 @@ class SpringPane
     # TODO: modelica file)
     compile_time = Benchmark.realtime do
       SimulationRunnerClient.update_model(
-          JsonExport.graph_to_json(nil, [], constants_for_springs, mounted_users))
+        JsonExport.graph_to_json(nil, [], constants_for_springs, mounted_users)
+      )
     end
     puts "Compiled the modelica model in #{compile_time.round(2)} seconds."
   end

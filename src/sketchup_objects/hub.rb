@@ -45,6 +45,7 @@ class Hub < PhysicsSketchupObject
       @arrow = nil
     end
     return if @force.length == 0
+
     model = ModelStorage.instance.models['force_arrow']
     transform = Geom::Transformation.new(point + alignment_vec)
     @arrow = Sketchup.active_model
@@ -63,6 +64,7 @@ class Hub < PhysicsSketchupObject
       @weight_indicator = nil
     end
     return if @mass == 0
+
     Sketchup.active_model.start_operation('Hub: Update Weight Indicator', true)
     point = Geom::Point3d.new(@position)
     point.z += 1
@@ -99,6 +101,7 @@ class Hub < PhysicsSketchupObject
 
   def move_addon(object, position, offset = Geom::Vector3d.new(0, 0, 0))
     return if object.nil?
+
     old_pos = object.transformation.origin
     movement_vec = Geom::Transformation.translation(old_pos.vector_to(position +
                                                                         offset))
@@ -133,16 +136,19 @@ class Hub < PhysicsSketchupObject
 
   def reset_force_arrow_position
     return if @arrow.nil?
+
     move_force_arrow(@position)
   end
 
   def reset_weight_indicator_position
     return if @weight_indicator.nil?
+
     move_weight_indicator(@position)
   end
 
   def reset_sensor_symbol_position
     return if @sensor_symbol.nil?
+
     move_sensor_symbol(@position)
   end
 
@@ -231,10 +237,10 @@ class Hub < PhysicsSketchupObject
 
   def rotate_user(angle)
     @user_transformation *= Geom::Transformation.rotation(
-                              Geom::Point3d.new,
-                              Geom::Vector3d.new(0, 0, 1),
-                              angle
-                            )
+      Geom::Point3d.new,
+      Geom::Vector3d.new(0, 0, 1),
+      angle
+    )
     update_user_indicator
   end
 
@@ -262,6 +268,7 @@ class Hub < PhysicsSketchupObject
 
   def apply_force
     return if @body.nil?
+
     @body.apply_force(@force)
   end
 
@@ -293,6 +300,7 @@ class Hub < PhysicsSketchupObject
 
   def create_entity
     return @entity if @entity
+
     position = Geom::Transformation.translation(@position)
     transformation = position * @model.scaling
     entity = Sketchup.active_model.entities.add_instance(@model.definition,

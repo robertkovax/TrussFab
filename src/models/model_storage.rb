@@ -69,6 +69,7 @@ class ModelStorage
       # File scheme is '.../number-name-short_name-weight_in_grams.skp'
       file_name = File.basename(model_file_path, '.skp')
       next unless /^\d*-[^-]*-[^-]*-\d*\z/ =~ file_name
+
       puts file_name
       _, name, short_name, weight_in_grams = file_name.split('-')
       model = {}

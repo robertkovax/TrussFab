@@ -13,7 +13,7 @@ class JsonExport
 
   def self.graph_to_json(triangle = nil, animation, spring_constants_for_ids, mounted_users)
     graph = Graph.instance
-    json = {distance_unit: 'mm', force_unit: 'N'}
+    json = { distance_unit: 'mm', force_unit: 'N' }
     json[:nodes] = nodes_to_hash(graph.nodes)
     json[:edges] = edges_to_hash(graph.edges)
     json[:animation] = animation
