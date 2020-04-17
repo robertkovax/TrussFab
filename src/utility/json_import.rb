@@ -291,7 +291,7 @@ module JsonImport
       return if json_objects['mounted_users'].nil?
       json_objects['mounted_users'].each do |user_json|
         node = nodes[user_json['id']]
-        node.hub.attach_user weight: user_json['weight'], filename: user_json['filename']
+        node.hub.attach_user weight: user_json['weight'].to_i, filename: user_json['filename']
         node.hub.user_transformation =
           rotation_around_center * (Geom::Transformation.new.set! user_json['transformation'])
         node.hub.update_user_indicator
