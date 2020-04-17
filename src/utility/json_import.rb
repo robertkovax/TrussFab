@@ -37,7 +37,12 @@ module JsonImport
       add_pods_if_near_ground(nodes)
 
       animation = json_objects['animation'].to_s
-      add_mounted_users json_objects, nodes, Geom::Transformation.rotation(Geom::Point3d.new, Geom::Vector3d.new(0,0,-1), angle)
+      add_mounted_users json_objects, nodes,
+                        Geom::Transformation.rotation(
+                          Geom::Point3d.new,
+                          Geom::Vector3d.new(0, 0, -1),
+                          angle
+                        )
       [triangles.values, edges.values, animation]
     end
 
