@@ -2,7 +2,19 @@ GEM
   remote: https://rubygems.org/
   specs:
     gsl (2.1.0.3)
+    mustermann (1.1.1)
+      ruby2_keywords (~> 0.0.1)
+    rack (2.2.2)
+    rack-protection (2.0.8.1)
+      rack
     rake (13.0.1)
+    ruby2_keywords (0.0.2)
+    sinatra (2.0.8.1)
+      mustermann (~> 1.0)
+      rack (~> 2.0)
+      rack-protection (= 2.0.8.1)
+      tilt (~> 2.0)
+    tilt (2.0.10)
 
 PLATFORMS
   ruby
@@ -10,6 +22,7 @@ PLATFORMS
 DEPENDENCIES
   gsl (~> 2.1)
   rake
+  sinatra
 
 RUBY VERSION
    ruby 2.4.6p354

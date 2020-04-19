@@ -3,3 +3,4 @@ ruby '~> 2.4'
 
 gem 'gsl', '~> 2.1'
 gem 'rake'
+gem 'sinatra'
