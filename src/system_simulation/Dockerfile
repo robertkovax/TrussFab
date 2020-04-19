@@ -11,17 +11,12 @@ RUN apt-get install -y omc omlib-modelica-3.2.2
 
 # Ruby Project dependencies
 RUN apt-get install -y ruby-dev ruby-sinatra libgsl0-dev
-RUN gem install rb-gsl
+RUN gem install bundler
 
 COPY . /opt/code
 
 WORKDIR /opt/code/server
-
-# # Change the container to non-root "openmodelicauser" and set the env
-# USER openmodelicausers
-# ENV HOME /home/openmodelicausers
-# ENV USER openmodelicausers
-# WORKDIR $HOME
+RUN bundle install
 
 EXPOSE 8080
 
