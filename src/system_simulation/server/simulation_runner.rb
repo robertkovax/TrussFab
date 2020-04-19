@@ -51,8 +51,8 @@ class SimulationRunner
 
     @model_name = model_name
     @compilation_options = '-n=4 --maxMixedDeterminedIndex=100 --generateSymbolicLinearization -d=nfAPI'
-    # @compilation_options += " --maxMixedDeterminedIndex=100 -n=4 --generateSymbolicLinearization"
-    #                        "--generateSymbolicJacobian"
+    # @compilation_options += " --maxMixedDeterminedIndex=100 -n=4 --generateSymbolicLinearization"\
+    #                         "--generateSymbolicJacobian"
     @simulation_options = ''
     @simulation_options += ' -lv=LOG_STATS -emit_protected -nls=kinsol -s=ida'
     # @simulation += "lv=LOG_INIT_V,LOG_SIMULATION,LOG_STATS,LOG_JAC,LOG_NLS"
