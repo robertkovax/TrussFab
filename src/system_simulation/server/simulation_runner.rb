@@ -53,8 +53,8 @@ class SimulationRunner
 
     @model_name = model_name
     @compilation_options = '-n=4 --maxMixedDeterminedIndex=100 --generateSymbolicLinearization -d=nfAPI'
-    # @compilation_options += ' --maxMixedDeterminedIndex=100 -n=4 --generateSymbolicLinearization
-    #                          --generateSymbolicJacobian'
+    # @compilation_options += " --maxMixedDeterminedIndex=100 -n=4 --generateSymbolicLinearization"\
+    #                         "--generateSymbolicJacobian"
     @simulation_options = ''
     @simulation_options += ' -lv=LOG_STATS -emit_protected -nls=kinsol -s=ida'
     # @simulation += "lv=LOG_INIT_V,LOG_SIMULATION,LOG_STATS,LOG_JAC,LOG_NLS"
@@ -312,8 +312,8 @@ class SimulationRunner
     Open3.capture2e("cp ./modelica_assets/AdaptiveSpringDamper.mo  #{@directory}", chdir: File.dirname(__FILE__))
 
     dependencies = ["AdaptiveSpringDamper.mo", "Modelica"]
-    command = "omc #{@compilation_options} -s #{@model_name}.mo #{dependencies.join(' ')}
-              && mv #{@model_name}.makefile Makefile && make -j 8"
+    command = "omc #{@compilation_options} -s #{@model_name}.mo #{dependencies.join(' ')}"\
+              "&& mv #{@model_name}.makefile Makefile && make -j 8"
     puts(command)
     output, status = Open3.capture2e(command,
                                 chdir: @directory)
