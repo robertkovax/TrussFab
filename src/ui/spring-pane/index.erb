@@ -61,7 +61,7 @@
             <div class="input-group-prepend">
               <span class="input-group-text text-monospace">p</span>
             </div>
-            <input id="period_<%= node_id %>" type="text" placeholder="<%= stats['period'].round(digits_precision) %>" readonly class="form-control" style="text-align: right;">
+            <input id="period_<%= node_id %>" type="text" placeholder="<%= stats['period'] ? stats['period'].round(digits_precision) : 'NaN' %>" readonly class="form-control" style="text-align: right;">
             <div class="input-group-append">
               <span class="input-group-text text-monospace">s</span>
             </div>
