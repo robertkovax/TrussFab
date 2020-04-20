@@ -5,7 +5,7 @@
 <style>
 <% @spring_edges.each{ |spring_edge| %>
   #spring_constant_range_<%=  spring_edge.id  %>::-webkit-slider-thumb {
-    background: red;
+    background: <%= spring_edge.link.get_color_string %>;
 }
   <% } %>
 </style>

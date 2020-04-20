@@ -8,6 +8,8 @@ class SpringLink < ActuatorLink
   attr_accessor :actual_spring_length
   attr_reader :edge, :initial_spring_length, :spring_parameters
 
+  COLORS = Configuration::INTENSE_COLORS
+
   def initialize(first_node, second_node, edge, spring_parameters: nil, id: nil)
     @initial_edge_length = first_node.hub.entity.bounds.center.vector_to(second_node.hub.entity.bounds.center)
                                      .length.to_f
@@ -18,6 +20,10 @@ class SpringLink < ActuatorLink
     @first_elongation_length =
       @second_elongation_length = Configuration::MINIMUM_ELONGATION
     persist_entity
+  end
+
+  def get_color_string
+    COLORS[@piston_group]
   end
 
   def spring_parameters=(parameters)

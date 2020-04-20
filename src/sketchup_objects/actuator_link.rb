@@ -6,11 +6,7 @@ class ActuatorLink < PhysicsLink
   attr_accessor :reduction, :rate, :power, :min, :max
   attr_reader :default_length
 
-  COLORS = [
-    '#3cb44b', '#ffe119', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#d2f53c',
-    '#fabebe', '#008080', '#e6beff', '#aa6e28', '#800000', '#aaffc3', '#808000',
-    '#ffd8b1', '#000080', '#808080', '#000000'
-  ].freeze
+  COLORS = Configuration::UNINTENSE_COLORS
 
   def initialize(first_node, second_node, edge, id: nil)
     super(first_node, second_node, edge,'actuator', id: id)
