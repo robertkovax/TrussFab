@@ -113,6 +113,7 @@ class SpringLink < ActuatorLink
     # Update the link_transformation, that we're previously just initialized
     # with identity
     update_link_transformations
+    set_piston_group_color
   end
 
   def inspect

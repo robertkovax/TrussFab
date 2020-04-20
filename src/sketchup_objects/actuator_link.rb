@@ -31,7 +31,7 @@ class ActuatorLink < PhysicsLink
 
   def piston_group=(piston_group)
     @piston_group = piston_group
-    self.material = COLORS[piston_group]
+    set_piston_group_color
   end
 
   def set_piston_group_color
