@@ -174,6 +174,7 @@ class SpringPane
       )
     end
     puts "Compiled the modelica model in #{compile_time.round(2)} seconds."
+    update_trace_visualization if @trace_visualization
   end
 
   private

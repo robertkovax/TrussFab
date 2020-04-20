@@ -112,6 +112,7 @@ class Hub < PhysicsSketchupObject
     move_force_arrow(position)
     move_weight_indicator(position)
     move_sensor_symbol(position)
+    move_user_indicator(position)
     pods.each { |pod| pod.update_position(position) }
   end
 
@@ -121,6 +122,10 @@ class Hub < PhysicsSketchupObject
 
   def move_weight_indicator(position)
     move_addon(@weight_indicator, position, Geom::Vector3d.new(0, 0, 1))
+  end
+
+  def move_user_indicator(position)
+    move_addon(@user_indicator, position, Geom::Vector3d.new(0, 0, 1))
   end
 
   def move_sensor_symbol(position)
