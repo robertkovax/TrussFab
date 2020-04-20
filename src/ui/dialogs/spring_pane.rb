@@ -242,7 +242,6 @@ class SpringPane
       # Also update race visualization to provide visual feedback to user
       update_stats
       update_trace_visualization
-      end
     end
 
     @dialog.add_action_callback('spring_insights_toggle_play') do
