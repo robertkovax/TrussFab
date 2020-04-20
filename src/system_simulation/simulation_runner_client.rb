@@ -64,7 +64,7 @@ class SimulationRunnerClient
 
   def self.optimize_spring_for_constrain
     # we don't do that for now.
-    p json_response_from_server("optimize/hitting_ground", json_data = nil, 120)
+    p json_response_from_server("optimize/hitting_ground", json_data = nil, 180)
   end
 
   private
