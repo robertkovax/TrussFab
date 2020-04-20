@@ -54,6 +54,8 @@ class TraceVisualization
     puts "Trace is planar: #{trace_analyzation[:is_planar]}"
 
     circle_definition = create_circle_definition
+    circle_trace_layer =
+      Sketchup.active_model.layers[Configuration::MOTION_TRACE_VIEW]
 
     @simulation_data.each_with_index do |current_data_sample, index|
       # thin out points in trace
@@ -87,6 +89,7 @@ class TraceVisualization
 
       @group = Sketchup.active_model.entities.add_group if @group.deleted?
       circle_instance = @group.entities.add_instance(circle_definition, transformation)
+      circle_instance.layer = circle_trace_layer
       if max_acceleration_index == index
         puts "maximum acceleration index: #{index}"
         circle_instance.material = "red"
@@ -95,7 +98,6 @@ class TraceVisualization
                                                      color_max_value - color_weight)
       end
 
-
       last_position = position
     end
 
@@ -103,6 +105,9 @@ class TraceVisualization
     @group = Sketchup.active_model.entities.add_group if @group.deleted?
     entities = @group.entities
     entities.add_curve(curve_points)
+    entities.each do |entity|
+      entity.layer = circle_trace_layer
+    end
   end
 
   # analyzes the simulation data for certain criterions
