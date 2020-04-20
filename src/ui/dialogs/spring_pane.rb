@@ -226,9 +226,9 @@ class SpringPane
   end
 
   def optimize
-    SimulationRunnerClient.optimize_spring_for_constrain()
-    update_stats
-    update_trace_visualization
+    SimulationRunnerClient.optimize_spring_for_constrain.each do |spring_id, constant|
+      update_constant_for_spring(spring_id.to_i, constant)
+    end
   end
 
   def create_animation

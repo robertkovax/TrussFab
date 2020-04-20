@@ -54,7 +54,7 @@ class SimulationRunner
     @model_name = model_name
     @compilation_options = '-n=4 --maxMixedDeterminedIndex=100 --generateSymbolicLinearization -d=nfAPI'
     # @compilation_options += " --maxMixedDeterminedIndex=100 -n=4 --generateSymbolicLinearization"\
-    #                         "--generateSymbolicJacobian"
+    #                         " --generateSymbolicJacobian"
     @simulation_options = ''
     @simulation_options += ' -lv=LOG_STATS -emit_protected -nls=kinsol -s=ida'
     # @simulation += "lv=LOG_INIT_V,LOG_SIMULATION,LOG_STATS,LOG_JAC,LOG_NLS"
@@ -182,17 +182,21 @@ class SimulationRunner
 
   # OPTIMIZATION LOGIC
 
+  # @param Symbol kind of constrain, one of CONSTRAINS
+  # @return Hash<String, int> new constants for spring ids
   def optimize_springs(constrain_kind)
     # TODO: remove these mocked spring and user ids
+    # hash
+    result_map = {}
     user_id = @mounted_users.keys[0]
     @constants_for_springs.each do |spring_id, constant|
-      optimize_spring_for_constrain(spring_id, user_id, constrain_kind)
+      result_map[spring_id] = optimize_spring_for_constrain(spring_id, user_id, constrain_kind)
     end
+    result_map
   end
 
-  # TODO: adjust comment
-  # This function approximates a optimum (= the biggest spring constant that makes the spring still stay in the angle
-  # constrains) by starting with a very low spring constant (which leads to a very high oscillation => high angle delta)
+  # This function approximates a optimum (= the biggest spring constant that makes the spring still stay in the specific
+  # constrain) by starting with a very low spring constant (which leads to a very high oscillation => high amplitude)
   # and approaches the optimum by approaching with different step sizes (= resolutions of the search), decreasing the
   # step size as soon as the spring constant is not valid anymore and thus approximating the highest valid spring
   # constant.
@@ -200,8 +204,6 @@ class SimulationRunner
   # @param [String] spring_id
   def optimize_spring_for_constrain(spring_id, user_id, constrain_kind)
     # TODO: probably we want to specify into which direction we want to go (in our search), right now we decrease the constant
-    # TODO: this only works for one spring atm
-    # TODO: make sure constant is small enough in the beginning
 
     #constant = initial_constant = @constants_for_springs[spring_id]
     constant = initial_constant = 100
@@ -213,11 +215,13 @@ class SimulationRunner
     step_size = step_sizes.shift
     keep_searching = true
     abort_threshold = 50_000
+    simulation_resolution = 0.2
+    simulation_length = 4
 
     while keep_searching
       # puts "Current k: #{constant} Step size: #{step_size}"
       @constants_for_springs[spring_id] = constant
-      run_simulation(filter)
+      run_simulation(filter, [], simulation_length, simulation_resolution)
       puts "constant #{constant}"
       if !data_valid_for_constrain(read_csv_numeric, id, constrain_kind)
         # increase spring constant to decrease angle delta
@@ -239,6 +243,7 @@ class SimulationRunner
 
     puts "Optimized spring ##{spring_id} – constant: #{constant}N/m"
     @constants_for_springs[spring_id] = constant
+    constant
 
     # TODO: use spring catalog / picking logic from spring_picker.rb to pick the fitting spring (get_spring)
     # TODO: right now we're just setting the constant to the exact value (without checking if there really is a spring
@@ -325,9 +330,9 @@ class SimulationRunner
     end
   end
 
-  def run_simulation(filter = '*', force_vectors = [])
+  def run_simulation(filter = '*', force_vectors = [], length = 10, resolution = 0.05)
     # TODO: adjust sampling rate dynamically
-    overrides = "outputFormat=csv,variableFilter=#{filter},startTime=0.0,stopTime=10,stepSize=0.05," \
+    overrides = "outputFormat=csv,variableFilter=#{filter},startTime=0.0,stopTime=#{length},stepSize=#{resolution}," \
                 "#{force_vector_string(force_vectors)},#{override_constants_string}"
     command = "./#{@model_name} #{@simulation_options} -override=\"#{overrides}\""
     puts(command)

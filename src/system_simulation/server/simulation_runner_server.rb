@@ -45,10 +45,7 @@ get '/get_equilibrium' do
 end
 
 get '/optimize/hitting_ground' do
-
-  sim.optimize_springs(:hitting_ground)
-  # TODO: return status
-  return_message = { }
+  return_message = sim.optimize_springs(:hitting_ground)
   return_message.to_json
 end
 
