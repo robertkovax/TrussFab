@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'net/http'
-require "uri"
+require 'uri'
 require_relative 'animation_data_sample.rb'
 
 SIMULATION_RUNNER_HOST = "http://ec2-3-127-56-156.eu-central-1.compute.amazonaws.com:8080".freeze
@@ -49,7 +49,7 @@ class SimulationRunnerClient
                   else
                     json_response_from_server('get_hub_time_series')
                   end
-    parse_data(json_result["data"])
+    parse_data(json_result['data'])
   end
 
   def self.get_equilibrium
@@ -64,7 +64,7 @@ class SimulationRunnerClient
 
   def self.optimize_spring_for_constrain
     # we don't do that for now.
-    p json_response_from_server("optimize/hitting_ground", json_data = nil, 180)
+    p json_response_from_server('optimize/hitting_ground', nil, 180)
   end
 
   private

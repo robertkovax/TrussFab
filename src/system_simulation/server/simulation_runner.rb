@@ -189,7 +189,7 @@ class SimulationRunner
     # hash
     result_map = {}
     user_id = @mounted_users.keys[0]
-    @constants_for_springs.each do |spring_id, constant|
+    @constants_for_springs.each do |spring_id, _constant|
       result_map[spring_id] = optimize_spring_for_constrain(spring_id, user_id, constrain_kind)
     end
     result_map
@@ -203,14 +203,15 @@ class SimulationRunner
   # @param [Symbol] constrain_kind specifying the kind of constrain
   # @param [String] spring_id
   def optimize_spring_for_constrain(spring_id, user_id, constrain_kind)
-    # TODO: probably we want to specify into which direction we want to go (in our search), right now we decrease the constant
+    # TODO: probably we want to specify into which direction we want to go (in our search),
+    # TODO: right now we decrease the constant
 
-    #constant = initial_constant = @constants_for_springs[spring_id]
+    # constant = initial_constant = @constants_for_springs[spring_id]
     constant = initial_constant = 100
     id = "#{ModelicaModelGenerator.identifier_for_node_id(user_id)}.r_0"
     filter = "#{id}.*"
 
-    step_sizes = [10000, 1000, 200, 50]
+    step_sizes = [10_000, 1000, 200, 50]
 
     step_size = step_sizes.shift
     keep_searching = true
@@ -297,7 +298,7 @@ class SimulationRunner
     when :min_max_compression
       raise NotImplementedError
     end
-    return false
+    false
   end
 
   # @param [String] key
