@@ -173,7 +173,6 @@ class SpringPane
           JsonExport.graph_to_json(nil, [], constants_for_springs, mounted_users))
     end
     puts "Compiled the modelica model in #{compile_time.round(2)} seconds."
-    update_trace_visualization if @trace_visualization
   end
 
   private
@@ -240,6 +239,10 @@ class SpringPane
 
     @dialog.add_action_callback('spring_insights_compile') do
       compile
+      # Also update race visualization to provide visual feedback to user
+      update_stats
+      update_trace_visualization
+      end
     end
 
     @dialog.add_action_callback('spring_insights_toggle_play') do
