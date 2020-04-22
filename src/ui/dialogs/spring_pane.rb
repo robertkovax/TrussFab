@@ -136,7 +136,7 @@ class SpringPane
 
   # Opens a dummy dialog, to focus the main Sketchup Window again
   def focus_main_window
-    dialog = UI::WebDialog.new("", true, "", 0, 0, 10000, 10000, true)
+    dialog = UI::WebDialog.new('', true, '', 0, 0, 10_000, 10_000, true)
     dialog.show
     dialog.close
   end
@@ -170,7 +170,8 @@ class SpringPane
     # TODO: modelica file)
     compile_time = Benchmark.realtime do
       SimulationRunnerClient.update_model(
-          JsonExport.graph_to_json(nil, [], constants_for_springs, mounted_users))
+        JsonExport.graph_to_json(nil, [], constants_for_springs, mounted_users)
+      )
     end
     puts "Compiled the modelica model in #{compile_time.round(2)} seconds."
     update_trace_visualization if @trace_visualization
@@ -248,7 +249,7 @@ class SpringPane
 
     @dialog.add_action_callback('user_weight_change') do |_, node_id, value|
       weight = value.to_i
-      Graph.instance.nodes[node_id].hub.attach_user(weight)
+      Graph.instance.nodes[node_id].hub.user_weight = weight
       update_mounted_users
       puts "Update user weight: #{weight}"
     end
