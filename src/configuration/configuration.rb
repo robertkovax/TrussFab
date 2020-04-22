@@ -78,7 +78,7 @@ module Configuration
 
   INTENSE_COLORS = %w[#e6261f #f7d038 #4355db #d23b37 #34bbe6 #49da9a #a3e048].freeze
   # These are the same colors, but with saturation lower, and a little bit shuffled, to prevent collisions
-  UNINTENSE_COLORS = %w[#ff9aa2 #c7ceea # #e2f0cb #ffdac1  #ffb7b2].freeze
+  UNINTENSE_COLORS = %w[#dcdcdc #696969 #202020 #808080 #c0c0c0].freeze
 
 
   # Ground Stuff
