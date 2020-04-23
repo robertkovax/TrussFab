@@ -184,7 +184,6 @@ class SpringPane
     Sketchup.active_model.commit_operation
     puts "Compiled the modelica model in #{compile_time.round(2)} seconds."
     color_static_groups
-    update_trace_visualization if @trace_visualization
   end
 
   private
@@ -251,6 +250,9 @@ class SpringPane
 
     @dialog.add_action_callback('spring_insights_compile') do
       compile
+      # Also update trace visualization to provide visual feedback to user
+      update_stats
+      update_trace_visualization
     end
 
     @dialog.add_action_callback('spring_insights_toggle_play') do
