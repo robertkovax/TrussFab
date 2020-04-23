@@ -36,6 +36,8 @@ class SpringPane
     @dialog = nil
     open_dialog
 
+    @pending_compilation = false
+
   end
 
   # spring / graph manipulation logic:
@@ -77,7 +79,7 @@ class SpringPane
     SimulationRunnerClient.update_mounted_users(mounted_users)
     update_stats
     update_dialog if @dialog
-    update_trace_visualization
+    update_trace_visualization if @trace_visualization
   end
 
   def update_stats
@@ -172,6 +174,11 @@ class SpringPane
     Sketchup.active_model.commit_operation
   end
 
+  def request_compilation
+    @pending_compilation = true
+    update_dialog if @dialog
+  end
+
   def compile
     # TODO: remove mounted users here in future and only update it (to keep the correct, empty default values in the
     # TODO: modelica file)
@@ -184,6 +191,8 @@ class SpringPane
     Sketchup.active_model.commit_operation
     puts "Compiled the modelica model in #{compile_time.round(2)} seconds."
     color_static_groups
+    @pending_compilation = false
+    update_dialog if @dialog
   end
 
   private

@@ -2,6 +2,9 @@
 <head>
   <title>Spring Modifications</title>
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
 <style>
 <% @spring_edges.each{ |spring_edge| %>
   #spring_constant_range_<%=  spring_edge.id  %>::-webkit-slider-thumb {
@@ -55,6 +58,7 @@
     <%
       mounted_users.each { |node_id, user_weight|
         stats = @user_stats[node_id]
+        next unless stats
         digits_precision = 2
     %>
 
@@ -114,14 +118,20 @@
 <div class="card m-2 p-2">
   <div class="card-body">
     <div class="row">
-        <button class="btn btn-warning mb-3 col-md-6" onClick="window.sketchup.spring_insights_compile()">
-          compile
-        </button>
+      <% if @pending_compilation %>
+        <div class="alert alert-warning alert-dismissible fade show w-100">
+            <strong><i class="fa fa-warning"></i></strong> Model out of sync. Recompile!
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+      <% end %>
+      <button class="btn btn-warning mb-3 col-md-6" onClick="window.sketchup.spring_insights_compile()">
+        compile
+      </button>
 
-        <button class="btn <% if @animation_running %>btn-danger<% else %>btn-primary<% end %> animation mb-3 col-md-6"
-                onClick="window.sketchup.spring_insights_toggle_play()">
-          <% if @animation_running %>stop<% else %>play<% end %> animation
-        </button>
+      <button class="btn <% if @animation_running %>btn-danger<% else %>btn-primary<% end %> animation mb-3 col-md-6"
+              onClick="window.sketchup.spring_insights_toggle_play()">
+        <% if @animation_running %>stop<% else %>play<% end %> animation
+      </button>
       <button class="btn btn-primary mb-3 col-md-6" onClick="window.sketchup.spring_insights_optimize()">
         optimize
       </button>
