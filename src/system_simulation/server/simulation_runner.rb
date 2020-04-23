@@ -15,7 +15,7 @@ require_relative './generate_modelica_model.rb'
 # geometry when necessary. This class provides public interfaces for different results of the simulation.
 class SimulationRunner
   NODE_COORDINATES_FILTER = 'node_[0-9]+.r_0.*'.freeze
-  CONSTRAINS = %i[hitting_ground flipping min_max_compression].freeze
+  CONSTRAINTS = %i[hitting_ground flipping min_max_compression].freeze
   NODE_RESULT_FILTER = 'node_[0-9]+\.r_0.*'.freeze
 
   class SimulationError < StandardError
@@ -182,15 +182,15 @@ class SimulationRunner
 
   # OPTIMIZATION LOGIC
 
-  # @param Symbol kind of constrain, one of CONSTRAINS
+  # @param Symbol kind of constraint, one of CONSTRAINTS
   # @return Hash<String, int> new constants for spring ids
-  def optimize_springs(constrain_kind)
+  def optimize_springs(constraint_kind)
     # TODO: remove these mocked spring and user ids
     # hash
     result_map = {}
     user_id = @mounted_users.keys[0]
     @constants_for_springs.each do |spring_id, _constant|
-      result_map[spring_id] = optimize_spring_for_constrain(spring_id, user_id, constrain_kind)
+      result_map[spring_id] = optimize_spring_for_constraint(spring_id, user_id, constraint_kind)
     end
     result_map
   end
@@ -200,9 +200,9 @@ class SimulationRunner
   # and approaches the optimum by approaching with different step sizes (= resolutions of the search), decreasing the
   # step size as soon as the spring constant is not valid anymore and thus approximating the highest valid spring
   # constant.
-  # @param [Symbol] constrain_kind specifying the kind of constrain
+  # @param [Symbol] constraint_kind specifying the kind of constrain
   # @param [String] spring_id
-  def optimize_spring_for_constrain(spring_id, user_id, constrain_kind)
+  def optimize_spring_for_constraint(spring_id, user_id, constraint_kind)
     # TODO: probably we want to specify into which direction we want to go (in our search),
     # TODO: right now we decrease the constant
 
@@ -224,7 +224,7 @@ class SimulationRunner
       @constants_for_springs[spring_id] = constant
       run_simulation(filter, [], simulation_length, simulation_resolution)
       puts "constant #{constant}"
-      if !data_valid_for_constrain(read_csv_numeric, id, constrain_kind)
+      if !data_valid_for_constraint(read_csv_numeric, id, constraint_kind)
         # increase spring constant to decrease angle delta
         constant += step_size
       elsif !step_sizes.empty?
@@ -283,11 +283,11 @@ class SimulationRunner
     force_vectors_string[0...-1] if force_vectors_string.length != 0
   end
 
-  # @param [Symbol] constrain_kind specifying the kind of constrain
+  # @param [Symbol] constraint_kind specifying the kind of constrain
   # @param [Array<Array<String>>] csv_data
-  def data_valid_for_constrain(csv_data, user_filter, constrain_kind)
+  def data_valid_for_constraint(csv_data, user_filter, constraint_kind)
     # TODO: for now we only optimize for not hitting the ground
-    case constrain_kind
+    case constraint_kind
     when :hitting_ground
       vectors = csv_result_to_vectors(user_filter, csv_data)
       z_coordinates = vectors.map { |v| v[2] }
