@@ -4,8 +4,8 @@ require 'src/simulation/simulation.rb'
 
 # Hub
 class Hub < PhysicsSketchupObject
-  attr_accessor :position, :body, :mass, :arrow
-  attr_reader :force, :is_user_attached, :user_weight
+  attr_accessor :position, :body, :mass, :arrow, :user_weight
+  attr_reader :force, :is_user_attached, :user_transformation, :user_indicator_filename
 
   def initialize(position, id: nil, incidents: nil, material: 'hub_material')
     super(id, material: material)
@@ -25,7 +25,7 @@ class Hub < PhysicsSketchupObject
     @user_indicator = nil
     # force the user applies on that hub in newton
     @user_weight = 0
-    @user_rotation = 0
+    @user_transformation = Geom::Transformation.new
     update_id_label
     persist_entity
   end
@@ -45,6 +45,7 @@ class Hub < PhysicsSketchupObject
       @arrow = nil
     end
     return if @force.length == 0
+
     model = ModelStorage.instance.models['force_arrow']
     transform = Geom::Transformation.new(point + alignment_vec)
     @arrow = Sketchup.active_model
@@ -63,6 +64,7 @@ class Hub < PhysicsSketchupObject
       @weight_indicator = nil
     end
     return if @mass == 0
+
     Sketchup.active_model.start_operation('Hub: Update Weight Indicator', true)
     point = Geom::Point3d.new(@position)
     point.z += 1
@@ -77,7 +79,7 @@ class Hub < PhysicsSketchupObject
   end
 
   # TODO: Extract shared behavior with weight indicator
-  def update_user_indicator
+  def update_user_indicator(additional_transformation: Geom::Transformation.new)
     unless @user_indicator.nil?
       @user_indicator.erase!
       @user_indicator = nil
@@ -87,15 +89,19 @@ class Hub < PhysicsSketchupObject
     Sketchup.active_model.start_operation('Hub: Update User Indicator', true)
     point = Geom::Point3d.new(@position)
     point.z += 1
-    model = ModelStorage.instance.models['user_indicator']
     translation = Geom::Transformation.translation(point)
-    rotation = Geom::Transformation.rotation(Geom::Point3d.new, Geom::Vector3d.new(0, 0, 1), @user_rotation)
-    @user_indicator = Sketchup.active_model.active_entities.add_instance(model.definition, translation * rotation)
+    @user_indicator = Sketchup.active_model.active_entities.add_instance(@user_indicator_definition, translation * additional_transformation * @user_transformation)
     Sketchup.active_model.commit_operation
+  end
+
+  def user_transformation=(transformation)
+    @user_transformation = transformation
+    update_user_indicator
   end
 
   def move_addon(object, position, offset = Geom::Vector3d.new(0, 0, 0))
     return if object.nil?
+
     old_pos = object.transformation.origin
     movement_vec = Geom::Transformation.translation(old_pos.vector_to(position +
                                                                         offset))
@@ -135,16 +141,19 @@ class Hub < PhysicsSketchupObject
 
   def reset_force_arrow_position
     return if @arrow.nil?
+
     move_force_arrow(@position)
   end
 
   def reset_weight_indicator_position
     return if @weight_indicator.nil?
+
     move_weight_indicator(@position)
   end
 
   def reset_sensor_symbol_position
     return if @sensor_symbol.nil?
+
     move_sensor_symbol(@position)
   end
 
@@ -210,9 +219,17 @@ class Hub < PhysicsSketchupObject
     @is_sensor
   end
 
-  def attach_user(weight)
+  def attach_user(weight: nil, filename:)
     @is_user_attached = true
-    @user_weight = weight
+    user_indicator = ModelStorage.instance.attachable_users[filename]
+    @user_indicator_definition = user_indicator.definition
+
+    # If weight is set, overwrite it, otherwise take the default from the
+    # definition
+    @user_weight = user_indicator.default_weight unless weight
+    @user_weight = weight if weight
+
+    @user_indicator_filename = user_indicator.filename
     update_user_indicator
   end
 
@@ -224,7 +241,11 @@ class Hub < PhysicsSketchupObject
   end
 
   def rotate_user(angle)
-    @user_rotation += angle
+    @user_transformation *= Geom::Transformation.rotation(
+      Geom::Point3d.new,
+      Geom::Vector3d.new(0, 0, 1),
+      angle
+    )
     update_user_indicator
   end
 
@@ -252,6 +273,7 @@ class Hub < PhysicsSketchupObject
 
   def apply_force
     return if @body.nil?
+
     @body.apply_force(@force)
   end
 
@@ -283,6 +305,7 @@ class Hub < PhysicsSketchupObject
 
   def create_entity
     return @entity if @entity
+
     position = Geom::Transformation.translation(@position)
     transformation = position * @model.scaling
     entity = Sketchup.active_model.entities.add_instance(@model.definition,

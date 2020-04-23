@@ -53,19 +53,11 @@ module NodeExportVisualization
     LINE_VISUALIZATION_DISTANCE = 3
 
     def color_group(group, group_nr)
-      group_color = case group_nr
-                    when 0 then '1f78b4' # dark blue
-                    when 1 then 'e31a1c' # dark red
-                    when 2 then 'ff7f00' # dark orange
-                    when 3 then '984ea3' # purple
-                    when 4 then 'a65628' # brown
-                    when 5 then 'a6cee3' # light blue
-                    when 6 then 'e78ac3' # pink
-                    when 7 then 'fdbf6f' # light orange
+      group_color = if group_nr >= Configuration::UNINTENSE_COLORS.length
+        format('%06x', rand * 0xffffff)
                     else
-                      format('%06x', rand * 0xffffff)
+        Configuration::UNINTENSE_COLORS[group_nr]
                     end
-
       group.each do |triangle|
         triangle.edges.each do |edge|
           edge.link.material = group_color

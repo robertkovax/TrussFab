@@ -136,7 +136,7 @@ class SpringPane
 
   # Opens a dummy dialog, to focus the main Sketchup Window again
   def focus_main_window
-    dialog = UI::WebDialog.new("", true, "", 0, 0, 10000, 10000, true)
+    dialog = UI::WebDialog.new('', true, '', 0, 0, 10_000, 10_000, true)
     dialog.show
     dialog.close
   end
@@ -164,15 +164,26 @@ class SpringPane
   end
 
   # compilation / simulation logic:
+  def color_static_groups
+    Sketchup.active_model.start_operation('Color static groups', true)
+    static_groups = StaticGroupAnalysis.find_static_groups
+    visualizer = NodeExportVisualization::Visualizer.new
+    visualizer.color_static_groups static_groups
+    Sketchup.active_model.commit_operation
+  end
 
   def compile
     # TODO: remove mounted users here in future and only update it (to keep the correct, empty default values in the
     # TODO: modelica file)
+    Sketchup.active_model.start_operation('compile simulation', true)
     compile_time = Benchmark.realtime do
       SimulationRunnerClient.update_model(
-          JsonExport.graph_to_json(nil, [], constants_for_springs, mounted_users))
+        JsonExport.graph_to_json(nil, [], constants_for_springs, mounted_users)
+      )
     end
+    Sketchup.active_model.commit_operation
     puts "Compiled the modelica model in #{compile_time.round(2)} seconds."
+    color_static_groups
   end
 
   private
@@ -250,7 +261,7 @@ class SpringPane
 
     @dialog.add_action_callback('user_weight_change') do |_, node_id, value|
       weight = value.to_i
-      Graph.instance.nodes[node_id].hub.attach_user(weight)
+      Graph.instance.nodes[node_id].hub.user_weight = weight
       update_mounted_users
       puts "Update user weight: #{weight}"
     end

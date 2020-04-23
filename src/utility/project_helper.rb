@@ -96,6 +96,10 @@ module ProjectHelper
     unless layers[Configuration::FORCE_LABEL_VIEW]
       force_label_layer = layers.add(Configuration::FORCE_LABEL_VIEW)
     end
+
+    unless layers[Configuration::MOTION_TRACE_VIEW]
+      layers.add(Configuration::MOTION_TRACE_VIEW)
+    end
   end
 
   def self.setup_surface_materials

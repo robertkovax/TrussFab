@@ -38,11 +38,7 @@ class SpringTool < ActuatorTool
   def onLButtonDown(flags, x, y, view)
     super
     @ui.spring_pane.update_springs
-    Sketchup.active_model.start_operation('Color static groups', true)
-    static_groups = StaticGroupAnalysis.find_static_groups
-    visualizer = NodeExportVisualization::Visualizer.new
-    visualizer.color_static_groups static_groups
-    Sketchup.active_model.commit_operation
+    @ui.spring_pane.color_static_groups
     reset
     activate
   end
@@ -61,5 +57,8 @@ class SpringTool < ActuatorTool
       @simulation.unschedule_piston_for_testing piston, PISTON_SPEED if piston != snapped_object
       piston != snapped_object
     end
+
+    Sketchup.active_model.layers[Configuration::MOTION_TRACE_VIEW].visible =
+      @scheduled_pistons.empty?
   end
 end
