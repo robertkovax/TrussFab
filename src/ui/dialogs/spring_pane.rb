@@ -239,7 +239,7 @@ class SpringPane
 
     @dialog.add_action_callback('spring_insights_compile') do
       compile
-      # Also update race visualization to provide visual feedback to user
+      # Also update trace visualization to provide visual feedback to user
       update_stats
       update_trace_visualization
     end
