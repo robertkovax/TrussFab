@@ -44,6 +44,11 @@ get '/get_equilibrium' do
   return_message.to_json
 end
 
+get '/optimize/hitting_ground' do
+  return_message = sim.optimize_springs(:hitting_ground)
+  return_message.to_json
+end
+
 get '/get_constant_for_constrained_angle' do
   # We don't do that for now...
   return_message = { constant: sim.get_period.to_s }
