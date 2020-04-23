@@ -3,10 +3,14 @@
   <title>Spring Modifications</title>
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 <style>
-
+<% @spring_edges.each{ |spring_edge| %>
+  #spring_constant_range_<%=  spring_edge.id  %>::-webkit-slider-thumb {
+    background: <%= spring_edge.link.get_color_string %>;
+}
+  <% } %>
 </style>
 
-<script type="text/javascript">
+  <script type="text/javascript">
   function set_constant(id, value) {
     document.getElementById('spring_constant_' + id).placeholder = value;
     document.getElementById('spring_constant_range_' + id).value = value;

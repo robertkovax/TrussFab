@@ -164,16 +164,26 @@ class SpringPane
   end
 
   # compilation / simulation logic:
+  def color_static_groups
+    Sketchup.active_model.start_operation('Color static groups', true)
+    static_groups = StaticGroupAnalysis.find_static_groups
+    visualizer = NodeExportVisualization::Visualizer.new
+    visualizer.color_static_groups static_groups
+    Sketchup.active_model.commit_operation
+  end
 
   def compile
     # TODO: remove mounted users here in future and only update it (to keep the correct, empty default values in the
     # TODO: modelica file)
+    Sketchup.active_model.start_operation('compile simulation', true)
     compile_time = Benchmark.realtime do
       SimulationRunnerClient.update_model(
         JsonExport.graph_to_json(nil, [], constants_for_springs, mounted_users)
       )
     end
+    Sketchup.active_model.commit_operation
     puts "Compiled the modelica model in #{compile_time.round(2)} seconds."
+    color_static_groups
     update_trace_visualization if @trace_visualization
   end
 

@@ -79,6 +79,11 @@ module Configuration
   ELONGATION_COLOR          = Sketchup::Color.new(0.69, 0.75, 0.81)
   PID_COLOR                 = Sketchup::Color.new(1.0, 0.45, 0.0)
 
+  INTENSE_COLORS = %w[#e6261f #f7d038 #4355db #d23b37 #34bbe6 #49da9a #a3e048].freeze
+  # These are the same colors, but with saturation lower, and a little bit shuffled, to prevent collisions
+  UNINTENSE_COLORS = %w[#dcdcdc #696969 #202020 #808080 #c0c0c0].freeze
+
+
   # Ground Stuff
   GROUND_COLOR          = Sketchup::Color.new(1.0, 1.0, 1.0)
   GROUND_ALPHA          = 0.0
