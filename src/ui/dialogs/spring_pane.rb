@@ -37,7 +37,6 @@ class SpringPane
     open_dialog
 
     @pending_compilation = false
-
   end
 
   # spring / graph manipulation logic:
