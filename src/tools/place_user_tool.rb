@@ -28,7 +28,7 @@ class PlaceUserTool < Tool
       @hub.attach_user(filename: possible_filenames[0])
     end
     # TODO: at some point springe pane should compile automatically when geometry changes
-    @ui.spring_pane.compile
+    @ui.spring_pane.request_compilation
     @ui.spring_pane.update_mounted_users
   end
 

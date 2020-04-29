@@ -11,7 +11,7 @@ class DemonstrateAmplitudeTool < PullNodeInteractionTool
 
   def activate
     # Instantiates SimulationRunner and compiles model.
-    @simulation_runner = @ui.spring_pane.try_compile
+    @simulation_runner = @ui.spring_pane.request_compilation
   end
 
   def onLButtonUp(_flags, x, y, view)

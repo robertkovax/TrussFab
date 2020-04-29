@@ -9,6 +9,9 @@ require 'src/utility/json_export.rb'
 class SpringPane
   attr_accessor :force_vectors
   INSIGHTS_HTML_FILE = '../spring-pane/index.erb'.freeze
+  DEFAULT_STATS = { 'period' => Float::NAN,
+                    'max_acceleration' => { 'value' => Float::NAN, 'index' => -1 },
+                    'max_velocity' => { 'value' => Float::NAN, 'index' => -1 } }.freeze
 
   def initialize
     @refresh_callback = nil
@@ -26,7 +29,7 @@ class SpringPane
     @trace_visualization = nil
     @animation_running = false
 
-    # { node_id => {period: float, max_a: float, max_v: float } }
+    # { node_id => {period: {value: float, index: int}, max_a: {value: float, index: int}, max_v: {value: float, index: int} } }
     @user_stats = {}
 
     @spring_picker = SpringPicker.instance
@@ -36,6 +39,7 @@ class SpringPane
     @dialog = nil
     open_dialog
 
+    @pending_compilation = false
   end
 
   # spring / graph manipulation logic:
@@ -77,12 +81,13 @@ class SpringPane
     SimulationRunnerClient.update_mounted_users(mounted_users)
     update_stats
     update_dialog if @dialog
-    update_trace_visualization
+    update_trace_visualization if @trace_visualization
   end
 
   def update_stats
     mounted_users.keys.each do |node_id|
       stats = SimulationRunnerClient.get_user_stats(node_id)
+      stats = DEFAULT_STATS if stats == {}
       @user_stats[node_id] = stats
     end
   end
@@ -172,9 +177,12 @@ class SpringPane
     Sketchup.active_model.commit_operation
   end
 
+  def request_compilation
+    @pending_compilation = true
+    update_dialog if @dialog
+  end
+
   def compile
-    # TODO: remove mounted users here in future and only update it (to keep the correct, empty default values in the
-    # TODO: modelica file)
     Sketchup.active_model.start_operation('compile simulation', true)
     compile_time = Benchmark.realtime do
       SimulationRunnerClient.update_model(
@@ -184,6 +192,8 @@ class SpringPane
     Sketchup.active_model.commit_operation
     puts "Compiled the modelica model in #{compile_time.round(2)} seconds."
     color_static_groups
+    @pending_compilation = false
+    update_dialog if @dialog
   end
 
   private
@@ -258,6 +268,7 @@ class SpringPane
       compile
       # Also update trace visualization to provide visual feedback to user
       update_stats
+      update_dialog if @dialog
       update_trace_visualization
     end
 
