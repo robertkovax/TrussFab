@@ -58,7 +58,10 @@
     <%
       mounted_users.each { |node_id, user_weight|
         stats = @user_stats[node_id]
-        next unless stats
+        unless stats
+          p "Empty user stat for user ##{node_id}, skipping"
+          next
+        end
         digits_precision = 2
     %>
 

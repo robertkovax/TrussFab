@@ -15,12 +15,12 @@ post '/update_model' do
 end
 
 patch '/update_spring_constants' do
-  sim.update_spring_constants(JSON.parse(request.body.read))
+  sim.update_spring_constants(JSON.parse(request.body.read)) if sim
   return ''
 end
 
 patch '/update_mounted_users' do
-  sim.update_mounted_users(JSON.parse(request.body.read))
+  sim.update_mounted_users(JSON.parse(request.body.read)) if sim
   return ''
 end
 

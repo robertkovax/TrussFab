@@ -77,7 +77,12 @@ class SimulationRunnerClient
     request = Net::HTTP::Get.new(uri.request_uri)
     request.body = json_data if json_data
     response = http.request(request)
-    JSON.parse(response.body)
+    if response.code != "500"
+      return JSON.parse(response.body)
+    else
+      return {}
+    end
+
   end
 
   # Parses data retrieved from a csv, must contain header at the first index.
