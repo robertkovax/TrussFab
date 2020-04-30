@@ -1,17 +1,13 @@
 model LineForceGenerated
   inner Modelica.Mechanics.MultiBody.World world(n = {0, 0, -1});
 
-  <% modelica_components.select{|component| component.is_a?(Modelica_Spring)}.each do |component| %>
-  Real <%= component[:name] %>_S(start = <%= component[:length] %>) = <%= component[:length] %>;
-  Real <%= component[:name] %>_C(start = <%= component[:c] %>) = <%= component[:c] %>;<% end %>
-
-
-  <% modelica_components.select{|component| component.is_a?(Modelica_PointMass)}.each do |component| %>
-  Real <%= component[:name] %>_yo [3] = <%= component[:name] %>.v_0;<% end %>
+  <% modelica_components.select{|component| component.is_a?(Modelica_PointMass) && component[:is_user]}.each do |component| %>
+  input Real <%= component[:name] %>_force_in(start = 0);<% end %>
+  output Real <%= component[:name] %>_pos_out(start = <%= component[:z] %>)<% end %>
 
   <% modelica_components.each do |component| %>
   <% if component.is_a?(Modelica_LineForceWithMass) %> Modelica.Mechanics.MultiBody.Forces.LineForceWithMass <%= component[:name] %>(fixedRotationAtFrame_a = <%= component[:orientation_fixed_a].to_s %>, fixedRotationAtFrame_b = <%= component[:orientation_fixed_b].to_s %>, m = <%= component[:mass] %>);
-  <% elsif component.is_a?(Modelica_Spring) %> AdaptiveSpringDamper <%= component[:name] %>(d = 10);
+  <% elsif component.is_a?(Modelica_Spring) %> AdaptiveSpringDamper <%= component[:name] %>(c = <%= component[:c] %>, d = 100, s_rel0 = <%= component[:length] %>);
   <% elsif component.is_a?(Modelica_Force) %> Modelica.Mechanics.MultiBody.Forces.WorldForce <%= component[:name] %>(force = <%= component[:name] %>_val);
   input Real <%= component[:name] %>_val [3];
   <% elsif component.is_a?(Modelica_PointMass) %> Modelica.Mechanics.MultiBody.Parts.PointMass <%= component[:name] %>(m = <%= component[:mass] %>, v_0(start = {0,0,0}, fixed = true), a_0(start = {0,0,0}, fixed = true)<% unless component[:x_start].nil? or component[:y_start].nil? or component[:z_start].nil? %>, r_0(fixed = false, start = <%= "{#{component[:x_start]}, #{component[:y_start]}, #{component[:z_start]}}" %>)<% end %>);
@@ -22,7 +18,7 @@ equation
   <% modelica_connections.each do |connection| %>
   connect(<%= connection[:from] %>, <%= connection[:to] %>);<% end %>
 
-  <% modelica_components.select{|component| component.is_a?(Modelica_Spring)}.each do |component| %>
-  connect(<%= component[:name] %>_C, <%= component[:name] %>.c);
-  connect(<%= component[:name] %>_S, <%= component[:name] %>.s_rel0);<% end %>
+  <% modelica_components.select{|component| component.is_a?(Modelica_PointMass) && component[:is_user]}.each do |component| %>
+  connect(<%= component[:name] %>_force_in, <%= component[:name] %>.force[3]);
+  connect(<%= component[:name] %>_pos_out, <%= component[:name] %>.r[3]);<% end %>
 end LineForceGenerated;

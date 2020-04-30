@@ -47,10 +47,10 @@ class SimulationRunner
   end
 
   def initialize(model_name = "seesaw3", spring_constants = {}, spring_identifiers = {}, mounted_users = {},
-                 suppress_compilation = false, keep_temp_dir = false)
+                 suppress_compilation = false, keep_temp_dir = true)
 
     @model_name = model_name
-    @compilation_options = '-n=4 --maxMixedDeterminedIndex=100 --generateSymbolicLinearization -d=nfAPI'
+    @compilation_options = '-n=4 --maxMixedDeterminedIndex=100'
     # @compilation_options += " --maxMixedDeterminedIndex=100 -n=4 --generateSymbolicLinearization"\
     #                         "--generateSymbolicJacobian"
     @simulation_options = ''
@@ -264,7 +264,7 @@ class SimulationRunner
     Open3.capture2e("cp ./modelica_assets/AdaptiveSpringDamper.mo  #{@directory}", chdir: File.dirname(__FILE__))
 
     dependencies = ["AdaptiveSpringDamper.mo", "Modelica"]
-    command = "omc #{@compilation_options} -s #{@model_name}.mo #{dependencies.join(' ')}"\
+    command = "omc #{@compilation_options} -s #{@model_name}.mo #{dependencies.join(' ')} "\
               "&& mv #{@model_name}.makefile Makefile && make -j 8"
     puts(command)
     output, status = Open3.capture2e(command,
@@ -272,7 +272,7 @@ class SimulationRunner
     if status.success?
       puts("Compilation Successful")
     else
-      p output
+      puts(output)
       raise SimulationError, "Modelica compilation failed."
     end
   end
@@ -294,15 +294,17 @@ class SimulationRunner
 
   def run_linearization()
     # TODO properly parse where users sit as output
-    command = "./#{@model_name} #{@simulation_options} -l=0"
+    command = "./#{@model_name}  -lv=LOG_STATS  -override=\"#{override_constants_string}\" -l=0"
     puts(command)
+    linear_model = nil
     Open3.popen2e(command, chdir: @directory) do |i, o, t|
       o.each { |l| puts l }
       unless t.value.success?
         raise SimulationError, "Linearization failed."
       end
-      LinearStateSpaceModel.new(File.join(@directory, "linear_#{@model_name}.mo"))
+      linear_model = LinearStateSpaceModel.new(File.join(@directory, "linear_#{@model_name}.mo"))
     end
+    linear_model
   end
 
 

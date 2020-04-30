@@ -43,7 +43,7 @@ class LinearStateSpaceModel
           # TODO generate zero matrices
       elsif LinearStateSpaceModel.is_vector(line)
         line_match = /^  parameter Real (?<vector_name>[ux]0).*= \{(?<vector_data>.*)\};$/.match(line)
-        vec = line_match[:vector_data].split(', ').map{|cell| "%f" % cell.to_f }
+        vec = line_match[:vector_data].split(', ').map{|cell| cell.to_f }
         store_vector(line_match[:vector_name], GSL::Vector[*vec])
       elsif LinearStateSpaceModel.is_label(line)
         line_match = /^  Real \'(?<label_name>.*)\' = (?<label_category>[ux])\[(?<label_number>\d+)\];/.match(line)
@@ -58,6 +58,17 @@ class LinearStateSpaceModel
 
     # f = GSL::Vector.linspace(0, 100, val.size)
     GSL::graph(val.re, val.im, "-C -g 3")
+  end
+
+  def bode_plot
+  end
+
+  def cp_to_python
+    puts "A = #{@A.to_a}"
+    puts "B = #{@B.to_a}"
+    puts "C = #{@C.to_a}"
+    puts "x0 = #{@x0.to_a}"
+    puts "u0 = #{@u0.to_a}"
   end
 
   def check_input(input_vector)

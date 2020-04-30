@@ -22,6 +22,8 @@ end
 task :test_seesaw_linearization do
   file = File.read("./test_models/sketchup_tetrahedron.json")
   sim = SimulationRunner.new_from_json_export(file)
+  linear_model = sim.get_system_matrix
+  linear_model.cp_to_python
 end
 
 task :test_get_period do
