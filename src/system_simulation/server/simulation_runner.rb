@@ -17,6 +17,7 @@ class SimulationRunner
   NODE_COORDINATES_FILTER = 'node_[0-9]+.r_0.*'.freeze
   CONSTRAINTS = %i[hitting_ground flipping min_max_compression].freeze
   NODE_RESULT_FILTER = 'node_[0-9]+\.r_0.*'.freeze
+  OPTIMIZE_MIN_SPRING_LENGTH = 0.2
 
   class SimulationError < StandardError
   end
@@ -208,23 +209,26 @@ class SimulationRunner
 
     # constant = initial_constant = @constants_for_springs[spring_id]
     constant = initial_constant = 100
-    id = "#{ModelicaModelGenerator.identifier_for_node_id(user_id)}.r_0"
-    filter = "#{id}.*"
+    user_modelica_string = "#{ModelicaModelGenerator.identifier_for_node_id(user_id)}.r_0"
+    user_filter = "#{user_modelica_string}.*"
+
+    spring_modelica_string = "#{@identifiers_for_springs[spring_id.to_s]}.s_rel"
+    spring_filter = "#{spring_modelica_string}.*"
 
     step_sizes = [10_000, 1000, 200, 50]
 
     step_size = step_sizes.shift
     keep_searching = true
     abort_threshold = 50_000
-    simulation_resolution = 0.2
+    simulation_resolution = 0.1
     simulation_length = 4
 
     while keep_searching
       # puts "Current k: #{constant} Step size: #{step_size}"
       @constants_for_springs[spring_id] = constant
-      run_simulation(filter, [], simulation_length, simulation_resolution)
+      run_simulation("#{user_filter}|#{spring_filter}", [], simulation_length, simulation_resolution)
       puts "constant #{constant}"
-      if !data_valid_for_constraint(read_csv_numeric, id, constraint_kind)
+      if !data_valid_for_constraint(read_csv_numeric, user_modelica_string, spring_modelica_string, constraint_kind)
         # increase spring constant to decrease angle delta
         constant += step_size
       elsif !step_sizes.empty?
@@ -285,7 +289,7 @@ class SimulationRunner
 
   # @param [Symbol] constraint_kind specifying the kind of constrain
   # @param [Array<Array<String>>] csv_data
-  def data_valid_for_constraint(csv_data, user_filter, constraint_kind)
+  def data_valid_for_constraint(csv_data, user_filter, spring_filter, constraint_kind)
     # TODO: for now we only optimize for not hitting the ground
     case constraint_kind
     when :hitting_ground
@@ -294,7 +298,8 @@ class SimulationRunner
       puts "min z #{z_coordinates.min}"
       return z_coordinates.min > 0
     when :flipping
-      raise NotImplementedError
+      min_length = csv_data[spring_filter].map{ |spring_length| spring_length.to_f}.min
+      return min_length > OPTIMIZE_MIN_SPRING_LENGTH
     when :min_max_compression
       raise NotImplementedError
     end
