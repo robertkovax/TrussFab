@@ -17,7 +17,7 @@ class SimulationRunner
   NODE_COORDINATES_FILTER = 'node_[0-9]+.r_0.*'.freeze
   CONSTRAINTS = %i[hitting_ground flipping min_max_compression].freeze
   NODE_RESULT_FILTER = 'node_[0-9]+\.r_0.*'.freeze
-  OPTIMIZE_MIN_SPRING_LENGTH = 0.2
+  OPTIMIZE_MIN_SPRING_LENGTH = 0.3
 
   class SimulationError < StandardError
   end
