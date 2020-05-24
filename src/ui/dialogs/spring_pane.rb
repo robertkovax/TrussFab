@@ -40,6 +40,8 @@ class SpringPane
     open_dialog
 
     @pending_compilation = false
+
+    @compiling = false
   end
 
   # spring / graph manipulation logic:
@@ -184,10 +186,22 @@ class SpringPane
 
   def compile
     Sketchup.active_model.start_operation('compile simulation', true)
+    @compiling = true
+    update_dialog if @dialog
+
     compile_time = Benchmark.realtime do
       SimulationRunnerClient.update_model(
         JsonExport.graph_to_json(nil, [], constants_for_springs, mounted_users)
-      )
+      ) do
+
+        update_stats
+        update_dialog if @dialog
+        update_trace_visualization
+
+        @compiling = false
+
+        update_dialog if @dialog
+      end
     end
     Sketchup.active_model.commit_operation
     puts "Compiled the modelica model in #{compile_time.round(2)} seconds."

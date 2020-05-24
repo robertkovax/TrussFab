@@ -7,16 +7,18 @@ require_relative 'animation_data_sample.rb'
 SIMULATION_RUNNER_HOST = "http://ec2-3-127-56-156.eu-central-1.compute.amazonaws.com:8080".freeze
 
 class SimulationRunnerClient
-  def self.update_model(json_string)
-    uri = URI.parse("#{SIMULATION_RUNNER_HOST}/update_model")
-    header = {'Content-Type' => 'text/json'}
 
-    http = Net::HTTP.new(uri.host, uri.port)
-
-    request = Net::HTTP::Post.new(uri.request_uri, header)
+  # Update the server with a new geometry. The passed block will be executed on completion.
+  def self.update_model(json_string, &block)
+    Sketchup.set_status_text("Compiling...")
+    request = Sketchup::Http::Request.new("#{SIMULATION_RUNNER_HOST}/update_model", Sketchup::Http::POST)
+    request.headers = {'Content-Type' => 'text/json'}
     request.body = json_string.to_s
-
-    response = http.request(request)
+    request.start do |request, response|
+      puts "body: #{response.body}"
+      Sketchup.set_status_text("Done compiling!")
+      yield
+    end
   end
 
   def self.update_spring_constants(spring_constants)
@@ -83,6 +85,7 @@ class SimulationRunnerClient
       return {}
     end
 
+    # TODO: Also use Sketchup::HTTP api here do make async requests
   end
 
   # Parses data retrieved from a csv, must contain header at the first index.
