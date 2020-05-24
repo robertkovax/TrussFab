@@ -15,21 +15,29 @@ post '/update_model' do
 end
 
 patch '/update_spring_constants' do
+  return if SimulationRunner.status != :ready
+
   sim.update_spring_constants(JSON.parse(request.body.read)) if sim
   return ''
 end
 
 patch '/update_mounted_users' do
+  return if SimulationRunner.status != :ready
+
   sim.update_mounted_users(JSON.parse(request.body.read)) if sim
   return ''
 end
 
 get '/get_user_stats/:node_id' do
+  return if SimulationRunner.status != :ready
+
   return_message = sim.get_user_stats(params['node_id'])
   return_message.to_json
 end
 
 get '/get_hub_time_series' do
+  return if SimulationRunner.status != :ready
+
   return_message = { data: sim.get_hub_time_series([]) }
   return_message.to_json
 end
