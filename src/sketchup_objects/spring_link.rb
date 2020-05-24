@@ -19,7 +19,10 @@ class SpringLink < ActuatorLink
     super(first_node, second_node, edge, id: id)
     @first_elongation_length =
       @second_elongation_length = Configuration::MINIMUM_ELONGATION
+    @id_label = nil
+
     persist_entity
+    update_id_label
   end
 
   def get_color_string
@@ -31,6 +34,7 @@ class SpringLink < ActuatorLink
     @actual_spring_length = @spring_parameters[:unstreched_length].m
     @spring_coil_diameter = @spring_parameters[:coil_diameter].m
     update_link_properties
+    update_id_label
   end
 
   def change_color(color)
@@ -127,5 +131,22 @@ class SpringLink < ActuatorLink
 
   def set_piston_group_color
     @second_cylinder.material = COLORS[@piston_group]
+  end
+
+  def update_id_label
+    # always recreate label
+    @id_label.erase! if @id_label
+
+    pt1 = @first_node.hub.entity.bounds.center
+    pt2 = @second_node.hub.entity.bounds.center
+
+    vector_representation = pt1.vector_to(pt2)
+    spring_center = pt1.offset(vector_representation, vector_representation.length / 2)
+    label_position = spring_center.offset(Geom::Vector3d.new(0, 1, 0), 12.cm)
+    constline = Sketchup.active_model.entities.add_cline(label_position, spring_center)
+
+    @id_label = Sketchup.active_model.entities.add_text("    #{@spring_parameters[:k]}N/m ",
+                                                        label_position)
+    @id_label.layer = Sketchup.active_model.layers[Configuration::SPRING_INSIGHTS]
   end
 end

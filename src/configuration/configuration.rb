@@ -6,6 +6,7 @@ module Configuration
   COMPONENT_VIEW = 'Bottles'.freeze
   HUB_VIEW = 'Hubs'.freeze
   HUB_ID_VIEW = 'Hub IDs'.freeze
+  SPRING_INSIGHTS = 'Spring insights'.freeze
   TRIANGLE_SURFACES_VIEW = 'Triangle Surfaces'.freeze
   DRAW_TOOLTIPS_VIEW = 'Drawing Tooltips'.freeze
   FORCE_LABEL_VIEW = 'Force Labels'.freeze

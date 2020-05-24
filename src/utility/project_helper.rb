@@ -89,6 +89,11 @@ module ProjectHelper
       hub_id_layer.visible = false
     end
 
+    unless layers[Configuration::SPRING_INSIGHTS]
+      hub_id_layer = layers.add(Configuration::SPRING_INSIGHTS)
+      hub_id_layer.visible = false
+    end
+
     unless layers[Configuration::FORCE_VIEW]
       layers.add(Configuration::FORCE_VIEW)
     end
