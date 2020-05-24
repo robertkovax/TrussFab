@@ -93,6 +93,7 @@ class TraceVisualization
       if max_acceleration_index == index
         puts "maximum acceleration index: #{index}"
         circle_instance.material = "red"
+        add_label(position, position.offset(Geom::Vector3d.new(0,10.cm, 0)) ,"    #{stats['max_acceleration']['value'].round(3)}m/s^2 ")
       else
         circle_instance.material = material_from_hsv(color_hue, color_min_value + color_weight,
                                                      color_max_value - color_weight)
@@ -169,5 +170,16 @@ class TraceVisualization
     r, g, b = v, p, q if h_i==5
     # [(r*255).to_i, (g*255).to_i, (b*255).to_i]
     Sketchup::Color.new((r*255).to_i, (g*255).to_i, (b*255).to_i)
+  end
+
+
+  def add_label(info_position, label_position, label_text)
+    # always recreate label
+    @id_label.erase! if @id_label
+    constline = Sketchup.active_model.entities.add_cline(info_position, label_position)
+
+    @id_label = Sketchup.active_model.entities.add_text(label_text,
+                                                        label_position)
+    @id_label.layer = Sketchup.active_model.layers[Configuration::SPRING_INSIGHTS]
   end
 end
