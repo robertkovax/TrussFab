@@ -17,11 +17,17 @@ class SimulationRunner
   NODE_COORDINATES_FILTER = 'node_[0-9]+.r_0.*'.freeze
   CONSTRAINTS = %i[hitting_ground flipping min_max_compression].freeze
   NODE_RESULT_FILTER = 'node_[0-9]+\.r_0.*'.freeze
+  @@status = :ready
 
   class SimulationError < StandardError
   end
 
+  def self.status
+    @@status
+  end
+
   def self.new_from_json_export(json_export_string)
+    @@status = :busy
     require_relative './generate_modelica_model.rb'
     modelica_model_string = ModelicaModelGenerator.generate_modelica_file(json_export_string)
     model_name = "LineForceGenerated"
@@ -45,7 +51,9 @@ class SimulationRunner
     mounted_users = trussfab_geometry['mounted_users'] if trussfab_geometry['mounted_users']
 
     # TODO: why is :spring_constants key syntax not working here?
-    SimulationRunner.new(model_name, spring_constants, identifiers_for_springs, mounted_users)
+    sim = SimulationRunner.new(model_name, spring_constants, identifiers_for_springs, mounted_users)
+    @@status = :ready
+    sim
   end
 
   def initialize(model_name = "seesaw3", spring_constants = {}, spring_identifiers = {}, mounted_users = {},
