@@ -4,6 +4,7 @@ require 'src/system_simulation/geometry_animation.rb'
 require 'src/system_simulation/spring_picker.rb'
 require 'src/system_simulation/simulation_runner_client.rb'
 require 'src/utility/json_export.rb'
+require 'src/system_simulation/period_animation.rb'
 
 # Ruby integration for spring insights dialog
 class SpringPane
@@ -100,6 +101,15 @@ class SpringPane
     @trace_visualization.reset_trace
     # visualize every node with a mounted user
     @trace_visualization.add_trace(mounted_users.keys.map(&:to_s), 4, @simulation_data, @user_stats)
+
+    #  TODO: remove these lines once done with testing
+    node_id = mounted_users.keys.first
+    @animation = PeriodAnimation.new(@simulation_data, @user_stats[node_id]['period'], node_id) do
+      @animation_running = false
+      update_dialog
+      puts "stop"
+    end
+    Sketchup.active_model.active_view.animation = @animation
   end
 
   def put_geometry_into_equilibrium(spring_id)
