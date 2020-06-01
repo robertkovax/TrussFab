@@ -55,6 +55,11 @@ class SpringLink < ActuatorLink
     # end
   end
 
+  def delete
+    @id_label.erase!
+    super
+  end
+
   #
   # Physics methods
   #

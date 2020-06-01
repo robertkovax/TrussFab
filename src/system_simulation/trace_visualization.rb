@@ -33,6 +33,8 @@ class TraceVisualization
       Sketchup.active_model.active_entities.erase_entities(@trace_points)
     end
     @trace_points = []
+
+    @id_label.erase! if @id_label.valid?
   end
 
   private
@@ -175,7 +177,7 @@ class TraceVisualization
   # Places a describing label at the given position.
   def add_label(described_item_position, label_position, label_text)
     # always recreate label
-    @id_label.erase! if @id_label
+    @id_label.erase! if @id_label.valid?
 
     @id_label = Sketchup.active_model.entities.add_text(label_text,
                                                         described_item_position, label_position - described_item_position)

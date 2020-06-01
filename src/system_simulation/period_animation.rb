@@ -57,13 +57,9 @@ class PeriodAnimation
     @group.layer = Configuration::SPRING_INSIGHTS
     entities = @group.entities
 
-    #materialToSet = Sketchup.active_model.materials.add("MyColor_1")
-    #materialToSet.color = Sketchup::Color.Red;
-    #materialToSet.alpha = 1.0
-
     current_position = current_data_sample.position_data[@node_id.to_s]
 
-    @label_position ||= current_position.offset(Geom::Vector3d.new(0, 1, 0), 20.cm)
+    @label_position ||= current_position.offset(Geom::Vector3d.new(0, 1, -1), 20.cm)
 
     radius = 1
     num_segments = 20
@@ -81,12 +77,8 @@ class PeriodAnimation
     entities.erase_entities(path)
 
     # Add period label
-    # TODO: Add label to Configuration::SPRING_INSIGHTS layer
-    # TODO: how to correctly achieve offsetting direction
-    label = entities.add_text("#{@period.round(2)}s", current_position, @label_position - current_position)
-    #label.line_weight = 40
+    entities.add_text("#{@period.round(2)}s", current_position, @label_position - current_position)
 
-    #update_graph_with_data_sample @data[@index]
 
     view.refresh
 
@@ -94,27 +86,8 @@ class PeriodAnimation
     @running
   end
 
+  # Finds closest data sample for a given time stamp.
   def next_valid_index(time_stamp)
     @data.find_index { |data_sample| data_sample.time_stamp.to_f >= time_stamp }
   end
-
-  def update_graph_with_data_sample(data_sample)
-    # try to find a matching node (by id) in the graph and move it to the position parsed from current data sample
-    data_sample.position_data.each do |node_id, position|
-      node = Graph.instance.nodes[node_id.to_i]
-      next unless node
-
-      node.update_position(position)
-      node.hub.update_position(position)
-      node.hub.update_user_indicator
-      node.adjacent_triangles.each { |triangle| triangle.update_sketchup_object if triangle.cover }
-    end
-
-    Graph.instance.edges.each do |_, edge|
-      link = edge.link
-      link.update_link_transformations
-    end
-    puts(data_sample.time_stamp)
-  end
-
 end
