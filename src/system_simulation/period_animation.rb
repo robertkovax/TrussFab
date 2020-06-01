@@ -18,8 +18,6 @@ class PeriodAnimation
     # time keeping
     @start_time = Time.now.to_f
 
-    @pulse_position = @data[0].position_data[@node_id.to_s].offset(Geom::Vector3d.new(0, 1, 0), 30.cm)
-    @pulse_definition = create_pulse
   end
 
   def stop
@@ -84,7 +82,6 @@ class PeriodAnimation
     label = entities.add_text("#{@period.round(2)}s", current_position.offset(Geom::Vector3d.new(0,1,0), 5.cm))
     label.line_weight = 40
 
-    scale_pulse(@pulse_definition, (((@period - ellapsed_time).abs / @period) - (@period / 2)).abs)
     #update_graph_with_data_sample @data[@index]
 
     view.refresh
@@ -92,36 +89,6 @@ class PeriodAnimation
     # Sketchup animations will continue to run as long as this method returns true and stop as soon as it returns false
     @running
   end
-
-  def create_pulse()
-    pulse_definition = Sketchup.active_model.definitions.add "Circle Trace Visualization"
-    entities = pulse_definition.entities
-
-    radius = 8.cm
-    num_segments = 20
-    circle = entities.add_circle(@pulse_position, Geom::Vector3d.new(1,0,0), radius, num_segments)
-    face = entities.add_face(circle)
-    face.material = [252, 186, 3]
-    face.back_material = [252, 186, 3]
-    face.reverse!
-    # Create a temporary path for follow me to use to perform the revolve.
-    # This path should not touch the face.
-    path = entities.add_circle(@pulse_position, Geom::Vector3d.new(0,0,1), radius * 2, num_segments)
-    # This creates the sphere.
-    face.followme(path)
-    entities.erase_entities(path)
-
-    pulse_definition
-  end
-
-  def scale_pulse(definition, factor)
-    @group = Sketchup.active_model.entities.add_group if @group.deleted?
-    @group.layer = Configuration::SPRING_INSIGHTS
-
-    transformation = Geom::Transformation.scaling(@pulse_position, factor)
-    pulse_instance = @group.entities.add_instance(definition, transformation)
-  end
-
 
   def next_valid_index(time_stamp)
     @data.find_index { |data_sample| data_sample.time_stamp.to_f >= time_stamp }
