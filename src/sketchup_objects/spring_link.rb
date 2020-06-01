@@ -143,10 +143,9 @@ class SpringLink < ActuatorLink
     vector_representation = pt1.vector_to(pt2)
     spring_center = pt1.offset(vector_representation, vector_representation.length / 2)
     label_position = spring_center.offset(Geom::Vector3d.new(0, 1, 0), 12.cm)
-    constline = Sketchup.active_model.entities.add_cline(label_position, spring_center)
 
-    @id_label = Sketchup.active_model.entities.add_text("    #{@spring_parameters[:k]}N/m ",
-                                                        label_position)
+    @id_label = Sketchup.active_model.entities.add_text("#{@spring_parameters[:k]}N/m ",
+                                                        spring_center, label_position - spring_center)
     @id_label.layer = Sketchup.active_model.layers[Configuration::SPRING_INSIGHTS]
   end
 end

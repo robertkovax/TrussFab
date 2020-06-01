@@ -17,6 +17,8 @@ class PeriodAnimation
 
     # time keeping
     @start_time = Time.now.to_f
+    # Will be lazy initialized in nextFrame loop
+    @label_position = nil
 
   end
 
@@ -61,6 +63,8 @@ class PeriodAnimation
 
     current_position = current_data_sample.position_data[@node_id.to_s]
 
+    @label_position ||= current_position.offset(Geom::Vector3d.new(0, 1, 0), 20.cm)
+
     radius = 1
     num_segments = 20
     circle = entities.add_circle(current_position, Geom::Vector3d.new(1,0,0), radius, num_segments)
@@ -79,8 +83,8 @@ class PeriodAnimation
     # Add period label
     # TODO: Add label to Configuration::SPRING_INSIGHTS layer
     # TODO: how to correctly achieve offsetting direction
-    label = entities.add_text("#{@period.round(2)}s", current_position.offset(Geom::Vector3d.new(0,1,0), 5.cm))
-    label.line_weight = 40
+    label = entities.add_text("#{@period.round(2)}s", current_position, @label_position - current_position)
+    #label.line_weight = 40
 
     #update_graph_with_data_sample @data[@index]
 

@@ -172,14 +172,13 @@ class TraceVisualization
     Sketchup::Color.new((r*255).to_i, (g*255).to_i, (b*255).to_i)
   end
 
-
-  def add_label(info_position, label_position, label_text)
+  # Places a describing label at the given position.
+  def add_label(described_item_position, label_position, label_text)
     # always recreate label
     @id_label.erase! if @id_label
-    constline = Sketchup.active_model.entities.add_cline(info_position, label_position)
 
     @id_label = Sketchup.active_model.entities.add_text(label_text,
-                                                        label_position)
+                                                        described_item_position, label_position - described_item_position)
     @id_label.layer = Sketchup.active_model.layers[Configuration::SPRING_INSIGHTS]
   end
 end
