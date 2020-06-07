@@ -54,7 +54,7 @@ class SimulationRunner
     # @compilation_options += " --maxMixedDeterminedIndex=100 -n=4 --generateSymbolicLinearization"\
     #                         "--generateSymbolicJacobian"
     @simulation_options = ''
-    @simulation_options += ' -lv=LOG_STATS -emit_protected -nls=kinsol -s=ida'
+    @simulation_options += ' -lv=LOG_STATS'
     # @simulation += "lv=LOG_INIT_V,LOG_SIMULATION,LOG_STATS,LOG_JAC,LOG_NLS"
 
     if suppress_compilation
@@ -157,6 +157,10 @@ class SimulationRunner
     frequency != 0 ? 1 / frequency : nil
   end
 
+  def linearize
+    run_linearization
+  end
+
   # Returns index of animation frame when system is in equilibrium by finding the arithmetic mean of the angle
   # differences and the according index.
   def find_equilibrium(spring_id)
@@ -217,9 +221,7 @@ class SimulationRunner
     constant
   end
 
-  def get_system_matrix
-    run_linearization
-  end
+
 
   private
 
@@ -279,9 +281,9 @@ class SimulationRunner
 
   def run_simulation(filter = '*', force_vectors = [])
     # TODO: adjust sampling rate dynamically
-    overrides = "outputFormat=csv,variableFilter=#{filter},startTime=0.0,stopTime=10,stepSize=0.05," \
+    overrides = "outputFormat=mat,startTime=0.0,stopTime=10,stepSize=0.05,method=ida" \
                 "#{force_vector_string(force_vectors)},#{override_constants_string}"
-    command = "./#{@model_name} #{@simulation_options} -override=\"#{overrides}\""
+    command = "./#{@model_name} #{@simulation_options} -override=\"#{overrides}\" -idaSensitivity"
     puts(command)
     Open3.popen2e(command, chdir: @directory) do |i, o, t|
       # prints out std out of the command

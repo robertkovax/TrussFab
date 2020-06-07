@@ -22,29 +22,26 @@ class LinearStateSpaceModel
 
   def initialize(path)
 
-    File.readlines(path).each do |line|
-      # TODO parse initial condition (x0) of system
+    modelica_file_content = File.read(path)
+
+    # put every field into its own line
+    modelica_file_content = modelica_file_content.gsub("\n\t", " ")
+
+    modelica_file_content.split("\n").each do |line|
       if LinearStateSpaceModel.is_matrix(line)
 
         is_zero = false
         line_match = /^  parameter Real (?<matrix_name>[A-D]).*= \[(?<matrix_data>.*)\];$/.match(line)
         if line_match
           mat = line_match[:matrix_data].split("; ").map{|row| row.split(", ").map{ |cell| cell.to_f }}
-          store_matrix(line_match[:matrix_name], GSL::Matrix[*mat])
+          store_matrix(line_match[:matrix_name], Matrix[*mat])
         else
-          # if a normal match cannot be made we will check whether it is a empty matrix
-          line_match = /^  parameter Real (?<matrix_name>[A-D]).*= zeros\(., .\);$/.match(line)
-          if line_match
-            is_zero = true
-          else
-            raise "Invalid Matrix format in linearized Modelica output file"
-          end
+          raise "Invalid Matrix format in linearized Modelica output file"
         end
-          # TODO generate zero matrices
       elsif LinearStateSpaceModel.is_vector(line)
         line_match = /^  parameter Real (?<vector_name>[ux]0).*= \{(?<vector_data>.*)\};$/.match(line)
         vec = line_match[:vector_data].split(', ').map{|cell| cell.to_f }
-        store_vector(line_match[:vector_name], GSL::Vector[*vec])
+        store_vector(line_match[:vector_name], vec)
       elsif LinearStateSpaceModel.is_label(line)
         line_match = /^  Real \'(?<label_name>.*)\' = (?<label_category>[ux])\[(?<label_number>\d+)\];/.match(line)
       end
@@ -52,7 +49,7 @@ class LinearStateSpaceModel
   end
 
   def eigenfreq
-    val, vec = @A.eigen_nonsymm
+    val, vec = GSL::Matrix(@A).eigen_nonsymm
     p val.to_a
     p vec.to_a
 
@@ -61,6 +58,24 @@ class LinearStateSpaceModel
   end
 
   def bode_plot
+    # The bode plot gives us more information about the frequency response of the system
+    # it consits of two sub-plots:magnitude plot (how the system alters the magintude of the frequencies) &
+    # phase plot (how the phase is altered at a given frequency)
+    #
+    # https://en.wikipedia.org/wiki/Bode_plot#Definition
+
+    frequencies = (-3..3).step(0.1).to_a.map { |a| 10**a }
+
+    def transfer_function(s)
+      # https://stackoverflow.com/a/26607715
+      i = Matrix.identity(@A.row_count)
+      (@C * (s * i - @A).inverse * @B + @D)[0,0]
+
+    end
+
+    frequency_response = frequencies.map{|w| transfer_function(Complex(0, w))}
+
+    {:frequencies => frequencies, :magnitude => frequency_response.map{ |c| Complex(c).abs }, :phase => frequency_response.map{ |c| Complex(c).arg } }
   end
 
   def cp_to_python
@@ -106,5 +121,4 @@ class LinearStateSpaceModel
   def self.is_label(line)
     /^  Real \'/.match?(line)
   end
-
 end

@@ -22,9 +22,18 @@ end
 task :test_seesaw_linearization do
   file = File.read("./test_models/sketchup_tetrahedron.json")
   sim = SimulationRunner.new_from_json_export(file)
-  linear_model = sim.get_system_matrix
-  linear_model.cp_to_python
+  linear_model = sim.linearize
+  File.open('linear_model.dump', 'wb') { |f| f.write(Marshal.dump(linear_model)) }
+
+  p linear_model
+  # linear_model.cp_to_python
 end
+
+task :test_bode_plot do
+  ss = Marshal.load(File.read('linear_model.dump'))
+  p ss.bode_plot
+end
+
 
 task :test_get_period do
   sim = SimulationRunner.new()
