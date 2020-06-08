@@ -2,6 +2,7 @@ require 'src/sketchup_objects/physics_link.rb'
 require 'src/configuration/configuration.rb'
 require 'src/sketchup_objects/link_entities/spring_cylinder.rb'
 require 'src/system_simulation/spring_picker.rb'
+require 'src/sketchup_objects/spring_constant_observer.rb'
 
 # PhysicsLink that behaves like a gas spring
 class SpringLink < ActuatorLink
@@ -152,5 +153,6 @@ class SpringLink < ActuatorLink
     @id_label = Sketchup.active_model.entities.add_text("#{@spring_parameters[:k]}N/m ",
                                                         spring_center, label_position - spring_center)
     @id_label.layer = Sketchup.active_model.layers[Configuration::SPRING_INSIGHTS]
+    @id_label.add_observer(SpringConstantObserver.new(@id))
   end
 end

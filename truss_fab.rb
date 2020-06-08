@@ -98,6 +98,10 @@ module TrussFab
     def store_sensor_output?
       @store_sensor_output
     end
+
+    def get_spring_pane
+      @spring_pane
+    end
   end
 end
 
