@@ -13,6 +13,7 @@ class ImportTool < Tool
     @path = nil
     @angle = 0
     @scale = 1
+    @update_springs = false
   end
 
   def onKeyDown(key, _repeat, _flags, _view)
@@ -34,16 +35,17 @@ class ImportTool < Tool
 
   def transform_model
     return if @last_imported_edges.nil?
+
     delete_edges @last_imported_edges
     Sketchup.active_model.start_operation('transform', true)
     if @last_graph_object.is_a?(Triangle)
       _, new_edges, animation =
         JsonImport.at_triangle(@path, @last_graph_object, angle: @angle,
-                               scale: @scale)
+                                                          scale: @scale)
     else
       _, new_edges, animation =
         JsonImport.at_position(@path, @last_position, angle: @angle,
-                               scale: @scale)
+                                                      scale: @scale)
     end
     Sketchup.active_model.commit_operation
     setup_new_edges(new_edges, animation)
@@ -67,7 +69,12 @@ class ImportTool < Tool
     snapped_object = @mouse_input.snapped_object
     import_from_json(@path, snapped_object, @mouse_input.position)
     @ui.animation_pane.sync_hidden_status(Graph.instance.actuator_groups)
-    @ui.spring_pane.update_springs
+
+    if @update_springs
+      @ui.spring_pane.request_compilation
+      @ui.spring_pane.update_mounted_users
+      @ui.spring_pane.update_springs
+    end
 
     @mouse_input.update_positions(view, x, y)
     view.invalidate
@@ -76,12 +83,14 @@ class ImportTool < Tool
   def setup_new_edges(new_edges, animation)
     new_edges.each do |edge|
       next unless edge.link.is_a?(ActuatorLink)
+
       if edge.link.piston_group < 0
         edge.link.piston_group = IdManager.instance.maximum_piston_group + 1
       end
       @ui.animation_pane.add_piston(edge.link.piston_group) if animation == ''
     end
     return if animation == ''
+
     @ui.animation_pane.add_piston_with_animation(animation)
   end
 
@@ -94,6 +103,7 @@ class ImportTool < Tool
       setup_new_edges(new_edges, animation)
     elsif graph_object.nil?
       return unless Graph.instance.find_close_node(position).nil?
+
       old_triangles = Graph.instance.triangles.values
       new_triangles, new_edges, animation =
         JsonImport.at_position(path, position, angle: @angle, scale: @scale)
@@ -123,15 +133,16 @@ class ImportTool < Tool
       right_back_top = new_bounds.corner(7)
       diagonal = Geom::Vector3d.new(left_front_bottom, right_back_top)
       new_bounds.add(right_back_top.offset(
-        diagonal,
-        Configuration::INTERSECTION_OFFSET
-      ))
+                       diagonal,
+                       Configuration::INTERSECTION_OFFSET
+                     ))
       new_bounds.add(left_front_bottom.offset(
-        diagonal.reverse,
-        Configuration::INTERSECTION_OFFSET
-      ))
+                       diagonal.reverse,
+                       Configuration::INTERSECTION_OFFSET
+                     ))
       oent = old_triangle.surface.entity
       next unless oent.valid?
+
       old_bounds = oent.bounds
       intersection = old_bounds.intersect(new_bounds)
 

@@ -14,6 +14,8 @@ require_relative './generate_modelica_model.rb'
 # including spring oscillations) are run. Right now we use Modelica and compile / simulate a modelica model of our
 # geometry when necessary. This class provides public interfaces for different results of the simulation.
 class SimulationRunner
+  NODE_COORDINATES_FILTER = 'node_[0-9]+.r_0.*'.freeze
+  CONSTRAINTS = %i[hitting_ground flipping min_max_compression].freeze
   NODE_RESULT_FILTER = 'node_[0-9]+\.r_0.*'.freeze
 
   class SimulationError < StandardError
@@ -52,7 +54,7 @@ class SimulationRunner
     @model_name = model_name
     @compilation_options = '-n=4 --maxMixedDeterminedIndex=100'
     # @compilation_options += " --maxMixedDeterminedIndex=100 -n=4 --generateSymbolicLinearization"\
-    #                         "--generateSymbolicJacobian"
+    #                         " --generateSymbolicJacobian"
     @simulation_options = ''
     @simulation_options += ' -lv=LOG_STATS'
     # @simulation += "lv=LOG_INIT_V,LOG_SIMULATION,LOG_STATS,LOG_JAC,LOG_NLS"
@@ -112,7 +114,7 @@ class SimulationRunner
     velocity_id = "#{ModelicaModelGenerator.identifier_for_node_id(node_id)}.v_0"
     acceleration_id = "#{ModelicaModelGenerator.identifier_for_node_id(node_id)}.a_0"
 
-    csv_data = CSV.read(File.join(@directory, "#{@model_name}_res.csv"), headers: true, converters: :numeric)
+    csv_data = read_csv_numeric
     {
       period: get_period(period_id, csv_data),
       max_acceleration: get_max_norm_and_index(acceleration_id, csv_data),
@@ -182,25 +184,51 @@ class SimulationRunner
     raw_data.index(equilibrium_data_row)
   end
 
-  # This function approximates a optimum (= the biggest spring constant that makes the spring still stay in the angle
-  # constrains) by starting with a very low spring constant (which leads to a very high oscillation => high angle delta)
+  # OPTIMIZATION LOGIC
+
+  # @param Symbol kind of constraint, one of CONSTRAINTS
+  # @return Hash<String, int> new constants for spring ids
+  def optimize_springs(constraint_kind)
+    # TODO: remove these mocked spring and user ids
+    # hash
+    result_map = {}
+    user_id = @mounted_users.keys[0]
+    @constants_for_springs.each do |spring_id, _constant|
+      result_map[spring_id] = optimize_spring_for_constraint(spring_id, user_id, constraint_kind)
+    end
+    result_map
+  end
+
+  # This function approximates a optimum (= the biggest spring constant that makes the spring still stay in the specific
+  # constrain) by starting with a very low spring constant (which leads to a very high oscillation => high amplitude)
   # and approaches the optimum by approaching with different step sizes (= resolutions of the search), decreasing the
   # step size as soon as the spring constant is not valid anymore and thus approximating the highest valid spring
   # constant.
-  def constant_for_constrained_angle(allowed_angle_delta = Math::PI / 2.0, spring_id = 25, initial_constant = 500)
-    # steps which the algorithm uses to approximate the valid spring constant
+  # @param [Symbol] constraint_kind specifying the kind of constrain
+  # @param [String] spring_id
+  def optimize_spring_for_constraint(spring_id, user_id, constraint_kind)
+    # TODO: probably we want to specify into which direction we want to go (in our search),
+    # TODO: right now we decrease the constant
 
-    angle_filter = @angles_for_springs[spring_id]
-    step_sizes = [1500, 1000, 200, 50, 5]
-    constant = initial_constant
+    # constant = initial_constant = @constants_for_springs[spring_id]
+    constant = initial_constant = 100
+    id = "#{ModelicaModelGenerator.identifier_for_node_id(user_id)}.r_0"
+    filter = "#{id}.*"
+
+    step_sizes = [10_000, 1000, 200, 50]
+
     step_size = step_sizes.shift
     keep_searching = true
     abort_threshold = 50_000
+    simulation_resolution = 0.2
+    simulation_length = 4
+
     while keep_searching
       # puts "Current k: #{constant} Step size: #{step_size}"
       @constants_for_springs[spring_id] = constant
-      run_simulation(angle_filter)
-      if !angle_valid(read_csv, allowed_angle_delta)
+      run_simulation(filter, [], simulation_length, simulation_resolution)
+      puts "constant #{constant}"
+      if !data_valid_for_constraint(read_csv_numeric, id, constraint_kind)
         # increase spring constant to decrease angle delta
         constant += step_size
       elsif !step_sizes.empty?
@@ -218,7 +246,13 @@ class SimulationRunner
       keep_searching = false if constant >= abort_threshold
     end
 
+    puts "Optimized spring ##{spring_id} – constant: #{constant}N/m"
+    @constants_for_springs[spring_id] = constant
     constant
+
+    # TODO: use spring catalog / picking logic from spring_picker.rb to pick the fitting spring (get_spring)
+    # TODO: right now we're just setting the constant to the exact value (without checking if there really is a spring
+    # TODO: with that constant)
   end
 
 
@@ -251,14 +285,34 @@ class SimulationRunner
     force_vectors_string[0...-1] if force_vectors_string.length != 0
   end
 
-  def angle_valid(data, max_allowed_delta = Math::PI / 2.0)
-    data = data.map { |data_sample| data_sample[1].to_f }
-    # remove initial data point since it's only containing the column header
-    data.shift
+  # @param [Symbol] constraint_kind specifying the kind of constrain
+  # @param [Array<Array<String>>] csv_data
+  def data_valid_for_constraint(csv_data, user_filter, constraint_kind)
+    # TODO: for now we only optimize for not hitting the ground
+    case constraint_kind
+    when :hitting_ground
+      vectors = csv_result_to_vectors(user_filter, csv_data)
+      z_coordinates = vectors.map { |v| v[2] }
+      puts "min z #{z_coordinates.min}"
+      return z_coordinates.min > 0
+    when :flipping
+      raise NotImplementedError
+    when :min_max_compression
+      raise NotImplementedError
+    end
+    false
+  end
 
-    delta = data.max - data.min
-    puts "delta: #{delta} maxdelta: #{max_allowed_delta} max: #{data.max}, min: #{data.min}, "
-    delta < max_allowed_delta
+  # @param [String] key
+  # @param [Array] csv_data
+  # @return [Array<Vector>] vectors
+  def csv_result_to_vectors(key, csv_data)
+    vectors = []
+    csv_data["#{key}[1]"].each_with_index do |value, index|
+      vector = Vector.elements([value.to_f, csv_data["#{key}[2]"][index].to_f, csv_data["#{key}[3]"][index].to_f])
+      vectors << vector
+    end
+    vectors
   end
 
   def run_compilation
@@ -279,9 +333,9 @@ class SimulationRunner
     end
   end
 
-  def run_simulation(filter = '*', force_vectors = [])
+  def run_simulation(filter = '*', force_vectors = [], length = 10, resolution = 0.05)
     # TODO: adjust sampling rate dynamically
-    overrides = "outputFormat=mat,startTime=0.0,stopTime=10,stepSize=0.05,method=ida" \
+    overrides = "outputFormat=csv,variableFilter=#{filter},startTime=0.0,stopTime=#{length},stepSize=#{resolution}," \
                 "#{force_vector_string(force_vectors)},#{override_constants_string}"
     command = "./#{@model_name} #{@simulation_options} -override=\"#{overrides}\" -idaSensitivity"
     puts(command)
@@ -312,6 +366,10 @@ class SimulationRunner
 
   def read_csv
     CSV.read(File.join(@directory, "#{@model_name}_res.csv"))
+  end
+
+  def read_csv_numeric
+    CSV.read(File.join(@directory, "#{@model_name}_res.csv"), headers: true, converters: :numeric)
   end
 
 end

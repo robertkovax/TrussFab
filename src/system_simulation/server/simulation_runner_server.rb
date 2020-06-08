@@ -15,12 +15,12 @@ post '/update_model' do
 end
 
 patch '/update_spring_constants' do
-  sim.update_spring_constants(JSON.parse(request.body.read))
+  sim.update_spring_constants(JSON.parse(request.body.read)) if sim
   return ''
 end
 
 patch '/update_mounted_users' do
-  sim.update_mounted_users(JSON.parse(request.body.read))
+  sim.update_mounted_users(JSON.parse(request.body.read)) if sim
   return ''
 end
 
@@ -41,6 +41,11 @@ end
 
 get '/get_equilibrium' do
   return_message = { equilibrium: sim.get_period.to_s }
+  return_message.to_json
+end
+
+get '/optimize/hitting_ground' do
+  return_message = sim.optimize_springs(:hitting_ground)
   return_message.to_json
 end
 

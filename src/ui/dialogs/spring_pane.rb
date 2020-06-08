@@ -9,6 +9,9 @@ require 'src/utility/json_export.rb'
 class SpringPane
   attr_accessor :force_vectors
   INSIGHTS_HTML_FILE = '../spring-pane/index.erb'.freeze
+  DEFAULT_STATS = { 'period' => Float::NAN,
+                    'max_acceleration' => { 'value' => Float::NAN, 'index' => -1 },
+                    'max_velocity' => { 'value' => Float::NAN, 'index' => -1 } }.freeze
 
   def initialize
     @refresh_callback = nil
@@ -26,16 +29,17 @@ class SpringPane
     @trace_visualization = nil
     @animation_running = false
 
-    # { node_id => {period: float, max_a: float, max_v: float } }
+    # { node_id => {period: {value: float, index: int}, max_a: {value: float, index: int}, max_v: {value: float, index: int} } }
     @user_stats = {}
 
     @spring_picker = SpringPicker.instance
 
-    @force_vectors = [{ node_id: 4, x: 1000, y: 0, z: 0 }]
+    @force_vectors = []
 
     @dialog = nil
     open_dialog
 
+    @pending_compilation = false
   end
 
   # spring / graph manipulation logic:
@@ -77,12 +81,13 @@ class SpringPane
     SimulationRunnerClient.update_mounted_users(mounted_users)
     update_stats
     update_dialog if @dialog
-    update_trace_visualization
+    update_trace_visualization if @trace_visualization
   end
 
   def update_stats
     mounted_users.keys.each do |node_id|
       stats = SimulationRunnerClient.get_user_stats(node_id)
+      stats = DEFAULT_STATS if stats == {}
       @user_stats[node_id] = stats
     end
   end
@@ -136,7 +141,7 @@ class SpringPane
 
   # Opens a dummy dialog, to focus the main Sketchup Window again
   def focus_main_window
-    dialog = UI::WebDialog.new("", true, "", 0, 0, 10000, 10000, true)
+    dialog = UI::WebDialog.new('', true, '', 0, 0, 10_000, 10_000, true)
     dialog.show
     dialog.close
   end
@@ -164,16 +169,31 @@ class SpringPane
   end
 
   # compilation / simulation logic:
+  def color_static_groups
+    Sketchup.active_model.start_operation('Color static groups', true)
+    static_groups = StaticGroupAnalysis.find_static_groups
+    visualizer = NodeExportVisualization::Visualizer.new
+    visualizer.color_static_groups static_groups
+    Sketchup.active_model.commit_operation
+  end
+
+  def request_compilation
+    @pending_compilation = true
+    update_dialog if @dialog
+  end
 
   def compile
-    # TODO: remove mounted users here in future and only update it (to keep the correct, empty default values in the
-    # TODO: modelica file)
+    Sketchup.active_model.start_operation('compile simulation', true)
     compile_time = Benchmark.realtime do
       SimulationRunnerClient.update_model(
-          JsonExport.graph_to_json(nil, [], constants_for_springs, mounted_users))
+        JsonExport.graph_to_json(nil, [], constants_for_springs, mounted_users)
+      )
     end
+    Sketchup.active_model.commit_operation
     puts "Compiled the modelica model in #{compile_time.round(2)} seconds."
-    update_trace_visualization if @trace_visualization
+    color_static_groups
+    @pending_compilation = false
+    update_dialog if @dialog
   end
 
   private
@@ -225,6 +245,12 @@ class SpringPane
     update_dialog
   end
 
+  def optimize
+    SimulationRunnerClient.optimize_spring_for_constrain.each do |spring_id, constant|
+      update_constant_for_spring(spring_id.to_i, constant)
+    end
+  end
+
   def create_animation
     @animation = GeometryAnimation.new(@simulation_data) do
       @animation_running = false
@@ -240,15 +266,23 @@ class SpringPane
 
     @dialog.add_action_callback('spring_insights_compile') do
       compile
+      # Also update trace visualization to provide visual feedback to user
+      update_stats
+      update_dialog if @dialog
+      update_trace_visualization
     end
 
     @dialog.add_action_callback('spring_insights_toggle_play') do
       toggle_animation
     end
 
+    @dialog.add_action_callback('spring_insights_optimize') do
+      optimize
+    end
+
     @dialog.add_action_callback('user_weight_change') do |_, node_id, value|
       weight = value.to_i
-      Graph.instance.nodes[node_id].hub.attach_user(weight)
+      Graph.instance.nodes[node_id].hub.user_weight = weight
       update_mounted_users
       puts "Update user weight: #{weight}"
     end
