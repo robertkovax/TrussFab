@@ -9,6 +9,7 @@ require 'matrix'
 
 require_relative '../animation_data_sample.rb'
 require_relative './generate_modelica_model.rb'
+require_relative './linear_state_space_model.rb'
 
 # This class encapsulates the way of how system simulations (physically correct simulations of the dynamic system,
 # including spring oscillations) are run. Right now we use Modelica and compile / simulate a modelica model of our

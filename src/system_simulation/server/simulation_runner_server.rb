@@ -54,3 +54,9 @@ get '/get_constant_for_constrained_angle' do
   return_message = { constant: sim.get_period.to_s }
   return_message.to_json
 end
+
+get  '/linearize/bode_plot' do
+  linear_model = sim.linearize
+  return_message = linear_model.bode_plot
+  return_message.to_json
+end

@@ -40,6 +40,8 @@ class SpringPane
     open_dialog
 
     @pending_compilation = false
+
+    @bode_plot = nil
   end
 
   # spring / graph manipulation logic:
@@ -58,6 +60,7 @@ class SpringPane
     # put_geometry_into_equilibrium(spring_id)
     update_trace_visualization
 
+    update_bode_diagram
 
     update_dialog if @dialog
   end
@@ -100,6 +103,11 @@ class SpringPane
     @trace_visualization.reset_trace
     # visualize every node with a mounted user
     @trace_visualization.add_trace(mounted_users.keys.map(&:to_s), 4, @simulation_data, @user_stats)
+  end
+
+  def update_bode_diagram
+    @bode_plot = SimulationRunnerClient.bode_plot
+    p @bode_plot
   end
 
   def put_geometry_into_equilibrium(spring_id)

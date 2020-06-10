@@ -58,13 +58,15 @@ class SimulationRunnerClient
   end
 
   def self.get_constant_for_constrained_angle
-    # we don't do that for now.
     p json_response_from_server('get_constant_for_constrained_angle')
   end
 
   def self.optimize_spring_for_constrain
-    # we don't do that for now.
     p json_response_from_server('optimize/hitting_ground', nil, 180)
+  end
+
+  def self.bode_plot
+    json_response_from_server('linearize/bode_plot', nil, 180)
   end
 
   private
