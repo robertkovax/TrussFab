@@ -33,6 +33,8 @@ class SpringPane
     # { node_id => {period: {value: float, index: int}, max_a: {value: float, index: int}, max_v: {value: float, index: int} } }
     @user_stats = {}
 
+    @bode_plot = { "magnitude" =>  [],  "frequencies" => [], "phase" => [] }
+
     @spring_picker = SpringPicker.instance
 
     @force_vectors = []
@@ -41,8 +43,6 @@ class SpringPane
     open_dialog
 
     @pending_compilation = false
-
-    @bode_plot = nil
   end
 
   # spring / graph manipulation logic:
