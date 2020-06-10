@@ -4,7 +4,7 @@ RUN apt-get update
 RUN apt-get install -y wget build-essential git ruby
 
 # Install minimal OpenModelica Components
-RUN for deb in deb deb-src; do echo "$deb http://build.openmodelica.org/apt eoan stable"; done | tee /etc/apt/sources.list.d/openmodelica.list
+RUN for deb in deb deb-src; do echo "$deb http://build.openmodelica.org/apt eoan nightly"; done | tee /etc/apt/sources.list.d/openmodelica.list
 RUN wget -q http://build.openmodelica.org/apt/openmodelica.asc -O- | apt-key add -
 RUN apt-get update
 RUN apt-get install -y omc omlib-modelica-3.2.2
