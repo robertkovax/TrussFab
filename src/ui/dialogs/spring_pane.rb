@@ -41,6 +41,8 @@ class SpringPane
     open_dialog
 
     @pending_compilation = false
+
+    @bode_plot = nil
   end
 
   # spring / graph manipulation logic:
@@ -59,6 +61,7 @@ class SpringPane
     # put_geometry_into_equilibrium(spring_id)
     update_trace_visualization
 
+    update_bode_diagram
 
     update_dialog if @dialog
   end
@@ -110,6 +113,11 @@ class SpringPane
       puts "stop"
     end
     Sketchup.active_model.active_view.animation = @animation
+  end
+
+  def update_bode_diagram
+    @bode_plot = SimulationRunnerClient.bode_plot
+    p @bode_plot
   end
 
   def put_geometry_into_equilibrium(spring_id)
