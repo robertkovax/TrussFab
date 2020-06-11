@@ -9,8 +9,11 @@ class SpringConstantObserver < Sketchup::EntityObserver
     unless text.is_a? Sketchup::Text
       puts "WARNING: SpringConstantObserver attached to a entity which is not a text. This is not intended to work."
     end
-    puts "constant changed: #{text.text}"
-    TrussFab.get_spring_pane.update_constant_for_spring(@spring_id, text.text.to_i)
+
+    if text.valid?
+      puts "constant changed: #{text.text}"
+      TrussFab.get_spring_pane.update_constant_for_spring(@spring_id, text.text.to_i)
+    end
 
   end
 end
