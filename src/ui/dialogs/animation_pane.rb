@@ -37,7 +37,7 @@ class AnimationPane
     @dialog = UI::HtmlDialog.new(props)
     file = File.join(File.dirname(__FILE__), HTML_FILE)
     @dialog.set_file(file)
-    @dialog.show
+    #@dialog.show
 
     register_callbacks
     @dialog
