@@ -73,7 +73,9 @@ class SpringPane
   end
 
   def get_spring(edge, new_constant)
-    @spring_picker.get_spring(new_constant, edge.length.to_m)
+    # TODO: calculate mount_offset
+    mount_offset = 0.1
+    @spring_picker.get_spring(new_constant, edge.length.to_m - mount_offset)
   end
 
   def update_springs
