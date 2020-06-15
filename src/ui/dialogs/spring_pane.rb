@@ -314,8 +314,12 @@ class SpringPane
       weight = value.to_i
       Graph.instance.nodes[node_id].hub.user_weight = weight
       update_mounted_users
+      update_bode_diagram
       update_trace_visualization true
       puts "Update user weight: #{weight}"
+
+      # TODO: probably this is a duplicate call, cleanup this updating the dialog logic
+      update_dialog if @dialog
     end
   end
 
