@@ -76,6 +76,7 @@ class DeleteTool < Tool
     # Update springs and mounted users to changed geometry (e.g. a spring is deleted)
     @ui.spring_pane.update_springs
     @ui.spring_pane.update_mounted_users if update_users
+    @ui.spring_pane.notify_model_changed
     view.invalidate
   end
 end
