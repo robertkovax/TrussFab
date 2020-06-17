@@ -30,7 +30,12 @@ class SpringPane
     @trace_visualization = nil
     @animation_running = false
 
-    # { node_id => {period: {value: float, index: int}, max_a: {value: float, index: int}, max_v: {value: float, index: int} } }
+    # { node_id => {
+    #               period: {value: float, index: int}, max_a: {value: float, index: int},
+    #               max_v: {value: float, index: int}, time_velocity: [{time: float, velocity: float}],
+    #               time_acceleration: [{time: float, acceleration: float}]
+    #              }
+    # }
     @user_stats = {}
 
     @bode_plot = { "magnitude" =>  [],  "frequencies" => [], "phase" => [] }

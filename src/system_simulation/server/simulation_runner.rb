@@ -25,8 +25,8 @@ class SimulationRunner
   def self.new_from_json_export(json_export_string)
     require_relative './generate_modelica_model.rb'
     modelica_model_string = ModelicaModelGenerator.generate_modelica_file(json_export_string)
-    model_name = "LineForceGenerated"
-    File.open(File.join(File.dirname(__FILE__), model_name + ".mo"), 'w') { |file| file.write(modelica_model_string) }
+    model_name = 'LineForceGenerated'
+    File.open(File.join(File.dirname(__FILE__), model_name + '.mo'), 'w') { |file| file.write(modelica_model_string) }
 
     trussfab_geometry = JSON.parse(json_export_string)
 
@@ -49,7 +49,7 @@ class SimulationRunner
     SimulationRunner.new(model_name, spring_constants, identifiers_for_springs, mounted_users)
   end
 
-  def initialize(model_name = "seesaw3", spring_constants = {}, spring_identifiers = {}, mounted_users = {},
+  def initialize(model_name = 'seesaw3', spring_constants = {}, spring_identifiers = {}, mounted_users = {},
                  suppress_compilation = false, keep_temp_dir = true)
 
     @model_name = model_name
@@ -99,7 +99,7 @@ class SimulationRunner
 
   def get_spring_extensions
     run_compilation
-    run_simulation("edge_from_[0-9]+_to_[0-9]+_spring.*")
+    run_simulation('edge_from_[0-9]+_to_[0-9]+_spring.*')
     result = read_csv
     frame0 = Hash[result[0].zip(result[1].map{|val| val.to_f})]
     @identifiers_for_springs.map{|spring_id, modelica_spring|
@@ -119,7 +119,9 @@ class SimulationRunner
     {
       period: get_period(period_id, csv_data),
       max_acceleration: get_max_norm_and_index(acceleration_id, csv_data),
-      max_velocity: get_max_norm_and_index(velocity_id, csv_data)
+      max_velocity: get_max_norm_and_index(velocity_id, csv_data),
+      time_velocity: get_time_series(velocity_id, csv_data),
+      time_acceleration: get_time_series(acceleration_id, csv_data)
     }
   end
 
@@ -134,6 +136,11 @@ class SimulationRunner
       end
     end
     { value: max_norm, index: max_index }
+  end
+
+  def get_time_series(id, csv_data)
+    csv_data.map do |x| { 'time' => x['time'], "x" => x["#{id}[1]"], "y" => x["#{id}[2]"], "z" => x["#{id}[3]"]}
+    end
   end
 
   def get_period(id, csv_data)
@@ -320,17 +327,17 @@ class SimulationRunner
     Open3.capture2e("cp #{@model_name}.mo  #{@directory}", chdir: File.dirname(__FILE__))
     Open3.capture2e("cp ./modelica_assets/AdaptiveSpringDamper.mo  #{@directory}", chdir: File.dirname(__FILE__))
 
-    dependencies = ["AdaptiveSpringDamper.mo", "Modelica"]
+    dependencies = ['AdaptiveSpringDamper.mo', 'Modelica']
     command = "omc #{@compilation_options} -s #{@model_name}.mo #{dependencies.join(' ')} "\
               "&& mv #{@model_name}.makefile Makefile && make -j 8"
     puts(command)
     output, status = Open3.capture2e(command,
                                 chdir: @directory)
     if status.success?
-      puts("Compilation Successful")
+      puts('Compilation Successful')
     else
       puts(output)
-      raise SimulationError, "Modelica compilation failed."
+      raise SimulationError, 'Modelica compilation failed.'
     end
   end
 
@@ -344,7 +351,7 @@ class SimulationRunner
       # prints out std out of the command
       o.each { |l| puts l }
       if not t.value.success?
-        raise SimulationError, "Modelica simulation returned with non-zero exit code (See console output for more information)."
+        raise SimulationError, 'Modelica simulation returned with non-zero exit code (See console output for more information).'
       end
     end
   end
@@ -357,7 +364,7 @@ class SimulationRunner
     Open3.popen2e(command, chdir: @directory) do |i, o, t|
       o.each { |l| puts l }
       unless t.value.success?
-        raise SimulationError, "Linearization failed."
+        raise SimulationError, 'Linearization failed.'
       end
       linear_model = LinearStateSpaceModel.new(File.join(@directory, "linear_#{@model_name}.mo"))
     end
