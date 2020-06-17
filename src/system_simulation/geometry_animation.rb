@@ -1,3 +1,4 @@
+# TODO: find a better name for this class
 class GeometryAnimation
   attr_accessor :factor, :running
   def initialize(data, index = 0, &on_stop)
@@ -57,7 +58,6 @@ class GeometryAnimation
       link = edge.link
       link.update_link_transformations
     end
-    puts(data_sample.time_stamp)
   end
 
 end
