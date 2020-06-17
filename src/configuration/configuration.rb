@@ -164,4 +164,6 @@ module Configuration
   NON_PLANAR_TRACE_DURATION = 10
   # Show fancy oscillation animation when placing springs, will lead to crashes though.
   PLACE_SPRING_ANIMATIONS = false
+  # Amplification factor for the apply force vector tool
+  FORCE_AMPLIFICATION_FACTOR = 10
 end

@@ -3,7 +3,6 @@ require 'src/system_simulation/trace_visualization.rb'
 
 # Applies a force in direction of the drawn vector to the pulled node in the modelica simulation.
 class ApplyForceVectorTool < PullNodeInteractionTool
-  AMPLIFICATION_FACTOR = 10
 
   def onLButtonUp(_flags, x, y, view)
     super
@@ -31,7 +30,7 @@ class ApplyForceVectorTool < PullNodeInteractionTool
     vector = get_amplified_vector()
 
     label_position = @end_position
-    label_text = "#{(vector.length() * AMPLIFICATION_FACTOR).round}N"
+    label_text = "#{(vector.length()).round}N"
 
     if !@label
       @label = Sketchup.active_model.entities.add_text(label_text, label_position)
@@ -49,7 +48,7 @@ class ApplyForceVectorTool < PullNodeInteractionTool
 
   def get_amplified_vector
     vector = @end_position - @start_position
-    vector.length = vector.length * AMPLIFICATION_FACTOR if vector.length > 0
+    vector.length = vector.length * Configuration::FORCE_AMPLIFICATION_FACTOR if vector.length > 0
     vector
   end
 
