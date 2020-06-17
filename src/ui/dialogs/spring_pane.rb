@@ -298,6 +298,7 @@ class SpringPane
       compile
       # Also update trace visualization to provide visual feedback to user
       update_stats
+      update_bode_diagram
       update_dialog if @dialog
       update_trace_visualization true
     end
