@@ -100,6 +100,9 @@ class TraceVisualization
         circle_instance.material = material_from_hsv(color_hue, color_min_value + color_weight,
                                                      color_max_value - color_weight)
       end
+      raw_acceleration = stats["time_velocity"][index]
+      acceleration = Geom::Vector3d.new(raw_acceleration["x"].mm, raw_acceleration["y"].mm, raw_acceleration["z"].mm)
+      @group.entities.add_cline(position, position + acceleration)
 
       last_position = position
     end
