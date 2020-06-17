@@ -59,7 +59,7 @@ class SpringPane
     update_stats
     # TODO: fix and reenable
     # put_geometry_into_equilibrium(spring_id)
-    update_trace_visualization
+    update_trace_visualization true
 
     update_bode_diagram
 
@@ -68,12 +68,14 @@ class SpringPane
 
   def force_vectors=(vectors)
     @force_vectors = vectors
-    update_trace_visualization
+    update_trace_visualization true
     play_animation
   end
 
   def get_spring(edge, new_constant)
-    @spring_picker.get_spring(new_constant, edge.length.to_m)
+    # TODO: calculate mount_offset
+    mount_offset = 0.1
+    @spring_picker.get_spring(new_constant, edge.length.to_m - mount_offset)
   end
 
   def update_springs
@@ -85,7 +87,6 @@ class SpringPane
     SimulationRunnerClient.update_mounted_users(mounted_users)
     update_stats
     update_dialog if @dialog
-    update_trace_visualization if @trace_visualization
   end
 
   def update_stats
@@ -96,16 +97,17 @@ class SpringPane
     end
   end
 
-  def update_trace_visualization
+  def update_trace_visualization(force_simulation = true)
     # update simulation data and visualizations with adjusted results
-    simulate
+    simulate if force_simulation
 
     @trace_visualization ||= TraceVisualization.new
     @trace_visualization.reset_trace
     # visualize every node with a mounted user
     @trace_visualization.add_trace(mounted_users.keys.map(&:to_s), 4, @simulation_data, @user_stats)
 
-    #  TODO: remove these lines once done with testing
+    # Visualized period
+    #  TODO: make this work for multiple users and move into seperate method
     node_id = mounted_users.keys.first
     @animation = PeriodAnimation.new(@simulation_data, @user_stats[node_id]['period'], node_id) do
       @animation_running = false
@@ -193,6 +195,16 @@ class SpringPane
     visualizer = NodeExportVisualization::Visualizer.new
     visualizer.color_static_groups static_groups
     Sketchup.active_model.commit_operation
+  end
+
+  def notify_model_changed
+    # Reset what ever needs to be reset as soon as the model changed.
+    if @animation && @animation.running
+      @animation.stop
+      @animation_running = false
+    end
+    request_compilation
+    update_trace_visualization false
   end
 
   def request_compilation
@@ -286,8 +298,9 @@ class SpringPane
       compile
       # Also update trace visualization to provide visual feedback to user
       update_stats
+      update_bode_diagram
       update_dialog if @dialog
-      update_trace_visualization
+      update_trace_visualization true
     end
 
     @dialog.add_action_callback('spring_insights_toggle_play') do
@@ -302,7 +315,12 @@ class SpringPane
       weight = value.to_i
       Graph.instance.nodes[node_id].hub.user_weight = weight
       update_mounted_users
+      update_bode_diagram
+      update_trace_visualization true
       puts "Update user weight: #{weight}"
+
+      # TODO: probably this is a duplicate call, cleanup this updating the dialog logic
+      update_dialog if @dialog
     end
   end
 

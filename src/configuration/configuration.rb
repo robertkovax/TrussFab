@@ -162,4 +162,6 @@ module Configuration
   DISTANCE_TO_PLANE_THRESHOLD = 10.0
   # What duration the trace visualization should span if the oscillation is not planar, in seconds.
   NON_PLANAR_TRACE_DURATION = 10
+  # Show fancy oscillation animation when placing springs, will lead to crashes though.
+  PLACE_SPRING_ANIMATIONS = false
 end
