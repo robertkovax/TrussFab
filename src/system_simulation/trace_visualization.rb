@@ -34,8 +34,16 @@ class TraceVisualization
       Sketchup.active_model.active_entities.erase_entities(@trace_points)
     end
     @trace_points = []
+    @visualizations = []
 
     @max_acceleration_label.erase! if @max_acceleration_label && @max_acceleration_label.valid?
+  end
+
+  def closest_visualization(point)
+    return if @visualizations.length == 0
+    @visualizations.min_by do |viz|
+      point.distance(viz.position)
+    end
   end
 
   private
@@ -50,6 +58,7 @@ class TraceVisualization
 
     last_position = @simulation_data[0].position_data[node_id]
     curve_points = []
+    @visualizations = []
 
     trace_analyzation = (analyze_trace node_id, period)
     max_distance = trace_analyzation[:max_distance]
@@ -97,6 +106,8 @@ class TraceVisualization
       raw_acceleration = stats["time_acceleration"][index]
       acceleration = Geom::Vector3d.new(raw_acceleration["x"].mm * 10, raw_acceleration["y"].mm * 10, raw_acceleration["z"].mm * 10)
       viz.add_acceleration_to_group(@group, acceleration)
+
+      @visualizations << viz
 
       last_position = position
     end

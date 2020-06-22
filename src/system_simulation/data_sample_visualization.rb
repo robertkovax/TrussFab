@@ -1,6 +1,8 @@
 # Creates visualizations of a data sample (= plotting a circle at the position) and relevant parameters like
 # acceleration and velocity.
 class DataSampleVisualization
+  attr_reader :position
+
   TRACE_DOT_ALPHA = 0.6
 
   def initialize(data_sample, node_id, definition, ratio, is_max_acceleration , circle_definition)
@@ -37,8 +39,9 @@ class DataSampleVisualization
     if @is_max_acceleration
       @circle_instance.material = "red"
     else
-      @circle_instance.material = material_from_hsv(color_hue, color_min_value + color_weight,
-                                                    color_max_value - color_weight)
+      @original_material = material_from_hsv(color_hue, color_min_value + color_weight,
+                                             color_max_value - color_weight)
+      @circle_instance.material = @original_material
     end
   end
 
@@ -49,6 +52,16 @@ class DataSampleVisualization
   def add_acceleration_to_group(group, acceleration)
     add_vector_to_group(group, acceleration, '.')
   end
+
+  def highlight
+    @circle_instance.material = "black"
+  end
+
+  def un_highlight
+    @circle_instance.material = @original_material
+  end
+
+  private
 
   def add_vector_to_group(group, vector, stipple)
     acceleration_line = group.entities.add_cline(@position, @position + vector, stipple)
