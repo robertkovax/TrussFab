@@ -17,6 +17,12 @@ class DataSampleVisualization
     @circle_layer = Sketchup.active_model.layers[Configuration::MOTION_TRACE_VIEW]
     @debugging_layer = Sketchup.active_model.layers.at(Configuration::SPRING_DEBUGGING)
     @circle_instance = nil
+
+    @velocity_line = nil
+    @acceleration_line = nil
+
+    @acceleration_label = nil
+    @velocity_label = nil
   end
 
   # Adds a circle visualization representing the data sample to the passed sketchup group.
@@ -46,26 +52,55 @@ class DataSampleVisualization
   end
 
   def add_velocity_to_group(group, velocity)
-    add_vector_to_group(group, velocity, '_')
+    scale = 100
+
+    @velocity_label = add_label_for_parameter_to_group(group, velocity, scale, 'm/s')
+    @velocity_label.hidden = true
+
+    @velocity_line = add_vector_to_group(group, velocity, 100, '_')
+    @velocity_line.hidden = true
   end
 
   def add_acceleration_to_group(group, acceleration)
-    add_vector_to_group(group, acceleration, '.')
+    scale = 10
+
+    @acceleration_label = add_label_for_parameter_to_group(group, acceleration, scale, 'm/s^2')
+    @acceleration_label.hidden = true
+
+    @acceleration_line = add_vector_to_group(group, acceleration, 10, '.')
+    @acceleration_line.hidden = true
   end
 
   def highlight
-    @circle_instance.material = "black"
+    @circle_instance.material = "gray"
+    @circle_instance.material.alpha = TRACE_DOT_ALPHA
+    @acceleration_line.hidden = false
+    @velocity_line.hidden = false
+    @acceleration_label.hidden = false
+    @velocity_label.hidden = false
   end
 
   def un_highlight
     @circle_instance.material = @original_material
+    @acceleration_line.hidden = true
+    @velocity_line.hidden = true
+    @acceleration_label.hidden = true
+    @velocity_label.hidden = true
   end
 
   private
 
-  def add_vector_to_group(group, vector, stipple)
-    acceleration_line = group.entities.add_cline(@position, @position + vector, stipple)
-    acceleration_line.layer = @debugging_layer
+  def add_vector_to_group(group, vector, scale, stipple)
+    scaled_vector = Geometry.scale(vector, scale)
+    vector_line = group.entities.add_cline(@position, @position + scaled_vector, stipple)
+    vector_line.layer = Sketchup.active_model.layers[Configuration::MOTION_TRACE_VIEW]
+    vector_line
+  end
+
+  def add_label_for_parameter_to_group(group, vector, scale, unit)
+    label = group.entities.add_text("#{vector.length.round(2).to_s}#{unit}", @position + Geometry.scale(vector, scale))
+    label.layer = Sketchup.active_model.layers[Configuration::MOTION_TRACE_VIEW]
+    label
   end
 
   def material_from_hsv(h,s,v)
