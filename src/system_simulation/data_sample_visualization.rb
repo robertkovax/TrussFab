@@ -98,7 +98,7 @@ class DataSampleVisualization
   end
 
   def add_label_for_parameter_to_group(group, vector, scale, unit)
-    label = group.entities.add_text("#{vector.length.round(2).to_s}#{unit}", @position + Geometry.scale(vector, scale))
+    label = group.entities.add_text("#{vector.length.to_mm.round(2).to_s}#{unit}", @position + Geometry.scale(vector, scale))
     label.layer = Sketchup.active_model.layers[Configuration::MOTION_TRACE_VIEW]
     label
   end
