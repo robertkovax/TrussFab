@@ -46,6 +46,10 @@ class TraceVisualization
     end
   end
 
+  def visualization_valid?(visualization)
+    @visualizations.include? visualization
+  end
+
   private
 
   def add_circle_trace(node_id, _sampling_rate, stats)
@@ -100,11 +104,11 @@ class TraceVisualization
       viz.add_dot_to_group(@group)
 
       raw_velocity = stats["time_velocity"][index]
-      velocity = Geom::Vector3d.new(raw_velocity["x"].mm * 100, raw_velocity["y"].mm * 100, raw_velocity["z"].mm * 100)
+      velocity = Geom::Vector3d.new(raw_velocity["x"].mm, raw_velocity["y"].mm, raw_velocity["z"].mm)
       viz.add_velocity_to_group(@group, velocity)
 
       raw_acceleration = stats["time_acceleration"][index]
-      acceleration = Geom::Vector3d.new(raw_acceleration["x"].mm * 10, raw_acceleration["y"].mm * 10, raw_acceleration["z"].mm * 10)
+      acceleration = Geom::Vector3d.new(raw_acceleration["x"].mm, raw_acceleration["y"].mm, raw_acceleration["z"].mm)
       viz.add_acceleration_to_group(@group, acceleration)
 
       @visualizations << viz

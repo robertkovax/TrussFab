@@ -114,6 +114,7 @@ class Sidebar
     build_tool(PlaceUserTool, 'spring_animation_tool')
     build_tool(DemonstrateAmplitudeTool, 'demonstrate_amplitude_tool')
     build_tool(ApplyForceVectorTool, 'apply_force_vector_tool')
+    build_tool(InspectTool, 'inspect_tool')
     build_tool(GenericPhysicsLinkTool, 'generic_physics_link_tool')
     build_tool(PoseCheckTool, 'pose_check_tool')
     build_tool(CoverTool, 'cover_tool')
