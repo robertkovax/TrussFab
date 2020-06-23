@@ -8,7 +8,7 @@ require 'src/system_simulation/period_animation.rb'
 
 # Ruby integration for spring insights dialog
 class SpringPane
-  attr_accessor :force_vectors
+  attr_accessor :force_vectors, :trace_visualization
   INSIGHTS_HTML_FILE = '../spring-pane/index.erb'.freeze
   DEFAULT_STATS = { 'period' => Float::NAN,
                     'max_acceleration' => { 'value' => Float::NAN, 'index' => -1 },
@@ -30,7 +30,12 @@ class SpringPane
     @trace_visualization = nil
     @animation_running = false
 
-    # { node_id => {period: {value: float, index: int}, max_a: {value: float, index: int}, max_v: {value: float, index: int} } }
+    # { node_id => {
+    #               period: {value: float, index: int}, max_a: {value: float, index: int},
+    #               max_v: {value: float, index: int}, time_velocity: [{time: float, velocity: float}],
+    #               time_acceleration: [{time: float, acceleration: float}]
+    #              }
+    # }
     @user_stats = {}
 
     @bode_plot = { "magnitude" =>  [],  "frequencies" => [], "phase" => [] }
@@ -119,7 +124,6 @@ class SpringPane
 
   def update_bode_diagram
     @bode_plot = SimulationRunnerClient.bode_plot
-    p @bode_plot
   end
 
   def put_geometry_into_equilibrium(spring_id)
