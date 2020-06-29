@@ -52,12 +52,12 @@ class DataSampleVisualization
   end
 
   def add_velocity_to_group(group, velocity)
-    scale = 100
+    scale = 10
 
     @velocity_label = add_label_for_parameter_to_group(group, velocity, scale, 'm/s')
     @velocity_label.hidden = true
 
-    @velocity_line = add_vector_to_group(group, velocity, 100, '_')
+    @velocity_line = add_vector_to_group(group, velocity, scale)
     @velocity_line.hidden = true
   end
 
@@ -65,10 +65,10 @@ class DataSampleVisualization
     scale = 10
 
     @acceleration_label = add_label_for_parameter_to_group(group, acceleration, scale, 'm/s^2')
-    @acceleration_label.hidden = true
+    @acceleration_label.hidden = true unless @is_max_acceleration
 
-    @acceleration_line = add_vector_to_group(group, acceleration, 10, '.')
-    @acceleration_line.hidden = true
+    @acceleration_line = add_vector_to_group(group, acceleration, scale)
+    @acceleration_line.hidden = true unless @is_max_acceleration
   end
 
   def highlight
@@ -90,15 +90,25 @@ class DataSampleVisualization
 
   private
 
-  def add_vector_to_group(group, vector, scale, stipple)
-    scaled_vector = Geometry.scale(vector, scale)
-    vector_line = group.entities.add_cline(@position, @position + scaled_vector, stipple)
-    vector_line.layer = Sketchup.active_model.layers[Configuration::MOTION_TRACE_VIEW]
-    vector_line
+  def add_vector_to_group(group, vector, scale)
+    return group.entities.add_group if vector.length == 0
+
+    # points sketching a line with an arrow head
+    points = [Geom::Point3d.new(0,0,0), Geom::Point3d.new(1,0,0), Geom::Point3d.new(0.9,0.1,0), Geom::Point3d.new(1,0,0), Geom::Point3d.new(0.9,-0.1,0)]
+
+    rotation = Geometry.rotation_transformation(Geom::Vector3d.new(1,0,0), vector.normalize, Geom::Point3d.new)
+    translation = Geom::Transformation.translation(position)
+    scaling = Geom::Transformation.scaling(scale)
+
+    vector_group = group.entities.add_group
+    vector_group.entities.add_curve(points)
+    vector_group.transform!(translation * rotation * scaling)
+    vector_group.layer = Sketchup.active_model.layers[Configuration::MOTION_TRACE_VIEW]
+    vector_group
   end
 
   def add_label_for_parameter_to_group(group, vector, scale, unit)
-    label = group.entities.add_text("#{vector.length.to_mm.round(2).to_s}#{unit}", @position + Geometry.scale(vector, scale))
+    label = group.entities.add_text("#{vector.length.to_mm.round(2).to_s}#{unit}", @position + Geometry.scale(vector.normalize, scale))
     label.layer = Sketchup.active_model.layers[Configuration::MOTION_TRACE_VIEW]
     label
   end
