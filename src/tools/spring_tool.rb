@@ -5,26 +5,29 @@ require 'src/export/node_export_visualization'
 class SpringTool < ActuatorTool
 
   PISTON_SPEED = 0.5
+  ANIMATE = Configuration::PLACE_SPRING_ANIMATIONS
 
   def initialize(ui)
     super(ui, 'spring')
   end
 
   def activate
-    @scheduled_pistons = []
-    @simulation = Simulation.new
-    @simulation.disable_coloring
-    @simulation.setup
-    @simulation.disable_gravity
+    if ANIMATE
+      @scheduled_pistons = []
+      @simulation = Simulation.new
+      @simulation.disable_coloring
+      @simulation.setup
+      @simulation.disable_gravity
 
-    Sketchup.active_model.active_view.animation = @simulation
-    @simulation.start
-    Sketchup.active_model.commit_operation
+      Sketchup.active_model.active_view.animation = @simulation
+      @simulation.start
+      Sketchup.active_model.commit_operation
+    end
   end
 
   def deactivate(view)
     super
-    reset
+    reset if ANIMATE
   end
 
   def reset
@@ -39,26 +42,30 @@ class SpringTool < ActuatorTool
     super
     @ui.spring_pane.update_springs
     @ui.spring_pane.color_static_groups
-    reset
-    activate
+    if ANIMATE
+      reset
+      activate
+    end
   end
 
   # Adds springs into the @scheduled_pistons, and removes them if their are not
   # hovered any more
   def onMouseMove(_flags, x, y, view)
     super
-    snapped_object = @mouse_input.snapped_object
-    if snapped_object.is_a?(Edge) && snapped_object.link.is_a?(SpringLink) &&
-       !@scheduled_pistons.include?(snapped_object)
-      @simulation.schedule_piston_for_testing(snapped_object, PISTON_SPEED)
-      @scheduled_pistons.push snapped_object
-    end
-    @scheduled_pistons.delete_if do |piston|
-      @simulation.unschedule_piston_for_testing piston, PISTON_SPEED if piston != snapped_object
-      piston != snapped_object
-    end
+    if ANIMATE
+      snapped_object = @mouse_input.snapped_object
+      if snapped_object.is_a?(Edge) && snapped_object.link.is_a?(SpringLink) &&
+         !@scheduled_pistons.include?(snapped_object)
+        @simulation.schedule_piston_for_testing(snapped_object, PISTON_SPEED)
+        @scheduled_pistons.push snapped_object
+      end
+      @scheduled_pistons.delete_if do |piston|
+        @simulation.unschedule_piston_for_testing piston, PISTON_SPEED if piston != snapped_object
+        piston != snapped_object
+      end
 
-    Sketchup.active_model.layers[Configuration::MOTION_TRACE_VIEW].visible =
-      @scheduled_pistons.empty?
+      Sketchup.active_model.layers[Configuration::MOTION_TRACE_VIEW].visible =
+        @scheduled_pistons.empty?
+    end
   end
 end

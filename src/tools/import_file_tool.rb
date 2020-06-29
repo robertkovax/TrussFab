@@ -5,6 +5,7 @@ require 'src/configuration/configuration.rb'
 class ImportFileTool < ImportTool
   def initialize(_ui)
     super
+    @update_springs = true
   end
 
   def activate

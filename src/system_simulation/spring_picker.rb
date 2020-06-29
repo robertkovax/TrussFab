@@ -92,7 +92,9 @@ class SpringPicker
     }.max_by{ |line|  line[:unstreched_length] }.to_h
   end
 
-  def get_default_spring
-    get_spring(3500, 0.6)
+  def get_default_spring(length)
+    # TODO: calculate mount_offset
+    mount_offset = 0.1
+    get_spring(3500, length - mount_offset)
   end
 end

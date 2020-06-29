@@ -9,7 +9,7 @@ Modelica_Spring = Struct.new(:name, :c, :length)
 Modelica_Connection = Struct.new(:from, :to)
 Modelica_Fixture = Struct.new(:name, :x, :y, :z)
 Modelica_PointMass = Struct.new(:name, :mass, :is_user, :x_start, :y_start, :z_start)
-Modelica_Force = Struct.new(:name)
+Modelica_Force = Struct.new(:name, :is_user)
 
 # Generates a modelica model with a given truss fab geometry.
 class ModelicaModelGenerator
@@ -42,6 +42,7 @@ class ModelicaModelGenerator
       node[:visited] = false
       node[:primary_edge] = nil
       node[:connecting_edges] = Array.new
+      node[:is_user] = json_model['mounted_users'] && json_model['mounted_users'][key.to_s]
       node[:fixed] = node.key?('pods') && node['pods'].any? && node['pods'][0]['is_fixed']
       node[:pos] = [node['x'], node['y'], node['z']].map {|x| sketchup_to_modelica_units(x) }
     }
@@ -120,16 +121,14 @@ class ModelicaModelGenerator
 
         # get added mass placed by user from truss fab geometry
         mass = node['added_mass']
-        is_user = false
-        if json_model['mounted_users'] && json_model['mounted_users'][nodeId.to_s]
-          is_user = true
+        if node[:is_user]
           mass += json_model['mounted_users'][nodeId.to_s]
         end
         # add weight of node structure
         mass += ModelicaConfiguration::NODE_WEIGHT_KG
 
         # Generate PointMasses
-        point_mass_component = Modelica_PointMass.new(identifier_for_node_id(nodeId), mass, is_user, *node[:pos])
+        point_mass_component = Modelica_PointMass.new(identifier_for_node_id(nodeId), mass, node[:is_user], *node[:pos])
         modelica_components.push(point_mass_component)
         modelica_connections.push(generate_mutlibody_connection(node[:primary_edge], primary_edge_connection_direction, point_mass_component, :a))
       }
@@ -145,10 +144,10 @@ class ModelicaModelGenerator
     }
 
     # Phase 3.4 Generate Force Handles to enable interaction with the structure
-    nodes.each { |id, node|
+    nodes.select{|id, node| not node[:fixed]}.each { |id, node|
       primary_edge_connection_direction = get_direction(node, node[:primary_edge])
 
-      force = Modelica_Force.new("node_#{id}_force")
+      force = Modelica_Force.new("node_#{id}_force", node[:is_user])
       modelica_components.push(force)
       modelica_connections.push(generate_mutlibody_connection(force, :b, node[:primary_edge], primary_edge_connection_direction))
     }

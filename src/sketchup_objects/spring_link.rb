@@ -2,6 +2,7 @@ require 'src/sketchup_objects/physics_link.rb'
 require 'src/configuration/configuration.rb'
 require 'src/sketchup_objects/link_entities/spring_cylinder.rb'
 require 'src/system_simulation/spring_picker.rb'
+require 'src/sketchup_objects/spring_constant_observer.rb'
 
 # PhysicsLink that behaves like a gas spring
 class SpringLink < ActuatorLink
@@ -13,13 +14,16 @@ class SpringLink < ActuatorLink
   def initialize(first_node, second_node, edge, spring_parameters: nil, id: nil)
     @initial_edge_length = first_node.hub.entity.bounds.center.vector_to(second_node.hub.entity.bounds.center)
                                      .length.to_f
-    @spring_parameters = spring_parameters ? spring_parameters : SpringPicker.instance.get_default_spring
+    @spring_parameters = spring_parameters ? spring_parameters : SpringPicker.instance.get_default_spring(edge.length.to_m)
     @actual_spring_length = @spring_parameters[:unstreched_length].m
     @spring_coil_diameter = @spring_parameters[:coil_diameter].m
     super(first_node, second_node, edge, id: id)
     @first_elongation_length =
       @second_elongation_length = Configuration::MINIMUM_ELONGATION
+    @id_label = nil
+
     persist_entity
+    update_id_label
   end
 
   def get_color_string
@@ -31,6 +35,7 @@ class SpringLink < ActuatorLink
     @actual_spring_length = @spring_parameters[:unstreched_length].m
     @spring_coil_diameter = @spring_parameters[:coil_diameter].m
     update_link_properties
+    update_id_label
   end
 
   def change_color(color)
@@ -49,6 +54,11 @@ class SpringLink < ActuatorLink
     # [@first_cylinder, @second_cylinder].each do |cylinder|
     #   cylinder.change_color(cylinder.material)
     # end
+  end
+
+  def delete
+    @id_label.erase!
+    super
   end
 
   #
@@ -127,5 +137,22 @@ class SpringLink < ActuatorLink
 
   def set_piston_group_color
     @second_cylinder.material = COLORS[@piston_group]
+  end
+
+  def update_id_label
+    # always recreate label
+    @id_label.erase! if @id_label
+
+    pt1 = @first_node.hub.entity.bounds.center
+    pt2 = @second_node.hub.entity.bounds.center
+
+    vector_representation = pt1.vector_to(pt2)
+    spring_center = pt1.offset(vector_representation, vector_representation.length / 2)
+    label_position = spring_center.offset(Geom::Vector3d.new(0, 1, 0), 12.cm)
+
+    @id_label = Sketchup.active_model.entities.add_text("#{@spring_parameters[:k]}N/m ",
+                                                        spring_center, label_position - spring_center)
+    @id_label.layer = Sketchup.active_model.layers[Configuration::SPRING_INSIGHTS]
+    @id_label.add_observer(SpringConstantObserver.new(@id))
   end
 end

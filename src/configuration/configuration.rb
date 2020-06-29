@@ -6,6 +6,8 @@ module Configuration
   COMPONENT_VIEW = 'Bottles'.freeze
   HUB_VIEW = 'Hubs'.freeze
   HUB_ID_VIEW = 'Hub IDs'.freeze
+  SPRING_INSIGHTS = 'Spring insights'.freeze
+  SPRING_DEBUGGING = 'Spring debugging'.freeze
   TRIANGLE_SURFACES_VIEW = 'Triangle Surfaces'.freeze
   DRAW_TOOLTIPS_VIEW = 'Drawing Tooltips'.freeze
   FORCE_LABEL_VIEW = 'Force Labels'.freeze
@@ -161,4 +163,8 @@ module Configuration
   DISTANCE_TO_PLANE_THRESHOLD = 10.0
   # What duration the trace visualization should span if the oscillation is not planar, in seconds.
   NON_PLANAR_TRACE_DURATION = 10
+  # Show fancy oscillation animation when placing springs, will lead to crashes though.
+  PLACE_SPRING_ANIMATIONS = false
+  # Amplification factor for the apply force vector tool
+  FORCE_AMPLIFICATION_FACTOR = 10
 end
