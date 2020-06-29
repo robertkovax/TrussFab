@@ -65,10 +65,10 @@ class DataSampleVisualization
     scale = 10
 
     @acceleration_label = add_label_for_parameter_to_group(group, acceleration, scale, 'm/s^2')
-    @acceleration_label.hidden = true
+    @acceleration_label.hidden = true unless @is_max_acceleration
 
-    @acceleration_line.hidden = true
     @acceleration_line = add_vector_to_group(group, acceleration, scale)
+    @acceleration_line.hidden = true unless @is_max_acceleration
   end
 
   def highlight
