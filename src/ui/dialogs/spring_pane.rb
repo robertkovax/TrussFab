@@ -29,6 +29,7 @@ class SpringPane
     # A simple visualization for simulation data, plotting circles into the scene.
     @trace_visualization = nil
     @animation_running = false
+    @period_animation_running = false
 
     # { node_id => {
     #               period: {value: float, index: int}, max_a: {value: float, index: int},
@@ -117,11 +118,12 @@ class SpringPane
     #  TODO: make this work for multiple users and move into seperate method
     node_id = mounted_users.keys.first
     @animation = PeriodAnimation.new(@simulation_data, @user_stats[node_id]['period'], node_id) do
-      @animation_running = false
+      @period_animation_running = false
       update_dialog
       puts "stop"
     end
     Sketchup.active_model.active_view.animation = @animation
+    @period_animation_running = true
   end
 
   def update_bode_diagram
@@ -270,14 +272,18 @@ class SpringPane
   end
 
   def toggle_animation
-    simulate
-    if @animation && @animation.running
-      @animation.stop
-      @animation_running = false
-    else
+    start_animation = !@animation_running
+
+    if start_animation
+      simulate
+      @animation.stop if @period_animation_running
       create_animation
       @animation_running = true
+    elsif @animation
+      @animation.stop
+      @animation_running = false
     end
+
     update_dialog
   end
 
