@@ -79,7 +79,7 @@ class SpringPane
 
   def get_spring(edge, new_constant)
     # TODO: calculate mount_offset
-    mount_offset = 0.1
+    mount_offset = 0.15
     @spring_picker.get_spring(new_constant, edge.length.to_m - mount_offset)
   end
 
@@ -90,6 +90,8 @@ class SpringPane
 
   def update_mounted_users
     SimulationRunnerClient.update_mounted_users(mounted_users)
+    return if @pending_compilation
+
     update_stats
     update_dialog if @dialog
   end
