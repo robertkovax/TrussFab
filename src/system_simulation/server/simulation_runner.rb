@@ -19,6 +19,8 @@ class SimulationRunner
   CONSTRAINTS = %i[hitting_ground flipping min_max_compression].freeze
   NODE_RESULT_FILTER = 'node_[0-9]+\.r_0.*'.freeze
   OPTIMIZE_MIN_SPRING_LENGTH = 0.3
+  SOFT_SPRING_CONSTANT = 100
+  STIFF_SPRING_CONSTANT = 25000
 
   class SimulationError < StandardError
   end
@@ -202,6 +204,13 @@ class SimulationRunner
     # hash
     result_map = {}
     user_id = @mounted_users.keys[0]
+
+    # First, set every spring's constant to a very stiff value
+    @constants_for_springs.each do |spring_id, _constant|
+      @constants_for_springs[spring_id] = STIFF_SPRING_CONSTANT
+    end
+
+    # Then try to optimize each spring individually by starting with a very low spring constant (= soft)
     @constants_for_springs.each do |spring_id, _constant|
       result_map[spring_id] = optimize_spring_for_constraint(spring_id, user_id, constraint_kind)
     end
@@ -220,7 +229,7 @@ class SimulationRunner
     # TODO: right now we decrease the constant
 
     # constant = initial_constant = @constants_for_springs[spring_id]
-    constant = initial_constant = 100
+    constant = initial_constant = SOFT_SPRING_CONSTANT
     user_modelica_string = "#{ModelicaModelGenerator.identifier_for_node_id(user_id)}.r_0"
     user_filter = "#{user_modelica_string}.*"
 
@@ -232,7 +241,7 @@ class SimulationRunner
     step_size = step_sizes.shift
     keep_searching = true
     abort_threshold = 50_000
-    simulation_resolution = 0.1
+    simulation_resolution = 0.05
     simulation_length = 4
 
     while keep_searching
