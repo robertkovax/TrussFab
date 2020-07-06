@@ -19,6 +19,7 @@ class SimulationRunner
   CONSTRAINTS = %i[hitting_ground flipping min_max_compression].freeze
   NODE_RESULT_FILTER = 'node_[0-9]+\.r_0.*'.freeze
   OPTIMIZE_MIN_SPRING_LENGTH = 0.3
+  OPTIMIZE_MAX_SPRING_LENGTH = 0.7
   SOFT_SPRING_CONSTANT = 100
   STIFF_SPRING_CONSTANT = 25000
 
@@ -318,7 +319,8 @@ class SimulationRunner
       return z_coordinates.min > 0
     when :flipping
       min_length = csv_data[spring_filter].map{ |spring_length| spring_length.to_f}.min
-      return min_length > OPTIMIZE_MIN_SPRING_LENGTH
+      max_length = csv_data[spring_filter].map{ |spring_length| spring_length.to_f}.max
+      return min_length > OPTIMIZE_MIN_SPRING_LENGTH && max_length < OPTIMIZE_MAX_SPRING_LENGTH
     when :min_max_compression
       raise NotImplementedError
     end
