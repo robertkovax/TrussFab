@@ -94,6 +94,11 @@ module ProjectHelper
       spring_insights_layer.visible = true
     end
 
+    unless layers[Configuration::SPRING_DEBUGGING]
+      spring_insights_layer = layers.add(Configuration::SPRING_DEBUGGING)
+      spring_insights_layer.visible = true
+    end
+
     unless layers[Configuration::FORCE_VIEW]
       layers.add(Configuration::FORCE_VIEW)
     end

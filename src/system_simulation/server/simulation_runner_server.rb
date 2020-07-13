@@ -45,7 +45,8 @@ get '/get_equilibrium' do
 end
 
 get '/optimize/hitting_ground' do
-  return_message = sim.optimize_springs(:hitting_ground)
+  # TODO: combine both already supported optimization methods (hitting_ground and flipping) here
+  return_message = sim.optimize_springs(:flipping)
   return_message.to_json
 end
 

@@ -8,7 +8,7 @@ require 'src/system_simulation/period_animation.rb'
 
 # Ruby integration for spring insights dialog
 class SpringPane
-  attr_accessor :force_vectors
+  attr_accessor :force_vectors, :trace_visualization
   INSIGHTS_HTML_FILE = '../spring-pane/index.erb'.freeze
   DEFAULT_STATS = { 'period' => Float::NAN,
                     'max_acceleration' => { 'value' => Float::NAN, 'index' => -1 },
@@ -29,8 +29,14 @@ class SpringPane
     # A simple visualization for simulation data, plotting circles into the scene.
     @trace_visualization = nil
     @animation_running = false
+    @period_animation_running = false
 
-    # { node_id => {period: {value: float, index: int}, max_a: {value: float, index: int}, max_v: {value: float, index: int} } }
+    # { node_id => {
+    #               period: {value: float, index: int}, max_a: {value: float, index: int},
+    #               max_v: {value: float, index: int}, time_velocity: [{time: float, velocity: float}],
+    #               time_acceleration: [{time: float, acceleration: float}]
+    #              }
+    # }
     @user_stats = {}
 
     @bode_plot = { "magnitude" =>  [],  "frequencies" => [], "phase" => [] }
@@ -74,7 +80,7 @@ class SpringPane
 
   def get_spring(edge, new_constant)
     # TODO: calculate mount_offset
-    mount_offset = 0.1
+    mount_offset = 0.15
     @spring_picker.get_spring(new_constant, edge.length.to_m - mount_offset)
   end
 
@@ -85,6 +91,8 @@ class SpringPane
 
   def update_mounted_users
     SimulationRunnerClient.update_mounted_users(mounted_users)
+    return if @pending_compilation
+
     update_stats
     update_dialog if @dialog
   end
@@ -110,16 +118,16 @@ class SpringPane
     #  TODO: make this work for multiple users and move into seperate method
     node_id = mounted_users.keys.first
     @animation = PeriodAnimation.new(@simulation_data, @user_stats[node_id]['period'], node_id) do
-      @animation_running = false
+      @period_animation_running = false
       update_dialog
       puts "stop"
     end
     Sketchup.active_model.active_view.animation = @animation
+    @period_animation_running = true
   end
 
   def update_bode_diagram
     @bode_plot = SimulationRunnerClient.bode_plot
-    p @bode_plot
   end
 
   def put_geometry_into_equilibrium(spring_id)
@@ -264,14 +272,18 @@ class SpringPane
   end
 
   def toggle_animation
-    simulate
-    if @animation && @animation.running
-      @animation.stop
-      @animation_running = false
-    else
+    start_animation = !@animation_running
+
+    if start_animation
+      simulate
+      @animation.stop if @period_animation_running
       create_animation
       @animation_running = true
+    elsif @animation
+      @animation.stop
+      @animation_running = false
     end
+
     update_dialog
   end
 
