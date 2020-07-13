@@ -210,36 +210,27 @@ class SpringPane
 
   end
 
-  # Calculates for every
+  # Calculates hinges / hinge edges for every spring
   def calculate_hinge_edges
-    user_nodes = mounted_users.keys.map { |node_id| Graph.instance.nodes[node_id]}
-    user_nodes.each  do |user_node|
-      @spring_edges.each do |edge|
-        spring_triangles = edge.adjacent_triangles
-        node_candidates = spring_triangles.map(&:nodes).flatten!.uniq!
+    @spring_edges.each do |edge|
+      spring_triangles = edge.adjacent_triangles
+      node_candidates = spring_triangles.map(&:nodes).flatten!.uniq!
 
-        node_candidates.reject! do |node|
-          # remove nodes where the spring is mounted
-          edge.nodes.include?(node)
-        end
-
-        to_be_scaled_node = user_node
-        point = Geom::Vector3d.new
-        if node_candidates.length == 2 && node_candidates[0].edge_to?(node_candidates[1])
-          hinge_edge = node_candidates[0].edge_to node_candidates[1]
-          model = Sketchup.active_model
-          entities = model.active_entities
-          constline = entities.add_cline(hinge_edge.mid_point, to_be_scaled_node.position)
-          point = hinge_edge.mid_point
-        end
-        @spring_hinges[edge.id] = point
-        p @spring_hinges[edge.id]
-
+      node_candidates.reject! do |node|
+        # remove nodes where the spring is mounted
+        edge.nodes.include?(node)
       end
 
+      hinge_point = Geom::Vector3d.new
+      if node_candidates.length == 2 && node_candidates[0].edge_to?(node_candidates[1])
+        hinge_edge = node_candidates[0].edge_to node_candidates[1]
+
+        hinge_point = hinge_edge.mid_point
+      end
+      @spring_hinges[edge.id] = hinge_point
+      p @spring_hinges[edge.id]
 
     end
-
   end
 
   def notify_model_changed
