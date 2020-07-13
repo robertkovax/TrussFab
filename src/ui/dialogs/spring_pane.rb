@@ -8,7 +8,7 @@ require 'src/system_simulation/period_animation.rb'
 
 # Ruby integration for spring insights dialog
 class SpringPane
-  attr_accessor :force_vectors, :trace_visualization
+  attr_accessor :force_vectors, :trace_visualization, :spring_hinges
   INSIGHTS_HTML_FILE = '../spring-pane/index.erb'.freeze
   DEFAULT_STATS = { 'period' => Float::NAN,
                     'max_acceleration' => { 'value' => Float::NAN, 'index' => -1 },
@@ -49,6 +49,7 @@ class SpringPane
     open_dialog
 
     @pending_compilation = false
+    @spring_hinges = {}
   end
 
   # spring / graph manipulation logic:
@@ -234,16 +235,6 @@ class SpringPane
     update_dialog if @dialog
   end
 
-  private
-
-  def constants_for_springs
-    spring_constants = {}
-    @spring_edges.map(&:link).each do |link|
-      spring_constants[link.edge.id] = link.spring_parameters[:k]
-    end
-    spring_constants
-  end
-
   def mounted_users
     mounted_users = {}
     Graph.instance.nodes.each do |node_id, node|
@@ -253,6 +244,16 @@ class SpringPane
       mounted_users[node_id] = hub.user_weight
     end
     mounted_users
+  end
+
+  private
+
+  def constants_for_springs
+    spring_constants = {}
+    @spring_edges.map(&:link).each do |link|
+      spring_constants[link.edge.id] = link.spring_parameters[:k]
+    end
+    spring_constants
   end
 
   # compilation / simulation logic:
