@@ -9,29 +9,18 @@ class ScaleOscillationTool < Tool
 
   def onLButtonDown(_flags, x, y, view)
     @mouse_input.update_positions(view, x, y)
+
     obj = @mouse_input.snapped_object
-    if !obj.nil? && obj.is_a?(Edge) && obj.link.is_a?(SpringLink)
-      spring_edge = obj
-      point = @ui.spring_pane.spring_hinges[spring_edge.id]
-    elsif !obj.nil? && obj.is_a?(Node) && obj.hub.is_user_attached
-      points = @ui.spring_pane.spring_hinges.map do | hinge |
-        hinge[1]
-      end
-
-      x = y = z = 0
-
-      points.each do |point|
-        x += point.x
-        y += point.y
-        z += point.z
-      end
-      point = Geom::Point3d.new(x / points.length, y / points.length, z / points.length)
-    end
-
-    return unless point
-
+    # TODO: choose node dynamically
     user_node = Graph.instance.nodes[@ui.spring_pane.mounted_users.keys[0]]
-    scale_user_node_from_hinge(user_node, nil, point)
+
+    if !obj.nil? && obj.is_a?(Edge) && obj.link.is_a?(SpringLink)
+      scale_user_node_for_spring_edge(user_node, obj)
+    elsif !obj.nil? && obj.is_a?(Node) && obj.hub.is_user_attached
+      @ui.spring_pane.spring_edges.each do |spring_edge|
+        scale_user_node_for_spring_edge(user_node, spring_edge)
+      end
+    end
 
     # Compile, simulate and refresh motion path after changing geometry
     #@ui.spring_pane.compile
@@ -40,6 +29,34 @@ class ScaleOscillationTool < Tool
     #@ui.spring_pane.update_dialog if @dialog
     #@ui.spring_pane.update_trace_visualization true
 
+  end
+
+  def scale_user_node_for_spring_edge(user_node, spring_edge)
+    point = @ui.spring_pane.spring_hinges[spring_edge.id][:point]
+    hinge_edge = Graph.instance.edges[@ui.spring_pane.spring_hinges[spring_edge.id][:edge_id]]
+    plane = [point, hinge_edge.direction]
+    projected_user_position = user_node.position.project_to_plane(plane)
+    translation_vector = projected_user_position - point
+
+    translation_vector.length = SCALE_DELTA
+    # Adjust geometry
+    new_position = user_node.position + translation_vector
+    #user_node.move_to(new_position)
+    user_node.update_position(new_position)
+    user_node.hub.update_position(new_position)
+    user_node.update_sketchup_object
+    user_node.hub.update_user_indicator
+    user_node.adjacent_triangles.each { |triangle| triangle.update_sketchup_object if triangle.cover }
+
+    constpoint = Sketchup.active_model
+                     .active_entities
+                     .add_cpoint projected_user_position
+    #constline = Sketchup.active_model
+    #                 .active_entities
+    #                 .add_cline [point, point + hinge_edge.direction]
+    #constline = Sketchup.active_model
+    #                .active_entities
+    #                .add_cline [point, user_node.position]
   end
 
   def scale_user_node_from_hinge(user_node, spring, hinge_point)

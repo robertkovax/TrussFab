@@ -8,7 +8,7 @@ require 'src/system_simulation/period_animation.rb'
 
 # Ruby integration for spring insights dialog
 class SpringPane
-  attr_accessor :force_vectors, :trace_visualization, :spring_hinges
+  attr_accessor :force_vectors, :trace_visualization, :spring_hinges, :spring_edges
   INSIGHTS_HTML_FILE = '../spring-pane/index.erb'.freeze
   DEFAULT_STATS = { 'period' => Float::NAN,
                     'max_acceleration' => { 'value' => Float::NAN, 'index' => -1 },
@@ -222,12 +222,13 @@ class SpringPane
       end
 
       hinge_point = Geom::Vector3d.new
+      hinge_id = -1
       if node_candidates.length == 2 && node_candidates[0].edge_to?(node_candidates[1])
         hinge_edge = node_candidates[0].edge_to node_candidates[1]
-
+        hinge_id = hinge_edge.id
         hinge_point = hinge_edge.mid_point
       end
-      @spring_hinges[edge.id] = hinge_point
+      @spring_hinges[edge.id] = {point: hinge_point, edge_id: hinge_id}
       p @spring_hinges[edge.id]
 
     end
