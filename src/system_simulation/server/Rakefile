@@ -39,6 +39,13 @@ task :test_get_period do
   sim = SimulationRunner.new()
 end
 
+task :test_preloading do
+  file = File.read("./test_models/sketchup_tetrahedron.json")
+  sim = SimulationRunner.new_from_json_export(file)
+  p sim.preload(1000)
+  p sim.get_hub_time_series
+end
+
 task :parse_linear_state_space_model do
   model = LinearStateSpaceModel.new("./test_models/linear_tetra.mo")
   puts model.eigenfreq

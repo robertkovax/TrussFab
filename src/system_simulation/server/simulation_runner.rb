@@ -24,6 +24,7 @@ class SimulationRunner
 
   def self.new_from_json_export(json_export_string)
     require_relative './generate_modelica_model.rb'
+
     modelica_model_string = ModelicaModelGenerator.generate_modelica_file(json_export_string)
     model_name = "LineForceGenerated"
     File.open(File.join(File.dirname(__FILE__), model_name + ".mo"), 'w') { |file| file.write(modelica_model_string) }
@@ -34,14 +35,14 @@ class SimulationRunner
     identifiers_for_springs = {}
     mounted_users = {}
 
-    if trussfab_geometry['spring_constants']
-      # build modelica model identifiers for each spring from their ids
-      identifiers_for_springs = trussfab_geometry['spring_constants'].map do |edge_id, constant|
-        edges = trussfab_geometry['edges'].map { |edge| [edge['id'].to_s, edge] }.to_h
-        edge_with_spring = edges[edge_id]
-        [edge_id, "edge_from_#{edge_with_spring['n1']}_to_#{edge_with_spring['n2']}_spring"]
-      end.to_h
-    end
+    # if trussfab_geometry['spring_constants']
+    #   # build modelica model identifiers for each spring from their ids
+    #   identifiers_for_springs = trussfab_geometry['spring_constants'].map do |edge_id, constant|
+    #     edges = trussfab_geometry['edges'].map { |edge| [edge['id'].to_s, edge] }.to_h
+    #     edge_with_spring = edges[edge_id]
+    #     [edge_id, "edge_from_#{edge_with_spring['n1']}_to_#{edge_with_spring['n2']}_spring"]
+    #   end.to_h
+    # end
     spring_constants = trussfab_geometry['spring_constants'] if trussfab_geometry['spring_constants']
     mounted_users = trussfab_geometry['mounted_users'] if trussfab_geometry['mounted_users']
 
@@ -53,11 +54,13 @@ class SimulationRunner
                  suppress_compilation = false, keep_temp_dir = true)
 
     @model_name = model_name
-    @compilation_options = '-n=4 --maxMixedDeterminedIndex=100'
+    @preload_energy = 3000
+    @compilation_options = '--maxMixedDeterminedIndex=100'
     # @compilation_options += " --maxMixedDeterminedIndex=100 -n=4 --generateSymbolicLinearization"\
     #                         " --generateSymbolicJacobian"
     @simulation_options = ''
     @simulation_options += ' -lv=LOG_STATS'
+    #@simulation_options += ' -lv=LOG_STATS -s=ida'
     # @simulation += "lv=LOG_INIT_V,LOG_SIMULATION,LOG_STATS,LOG_JAC,LOG_NLS"
 
     if suppress_compilation
@@ -185,6 +188,18 @@ class SimulationRunner
     raw_data.index(equilibrium_data_row)
   end
 
+  # Preload springs with a set energy
+  def preload(energy=1000)
+    @preload_energy = energy
+  end
+
+  def get_preloaded_length(edge_id)
+    def get_compression_for_energy(spring_constant, energy)
+      # http://hydrogen.physik.uni-wuppertal.de/hyperphysics/hyperphysics/hbase/pespr.html
+      Math.sqrt(2 * energy / spring_constant)
+    end
+    get_compression_for_energy(@constants_for_springs[edge_id], @preload_energy / @constants_for_springs.length)
+  end
   # OPTIMIZATION LOGIC
 
   # @param Symbol kind of constraint, one of CONSTRAINTS
@@ -264,6 +279,7 @@ class SimulationRunner
     override_string = ''
     @identifiers_for_springs.each do |edge_id, spring_identifier|
       override_string += "#{spring_identifier}.c=#{@constants_for_springs[edge_id]},"
+      override_string += "#{spring_identifier}.s_rel0.start=#{get_preloaded_length(edge_id)},"
     end
 
     @mounted_users.each do |node_id, weight|
@@ -277,9 +293,10 @@ class SimulationRunner
   def force_vector_string(force_vectors)
     force_vectors_string = ''
     force_vectors.each do |force_vector|
-      override_string = "node_#{force_vector['node_id']}_force_val[1]=#{force_vector['x']}," \
-                        "node_#{force_vector['node_id']}_force_val[2]=#{force_vector['y']}," \
-                        "node_#{force_vector['node_id']}_force_val[3]=#{force_vector['z']}"
+      override_string = "node_#{force_vector['node_id']}_force_direction[1]=#{force_vector['x']}," \
+                        "node_#{force_vector['node_id']}_force_direction[2]=#{force_vector['y']}," \
+                        "node_#{force_vector['node_id']}_force_direction[3]=#{force_vector['z']}," \
+                        "node_#{force_vector['node_id']}_force_in=#{force_vector['z']}"
       force_vectors_string += override_string
       force_vectors_string += ','
     end
@@ -338,7 +355,7 @@ class SimulationRunner
     # TODO: adjust sampling rate dynamically
     overrides = "outputFormat=csv,variableFilter=#{filter},startTime=0.0,stopTime=#{length},stepSize=#{resolution}," \
                 "#{force_vector_string(force_vectors)},#{override_constants_string}"
-    command = "./#{@model_name} #{@simulation_options} -override=\"#{overrides}\" -idaSensitivity"
+    command = "./#{@model_name} #{@simulation_options} -override=\"#{overrides}\""
     puts(command)
     Open3.popen2e(command, chdir: @directory) do |i, o, t|
       # prints out std out of the command
@@ -351,7 +368,7 @@ class SimulationRunner
 
   def run_linearization()
     # TODO properly parse where users sit as output
-    command = "./#{@model_name}  -lv=LOG_STATS  -override=\"#{override_constants_string}\" -l=0"
+    command = "./#{@model_name}  -lv=LOG_STATS  -override=\"#{override_constants_string},node_4.v_0=0,node_4.a_0=0\" -l=0"
     puts(command)
     linear_model = nil
     Open3.popen2e(command, chdir: @directory) do |i, o, t|
@@ -359,7 +376,7 @@ class SimulationRunner
       unless t.value.success?
         raise SimulationError, "Linearization failed."
       end
-      linear_model = LinearStateSpaceModel.new(File.join(@directory, "linear_#{@model_name}.mo"))
+      linear_model = LinearStateSpaceModel.new(File.join(@directory, "linearized_model.mo"))
     end
     linear_model
   end
