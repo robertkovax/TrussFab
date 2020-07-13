@@ -31,17 +31,7 @@ class ScaleOscillationTool < Tool
     return unless point
 
     user_node = Graph.instance.nodes[@ui.spring_pane.mounted_users.keys[0]]
-    vector = user_node.position - point
-
-    vector.length = SCALE_DELTA;
-    # Adjus geometry
-    new_position = user_node.position + vector
-    user_node.update_position(new_position)
-    user_node.hub.update_position(new_position)
-    user_node.update_sketchup_object
-    user_node.hub.update_user_indicator
-    user_node.adjacent_triangles.each { |triangle| triangle.update_sketchup_object if triangle.cover }
-
+    scale_user_node_from_hinge(user_node, nil, point)
 
     # Compile, simulate and refresh motion path after changing geometry
     #@ui.spring_pane.compile
@@ -49,6 +39,20 @@ class ScaleOscillationTool < Tool
     #@ui.spring_pane.update_stats
     #@ui.spring_pane.update_dialog if @dialog
     #@ui.spring_pane.update_trace_visualization true
+
+  end
+
+  def scale_user_node_from_hinge(user_node, spring, hinge_point)
+    translation_vector = user_node.position - hinge_point
+
+    translation_vector.length = SCALE_DELTA
+    # Adjust geometry
+    new_position = user_node.position + translation_vector
+    user_node.update_position(new_position)
+    user_node.hub.update_position(new_position)
+    user_node.update_sketchup_object
+    user_node.hub.update_user_indicator
+    user_node.adjacent_triangles.each { |triangle| triangle.update_sketchup_object if triangle.cover }
 
   end
 
