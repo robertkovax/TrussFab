@@ -74,6 +74,7 @@ class ImportTool < Tool
       @ui.spring_pane.request_compilation
       @ui.spring_pane.update_mounted_users
       @ui.spring_pane.update_springs
+      @ui.spring_pane.color_static_groups
       @ui.spring_pane.update_trace_visualization false
     end
 
