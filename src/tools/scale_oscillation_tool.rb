@@ -44,6 +44,10 @@ class ScaleOscillationTool < Tool
     #user_node.move_to(new_position)
     user_node.update_position(new_position)
     user_node.hub.update_position(new_position)
+
+    # Make link aware that it's actual length changed, meaning it's not compressed but actually a different link now
+    spring_edge.link.initial_edge_length = spring_edge.length.to_f
+
     user_node.update_sketchup_object
     user_node.hub.update_user_indicator
     user_node.adjacent_triangles.each { |triangle| triangle.update_sketchup_object if triangle.cover }
@@ -51,12 +55,6 @@ class ScaleOscillationTool < Tool
     constpoint = Sketchup.active_model
                      .active_entities
                      .add_cpoint projected_user_position
-    #constline = Sketchup.active_model
-    #                 .active_entities
-    #                 .add_cline [point, point + hinge_edge.direction]
-    #constline = Sketchup.active_model
-    #                .active_entities
-    #                .add_cline [point, user_node.position]
   end
 
   def scale_user_node_from_hinge(user_node, spring, hinge_point)
