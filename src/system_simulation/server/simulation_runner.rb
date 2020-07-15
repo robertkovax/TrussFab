@@ -282,7 +282,6 @@ class SimulationRunner
     override_string = ''
     @identifiers_for_springs.each do |edge_id, spring_identifier|
       override_string += "#{spring_identifier}.c=#{@constants_for_springs[edge_id]},"
-      override_string += "#{spring_identifier}.s_rel0.start=#{get_preloaded_length(edge_id)},"
     end
 
     @mounted_users.each do |node_id, weight|
@@ -356,6 +355,16 @@ class SimulationRunner
 
   def run_simulation(filter = '*', force_vectors = [], length = 10, resolution = 0.05)
     # TODO: adjust sampling rate dynamically
+
+    # TODO: finish start value assignment
+    def alter_start_value(name, value)
+      File.open(File.join(File.dirname(__FILE__), @model_name + "_init.xml"), 'w') { |file|
+        file.write(file.gsub(/(?<=\"#{name}\".*<Real start=\")0\.0/, value))
+       }
+    end
+
+    # alter_start_value("edge_from_2_to_4_spring.srel", 3)
+
     overrides = "outputFormat=csv,variableFilter=#{filter},startTime=0.0,stopTime=#{length},stepSize=#{resolution}," \
                 "#{force_vector_string(force_vectors)},#{override_constants_string}"
     command = "./#{@model_name} #{@simulation_options} -override=\"#{overrides}\""
@@ -371,7 +380,7 @@ class SimulationRunner
 
   def run_linearization()
     # TODO properly parse where users sit as output
-    command = "./#{@model_name}  -lv=LOG_STATS  -override=\"#{override_constants_string},node_4.v_0=0,node_4.a_0=0\" -l=0"
+    command = "./#{@model_name}  -lv=LOG_STATS  -override=\"#{override_constants_string}\" -l=0"
     puts(command)
     linear_model = nil
     Open3.popen2e(command, chdir: @directory) do |i, o, t|
