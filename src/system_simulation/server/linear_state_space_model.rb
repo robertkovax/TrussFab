@@ -63,6 +63,8 @@ class LinearStateSpaceModel
     # phase plot (how the phase is altered at a given frequency)
     #
     # https://en.wikipedia.org/wiki/Bode_plot#Definition
+    #
+    # Also relevant: https://github.com/scipy/scipy/blob/6a950ef61871e05d3618628ab2052db5682f3dfb/scipy/signal/filter_design.py#L119
 
     frequencies = (-3..3).step(0.1).to_a.map { |a| 10**a }
 
@@ -75,7 +77,7 @@ class LinearStateSpaceModel
 
     frequency_response = frequencies.map{|w| transfer_function(Complex(0, w))}
 
-    {:frequencies => frequencies, :magnitude => frequency_response.map{ |c| Complex(c).abs }, :phase => frequency_response.map{ |c| Complex(c).arg } }
+    {:frequencies => frequencies, :magnitude => frequency_response.map{ |c| 20 * Math.log(  Complex(c).abs ) }, :phase => frequency_response.map{ |c| Complex(c).arg } }
   end
 
   def cp_to_python

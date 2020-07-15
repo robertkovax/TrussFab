@@ -3,11 +3,13 @@ model LineForceGenerated
 
   <% modelica_components.select{|component| component.is_a?(Modelica_PointMass) && component[:is_user]}.each do |component| %>
   input Real <%= component[:name] %>_force_in(start = 0);
-  output Real <%= component[:name] %>_pos_out(start = <%= component[:z_start] %>);<% end %>
+  output Real <%= component[:name] %>_pos_out(start = 0);
+  Real <%= component[:name] %>_force_direction [3] = {0, 0, -1};
+  <% end %>
 
   <% modelica_components.each do |component| %>
   <% if component.is_a?(Modelica_LineForceWithMass) %> Modelica.Mechanics.MultiBody.Forces.LineForceWithMass <%= component[:name] %>(fixedRotationAtFrame_a = <%= component[:orientation_fixed_a].to_s %>, fixedRotationAtFrame_b = <%= component[:orientation_fixed_b].to_s %>, m = <%= component[:mass] %>);
-  <% elsif component.is_a?(Modelica_Spring) %> Modelica.Mechanics.Translational.Components.SpringDamper <%= component[:name] %>(c = <%= component[:c] %>, d = 100, s_rel0(start = <%= component[:length] %>, fixed=true) = <%= component[:length] %>);
+  <% elsif component.is_a?(Modelica_Spring) %> Modelica.Mechanics.Translational.Components.SpringDamper <%= component[:name] %>(c = <%= component[:c] %>, d = 100, s_rel0(start = <%= component[:initial_length] %>, fixed=true) = <%= component[:length] %>);
 <% elsif component.is_a?(Modelica_Force) %> Modelica.Mechanics.MultiBody.Forces.WorldForce <%= component[:name] %>(force = <%= component[:name] %>_val);
   Real <%= component[:name] %>_val [3];
   <% elsif component.is_a?(Modelica_PointMass) %> Modelica.Mechanics.MultiBody.Parts.PointMass <%= component[:name] %>(m = <%= component[:mass] %><% unless component[:x_start].nil? or component[:y_start].nil? or component[:z_start].nil? %>, r_0(fixed = true, start = <%= "{#{component[:x_start]}, #{component[:y_start]}, #{component[:z_start]}}" %>)<% end %>);
@@ -20,10 +22,8 @@ equation
 
   <% modelica_components.select{|component| component.is_a?(Modelica_PointMass)}.each do |component| %>
   <% if component[:is_user] %>
-  <%= component[:name] %>_force_val[1] = 0;
-  <%= component[:name] %>_force_val[2] = 0;
-  <%= component[:name] %>_force_in = <%= component[:name] %>_force_val[3];
-  <%= component[:name] %>_pos_out = Modelica.Math.Vectors.length(<%= component[:name] %>.r_0 - <%= "{#{component[:x_start]}, #{component[:y_start]}, #{component[:z_start]}}" %>);
+  <%= component[:name] %>_force_val = <%= component[:name] %>_force_direction * <%= component[:name] %>_force_in;
+  <%= component[:name] %>_pos_out = Modelica.Math.Vectors.length(<%= component[:name] %>.a_0);
   <% else %>
    <%= component[:name] %>_force_val = {0,0,0};
   <% end %>

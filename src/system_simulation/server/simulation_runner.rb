@@ -18,19 +18,16 @@ class SimulationRunner
   NODE_COORDINATES_FILTER = 'node_[0-9]+.r_0.*'.freeze
   CONSTRAINTS = %i[hitting_ground flipping min_max_compression].freeze
   NODE_RESULT_FILTER = 'node_[0-9]+\.r_0.*'.freeze
-  OPTIMIZE_MIN_SPRING_LENGTH = 0.3
-  OPTIMIZE_MAX_SPRING_LENGTH = 0.7
-  SOFT_SPRING_CONSTANT = 100
-  STIFF_SPRING_CONSTANT = 25000
 
   class SimulationError < StandardError
   end
 
   def self.new_from_json_export(json_export_string)
     require_relative './generate_modelica_model.rb'
+
     modelica_model_string = ModelicaModelGenerator.generate_modelica_file(json_export_string)
-    model_name = 'LineForceGenerated'
-    File.open(File.join(File.dirname(__FILE__), model_name + '.mo'), 'w') { |file| file.write(modelica_model_string) }
+    model_name = "LineForceGenerated"
+    File.open(File.join(File.dirname(__FILE__), model_name + ".mo"), 'w') { |file| file.write(modelica_model_string) }
 
     trussfab_geometry = JSON.parse(json_export_string)
 
@@ -46,6 +43,7 @@ class SimulationRunner
         [edge_id, "edge_from_#{edge_with_spring['n1']}_to_#{edge_with_spring['n2']}_spring"]
       end.to_h
     end
+
     spring_constants = trussfab_geometry['spring_constants'] if trussfab_geometry['spring_constants']
     mounted_users = trussfab_geometry['mounted_users'] if trussfab_geometry['mounted_users']
 
@@ -53,15 +51,17 @@ class SimulationRunner
     SimulationRunner.new(model_name, spring_constants, identifiers_for_springs, mounted_users)
   end
 
-  def initialize(model_name = 'seesaw3', spring_constants = {}, spring_identifiers = {}, mounted_users = {},
+  def initialize(model_name = "seesaw3", spring_constants = {}, spring_identifiers = {}, mounted_users = {},
                  suppress_compilation = false, keep_temp_dir = true)
 
     @model_name = model_name
-    @compilation_options = '-n=4 --maxMixedDeterminedIndex=100'
+    @preload_energy = 3000
+    @compilation_options = '--maxMixedDeterminedIndex=100'
     # @compilation_options += " --maxMixedDeterminedIndex=100 -n=4 --generateSymbolicLinearization"\
     #                         " --generateSymbolicJacobian"
     @simulation_options = ''
     @simulation_options += ' -lv=LOG_STATS'
+    #@simulation_options += ' -lv=LOG_STATS -s=ida'
     # @simulation += "lv=LOG_INIT_V,LOG_SIMULATION,LOG_STATS,LOG_JAC,LOG_NLS"
 
     if suppress_compilation
@@ -103,7 +103,7 @@ class SimulationRunner
 
   def get_spring_extensions
     run_compilation
-    run_simulation('edge_from_[0-9]+_to_[0-9]+_spring.*')
+    run_simulation("edge_from_[0-9]+_to_[0-9]+_spring.*")
     result = read_csv
     frame0 = Hash[result[0].zip(result[1].map{|val| val.to_f})]
     @identifiers_for_springs.map{|spring_id, modelica_spring|
@@ -123,9 +123,7 @@ class SimulationRunner
     {
       period: get_period(period_id, csv_data),
       max_acceleration: get_max_norm_and_index(acceleration_id, csv_data),
-      max_velocity: get_max_norm_and_index(velocity_id, csv_data),
-      time_velocity: get_time_series(velocity_id, csv_data),
-      time_acceleration: get_time_series(acceleration_id, csv_data)
+      max_velocity: get_max_norm_and_index(velocity_id, csv_data)
     }
   end
 
@@ -140,11 +138,6 @@ class SimulationRunner
       end
     end
     { value: max_norm, index: max_index }
-  end
-
-  def get_time_series(id, csv_data)
-    csv_data.map do |x| { 'time' => x['time'], "x" => x["#{id}[1]"], "y" => x["#{id}[2]"], "z" => x["#{id}[3]"]}
-    end
   end
 
   def get_period(id, csv_data)
@@ -196,6 +189,19 @@ class SimulationRunner
     raw_data.index(equilibrium_data_row)
   end
 
+  # Preload springs with a set energy
+  def preload(energy=1000)
+    @preload_energy = energy
+  end
+
+  def get_preloaded_length(edge_id)
+    def get_compression_for_energy(spring_constant, energy)
+      # http://hydrogen.physik.uni-wuppertal.de/hyperphysics/hyperphysics/hbase/pespr.html
+      Math.sqrt(2 * energy / spring_constant)
+    end
+    get_compression_for_energy(@constants_for_springs[edge_id], @preload_energy / @constants_for_springs.length)
+  end
+
   # OPTIMIZATION LOGIC
 
   # @param Symbol kind of constraint, one of CONSTRAINTS
@@ -205,13 +211,6 @@ class SimulationRunner
     # hash
     result_map = {}
     user_id = @mounted_users.keys[0]
-
-    # First, set every spring's constant to a very stiff value
-    @constants_for_springs.each do |spring_id, _constant|
-      @constants_for_springs[spring_id] = STIFF_SPRING_CONSTANT
-    end
-
-    # Then try to optimize each spring individually by starting with a very low spring constant (= soft)
     @constants_for_springs.each do |spring_id, _constant|
       result_map[spring_id] = optimize_spring_for_constraint(spring_id, user_id, constraint_kind)
     end
@@ -230,27 +229,24 @@ class SimulationRunner
     # TODO: right now we decrease the constant
 
     # constant = initial_constant = @constants_for_springs[spring_id]
-    constant = initial_constant = SOFT_SPRING_CONSTANT
-    user_modelica_string = "#{ModelicaModelGenerator.identifier_for_node_id(user_id)}.r_0"
-    user_filter = "#{user_modelica_string}.*"
-
-    spring_modelica_string = "#{@identifiers_for_springs[spring_id.to_s]}.s_rel"
-    spring_filter = "#{spring_modelica_string}.*"
+    constant = initial_constant = 100
+    id = "#{ModelicaModelGenerator.identifier_for_node_id(user_id)}.r_0"
+    filter = "#{id}.*"
 
     step_sizes = [10_000, 1000, 200, 50]
 
     step_size = step_sizes.shift
     keep_searching = true
     abort_threshold = 50_000
-    simulation_resolution = 0.05
+    simulation_resolution = 0.2
     simulation_length = 4
 
     while keep_searching
       # puts "Current k: #{constant} Step size: #{step_size}"
       @constants_for_springs[spring_id] = constant
-      run_simulation("#{user_filter}|#{spring_filter}", [], simulation_length, simulation_resolution)
+      run_simulation(filter, [], simulation_length, simulation_resolution)
       puts "constant #{constant}"
-      if !data_valid_for_constraint(read_csv_numeric, user_modelica_string, spring_modelica_string, constraint_kind)
+      if !data_valid_for_constraint(read_csv_numeric, id, constraint_kind)
         # increase spring constant to decrease angle delta
         constant += step_size
       elsif !step_sizes.empty?
@@ -282,6 +278,7 @@ class SimulationRunner
   private
 
   def override_constants_string
+
     override_string = ''
     @identifiers_for_springs.each do |edge_id, spring_identifier|
       override_string += "#{spring_identifier}.c=#{@constants_for_springs[edge_id]},"
@@ -298,9 +295,10 @@ class SimulationRunner
   def force_vector_string(force_vectors)
     force_vectors_string = ''
     force_vectors.each do |force_vector|
-      override_string = "node_#{force_vector['node_id']}_force_val[1]=#{force_vector['x']}," \
-                        "node_#{force_vector['node_id']}_force_val[2]=#{force_vector['y']}," \
-                        "node_#{force_vector['node_id']}_force_val[3]=#{force_vector['z']}"
+      override_string = "node_#{force_vector['node_id']}_force_direction[1]=#{force_vector['x']}," \
+                        "node_#{force_vector['node_id']}_force_direction[2]=#{force_vector['y']}," \
+                        "node_#{force_vector['node_id']}_force_direction[3]=#{force_vector['z']}," \
+                        "node_#{force_vector['node_id']}_force_in=#{force_vector['z']}"
       force_vectors_string += override_string
       force_vectors_string += ','
     end
@@ -309,7 +307,7 @@ class SimulationRunner
 
   # @param [Symbol] constraint_kind specifying the kind of constrain
   # @param [Array<Array<String>>] csv_data
-  def data_valid_for_constraint(csv_data, user_filter, spring_filter, constraint_kind)
+  def data_valid_for_constraint(csv_data, user_filter, constraint_kind)
     # TODO: for now we only optimize for not hitting the ground
     case constraint_kind
     when :hitting_ground
@@ -318,9 +316,7 @@ class SimulationRunner
       puts "min z #{z_coordinates.min}"
       return z_coordinates.min > 0
     when :flipping
-      min_length = csv_data[spring_filter].map{ |spring_length| spring_length.to_f}.min
-      max_length = csv_data[spring_filter].map{ |spring_length| spring_length.to_f}.max
-      return min_length > OPTIMIZE_MIN_SPRING_LENGTH && max_length < OPTIMIZE_MAX_SPRING_LENGTH
+      raise NotImplementedError
     when :min_max_compression
       raise NotImplementedError
     end
@@ -343,31 +339,41 @@ class SimulationRunner
     Open3.capture2e("cp #{@model_name}.mo  #{@directory}", chdir: File.dirname(__FILE__))
     Open3.capture2e("cp ./modelica_assets/AdaptiveSpringDamper.mo  #{@directory}", chdir: File.dirname(__FILE__))
 
-    dependencies = ['AdaptiveSpringDamper.mo', 'Modelica']
+    dependencies = ["AdaptiveSpringDamper.mo", "Modelica"]
     command = "omc #{@compilation_options} -s #{@model_name}.mo #{dependencies.join(' ')} "\
               "&& mv #{@model_name}.makefile Makefile && make -j 8"
     puts(command)
     output, status = Open3.capture2e(command,
                                 chdir: @directory)
     if status.success?
-      puts('Compilation Successful')
+      puts("Compilation Successful")
     else
       puts(output)
-      raise SimulationError, 'Modelica compilation failed.'
+      raise SimulationError, "Modelica compilation failed."
     end
   end
 
   def run_simulation(filter = '*', force_vectors = [], length = 10, resolution = 0.05)
     # TODO: adjust sampling rate dynamically
+
+    # TODO: finish start value assignment
+    def alter_start_value(name, value)
+      File.open(File.join(File.dirname(__FILE__), @model_name + "_init.xml"), 'w') { |file|
+        file.write(file.gsub(/(?<=\"#{name}\".*<Real start=\")0\.0/, value))
+       }
+    end
+
+    # alter_start_value("edge_from_2_to_4_spring.srel", 3)
+
     overrides = "outputFormat=csv,variableFilter=#{filter},startTime=0.0,stopTime=#{length},stepSize=#{resolution}," \
                 "#{force_vector_string(force_vectors)},#{override_constants_string}"
-    command = "./#{@model_name} #{@simulation_options} -override=\"#{overrides}\" -idaSensitivity"
+    command = "./#{@model_name} #{@simulation_options} -override=\"#{overrides}\""
     puts(command)
     Open3.popen2e(command, chdir: @directory) do |i, o, t|
       # prints out std out of the command
       o.each { |l| puts l }
       if not t.value.success?
-        raise SimulationError, 'Modelica simulation returned with non-zero exit code (See console output for more information).'
+        raise SimulationError, "Modelica simulation returned with non-zero exit code (See console output for more information)."
       end
     end
   end
@@ -380,9 +386,9 @@ class SimulationRunner
     Open3.popen2e(command, chdir: @directory) do |i, o, t|
       o.each { |l| puts l }
       unless t.value.success?
-        raise SimulationError, 'Linearization failed.'
+        raise SimulationError, "Linearization failed."
       end
-      linear_model = LinearStateSpaceModel.new(File.join(@directory, "linear_#{@model_name}.mo"))
+      linear_model = LinearStateSpaceModel.new(File.join(@directory, "linearized_model.mo"))
     end
     linear_model
   end
