@@ -354,16 +354,31 @@ class SimulationRunner
   end
 
   def run_simulation(filter = '*', force_vectors = [], length = 10, resolution = 0.05)
-    # TODO: adjust sampling rate dynamically
 
-    # TODO: finish start value assignment
-    def alter_start_value(name, value)
-      File.open(File.join(File.dirname(__FILE__), @model_name + "_init.xml"), 'w') { |file|
-        file.write(file.gsub(/(?<=\"#{name}\".*<Real start=\")0\.0/, value))
-       }
+    def alter_start_value(key, value)
+      output =""
+      init_value_config_file = File.join(@directory, @model_name + "_init.xml")
+      current_object_tag = nil
+      File.open(init_value_config_file, 'r').each_line do |line|
+        if current_object_tag != nil and line.match(/<Real start=\"/) # check whether this line has a start property
+          current_object_tag = nil
+          updated_line = line.gsub(/(?<=<Real start=\")(.*)(?=\" fixed=)/, value.to_f.to_s).gsub(/fixed=\"false\"/, "fixed=\"true\"")
+          output += updated_line
+          puts line
+          puts updated_line
+        else
+          if current_object_tag == nil and line.match(/\"#{key}\"/)
+            current_object_tag = key
+          end
+          output += line
+        end
+      end
+      File.open(init_value_config_file, 'w') { |file| file.write(output) }
     end
+    puts @identifiers_for_springs
+    @identifiers_for_springs.map{|edge_id, edge_name| alter_start_value("#{edge_name}.s_rel", get_preloaded_length(edge_id) )}
 
-    # alter_start_value("edge_from_2_to_4_spring.srel", 3)
+    alter_start_value("edge_from_2_to_4_spring.s_rel", 2)
 
     overrides = "outputFormat=csv,variableFilter=#{filter},startTime=0.0,stopTime=#{length},stepSize=#{resolution}," \
                 "#{force_vector_string(force_vectors)},#{override_constants_string}"
@@ -395,10 +410,6 @@ class SimulationRunner
 
 
   def read_csv
-    CSV.read(File.join(@directory, "#{@model_name}_res.csv"))
-  end
-
-  def read_csv_numeric
     CSV.read(File.join(@directory, "#{@model_name}_res.csv"), headers: true, converters: :numeric)
   end
 
