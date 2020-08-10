@@ -57,7 +57,8 @@ get '/get_constant_for_constrained_angle' do
 end
 
 get  '/linearize/bode_plot' do
-  linear_model = sim.linearize
-  return_message = linear_model.bode_plot
-  return_message.to_json
+  # linear_model = sim.linearize
+  # return_message = linear_model.bode_plot
+  # return_message.to_json
+  []
 end

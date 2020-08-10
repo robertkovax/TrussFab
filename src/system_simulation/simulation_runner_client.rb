@@ -4,7 +4,7 @@ require 'net/http'
 require 'uri'
 require_relative 'animation_data_sample.rb'
 
-SIMULATION_RUNNER_HOST = "http://ec2-18-158-146-2.eu-central-1.compute.amazonaws.com:8080".freeze
+SIMULATION_RUNNER_HOST = "http://ec2-18-158-146-2.eu-central-1.compute.amazona>
 
 class SimulationRunnerClient
   def self.update_model(json_string)
@@ -72,7 +72,7 @@ class SimulationRunnerClient
   private
 
   # @param [Integer] timeout in seconds
-  def self.json_response_from_server(route, json_data = nil, timeout = 25)
+  def self.json_response_from_server(route, json_data = nil, timeout = 90)
     uri = URI.parse("#{SIMULATION_RUNNER_HOST}/#{route}")
     http = Net::HTTP.new(uri.host, uri.port)
     http.read_timeout = timeout
