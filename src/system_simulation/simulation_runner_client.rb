@@ -4,7 +4,7 @@ require 'net/http'
 require 'uri'
 require_relative 'animation_data_sample.rb'
 
-SIMULATION_RUNNER_HOST = "http://ec2-3-127-56-156.eu-central-1.compute.amazonaws.com:8080".freeze
+SIMULATION_RUNNER_HOST = "http://ec2-18-158-146-2.eu-central-1.compute.amazonaws.com:8080".freeze
 
 class SimulationRunnerClient
   def self.update_model(json_string)
@@ -45,7 +45,7 @@ class SimulationRunnerClient
 
   def self.get_user_stats(node_id)
     p "server request: get_user_stats"
-    json_response_from_server("get_user_stats/#{node_id}")
+    json_response_from_server("get_user_stats/#{node_id}", nil, 180)
   end
 
   def self.get_hub_time_series(force_vectors = nil)
@@ -69,7 +69,7 @@ class SimulationRunnerClient
 
   def self.optimize_spring_for_constrain
     p "server request: optimize_spring_for_constrain"
-    p json_response_from_server('optimize/hitting_ground', nil, 180)
+    p json_response_from_server('optimize/hitting_ground', nil, 360)
   end
 
   def self.bode_plot
@@ -80,7 +80,7 @@ class SimulationRunnerClient
   private
 
   # @param [Integer] timeout in seconds
-  def self.json_response_from_server(route, json_data = nil, timeout = 25)
+  def self.json_response_from_server(route, json_data = nil, timeout = 80)
     uri = URI.parse("#{SIMULATION_RUNNER_HOST}/#{route}")
     http = Net::HTTP.new(uri.host, uri.port)
     http.read_timeout = timeout
