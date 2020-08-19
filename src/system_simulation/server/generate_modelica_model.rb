@@ -66,6 +66,9 @@ class ModelicaModelGenerator
       edge[:n2_orientation_fixed] = false
     }
 
+    # Remove nodes that have no connecting edges because every edge of these hubs are fixed.
+    nodes.reject! { |index, node| node[:connecting_edges].empty? }
+
     nodes.each { |nodeId, node|
       node[:primary_edge] = node[:connecting_edges][0]
 

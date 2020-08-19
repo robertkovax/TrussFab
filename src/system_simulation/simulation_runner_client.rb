@@ -40,7 +40,7 @@ class SimulationRunnerClient
   end
 
   def self.get_user_stats(node_id)
-    json_response_from_server("get_user_stats/#{node_id}")
+    json_response_from_server("get_user_stats/#{node_id}", nil, 180)
   end
 
   def self.get_hub_time_series(force_vectors = nil)
@@ -62,7 +62,7 @@ class SimulationRunnerClient
   end
 
   def self.optimize_spring_for_constrain
-    p json_response_from_server('optimize/hitting_ground', nil, 180)
+    p json_response_from_server('optimize/hitting_ground', nil, 360)
   end
 
   def self.bode_plot
@@ -72,7 +72,7 @@ class SimulationRunnerClient
   private
 
   # @param [Integer] timeout in seconds
-  def self.json_response_from_server(route, json_data = nil, timeout = 25)
+  def self.json_response_from_server(route, json_data = nil, timeout = 80)
     uri = URI.parse("#{SIMULATION_RUNNER_HOST}/#{route}")
     http = Net::HTTP.new(uri.host, uri.port)
     http.read_timeout = timeout
