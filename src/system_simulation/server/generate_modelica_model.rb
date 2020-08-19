@@ -5,7 +5,7 @@ require_relative 'modelica_configuration.rb'
 
 Modelica_LineForceWithMass = Struct.new(:name, :mass, :orientation_fixed_a, :orientation_fixed_b)
 Modelica_Rod = Struct.new(:name, :length, :static_constant)
-Modelica_Spring = Struct.new(:name, :c, :length)
+Modelica_Spring = Struct.new(:name, :c, :length, :uncompressed_length)
 Modelica_Connection = Struct.new(:from, :to)
 Modelica_Fixture = Struct.new(:name, :x, :y, :z)
 Modelica_PointMass = Struct.new(:name, :mass, :is_user, :x_start, :y_start, :z_start)
@@ -62,6 +62,8 @@ class ModelicaModelGenerator
       n1[:connecting_edges].push(edge)
       n2[:connecting_edges].push(edge)
 
+      edge[:uncompressed_length] = sketchup_to_modelica_units(edge["uncompressed_length"])
+
       edge[:n1_orientation_fixed] = false
       edge[:n2_orientation_fixed] = false
     }
@@ -91,7 +93,7 @@ class ModelicaModelGenerator
       edge_mass = edge[:length] * ModelicaConfiguration::PIPE_WEIGHT_KG_PER_M
       edge_component = Modelica_LineForceWithMass.new(edge[:name], edge_mass, edge[:n1_orientation_fixed], edge[:n2_orientation_fixed] )
 
-      force_translator = Modelica_Spring.new("#{edge[:name]}_spring", ModelicaConfiguration::STATIC_SPRING_CONSTANT, edge[:length])
+      force_translator = Modelica_Spring.new("#{edge[:name]}_spring", ModelicaConfiguration::STATIC_SPRING_CONSTANT, edge[:length], edge[:uncompressed_length])
 
       # store for constructing connections
       edge[:modelica_component] = edge_component
@@ -163,7 +165,6 @@ class ModelicaModelGenerator
     b.local_variable_set(:modelica_components, modelica_components)
     b.local_variable_set(:modelica_connections, modelica_connections)
     renderer.result(b)
-
   end
 
   def self.edge_to_modelica_name(edge)
