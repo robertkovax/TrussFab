@@ -209,7 +209,7 @@ class Node < GraphObject
   end
 
   def inspect
-    'Node: ' + @position.to_s
+    "Node #{@id}: " + @position.to_s
   end
 
   private

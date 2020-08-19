@@ -8,6 +8,7 @@ SIMULATION_RUNNER_HOST = "http://ec2-18-158-146-2.eu-central-1.compute.amazonaws
 
 class SimulationRunnerClient
   def self.update_model(json_string)
+    p "server request: update_model"
     uri = URI.parse("#{SIMULATION_RUNNER_HOST}/update_model")
     header = {'Content-Type' => 'text/json'}
 
@@ -20,14 +21,17 @@ class SimulationRunnerClient
   end
 
   def self.update_spring_constants(spring_constants)
+    p "server request: update_spring_constants"
     patch_updated_data('update_spring_constants', JSON.pretty_generate(spring_constants))
   end
 
   def self.update_mounted_users(mounted_users)
+    p "update_mounted_users"
     patch_updated_data('update_mounted_users', JSON.pretty_generate(mounted_users))
   end
 
   def self.patch_updated_data(route, json_data)
+    p "server request: patch_updated_data"
     uri = URI.parse("#{SIMULATION_RUNNER_HOST}/#{route}")
     header = {'Content-Type' => 'text/json'}
 
@@ -40,6 +44,7 @@ class SimulationRunnerClient
   end
 
   def self.get_user_stats(node_id)
+    p "server request: get_user_stats"
     json_response_from_server("get_user_stats/#{node_id}", nil, 180)
   end
 
@@ -58,14 +63,17 @@ class SimulationRunnerClient
   end
 
   def self.get_constant_for_constrained_angle
+    p "server request: get_constant_for_constrained_angle"
     p json_response_from_server('get_constant_for_constrained_angle')
   end
 
   def self.optimize_spring_for_constrain
+    p "server request: optimize_spring_for_constrain"
     p json_response_from_server('optimize/hitting_ground', nil, 360)
   end
 
   def self.bode_plot
+    p "server request: bode_plot"
     json_response_from_server('linearize/bode_plot', nil, 180)
   end
 

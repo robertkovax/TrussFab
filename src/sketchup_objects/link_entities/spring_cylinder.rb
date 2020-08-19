@@ -1,4 +1,4 @@
-# SpringCylinder mounting a spring
+# Definition of a SpringCylinder mounting a spring
 class SpringCylinder < SketchupObject
   attr_reader :material
 
@@ -11,6 +11,7 @@ class SpringCylinder < SketchupObject
 
   def initialize(parent, edge_length, spring_length, spring_diameter, id: nil)
     super(id)
+    # Creates a cylinder positioned in the origin
     @definition = create_cylinder(Geom::Point3d.new, Geom::Vector3d.new(0, 0, 1), edge_length,
                                   spring_length / 2, spring_diameter)
     @entity = create_entity

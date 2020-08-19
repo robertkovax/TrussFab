@@ -6,14 +6,13 @@ require 'src/sketchup_objects/spring_constant_observer.rb'
 
 # PhysicsLink that behaves like a gas spring
 class SpringLink < ActuatorLink
-  attr_accessor :actual_spring_length
+  attr_accessor :actual_spring_length, :initial_edge_length
   attr_reader :edge, :initial_spring_length, :spring_parameters
 
   COLORS = Configuration::INTENSE_COLORS
 
   def initialize(first_node, second_node, edge, spring_parameters: nil, id: nil)
-    @initial_edge_length = first_node.hub.entity.bounds.center.vector_to(second_node.hub.entity.bounds.center)
-                                     .length.to_f
+    @initial_edge_length = edge.length.to_f
     @spring_parameters = spring_parameters ? spring_parameters : SpringPicker.instance.get_default_spring(edge.length.to_m)
     @actual_spring_length = @spring_parameters[:unstreched_length].m
     @spring_coil_diameter = @spring_parameters[:coil_diameter].m
@@ -70,6 +69,7 @@ class SpringLink < ActuatorLink
     recreate_children
   end
 
+  # Position and rotate the models correctly in the scene.
   def update_link_transformations
     pt1 = @first_node.hub.entity.bounds.center
     pt2 = @second_node.hub.entity.bounds.center
@@ -77,15 +77,18 @@ class SpringLink < ActuatorLink
     # puts( "springl: " + pt1.to_s + pt2.to_s)
     move_sensor_symbol(pt3)
 
-    # update position calculating a translation from the last to the new position
+    # Update placing of spring and cylinders calculating a transformation from the origin to the new position
     vector_representation = pt1.vector_to(pt2)
     current_edge_length = vector_representation.length
 
+    # Resembles the compression while animating
     scale_factor = current_edge_length.to_f / @initial_edge_length
 
-    translation_vector = vector_representation.clone
-    translation_vector.length = ((@initial_edge_length - @actual_spring_length) / 2) * scale_factor
-    new_spring_position = pt1 + translation_vector
+    link_center_position = pt1 + Geometry.scale_vector(vector_representation, 0.5)
+    # Get the springs position by going half a spring length of the link center
+    half_spring_vector = vector_representation.clone
+    half_spring_vector.length = @actual_spring_length / 2
+    spring_position = link_center_position - Geometry.scale_vector(half_spring_vector, scale_factor)
 
     # Create transformation for spring
     # SketchupObjects are oriented along the z-axis
@@ -94,7 +97,7 @@ class SpringLink < ActuatorLink
                                                 vector_representation,
                                                 Geom::Point3d.new(0, 0, 0))
 
-    translation = Geom::Transformation.translation(new_spring_position)
+    translation = Geom::Transformation.translation(spring_position)
 
     @first_cylinder.entity.transformation = translation * rotation * scaling
 

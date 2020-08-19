@@ -8,7 +8,7 @@ require 'src/system_simulation/period_animation.rb'
 
 # Ruby integration for spring insights dialog
 class SpringPane
-  attr_accessor :force_vectors, :trace_visualization
+  attr_accessor :force_vectors, :trace_visualization, :spring_hinges, :spring_edges
   INSIGHTS_HTML_FILE = '../spring-pane/index.erb'.freeze
   DEFAULT_STATS = { 'period' => Float::NAN,
                     'max_acceleration' => { 'value' => Float::NAN, 'index' => -1 },
@@ -49,6 +49,7 @@ class SpringPane
     open_dialog
 
     @pending_compilation = false
+    @spring_hinges = {}
   end
 
   # spring / graph manipulation logic:
@@ -203,6 +204,34 @@ class SpringPane
     visualizer = NodeExportVisualization::Visualizer.new
     visualizer.color_static_groups static_groups
     Sketchup.active_model.commit_operation
+
+    # TODO: maybe call at another point
+    calculate_hinge_edges
+
+  end
+
+  # Calculates hinges / hinge edges for every spring
+  def calculate_hinge_edges
+    @spring_edges.each do |edge|
+      spring_triangles = edge.adjacent_triangles
+      node_candidates = spring_triangles.map(&:nodes).flatten!.uniq!
+
+      node_candidates.reject! do |node|
+        # remove nodes where the spring is mounted
+        edge.nodes.include?(node)
+      end
+
+      hinge_point = Geom::Vector3d.new
+      hinge_id = -1
+      if node_candidates.length == 2 && node_candidates[0].edge_to?(node_candidates[1])
+        hinge_edge = node_candidates[0].edge_to node_candidates[1]
+        hinge_id = hinge_edge.id
+        hinge_point = hinge_edge.mid_point
+      end
+      @spring_hinges[edge.id] = {point: hinge_point, edge_id: hinge_id}
+      p @spring_hinges[edge.id]
+
+    end
   end
 
   def notify_model_changed
@@ -234,16 +263,6 @@ class SpringPane
     update_dialog if @dialog
   end
 
-  private
-
-  def constants_for_springs
-    spring_constants = {}
-    @spring_edges.map(&:link).each do |link|
-      spring_constants[link.edge.id] = link.spring_parameters[:k]
-    end
-    spring_constants
-  end
-
   def mounted_users
     mounted_users = {}
     Graph.instance.nodes.each do |node_id, node|
@@ -253,6 +272,16 @@ class SpringPane
       mounted_users[node_id] = hub.user_weight
     end
     mounted_users
+  end
+
+  private
+
+  def constants_for_springs
+    spring_constants = {}
+    @spring_edges.map(&:link).each do |link|
+      spring_constants[link.edge.id] = link.spring_parameters[:k]
+    end
+    spring_constants
   end
 
   # compilation / simulation logic:
