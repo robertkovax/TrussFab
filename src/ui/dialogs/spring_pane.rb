@@ -276,6 +276,25 @@ class SpringPane
 
   private
 
+  def preload_springs
+    # 1. Calculate potential energy
+    # TODO: still open
+    total_energy = 150
+
+    constants = constants_for_springs;
+
+    @spring_edges.map(&:link).each do |link|
+      # 2. distribute it (equally for now) onto all springs
+      energy_share = total_energy / @spring_edges.length
+      # 3. convert energy share into precompression
+      compression = Math.sqrt((2 * energy_share) / link.spring_parameters[:k])
+      # 4. shrink edge
+      relaxation = Relaxation.new
+      relaxation.stretch_to(link.edge, (link.initial_edge_length.to_m - compression).to_mm)
+      relaxation.relax
+    end
+  end
+
   def constants_for_springs
     spring_constants = {}
     @spring_edges.map(&:link).each do |link|
@@ -333,6 +352,10 @@ class SpringPane
   def register_callbacks
     @dialog.add_action_callback('spring_constants_change') do |_, spring_id, value|
       update_constant_for_spring(spring_id, value.to_i)
+    end
+
+    @dialog.add_action_callback('spring_insights_preload') do
+      preload_springs
     end
 
     @dialog.add_action_callback('spring_insights_compile') do
