@@ -206,7 +206,7 @@ class SpringPane
     Sketchup.active_model.commit_operation
 
     # TODO: maybe call at another point
-    calculate_hinge_edges
+    #calculate_hinge_edges
 
   end
 
@@ -214,6 +214,7 @@ class SpringPane
   def calculate_hinge_edges
     @spring_edges.each do |edge|
       spring_triangles = edge.adjacent_triangles
+      next if spring_triangles.empty?
       node_candidates = spring_triangles.map(&:nodes).flatten!.uniq!
 
       node_candidates.reject! do |node|
