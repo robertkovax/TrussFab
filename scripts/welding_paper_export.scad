@@ -133,6 +133,7 @@ vecRotatedXY = linearMap(vecRotatedX,rotationY(yAngle(vecRotatedX[bestVecNum],ma
 branchVec = multiplyArray(vecFromStein(moveToPlane(vecRotatedXY*ballRadius,ballRadius),bestVecNum),
                    arcLength(dataFileVectorArray,bestVecNum));
 
+//function grandtruthVec(vec) = [for(i=[0:len(branchVec)-1])
 
 
 module drawJig(){
@@ -140,14 +141,15 @@ module drawJig(){
         if(i!=bestVecNum){
             difference(){
                 translate(branchVec[i]) cylinder(h=10,r=8,center = true);
-                translate(branchVec[i]) cylinder(h=11,r=2,center = true);
+                translate(branchVec[i]) cylinder(h=11,r=1,center = true);
             }
         }
     }
        
     difference(){
+        echo(branchVec[bestVecNum]);
         translate(branchVec[bestVecNum]) cylinder(h=10,r=10,center = true);
-        translate(branchVec[bestVecNum]) cylinder(h=11,r=2,center = true);
+        translate(branchVec[bestVecNum]) cylinder(h=11,r=1,center = true);
     }
     
     difference(){
@@ -181,10 +183,10 @@ module makeHoleCircles(){
 
 
 color("#facd00",1.0) 
-projection(cut = false) 
+//projection(cut = false) 
 difference(){
     drawJig();
-    //drawID();
+    drawID();
 }
 
 
@@ -207,7 +209,7 @@ module drawID()
         if(i != bestVecNum){
             branchAngle = zAngle(branchVec[i],[0,1,0]);
             //branchAngle = branchVec[i][1]<0 ? zAngle(branchVec[i],[0,1,0]) : -zAngle(branchVec[i],[0,1,0]);
-            echo(branchAngle);
+            //echo(branchAngle);
             
             translate(branchVec[i]+(branchVec[i]/norm(branchVec[i]))*4)
             rotate(branchAngle)
@@ -230,6 +232,13 @@ module drawID()
             translate([-5.2,-1.5,-25]){
                 linear_extrude(height = 50){
                 text(str("ID:",dataFileAddonParameterArray[i][1]),size = 3,font = "Sukima");
+                }
+            }
+            
+           //translate(tempVec*5)
+            translate([-8.2,-1.5,-25]){
+                linear_extrude(height = 50){
+                text(str(":",hubID,":"),size = 3,font = "Sukima");
                 }
             }
             
