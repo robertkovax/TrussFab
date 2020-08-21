@@ -106,8 +106,13 @@ class ExportMainHub < ScadExportHub
         type_array << '"HOLE"'
       end
 
+      spring_identifier = if elongation.is_spring
+                            "S"
+                          else
+                            ""
+                          end
       vector_array << "[#{elongation.direction.to_a.join(', ')}]"
-      addon_array << "[#{length}, \"#{elongation.other_hub_id}"\
+      addon_array << "[#{length}, \"#{spring_identifier}#{elongation.other_hub_id}"\
                      "#{elongation.bottle_size}\"]"
     end
 
