@@ -269,7 +269,8 @@ class ScadExport
                                                      l3.to_mm,
                                                      direction,
                                                      edge.bottle_length_short_name,
-                                                     edge.link_type == "spring"
+                                                     edge.link_type == "spring",
+                                                     edge.id
                                                      )
         export_hub.add_elongation(export_elongation)
 

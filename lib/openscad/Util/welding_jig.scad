@@ -156,7 +156,7 @@ module drawID()
             rotate(branchAngle)
             translate([-5.2,-1.5,-25]){
                 linear_extrude(height = 50){
-                text(str("L:",connectionLengthArray[i]), size = 3, font = "Sukima");
+                text(str("E-ID:",dataFileAddonParameterArray[i][2]), size = 3, font = "Sukima");
                 }
             }
         }else{
