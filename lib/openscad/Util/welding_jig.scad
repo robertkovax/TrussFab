@@ -148,7 +148,7 @@ module drawID()
             rotate(branchAngle)
             translate([-5.2,-1.5,-25]){
                 linear_extrude(height = 50){
-                    text(str("ID:",dataFileAddonParameterArray[i][1]),size = 2.5,font = "Sukima");
+                    text(str("H ",dataFileAddonParameterArray[i][1]),size = 2.5,font = "Sukima");
                 }
             }
 
@@ -156,7 +156,7 @@ module drawID()
             rotate(branchAngle)
             translate([-5.2,-1.5,-25]){
                 linear_extrude(height = 50){
-                text(str("E-ID:",dataFileAddonParameterArray[i][2]), size = 3, font = "Sukima");
+                text(str("E ",dataFileAddonParameterArray[i][2]), size = 3, font = "Sukima");
                 }
             }
         }else{
@@ -164,7 +164,7 @@ module drawID()
             translate(tempVec*5)
             translate([-5.2,-1.5,-25]){
                 linear_extrude(height = 50){
-                text(str("ID:",dataFileAddonParameterArray[i][1]),size = 3,font = "Sukima");
+                text(str("H ",dataFileAddonParameterArray[i][1]),size = 3,font = "Sukima");
                 }
             }
 
@@ -178,7 +178,7 @@ module drawID()
             translate(tempVec*(-5))
             translate([-5.2,-1.5,-25]){
                 linear_extrude(height = 50){
-                text(str("L:",connectionLengthArray[i]),size = 3,font = "Sukima");
+                text(str("E ",dataFileAddonParameterArray[i][2]),size = 3,font = "Sukima");
                 }
             }
         }

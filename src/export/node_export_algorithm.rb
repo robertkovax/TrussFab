@@ -206,12 +206,24 @@ structures at the same hinge"
     return static_groups_pair[0] if !has_pods[0] && has_pods[1]
     return static_groups_pair[1] if has_pods[0] && !has_pods[1]
 
-    # 2. Criterion: Number of nodes
+    # 2. Criterion: distance from ground
+    average_z_value_a = average_z_axis_for_subgroup(static_groups_pair[0])
+    average_z_value_b = average_z_axis_for_subgroup(static_groups_pair[1])
+
+    return static_groups_pair[0] if average_z_value_a > average_z_value_b
+    return static_groups_pair[1] if average_z_value_b > average_z_value_a
+
+    # 3. Criterion: Number of nodes
     if static_groups_pair[0].size > static_groups_pair[1].size
       static_groups_pair[1]
     else
       static_groups_pair[0]
     end
+  end
+
+  def average_z_axis_for_subgroup(sub_group)
+    average_z_value_a = sub_group.to_a.inject(0){ |sum, node| sum + node.position.z }
+    average_z_value_a / sub_group.length
   end
 
   def edge_angle(edge1, edge2)
