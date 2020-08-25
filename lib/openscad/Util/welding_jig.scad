@@ -1,65 +1,5 @@
-include </Users/katakura/Projects/TrussFab/lib/openscad/LibSTLExport.scad>
-
-//hubID = "25";
-//mode = "Tube";
-//safetyFlag = false;
-//connectorDataDistance = 0;
-//tubeThinning = 1.0;
-//useFixedCenterSize = false;
-//hubCenterSize = 0;
-//printVectorInteger = 8;
-//dataFileVectorArray = [
-//[-0.5356150625587389, 0.15061948127859795, 0.8309213420171397],
-//[-0.14795432022359237, -0.4230483524803867, 0.8939460893089722],
-//[0.00608234518468905, -0.9996877824702503, 0.024235153326681393]
-//];
-//connectionLengthArray = [
-//609.3,
-//609.3,
-//609.3
-//];
-//dataFileAddonParameterArray = [
-//[50.94171941956027, "1160"],
-//[51.4436388214392, "2260"],
-//[35.983788838839274, "2660"]
-//];
-//connectorTypeArray = [
-//"PLUG",
-//"PLUG",
-//"PLUG"
-//];
-
-
-hubID = "37";
-mode = "Tube";
-safetyFlag = false;
-connectorDataDistance = 0;
-tubeThinning = 1.0;
-useFixedCenterSize = false;
-hubCenterSize = 0;
-printVectorInteger = 8;
-dataFileVectorArray = [
-[0.329464128981805, 0.11823977411028785, 0.9367351512207752],
-[0.9889814870286143, -0.14803924585957273, -1.9281915269523514e-16],
-[0.5000000000000002, 0.8660254037844385, 7.896275641248504e-16]
-];
-connectionLengthArray = [
-609.3,
-609.3,
-609.3
-];
-dataFileAddonParameterArray = [
-[20.855187530706115, "3560"],
-[33.99886935547846, "2840"],
-[21.420549778195387, "3630"]
-];
-connectorTypeArray = [
-"PLUG",
-"PLUG",
-"PLUG"
-];
-//drawHub(dataFileVectorArray, dataFileAddonParameterArray, connectorTypeArray);
-
+// Draws a jig for welding hubs made out of steel balls
+// TOODO: cleanup and extract constants
 
 aaa =[1.5743510519027641, 1.236204332513596, 0.440568038537731];
 
@@ -69,30 +9,30 @@ ccc = (aaa-bbb)/norm(aaa-bbb);
 
 
 
-ballRadius = 30.0; 
+ballRadius = 30.0;
 mapVec = [0,0,1];
 
 function sumVector(v) = [for(p=v) 1]*v;
 
 function localAngle(vec,pv) = [for (i = [0:len(vec)-1]) abs(vec[pv][0]*vec[i][0]+vec[pv][1]*vec[i][1]+vec[pv][2]*vec[i][2])/sqrt(vec[pv][0]*vec[pv][0]+vec[pv][1]*vec[pv][1]+vec[pv][2]*vec[pv][2])];
-    
+
 function localMinimalAngle(vec,a) = min(localAngle(vec,a));
 
 function allMinimalAngle(vec) = [for (i = [0:len(vec)-1]) localMinimalAngle(vec,i)];
-    
+
 bestVecNum = search(max(allMinimalAngle(dataFileVectorArray)),allMinimalAngle(dataFileVectorArray))[0];
 
 centerVector = sumVector(dataFileVectorArray)/len(dataFileVectorArray);
 
-    
-function rotationZ(r) = 
+
+function rotationZ(r) =
 [
 [cos(r), -sin(r), 0],
 [sin(r),  cos(r), 0],
 [0, 0, 1]
 ];
 
-function rotationY(r) = 
+function rotationY(r) =
 [
 [cos(r), 0, sin(r)],
 [0, 1, 0],
@@ -100,7 +40,7 @@ function rotationY(r) =
 ];
 
 
-function rotationX(r) = 
+function rotationX(r) =
 [
 [1, 0, 0],
 [0, cos(r), -sin(r)],
@@ -116,13 +56,13 @@ function yAngle(vec,mapVec) = vec[0]<0 ? acos(([vec[2],vec[0]]*[mapVec[2],mapVec
 function xyzAngle(vec1,vec2) = acos(vec1*vec2/norm(vec1)*norm(vec2));
 
 function linearMap(vec,mat) = [for (i = [0:len(vec)-1]) mat*vec[i]];
-    
+
 function moveToPlane(vec,planeZ) = [for  (i = [0:len(vec)-1]) [vec[i][0],vec[i][1],planeZ]];
-    
+
 function vecFromStein(vec,num) =   [for(i = [0:len(vec)-1])  norm(vec[i]-vec[num]) !=0 ? (vec[i]-vec[num])/norm(vec[i]-vec[num]) : [0,0,0]];
-    
+
 function arcLength(vec,num) = [for(i = [0:len(vec)-1]) vec[i]!=vec[num] ? ballRadius*2*PI*xyzAngle(vec[i],vec[num])/360 : 1];
-    
+
 function multiplyArray(array1,array2) = [for(i = [0:len(array1)-1]) array1[i]*array2[i]];
 
 
@@ -133,6 +73,7 @@ vecRotatedXY = linearMap(vecRotatedX,rotationY(yAngle(vecRotatedX[bestVecNum],ma
 branchVec = multiplyArray(vecFromStein(moveToPlane(vecRotatedXY*ballRadius,ballRadius),bestVecNum),
                    arcLength(dataFileVectorArray,bestVecNum));
 
+//function grandtruthVec(vec) = [for(i=[0:len(branchVec)-1])
 
 
 module drawJig(){
@@ -140,16 +81,17 @@ module drawJig(){
         if(i!=bestVecNum){
             difference(){
                 translate(branchVec[i]) cylinder(h=10,r=8,center = true);
-                translate(branchVec[i]) cylinder(h=11,r=2,center = true);
+                translate(branchVec[i]) cylinder(h=11,r=1,center = true);
             }
         }
     }
-       
+
     difference(){
+        echo(branchVec[bestVecNum]);
         translate(branchVec[bestVecNum]) cylinder(h=10,r=10,center = true);
-        translate(branchVec[bestVecNum]) cylinder(h=11,r=2,center = true);
+        translate(branchVec[bestVecNum]) cylinder(h=11,r=1,center = true);
     }
-    
+
     difference(){
         makeLines();
         makeHoleCircles();
@@ -178,27 +120,20 @@ module makeHoleCircles(){
     }
 }
 
-
-
-color("#facd00",1.0) 
-projection(cut = false) 
-difference(){
-    drawJig();
-    //drawID();
+module drawWeldingJig(){
+     color("#facd00",1.0)
+     projection(cut = false)
+     difference(){
+         drawJig();
+         drawID();
+     }
 }
-
-
-
-
-
-
 
 //debugPoint(branchVec,"red");
 
-
 //DEBUG
-//translate([0,0,-32]) 
-//color("#1c4c93",0.7) drawDebugJig(); 
+//translate([0,0,-32])
+//color("#1c4c93",0.7) drawDebugJig();
 
 module drawID()
 {
@@ -207,21 +142,21 @@ module drawID()
         if(i != bestVecNum){
             branchAngle = zAngle(branchVec[i],[0,1,0]);
             //branchAngle = branchVec[i][1]<0 ? zAngle(branchVec[i],[0,1,0]) : -zAngle(branchVec[i],[0,1,0]);
-            echo(branchAngle);
-            
+            //echo(branchAngle);
+
             translate(branchVec[i]+(branchVec[i]/norm(branchVec[i]))*4)
             rotate(branchAngle)
             translate([-5.2,-1.5,-25]){
                 linear_extrude(height = 50){
-                    text(str("ID:",dataFileAddonParameterArray[i][1]),size = 3,font = "Sukima");
+                    text(str("H ",dataFileAddonParameterArray[i][1]),size = 2.5,font = "Sukima");
                 }
             }
- 
+
             translate(branchVec[i]-(branchVec[i]/norm(branchVec[i]))*4)
             rotate(branchAngle)
             translate([-5.2,-1.5,-25]){
                 linear_extrude(height = 50){
-                text(str("L:",connectionLengthArray[i]), size = 3, font = "Sukima");
+                text(str("E ",dataFileAddonParameterArray[i][2]), size = 3, font = "Sukima");
                 }
             }
         }else{
@@ -229,18 +164,25 @@ module drawID()
             translate(tempVec*5)
             translate([-5.2,-1.5,-25]){
                 linear_extrude(height = 50){
-                text(str("ID:",dataFileAddonParameterArray[i][1]),size = 3,font = "Sukima");
+                text(str("H ",dataFileAddonParameterArray[i][1]),size = 3,font = "Sukima");
                 }
             }
-            
+
+           //translate(tempVec*5)
+            translate([-8.2,-1.5,-25]){
+                linear_extrude(height = 50){
+                text(str(":",hubID,":"),size = 3,font = "Sukima");
+                }
+            }
+
             translate(tempVec*(-5))
             translate([-5.2,-1.5,-25]){
                 linear_extrude(height = 50){
-                text(str("L:",connectionLengthArray[i]),size = 3,font = "Sukima");
+                text(str("E ",dataFileAddonParameterArray[i][2]),size = 3,font = "Sukima");
                 }
             }
         }
-     } 
+     }
 }
 
 module drawDebugJig(){
@@ -263,17 +205,17 @@ module cylinderForHoles(vec){
         x = vec[i][0];
         y = vec[i][1];
         z = vec[i][2];
-        length = norm([x,y,z]); 
+        length = norm([x,y,z]);
         b = acos(z/length);
         c = atan2(y,x);
         tv = [0,b,c];
         rotate(tv) cylinder( r = 4, h = 580);
-        
+
 
     }
 }
 module cylinderForHoles2(){
- 
+
     for(i = [0:len(vecRotatedXY)-1]){
         line([0,0,0],vecRotatedXY[i]*30);
     }
