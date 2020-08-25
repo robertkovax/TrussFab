@@ -32,6 +32,8 @@ class SpringCylinder < SketchupObject
   end
 
   def change_color(color)
+    return if color.nil?
+
     @entity.material = color
     @entity.material.alpha = CYLINDER_ALPHA
   end

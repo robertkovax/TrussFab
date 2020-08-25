@@ -72,10 +72,8 @@ class ImportTool < Tool
 
     if @update_springs
       @ui.spring_pane.request_compilation
-      @ui.spring_pane.update_mounted_users
       @ui.spring_pane.update_springs
       @ui.spring_pane.color_static_groups
-      @ui.spring_pane.update_trace_visualization false
     end
 
     @mouse_input.update_positions(view, x, y)
