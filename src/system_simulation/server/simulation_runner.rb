@@ -50,19 +50,16 @@ class SimulationRunner
     mounted_users = trussfab_geometry['mounted_users'] if trussfab_geometry['mounted_users']
 
     # TODO: why is :spring_constants key syntax not working here?
-    SimulationRunner.new(model_name, spring_constants, identifiers_for_springs, mounted_users)
+    SimulationRunner.new(model_name, spring_constants, identifiers_for_springs, mounted_users, trussfab_geometry)
   end
 
   def initialize(model_name = 'seesaw3', spring_constants = {}, spring_identifiers = {}, mounted_users = {},
-                 suppress_compilation = false, keep_temp_dir = true)
+                 suppress_compilation = false, keep_temp_dir = true, original_json)
 
     @model_name = model_name
-    @compilation_options = '-n=4 --maxMixedDeterminedIndex=100'
-    # @compilation_options += " --maxMixedDeterminedIndex=100 -n=4 --generateSymbolicLinearization"\
-    #                         " --generateSymbolicJacobian"
-    @simulation_options = ''
-    @simulation_options += ' -lv=LOG_STATS'
-    # @simulation += "lv=LOG_INIT_V,LOG_SIMULATION,LOG_STATS,LOG_JAC,LOG_NLS"
+    @original_json = original_json
+    @compilation_options = '--maxMixedDeterminedIndex=100 --generateSymbolicJacobian'
+    @simulation_options = '-lv=LOG_STATS'
 
     if suppress_compilation
       @directory = File.dirname(__FILE__)
@@ -170,6 +167,72 @@ class SimulationRunner
 
     frequency != 0 ? 1 / frequency : nil
   end
+
+  def get_preloaded_positions(prelaod_energy=1000)
+    def get_node_id_from_modelica_component_name(modelica_component_name)
+      modelica_component_name.match(/(?<=node_)\d+/)
+    end
+
+
+    def get_potential_energy_for_node(node_id, m, row)
+      # TODO get actual weight based on mounted
+      g = 9.81
+      h = row["node_#{node_id}.r_0[3]"]
+      if h === nil
+        return 0
+      else
+        return m * g * h
+      end
+    end
+
+    def get_potential_energy_for_edge(edge,m ,row)
+      g = 9.81
+      h = row["edge_from_#{edge[0]}_to_#{edge[1]}.r_CM_0[3]"]
+      if h === nil
+        return 0
+      else
+        return m * g * h
+      end
+    end
+
+    # run the force sweep
+    filters = ["node_[0-9]+\\.r_0.*", "edge_from_[0-9]+_to_[0-9]+_spring\\.f", "edge_from_[0-9]+_to_[0-9]+\\.r_CM_0.*"]
+    run_simulation(filters.join("|"), [], 100, 1, 100)
+
+    # TODO use the real edge mass
+    node_mass_map = @original_json["nodes"].map{|node| [node["id"], 100]}.to_h
+    edge_mass_map = @original_json["edges"].map{|edge| [[edge["n1"], edge["n2"]], 100]}.to_h
+
+    sim_result = read_csv_numeric
+    # Calculate overall energy
+    energy_map = sim_result.map do |row|
+      overall_pot_energy = 1
+      row_hash = row.to_h
+      # calculate the potential energies of all nodes
+      overall_pot_energy = node_mass_map.map{|node_id, mass| get_potential_energy_for_node(node_id, mass, row_hash)}.reduce(0, :+)
+
+      # calculate the potential energies of all edges
+      overall_pot_energy += node_mass_map.map{ |node_id, mass| get_potential_energy_for_edge(node_id, mass, row_hash)}.reduce(0, :+)
+      overall_pot_energy
+      # write it in the row
+    end
+    # return positions where the energy matches most closley
+    energy_per_spring = prelaod_energy / @constants_for_springs.length
+    initial_potential_energy = energy_map[0]
+    # TODO this assumes that a linear curve which might be fine for most models
+    destination_energy = energy_map.map{|val| (val - initial_potential_energy + energy_per_spring).abs}
+    p energy_map
+    p destination_energy
+    sim_result[destination_energy.rindex(destination_energy.min)]
+  end
+
+  def get_steady_state_positions()
+    time_when_probably_nothing_happens_anymore = 1000
+    filters = ["node_[0-9]+\\.r_0.*"]
+    result = run_simulation(filters.join("|"), [],  1, 1, time_when_probably_nothing_happens_anymore)
+    read_csv_numeric[0]
+  end
+
 
   def linearize
     run_linearization
@@ -341,11 +404,14 @@ class SimulationRunner
 
   def run_compilation
     Open3.capture2e("cp #{@model_name}.mo  #{@directory}", chdir: File.dirname(__FILE__))
-    Open3.capture2e("cp ./modelica_assets/AdaptiveSpringDamper.mo  #{@directory}", chdir: File.dirname(__FILE__))
 
-    dependencies = ['AdaptiveSpringDamper.mo', 'Modelica']
+    dependencies = ['AdaptiveGain.mo', 'AdaptiveSpringDamper.mo', 'Modelica']
+
+    Open3.capture2e("cp ./modelica_assets/AdaptiveSpringDamper.mo  #{@directory}", chdir: File.dirname(__FILE__))
+    Open3.capture2e("cp ./modelica_assets/AdaptiveGain.mo  #{@directory}", chdir: File.dirname(__FILE__))
+
     command = "omc #{@compilation_options} -s #{@model_name}.mo #{dependencies.join(' ')} "\
-              "&& mv #{@model_name}.makefile Makefile && make -j 8"
+              "&& mv #{@model_name}.makefile Makefile && make -j 16"
     puts(command)
     output, status = Open3.capture2e(command,
                                 chdir: @directory)
@@ -357,11 +423,17 @@ class SimulationRunner
     end
   end
 
-  def run_simulation(filter = '*', force_vectors = [], length = 10, resolution = 0.05)
+  def run_simulation(filter = '*', force_vectors = [], length = 10, resolution = 0.05, start=0.0, sweep_compression_enabled = true)
     # TODO: adjust sampling rate dynamically
-    overrides = "outputFormat=csv,variableFilter=#{filter},startTime=0.0,stopTime=#{length},stepSize=#{resolution}," \
-                "#{force_vector_string(force_vectors)},#{override_constants_string}"
-    command = "./#{@model_name} #{@simulation_options} -override=\"#{overrides}\" -idaSensitivity"
+    overrides = "outputFormat=csv,variableFilter=#{filter},startTime=#{start},stopTime=#{start + length},stepSize=#{resolution}," \
+                "#{force_vector_string(force_vectors)},#{override_constants_string},"
+
+    if sweep_compression_enabled
+      overrides += @identifiers_for_springs.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=3000"}.join(",")
+    end
+
+
+    command = "./#{@model_name} #{@simulation_options} -override=\"#{overrides}\""
     puts(command)
     Open3.popen2e(command, chdir: @directory) do |i, o, t|
       # prints out std out of the command

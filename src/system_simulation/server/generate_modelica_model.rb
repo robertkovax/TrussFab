@@ -9,6 +9,7 @@ Modelica_Spring = Struct.new(:name, :c, :length, :uncompressed_length)
 Modelica_Connection = Struct.new(:from, :to)
 Modelica_Fixture = Struct.new(:name, :x, :y, :z)
 Modelica_PointMass = Struct.new(:name, :mass, :is_user, :x_start, :y_start, :z_start)
+Modelica_1DForce = Struct.new(:name)
 Modelica_Force = Struct.new(:name, :is_user)
 
 # Generates a modelica model with a given truss fab geometry.
@@ -42,7 +43,7 @@ class ModelicaModelGenerator
       node[:visited] = false
       node[:primary_edge] = nil
       node[:connecting_edges] = Array.new
-      node[:is_user] = json_model['mounted_users'] && json_model['mounted_users'][key.to_s]
+      node[:is_user] = json_model['mounted_users'] && json_model['mounted_users'][key.to_s] == true
       node[:fixed] = node.key?('pods') && node['pods'].any? && node['pods'][0]['is_fixed']
       node[:pos] = [node['x'], node['y'], node['z']].map {|x| sketchup_to_modelica_units(x) }
     }
@@ -94,12 +95,14 @@ class ModelicaModelGenerator
       edge_component = Modelica_LineForceWithMass.new(edge[:name], edge_mass, edge[:n1_orientation_fixed], edge[:n2_orientation_fixed] )
 
       force_translator = Modelica_Spring.new("#{edge[:name]}_spring", ModelicaConfiguration::STATIC_SPRING_CONSTANT, edge[:length], edge[:uncompressed_length])
+      force_translator2 = Modelica_1DForce.new("#{edge[:name]}_force")
 
       # store for constructing connections
       edge[:modelica_component] = edge_component
 
-      modelica_components.push(edge_component, force_translator)
+      modelica_components.push(edge_component, force_translator, force_translator2)
       modelica_connections.push(*generate_force_connections(edge_component, force_translator))
+      modelica_connections.push(*generate_force_connections(edge_component, force_translator2))
     }
 
 
