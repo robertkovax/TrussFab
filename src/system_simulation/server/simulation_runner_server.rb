@@ -34,6 +34,11 @@ get '/get_hub_time_series' do
   return_message.to_json
 end
 
+get '/get_preloaded_positions' do
+  return_message = { data: sim.get_preloaded_positions(params["joules"].to_f) }
+  return_message.to_json
+end
+
 get '/get_hub_time_series_with_force_vector' do
   return_message = { data: sim.get_hub_time_series(JSON.parse(request.body.read)) }
   return_message.to_json

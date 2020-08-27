@@ -221,8 +221,8 @@ class SimulationRunner
     initial_potential_energy = energy_map[0]
     # TODO this assumes that a linear curve which might be fine for most models
     destination_energy = energy_map.map{|val| (val - initial_potential_energy + energy_per_spring).abs}
+    p "The preloading curves looks like this:"
     p energy_map
-    p destination_energy
     sim_result[destination_energy.rindex(destination_energy.min)]
   end
 
