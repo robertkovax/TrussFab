@@ -405,10 +405,9 @@ class SimulationRunner
   def run_compilation
     Open3.capture2e("cp #{@model_name}.mo  #{@directory}", chdir: File.dirname(__FILE__))
 
-    dependencies = ['AdaptiveGain.mo', 'AdaptiveSpringDamper.mo', 'Modelica']
+    dependencies = ['AdaptiveSpringDamper.mo', 'Modelica']
 
     Open3.capture2e("cp ./modelica_assets/AdaptiveSpringDamper.mo  #{@directory}", chdir: File.dirname(__FILE__))
-    Open3.capture2e("cp ./modelica_assets/AdaptiveGain.mo  #{@directory}", chdir: File.dirname(__FILE__))
 
     command = "omc #{@compilation_options} -s #{@model_name}.mo #{dependencies.join(' ')} "\
               "&& mv #{@model_name}.makefile Makefile && make -j 16"
