@@ -195,34 +195,47 @@ class SimulationRunner
       end
     end
 
+    def get_spring_energy_per_edge(edge, c, row)
+      f = row["#{edge}.f"]
+      if f === nil
+        return 0
+      else
+        return 0.5 * (f**2) / c
+      end
+    end
+
     # run the force sweep
     filters = ["node_[0-9]+\\.r_0.*", "edge_from_[0-9]+_to_[0-9]+_spring\\.f", "edge_from_[0-9]+_to_[0-9]+\\.r_CM_0.*"]
     run_simulation(filters.join("|"), [], 100, 1, 100)
 
     # TODO use the real edge mass
-    node_mass_map = @original_json["nodes"].map{|node| [node["id"], 100]}.to_h
-    edge_mass_map = @original_json["edges"].map{|edge| [[edge["n1"], edge["n2"]], 100]}.to_h
+    node_mass_map = @original_json["nodes"].map{|node| [node["id"], 10]}.to_h
+    edge_mass_map = @original_json["edges"].map{|edge| [[edge["n1"], edge["n2"]], 1]}.to_h
 
     sim_result = read_csv_numeric
     # Calculate overall energy
     energy_map = sim_result.map do |row|
-      overall_pot_energy = 1
+      overall_energy = 0
       row_hash = row.to_h
       # calculate the potential energies of all nodes
-      overall_pot_energy = node_mass_map.map{|node_id, mass| get_potential_energy_for_node(node_id, mass, row_hash)}.reduce(0, :+)
+      overall_energy = node_mass_map.map{|node_id, mass| get_potential_energy_for_node(node_id, mass, row_hash)}.reduce(0, :+)
 
       # calculate the potential energies of all edges
-      overall_pot_energy += node_mass_map.map{ |node_id, mass| get_potential_energy_for_edge(node_id, mass, row_hash)}.reduce(0, :+)
-      overall_pot_energy
+      overall_energy += edge_mass_map.map{ |edge_id, mass| get_potential_energy_for_edge(edge_id, mass, row_hash)}.reduce(0, :+)
+      overall_energy += @constants_for_springs.map{ |edge_id, c| get_spring_energy_per_edge(@identifiers_for_springs[edge_id], c, row_hash)}.reduce(0, :+)
+      overall_energy
       # write it in the row
     end
     # return positions where the energy matches most closley
-    energy_per_spring = prelaod_energy / @constants_for_springs.length
+    # energy_per_spring = prelaod_energy / @constants_for_springs.length
     initial_potential_energy = energy_map[0]
     # TODO this assumes that a linear curve which might be fine for most models
-    destination_energy = energy_map.map{|val| (val - initial_potential_energy + energy_per_spring).abs}
+
+    destination_energy = energy_map.map{|val| (val - prelaod_energy - initial_potential_energy).abs}
+    p "For the target energy #{prelaod_energy} the energy fo +/- #{destination_energy.min} can be achieved. That is an error of #{(destination_energy.min).abs / (prelaod_energy)}."
     p "The preloading curves looks like this:"
     p energy_map
+    p destination_energy
 
     data_w_header = read_csv
     return_array = []
@@ -432,7 +445,7 @@ class SimulationRunner
                 "#{force_vector_string(force_vectors)},#{override_constants_string},"
 
     if sweep_compression_enabled
-      overrides += @identifiers_for_springs.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=3000"}.join(",")
+      overrides += @identifiers_for_springs.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=5000"}.join(",")
     end
 
 
