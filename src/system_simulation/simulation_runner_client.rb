@@ -79,7 +79,7 @@ class SimulationRunnerClient
 
   def self.get_preload_positions
     p "server request: get_preload_positions"
-    json_result = json_response_from_server('get_preloaded_positions', nil, 280)
+    json_result = json_response_from_server('get_preloaded_positions', nil, 280, joules: 100_000)
     p json_result
     data_sample = parse_data(json_result['data'])[0]
     p data_sample
@@ -89,8 +89,10 @@ class SimulationRunnerClient
   private
 
   # @param [Integer] timeout in seconds
-  def self.json_response_from_server(route, json_data = nil, timeout = 80)
+  def self.json_response_from_server(route, json_data = nil, timeout = 80, params = {})
     uri = URI.parse("#{SIMULATION_RUNNER_HOST}/#{route}")
+    uri.query = URI.encode_www_form(params)
+
     http = Net::HTTP.new(uri.host, uri.port)
     http.read_timeout = timeout
     request = Net::HTTP::Get.new(uri.request_uri)
