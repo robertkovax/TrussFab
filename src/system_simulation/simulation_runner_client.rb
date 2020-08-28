@@ -13,6 +13,7 @@ class SimulationRunnerClient
     header = {'Content-Type' => 'text/json'}
 
     http = Net::HTTP.new(uri.host, uri.port)
+    http.read_timeout = 240
 
     request = Net::HTTP::Post.new(uri.request_uri, header)
     request.body = json_string.to_s
@@ -79,7 +80,7 @@ class SimulationRunnerClient
 
   def self.get_preload_positions
     p "server request: get_preload_positions"
-    json_result = json_response_from_server('get_preloaded_positions', nil, 280, joules: 100_000)
+    json_result = json_response_from_server('get_preloaded_positions', nil, 280, joules: 1000)
     p json_result
     data_sample = parse_data(json_result['data'])[0]
     p data_sample
