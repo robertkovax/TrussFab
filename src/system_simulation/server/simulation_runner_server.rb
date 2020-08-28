@@ -35,7 +35,7 @@ get '/get_hub_time_series' do
 end
 
 get '/get_preloaded_positions' do
-  return_message = { data: sim.get_preloaded_positions(params["joules"].to_f) }
+  return_message = { data: sim.get_preloaded_positions(params["joules"].to_f, params["spring_ids"].split(',')) }
   return_message.to_json
 end
 
