@@ -343,7 +343,7 @@ class SpringPane
     start_animation = !@animation_running
 
     if start_animation
-      simulate
+      simulate unless @simulation_data
       @animation.stop if @period_animation_running
       create_animation
       @animation_running = true
@@ -384,13 +384,13 @@ class SpringPane
     @dialog.add_action_callback('spring_insights_compile') do
       compile
       # Also update trace visualization to provide visual feedback to user
-      update_stats
-      update_bode_diagram
-      update_dialog if @dialog
-      update_trace_visualization true
+      #update_stats
+      #update_bode_diagram
+      #update_dialog if @dialog
+      #update_trace_visualization true
     end
 
-    @dialog.add_action_callback('spring_insights_simuulate') do
+    @dialog.add_action_callback('spring_insights_simulate') do
       simulate
     end
 
