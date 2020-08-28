@@ -58,8 +58,8 @@ class SimulationRunner
 
     @model_name = model_name
     @original_json = original_json
-    @compilation_options = '--maxMixedDeterminedIndex=100 --generateSymbolicJacobian'
-    @simulation_options = '-lv=LOG_STATS'
+    @compilation_options = '--generateSymbolicJacobian --maxMixedDeterminedIndex=100'
+    @simulation_options = '-lv=LOG_STATS -emit_protected'
 
     if suppress_compilation
       @directory = File.dirname(__FILE__)
@@ -168,17 +168,22 @@ class SimulationRunner
     frequency != 0 ? 1 / frequency : nil
   end
 
-  def get_preloaded_positions(prelaod_energy=1000)
+  def get_preloaded_positions(prelaod_energy=100)
     def get_node_id_from_modelica_component_name(modelica_component_name)
       modelica_component_name.match(/(?<=node_)\d+/)
     end
 
+    def sketchup_to_modelica_units(x)
+      (x / 1000).round(10)
+    end
 
     def get_potential_energy_for_node(node_id, m, row)
       # TODO get actual weight based on mounted
       g = 9.81
       h = row["node_#{node_id}.r_0[3]"]
       if h === nil
+        # This can happen for nodes that are fixtures
+        p "Node #{node_id} discarded for energy calculation."
         return 0
       else
         return m * g * h
@@ -187,30 +192,30 @@ class SimulationRunner
 
     def get_potential_energy_for_edge(edge,m ,row)
       g = 9.81
-      h = row["edge_from_#{edge[0]}_to_#{edge[1]}.r_CM_0[3]"]
+      h = row["#{edge}.r_CM_0[3]"]
       if h === nil
+        p "edge #{edge} discarded for energy calculation."
         return 0
       else
-        return m * g * h
+       return m * g * h
       end
     end
 
-    def get_spring_energy_per_edge(edge, c, row)
-      f = row["#{edge}.f"]
-      if f === nil
-        return 0
-      else
-        return 0.5 * (f**2) / c
-      end
+    def get_spring_energy_per_edge(edge, c, s_unstreched, row)
+      p row
+      p edge
+      x = row["#{edge}.s_rel"] - s_unstreched
+      p x
+      return 0.5 * c * x**2
     end
 
     # run the force sweep
-    filters = ["node_[0-9]+\\.r_0.*", "edge_from_[0-9]+_to_[0-9]+_spring\\.f", "edge_from_[0-9]+_to_[0-9]+\\.r_CM_0.*"]
+    filters = ["node_[0-9]+\\.r_0.*", "edge_from_[0-9]+_to_[0-9]+_spring.s_rel", "edge_from_[0-9]+_to_[0-9]+\\.r_CM_0.*"]
     run_simulation(filters.join("|"), [], 100, 1, 100)
 
     # TODO use the real edge mass
     node_mass_map = @original_json["nodes"].map{|node| [node["id"], 10]}.to_h
-    edge_mass_map = @original_json["edges"].map{|edge| [[edge["n1"], edge["n2"]], 1]}.to_h
+    edge_mass_map = @original_json["edges"].map{|edge| [edge["id"], 1]}.to_h
 
     sim_result = read_csv_numeric
     # Calculate overall energy
@@ -221,8 +226,16 @@ class SimulationRunner
       overall_energy = node_mass_map.map{|node_id, mass| get_potential_energy_for_node(node_id, mass, row_hash)}.reduce(0, :+)
 
       # calculate the potential energies of all edges
-      overall_energy += edge_mass_map.map{ |edge_id, mass| get_potential_energy_for_edge(edge_id, mass, row_hash)}.reduce(0, :+)
-      overall_energy += @constants_for_springs.map{ |edge_id, c| get_spring_energy_per_edge(@identifiers_for_springs[edge_id], c, row_hash)}.reduce(0, :+)
+
+      overall_energy += edge_mass_map.map do |edge_id, mass|
+        edge_obj = @original_json["edges"].find{|e| e["id"] == edge_id.to_i}
+        p "edge_from_#{edge_obj["n1"]}_to_#{edge_obj["n2"]}"
+        get_potential_energy_for_edge("edge_from_#{edge_obj["n1"]}_to_#{edge_obj["n2"]}", mass, row_hash)
+      end.reduce(0, :+)
+
+      overall_energy += @constants_for_springs.map do |edge_id, c|
+        get_spring_energy_per_edge(@identifiers_for_springs[edge_id], c, sketchup_to_modelica_units(@original_json["edges"].find{|e| e["id"] == edge_id.to_i}["uncompressed_length"]), row_hash)
+      end.reduce(0, :+)
       overall_energy
       # write it in the row
     end
@@ -445,7 +458,7 @@ class SimulationRunner
                 "#{force_vector_string(force_vectors)},#{override_constants_string},"
 
     if sweep_compression_enabled
-      overrides += @identifiers_for_springs.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=5000"}.join(",")
+      overrides += @identifiers_for_springs.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=3000"}.join(",")
     end
 
 

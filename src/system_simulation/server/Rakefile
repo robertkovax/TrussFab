@@ -14,7 +14,7 @@ task :test_simulation do
 end
 
 task :test_preloading do
-  file = File.read("./test_models/dragon_13_users.json")
+  file = File.read("./test_models/preloaded.json")
   sim = SimulationRunner.new_from_json_export(file)
   p sim.get_preloaded_positions
 end
@@ -27,7 +27,7 @@ end
 
 
 task :test_spring_length_initilization do
-  file = File.read("./test_models/preload.json")
+  file = File.read("./test_models/preloaded.json")
   sim = SimulationRunner.new_from_json_export(file)
   p sim.get_spring_extensions
 end
