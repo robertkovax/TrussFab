@@ -223,7 +223,11 @@ class SimulationRunner
     destination_energy = energy_map.map{|val| (val - initial_potential_energy + energy_per_spring).abs}
     p "The preloading curves looks like this:"
     p energy_map
-    sim_result[destination_energy.rindex(destination_energy.min)]
+
+    data_w_header = read_csv
+    return_array = []
+    return_array << data_w_header[0]
+    return_array << data_w_header[destination_energy.rindex(destination_energy.min) + 1]
   end
 
   def get_steady_state_positions()

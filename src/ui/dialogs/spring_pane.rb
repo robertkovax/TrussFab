@@ -304,6 +304,25 @@ class SpringPane
     spring_constants
   end
 
+  # "4"=>Point3d(201.359, -30.9042, 22.6955), "5"=>Point3d(201.359, -56.2592, 15.524)}
+  def preload_geometry_to(position_data)
+    position_data.each do |node_id, position|
+      node = Graph.instance.nodes[node_id.to_i]
+      next unless node
+
+      node.update_position(position)
+      node.hub.update_position(position)
+      node.hub.update_user_indicator
+      node.adjacent_triangles.each { |triangle| triangle.update_sketchup_object if triangle.cover }
+    end
+
+    Graph.instance.edges.each do |_, edge|
+      link = edge.link
+      link.update_link_transformations
+    end
+  end
+
+
   # compilation / simulation logic:
 
   def simulate
@@ -356,7 +375,10 @@ class SpringPane
     end
 
     @dialog.add_action_callback('spring_insights_preload') do
-      preload_springs
+      #preload_springs
+      # "4"=>Point3d(201.359, -30.9042, 22.6955), "5"=>Point3d(201.359, -56.2592, 15.524)}
+      position_data = SimulationRunnerClient.get_preload_positions.position_data
+      preload_geometry_to position_data
     end
 
     @dialog.add_action_callback('spring_insights_compile') do
@@ -366,6 +388,10 @@ class SpringPane
       update_bode_diagram
       update_dialog if @dialog
       update_trace_visualization true
+    end
+
+    @dialog.add_action_callback('spring_insights_simuulate') do
+      simulate
     end
 
     @dialog.add_action_callback('spring_insights_toggle_play') do

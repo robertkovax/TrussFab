@@ -77,6 +77,15 @@ class SimulationRunnerClient
     json_response_from_server('linearize/bode_plot', nil, 180)
   end
 
+  def self.get_preload_positions
+    p "server request: get_preload_positions"
+    json_result = json_response_from_server('get_preloaded_positions', nil, 280)
+    p json_result
+    data_sample = parse_data(json_result['data'])[0]
+    p data_sample
+    data_sample
+  end
+
   private
 
   # @param [Integer] timeout in seconds
