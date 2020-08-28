@@ -119,17 +119,8 @@
       "uncompressed_length": 669.2815035095563
     }
   ],
-  "animation": [
-  ],
-  "standard_surface": [
-    3,
-    2,
-    1
-  ],
-  "spring_constants": {
-    "5": 3469.0
-  },
-  "mounted_users": {
-    "4": 50
-  }
+  "animation": [],
+  "standard_surface": [3, 2, 1 ],
+  "spring_constants": {"5": 3469.0 },
+  "mounted_users": {"4": 50 }
 }
