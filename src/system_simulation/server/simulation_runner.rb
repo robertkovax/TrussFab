@@ -168,7 +168,7 @@ class SimulationRunner
     frequency != 0 ? 1 / frequency : nil
   end
 
-  def get_preloaded_positions(prelaod_energy=100)
+  def get_preloaded_positions(prelaod_energy=100, enabled_springs= @identifiers_for_springs.keys)
     def get_node_id_from_modelica_component_name(modelica_component_name)
       modelica_component_name.match(/(?<=node_)\d+/)
     end
@@ -178,7 +178,6 @@ class SimulationRunner
     end
 
     def get_potential_energy_for_node(node_id, m, row)
-      # TODO get actual weight based on mounted
       g = 9.81
       h = row["node_#{node_id}.r_0[3]"]
       if h === nil
@@ -211,7 +210,8 @@ class SimulationRunner
 
     # run the force sweep
     filters = ["node_[0-9]+\\.r_0.*", "edge_from_[0-9]+_to_[0-9]+_spring.s_rel", "edge_from_[0-9]+_to_[0-9]+\\.r_CM_0.*"]
-    run_simulation(filters.join("|"), [], 100, 1, 100)
+    overrides = @identifiers_for_springs.select{|id, _| enabled_springs.include?(id)}.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=3000"}.join(",")
+    run_simulation(filters.join("|"), [], 100, 1, 100, overrides)
 
     # TODO use the real edge mass
     node_mass_map = @original_json["nodes"].map{|node| [node["id"], 10]}.to_h
@@ -226,7 +226,6 @@ class SimulationRunner
       overall_energy = node_mass_map.map{|node_id, mass| get_potential_energy_for_node(node_id, mass, row_hash)}.reduce(0, :+)
 
       # calculate the potential energies of all edges
-
       overall_energy += edge_mass_map.map do |edge_id, mass|
         edge_obj = @original_json["edges"].find{|e| e["id"] == edge_id.to_i}
         p "edge_from_#{edge_obj["n1"]}_to_#{edge_obj["n2"]}"
@@ -237,12 +236,10 @@ class SimulationRunner
         get_spring_energy_per_edge(@identifiers_for_springs[edge_id], c, sketchup_to_modelica_units(@original_json["edges"].find{|e| e["id"] == edge_id.to_i}["uncompressed_length"]), row_hash)
       end.reduce(0, :+)
       overall_energy
-      # write it in the row
     end
+
     # return positions where the energy matches most closley
-    # energy_per_spring = prelaod_energy / @constants_for_springs.length
     initial_potential_energy = energy_map[0]
-    # TODO this assumes that a linear curve which might be fine for most models
 
     destination_energy = energy_map.map{|val| (val - prelaod_energy - initial_potential_energy).abs}
     p "For the target energy #{prelaod_energy} the energy fo +/- #{destination_energy.min} can be achieved. That is an error of #{(destination_energy.min).abs / (prelaod_energy)}."
@@ -259,8 +256,8 @@ class SimulationRunner
   def get_steady_state_positions()
     time_when_probably_nothing_happens_anymore = 1000
     filters = ["node_[0-9]+\\.r_0.*"]
-    result = run_simulation(filters.join("|"), [],  1, 1, time_when_probably_nothing_happens_anymore)
-    read_csv_numeric[0]
+    run_simulation(filters.join("|"), [],  1, 1, time_when_probably_nothing_happens_anymore)
+    read_csv[0]
   end
 
 
@@ -452,15 +449,10 @@ class SimulationRunner
     end
   end
 
-  def run_simulation(filter = '*', force_vectors = [], length = 10, resolution = 0.05, start=0.0, sweep_compression_enabled = true)
+  def run_simulation(filter = '*', force_vectors = [], length = 10, resolution = 0.05, start=0.0, additional_overrides = "")
     # TODO: adjust sampling rate dynamically
     overrides = "outputFormat=csv,variableFilter=#{filter},startTime=#{start},stopTime=#{start + length},stepSize=#{resolution}," \
-                "#{force_vector_string(force_vectors)},#{override_constants_string},"
-
-    if sweep_compression_enabled
-      overrides += @identifiers_for_springs.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=3000"}.join(",")
-    end
-
+                "#{force_vector_string(force_vectors)},#{override_constants_string},#{additional_overrides}"
 
     command = "./#{@model_name} #{@simulation_options} -override=\"#{overrides}\""
     puts(command)
