@@ -50,6 +50,8 @@ class SpringPane
 
     @pending_compilation = false
     @spring_hinges = {}
+
+    @energy = 1000 # in Joule
   end
 
   # spring / graph manipulation logic:
@@ -70,6 +72,27 @@ class SpringPane
 
     update_bode_diagram
 
+    update_dialog if @dialog
+  end
+
+  def enable_preloading_for_spring(spring_id)
+    edge = @spring_edges.find { |edge| edge.id == spring_id }
+    edge.link.spring_parameters[:enable_preloading] = true
+
+    update_dialog if @dialog
+  end
+
+  def disable_preloading_for_spring(spring_id)
+    edge = @spring_edges.find { |edge| edge.id == spring_id }
+    edge.link.spring_parameters[:enable_preloading] = false
+
+    update_dialog if @dialog
+  end
+
+  def set_preloading_for_spring(spring_id, value)
+    edge = @spring_edges.find { |edge| edge.id == spring_id }
+    edge.link.spring_parameters[:enable_preloading] = value
+    p "set preloading to #{value} for #{edge.id}"
     update_dialog if @dialog
   end
 
@@ -373,10 +396,22 @@ class SpringPane
       update_constant_for_spring(spring_id, value.to_i)
     end
 
+    @dialog.add_action_callback('spring_set_preloading') do |_, spring_id, value|
+      set_preloading_for_spring(spring_id, value)
+      update_dialog
+    end
+
+
+    @dialog.add_action_callback('spring_insights_energy_change') do |_, value|
+      @energy = value.to_i
+    end
+
     @dialog.add_action_callback('spring_insights_preload') do
       #preload_springs
       # "4"=>Point3d(201.359, -30.9042, 22.6955), "5"=>Point3d(201.359, -56.2592, 15.524)}
-      position_data = SimulationRunnerClient.get_preload_positions.position_data
+      preloading_enabled_spring_ids = @spring_edges.map(&:link).select { |link| link.spring_parameters[:enable_preloading]}.map(&:id)
+
+      position_data = SimulationRunnerClient.get_preload_positions(@energy, preloading_enabled_spring_ids).position_data
       preload_geometry_to position_data
     end
 

@@ -78,9 +78,10 @@ class SimulationRunnerClient
     json_response_from_server('linearize/bode_plot', nil, 180)
   end
 
-  def self.get_preload_positions
+  def self.get_preload_positions(joules, enabled_spring_ids)
     p "server request: get_preload_positions"
-    json_result = json_response_from_server('get_preloaded_positions', nil, 280, joules: 1000)
+    formated_spring_ids = enabled_spring_ids.join(",")
+    json_result = json_response_from_server('get_preloaded_positions', nil, 280, joules: joules, spring_ids: formated_spring_ids)
     p json_result
     data_sample = parse_data(json_result['data'])[0]
     p data_sample
