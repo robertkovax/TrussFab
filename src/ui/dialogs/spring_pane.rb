@@ -92,9 +92,8 @@ class SpringPane
 
   def update_mounted_users
     SimulationRunnerClient.update_mounted_users(mounted_users)
-    return if @pending_compilation
 
-    update_stats
+    update_stats unless @pending_compilation
     update_dialog if @dialog
   end
 
