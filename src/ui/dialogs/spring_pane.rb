@@ -52,6 +52,8 @@ class SpringPane
     @spring_hinges = {}
 
     @energy = 1000 # in Joule
+
+    @initial_hub_positions = {}
   end
 
   # spring / graph manipulation logic:
@@ -332,16 +334,20 @@ class SpringPane
       node = Graph.instance.nodes[node_id.to_i]
       next unless node
 
-      node.update_position(position)
-      node.hub.update_position(position)
-      node.hub.update_user_indicator
-      node.adjacent_triangles.each { |triangle| triangle.update_sketchup_object if triangle.cover }
+      update_node_position(node, position)
     end
 
     Graph.instance.edges.each do |_, edge|
       link = edge.link
       link.update_link_transformations
     end
+  end
+
+  def update_node_position(node, position)
+    node.update_position(position)
+    node.hub.update_position(position)
+    node.hub.update_user_indicator
+    node.adjacent_triangles.each { |triangle| triangle.update_sketchup_object if triangle.cover }
   end
 
 
@@ -407,7 +413,9 @@ class SpringPane
     end
 
     @dialog.add_action_callback('spring_insights_preload') do
-      #preload_springs
+      Graph.instance.nodes.each do | node_id, node |
+        @initial_hub_positions[node_id] = node.position
+      end
       # "4"=>Point3d(201.359, -30.9042, 22.6955), "5"=>Point3d(201.359, -56.2592, 15.524)}
       preloading_enabled_spring_ids = @spring_edges.map(&:link).select { |link| link.spring_parameters[:enable_preloading]}.map(&:id)
 
@@ -434,6 +442,10 @@ class SpringPane
 
     @dialog.add_action_callback('spring_insights_optimize') do
       optimize
+    end
+
+    @dialog.add_action_callback('spring_insights_reset_hubs') do
+      preload_geometry_to(@initial_hub_positions)
     end
 
     @dialog.add_action_callback('user_weight_change') do |_, node_id, value|
