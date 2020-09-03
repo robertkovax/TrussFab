@@ -58,8 +58,9 @@ class SimulationRunner
 
     @model_name = model_name
     @original_json = original_json
-    @compilation_options = '--generateSymbolicJacobian --maxMixedDeterminedIndex=100'
-    @simulation_options = '-lv=LOG_STATS -emit_protected'
+    # @compilation_options = '--maxMixedDeterminedIndex=100 --generateSymbolicJacobian --disableLinearTearing --tearingMethod=omcTearing --postOptModules+=removeSimpleEquations,reshufflePost,simplifyAllExpressions,simplifyLoops,relaxSystem'
+    @compilation_options = '--maxMixedDeterminedIndex=100 --generateSymbolicJacobian --disableLinearTearing --tearingMethod=omcTearing --postOptModules+=removeSimpleEquations,simplifyLoops'
+    @simulation_options = '-lv=LOG_STATS -emit_protected -s=ida -ls umfpack'
 
     if suppress_compilation
       @directory = File.dirname(__FILE__)
@@ -375,6 +376,11 @@ class SimulationRunner
     override_string = ''
     @identifiers_for_springs.each do |edge_id, spring_identifier|
       override_string += "#{spring_identifier}.c=#{@constants_for_springs[edge_id]},"
+    end
+
+    # Increase Damping for everthing that is not a spring
+    @original_json["edges"].select{ |edge| p @constants_for_springs[edge["id"].to_s] === nil}.each do |edge|
+      override_string += "edge_from_#{edge["n1"]}_to_#{edge["n2"]}_spring.d=10000,"
     end
 
     @mounted_users.each do |node_id, weight|
