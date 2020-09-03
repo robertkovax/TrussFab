@@ -268,9 +268,29 @@ class ScadExport
                                                      l2.to_mm,
                                                      l3.to_mm,
                                                      direction,
-                                                     edge.bottle_length_short_name
+                                                     edge.bottle_length_short_name,
+                                                     edge.link_type == "spring",
+                                                     edge.id
                                                      )
         export_hub.add_elongation(export_elongation)
+
+        if hub.hinge_edge == edge
+          # temporary solution to add support for rotary hinges by simply adding an elongation pointing into the
+          # opposite direction
+          hinge_elongation = ScadExportElongation.new(hub_id,
+                                                       other_node.id,
+                                                       hinge_connection,
+                                                       l1.to_mm,
+                                                       l2.to_mm,
+                                                       l3.to_mm,
+                                                       direction.reverse,
+                                                       edge.bottle_length_short_name,
+                                                       edge.link_type == "spring"
+                                                       )
+          export_hub.add_elongation(hinge_elongation)
+          export_hub.pipe_lengths << connection_length
+        end
+
         export_hub.pipe_lengths << connection_length
       end
 

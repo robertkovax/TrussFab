@@ -26,6 +26,10 @@ class SpringLink < ActuatorLink
     update_id_label
   end
 
+  def spring_parameter_k
+    @spring_parameters[:k]
+  end
+
   def get_color_string
     COLORS[@piston_group]
   end

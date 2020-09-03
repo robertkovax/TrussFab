@@ -247,6 +247,15 @@ module JsonImport
           piston_group = edge_json['piston_group']
           edge.link.piston_group = piston_group unless piston_group.nil?
         end
+        if edge.link.is_a?(SpringLink)
+          spring_parameter_k = edge_json['spring_parameter_k']
+          spring_parameter_k = 3500 if spring_parameter_k.nil? # TODO: global default
+          mount_offset = 0.15 # TODO: global default
+          edge.link.spring_parameters = SpringPicker.instance.get_spring(
+            spring_parameter_k,
+            edge.length.to_m - mount_offset
+          )
+        end
         edges[edge_json['id']] = edge
         nodes[edge_json['n1']] = edge.first_node
         nodes[edge_json['n2']] = edge.second_node

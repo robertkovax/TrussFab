@@ -23,7 +23,8 @@ class NodeExportAlgorithm
     static_groups = StaticGroupAnalysis.find_static_groups
 
     rotary_hinge_pairs = check_for_only_simple_hinges static_groups
-    offset_rotary_hinge_hubs(rotary_hinge_pairs, static_groups)
+    hinge_node_pairs = offset_rotary_hinge_hubs(rotary_hinge_pairs, static_groups)
+
 
     static_groups.sort! { |a, b| b.size <=> a.size }
     static_groups = prioritise_pod_groups(static_groups)
@@ -31,6 +32,9 @@ class NodeExportAlgorithm
     @export_interface = NodeExportInterface.new(static_groups)
 
     group_edge_map = {}
+
+    # We need to include springs here to have them mounted at their specific hubs.
+    spring_edges = Graph.instance.edges.values.select { |edge| edge.link_type == 'spring' }
 
     # generate hubs for all groups
     static_groups.each do |group|
@@ -41,9 +45,17 @@ class NodeExportAlgorithm
 
       group_nodes.each do |node|
         hub_edges = group_edges.select { |edge| edge.nodes.include? node }
+        hub_edges += node.incidents & spring_edges
         hub_edges = sort_edges_clockwise(hub_edges)
 
         hub = HubExportInterface.new(hub_edges)
+
+        # check if node is part of a rotary hinge
+        if (hinge_pair = hinge_node_pairs.find { |pair| pair.include?(node) }) != nil
+          other_node = hinge_pair.to_a.find{ |hinge_node| hinge_node != node}
+          hub.set_hinge_edge(node.edge_to(other_node))
+        end
+
         @export_interface.add_hub(node, hub)
       end
     end
@@ -80,11 +92,14 @@ same rotation axis'
   private
 
   def offset_rotary_hinge_hubs(rotary_hinges, static_groups)
+    hinge_nodes = []
     rotary_hinges.each do |node_pair|
-      offset_rotary_hinge_node_pair node_pair, static_groups
+      hinge_nodes.push(offset_rotary_hinge_node_pair node_pair, static_groups)
     end
+    hinge_nodes
   end
 
+  # Will return the inset hinge nodes.
   def offset_rotary_hinge_node_pair(node_pair, static_groups)
     static_groups_as_sets_of_nodes = map_to_set_of_nodes static_groups
     if node_pair.length != 2
@@ -115,11 +130,15 @@ structures at the same hinge"
     inset_substructure_nodes.merge substructure_to_inset
     inset_substructure_nodes.subtract node_pair
 
+    pre_inset_substructure_nodes = inset_substructure_nodes.clone
     inset_node_pair_from_substructure node_pair, inset_substructure_nodes
+    inset_nodes = inset_substructure_nodes - pre_inset_substructure_nodes
 
     # Append the new triangles from the static group that was inset to the
     # static group
     static_groups << find_contained_triangles(inset_substructure_nodes)
+
+    inset_nodes
   end
 
   # Insets the given node pair, by recreating edges to the substructure_nodes
@@ -187,12 +206,24 @@ structures at the same hinge"
     return static_groups_pair[0] if !has_pods[0] && has_pods[1]
     return static_groups_pair[1] if has_pods[0] && !has_pods[1]
 
-    # 2. Criterion: Number of nodes
+    # 2. Criterion: distance from ground
+    average_z_value_a = average_z_axis_for_subgroup(static_groups_pair[0])
+    average_z_value_b = average_z_axis_for_subgroup(static_groups_pair[1])
+
+    return static_groups_pair[0] if average_z_value_a > average_z_value_b
+    return static_groups_pair[1] if average_z_value_b > average_z_value_a
+
+    # 3. Criterion: Number of nodes
     if static_groups_pair[0].size > static_groups_pair[1].size
       static_groups_pair[1]
     else
       static_groups_pair[0]
     end
+  end
+
+  def average_z_axis_for_subgroup(sub_group)
+    average_z_value_a = sub_group.to_a.inject(0){ |sum, node| sum + node.position.z }
+    average_z_value_a / sub_group.length
   end
 
   def edge_angle(edge1, edge2)

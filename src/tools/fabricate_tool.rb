@@ -14,10 +14,14 @@ class FabricateTool < Tool
 
     Graph.instance.export_to_scad(@path)
     # Copy script files into the folder
+    # Mac stl script
     filename = ProjectHelper.library_directory + '/openscad/executeSCAD_Mac.sh'
     FileUtils.cp(filename, @path)
-    filename = ProjectHelper.library_directory +
-      '/openscad/executeSCAD_Windows.cmd'
+    # Windows stl script
+    filename = ProjectHelper.library_directory + '/openscad/executeSCAD_Windows.cmd'
+    FileUtils.cp(filename, @path)
+    # Lassercutted welding jigs script
+    filename = ProjectHelper.library_directory + '/openscad/executeSCADForLaserCuttedJig.sh'
     FileUtils.cp(filename, @path)
   end
 end
