@@ -14,6 +14,7 @@ class SpringLink < ActuatorLink
   def initialize(first_node, second_node, edge, spring_parameters: nil, id: nil)
     @initial_edge_length = edge.length.to_f
     @spring_parameters = spring_parameters ? spring_parameters : SpringPicker.instance.get_default_spring(edge.length.to_m)
+    @spring_parameters[:enable_preloading] = false
     @actual_spring_length = @spring_parameters[:unstreched_length].m
     @spring_coil_diameter = @spring_parameters[:coil_diameter].m
     super(first_node, second_node, edge, id: id)

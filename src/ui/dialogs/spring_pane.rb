@@ -50,6 +50,10 @@ class SpringPane
 
     @pending_compilation = false
     @spring_hinges = {}
+
+    @energy = 1000 # in Joule
+
+    @initial_hub_positions = {}
   end
 
   # spring / graph manipulation logic:
@@ -73,6 +77,27 @@ class SpringPane
     update_dialog if @dialog
   end
 
+  def enable_preloading_for_spring(spring_id)
+    edge = @spring_edges.find { |edge| edge.id == spring_id }
+    edge.link.spring_parameters[:enable_preloading] = true
+
+    update_dialog if @dialog
+  end
+
+  def disable_preloading_for_spring(spring_id)
+    edge = @spring_edges.find { |edge| edge.id == spring_id }
+    edge.link.spring_parameters[:enable_preloading] = false
+
+    update_dialog if @dialog
+  end
+
+  def set_preloading_for_spring(spring_id, value)
+    edge = @spring_edges.find { |edge| edge.id == spring_id }
+    edge.link.spring_parameters[:enable_preloading] = value
+    p "set preloading to #{value} for #{edge.id}"
+    update_dialog if @dialog
+  end
+
   def force_vectors=(vectors)
     @force_vectors = vectors
     update_trace_visualization true
@@ -92,9 +117,8 @@ class SpringPane
 
   def update_mounted_users
     SimulationRunnerClient.update_mounted_users(mounted_users)
-    return if @pending_compilation
 
-    update_stats
+    update_stats unless @pending_compilation
     update_dialog if @dialog
   end
 
@@ -310,16 +334,20 @@ class SpringPane
       node = Graph.instance.nodes[node_id.to_i]
       next unless node
 
-      node.update_position(position)
-      node.hub.update_position(position)
-      node.hub.update_user_indicator
-      node.adjacent_triangles.each { |triangle| triangle.update_sketchup_object if triangle.cover }
+      update_node_position(node, position)
     end
 
     Graph.instance.edges.each do |_, edge|
       link = edge.link
       link.update_link_transformations
     end
+  end
+
+  def update_node_position(node, position)
+    node.update_position(position)
+    node.hub.update_position(position)
+    node.hub.update_user_indicator
+    node.adjacent_triangles.each { |triangle| triangle.update_sketchup_object if triangle.cover }
   end
 
 
@@ -374,20 +402,34 @@ class SpringPane
       update_constant_for_spring(spring_id, value.to_i)
     end
 
+    @dialog.add_action_callback('spring_set_preloading') do |_, spring_id, value|
+      set_preloading_for_spring(spring_id, value)
+      update_dialog
+    end
+
+
+    @dialog.add_action_callback('spring_insights_energy_change') do |_, value|
+      @energy = value.to_i
+    end
+
     @dialog.add_action_callback('spring_insights_preload') do
-      #preload_springs
+      Graph.instance.nodes.each do | node_id, node |
+        @initial_hub_positions[node_id] = node.position
+      end
       # "4"=>Point3d(201.359, -30.9042, 22.6955), "5"=>Point3d(201.359, -56.2592, 15.524)}
-      position_data = SimulationRunnerClient.get_preload_positions.position_data
+      preloading_enabled_spring_ids = @spring_edges.map(&:link).select { |link| link.spring_parameters[:enable_preloading]}.map(&:id)
+
+      position_data = SimulationRunnerClient.get_preload_positions(@energy, preloading_enabled_spring_ids).position_data
       preload_geometry_to position_data
     end
 
     @dialog.add_action_callback('spring_insights_compile') do
       compile
       # Also update trace visualization to provide visual feedback to user
-      #update_stats
+      update_stats
       #update_bode_diagram
-      #update_dialog if @dialog
-      #update_trace_visualization true
+      update_dialog if @dialog
+      update_trace_visualization true
     end
 
     @dialog.add_action_callback('spring_insights_simulate') do
@@ -400,6 +442,10 @@ class SpringPane
 
     @dialog.add_action_callback('spring_insights_optimize') do
       optimize
+    end
+
+    @dialog.add_action_callback('spring_insights_reset_hubs') do
+      preload_geometry_to(@initial_hub_positions)
     end
 
     @dialog.add_action_callback('user_weight_change') do |_, node_id, value|
