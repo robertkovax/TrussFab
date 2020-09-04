@@ -94,7 +94,8 @@ class SpringPicker
 
   def get_default_spring(length)
     # TODO: calculate mount_offset
-    mount_offset = 0.1
-    get_spring(3500, length - mount_offset)
+    mount_offset = Configuration::SPRING_MOUNT_OFFSET
+    default_k = Configuration::SPRING_DEFAULT_K
+    get_spring(default_k, length - mount_offset)
   end
 end
