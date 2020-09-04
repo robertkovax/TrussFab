@@ -12,6 +12,9 @@ class SpringTool < ActuatorTool
   end
 
   def activate
+    super
+    @ui.spring_pane.update_springs
+    @ui.spring_pane.color_static_groups
     if ANIMATE
       @scheduled_pistons = []
       @simulation = Simulation.new
