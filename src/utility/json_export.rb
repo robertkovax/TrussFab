@@ -13,15 +13,15 @@ class JsonExport
 
   def self.graph_to_json(triangle = nil, animation, spring_constants_for_ids, mounted_users)
     graph = Graph.instance
-    json = { distance_unit: 'mm', force_unit: 'N' }
+    json = {distance_unit: 'mm', force_unit: 'N'}
     json[:nodes] = nodes_to_hash(graph.nodes)
     json[:edges] = edges_to_hash(graph.edges)
     json[:animation] = animation
     if triangle.nil?
       triangle = Graph.instance.triangles.first[1] # Just take any triangle
     end
-    json[:standard_surface] = triangle.nodes_ids_towards_user
     json[:spring_constants] = spring_constants_for_ids if spring_constants_for_ids
+    json[:standard_surface] = triangle.nodes_ids_towards_user
     json[:mounted_users] = mounted_users if mounted_users
     JSON.pretty_generate(json)
   end
@@ -41,7 +41,7 @@ class JsonExport
 
   def self.edges_to_hash(edges)
     edges.map do |id, edge|
-      {
+      hash = {
         id: id,
         n1: edge.first_node.id,
         n2: edge.second_node.id,
@@ -49,8 +49,11 @@ class JsonExport
         bottle_type: edge.bottle_type,
         piston_group: edge.link.piston_group,
         e1: edge.link.first_elongation_length.to_mm,
-        e2: edge.link.second_elongation_length.to_mm
+        e2: edge.link.second_elongation_length.to_mm,
+        uncompressed_length: edge.link_type == 'spring' ? edge.link.initial_edge_length.to_mm : edge.length.to_mm
       }
+      hash['spring_parameter_k'] = edge.link.spring_parameter_k if edge.link.is_a? SpringLink
+      hash
     end
   end
 

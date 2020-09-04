@@ -16,12 +16,14 @@ end
 
 patch '/update_spring_constants' do
   sim.update_spring_constants(JSON.parse(request.body.read)) if sim
-  return ''
+  status 200
+  body ''
 end
 
 patch '/update_mounted_users' do
   sim.update_mounted_users(JSON.parse(request.body.read)) if sim
-  return ''
+  status 200
+  body ''
 end
 
 get '/get_user_stats/:node_id' do
@@ -31,6 +33,11 @@ end
 
 get '/get_hub_time_series' do
   return_message = { data: sim.get_hub_time_series([]) }
+  return_message.to_json
+end
+
+get '/get_preloaded_positions' do
+  return_message = { data: sim.get_preloaded_positions(params["joules"].to_f, params["spring_ids"].split(',')) }
   return_message.to_json
 end
 

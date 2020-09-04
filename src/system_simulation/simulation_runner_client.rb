@@ -13,6 +13,7 @@ class SimulationRunnerClient
     header = {'Content-Type' => 'text/json'}
 
     http = Net::HTTP.new(uri.host, uri.port)
+    http.read_timeout = 240
 
     request = Net::HTTP::Post.new(uri.request_uri, header)
     request.body = json_string.to_s
@@ -77,11 +78,23 @@ class SimulationRunnerClient
     json_response_from_server('linearize/bode_plot', nil, 180)
   end
 
+  def self.get_preload_positions(joules, enabled_spring_ids)
+    p "server request: get_preload_positions"
+    formated_spring_ids = enabled_spring_ids.join(",")
+    json_result = json_response_from_server('get_preloaded_positions', nil, 280, joules: joules, spring_ids: formated_spring_ids)
+    p json_result
+    data_sample = parse_data(json_result['data'])[0]
+    p data_sample
+    data_sample
+  end
+
   private
 
   # @param [Integer] timeout in seconds
-  def self.json_response_from_server(route, json_data = nil, timeout = 80)
+  def self.json_response_from_server(route, json_data = nil, timeout = 80, params = {})
     uri = URI.parse("#{SIMULATION_RUNNER_HOST}/#{route}")
+    uri.query = URI.encode_www_form(params)
+
     http = Net::HTTP.new(uri.host, uri.port)
     http.read_timeout = timeout
     request = Net::HTTP::Get.new(uri.request_uri)

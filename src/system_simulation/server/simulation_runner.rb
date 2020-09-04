@@ -50,19 +50,17 @@ class SimulationRunner
     mounted_users = trussfab_geometry['mounted_users'] if trussfab_geometry['mounted_users']
 
     # TODO: why is :spring_constants key syntax not working here?
-    SimulationRunner.new(model_name, spring_constants, identifiers_for_springs, mounted_users)
+    SimulationRunner.new(model_name, spring_constants, identifiers_for_springs, mounted_users, trussfab_geometry)
   end
 
   def initialize(model_name = 'seesaw3', spring_constants = {}, spring_identifiers = {}, mounted_users = {},
-                 suppress_compilation = false, keep_temp_dir = true)
+                 suppress_compilation = false, keep_temp_dir = true, original_json)
 
     @model_name = model_name
-    @compilation_options = '-n=4 --maxMixedDeterminedIndex=100'
-    # @compilation_options += " --maxMixedDeterminedIndex=100 -n=4 --generateSymbolicLinearization"\
-    #                         " --generateSymbolicJacobian"
-    @simulation_options = ''
-    @simulation_options += ' -lv=LOG_STATS'
-    # @simulation += "lv=LOG_INIT_V,LOG_SIMULATION,LOG_STATS,LOG_JAC,LOG_NLS"
+    @original_json = original_json
+    # @compilation_options = '--maxMixedDeterminedIndex=100 --generateSymbolicJacobian --disableLinearTearing --tearingMethod=omcTearing --postOptModules+=removeSimpleEquations,reshufflePost,simplifyAllExpressions,simplifyLoops,relaxSystem'
+    @compilation_options = '--maxMixedDeterminedIndex=100 --generateSymbolicJacobian --disableLinearTearing --tearingMethod=omcTearing --postOptModules+=removeSimpleEquations,simplifyLoops'
+    @simulation_options = '-lv=LOG_STATS -emit_protected -s=ida -ls umfpack'
 
     if suppress_compilation
       @directory = File.dirname(__FILE__)
@@ -170,6 +168,99 @@ class SimulationRunner
 
     frequency != 0 ? 1 / frequency : nil
   end
+
+  def get_preloaded_positions(prelaod_energy=100, enabled_springs= @identifiers_for_springs.keys)
+    def get_node_id_from_modelica_component_name(modelica_component_name)
+      modelica_component_name.match(/(?<=node_)\d+/)
+    end
+
+    def sketchup_to_modelica_units(x)
+      (x / 1000).round(10)
+    end
+
+    def get_potential_energy_for_node(node_id, m, row)
+      g = 9.81
+      h = row["node_#{node_id}.r_0[3]"]
+      if h === nil
+        # This can happen for nodes that are fixtures
+        p "Node #{node_id} discarded for energy calculation."
+        return 0
+      else
+        return m * g * h
+      end
+    end
+
+    def get_potential_energy_for_edge(edge,m ,row)
+      g = 9.81
+      h = row["#{edge}.r_CM_0[3]"]
+      if h === nil
+        p "edge #{edge} discarded for energy calculation."
+        return 0
+      else
+       return m * g * h
+      end
+    end
+
+    def get_spring_energy_per_edge(edge, c, s_unstreched, row)
+      p row
+      p edge
+      x = row["#{edge}.s_rel"] - s_unstreched
+      p x
+      return 0.5 * c * x**2
+    end
+
+    # run the force sweep
+    filters = ["node_[0-9]+\\.r_0.*", "edge_from_[0-9]+_to_[0-9]+_spring.s_rel", "edge_from_[0-9]+_to_[0-9]+\\.r_CM_0.*"]
+    overrides = @identifiers_for_springs.select{|id, _| enabled_springs.include?(id)}.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=3000"}.join(",")
+    run_simulation(filters.join("|"), [], 100, 1, 100, overrides)
+
+    # TODO use the real edge mass
+    node_mass_map = @original_json["nodes"].map{|node| [node["id"], 10]}.to_h
+    edge_mass_map = @original_json["edges"].map{|edge| [edge["id"], 1]}.to_h
+
+    sim_result = read_csv_numeric
+    # Calculate overall energy
+    energy_map = sim_result.map do |row|
+      overall_energy = 0
+      row_hash = row.to_h
+      # calculate the potential energies of all nodes
+      overall_energy = node_mass_map.map{|node_id, mass| get_potential_energy_for_node(node_id, mass, row_hash)}.reduce(0, :+)
+
+      # calculate the potential energies of all edges
+      overall_energy += edge_mass_map.map do |edge_id, mass|
+        edge_obj = @original_json["edges"].find{|e| e["id"] == edge_id.to_i}
+        p "edge_from_#{edge_obj["n1"]}_to_#{edge_obj["n2"]}"
+        get_potential_energy_for_edge("edge_from_#{edge_obj["n1"]}_to_#{edge_obj["n2"]}", mass, row_hash)
+      end.reduce(0, :+)
+
+      overall_energy += @constants_for_springs.map do |edge_id, c|
+        get_spring_energy_per_edge(@identifiers_for_springs[edge_id], c, sketchup_to_modelica_units(@original_json["edges"].find{|e| e["id"] == edge_id.to_i}["uncompressed_length"]), row_hash)
+      end.reduce(0, :+)
+      overall_energy
+    end
+
+    # return positions where the energy matches most closley
+    initial_potential_energy = energy_map[0]
+
+    destination_energy = energy_map.map{|val| (val - prelaod_energy - initial_potential_energy).abs}
+    p "For the target energy #{prelaod_energy} the energy fo +/- #{destination_energy.min} can be achieved. That is an error of #{(destination_energy.min).abs / (prelaod_energy)}."
+    p "The preloading curves looks like this:"
+    p energy_map
+    p destination_energy
+
+    data_w_header = read_csv
+    return_array = []
+    return_array << data_w_header[0]
+    return_array << data_w_header[destination_energy.rindex(destination_energy.min) + 1]
+  end
+
+  def get_steady_state_positions()
+    time_when_probably_nothing_happens_anymore = 1000
+    filters = ["node_[0-9]+\\.r_0.*"]
+    run_simulation(filters.join("|"), [],  1, 1, time_when_probably_nothing_happens_anymore)
+    read_csv[0]
+  end
+
 
   def linearize
     run_linearization
@@ -287,6 +378,11 @@ class SimulationRunner
       override_string += "#{spring_identifier}.c=#{@constants_for_springs[edge_id]},"
     end
 
+    # Increase Damping for everthing that is not a spring
+    @original_json["edges"].select{ |edge| p @constants_for_springs[edge["id"].to_s] === nil}.each do |edge|
+      override_string += "edge_from_#{edge["n1"]}_to_#{edge["n2"]}_spring.d=10000,"
+    end
+
     @mounted_users.each do |node_id, weight|
       override_string += "node_#{node_id}.m=#{weight},"
     end
@@ -341,11 +437,13 @@ class SimulationRunner
 
   def run_compilation
     Open3.capture2e("cp #{@model_name}.mo  #{@directory}", chdir: File.dirname(__FILE__))
-    Open3.capture2e("cp ./modelica_assets/AdaptiveSpringDamper.mo  #{@directory}", chdir: File.dirname(__FILE__))
 
     dependencies = ['AdaptiveSpringDamper.mo', 'Modelica']
+
+    Open3.capture2e("cp ./modelica_assets/AdaptiveSpringDamper.mo  #{@directory}", chdir: File.dirname(__FILE__))
+
     command = "omc #{@compilation_options} -s #{@model_name}.mo #{dependencies.join(' ')} "\
-              "&& mv #{@model_name}.makefile Makefile && make -j 8"
+              "&& mv #{@model_name}.makefile Makefile && make -j 16"
     puts(command)
     output, status = Open3.capture2e(command,
                                 chdir: @directory)
@@ -357,11 +455,12 @@ class SimulationRunner
     end
   end
 
-  def run_simulation(filter = '*', force_vectors = [], length = 10, resolution = 0.05)
+  def run_simulation(filter = '*', force_vectors = [], length = 10, resolution = 0.05, start=0.0, additional_overrides = "")
     # TODO: adjust sampling rate dynamically
-    overrides = "outputFormat=csv,variableFilter=#{filter},startTime=0.0,stopTime=#{length},stepSize=#{resolution}," \
-                "#{force_vector_string(force_vectors)},#{override_constants_string}"
-    command = "./#{@model_name} #{@simulation_options} -override=\"#{overrides}\" -idaSensitivity"
+    overrides = "outputFormat=csv,variableFilter=#{filter},startTime=#{start},stopTime=#{start + length},stepSize=#{resolution}," \
+                "#{force_vector_string(force_vectors)},#{override_constants_string},#{additional_overrides}"
+
+    command = "./#{@model_name} #{@simulation_options} -override=\"#{overrides}\""
     puts(command)
     Open3.popen2e(command, chdir: @directory) do |i, o, t|
       # prints out std out of the command

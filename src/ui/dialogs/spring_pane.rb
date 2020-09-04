@@ -50,6 +50,10 @@ class SpringPane
 
     @pending_compilation = false
     @spring_hinges = {}
+
+    @energy = 1000 # in Joule
+
+    @initial_hub_positions = {}
   end
 
   # spring / graph manipulation logic:
@@ -68,8 +72,29 @@ class SpringPane
     # put_geometry_into_equilibrium(spring_id)
     update_trace_visualization true
 
-    update_bode_diagram
+    # update_bode_diagram
 
+    update_dialog if @dialog
+  end
+
+  def enable_preloading_for_spring(spring_id)
+    edge = @spring_edges.find { |edge| edge.id == spring_id }
+    edge.link.spring_parameters[:enable_preloading] = true
+
+    update_dialog if @dialog
+  end
+
+  def disable_preloading_for_spring(spring_id)
+    edge = @spring_edges.find { |edge| edge.id == spring_id }
+    edge.link.spring_parameters[:enable_preloading] = false
+
+    update_dialog if @dialog
+  end
+
+  def set_preloading_for_spring(spring_id, value)
+    edge = @spring_edges.find { |edge| edge.id == spring_id }
+    edge.link.spring_parameters[:enable_preloading] = value
+    p "set preloading to #{value} for #{edge.id}"
     update_dialog if @dialog
   end
 
@@ -92,9 +117,8 @@ class SpringPane
 
   def update_mounted_users
     SimulationRunnerClient.update_mounted_users(mounted_users)
-    return if @pending_compilation
 
-    update_stats
+    update_stats unless @pending_compilation
     update_dialog if @dialog
   end
 
@@ -277,6 +301,25 @@ class SpringPane
 
   private
 
+  def preload_springs
+    # 1. Calculate potential energy
+    # TODO: still open
+    total_energy = 150
+
+    constants = constants_for_springs;
+
+    @spring_edges.map(&:link).each do |link|
+      # 2. distribute it (equally for now) onto all springs
+      energy_share = total_energy / @spring_edges.length
+      # 3. convert energy share into precompression
+      compression = Math.sqrt((2 * energy_share) / link.spring_parameters[:k])
+      # 4. shrink edge
+      relaxation = Relaxation.new
+      relaxation.stretch_to(link.edge, (link.initial_edge_length.to_m - compression).to_mm)
+      relaxation.relax
+    end
+  end
+
   def constants_for_springs
     spring_constants = {}
     @spring_edges.map(&:link).each do |link|
@@ -284,6 +327,29 @@ class SpringPane
     end
     spring_constants
   end
+
+  # "4"=>Point3d(201.359, -30.9042, 22.6955), "5"=>Point3d(201.359, -56.2592, 15.524)}
+  def preload_geometry_to(position_data)
+    position_data.each do |node_id, position|
+      node = Graph.instance.nodes[node_id.to_i]
+      next unless node
+
+      update_node_position(node, position)
+    end
+
+    Graph.instance.edges.each do |_, edge|
+      link = edge.link
+      link.update_link_transformations
+    end
+  end
+
+  def update_node_position(node, position)
+    node.update_position(position)
+    node.hub.update_position(position)
+    node.hub.update_user_indicator
+    node.adjacent_triangles.each { |triangle| triangle.update_sketchup_object if triangle.cover }
+  end
+
 
   # compilation / simulation logic:
 
@@ -305,7 +371,7 @@ class SpringPane
     start_animation = !@animation_running
 
     if start_animation
-      simulate
+      simulate unless @simulation_data
       @animation.stop if @period_animation_running
       create_animation
       @animation_running = true
@@ -336,13 +402,38 @@ class SpringPane
       update_constant_for_spring(spring_id, value.to_i)
     end
 
+    @dialog.add_action_callback('spring_set_preloading') do |_, spring_id, value|
+      set_preloading_for_spring(spring_id, value)
+      update_dialog
+    end
+
+
+    @dialog.add_action_callback('spring_insights_energy_change') do |_, value|
+      @energy = value.to_i
+    end
+
+    @dialog.add_action_callback('spring_insights_preload') do
+      Graph.instance.nodes.each do | node_id, node |
+        @initial_hub_positions[node_id] = node.position
+      end
+      # "4"=>Point3d(201.359, -30.9042, 22.6955), "5"=>Point3d(201.359, -56.2592, 15.524)}
+      preloading_enabled_spring_ids = @spring_edges.map(&:link).select { |link| link.spring_parameters[:enable_preloading]}.map(&:id)
+
+      position_data = SimulationRunnerClient.get_preload_positions(@energy, preloading_enabled_spring_ids).position_data
+      preload_geometry_to position_data
+    end
+
     @dialog.add_action_callback('spring_insights_compile') do
       compile
       # Also update trace visualization to provide visual feedback to user
       update_stats
-      update_bode_diagram
+      #update_bode_diagram
       update_dialog if @dialog
       update_trace_visualization true
+    end
+
+    @dialog.add_action_callback('spring_insights_simulate') do
+      simulate
     end
 
     @dialog.add_action_callback('spring_insights_toggle_play') do
@@ -353,11 +444,15 @@ class SpringPane
       optimize
     end
 
+    @dialog.add_action_callback('spring_insights_reset_hubs') do
+      preload_geometry_to(@initial_hub_positions)
+    end
+
     @dialog.add_action_callback('user_weight_change') do |_, node_id, value|
       weight = value.to_i
       Graph.instance.nodes[node_id].hub.user_weight = weight
       update_mounted_users
-      update_bode_diagram
+      # update_bode_diagram
       update_trace_visualization true
       puts "Update user weight: #{weight}"
 

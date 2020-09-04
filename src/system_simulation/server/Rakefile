@@ -7,14 +7,27 @@ task :compile do
   sim = SimulationRunner.new_from_json_export()
 end
 
-task :test_seesaw_simulation do
-  file = File.read("./test_models/seesaw_3.json")
+task :test_simulation do
+  file = File.read("./test_models/dragon_13_users.json")
   sim = SimulationRunner.new_from_json_export(file)
   p sim.get_hub_time_series
 end
 
+task :test_preloading do
+  file = File.read("./test_models/preloaded.json")
+  sim = SimulationRunner.new_from_json_export(file)
+  p sim.get_preloaded_positions(1000)
+end
+
+task :test_steady_state do
+  file = File.read("./test_models/preloaded.json")
+  sim = SimulationRunner.new_from_json_export(file)
+  p sim.get_steady_state_positions
+end
+
+
 task :test_spring_length_initilization do
-  file = File.read("./test_models/sketchup_tetrahedron.json")
+  file = File.read("./test_models/preloaded.json")
   sim = SimulationRunner.new_from_json_export(file)
   p sim.get_spring_extensions
 end
