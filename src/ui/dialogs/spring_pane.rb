@@ -72,7 +72,7 @@ class SpringPane
     # put_geometry_into_equilibrium(spring_id)
     update_trace_visualization true
 
-    update_bode_diagram
+    # update_bode_diagram
 
     update_dialog if @dialog
   end
@@ -452,7 +452,7 @@ class SpringPane
       weight = value.to_i
       Graph.instance.nodes[node_id].hub.user_weight = weight
       update_mounted_users
-      update_bode_diagram
+      # update_bode_diagram
       update_trace_visualization true
       puts "Update user weight: #{weight}"
 
