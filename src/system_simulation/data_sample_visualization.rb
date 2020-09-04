@@ -5,7 +5,7 @@ class DataSampleVisualization
 
   TRACE_DOT_ALPHA = 0.6
 
-  def initialize(data_sample, node_id, definition, ratio, is_max_acceleration , circle_definition)
+  def initialize(data_sample, node_id, definition, ratio, is_max_acceleration , draw_red, circle_definition)
     @data_sample = data_sample
     @node_id = node_id
     @definition = definition
@@ -23,6 +23,8 @@ class DataSampleVisualization
 
     @acceleration_label = nil
     @velocity_label = nil
+
+    @draw_red = draw_red
   end
 
   # Adds a circle visualization representing the data sample to the passed sketchup group.
@@ -42,7 +44,7 @@ class DataSampleVisualization
     @circle_instance = group.entities.add_instance(@circle_definition, transformation)
     @circle_instance.layer = @circle_layer
 
-    if @is_max_acceleration
+    if @is_max_acceleration || @draw_red
       @circle_instance.material = "red"
     else
       @original_material = material_from_hsv(color_hue, color_min_value + color_weight,

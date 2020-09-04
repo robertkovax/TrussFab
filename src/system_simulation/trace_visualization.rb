@@ -98,8 +98,13 @@ class TraceVisualization
         add_label(position, position.offset(Geom::Vector3d.new(0, 10.cm, 0)),"#{max_acceleration.round(3)}m/s^2 ")
       end
 
+      racceleration = stats["time_acceleration"][index]
+      acceleration = Geom::Vector3d.new(racceleration["x"].mm, racceleration["y"].mm, racceleration["z"].mm)
+      draw_red = true if acceleration.length > 4.mm # TODO: ugly hack to make these dots red puts acceleration.length
+      puts "acceleration_length #{acceleration.length}"
+
       viz = DataSampleVisualization.new(current_data_sample, node_id, circle_definition, ratio,
-                                        current_acceleration_is_max, circle_definition)
+                                        current_acceleration_is_max, draw_red, circle_definition)
       @group = Sketchup.active_model.entities.add_group if @group.deleted?
       viz.add_dot_to_group(@group)
 
