@@ -4,7 +4,7 @@ require 'net/http'
 require 'uri'
 require_relative 'animation_data_sample.rb'
 
-SIMULATION_RUNNER_HOST = "http://ec2-18-158-146-2.eu-central-1.compute.amazonaws.com:8080".freeze
+SIMULATION_RUNNER_HOST = "http://ec2-18-158-146-2.eu-central-1.compute.amazonaws.com:8081".freeze
 
 class SimulationRunnerClient
   def self.update_model(json_string)

@@ -286,7 +286,6 @@ class SpringPane
     end
     Sketchup.active_model.commit_operation
     puts "Compiled the modelica model in #{compile_time.round(2)} seconds."
-    color_static_groups
     @pending_compilation = false
     update_dialog if @dialog
   end
@@ -304,25 +303,6 @@ class SpringPane
 
   private
 
-  def preload_springs
-    # 1. Calculate potential energy
-    # TODO: still open
-    total_energy = 150
-
-    constants = constants_for_springs;
-
-    @spring_edges.map(&:link).each do |link|
-      # 2. distribute it (equally for now) onto all springs
-      energy_share = total_energy / @spring_edges.length
-      # 3. convert energy share into precompression
-      compression = Math.sqrt((2 * energy_share) / link.spring_parameters[:k])
-      # 4. shrink edge
-      relaxation = Relaxation.new
-      relaxation.stretch_to(link.edge, (link.initial_edge_length.to_m - compression).to_mm)
-      relaxation.relax
-    end
-  end
-
   def constants_for_springs
     spring_constants = {}
     @spring_edges.map(&:link).each do |link|
@@ -333,6 +313,7 @@ class SpringPane
 
   # "4"=>Point3d(201.359, -30.9042, 22.6955), "5"=>Point3d(201.359, -56.2592, 15.524)}
   def preload_geometry_to(position_data)
+    Sketchup.active_model.start_operation('Set geometry to preloading positions', true)
     position_data.each do |node_id, position|
       node = Graph.instance.nodes[node_id.to_i]
       next unless node
@@ -340,16 +321,24 @@ class SpringPane
       update_node_position(node, position)
     end
 
+    position_data.each do |node_id, _|
+      node = Graph.instance.nodes[node_id.to_i]
+      next unless node
+
+      node.update_sketchup_object
+    end
+
     Graph.instance.edges.each do |_, edge|
       link = edge.link
       link.update_link_transformations
     end
+    Sketchup.active_model.commit_operation
   end
 
   def update_node_position(node, position)
     node.update_position(position)
-    node.hub.update_position(position)
-    node.hub.update_user_indicator
+    #node.hub.update_position(position)
+    #node.hub.update_user_indicator
     node.adjacent_triangles.each { |triangle| triangle.update_sketchup_object if triangle.cover }
   end
 
@@ -400,6 +389,18 @@ class SpringPane
     Sketchup.active_model.active_view.animation = @animation
   end
 
+  def preload_springs
+    Graph.instance.nodes.each do |node_id, node|
+      @initial_hub_positions[node_id] = node.position
+    end
+    # "4"=>Point3d(201.359, -30.9042, 22.6955), "5"=>Point3d(201.359, -56.2592, 15.524)}
+    preloading_enabled_spring_ids = @spring_edges.map(&:link).select { |link| link.spring_parameters[:enable_preloading]}.map(&:id)
+    @trace_visualization.reset_trace
+
+    position_data = SimulationRunnerClient.get_preload_positions(@energy, preloading_enabled_spring_ids).position_data
+    preload_geometry_to position_data
+  end
+
   def register_callbacks
     @dialog.add_action_callback('spring_constants_change') do |_, spring_id, value|
       update_constant_for_spring(spring_id, value.to_i)
@@ -416,14 +417,7 @@ class SpringPane
     end
 
     @dialog.add_action_callback('spring_insights_preload') do
-      Graph.instance.nodes.each do | node_id, node |
-        @initial_hub_positions[node_id] = node.position
-      end
-      # "4"=>Point3d(201.359, -30.9042, 22.6955), "5"=>Point3d(201.359, -56.2592, 15.524)}
-      preloading_enabled_spring_ids = @spring_edges.map(&:link).select { |link| link.spring_parameters[:enable_preloading]}.map(&:id)
-
-      position_data = SimulationRunnerClient.get_preload_positions(@energy, preloading_enabled_spring_ids).position_data
-      preload_geometry_to position_data
+      preload_springs
     end
 
     @dialog.add_action_callback('spring_insights_compile') do
