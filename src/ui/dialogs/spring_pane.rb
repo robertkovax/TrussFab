@@ -141,6 +141,10 @@ class SpringPane
     # Visualized period
     #  TODO: make this work for multiple users and move into seperate method
     node_id = mounted_users.keys.first
+    if @user_stats.nil? || @user_stats[node_id].nil?
+      puts "No user stats for node #{node_id}"
+      return
+    end
     @animation = PeriodAnimation.new(@simulation_data, @user_stats[node_id]['period'], node_id) do
       @period_animation_running = false
       update_dialog
