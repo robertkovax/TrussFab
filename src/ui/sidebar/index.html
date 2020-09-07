@@ -81,6 +81,10 @@
     </button>
 
     <h6>Add-Ons</h6>
+    <button type="button" class="tool" id="add_weight_tool">
+      <img src="../trussfab-globals/assets/icons/force.png" alt="add test load">
+      <div>weight</div>
+    </button>
     <button type="button" class="tool" id="pod_tool">
       <img src="../trussfab-globals/assets/icons/pod.png" alt="pod">
       <div>pod</div>
@@ -142,10 +146,10 @@
       <img src="../trussfab-globals/assets/icons/apply_force_vector.png" width="54px" alt="spring">
       <div>apply force vector</div>
     </button>
-    <button type="button" class="tool" id="assets_user_tool">
+    <!--<button type="button" class="tool" id="assets_user_tool">
       <img src="../trussfab-globals/assets/icons/wheel.png" width="54px" alt="spring">
       <div>place user asset</div>
-    </button>
+    </button>-->
     <button type="button" class="tool" id="scale_oscillation_tool">
       <img src="../trussfab-globals/assets/icons/scale_oscillation.png" width="54px" alt="spring">
       <div>scale oscillation</div>
@@ -162,7 +166,7 @@
             <img src="../trussfab-globals/assets/icons/actuator.png" width="54px" alt="actuator">
             <div>damp</div>
           </button> -->
-    <h6>Assets</h6>
+    <!--<h6>Assets</h6>-->
     <button type="button" class="tool" id="dynamic_tetrahedron_tool">
       <img src="../trussfab-globals/assets/icons/tetrahedron_actuator.png" alt="dynamic tetrahedron">
       <div>1DOF tetra</div>
@@ -197,21 +201,17 @@
             <div>hinges</div>
           </button> -->
 
-    <h6>Loads</h6>
-    <!-- <button type="button" class="tool" id="rigidity_test_tool">
+    <!--<h6>Loads</h6>
+    <button type="button" class="tool" id="rigidity_test_tool">
             <img src="../trussfab-globals/assets/icons/force.png" alt="rigidity test">
             <div>rigidity test</div>
           </button> -->
-    <button type="button" class="tool" id="add_weight_tool">
-      <img src="../trussfab-globals/assets/icons/force.png" alt="add test load">
-      <div>weight</div>
-    </button>
     <!-- TODO: -->
-    <button type="button" class="tool" id="add_force_tool">
+    <!--<button type="button" class="tool" id="add_force_tool">
       <img src="../trussfab-globals/assets/icons/arrow_down.png" alt="add test load">
       <div>force</div>
     </button>
-    <!-- <button type="button" class="tool" id="force_limit_tool">
+    <button type="button" class="tool" id="force_limit_tool">
             <img src="../trussfab-globals/assets/icons/line_max.png" alt="check force limits">
             <div>force limits</div>
           </button>
@@ -220,10 +220,10 @@
             <div>check stability</div>
           </button> -->
     <!-- <h6>Observe</h6> -->
-    <button type="button" class="tool" id="sensor_tool">
+    <!--<button type="button" class="tool" id="sensor_tool">
       <img src="../trussfab-globals/assets/icons/sensor.png" alt="sensor">
       <div>sensor</div>
-    </button>
+    </button>-->
     <!-- <h6>Optimize Force</h6> -->
     <!-- <button type="button" class="tool" id="optimize_force_tool">
             <img src="../trussfab-globals/assets/icons/line_sensor.png" alt="sensor">
@@ -232,6 +232,17 @@
   </div>
   <!-- Accordion End -->
   <footer>
+    <button class="fabricate"
+            onClick="window.sketchup.spring_insights_toggle_play()">
+      play animation
+    </button>
+    <div style="width: inherit" class="fabricate">
+      comfort <span style="float:right">excitement</span>
+      <input type="range" class="custom-range pt-3" id="comfort_excitement" min="0" max="100" step="10" value="50">
+    </div>
+    <button class="fabricate" onClick="window.sketchup.spring_insights_optimize()">
+      optimize
+    </button>
     <button type="button" id="export_file_tool">Save</button>
     <button type="button" id="import_file_tool">Load</button>
     <button type="button" class="fabricate" id="fabricate_tool">
