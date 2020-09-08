@@ -178,7 +178,7 @@ class Simulation
   end
 
   # Called when activates
-  def setup
+  def setup(ignore_mass=false)
     @world = TrussFab::World.new
     @world.update_timestep = Configuration::WORLD_TIMESTEP
     @world.solver_model = Configuration::WORLD_SOLVER_MODEL
@@ -191,7 +191,7 @@ class Simulation
     # create bodies for node
     # (all edges will not have physics components to them)
     Graph.instance.nodes.each_value do |obj|
-      obj.hub.create_body(@world)
+      obj.hub.create_body(@world, ignore_mass)
     end
 
     # save transformation of current bodies for resetting
