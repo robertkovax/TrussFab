@@ -168,83 +168,51 @@ class SimulationRunner
     frequency != 0 ? 1 / frequency : nil
   end
 
+  def get_damping_characteristic
+    # run the force sweep
+    filters = ["edge_from_[0-9]+_to_[0-9]+_spring.*", ".*energy"]
+    # overrides = @identifiers_for_springs.select{|id, _| enabled_springs.include?(id)}.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=3000"}.join(",")
+    run_simulation(filters.join("|"), [], 3, 0.01, 0)
+    result = read_csv_numeric.map do |row|
+      row_h = row.to_h
+      overall_loss_power = 0
+      row_h.map{|key, value|
+        if key.include?("dampedAwayEnergy")
+          overall_loss_power += value
+        end
+      }
+      overall_loss_power
+    end
+    result
+  end
+
   def get_preloaded_positions(prelaod_energy=100, enabled_springs= @identifiers_for_springs.keys)
     def get_node_id_from_modelica_component_name(modelica_component_name)
       modelica_component_name.match(/(?<=node_)\d+/)
     end
-
-    def sketchup_to_modelica_units(x)
-      (x / 1000).round(10)
-    end
-
-    def get_potential_energy_for_node(node_id, m, row)
-      g = 9.81
-      h = row["node_#{node_id}.r_0[3]"]
-      if h === nil
-        # This can happen for nodes that are fixtures
-        p "Node #{node_id} discarded for energy calculation."
-        return 0
-      else
-        return m * g * h
-      end
-    end
-
-    def get_potential_energy_for_edge(edge,m ,row)
-      g = 9.81
-      h = row["#{edge}.r_CM_0[3]"]
-      if h === nil
-        p "edge #{edge} discarded for energy calculation."
-        return 0
-      else
-       return m * g * h
-      end
-    end
-
-    def get_spring_energy_per_edge(edge, c, s_unstreched, row)
-      p row
-      p edge
-      x = row["#{edge}.s_rel"] - s_unstreched
-      p x
-      return 0.5 * c * x**2
-    end
-
     # run the force sweep
-    filters = ["node_[0-9]+\\.r_0.*", "edge_from_[0-9]+_to_[0-9]+_spring.s_rel", "edge_from_[0-9]+_to_[0-9]+\\.r_CM_0.*"]
+    filters = [".*energy"]
     overrides = @identifiers_for_springs.select{|id, _| enabled_springs.include?(id)}.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=3000"}.join(",")
     run_simulation(filters.join("|"), [], 100, 1, 100, overrides)
 
-    # TODO use the real edge mass
-    node_mass_map = @original_json["nodes"].map{|node| [node["id"], 10]}.to_h
-    edge_mass_map = @original_json["edges"].map{|edge| [edge["id"], 1]}.to_h
-
-    sim_result = read_csv_numeric
-    # Calculate overall energy
-    energy_map = sim_result.map do |row|
-      overall_energy = 0
-      row_hash = row.to_h
-      # calculate the potential energies of all nodes
-      overall_energy = node_mass_map.map{|node_id, mass| get_potential_energy_for_node(node_id, mass, row_hash)}.reduce(0, :+)
-
-      # calculate the potential energies of all edges
-      overall_energy += edge_mass_map.map do |edge_id, mass|
-        edge_obj = @original_json["edges"].find{|e| e["id"] == edge_id.to_i}
-        p "edge_from_#{edge_obj["n1"]}_to_#{edge_obj["n2"]}"
-        get_potential_energy_for_edge("edge_from_#{edge_obj["n1"]}_to_#{edge_obj["n2"]}", mass, row_hash)
-      end.reduce(0, :+)
-
-      overall_energy += @constants_for_springs.map do |edge_id, c|
-        get_spring_energy_per_edge(@identifiers_for_springs[edge_id], c, sketchup_to_modelica_units(@original_json["edges"].find{|e| e["id"] == edge_id.to_i}["uncompressed_length"]), row_hash)
-      end.reduce(0, :+)
-      overall_energy
+    result_energy = read_csv_numeric.map do |row|
+      row_h = row.to_h
+      overall_loss_power = 0
+      row_h.map{|key, value|
+        if key.include?("energy")
+          overall_loss_power += value
+        end
+      }
+      overall_loss_power
     end
 
     # return positions where the energy matches most closley
-    initial_potential_energy = energy_map[0]
+    initial_potential_energy = result_energy[5]
 
-    destination_energy = energy_map.map{|val| (val - prelaod_energy - initial_potential_energy).abs}
+    destination_energy = result_energy.map{|val| (val - prelaod_energy - initial_potential_energy).abs}
     p "For the target energy #{prelaod_energy} the energy fo +/- #{destination_energy.min} can be achieved. That is an error of #{(destination_energy.min).abs / (prelaod_energy)}."
     p "The preloading curves looks like this:"
-    p energy_map
+    p result_energy
     p destination_energy
 
     data_w_header = read_csv
@@ -437,9 +405,12 @@ class SimulationRunner
   def run_compilation
     Open3.capture2e("cp #{@model_name}.mo  #{@directory}", chdir: File.dirname(__FILE__))
 
-    dependencies = ['AdaptiveSpringDamper.mo', 'Modelica']
+    dependencies = ['CustomSpring.mo', 'CustomPointMass.mo', 'CustomLineForce.mo', 'Modelica']
 
-    Open3.capture2e("cp ./modelica_assets/AdaptiveSpringDamper.mo  #{@directory}", chdir: File.dirname(__FILE__))
+    # copy custom modelica files
+    dependencies.select{ |item| item.end_with?(".mo") }.each do |file_name|
+     Open3.capture2e("cp ./modelica_assets/#{file_name}  #{@directory}", chdir: File.dirname(__FILE__))
+   end
 
     command = "omc #{@compilation_options} -s #{@model_name}.mo #{dependencies.join(' ')} "\
               "&& mv #{@model_name}.makefile Makefile && make -j 16"
