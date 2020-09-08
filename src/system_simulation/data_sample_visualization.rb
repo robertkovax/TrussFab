@@ -65,12 +65,8 @@ class DataSampleVisualization
 
   def add_acceleration_to_group(group, acceleration)
     scale = 10
-
     @acceleration_label = add_label_for_parameter_to_group(group, acceleration, scale, 'm/s^2')
-    @acceleration_label.hidden = true unless @is_max_acceleration
-
     @acceleration_line = add_vector_to_group(group, acceleration, scale)
-    @acceleration_line.hidden = true unless @is_max_acceleration
   end
 
   def highlight
@@ -105,13 +101,11 @@ class DataSampleVisualization
     vector_group = group.entities.add_group
     vector_group.entities.add_curve(points)
     vector_group.transform!(translation * rotation * scaling)
-    vector_group.layer = Sketchup.active_model.layers[Configuration::MOTION_TRACE_VIEW]
     vector_group
   end
 
   def add_label_for_parameter_to_group(group, vector, scale, unit)
     label = group.entities.add_text("#{vector.length.to_mm.round(2).to_s}#{unit}", @position + Geometry.scale(vector.normalize, scale))
-    label.layer = Sketchup.active_model.layers[Configuration::MOTION_TRACE_VIEW]
     label
   end
 

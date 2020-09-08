@@ -15,6 +15,7 @@ module Configuration
   HINGE_VIEW = 'Hinge lines'.freeze
   ACTUATOR_VIEW = 'Actuators'.freeze
   MOTION_TRACE_VIEW = 'Motion Trace'.freeze
+  MAXIMUM_ACCELERATION_VELOCITY_VIEW = 'Maximum Acceleration'.freeze
 
   # UI Dialog Properties
   HTML_DIALOG = {
