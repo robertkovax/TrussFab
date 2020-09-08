@@ -58,9 +58,8 @@ class SimulationRunner
 
     @model_name = model_name
     @original_json = original_json
-    # @compilation_options = '--maxMixedDeterminedIndex=100 --generateSymbolicJacobian --disableLinearTearing --tearingMethod=omcTearing --postOptModules+=removeSimpleEquations,reshufflePost,simplifyAllExpressions,simplifyLoops,relaxSystem'
-    @compilation_options = '--maxMixedDeterminedIndex=100 --generateSymbolicJacobian --disableLinearTearing --tearingMethod=omcTearing --postOptModules+=removeSimpleEquations,simplifyLoops'
-    @simulation_options = '-lv=LOG_STATS -emit_protected -s=ida -ls umfpack'
+    @compilation_options = '--maxMixedDeterminedIndex=100'
+    @simulation_options = '-lv=LOG_STATS -emit_protected -s=ida -ls=umfpack'
 
     if suppress_compilation
       @directory = File.dirname(__FILE__)
@@ -455,7 +454,7 @@ class SimulationRunner
     end
   end
 
-  def run_simulation(filter = '*', force_vectors = [], length = 10, resolution = 0.05, start=0.0, additional_overrides = "")
+  def run_simulation(filter = '*', force_vectors = [], length = 6, resolution = 0.025, start=0.0, additional_overrides = "")
     # TODO: adjust sampling rate dynamically
     overrides = "outputFormat=csv,variableFilter=#{filter},startTime=#{start},stopTime=#{start + length},stepSize=#{resolution}," \
                 "#{force_vector_string(force_vectors)},#{override_constants_string},#{additional_overrides}"
