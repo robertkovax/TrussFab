@@ -106,9 +106,13 @@ class ExportMainHub < ScadExportHub
         type_array << '"HOLE"'
       end
 
+      spring_identifier = if elongation.is_spring
+                            "S"
+                          else
+                            ""
+                          end
       vector_array << "[#{elongation.direction.to_a.join(', ')}]"
-      addon_array << "[#{length}, \"#{elongation.other_hub_id}"\
-                     "#{elongation.bottle_size}\"]"
+      addon_array << "[#{length}, \"#{elongation.other_hub_id}\", \"#{elongation.edge_id}\"]"
     end
 
     @pods.each do |pod|
@@ -118,9 +122,6 @@ class ExportMainHub < ScadExportHub
     end
 
     export_string =
-        "// adjust filepath to LibSTLExport if neccessary\n" \
-        "include <#{ProjectHelper.library_directory}/openscad/LibSTLExport.scad>\n" \
-        "\n" \
         "hubID = \"#{@id}\";\n" \
         "mode = \"#{mode}\";\n" \
         "safetyFlag = false;\n" \
@@ -141,7 +142,11 @@ class ExportMainHub < ScadExportHub
         "connectorTypeArray = [\n" \
         "#{type_array.join(",\n")}\n" \
         "];\n" \
-        "drawHub(dataFileVectorArray, dataFileAddonParameterArray, connectorTypeArray);\n"
+        "\n" \
+        "// adjust filepath to LibSTLExport if neccessary\n" \
+        "include <#{ProjectHelper.library_directory}/openscad/Util/welding_jig.scad>\n" \
+        "\n" \
+        "drawWeldingJig();;\n"
 
     file.write(export_string)
     file.close
