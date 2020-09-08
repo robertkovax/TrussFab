@@ -187,13 +187,16 @@ class SimulationRunner
   end
 
   def get_preloaded_positions(prelaod_energy=100, enabled_springs= @identifiers_for_springs.keys)
+    p "starting preloading for #{prelaod_energy} joules."
+    time_far_far_away = 1000
+
     def get_node_id_from_modelica_component_name(modelica_component_name)
       modelica_component_name.match(/(?<=node_)\d+/)
     end
     # run the force sweep
     filters = [".*energy"]
     overrides = @identifiers_for_springs.select{|id, _| enabled_springs.include?(id)}.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=3000"}.join(",")
-    run_simulation(filters.join("|"), [], 100, 1, 100, overrides)
+    run_simulation(filters.join("|"), [], 1000, 10, time_far_far_away, overrides)
 
     result_energy = read_csv_numeric.map do |row|
       row_h = row.to_h
@@ -207,7 +210,7 @@ class SimulationRunner
     end
 
     # return positions where the energy matches most closley
-    initial_potential_energy = result_energy[5]
+    initial_potential_energy = result_energy[0]
 
     destination_energy = result_energy.map{|val| (val - prelaod_energy - initial_potential_energy).abs}
     p "For the target energy #{prelaod_energy} the energy fo +/- #{destination_energy.min} can be achieved. That is an error of #{(destination_energy.min).abs / (prelaod_energy)}."
