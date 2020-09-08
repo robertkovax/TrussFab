@@ -277,7 +277,7 @@ class Hub < PhysicsSketchupObject
     @body.apply_force(@force)
   end
 
-  def create_body(world)
+  def create_body(world, ignore_mass = false)
     num_physics_links = @incidents.count { |x| x.link.is_a?(PhysicsLink) }
     weight = Configuration::HUB_MASS * @incidents.count +
              Configuration::PISTON_MASS * num_physics_links
@@ -285,6 +285,7 @@ class Hub < PhysicsSketchupObject
     @body = Simulation.create_body(world, @entity, :box)
     @body.collidable = true
     @body.mass = @mass.zero? ? weight : @mass + weight
+    @body.mass = weight if ignore_mass
     @body.static_friction = Configuration::BODY_STATIC_FRICITON
     @body.kinetic_friction = Configuration::BODY_KINETIC_FRICITON
     @body.elasticity = Configuration::BODY_ELASTICITY

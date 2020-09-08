@@ -180,7 +180,7 @@ module StaticGroupAnalysis
     def start_simulation(edges)
       @simulation = Simulation.new
       @simulation.disable_coloring
-      @simulation.setup
+      @simulation.setup true # Ignore mass to make structure not fail
       @simulation.disable_gravity
 
       edges.each do |edge|
