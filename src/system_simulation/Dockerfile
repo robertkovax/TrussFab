@@ -11,6 +11,8 @@ RUN apt-get install  libexpat-dev libblas-dev liblapack-dev -y
 RUN autoconf && ./configure --without-CORBA
 RUN make -j 8
 
+RUN ln -s /opt/OpenModelica/OMCompiler/build/bin/omc /usr/local/bin/omc
+
 # Ruby Project dependencies
 RUN apt-get install -y ruby-dev ruby-sinatra libgsl0-dev
 RUN gem install bundler
@@ -18,7 +20,6 @@ COPY ./server/Gemfile /opt/code/server/Gemfile
 RUN bundle install --gemfile=/opt/code/server/Gemfile
 
 COPY . /opt/code
-
 WORKDIR /opt/code/server
 
 EXPOSE 8080
