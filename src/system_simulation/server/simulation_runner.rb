@@ -59,7 +59,7 @@ class SimulationRunner
     @model_name = model_name
     @original_json = original_json
     @compilation_options = '--maxMixedDeterminedIndex=100'
-    @simulation_options = '-lv=LOG_STATS -emit_protected -s=ida -ls=umfpack'
+    @simulation_options = '-lv=LOG_STATS -emit_protected -s=ida -ls=klu -nls=kinsol'
 
     if suppress_compilation
       @directory = File.dirname(__FILE__)
@@ -191,15 +191,17 @@ class SimulationRunner
 
   def get_preloaded_positions(prelaod_energy=100, enabled_springs= @identifiers_for_springs.keys)
     p "starting preloading for #{prelaod_energy} joules."
-    time_far_far_away = 1000
+    time_far_far_away = 200
+    long_time_for_ramping_up = 200
 
     def get_node_id_from_modelica_component_name(modelica_component_name)
       modelica_component_name.match(/(?<=node_)\d+/)
     end
+
     # run the force sweep
     filters = [".*\\.energy", "node_[0-9]+\\.r_0.*", "edge_from_[0-9]+_to_[0-9]+_spring.s_rel", "edge_from_[0-9]+_to_[0-9]+\\.r_CM_0.*"]
     overrides = @identifiers_for_springs.select{|id, _| enabled_springs.include?(id)}.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=3000"}.join(",")
-    run_simulation(filters.join("|"), [], 1000, 10, time_far_far_away, overrides)
+    run_simulation(filters.join("|"), [], long_time_for_ramping_up, 1, time_far_far_away, overrides)
     result_energy = read_csv_numeric.map do |row|
       row_h = row.to_h
       overall_loss_power = 0

@@ -8,7 +8,7 @@ model LineForceGenerated
   <% modelica_components.each do |component| %>
   <% if component.is_a?(Modelica_LineForceWithMass) %> CustomLineForce <%= component[:name] %>(m = <%= component[:mass] %>);
   <% elsif component.is_a?(Modelica_1DForce) %>
-  Modelica.Blocks.Sources.Ramp <%= component[:name] %>_ramp(duration=1000, startTime= 1000);
+  Modelica.Blocks.Sources.Ramp <%= component[:name] %>_ramp(duration=200, startTime= 200);
   Modelica.Mechanics.Translational.Sources.Force2 <%= component[:name] %>;
   <% elsif component.is_a?(Modelica_Spring) %> CustomSpring <%= component[:name] %>(c = <%= component[:c] %>, d = 100, s_rel0 = <%= component[:uncompressed_length] %>);
 <% elsif component.is_a?(Modelica_Force) %> Modelica.Mechanics.MultiBody.Forces.WorldForce <%= component[:name] %>(force = <%= component[:name] %>_val);
