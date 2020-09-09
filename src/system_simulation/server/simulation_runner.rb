@@ -59,7 +59,7 @@ class SimulationRunner
     @model_name = model_name
     @original_json = original_json
     @compilation_options = '--maxMixedDeterminedIndex=100'
-    @simulation_options = '-lv=LOG_STATS -emit_protected -s=ida -ls=klu -nls=kinsol'
+    @simulation_options = '-lv=LOG_STATS -emit_protected -s=ida -ls=umfpack'
 
     if suppress_compilation
       @directory = File.dirname(__FILE__)
@@ -210,7 +210,7 @@ class SimulationRunner
 
     # run the force sweep
     filters = [".*\\.energy", "node_[0-9]+\\.r_0.*", "edge_from_[0-9]+_to_[0-9]+_spring.s_rel", "edge_from_[0-9]+_to_[0-9]+\\.r_CM_0.*"]
-    overrides = preloaded_springs.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=3000"}.join(",")
+    overrides = preloaded_springs.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=1000"}.join(",")
     run_simulation(filters.join("|"), [], long_time_for_ramping_up, 1, time_far_far_away, overrides)
     result_energy = read_csv_numeric.map do |row|
       row_h = row.to_h
