@@ -54,7 +54,7 @@ class SimulationRunner
   end
 
   def initialize(model_name = 'seesaw3', spring_constants = {}, spring_identifiers = {}, mounted_users = {},
-                 suppress_compilation = false, keep_temp_dir = true, original_json)
+                 suppress_compilation = false, keep_temp_dir = false, original_json)
 
     @model_name = model_name
     @original_json = original_json
