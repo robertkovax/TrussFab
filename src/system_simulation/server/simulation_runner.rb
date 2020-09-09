@@ -189,8 +189,9 @@ class SimulationRunner
     result
   end
 
-  def get_preloaded_positions(prelaod_energy=100, enabled_springs= @identifiers_for_springs.keys)
-    p "starting preloading for #{prelaod_energy} joules."
+  def get_preloaded_positions(prelaod_energy=100, enabled_springs=[])
+    enabled_springs = enabled_springs.map{|elem| elem.to_i }
+    p "starting preloading of #{prelaod_energy}J for springs: #{enabled_springs.join(", ")}."
     time_far_far_away = 200
     long_time_for_ramping_up = 200
 
@@ -198,9 +199,18 @@ class SimulationRunner
       modelica_component_name.match(/(?<=node_)\d+/)
     end
 
+    def percentage(n)
+      (n * 100).round(1).to_s + "%"
+    end
+
+    preloaded_springs = @identifiers_for_springs.select{|id, _| enabled_springs.include?(id.to_i)}
+    if preloaded_springs.empty?
+      raise "no valid spring was selected; aborting preloading"
+    end
+
     # run the force sweep
     filters = [".*\\.energy", "node_[0-9]+\\.r_0.*", "edge_from_[0-9]+_to_[0-9]+_spring.s_rel", "edge_from_[0-9]+_to_[0-9]+\\.r_CM_0.*"]
-    overrides = @identifiers_for_springs.select{|id, _| enabled_springs.include?(id)}.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=3000"}.join(",")
+    overrides = preloaded_springs.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=3000"}.join(",")
     run_simulation(filters.join("|"), [], long_time_for_ramping_up, 1, time_far_far_away, overrides)
     result_energy = read_csv_numeric.map do |row|
       row_h = row.to_h
@@ -214,13 +224,19 @@ class SimulationRunner
     end
 
     # return positions where the energy matches most closley
-    initial_potential_energy = result_energy[0]
+    # we are taking a value from the beginning, but no from the very beginning to avoid turbulences caused by the first hit of force
+    initial_potential_energy = result_energy[2]
 
     destination_energy = result_energy.map{|val| (val - prelaod_energy - initial_potential_energy).abs}
-    p "For the target energy #{prelaod_energy} the energy fo +/- #{destination_energy.min} can be achieved. That is an error of #{(destination_energy.min).abs / (prelaod_energy)}."
+    energy_error = (destination_energy.min).abs / (prelaod_energy)
+    p "For the target energy #{prelaod_energy}J the energy fo +/- #{destination_energy.min} can be achieved. That is an error of #{percentage(energy_error)}."
     p "The preloading curves looks like this:"
     p result_energy
     p destination_energy
+
+    if energy_error > 0.3
+      raise "we couldn't preload the model with #{prelaod_energy}J. The the best guess was off by #{percentage(energy_error)}."
+    end
 
     data_w_header = read_csv
     return_array = []
@@ -353,7 +369,7 @@ class SimulationRunner
     end
 
     # Increase Damping for everthing that is not a spring
-    @original_json["edges"].select{ |edge| p @constants_for_springs[edge["id"].to_s] === nil}.each do |edge|
+    @original_json["edges"].select{ |edge| @constants_for_springs[edge["id"].to_s] === nil}.each do |edge|
       override_string += "edge_from_#{edge["n1"]}_to_#{edge["n2"]}_spring.d=10000,"
     end
 
