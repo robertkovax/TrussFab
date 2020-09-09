@@ -4,8 +4,8 @@ require 'src/simulation/simulation.rb'
 
 # Hub
 class Hub < PhysicsSketchupObject
-  attr_accessor :position, :body, :mass, :arrow, :user_weight
-  attr_reader :force, :is_user_attached, :user_transformation, :user_indicator_filename
+  attr_accessor :position, :body, :mass, :arrow
+  attr_reader :force, :is_user_attached, :user_transformation, :user_indicator_filename, :user_weight
 
   def initialize(position, id: nil, incidents: nil, material: 'hub_material')
     super(id, material: material)
@@ -78,6 +78,11 @@ class Hub < PhysicsSketchupObject
     Sketchup.active_model.commit_operation
   end
 
+  def user_weight= weight
+    @user_weight = weight
+    update_user_indicator
+  end
+
   # TODO: Extract shared behavior with weight indicator
   def update_user_indicator(additional_transformation: Geom::Transformation.new)
     unless @user_indicator.nil?
@@ -87,10 +92,20 @@ class Hub < PhysicsSketchupObject
     return unless @is_user_attached
 
     Sketchup.active_model.start_operation('Hub: Update User Indicator', true)
+    user_indicator = ModelStorage.instance.attachable_users[@user_indicator_filename]
+    default_user_weight = user_indicator.default_weight
+    default_user_weight = 50 if default_user_weight.nil?
+
+    scale_factor = @user_weight.to_f / default_user_weight
+    # These are magic numbers that seemed to produce an okay scaling for realistic kgs
+    decreased_scale_factor = ((scale_factor - 1) * 0.4) + 1
+    more_decreased_scale_factor = ((scale_factor - 1) * 0.2) + 1
+    scaling = Geom::Transformation.scaling(more_decreased_scale_factor, more_decreased_scale_factor, decreased_scale_factor)
+
     point = Geom::Point3d.new(@position)
     point.z += 1
     translation = Geom::Transformation.translation(point)
-    @user_indicator = Sketchup.active_model.active_entities.add_instance(@user_indicator_definition, translation * additional_transformation * @user_transformation)
+    @user_indicator = Sketchup.active_model.active_entities.add_instance(@user_indicator_definition, translation * additional_transformation * @user_transformation * scaling)
     Sketchup.active_model.commit_operation
   end
 
