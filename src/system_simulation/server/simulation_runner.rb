@@ -99,12 +99,15 @@ class SimulationRunner
   end
 
   def get_spring_extensions
-    run_compilation
-    run_simulation('edge_from_[0-9]+_to_[0-9]+_spring.*')
+    # start at 0.1s to relax the initial forces
+    run_simulation('edge_from_[0-9]+_to_[0-9]+_spring.*', [], 1, 0.1, 0.1)
     result = read_csv
-    frame0 = Hash[result[0].zip(result[1].map{|val| val.to_f})]
+    frame0 = result[0].zip(result[1].map{|val| val.to_f}).to_h
+
     @identifiers_for_springs.map{|spring_id, modelica_spring|
-      [spring_id, frame0["#{modelica_spring}.s_rel0"] - (frame0["#{modelica_spring}.f"] / frame0["#{modelica_spring}.c"])]
+      # [spring_id, @original_json["edges"].find{|edge| spring_id == edge["id"].to_s}["uncompressed_length"] / 1000 - (frame0["#{modelica_spring}.f"] / @constants_for_springs[spring_id])]
+      p frame0["#{modelica_spring}.f"]
+      [spring_id, frame0["#{modelica_spring}.s_rel"] - (frame0["#{modelica_spring}.f_c"] / @constants_for_springs[spring_id])]
     }.to_h
   end
 
@@ -170,7 +173,7 @@ class SimulationRunner
 
   def get_damping_characteristic
     # run the force sweep
-    filters = ["edge_from_[0-9]+_to_[0-9]+_spring.*", ".*energy"]
+    filters = ["edge_from_[0-9]+_to_[0-9]+_spring.*", ".*\\.energy"]
     # overrides = @identifiers_for_springs.select{|id, _| enabled_springs.include?(id)}.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=3000"}.join(",")
     run_simulation(filters.join("|"), [], 3, 0.01, 0)
     result = read_csv_numeric.map do |row|
@@ -194,10 +197,9 @@ class SimulationRunner
       modelica_component_name.match(/(?<=node_)\d+/)
     end
     # run the force sweep
-    filters = [".*energy"]
+    filters = [".*\\.energy", "node_[0-9]+\\.r_0.*", "edge_from_[0-9]+_to_[0-9]+_spring.s_rel", "edge_from_[0-9]+_to_[0-9]+\\.r_CM_0.*"]
     overrides = @identifiers_for_springs.select{|id, _| enabled_springs.include?(id)}.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=3000"}.join(",")
     run_simulation(filters.join("|"), [], 1000, 10, time_far_far_away, overrides)
-
     result_energy = read_csv_numeric.map do |row|
       row_h = row.to_h
       overall_loss_power = 0
