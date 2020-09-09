@@ -12,6 +12,7 @@ RUN autoconf && ./configure --without-CORBA
 RUN make -j 8
 
 RUN ln -s /opt/OpenModelica/OMCompiler/build/bin/omc /usr/local/bin/omc
+RUN echo 'installPackage(Modelica, "3.2.3", exactMatch=true)' > installModelicaStandardLib.mos && omc installModelicaStandardLib.mos
 
 # Ruby Project dependencies
 RUN apt-get install -y ruby-dev ruby-sinatra libgsl0-dev
