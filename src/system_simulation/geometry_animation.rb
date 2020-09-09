@@ -14,6 +14,30 @@ class GeometryAnimation
     # time keeping
     @start_time = Time.now.to_f
 
+    @starting_rotations = {}
+
+    Graph.instance.nodes.each do |_, node|
+      if node.hub.is_user_attached
+        adjacent_hubs = node.adjacent_nodes
+        position = node.position
+        first_node_position = adjacent_hubs[0].position
+        second_node_position = adjacent_hubs[1].position
+
+        vector_one = Geom::Vector3d.new(first_node_position - position).normalize!
+        vector_two = Geom::Vector3d.new(second_node_position - position).normalize!
+        vector_three = vector_one.cross(vector_two).normalize!
+
+        # There seems to be a bug in Sketchup with using the .axes method
+        # see https://forums.sketchup.com/t/skew-transformation-inverse-issue-when-constructed-with-axes-method/49766/3
+        rotation = Geom::Transformation.new([
+                                              vector_one.x, vector_one.y, vector_one.z, 0,
+                                              vector_two.x, vector_two.y, vector_two.z, 0,
+                                              vector_three.x, vector_three.y, vector_three.z, 0,
+                                              0, 0, 0, 1
+                                            ])
+        @starting_rotations[node.id] = rotation.inverse
+      end
+    end
   end
 
   def stop
@@ -50,8 +74,31 @@ class GeometryAnimation
 
       node.update_position(position)
       node.hub.update_position(position)
-      node.hub.update_user_indicator
       node.adjacent_triangles.each { |triangle| triangle.update_sketchup_object if triangle.cover }
+    end
+
+    @starting_rotations.each do |node_id, starting_rotation|
+      node = Graph.instance.nodes[node_id.to_i]
+
+      adjacent_hubs = node.adjacent_nodes
+      position = node.position
+      first_node_position = adjacent_hubs[0].position
+      second_node_position = adjacent_hubs[1].position
+
+      vector_one = Geom::Vector3d.new(first_node_position - position).normalize!
+      vector_two = Geom::Vector3d.new(second_node_position - position).normalize!
+      vector_three = vector_one.cross(vector_two).normalize!
+
+      # There seems to be a bug in Sketchup with using the .axes method
+      # (see above comment in initialize)
+      rotation = Geom::Transformation.new([
+                                            vector_one.x, vector_one.y, vector_one.z, 0,
+                                            vector_two.x, vector_two.y, vector_two.z, 0,
+                                            vector_three.x, vector_three.y, vector_three.z, 0,
+                                            0, 0, 0, 1
+                                          ])
+      transformation = rotation * starting_rotation
+      node.hub.update_user_indicator additional_transformation: transformation
     end
 
     Graph.instance.edges.each do |_, edge|
