@@ -5,8 +5,13 @@ class DataSampleVisualization
 
   TRACE_DOT_ALPHA = 0.6
 
-  def initialize(data_sample, node_id, definition, ratio, is_max_acceleration , draw_red, circle_definition)
+  def initialize(data_sample, node_id, definition, ratio, is_max_acceleration , draw_red, circle_definition, next_data_sample, other_position)
     @data_sample = data_sample
+
+    @next_data_sample = next_data_sample
+
+    @other_position = other_position
+
     @node_id = node_id
     @definition = definition
     @ratio = ratio
@@ -14,6 +19,7 @@ class DataSampleVisualization
     @circle_definition = circle_definition
 
     @position = @data_sample.position_data[@node_id]
+    @movement_vector = @next_data_sample.position_data[@node_id] - @position
     @circle_layer = Sketchup.active_model.layers[Configuration::MOTION_TRACE_VIEW]
     @debugging_layer = Sketchup.active_model.layers.at(Configuration::SPRING_DEBUGGING)
     @circle_instance = nil
@@ -32,14 +38,32 @@ class DataSampleVisualization
     # Transform circle definition to match current data sample
     # dots shouldn't be scaled down below half the original size
     scale_factor = Geometry.clamp(@ratio, 0.5, 1.0)
-    scaling = Geom::Transformation.scaling(scale_factor, 1.0, scale_factor)
+    scaling = Geom::Transformation.scaling(scale_factor * 8, 1.0, scale_factor * 12)
     translation = Geom::Transformation.translation(@position)
-    transformation = translation * scaling
+    # rotation = Geometry.rotation_transformation Geom::Vector3d.new(0, -1, 0), @movement_vector, Geom::Point3d.new
+
+    vector_one = @movement_vector
+    vector_two = (@other_position - @position).cross(@movement_vector).normalize!
+    vector_three = vector_one.cross(vector_two).normalize!
+
+    rotation = Geom::Transformation.new([
+                                          vector_one.x, vector_one.y, vector_one.z, 0,
+                                          vector_two.x, vector_two.y, vector_two.z, 0,
+                                          vector_three.x, vector_three.y, vector_three.z, 0,
+                                          0, 0, 0, 1
+                                        ])
+    translation_above_head = Geom::Transformation.translation(Geom::Vector3d.new(0, 0, 0))
+
+    # rotation = Geom::Transformation.rotation(Geom::Point3d.new, Geometry.perpendicular_rotation_axis(@movement_vector, Geom::Vector3d.new(0, 0, 1)), 0.5)
+    transformation = translation * rotation * translation_above_head * scaling
+
+    # TODO: Make this perpendicular to the line and rotate nicely
 
     color_min_value = 50.0
     color_max_value = 100.0
     color_hue = 117
     color_weight = @ratio * color_min_value
+    color_weight = 1 * color_min_value
 
     @circle_instance = group.entities.add_instance(@circle_definition, transformation)
     @circle_instance.layer = @circle_layer

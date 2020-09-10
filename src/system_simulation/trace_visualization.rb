@@ -77,7 +77,7 @@ class TraceVisualization
 
     @simulation_data.each_with_index do |current_data_sample, index|
       # thin out points in trace
-      # next unless index % _sampling_rate == 0
+      #next unless index % _sampling_rate == 0
 
       position = current_data_sample.position_data[node_id]
 
@@ -103,8 +103,10 @@ class TraceVisualization
       draw_red = true if acceleration.length > 4.mm # TODO: ugly hack to make these dots red puts acceleration.length
       # puts "acceleration_length #{acceleration.length}"
 
+      next_data_sample = @simulation_data[(index + 1)] if index < @simulation_data.length - 1
+      other_position = @simulation_data[0].position_data[node_id]
       viz = DataSampleVisualization.new(current_data_sample, node_id, circle_definition, ratio,
-                                        current_acceleration_is_max, draw_red, circle_definition)
+                                        current_acceleration_is_max, draw_red, circle_definition, next_data_sample, other_position)
       @group = Sketchup.active_model.entities.add_group if @group.deleted?
       @annotations_group = Sketchup.active_model.entities.add_group if @group.deleted?
       @annotations_group.layer = Configuration::MAXIMUM_ACCELERATION_VELOCITY_VIEW
@@ -157,10 +159,10 @@ class TraceVisualization
 
   def create_circle_definition
     circle_definition = Sketchup.active_model.definitions.add "Circle Trace Visualization"
-    circle_definition.behavior.always_face_camera = true
+    # circle_definition.behavior.always_face_camera = true
     entities = circle_definition.entities
     # always_face_camera will try to always make y axis face the camera
-    edgearray = entities.add_circle(Geom::Point3d.new, Geom::Vector3d.new(0, -1, 0), 1, 10)
+    edgearray = entities.add_circle(Geom::Point3d.new, Geom::Vector3d.new(1, 0, 0), 1, 20)
     edgearray.each { |e| e.hidden = true }
     first_edge = edgearray[0]
     arccurve = first_edge.curve
