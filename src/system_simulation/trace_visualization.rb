@@ -82,6 +82,7 @@ class TraceVisualization
       position = current_data_sample.position_data[node_id]
 
       curve_points << position
+      next
 
       # only plot dots for first period, after that only draw the curve line
       break if current_data_sample.time_stamp.to_f >= trace_time_limit
