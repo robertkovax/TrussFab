@@ -5,24 +5,31 @@ model LineForceGenerated
   input Real <%= component[:name] %>_force_in(start = 0);
   output Real <%= component[:name] %>_pos_out(start = <%= component[:z_start] %>);<% end %>
 
+  parameter Real releaseEnergy=1000;
+  Boolean released(start=false);
+  Real systemEnergy;
+  Real nettoSystemEnergy;
+  Real startEnergy(start=0);
+
   <% modelica_components.each do |component| %>
-  <% if component.is_a?(Modelica_LineForceWithMass) %> CustomLineForce <%= component[:name] %>(m = <%= component[:mass] %>);
+  <% if component.is_a?(Modelica_LineForceWithMass) %> LineForce <%= component[:name] %>(m = <%= component[:mass] %>);
   <% elsif component.is_a?(Modelica_1DForce) %>
-  Modelica.Blocks.Sources.Ramp <%= component[:name] %>_ramp(duration=200, startTime= 200);
+  Modelica.Blocks.Sources.Ramp <%= component[:name] %>_ramp(duration=200, startTime=200);
   Modelica.Mechanics.Translational.Sources.Force2 <%= component[:name] %>;
-  <% elsif component.is_a?(Modelica_Spring) %> CustomSpring <%= component[:name] %>(c = <%= component[:c] %>, d = 100, s_rel0 = <%= component[:uncompressed_length] %>);
+  <% elsif component.is_a?(Modelica_Spring) %> Spring <%= component[:name] %>(c = <%= component[:c] %>, d = 100, s_rel0 = <%= component[:uncompressed_length] %>, s_rel(start = <%= component[:uncompressed_length] %>));
 <% elsif component.is_a?(Modelica_Force) %> Modelica.Mechanics.MultiBody.Forces.WorldForce <%= component[:name] %>(force = <%= component[:name] %>_val);
   Real <%= component[:name] %>_val [3];
-  <% elsif component.is_a?(Modelica_PointMass) %> CustomPointMass <%= component[:name] %>(m = <%= component[:mass] %><% unless component[:x_start].nil? or component[:y_start].nil? or component[:z_start].nil? %>, r_0(fixed = true, start = <%= "{#{component[:x_start]}, #{component[:y_start]}, #{component[:z_start]}}" %>)<% end %>);
+  <% elsif component.is_a?(Modelica_PointMass) %> PointMass <%= component[:name] %>(m = <%= component[:mass] %><% unless component[:x_start].nil? or component[:y_start].nil? or component[:z_start].nil? %>, r_0(fixed = false, start = <%= "{#{component[:x_start]}, #{component[:y_start]}, #{component[:z_start]}}" %>)<% end %>);
   <% elsif component.is_a?(Modelica_Fixture) %> Modelica.Mechanics.MultiBody.Parts.Fixed <%= component[:name] %>(r = <%= "{#{component[:x]}, #{component[:y]}, #{component[:z]}}" %>, animation=false);
   <% end %><% end %>
+
 equation
 
   <% modelica_connections.each do |connection| %>
   connect(<%= connection[:from] %>, <%= connection[:to] %>);<% end %>
 
   <% modelica_components.select{|component| component.is_a?(Modelica_LineForceWithMass)}.each do |component| %>
-  <%= component[:name] %>_force.f = -sqrt( <%= component[:name] %>_force_ramp.y * <%= component[:name] %>_spring.c);
+  <%= component[:name] %>_force.f = if released then 0 else -sqrt( <%= component[:name] %>_force_ramp.y * <%= component[:name] %>_spring.c);
   <% end %>
 
   <% modelica_components.select{|component| component.is_a?(Modelica_PointMass)}.each do |component| %>
@@ -35,4 +42,10 @@ equation
    <%= component[:name] %>_force_val = {0,0,0};
   <% end %>
   <% end %>
+
+  released = pre(released) or (nettoSystemEnergy >= releaseEnergy);
+  systemEnergy = <%= modelica_components.select{|component| component.is_a?(Modelica_LineForceWithMass) or component.is_a?(Modelica_Spring) or component.is_a?(Modelica_PointMass)}.map{ |component| "#{component[:name]}.energy" }.join("\n+ ") %>;
+  nettoSystemEnergy = systemEnergy - startEnergy;
+  startEnergy = if time == 200 then pre(systemEnergy) else pre(startEnergy);
+
 end LineForceGenerated;

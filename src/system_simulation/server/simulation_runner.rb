@@ -59,7 +59,7 @@ class SimulationRunner
     @model_name = model_name
     @original_json = original_json
     @compilation_options = '--maxMixedDeterminedIndex=100'
-    @simulation_options = '-lv=LOG_STATS -emit_protected -s=ida -ls=umfpack'
+    @simulation_options = '-lv=LOG_STATS,LOG_EVENTS -emit_protected -s=ida -ls=umfpack'
 
     if suppress_compilation
       @directory = File.dirname(__FILE__)
@@ -71,19 +71,9 @@ class SimulationRunner
       run_compilation
     end
 
-    update_spring_constants(spring_constants)
-    @identifiers_for_springs = spring_identifiers
-
-    @mounted_users = mounted_users
-
-  end
-
-  def update_spring_constants(spring_constants)
-    # maps spring edge id => spring constant
     @constants_for_springs = spring_constants
-    # TODO: this just mocks the mapping between springs and the corresponding revolute joint angles. Will be changed
-    # TODO: as soon as we generate the geometry dynamically.
-    @angles_for_springs = { 21 => 'revRight.phi', 25 => 'revLeft.phi' }
+    @identifiers_for_springs = spring_identifiers
+    @mounted_users = mounted_users
   end
 
   def update_mounted_users(mounted_users)
@@ -172,21 +162,61 @@ class SimulationRunner
   end
 
   def get_damping_characteristic
+    require "gsl"
+
     # run the force sweep
     filters = ["edge_from_[0-9]+_to_[0-9]+_spring.*", ".*\\.energy"]
     # overrides = @identifiers_for_springs.select{|id, _| enabled_springs.include?(id)}.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=3000"}.join(",")
-    run_simulation(filters.join("|"), [], 3, 0.01, 0)
+    run_simulation(filters.join("|"), [], 10, 0.05, 0)
     result = read_csv_numeric.map do |row|
       row_h = row.to_h
       overall_loss_power = 0
       row_h.map{|key, value|
-        if key.include?("dampedAwayEnergy")
+        if key.include?("energy")
           overall_loss_power += value
         end
       }
       overall_loss_power
     end
-    result
+    time = read_csv_numeric.map{|row| row["time"]}
+
+    p result
+    min_val = result.min
+    result = result.map { |e| e -  min_val + 0.001 }
+
+    # Fitting
+    time_vector = time.drop(1).to_gv
+    result_vector = result.drop(1).map{|i| Math.log(i)}.to_gv
+
+    a2, b2, = GSL::Fit.linear(time_vector, result_vector)
+    a = Math.exp(a2)
+    p a, b2
+    c = min_val
+
+    p time.map{|x| a * Math::E**(b2 * x) + c}
+  end
+
+  def get_preload_release_time_series(prelaod_energy=0, enabled_springs=[])
+    max_energy_ramp_per_spring = 3000
+    enabled_springs = enabled_springs.map{|elem| elem.to_i }
+
+    preloaded_springs = @identifiers_for_springs.select{|id, _| enabled_springs.include?(id.to_i)}
+    p @identifiers_for_springs
+    if preloaded_springs.empty?
+      raise "no valid spring was selected; aborting preloading"
+    end
+
+    filters = [NODE_RESULT_FILTER, "systemEnergy", "released", "startEnergy", "nettoSystemEnergy"]
+    overrides = preloaded_springs.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=#{max_energy_ramp_per_spring}"}
+    overrides += ["releaseEnergy=#{prelaod_energy}"]
+
+    data = []
+    simulation_time = Benchmark.realtime { run_simulation(filters.join("|"), [], 200, 1, 200, overrides.join(",")) }
+    import_time = Benchmark.realtime { data = read_csv }
+    puts("simulation time: #{simulation_time}s csv parsing time: #{import_time}s")
+    p data.map{ |row| row[data[0].find_index("released")]}.drop(1)
+    p data.map{ |row| row[data[0].find_index("nettoSystemEnergy")]}.drop(1)
+    data.select{|row| row[data[0].find_index("released")] == "1" }
   end
 
   def get_preloaded_positions(prelaod_energy=100, enabled_springs=[])
@@ -254,27 +284,6 @@ class SimulationRunner
 
   def linearize
     run_linearization
-  end
-
-  # Returns index of animation frame when system is in equilibrium by finding the arithmetic mean of the angle
-  # differences and the according index.
-  def find_equilibrium(spring_id)
-    run_simulation(@angles_for_springs[spring_id])
-    raw_data = read_csv
-
-    # remove initial data point, the header
-    raw_data.shift
-    angles = raw_data.map { |data_sample| data_sample[1].to_f }
-
-    # center of oscillation
-    equilibrium_angle = angles.min + (angles.max - angles.min) / 2
-    equilibrium_data_row = raw_data.min_by do |data_row|
-      # find data row with angle that is the closest to the equilibrium
-      # (can't check for equality since we only have samples in time)
-      (equilibrium_angle - data_row[1].to_f).abs
-    end
-
-    raw_data.index(equilibrium_data_row)
   end
 
   # OPTIMIZATION LOGIC
@@ -426,9 +435,9 @@ class SimulationRunner
   end
 
   def run_compilation
-    Open3.capture2e("cp #{@model_name}.mo  #{@directory}", chdir: File.dirname(__FILE__))
+    Open3.capture2e("cp *.mo  #{@directory} && cp ./modelica_assets/*.mo", chdir: File.dirname(__FILE__))
 
-    dependencies = ['CustomSpring.mo', 'CustomPointMass.mo', 'CustomLineForce.mo', 'Modelica']
+    dependencies = ['Spring.mo', 'PointMass.mo', 'LineForce.mo', 'Fixture.mo', 'Modelica']
 
     # copy custom modelica files
     dependencies.select{ |item| item.end_with?(".mo") }.each do |file_name|
@@ -448,7 +457,7 @@ class SimulationRunner
     end
   end
 
-  def run_simulation(filter = '*', force_vectors = [], length = 6, resolution = 0.025, start=0.0, additional_overrides = "")
+  def run_simulation(filter = '*', force_vectors = [], length = 6, resolution = 0.025, start=0.01, additional_overrides = "")
     # TODO: adjust sampling rate dynamically
     overrides = "outputFormat=csv,variableFilter=#{filter},startTime=#{start},stopTime=#{start + length},stepSize=#{resolution}," \
                 "#{force_vector_string(force_vectors)},#{override_constants_string},#{additional_overrides}"

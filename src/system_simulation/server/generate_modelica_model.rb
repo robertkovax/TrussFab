@@ -41,6 +41,7 @@ class ModelicaModelGenerator
 
     nodes.each { |key, node|
       node[:visited] = false
+      # TODO get rid of all things concerning the primary edge and connect it to the node instead
       node[:primary_edge] = nil
       node[:connecting_edges] = Array.new
       node[:is_user] = json_model['mounted_users'] && json_model['mounted_users'][key.to_s] == true

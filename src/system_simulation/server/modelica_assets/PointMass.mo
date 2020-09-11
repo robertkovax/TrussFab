@@ -1,4 +1,4 @@
-model CustomPointMass
+model PointMass
   "Rigid body where body rotation and inertia tensor is neglected (6 potential states)"
 
   import Modelica.Mechanics.MultiBody.Types;
@@ -72,4 +72,4 @@ equation
   pot_energy = r_0[3] * m * 9.81;
   kin_energy = 0.5 * m * Modelica.Math.Vectors.length(v_0)^2;
   energy = kin_energy + pot_energy;
-end CustomPointMass;
+end PointMass;
