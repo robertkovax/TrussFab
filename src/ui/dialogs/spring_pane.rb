@@ -137,6 +137,7 @@ class SpringPane
   end
 
   def update_trace_visualization(force_simulation = true)
+    Sketchup.active_model.start_operation("visualize trace", true)
     # update simulation data and visualizations with adjusted results
     simulate if force_simulation
 
@@ -152,6 +153,7 @@ class SpringPane
       puts "No user stats for node #{node_id}"
       return
     end
+    Sketchup.active_model.commit_operation
     @animation = PeriodAnimation.new(@simulation_data, @user_stats[node_id]['period'], node_id) do
       @period_animation_running = false
       update_dialog
