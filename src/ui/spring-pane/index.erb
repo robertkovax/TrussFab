@@ -113,6 +113,7 @@
     <%
       user_index = 0
       mounted_users.each { |node_id, user_weight|
+        next if user_weight < 1
         user_index += 1
         stats = @user_stats[node_id]
         digits_precision = 2

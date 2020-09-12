@@ -144,7 +144,7 @@ class SpringLink < ActuatorLink
   end
 
   def set_piston_group_color
-    @second_cylinder.material = COLORS[@piston_group]
+    #@second_cylinder.material = COLORS[@piston_group]
   end
 
   def update_id_label
