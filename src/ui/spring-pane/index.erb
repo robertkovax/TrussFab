@@ -181,12 +181,11 @@
       </div> -->
 
       <div class="mb-5 col-md-6">
-        light <span style="float:right">heavy</span>
+        weight <span class="font-weight-bold weightValue<%= node_id %>" style="float:right"></span>
         <input id="mass_<%= node_id %>" type="range" value="<%= user_weight %>" class="custom-range pt-3" min="10" max="100" step="5" onchange="window.sketchup.user_weight_change(<%= node_id %>, this.value);"  style="text-align: right;">
-        <span class="font-weight-bold weightValue<%= node_id %>" style="float:right"></span>
       </div>
         <div class="mb-3 col-md-6">
-        comfort <span style="float:right">excitement</span>
+        comfortable <span style="float:right">exciting</span>
         <input type="range" class="custom-range pt-3" id="comfort_excitement" min="0" max="100" step="5" value="50" onchange="window.sketchup.user_excitement_change(<%= node_id %>, this.value);">
       </div>
       </div>
