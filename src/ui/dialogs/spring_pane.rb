@@ -121,6 +121,13 @@ class SpringPane
     update_dialog if @dialog
   end
 
+  def update_mounted_users_excitement
+    SimulationRunnerClient.update_mounted_users_excitement(mounted_users_excitement)
+
+    update_stats unless @pending_compilation
+    update_dialog if @dialog
+  end
+
   def update_stats
     mounted_users.keys.each do |node_id|
       stats = SimulationRunnerClient.get_user_stats(node_id)
@@ -301,6 +308,17 @@ class SpringPane
     mounted_users
   end
 
+  def mounted_users_excitement
+    excitement = {}
+    Graph.instance.nodes.each do |node_id, node|
+      hub = node.hub
+      next unless hub.is_user_attached
+
+      excitement[node_id] = hub.user_excitement
+    end
+    excitement
+  end
+
   private
 
   def constants_for_springs
@@ -454,6 +472,14 @@ class SpringPane
       puts "Update user weight: #{weight}"
 
       # TODO: probably this is a duplicate call, cleanup this updating the dialog logic
+      update_dialog if @dialog
+    end
+    @dialog.add_action_callback('user_excitement_change') do |_, node_id, value|
+      excitement = value.to_i
+      Graph.instance.nodes[node_id].hub.user_excitement = excitement
+      update_mounted_users_excitement
+      update_trace_visualization true
+      puts "Update user excitement: #{excitement}"
       update_dialog if @dialog
     end
   end

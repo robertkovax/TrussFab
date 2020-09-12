@@ -187,7 +187,7 @@
       </div>
         <div class="mb-3 col-md-6">
         comfort <span style="float:right">excitement</span>
-        <input type="range" class="custom-range pt-3" id="comfort_excitement" min="0" max="100" step="5" value="50">
+        <input type="range" class="custom-range pt-3" id="comfort_excitement" min="0" max="100" step="5" value="50" onchange="window.sketchup.user_excitement_change(<%= node_id %>, this.value);">
       </div>
       </div>
       </div>

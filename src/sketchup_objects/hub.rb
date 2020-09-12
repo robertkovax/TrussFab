@@ -4,7 +4,7 @@ require 'src/simulation/simulation.rb'
 
 # Hub
 class Hub < PhysicsSketchupObject
-  attr_accessor :position, :body, :mass, :arrow
+  attr_accessor :position, :body, :mass, :arrow, :user_excitement
   attr_reader :force, :is_user_attached, :user_transformation, :user_indicator_filename, :user_weight
 
   def initialize(position, id: nil, incidents: nil, material: 'hub_material')
@@ -25,6 +25,7 @@ class Hub < PhysicsSketchupObject
     @user_indicator = nil
     # force the user applies on that hub in newton
     @user_weight = 0
+    @user_excitement = 50
     @user_transformation = Geom::Transformation.new
     update_id_label
     persist_entity
