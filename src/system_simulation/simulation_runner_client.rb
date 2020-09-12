@@ -31,6 +31,14 @@ class SimulationRunnerClient
     patch_updated_data('update_mounted_users', JSON.pretty_generate(mounted_users))
   end
 
+  def self.update_mounted_users_excitement(excitement)
+    p "update_mounted_users_excitement"
+    p JSON.pretty_generate(excitement)
+    patch_updated_data('update_mounted_users_excitement', JSON.pretty_generate(excitement))
+
+
+  end
+
   def self.patch_updated_data(route, json_data)
     p "server request: patch_updated_data"
     uri = URI.parse("#{SIMULATION_RUNNER_HOST}/#{route}")

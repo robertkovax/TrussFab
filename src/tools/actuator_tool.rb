@@ -7,6 +7,30 @@ class ActuatorTool < LinkTool
     super(ui, link_type)
   end
 
+  def activate
+    selection = Sketchup.active_model.selection
+    return if selection.nil? or selection.empty?
+
+    edges = []
+    selection.each do |entity|
+      next if entity.nil? || entity.deleted?
+
+      type = entity.get_attribute('attributes', :type)
+      id = entity.get_attribute('attributes', :id)
+
+      next if type.nil? || id.nil?
+
+      if type.include? "Link"
+        edge = Graph.instance.edges[id]
+        edges.push(edge) if edge
+      end
+    end
+
+    edges.each do |edge|
+      change_link_to_physics_link Sketchup.active_model.active_view, edge
+    end
+  end
+
   def onLButtonDown(flags, x, y, view)
     @mouse_input.update_positions(view, x, y)
     obj = @mouse_input.snapped_object

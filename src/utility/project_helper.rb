@@ -91,7 +91,12 @@ module ProjectHelper
 
     unless layers[Configuration::SPRING_INSIGHTS]
       spring_insights_layer = layers.add(Configuration::SPRING_INSIGHTS)
-      spring_insights_layer.visible = true
+      spring_insights_layer.visible = false
+    end
+
+    unless layers[Configuration::MAXIMUM_ACCELERATION_VELOCITY_VIEW]
+      maximum_acceleration_layer = layers.add(Configuration::MAXIMUM_ACCELERATION_VELOCITY_VIEW)
+      maximum_acceleration_layer.visible = false
     end
 
     unless layers[Configuration::SPRING_DEBUGGING]

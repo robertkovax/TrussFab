@@ -1,6 +1,6 @@
 <html>
 <head>
-  <title>Spring Modifications</title>
+  <title>Dynamic Exploration</title>
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -73,7 +73,7 @@
 </head>
 <body>
 
-<div class="card m-2 p-2">
+<!-- <div class="card m-2 p-2">
   <h5 class="card-title">Modify spring parameters</h5>
   <div class="card-body">
     <% @spring_edges.each { |spring_edge| %>
@@ -106,17 +106,33 @@
 
   </div>
 </div>
+-->
 <div class="card m-2 p-2">
-  <h5 class="card-title">User parameters</h5>
-  <div class="card-body">
+  <h5 class="card-title">Users</h5>
+  <div class="card-body m-0 p-0">
     <%
+      user_index = 0
       mounted_users.each { |node_id, user_weight|
+        user_index += 1
         stats = @user_stats[node_id]
         digits_precision = 2
     %>
 
-      <h6>#<%= node_id %></h6>
-      <div class="row">
+      <script>$(document).ready(function() {
+
+      const $valueSpan = $('.weightValue<%= node_id %>');
+      const $value = $('#mass_<%= node_id %>');
+      $valueSpan.html($value.val() + "kg");
+      $value.on('input change', () => {
+
+      $valueSpan.html($value.val() + "kg");
+      });
+      });
+      </script>
+      <div class="card m-1 p-1">
+      <h6 class="card-title">User #<%= user_index %></h6>
+      <div class="card-body">
+      <!--<div class="row">
         <div class="col-6">
           <div class="input-group mb-3">
             <div class="input-group-prepend">
@@ -133,7 +149,6 @@
             <div class="input-group-prepend">
               <span class="input-group-text text-monospace">m</span>
             </div>
-            <input id="mass_<%= node_id %>" type="text" value="<%= user_weight %>" class="form-control" onchange="window.sketchup.user_weight_change(<%= node_id %>, this.value);"  style="text-align: right;">
             <div class="input-group-append">
               <span class="input-group-text text-monospace">kg</span>
             </div>
@@ -163,26 +178,19 @@
             </div>
           </div>
         </div>
+      </div> -->
+
+      <div class="mb-5 col-md-6">
+        weight <span class="font-weight-bold weightValue<%= node_id %>" style="float:right"></span>
+        <input id="mass_<%= node_id %>" type="range" value="<%= user_weight %>" class="custom-range pt-3" min="10" max="100" step="5" onchange="window.sketchup.user_weight_change(<%= node_id %>, this.value);"  style="text-align: right;">
+      </div>
+        <div class="mb-3 col-md-6">
+        comfortable <span style="float:right">exciting</span>
+        <input type="range" class="custom-range pt-3" id="comfort_excitement" min="0" max="100" step="5" value="50" onchange="window.sketchup.user_excitement_change(<%= node_id %>, this.value);">
+      </div>
+      </div>
       </div>
     <%  } %>
-  </div>
-  <div class="card m-2 p-2">
-    <h5 class="card-title">Preloading</h5>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-12">
-          <div class="input-group mb-6">
-            <div class="input-group-prepend">
-              <span class="input-group-text text-monospace">E<sub>max</sub></span>
-            </div>
-            <input id="energy" type="text" value="<%= @energy.to_s %>" class="form-control" style="text-align: right;" onchange="window.sketchup.spring_insights_energy_change(this.value);">
-            <div class="input-group-append">
-              <span class="input-group-text text-monospace">J</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 <div class="card m-2 p-2">
@@ -194,11 +202,11 @@
             <button type="button" class="close" data-dismiss="alert">&times;</button>
         </div>
       <% end %>
-      <button class="btn btn-warning mb-3 col-md-6" onClick="window.sketchup.spring_insights_compile()">
+      <!-- <button class="btn btn-warning mb-3 col-md-6" onClick="window.sketchup.spring_insights_compile()">
         compile
       </button>
 
-      <button class="btn btn-warning mb-3 col-md-6" onClick="window.sketchup.spring_insights_simulate()">
+      <button class="btn btn-primary mb-3 col-md-6" onClick="window.sketchup.spring_insights_simulate()">
         simulate
       </button>
 
@@ -208,20 +216,23 @@
 
       <button class="btn btn-warning mb-3 col-md-6" onClick="window.sketchup.spring_insights_reset_hubs()">
         reset
-      </button>
+      </button> -->
 
-      <button class="btn <% if @animation_running %>btn-danger<% else %>btn-primary<% end %> animation mb-3 col-md-6"
+      <button class="btn <% if @animation_running %>btn-danger<% else %>btn-primary<% end %> animation mb-0 col-md-6"
               onClick="window.sketchup.spring_insights_toggle_play()">
         <% if @animation_running %>stop<% else %>play<% end %> animation
       </button>
-      <button class="btn btn-primary mb-3 col-md-6" onClick="window.sketchup.spring_insights_optimize()">
+      <!-- <button class="btn btn-primary mb-3 col-md-6" onClick="window.sketchup.spring_insights_optimize()">
         optimize
-      </button>
+      </button> -->
+      <!-- <button class="btn btn-primary mb-3 col-md-6" onClick="window.sketchup.spring_insights_optimize()">
+        optimize for fun
+      </button>-->
     </div>
   </div>
 </div>
-<canvas id="bodePlotMagnitude" width="400" height="400"></canvas>
-<canvas id="bodePlotPhase" width="400" height="400"></canvas>
+<!-- <canvas id="bodePlotMagnitude" width="400" height="400"></canvas>
+<canvas id="bodePlotPhase" width="400" height="400"></canvas> -->
 
 </body>
 </html>

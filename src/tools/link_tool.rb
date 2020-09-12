@@ -18,6 +18,12 @@ class LinkTool < Tool
   #
   # Sketchup Tool methods
   #
+  def activate
+    Sketchup.active_model.selection.each do |element|
+      next unless element.kind_of? Sketchup::Edge
+      create_link element.start.position, element.end.position
+    end
+  end
 
   def deactivate(view)
     super

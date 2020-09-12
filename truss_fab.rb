@@ -102,6 +102,11 @@ module TrussFab
     def get_spring_pane
       @spring_pane
     end
+
+    # Just use this for debugging in the console
+    def get_animation_pane
+      @animation_pane
+    end
   end
 end
 

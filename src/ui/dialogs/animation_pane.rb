@@ -37,10 +37,16 @@ class AnimationPane
     @dialog = UI::HtmlDialog.new(props)
     file = File.join(File.dirname(__FILE__), HTML_FILE)
     @dialog.set_file(file)
-    #@dialog.show
+
+    # Disable Actuator animation pane
+    # @dialog.show
 
     register_callbacks
     @dialog
+  end
+
+  def show_dialog
+    @dialog.show
   end
 
   def close_dialog

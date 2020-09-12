@@ -11,6 +11,7 @@ class UserIndicatorModel
     name, default_weight = basename.split('-')
     @name = name
     @default_weight = default_weight.to_i
+    @default_weight = Configuration::HUB_MASS if @default_weight.zero?
   end
 
   def valid?

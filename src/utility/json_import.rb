@@ -249,8 +249,8 @@ module JsonImport
         end
         if edge.link.is_a?(SpringLink)
           spring_parameter_k = edge_json['spring_parameter_k']
-          spring_parameter_k = 3500 if spring_parameter_k.nil? # TODO: global default
-          mount_offset = 0.15 # TODO: global default
+          spring_parameter_k = Configuration::SPRING_DEFAULT_K if spring_parameter_k.nil?
+          mount_offset = Configuration::SPRING_MOUNT_OFFSET
           edge.link.spring_parameters = SpringPicker.instance.get_spring(
             spring_parameter_k,
             edge.length.to_m - mount_offset

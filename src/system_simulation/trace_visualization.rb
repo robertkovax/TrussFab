@@ -10,6 +10,10 @@ class TraceVisualization
     # Group containing trace circles.
     @group = Sketchup.active_model.active_entities.add_group
 
+    # Group containing velocity / acceleration annotations
+    @annotations_group = Sketchup.active_model.active_entities.add_group
+    @annotations_group.layer = Configuration::MAXIMUM_ACCELERATION_VELOCITY_VIEW
+
     # List of trace circles.
     @trace_points = []
 
@@ -27,12 +31,8 @@ class TraceVisualization
   end
 
   def reset_trace
-    if @group && !@group.deleted?
-      Sketchup.active_model.active_entities.erase_entities(@group.entities.to_a)
-    end
-    if @trace_points.count > 0
-      Sketchup.active_model.active_entities.erase_entities(@trace_points)
-    end
+    Sketchup.active_model.active_entities.erase_entities(@group.entities.to_a) if @group && !@group.deleted?
+    Sketchup.active_model.active_entities.erase_entities(@trace_points) if @trace_points.count > 0
     @trace_points = []
     @visualizations = []
 
@@ -98,18 +98,25 @@ class TraceVisualization
         add_label(position, position.offset(Geom::Vector3d.new(0, 10.cm, 0)),"#{max_acceleration.round(3)}m/s^2 ")
       end
 
+      racceleration = stats["time_acceleration"][index]
+      acceleration = Geom::Vector3d.new(racceleration["x"].mm, racceleration["y"].mm, racceleration["z"].mm)
+      draw_red = true if acceleration.length > 4.mm # TODO: ugly hack to make these dots red puts acceleration.length
+      # puts "acceleration_length #{acceleration.length}"
+
       viz = DataSampleVisualization.new(current_data_sample, node_id, circle_definition, ratio,
-                                        current_acceleration_is_max, circle_definition)
+                                        current_acceleration_is_max, draw_red, circle_definition)
       @group = Sketchup.active_model.entities.add_group if @group.deleted?
+      @annotations_group = Sketchup.active_model.entities.add_group if @group.deleted?
+      @annotations_group.layer = Configuration::MAXIMUM_ACCELERATION_VELOCITY_VIEW
       viz.add_dot_to_group(@group)
 
       raw_velocity = stats["time_velocity"][index]
       velocity = Geom::Vector3d.new(raw_velocity["x"].mm, raw_velocity["y"].mm, raw_velocity["z"].mm)
-      viz.add_velocity_to_group(@group, velocity)
+      viz.add_velocity_to_group(@annotations_group, velocity)
 
       raw_acceleration = stats["time_acceleration"][index]
       acceleration = Geom::Vector3d.new(raw_acceleration["x"].mm, raw_acceleration["y"].mm, raw_acceleration["z"].mm)
-      viz.add_acceleration_to_group(@group, acceleration)
+      viz.add_acceleration_to_group(@annotations_group, acceleration) if current_acceleration_is_max
 
       @visualizations << viz
 

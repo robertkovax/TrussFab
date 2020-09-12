@@ -15,6 +15,7 @@ module Configuration
   HINGE_VIEW = 'Hinge lines'.freeze
   ACTUATOR_VIEW = 'Actuators'.freeze
   MOTION_TRACE_VIEW = 'Motion Trace'.freeze
+  MAXIMUM_ACCELERATION_VELOCITY_VIEW = 'Maximum Acceleration'.freeze
 
   # UI Dialog Properties
   HTML_DIALOG = {
@@ -84,7 +85,6 @@ module Configuration
   INTENSE_COLORS = %w[#e6261f #f7d038 #4355db #d23b37 #34bbe6 #49da9a #a3e048].freeze
   # These are the same colors, but with saturation lower, and a little bit shuffled, to prevent collisions
   UNINTENSE_COLORS = %w[#dcdcdc #696969 #202020 #808080 #c0c0c0].freeze
-
 
   # Ground Stuff
   GROUND_COLOR          = Sketchup::Color.new(1.0, 1.0, 1.0)
@@ -167,4 +167,8 @@ module Configuration
   PLACE_SPRING_ANIMATIONS = false
   # Amplification factor for the apply force vector tool
   FORCE_AMPLIFICATION_FACTOR = 10
+  # Spring mount offset
+  SPRING_MOUNT_OFFSET = 0.15
+  # Default spring k
+  SPRING_DEFAULT_K = 3500
 end

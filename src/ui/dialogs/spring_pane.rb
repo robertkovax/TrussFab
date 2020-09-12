@@ -105,8 +105,7 @@ class SpringPane
   end
 
   def get_spring(edge, new_constant)
-    # TODO: calculate mount_offset
-    mount_offset = 0.15
+    mount_offset = Configuration::SPRING_MOUNT_OFFSET
     @spring_picker.get_spring(new_constant, edge.length.to_m - mount_offset)
   end
 
@@ -117,6 +116,13 @@ class SpringPane
 
   def update_mounted_users
     SimulationRunnerClient.update_mounted_users(mounted_users)
+
+    update_stats unless @pending_compilation
+    update_dialog if @dialog
+  end
+
+  def update_mounted_users_excitement
+    SimulationRunnerClient.update_mounted_users_excitement(mounted_users_excitement)
 
     update_stats unless @pending_compilation
     update_dialog if @dialog
@@ -142,6 +148,10 @@ class SpringPane
     # Visualized period
     #  TODO: make this work for multiple users and move into seperate method
     node_id = mounted_users.keys.first
+    if @user_stats.nil? || @user_stats[node_id].nil?
+      puts "No user stats for node #{node_id}"
+      return
+    end
     @animation = PeriodAnimation.new(@simulation_data, @user_stats[node_id]['period'], node_id) do
       @period_animation_running = false
       update_dialog
@@ -283,7 +293,6 @@ class SpringPane
     end
     Sketchup.active_model.commit_operation
     puts "Compiled the modelica model in #{compile_time.round(2)} seconds."
-    color_static_groups
     @pending_compilation = false
     update_dialog if @dialog
   end
@@ -299,26 +308,18 @@ class SpringPane
     mounted_users
   end
 
-  private
+  def mounted_users_excitement
+    excitement = {}
+    Graph.instance.nodes.each do |node_id, node|
+      hub = node.hub
+      next unless hub.is_user_attached
 
-  def preload_springs
-    # 1. Calculate potential energy
-    # TODO: still open
-    total_energy = 150
-
-    constants = constants_for_springs;
-
-    @spring_edges.map(&:link).each do |link|
-      # 2. distribute it (equally for now) onto all springs
-      energy_share = total_energy / @spring_edges.length
-      # 3. convert energy share into precompression
-      compression = Math.sqrt((2 * energy_share) / link.spring_parameters[:k])
-      # 4. shrink edge
-      relaxation = Relaxation.new
-      relaxation.stretch_to(link.edge, (link.initial_edge_length.to_m - compression).to_mm)
-      relaxation.relax
+      excitement[node_id] = hub.user_excitement
     end
+    excitement
   end
+
+  private
 
   def constants_for_springs
     spring_constants = {}
@@ -330,6 +331,7 @@ class SpringPane
 
   # "4"=>Point3d(201.359, -30.9042, 22.6955), "5"=>Point3d(201.359, -56.2592, 15.524)}
   def preload_geometry_to(position_data)
+    Sketchup.active_model.start_operation('Set geometry to preloading positions', true)
     position_data.each do |node_id, position|
       node = Graph.instance.nodes[node_id.to_i]
       next unless node
@@ -337,16 +339,24 @@ class SpringPane
       update_node_position(node, position)
     end
 
+    position_data.each do |node_id, _|
+      node = Graph.instance.nodes[node_id.to_i]
+      next unless node
+
+      node.update_sketchup_object
+    end
+
     Graph.instance.edges.each do |_, edge|
       link = edge.link
       link.update_link_transformations
     end
+    Sketchup.active_model.commit_operation
   end
 
   def update_node_position(node, position)
     node.update_position(position)
-    node.hub.update_position(position)
-    node.hub.update_user_indicator
+    #node.hub.update_position(position)
+    #node.hub.update_user_indicator
     node.adjacent_triangles.each { |triangle| triangle.update_sketchup_object if triangle.cover }
   end
 
@@ -397,6 +407,18 @@ class SpringPane
     Sketchup.active_model.active_view.animation = @animation
   end
 
+  def preload_springs
+    Graph.instance.nodes.each do |node_id, node|
+      @initial_hub_positions[node_id] = node.position
+    end
+    # "4"=>Point3d(201.359, -30.9042, 22.6955), "5"=>Point3d(201.359, -56.2592, 15.524)}
+    preloading_enabled_spring_ids = @spring_edges.map(&:link).select { |link| link.spring_parameters[:enable_preloading]}.map(&:id)
+    @trace_visualization.reset_trace
+
+    position_data = SimulationRunnerClient.get_preload_positions(@energy, preloading_enabled_spring_ids).position_data
+    preload_geometry_to position_data
+  end
+
   def register_callbacks
     @dialog.add_action_callback('spring_constants_change') do |_, spring_id, value|
       update_constant_for_spring(spring_id, value.to_i)
@@ -413,14 +435,7 @@ class SpringPane
     end
 
     @dialog.add_action_callback('spring_insights_preload') do
-      Graph.instance.nodes.each do | node_id, node |
-        @initial_hub_positions[node_id] = node.position
-      end
-      # "4"=>Point3d(201.359, -30.9042, 22.6955), "5"=>Point3d(201.359, -56.2592, 15.524)}
-      preloading_enabled_spring_ids = @spring_edges.map(&:link).select { |link| link.spring_parameters[:enable_preloading]}.map(&:id)
-
-      position_data = SimulationRunnerClient.get_preload_positions(@energy, preloading_enabled_spring_ids).position_data
-      preload_geometry_to position_data
+      preload_springs
     end
 
     @dialog.add_action_callback('spring_insights_compile') do
@@ -457,6 +472,14 @@ class SpringPane
       puts "Update user weight: #{weight}"
 
       # TODO: probably this is a duplicate call, cleanup this updating the dialog logic
+      update_dialog if @dialog
+    end
+    @dialog.add_action_callback('user_excitement_change') do |_, node_id, value|
+      excitement = value.to_i
+      Graph.instance.nodes[node_id].hub.user_excitement = excitement
+      update_mounted_users_excitement
+      update_trace_visualization true
+      puts "Update user excitement: #{excitement}"
       update_dialog if @dialog
     end
   end
