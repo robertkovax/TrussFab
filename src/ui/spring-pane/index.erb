@@ -1,6 +1,6 @@
 <html>
 <head>
-  <title>Spring Modifications</title>
+  <title>Dynamic Exploration</title>
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -73,7 +73,7 @@
 </head>
 <body>
 
-<div class="card m-2 p-2">
+<!-- <div class="card m-2 p-2">
   <h5 class="card-title">Modify spring parameters</h5>
   <div class="card-body">
     <% @spring_edges.each { |spring_edge| %>
@@ -106,6 +106,7 @@
 
   </div>
 </div>
+-->
 <div class="card m-2 p-2">
   <h5 class="card-title">Users</h5>
   <div class="card-body m-0 p-0">
@@ -116,10 +117,22 @@
         stats = @user_stats[node_id]
         digits_precision = 2
     %>
+
+      <script>$(document).ready(function() {
+
+      const $valueSpan = $('.weightValue<%= node_id %>');
+      const $value = $('#mass_<%= node_id %>');
+      $valueSpan.html($value.val() + "kg");
+      $value.on('input change', () => {
+
+      $valueSpan.html($value.val() + "kg");
+      });
+      });
+      </script>
       <div class="card m-1 p-1">
       <h6 class="card-title">User #<%= user_index %></h6>
       <div class="card-body">
-      <div class="row">
+      <!--<div class="row">
         <div class="col-6">
           <div class="input-group mb-3">
             <div class="input-group-prepend">
@@ -136,7 +149,6 @@
             <div class="input-group-prepend">
               <span class="input-group-text text-monospace">m</span>
             </div>
-            <input id="mass_<%= node_id %>" type="text" value="<%= user_weight %>" class="form-control" onchange="window.sketchup.user_weight_change(<%= node_id %>, this.value);"  style="text-align: right;">
             <div class="input-group-append">
               <span class="input-group-text text-monospace">kg</span>
             </div>
@@ -166,14 +178,16 @@
             </div>
           </div>
         </div>
+      </div> -->
+
+      <div class="mb-5 col-md-6">
+        light <span style="float:right">heavy</span>
+        <input id="mass_<%= node_id %>" type="range" value="<%= user_weight %>" class="custom-range pt-3" min="10" max="100" step="5" onchange="window.sketchup.user_weight_change(<%= node_id %>, this.value);"  style="text-align: right;">
+        <span class="font-weight-bold weightValue<%= node_id %>" style="float:right"></span>
       </div>
-      <div class="mb-3 col-md-6">
+        <div class="mb-3 col-md-6">
         comfort <span style="float:right">excitement</span>
-        <input type="range" class="custom-range pt-3" id="comfort_excitement" min="0" max="100" step="10" value="50">
-      </div>
-      <div class="mb-3 col-md-6">
-        low <span style="float:right">intense</span>
-        <input type="range" class="custom-range pt-3" id="comfort_excitement" min="0" max="100" step="10" value="50">
+        <input type="range" class="custom-range pt-3" id="comfort_excitement" min="0" max="100" step="5" value="50">
       </div>
       </div>
       </div>
@@ -191,13 +205,13 @@
       <% end %>
       <!-- <button class="btn btn-warning mb-3 col-md-6" onClick="window.sketchup.spring_insights_compile()">
         compile
-      </button> -->
+      </button>
 
       <button class="btn btn-primary mb-3 col-md-6" onClick="window.sketchup.spring_insights_simulate()">
         simulate
       </button>
 
-      <!-- <button class="btn btn-warning mb-3 col-md-6" onClick="window.sketchup.spring_insights_preload()">
+      <button class="btn btn-warning mb-3 col-md-6" onClick="window.sketchup.spring_insights_preload()">
         preload
       </button>
 
@@ -205,7 +219,7 @@
         reset
       </button> -->
 
-      <button class="btn <% if @animation_running %>btn-danger<% else %>btn-primary<% end %> animation mb-3 col-md-6"
+      <button class="btn <% if @animation_running %>btn-danger<% else %>btn-primary<% end %> animation mb-0 col-md-6"
               onClick="window.sketchup.spring_insights_toggle_play()">
         <% if @animation_running %>stop<% else %>play<% end %> animation
       </button>
