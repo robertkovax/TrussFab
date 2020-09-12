@@ -61,6 +61,17 @@
     background: <%= spring_edge.link.get_color_string %>;
 }
   <% } %>
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  cursor: initial;
+}
+input[type=range] {
+  cursor: initial;
+}
+input[type=range]::-webkit-slider-runnable-track {
+  cursor: initial;
+}
 </style>
 
   <script type="text/javascript">
@@ -183,11 +194,11 @@
 
       <div class="mb-5 col-md-6">
         weight <span class="font-weight-bold weightValue<%= node_id %>" style="float:right"></span>
-        <input id="mass_<%= node_id %>" type="range" value="<%= user_weight %>" class="custom-range pt-3" min="10" max="100" step="5" onchange="window.sketchup.user_weight_change(<%= node_id %>, this.value);"  style="text-align: right;">
+        <input id="mass_<%= node_id %>" type="range" value="<%= user_weight %>" class="custom-range pt-3" min="10" max="100" step="5" onchange="window.sketchup.user_weight_change(<%= node_id %>, this.value);"  style="text-align: right; cursor: initial">
       </div>
         <div class="mb-3 col-md-6">
         comfortable <span style="float:right">exciting</span>
-        <input type="range" class="custom-range pt-3" id="comfort_excitement" min="0" max="100" step="5" value="50" onchange="window.sketchup.user_excitement_change(<%= node_id %>, this.value);">
+        <input type="range" class="custom-range pt-3" id="comfort_excitement" min="0" max="100" step="5" value="<%= Graph.instance.nodes[node_id].hub.user_excitement %>" onchange="window.sketchup.user_excitement_change(<%= node_id %>, this.value);">
       </div>
       </div>
       </div>
