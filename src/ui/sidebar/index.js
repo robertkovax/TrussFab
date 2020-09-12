@@ -30,6 +30,10 @@ $(() => {
     buttonClicked(event.currentTarget.id)
   );
 
+  $('footer button, .btn').click(event =>
+    buttonClicked(event.currentTarget.id)
+  );
+
   // this forces that always one card is not collapsed
   $('.card').click(function(e) {
     if (
