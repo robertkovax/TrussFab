@@ -44,7 +44,7 @@ class DataSampleVisualization
     @circle_instance = group.entities.add_instance(@circle_definition, transformation)
     @circle_instance.layer = @circle_layer
 
-    hue = Geometry.clamp(color_hue - (@acceleration_length * 350), 0, 120)
+    hue = Geometry.clamp(color_hue - (@acceleration_length * 300) * (@acceleration_length * 10), 0, 120)
 
       @original_material = material_from_hsv(hue, color_min_value + color_weight,
                                              color_max_value - color_weight)
