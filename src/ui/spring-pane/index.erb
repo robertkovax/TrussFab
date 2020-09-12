@@ -198,7 +198,7 @@ input[type=range]::-webkit-slider-runnable-track {
       </div>
         <div class="mb-3 col-md-6">
         comfortable <span style="float:right">exciting</span>
-        <input type="range" class="custom-range pt-3" id="comfort_excitement" min="0" max="100" step="5" value="50" onchange="window.sketchup.user_excitement_change(<%= node_id %>, this.value);">
+        <input type="range" class="custom-range pt-3" id="comfort_excitement" min="0" max="100" step="5" value="<%= Graph.instance.nodes[node_id].hub.user_excitement %>" onchange="window.sketchup.user_excitement_change(<%= node_id %>, this.value);">
       </div>
       </div>
       </div>
