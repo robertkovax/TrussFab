@@ -49,6 +49,8 @@ class SimulationRunner
     spring_constants = trussfab_geometry['spring_constants'] if trussfab_geometry['spring_constants']
     mounted_users = trussfab_geometry['mounted_users'] if trussfab_geometry['mounted_users']
 
+    @preloaded_energy_level = 0
+
     # TODO: why is :spring_constants key syntax not working here?
     SimulationRunner.new(model_name, spring_constants, identifiers_for_springs, mounted_users, trussfab_geometry)
   end
@@ -80,6 +82,11 @@ class SimulationRunner
     @mounted_users = mounted_users
   end
 
+  def update_preloaded_energy_level(prelaod_energy)
+    @preloaded_energy_level = prelaod_energy
+    p prelaod_energy
+  end
+
   def get_hub_time_series(force_vectors = [])
     data = []
     simulation_time = Benchmark.realtime { run_simulation(NODE_RESULT_FILTER, force_vectors) }
@@ -106,12 +113,15 @@ class SimulationRunner
     filter = "#{id}.*"
     run_simulation(filter)
     period_id = "#{ModelicaModelGenerator.identifier_for_node_id(node_id)}.r_0"
+    # get_preload_release_time_series(100, filter)
+    run_simulation(filter)
+    # period_id = "#{ModelicaModelGenerator.identifier_for_node_id(node_id)}.r_0"
     velocity_id = "#{ModelicaModelGenerator.identifier_for_node_id(node_id)}.v_0"
     acceleration_id = "#{ModelicaModelGenerator.identifier_for_node_id(node_id)}.a_0"
-
     csv_data = read_csv_numeric
+    csv_data.each{|row| p row}
     {
-      period: get_period(period_id, csv_data),
+      period: 10,
       max_acceleration: get_max_norm_and_index(acceleration_id, csv_data),
       max_velocity: get_max_norm_and_index(velocity_id, csv_data),
       time_velocity: get_time_series(velocity_id, csv_data),
@@ -196,9 +206,10 @@ class SimulationRunner
     p time.map{|x| a * Math::E**(b2 * x) + c}
   end
 
-  def get_preload_release_time_series(prelaod_energy=0, enabled_springs=[])
-    max_energy_ramp_per_spring = 3000
-    enabled_springs = enabled_springs.map{|elem| elem.to_i }
+  def get_preload_release_time_series(prelaod_energy=@prelaod_energy, filter="")
+    max_energy_ramp_per_spring = 2000
+
+    enabled_springs = @identifiers_for_springs.keys.map{|elem| elem.to_i }
 
     preloaded_springs = @identifiers_for_springs.select{|id, _| enabled_springs.include?(id.to_i)}
     p @identifiers_for_springs
@@ -206,24 +217,27 @@ class SimulationRunner
       raise "no valid spring was selected; aborting preloading"
     end
 
-    filters = [NODE_RESULT_FILTER, "systemEnergy", "released", "startEnergy", "nettoSystemEnergy"]
+    filters = [NODE_RESULT_FILTER, "systemEnergy", "released", "startEnergy", "nettoSystemEnergy", filter]
     overrides = preloaded_springs.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=#{max_energy_ramp_per_spring}"}
     overrides += ["releaseEnergy=#{prelaod_energy}"]
 
     data = []
-    simulation_time = Benchmark.realtime { run_simulation(filters.join("|"), [], 200, 1, 200, overrides.join(",")) }
+    simulation_time = Benchmark.realtime { run_simulation(filters.join("|"), [], 100, 0.5, 100, overrides.join(",")) }
     import_time = Benchmark.realtime { data = read_csv }
     puts("simulation time: #{simulation_time}s csv parsing time: #{import_time}s")
-    p data.map{ |row| row[data[0].find_index("released")]}.drop(1)
-    p data.map{ |row| row[data[0].find_index("nettoSystemEnergy")]}.drop(1)
-    data.select{|row| row[data[0].find_index("released")] == "1" }
+    # p data.map{ |row| row[data[0].find_index("released")]}.drop(1)
+    # p data.map{ |row| row[data[0].find_index("released")]}.drop(1)
+    # p data.map{ |row| row[data[0].find_index("nettoSystemEnergy")]}.drop(1)
+
+    data = [data[0]].push(*data.select{|row| row[data[0].find_index("released")] == "1" })
+    data
   end
 
   def get_preloaded_positions(prelaod_energy=100, enabled_springs=[])
     enabled_springs = enabled_springs.map{|elem| elem.to_i }
     p "starting preloading of #{prelaod_energy}J for springs: #{enabled_springs.join(", ")}."
-    time_far_far_away = 200
-    long_time_for_ramping_up = 200
+    time_far_far_away = 100
+    long_time_for_ramping_up = 100
 
     def get_node_id_from_modelica_component_name(modelica_component_name)
       modelica_component_name.match(/(?<=node_)\d+/)

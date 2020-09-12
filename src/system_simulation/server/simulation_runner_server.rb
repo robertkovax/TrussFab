@@ -26,8 +26,15 @@ patch '/update_mounted_users' do
   body ''
 end
 
+patch '/update_mounted_users_excitement' do
+  sim.update_preloaded_energy_level(JSON.parse(request.body.read).values.reduce(:+))
+  status 200
+  body ''
+end
+
 get '/get_user_stats/:node_id' do
   return_message = sim.get_user_stats(params['node_id'])
+  p return_message
   return_message.to_json
 end
 

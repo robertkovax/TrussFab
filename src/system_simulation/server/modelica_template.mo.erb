@@ -6,15 +6,19 @@ model LineForceGenerated
   output Real <%= component[:name] %>_pos_out(start = <%= component[:z_start] %>);<% end %>
 
   parameter Real releaseEnergy=1000;
+  parameter Real steadyStateTime = 100;
+  parameter Real rampDuration = 30;
   Boolean released(start=false);
   Real systemEnergy;
   Real nettoSystemEnergy;
   Real startEnergy(start=0);
 
+  Real releaseTime;
+
   <% modelica_components.each do |component| %>
   <% if component.is_a?(Modelica_LineForceWithMass) %> LineForce <%= component[:name] %>(m = <%= component[:mass] %>);
   <% elsif component.is_a?(Modelica_1DForce) %>
-  Modelica.Blocks.Sources.Ramp <%= component[:name] %>_ramp(duration=200, startTime=200);
+  Modelica.Blocks.Sources.Ramp <%= component[:name] %>_ramp(duration=rampDuration, startTime=steadyStateTime);
   Modelica.Mechanics.Translational.Sources.Force2 <%= component[:name] %>;
   <% elsif component.is_a?(Modelica_Spring) %> Spring <%= component[:name] %>(c = <%= component[:c] %>, d = 100, s_rel0 = <%= component[:uncompressed_length] %>, s_rel(start = <%= component[:uncompressed_length] %>));
 <% elsif component.is_a?(Modelica_Force) %> Modelica.Mechanics.MultiBody.Forces.WorldForce <%= component[:name] %>(force = <%= component[:name] %>_val);
@@ -44,8 +48,15 @@ equation
   <% end %>
 
   released = pre(released) or (nettoSystemEnergy >= releaseEnergy);
+
+  releaseTime = if released then pre(releaseTime) else time;
+
   systemEnergy = <%= modelica_components.select{|component| component.is_a?(Modelica_LineForceWithMass) or component.is_a?(Modelica_Spring) or component.is_a?(Modelica_PointMass)}.map{ |component| "#{component[:name]}.energy" }.join("\n+ ") %>;
   nettoSystemEnergy = systemEnergy - startEnergy;
-  startEnergy = if time == 200 then pre(systemEnergy) else pre(startEnergy);
+  startEnergy = if time == steadyStateTime then pre(systemEnergy) else pre(startEnergy);
 
+algorithm
+  if releaseTime - time > 6 then
+    terminate("done");
+  end if;
 end LineForceGenerated;
