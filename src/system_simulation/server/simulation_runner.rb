@@ -73,11 +73,17 @@ class SimulationRunner
 
     @constants_for_springs = spring_constants
     @identifiers_for_springs = spring_identifiers
-    @mounted_users = mounted_users
+    @user_excitement = {}
+    update_mounted_users(mounted_users)
   end
 
   def update_mounted_users(mounted_users)
     @mounted_users = mounted_users
+    @mounted_users.keys.each{|user_id| @user_excitement[user_id] = 50}
+  end
+
+  def update_mounted_users_excitement(user_excitement)
+    @user_excitement = user_excitement
   end
 
   def get_hub_time_series(force_vectors = [])
@@ -384,6 +390,10 @@ class SimulationRunner
 
     @mounted_users.each do |node_id, weight|
       override_string += "node_#{node_id}.m=#{weight},"
+    end
+
+    @user_excitement.each do |node_id, excitement|
+      override_string += "node_#{node_id}.excitement=#{excitement},"
     end
 
     # remove last comma

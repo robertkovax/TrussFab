@@ -26,6 +26,12 @@ patch '/update_mounted_users' do
   body ''
 end
 
+patch '/update_mounted_users_excitement' do
+  sim.update_mounted_users_excitement(JSON.parse(request.body.read)) if sim
+  status 200
+  body ''
+end
+
 get '/get_user_stats/:node_id' do
   return_message = sim.get_user_stats(params['node_id'])
   return_message.to_json

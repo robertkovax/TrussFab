@@ -1,10 +1,6 @@
 model LineForceGenerated
   inner Modelica.Mechanics.MultiBody.World world(n = {0, 0, -1});
 
-  <% modelica_components.select{|component| component.is_a?(Modelica_PointMass) && component[:is_user]}.each do |component| %>
-  input Real <%= component[:name] %>_force_in(start = 0);
-  output Real <%= component[:name] %>_pos_out(start = <%= component[:z_start] %>);<% end %>
-
   parameter Real releaseEnergy=1000;
   Boolean released(start=false);
   Real systemEnergy;
@@ -19,7 +15,7 @@ model LineForceGenerated
   <% elsif component.is_a?(Modelica_Spring) %> Spring <%= component[:name] %>(c = <%= component[:c] %>, d = 100, s_rel0 = <%= component[:uncompressed_length] %>, s_rel(start = <%= component[:uncompressed_length] %>));
 <% elsif component.is_a?(Modelica_Force) %> Modelica.Mechanics.MultiBody.Forces.WorldForce <%= component[:name] %>(force = <%= component[:name] %>_val);
   Real <%= component[:name] %>_val [3];
-  <% elsif component.is_a?(Modelica_PointMass) %> PointMass <%= component[:name] %>(m = <%= component[:mass] %><% unless component[:x_start].nil? or component[:y_start].nil? or component[:z_start].nil? %>, r_0(fixed = false, start = <%= "{#{component[:x_start]}, #{component[:y_start]}, #{component[:z_start]}}" %>)<% end %>);
+  <% elsif component.is_a?(Modelica_PointMass) %> PointMass <%= component[:name] %>(excitement=0, m = <%= component[:mass] %><% unless component[:x_start].nil? or component[:y_start].nil? or component[:z_start].nil? %>, r_0(fixed = false, start = <%= "{#{component[:x_start]}, #{component[:y_start]}, #{component[:z_start]}}" %>)<% end %>);
   <% elsif component.is_a?(Modelica_Fixture) %> Modelica.Mechanics.MultiBody.Parts.Fixed <%= component[:name] %>(r = <%= "{#{component[:x]}, #{component[:y]}, #{component[:z]}}" %>, animation=false);
   <% end %><% end %>
 
@@ -33,14 +29,7 @@ equation
   <% end %>
 
   <% modelica_components.select{|component| component.is_a?(Modelica_PointMass)}.each do |component| %>
-  <% if component[:is_user] %>
-  <%= component[:name] %>_force_val[1] = 0;
-  <%= component[:name] %>_force_val[2] = 0;
-  <%= component[:name] %>_force_in = <%= component[:name] %>_force_val[3];
-  <%= component[:name] %>_pos_out = Modelica.Math.Vectors.length(<%= component[:name] %>.r_0 - <%= "{#{component[:x_start]}, #{component[:y_start]}, #{component[:z_start]}}" %>);
-  <% else %>
-   <%= component[:name] %>_force_val = {0,0,0};
-  <% end %>
+   <%= component[:name] %>_force_val = Modelica.Math.Vectors.normalize(<%= component[:name] %>.v_0) * <%= component[:name] %>.excitement/2;
   <% end %>
 
   released = pre(released) or (nettoSystemEnergy >= releaseEnergy);
