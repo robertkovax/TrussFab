@@ -72,6 +72,8 @@ input[type=range] {
 input[type=range]::-webkit-slider-runnable-track {
   cursor: initial;
 }
+
+
 </style>
 
   <script type="text/javascript">
@@ -128,8 +130,26 @@ input[type=range]::-webkit-slider-runnable-track {
         user_index += 1
         stats = @user_stats[node_id]
         digits_precision = 2
+        if user_index != 1
     %>
-
+        <style>
+          #mass_<%=  node_id  %>::-webkit-slider-thumb {
+            background: hsl(78, 51%, 71%);
+          }
+          #comfort_excitement_<%= node_id %>::-webkit-slider-thumb {
+            background: hsl(78, 51%, 71%);
+          }
+        </style>
+        <%else %>
+        <style>
+          #mass_<%=  node_id  %>::-webkit-slider-thumb {
+            background: hsl(12, 51%, 71%);
+          }
+          #comfort_excitement_<%= node_id %>::-webkit-slider-thumb {
+            background: hsl(12, 51%, 71%);
+          }
+        </style>
+        <% end %>
       <script>$(document).ready(function() {
 
       const $valueSpan = $('.weightValue<%= node_id %>');
@@ -192,13 +212,14 @@ input[type=range]::-webkit-slider-runnable-track {
         </div>
       </div> -->
 
+
       <div class="mb-5 col-md-6">
         weight <span class="font-weight-bold weightValue<%= node_id %>" style="float:right"></span>
         <input id="mass_<%= node_id %>" type="range" value="<%= user_weight %>" class="custom-range pt-3" min="10" max="100" step="5" onchange="window.sketchup.user_weight_change(<%= node_id %>, this.value);"  style="text-align: right; cursor: initial">
       </div>
         <div class="mb-3 col-md-6">
         comfortable <span style="float:right">exciting</span>
-        <input type="range" class="custom-range pt-3" id="comfort_excitement" min="0" max="100" step="5" value="<%= Graph.instance.nodes[node_id].hub.user_excitement %>" onchange="window.sketchup.user_excitement_change(<%= node_id %>, this.value);">
+        <input type="range" class="custom-range pt-3" id="comfort_excitement_<%= node_id %>" min="0" max="100" step="5" value="<%= Graph.instance.nodes[node_id].hub.user_excitement %>" onchange="window.sketchup.user_excitement_change(<%= node_id %>, this.value);">
       </div>
       </div>
       </div>
