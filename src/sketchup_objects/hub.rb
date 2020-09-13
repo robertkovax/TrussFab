@@ -75,7 +75,7 @@ class Hub < PhysicsSketchupObject
                           .active_entities
                           .add_instance(model.definition, transform)
     @weight_indicator.transform!(
-      Geom::Transformation.scaling(point, Math::log(@mass, 2) / 5))
+      Geom::Transformation.scaling(point, Math::log(10, 2) / 5 * 3))
     Sketchup.active_model.commit_operation
   end
 
