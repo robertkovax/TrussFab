@@ -13,6 +13,7 @@ class SpringTool < ActuatorTool
 
   def activate
     super
+    selection = Sketchup.active_model.selection
     if !selection.nil? and !selection.empty?
       @ui.spring_pane.update_springs
       @ui.spring_pane.color_static_groups
