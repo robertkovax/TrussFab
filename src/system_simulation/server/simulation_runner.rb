@@ -71,10 +71,15 @@ class SimulationRunner
       run_compilation
     end
 
-    @constants_for_springs = spring_constants
     @identifiers_for_springs = spring_identifiers
     @user_excitement = {}
+    update_spring_constants(spring_constants)
     update_mounted_users(mounted_users)
+  end
+
+  def update_spring_constants(spring_constants)
+    # maps spring edge id => spring constant
+    @constants_for_springs = spring_constants
   end
 
   def update_mounted_users(mounted_users)
