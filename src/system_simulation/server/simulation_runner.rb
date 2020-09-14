@@ -54,13 +54,12 @@ class SimulationRunner
   end
 
   def initialize(model_name = 'seesaw3', spring_constants = {}, spring_identifiers = {}, mounted_users = {},
-                 suppress_compilation = false, keep_temp_dir = true, original_json)
+                 suppress_compilation = false, keep_temp_dir = false, original_json)
 
     @model_name = model_name
     @original_json = original_json
-    # @compilation_options = '--maxMixedDeterminedIndex=100 --generateSymbolicJacobian --disableLinearTearing --tearingMethod=omcTearing --postOptModules+=removeSimpleEquations,reshufflePost,simplifyAllExpressions,simplifyLoops,relaxSystem'
-    @compilation_options = '--maxMixedDeterminedIndex=100 --generateSymbolicJacobian --disableLinearTearing --tearingMethod=omcTearing --postOptModules+=removeSimpleEquations,simplifyLoops'
-    @simulation_options = '-lv=LOG_STATS -emit_protected -s=ida -ls umfpack'
+    @compilation_options = '--maxMixedDeterminedIndex=100'
+    @simulation_options = '-lv=LOG_STATS,LOG_EVENTS -emit_protected -s=ida -ls=umfpack'
 
     if suppress_compilation
       @directory = File.dirname(__FILE__)
@@ -72,19 +71,9 @@ class SimulationRunner
       run_compilation
     end
 
-    update_spring_constants(spring_constants)
-    @identifiers_for_springs = spring_identifiers
-
-    @mounted_users = mounted_users
-
-  end
-
-  def update_spring_constants(spring_constants)
-    # maps spring edge id => spring constant
     @constants_for_springs = spring_constants
-    # TODO: this just mocks the mapping between springs and the corresponding revolute joint angles. Will be changed
-    # TODO: as soon as we generate the geometry dynamically.
-    @angles_for_springs = { 21 => 'revRight.phi', 25 => 'revLeft.phi' }
+    @identifiers_for_springs = spring_identifiers
+    @mounted_users = mounted_users
   end
 
   def update_mounted_users(mounted_users)
@@ -100,12 +89,15 @@ class SimulationRunner
   end
 
   def get_spring_extensions
-    run_compilation
-    run_simulation('edge_from_[0-9]+_to_[0-9]+_spring.*')
+    # start at 0.1s to relax the initial forces
+    run_simulation('edge_from_[0-9]+_to_[0-9]+_spring.*', [], 1, 0.1, 0.1)
     result = read_csv
-    frame0 = Hash[result[0].zip(result[1].map{|val| val.to_f})]
+    frame0 = result[0].zip(result[1].map{|val| val.to_f}).to_h
+
     @identifiers_for_springs.map{|spring_id, modelica_spring|
-      [spring_id, frame0["#{modelica_spring}.s_rel0"] - (frame0["#{modelica_spring}.f"] / frame0["#{modelica_spring}.c"])]
+      # [spring_id, @original_json["edges"].find{|edge| spring_id == edge["id"].to_s}["uncompressed_length"] / 1000 - (frame0["#{modelica_spring}.f"] / @constants_for_springs[spring_id])]
+      p frame0["#{modelica_spring}.f"]
+      [spring_id, frame0["#{modelica_spring}.s_rel"] - (frame0["#{modelica_spring}.f_c"] / @constants_for_springs[spring_id])]
     }.to_h
   end
 
@@ -169,84 +161,112 @@ class SimulationRunner
     frequency != 0 ? 1 / frequency : nil
   end
 
-  def get_preloaded_positions(prelaod_energy=100, enabled_springs= @identifiers_for_springs.keys)
+  def get_damping_characteristic
+    require "gsl"
+
+    # run the force sweep
+    filters = ["edge_from_[0-9]+_to_[0-9]+_spring.*", ".*\\.energy"]
+    # overrides = @identifiers_for_springs.select{|id, _| enabled_springs.include?(id)}.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=3000"}.join(",")
+    run_simulation(filters.join("|"), [], 10, 0.05, 0)
+    result = read_csv_numeric.map do |row|
+      row_h = row.to_h
+      overall_loss_power = 0
+      row_h.map{|key, value|
+        if key.include?("energy")
+          overall_loss_power += value
+        end
+      }
+      overall_loss_power
+    end
+    time = read_csv_numeric.map{|row| row["time"]}
+
+    p result
+    min_val = result.min
+    result = result.map { |e| e -  min_val + 0.001 }
+
+    # Fitting
+    time_vector = time.drop(1).to_gv
+    result_vector = result.drop(1).map{|i| Math.log(i)}.to_gv
+
+    a2, b2, = GSL::Fit.linear(time_vector, result_vector)
+    a = Math.exp(a2)
+    p a, b2
+    c = min_val
+
+    p time.map{|x| a * Math::E**(b2 * x) + c}
+  end
+
+  def get_preload_release_time_series(prelaod_energy=0, enabled_springs=[])
+    max_energy_ramp_per_spring = 3000
+    enabled_springs = enabled_springs.map{|elem| elem.to_i }
+
+    preloaded_springs = @identifiers_for_springs.select{|id, _| enabled_springs.include?(id.to_i)}
+    p @identifiers_for_springs
+    if preloaded_springs.empty?
+      raise "no valid spring was selected; aborting preloading"
+    end
+
+    filters = [NODE_RESULT_FILTER, "systemEnergy", "released", "startEnergy", "nettoSystemEnergy"]
+    overrides = preloaded_springs.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=#{max_energy_ramp_per_spring}"}
+    overrides += ["releaseEnergy=#{prelaod_energy}"]
+
+    data = []
+    simulation_time = Benchmark.realtime { run_simulation(filters.join("|"), [], 200, 1, 200, overrides.join(",")) }
+    import_time = Benchmark.realtime { data = read_csv }
+    puts("simulation time: #{simulation_time}s csv parsing time: #{import_time}s")
+    p data.map{ |row| row[data[0].find_index("released")]}.drop(1)
+    p data.map{ |row| row[data[0].find_index("nettoSystemEnergy")]}.drop(1)
+    data.select{|row| row[data[0].find_index("released")] == "1" }
+  end
+
+  def get_preloaded_positions(prelaod_energy=100, enabled_springs=[])
+    enabled_springs = enabled_springs.map{|elem| elem.to_i }
+    p "starting preloading of #{prelaod_energy}J for springs: #{enabled_springs.join(", ")}."
+    time_far_far_away = 200
+    long_time_for_ramping_up = 200
+
     def get_node_id_from_modelica_component_name(modelica_component_name)
       modelica_component_name.match(/(?<=node_)\d+/)
     end
 
-    def sketchup_to_modelica_units(x)
-      (x / 1000).round(10)
+    def percentage(n)
+      (n * 100).round(1).to_s + "%"
     end
 
-    def get_potential_energy_for_node(node_id, m, row)
-      g = 9.81
-      h = row["node_#{node_id}.r_0[3]"]
-      if h === nil
-        # This can happen for nodes that are fixtures
-        p "Node #{node_id} discarded for energy calculation."
-        return 0
-      else
-        return m * g * h
-      end
-    end
-
-    def get_potential_energy_for_edge(edge,m ,row)
-      g = 9.81
-      h = row["#{edge}.r_CM_0[3]"]
-      if h === nil
-        p "edge #{edge} discarded for energy calculation."
-        return 0
-      else
-       return m * g * h
-      end
-    end
-
-    def get_spring_energy_per_edge(edge, c, s_unstreched, row)
-      p row
-      p edge
-      x = row["#{edge}.s_rel"] - s_unstreched
-      p x
-      return 0.5 * c * x**2
+    preloaded_springs = @identifiers_for_springs.select{|id, _| enabled_springs.include?(id.to_i)}
+    if preloaded_springs.empty?
+      raise "no valid spring was selected; aborting preloading"
     end
 
     # run the force sweep
-    filters = ["node_[0-9]+\\.r_0.*", "edge_from_[0-9]+_to_[0-9]+_spring.s_rel", "edge_from_[0-9]+_to_[0-9]+\\.r_CM_0.*"]
-    overrides = @identifiers_for_springs.select{|id, _| enabled_springs.include?(id)}.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=3000"}.join(",")
-    run_simulation(filters.join("|"), [], 100, 1, 100, overrides)
-
-    # TODO use the real edge mass
-    node_mass_map = @original_json["nodes"].map{|node| [node["id"], 10]}.to_h
-    edge_mass_map = @original_json["edges"].map{|edge| [edge["id"], 1]}.to_h
-
-    sim_result = read_csv_numeric
-    # Calculate overall energy
-    energy_map = sim_result.map do |row|
-      overall_energy = 0
-      row_hash = row.to_h
-      # calculate the potential energies of all nodes
-      overall_energy = node_mass_map.map{|node_id, mass| get_potential_energy_for_node(node_id, mass, row_hash)}.reduce(0, :+)
-
-      # calculate the potential energies of all edges
-      overall_energy += edge_mass_map.map do |edge_id, mass|
-        edge_obj = @original_json["edges"].find{|e| e["id"] == edge_id.to_i}
-        p "edge_from_#{edge_obj["n1"]}_to_#{edge_obj["n2"]}"
-        get_potential_energy_for_edge("edge_from_#{edge_obj["n1"]}_to_#{edge_obj["n2"]}", mass, row_hash)
-      end.reduce(0, :+)
-
-      overall_energy += @constants_for_springs.map do |edge_id, c|
-        get_spring_energy_per_edge(@identifiers_for_springs[edge_id], c, sketchup_to_modelica_units(@original_json["edges"].find{|e| e["id"] == edge_id.to_i}["uncompressed_length"]), row_hash)
-      end.reduce(0, :+)
-      overall_energy
+    filters = [".*\\.energy", "node_[0-9]+\\.r_0.*", "edge_from_[0-9]+_to_[0-9]+_spring.s_rel", "edge_from_[0-9]+_to_[0-9]+\\.r_CM_0.*"]
+    overrides = preloaded_springs.map{|id, modelica_id| "#{modelica_id.sub("_spring", "")}_force_ramp.height=1000"}.join(",")
+    run_simulation(filters.join("|"), [], long_time_for_ramping_up, 1, time_far_far_away, overrides)
+    result_energy = read_csv_numeric.map do |row|
+      row_h = row.to_h
+      overall_loss_power = 0
+      row_h.map{|key, value|
+        if key.include?("energy")
+          overall_loss_power += value
+        end
+      }
+      overall_loss_power
     end
 
     # return positions where the energy matches most closley
-    initial_potential_energy = energy_map[0]
+    # we are taking a value from the beginning, but no from the very beginning to avoid turbulences caused by the first hit of force
+    initial_potential_energy = result_energy[2]
 
-    destination_energy = energy_map.map{|val| (val - prelaod_energy - initial_potential_energy).abs}
-    p "For the target energy #{prelaod_energy} the energy fo +/- #{destination_energy.min} can be achieved. That is an error of #{(destination_energy.min).abs / (prelaod_energy)}."
+    destination_energy = result_energy.map{|val| (val - prelaod_energy - initial_potential_energy).abs}
+    energy_error = (destination_energy.min).abs / (prelaod_energy)
+    p "For the target energy #{prelaod_energy}J the energy fo +/- #{destination_energy.min} can be achieved. That is an error of #{percentage(energy_error)}."
     p "The preloading curves looks like this:"
-    p energy_map
+    p result_energy
     p destination_energy
+
+    if energy_error > 0.3
+      raise "we couldn't preload the model with #{prelaod_energy}J. The the best guess was off by #{percentage(energy_error)}."
+    end
 
     data_w_header = read_csv
     return_array = []
@@ -264,27 +284,6 @@ class SimulationRunner
 
   def linearize
     run_linearization
-  end
-
-  # Returns index of animation frame when system is in equilibrium by finding the arithmetic mean of the angle
-  # differences and the according index.
-  def find_equilibrium(spring_id)
-    run_simulation(@angles_for_springs[spring_id])
-    raw_data = read_csv
-
-    # remove initial data point, the header
-    raw_data.shift
-    angles = raw_data.map { |data_sample| data_sample[1].to_f }
-
-    # center of oscillation
-    equilibrium_angle = angles.min + (angles.max - angles.min) / 2
-    equilibrium_data_row = raw_data.min_by do |data_row|
-      # find data row with angle that is the closest to the equilibrium
-      # (can't check for equality since we only have samples in time)
-      (equilibrium_angle - data_row[1].to_f).abs
-    end
-
-    raw_data.index(equilibrium_data_row)
   end
 
   # OPTIMIZATION LOGIC
@@ -379,7 +378,7 @@ class SimulationRunner
     end
 
     # Increase Damping for everthing that is not a spring
-    @original_json["edges"].select{ |edge| p @constants_for_springs[edge["id"].to_s] === nil}.each do |edge|
+    @original_json["edges"].select{ |edge| @constants_for_springs[edge["id"].to_s] === nil}.each do |edge|
       override_string += "edge_from_#{edge["n1"]}_to_#{edge["n2"]}_spring.d=10000,"
     end
 
@@ -436,11 +435,14 @@ class SimulationRunner
   end
 
   def run_compilation
-    Open3.capture2e("cp #{@model_name}.mo  #{@directory}", chdir: File.dirname(__FILE__))
+    Open3.capture2e("cp *.mo  #{@directory} && cp ./modelica_assets/*.mo", chdir: File.dirname(__FILE__))
 
-    dependencies = ['AdaptiveSpringDamper.mo', 'Modelica']
+    dependencies = ['Spring.mo', 'PointMass.mo', 'LineForce.mo', 'Fixture.mo', 'Modelica']
 
-    Open3.capture2e("cp ./modelica_assets/AdaptiveSpringDamper.mo  #{@directory}", chdir: File.dirname(__FILE__))
+    # copy custom modelica files
+    dependencies.select{ |item| item.end_with?(".mo") }.each do |file_name|
+     Open3.capture2e("cp ./modelica_assets/#{file_name}  #{@directory}", chdir: File.dirname(__FILE__))
+   end
 
     command = "omc #{@compilation_options} -s #{@model_name}.mo #{dependencies.join(' ')} "\
               "&& mv #{@model_name}.makefile Makefile && make -j 16"
@@ -455,7 +457,7 @@ class SimulationRunner
     end
   end
 
-  def run_simulation(filter = '*', force_vectors = [], length = 10, resolution = 0.05, start=0.0, additional_overrides = "")
+  def run_simulation(filter = '*', force_vectors = [], length = 6, resolution = 0.025, start=0.01, additional_overrides = "")
     # TODO: adjust sampling rate dynamically
     overrides = "outputFormat=csv,variableFilter=#{filter},startTime=#{start},stopTime=#{start + length},stepSize=#{resolution}," \
                 "#{force_vector_string(force_vectors)},#{override_constants_string},#{additional_overrides}"

@@ -3,7 +3,7 @@ require 'json'
 require 'erb'
 require_relative 'modelica_configuration.rb'
 
-Modelica_LineForceWithMass = Struct.new(:name, :mass, :orientation_fixed_a, :orientation_fixed_b)
+Modelica_LineForceWithMass = Struct.new(:name, :mass)
 Modelica_Rod = Struct.new(:name, :length, :static_constant)
 Modelica_Spring = Struct.new(:name, :c, :length, :uncompressed_length)
 Modelica_Connection = Struct.new(:from, :to)
@@ -41,6 +41,7 @@ class ModelicaModelGenerator
 
     nodes.each { |key, node|
       node[:visited] = false
+      # TODO get rid of all things concerning the primary edge and connect it to the node instead
       node[:primary_edge] = nil
       node[:connecting_edges] = Array.new
       node[:is_user] = json_model['mounted_users'] && json_model['mounted_users'][key.to_s] == true
@@ -74,14 +75,6 @@ class ModelicaModelGenerator
 
     nodes.each { |nodeId, node|
       node[:primary_edge] = node[:connecting_edges][0]
-
-      if not node[:fixed]
-        if node[:primary_edge]['n1'] == nodeId
-          node[:primary_edge][:n1_orientation_fixed] = true
-        else node[:primary_edge]['n2'] == nodeId
-          node[:primary_edge][:n2_orientation_fixed] = true
-        end
-      end
     }
 
     # Phase 3 Modelica Component Generation
@@ -92,7 +85,7 @@ class ModelicaModelGenerator
     edges.each { |edgeID, edge|
       edge[:name] = edge_to_modelica_name(edge)
       edge_mass = edge[:length] * ModelicaConfiguration::PIPE_WEIGHT_KG_PER_M
-      edge_component = Modelica_LineForceWithMass.new(edge[:name], edge_mass, edge[:n1_orientation_fixed], edge[:n2_orientation_fixed] )
+      edge_component = Modelica_LineForceWithMass.new(edge[:name], edge_mass)
 
       force_translator = Modelica_Spring.new("#{edge[:name]}_spring", ModelicaConfiguration::STATIC_SPRING_CONSTANT, edge[:length], edge[:uncompressed_length])
       force_translator2 = Modelica_1DForce.new("#{edge[:name]}_force")

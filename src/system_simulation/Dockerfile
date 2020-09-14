@@ -1,22 +1,27 @@
 FROM ubuntu:19.10
 RUN apt-get update
 
-RUN apt-get install -y wget build-essential git ruby
+RUN apt-get install -y wget build-essential git ruby cmake clang autoconf automake libtool g++ gfortran default-jdk pkg-config flex bison gettext libz-dev libcurl4-openssl-dev
 
-# Install minimal OpenModelica Components
-RUN for deb in deb deb-src; do echo "$deb http://build.openmodelica.org/apt eoan stable"; done | tee /etc/apt/sources.list.d/openmodelica.list
-RUN wget -q http://build.openmodelica.org/apt/openmodelica.asc -O- | apt-key add -
-RUN apt-get update
-RUN apt-get install -y omc omlib-modelica-3.2.2
+RUN git clone https://github.com/OpenModelica/OpenModelica.git /opt/OpenModelica
+WORKDIR /opt/OpenModelica/OMCompiler
+RUN git checkout v1.16.0-dev.02
+RUN git submodule update --init --recursive
+RUN apt-get install  libexpat-dev libblas-dev liblapack-dev -y
+RUN autoconf && ./configure --without-CORBA
+RUN make -j 8
+
+RUN ln -s /opt/OpenModelica/OMCompiler/build/bin/omc /usr/local/bin/omc
+RUN echo 'installPackage(Modelica, "3.2.3", exactMatch=true)' > installModelicaStandardLib.mos && omc installModelicaStandardLib.mos
 
 # Ruby Project dependencies
 RUN apt-get install -y ruby-dev ruby-sinatra libgsl0-dev
 RUN gem install bundler
+COPY ./server/Gemfile /opt/code/server/Gemfile
+RUN bundle install --gemfile=/opt/code/server/Gemfile
 
 COPY . /opt/code
-
 WORKDIR /opt/code/server
-RUN bundle install
 
 EXPOSE 8080
 
