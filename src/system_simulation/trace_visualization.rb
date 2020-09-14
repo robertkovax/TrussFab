@@ -105,7 +105,7 @@ class TraceVisualization
       viz = DataSampleVisualization.new(current_data_sample, node_id, circle_definition, ratio,
                                         current_acceleration_is_max, acceleration.length, circle_definition)
       @group = Sketchup.active_model.entities.add_group if @group.deleted?
-      @annotations_group = Sketchup.active_model.entities.add_group if @group.deleted?
+      @annotations_group = Sketchup.active_model.entities.add_group if @annotations_group.deleted?
       @annotations_group.layer = Configuration::MAXIMUM_ACCELERATION_VELOCITY_VIEW
       viz.add_dot_to_group(@group)
 
