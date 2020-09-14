@@ -59,7 +59,7 @@ class SimulationRunner
     @model_name = model_name
     @original_json = original_json
     @compilation_options = '--maxMixedDeterminedIndex=100'
-    @simulation_options = '-lv=LOG_STATS,LOG_EVENTS -emit_protected -s=ida -ls=klu -nls=kinsol'
+    @simulation_options = '-lv=LOG_STATS,LOG_EVENTS -emit_protected -s=ida -ls=umfpack'
 
     if suppress_compilation
       @directory = File.dirname(__FILE__)
