@@ -75,7 +75,7 @@ class Hub < PhysicsSketchupObject
                           .active_entities
                           .add_instance(model.definition, transform)
     @weight_indicator.transform!(
-      Geom::Transformation.scaling(point, Math::log(@mass, 2) / 5))
+      Geom::Transformation.scaling(point, Math::log(10, 2) / 5 * 3))
     Sketchup.active_model.commit_operation
   end
 
@@ -236,6 +236,7 @@ class Hub < PhysicsSketchupObject
   end
 
   def attach_user(weight: nil, filename:)
+    puts "attach user #{filename}"
     @is_user_attached = true
     user_indicator = ModelStorage.instance.attachable_users[filename]
     @user_indicator_definition = user_indicator.definition
@@ -270,11 +271,13 @@ class Hub < PhysicsSketchupObject
   #
   def add_weight(weight)
     @mass += weight
+    TrussFab.get_spring_pane.update_trace_visualization true
     update_weight_indicator
   end
 
   def weight=(weight)
     @mass = weight
+    TrussFab.get_spring_pane.update_trace_visualization true
     update_weight_indicator
   end
 

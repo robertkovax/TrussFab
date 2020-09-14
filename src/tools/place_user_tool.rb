@@ -28,7 +28,7 @@ class PlaceUserTool < Tool
       @hub.attach_user(filename: possible_filenames[0])
     end
     closest_spring = @ui.spring_pane.spring_edges.min_by { |edge| edge.distance @hub.position}
-    @ui.spring_pane.enable_preloading_for_spring(closest_spring.id)
+    @ui.spring_pane.enable_preloading_for_spring(closest_spring.id) unless closest_spring.nil?
     # TODO: at some point springe pane should compile automatically when geometry changes
     # @ui.spring_pane.request_compilation
     @ui.spring_pane.update_mounted_users
