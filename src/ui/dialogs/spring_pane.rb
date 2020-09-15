@@ -18,6 +18,8 @@ class SpringPane
     @refresh_callback = nil
     @toggle_animation_callback = nil
 
+    @color_permutation_index = 0
+
     update_springs
 
     # Instance of the simulation runner used as an interface to the system simulation.
@@ -236,14 +238,25 @@ class SpringPane
   # compilation / simulation logic:
   def color_static_groups
     Sketchup.active_model.start_operation('Color static groups', true)
-    static_groups = StaticGroupAnalysis.find_static_groups
+    @static_groups = StaticGroupAnalysis.find_static_groups
     visualizer = NodeExportVisualization::Visualizer.new
-    visualizer.color_static_groups static_groups
+    visualizer.color_static_groups @static_groups
     Sketchup.active_model.commit_operation
 
     # TODO: maybe call at another point
     #calculate_hinge_edges
+  end
 
+  def cycle_static_group_colors(to_add=1)
+    @color_permutation_index += to_add
+    Sketchup.active_model.start_operation('Color static groups', true)
+    visualizer = NodeExportVisualization::Visualizer.new
+    permutations = @static_groups.permutation.to_a
+    @color_permutation_index = 0 if @color_permutation_index >= permutations.length
+    visualizer.color_static_groups permutations[@color_permutation_index]
+    puts @color_permutation_index
+    puts permutations.length
+    Sketchup.active_model.commit_operation
   end
 
   # Calculates hinges / hinge edges for every spring

@@ -42,6 +42,8 @@ model PointMass
   Real energy;
   Real pot_energy;
   Real kin_energy;
+
+  parameter Real excitement;
 protected
   outer Modelica.Mechanics.MultiBody.World world;
 

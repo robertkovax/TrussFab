@@ -73,13 +73,24 @@ class SimulationRunner
       run_compilation
     end
 
-    @constants_for_springs = spring_constants
     @identifiers_for_springs = spring_identifiers
-    @mounted_users = mounted_users
+    @user_excitement = {}
+    update_spring_constants(spring_constants)
+    update_mounted_users(mounted_users)
+  end
+
+  def update_spring_constants(spring_constants)
+    # maps spring edge id => spring constant
+    @constants_for_springs = spring_constants
   end
 
   def update_mounted_users(mounted_users)
     @mounted_users = mounted_users
+    @mounted_users.keys.each{|user_id| @user_excitement[user_id] = 50}
+  end
+
+  def update_mounted_users_excitement(user_excitement)
+    @user_excitement = user_excitement
   end
 
   def update_preloaded_energy_level(prelaod_energy)
@@ -398,6 +409,10 @@ class SimulationRunner
 
     @mounted_users.each do |node_id, weight|
       override_string += "node_#{node_id}.m=#{weight},"
+    end
+
+    @user_excitement.each do |node_id, excitement|
+      override_string += "node_#{node_id}.excitement=#{excitement},"
     end
 
     # remove last comma

@@ -53,10 +53,10 @@ module NodeExportVisualization
     LINE_VISUALIZATION_DISTANCE = 3
 
     def color_group(group, group_nr)
-      group_color = if group_nr >= Configuration::UNINTENSE_COLORS.length
+      group_color = if group_nr >= Configuration::INTENSE_COLORS.length
         format('%06x', rand * 0xffffff)
                     else
-        Configuration::UNINTENSE_COLORS[group_nr]
+        Configuration::INTENSE_COLORS[group_nr]
                     end
       group.each do |triangle|
         triangle.edges.each do |edge|
