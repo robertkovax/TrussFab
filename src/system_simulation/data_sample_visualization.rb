@@ -46,9 +46,9 @@ class DataSampleVisualization
 
     hue = Geometry.clamp(color_hue - (@acceleration_length * 300) * (@acceleration_length * 10), 0, 120)
 
-      @original_material = material_from_hsv(hue, color_min_value + color_weight,
-                                             color_max_value - color_weight)
-      @circle_instance.material = @original_material
+    @original_material = material_from_hsv(hue, color_min_value + color_weight,
+                                           color_max_value - color_weight)
+    @circle_instance.material = @original_material
   end
 
   def add_velocity_to_group(group, velocity)
@@ -64,7 +64,9 @@ class DataSampleVisualization
   def add_acceleration_to_group(group, acceleration)
     scale = 10
     @acceleration_label = add_label_for_parameter_to_group(group, acceleration, scale, 'm/s^2')
+    @acceleration_label.hidden = true
     @acceleration_line = add_vector_to_group(group, acceleration, scale)
+    @acceleration_line.hidden = true
   end
 
   def highlight
