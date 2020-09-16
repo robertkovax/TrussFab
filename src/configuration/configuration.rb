@@ -171,4 +171,6 @@ module Configuration
   SPRING_MOUNT_OFFSET = 0.15
   # Default spring k
   SPRING_DEFAULT_K = 3500
+  # Color static groups after placing springs
+  COLOR_STATIC_GROUPS = true
 end

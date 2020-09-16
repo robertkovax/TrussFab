@@ -237,6 +237,8 @@ class SpringPane
 
   # compilation / simulation logic:
   def color_static_groups
+    return unless Configuration::COLOR_STATIC_GROUPS
+
     Sketchup.active_model.start_operation('Color static groups', true)
     @static_groups = StaticGroupAnalysis.find_static_groups
     visualizer = NodeExportVisualization::Visualizer.new
