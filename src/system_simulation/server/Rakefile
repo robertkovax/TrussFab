@@ -8,11 +8,26 @@ task :compile do
 end
 
 task :test_simulation do
-  file = File.read("./test_models/front_preload_500.json")
+  file = File.read("./test_models/chair.json")
   sim = SimulationRunner.new_from_json_export(file)
+    # p sim.get_steady_state_positions
+  sim.get_hub_time_series
+end
 
+task :validate do
+  file = File.read("./test_models/dragon_13_users.json")
+  sim = SimulationRunner.new_from_json_export(file)
   # p sim.get_steady_state_positions
-  p sim.get_hub_time_series
+  sim.get_hub_time_series
+end
+
+task :benchmark do
+  for a in 0..10 do
+    file = File.read("./test_models/dragon_13_users.json")
+    sim = SimulationRunner.new_from_json_export(file)
+    # p sim.get_steady_state_positions
+    sim.get_hub_time_series
+  end
 end
 
 task :test_result_streaming do
