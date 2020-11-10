@@ -19,6 +19,11 @@ class DemonstrateAmplitudeTool < PullNodeInteractionTool
     return unless @moving
     return if @start_node.nil?
 
+    # TODO comment out gurad case, it's used vor video only
+    view.invalidate
+    reset
+    return
+
     hinge_edge = get_hinge_edge(@start_node)
     hinge_center = hinge_edge.mid_point
 

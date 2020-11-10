@@ -25,7 +25,7 @@ class Hub < PhysicsSketchupObject
     @user_indicator = nil
     # force the user applies on that hub in newton
     @user_weight = 0
-    @user_excitement = 50
+    @user_excitement = 100
     @user_transformation = Geom::Transformation.new
     update_id_label
     persist_entity

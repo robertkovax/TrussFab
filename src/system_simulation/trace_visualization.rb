@@ -115,7 +115,7 @@ class TraceVisualization
 
       raw_acceleration = stats["time_acceleration"][index]
       acceleration = Geom::Vector3d.new(raw_acceleration["x"].mm, raw_acceleration["y"].mm, raw_acceleration["z"].mm)
-      viz.add_acceleration_to_group(@annotations_group, acceleration) if current_acceleration_is_max
+      viz.add_acceleration_to_group(@annotations_group, acceleration) #if current_acceleration_is_max
 
       @visualizations << viz
 
