@@ -3,6 +3,12 @@
 SketchUp plug-in to create large-scale 3D-printed truss structures by using ready-made objects (e.g. PET bottles) and linear actuators.
 
 ## Installation
+Prerequisits are 
+- SketchUp 2017 Make or Pro
+- [NodeJS v12](https://nodejs.org/en/)
+
+### UI components
+Run `npm install` in the project's root directory.
 
 ### SketchUp Plugin
 

@@ -11,8 +11,14 @@
     "trailingComma": "es5"
   },
   "eslintConfig": {
-    "extends": ["airbnb-base", "prettier"],
-    "plugins": ["import", "prettier"],
+    "extends": [
+      "airbnb-base",
+      "prettier"
+    ],
+    "plugins": [
+      "import",
+      "prettier"
+    ],
     "env": {
       "jquery": true,
       "browser": true
