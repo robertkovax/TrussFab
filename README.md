@@ -28,6 +28,12 @@ TrussFab.start # starts the plugin
 
 Restart SketchUp for the changes to take effect. If it works will you see an extra window in SketchUp with the title 'TrussFab'.
 
+### Dynamics Simulation Server (Trusscilator)
+
+Install Docker and run `docker build -t trusscilator .` in `<project location>/src/system_simulation`. This process will take a while as it compiles the entire OpenModelica compiler.
+
+When finished, it can be run using `docker run -it -p 8080:8080 trusscilator`. When using a local server installation, make sure that you changed the path to the server in `<project location>/src/system_simulation/simulation_runner_client.rb` to `http://localhost:8080` before starting SketchUp.
+
 ### Force analysis server
 
 * To run the force analysis server, you need Rhino, Grasshopper, Karamba, and Python 2 installed.
@@ -41,7 +47,6 @@ Restart SketchUp for the changes to take effect. If it works will you see an ext
 * Once installed, it can also be started/stopped from the Windows Services GUI under the name "Fea Server".
 
 * To kill it if unresponsive, run `sc queryex "Fea Server"` which will print the PID, say 3582, then run `taskkill /F /PID 3582`
-
 
 ## Usage
 
