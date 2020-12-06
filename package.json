@@ -2,6 +2,6 @@
   "name": "TrussFabUI",
   "description": "parent package for in-sketchup web-based UI panels of TrussFab (residing in /ui)",
   "scripts": {
-    "postinstall": "(cd ui/animation-pane && npm ci && npm build) && (cd ui/sidebar && npm ci) && (cd ui/force-chart && npm ci)"
+    "postinstall": "(cd src/ui/animation-pane && npm ci && npm run build) && (cd src/ui/sidebar && npm ci) && (cd src/ui/force-chart && npm ci)"
   }
 }
