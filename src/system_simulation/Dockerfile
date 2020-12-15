@@ -1,5 +1,7 @@
-FROM ubuntu:19.10
+FROM ubuntu:20.04
 RUN apt-get update
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get install -y wget build-essential git ruby cmake clang autoconf automake libtool g++ gfortran default-jdk pkg-config flex bison gettext libz-dev libcurl4-openssl-dev
 

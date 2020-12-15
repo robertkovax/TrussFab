@@ -13,3 +13,7 @@ trim_trailing_whitespace = true
 
 [*.md]
 trim_trailing_whitespace = false
+
+[Makefile]
+# Use tabs for indentation (Makefiles require tabs)
+indent_style = tab
