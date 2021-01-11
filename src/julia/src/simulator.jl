@@ -6,6 +6,7 @@ using LinearAlgebra
 using Profile
 using Revise
 using PProf
+using MetaGraphs
 import TrussFab
 
 c_stiff = 1e6
@@ -23,6 +24,7 @@ function get_equations_of_motion(g)
         v_source = velocity(vertex_src)
         v_dest = velocity(vertex_dst)
         c, unstreched_length = params
+        
         r = displacement(vertex_src) - displacement(vertex_dst)
         
         scalar_projection = v -> dot(v, (r ./ norm(r)))
@@ -36,6 +38,7 @@ function get_equations_of_motion(g)
     
     function vector_sum(array, n=3)
         reduce((acc, elem) -> acc .+ elem, array, init=zeros(n))
+        # accumulate(+, array, dims=n)
     end
     
     function massvertex!(dv, v, edges_src, edges_dst, p, t)
@@ -57,15 +60,18 @@ function get_equations_of_motion(g)
     
     nd_vertecies = map(get_vetex_function, vertices(g))
     nd_edges =  [StaticEdge(f! = springedge!, dim = 3) for x in range(1, stop=ne(g))]
-    nd = network_dynamics(nd_vertecies, nd_edges, g)
+    nd = network_dynamics(nd_vertecies, nd_edges, g.graph)
     
     ### Simulation
     function nd_wrapper!(dx, x, p, t)
-      nd(dx, x, (nothing, p), t)
-    end 
+        # converting the parameter vector to a vector of tuples is nessecary, because we are required to have one 
+        # vector in optimization but actually want to map 2 parameters to any edge
+        nd(dx, x, (nothing, @views Iterators.partition(p, 2) |> Iterators.collect), t)
+    end
 
     return nd_wrapper!
 end
+
 
 
 function get_inital_conditions(g)
@@ -78,9 +84,8 @@ function get_initial_parameters(g)
         l = get_prop(g, e, :length)
         return (c,l)
     end
-    return map(param_vec_for_edge, edges(g))
+    return map(param_vec_for_edge, edges(g)) |> Iterators.flatten |> Iterators.collect
 end
-
 
 g = TrussFab.import_trussfab_file("./test_models/seesaw_3.json")
 
@@ -93,14 +98,17 @@ ode_problem = ODEProblem(
 )
 
 @time sol = solve(ode_problem, Rodas3(), abstol=1e-3, reltol=1e-1);
-@profile sol = solve(ode_problem, Rodas3(), abstol=1e-3, reltol=1e-1, progress=true);
-pprof()
+
+# @profile sol = solve(ode_problem, Rodas3(), abstol=1e-3, reltol=1e-1, progress=true);
+# pprof()
 
 plot(sol[1, :], sol[2, :], sol[3, :])
 plot(sol[19, :], sol[20, :], sol[21, :])
 plot(transpose(sol[19:19, :]))
 
 sol[1, :]
+
+Iterators.partition([1,2,3,4,5], 2) |> Iterators.collect
 
 function plot_vertex(index)
     start_index = (index - 1) * 6
@@ -113,3 +121,50 @@ end
 
 plot_vertex(8)
 
+using DiffEqSensitivity
+
+using Flux: ADAM
+using DiffEqFlux
+σ = get_initial_parameters(g)
+u0 = get_inital_conditions(g)
+probflux = ODEProblem(get_equations_of_motion(g), u0, tspan, σ)
+
+function predict(p)
+  ## default sensealg is InterpolatingAdjoint
+  solve(probflux, Rodas3(), p = p, saveat=tspan[1]:.01:tspan[end], sensealg=ForwardDiffSensitivity())
+end
+
+losses = [+Inf]
+
+function loss(p)
+  pred = predict(p)
+  # converge to 0 as fast as possible
+  # println(pred[6:8, :])
+  loss = sqrt(sum(abs2, pred))
+  loss, pred
+end
+
+cb = function (p, l, pred) # callback function to observe training
+  print(l)
+  print(", ")
+  # println(" params = ", σ )
+  display(plot(pred[18, :], pred[19, :], pred[20, :]))
+  return false
+end
+
+cb(σ, loss(σ)...)
+
+# A crucial thing to realize is that sciml_train works best with Arrays of parameters
+# We optimize for optimal local diffusion constants
+res = DiffEqFlux.sciml_train(loss, σ, ADAM(3), cb = cb, maxiters=300)
+res
+res.minimizer
+#res = DiffEqFlux.sciml_train(loss, σ, BFGS(), cb = cb)
+
+
+### Next Steps
+
+# round shaped phase space plot
+# trusscilator JSON file importer 
+# ground collisions
+# interactivity1
