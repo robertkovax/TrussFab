@@ -4,10 +4,12 @@ using Revise
 using LinearAlgebra
 import TrussFab
 using Plots
+using GraphPlot
 
 # relies on vertecies having for n vertecies 1:n as lables for vertecies
-g = TrussFab.import_trussfab_file("test_models/sketchup_tetrahedron.json")
+g = TrussFab.import_trussfab_file("test_models/chair.json", false)
 remove_spring_edges!(g)
+gplot(g)
 
 function remove_spring_edges!(g)
     for e in edges(g)
