@@ -8,15 +8,21 @@ module TrussFab
     export import_trussfab_file
     export import_trussfab_json
     export run_simulation
+    export warm_up
 
     const node_weight = 0.4  # kg
 
-    # include("./simulator.jl")
+    include("./simulator.jl")
     # Usage 
     # g = import_trussfab_file("./test_models/seesaw_3.json")
     # masses = map(a -> get_prop(g, a, :m), vertices(g))
     # gplot(g)
     # get_prop(g, 2, :init_pos)
+
+    function warm_up()
+        g = import_trussfab_file("./test_models/seesaw_3.json")
+        run_simulation(g)
+    end
 
     function import_trussfab_file(path, filter_trivially_fixed_edges=true)
         json = JSON.parsefile(path)
