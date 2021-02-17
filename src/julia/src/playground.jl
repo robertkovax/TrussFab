@@ -1,10 +1,21 @@
+using LightGraphs
 using Plots
+using Revise
+using GraphPlot
+import TrussFab
+using MetaGraphs
 
-include("./simulator.jl")
+# Test whether all test modesl are parsed without raising an error
+all_test_models = filter(f -> endswith(f, ".json"), readdir("./test_models", join=true))
+TrussFab.import_trussfab_file.(all_test_models)
 
 g = TrussFab.import_trussfab_file("./test_models/seesaw_3.json")
 
-sol = run_simulation(g)
+nodelabel = 1:nv(g)
+gplot(g, nodelabel=nodelabel)
+
+sol = TrussFab.run_simulation(g)
+
 plot(sol[1, :], sol[2, :], sol[3, :])
 plot(sol[19, :], sol[20, :], sol[21, :])
 plot(sol[19, :], sol[20, :], sol[21, :])
@@ -20,5 +31,4 @@ for v in vertices(g)
     plot_vertex(v)
 end
 
-plot()
 plot_vertex(19)

@@ -122,9 +122,7 @@
     2,
     1
   ],
-  "mounted_users" : {
-    "4" : 50
-  },
+  "mounted_users" : [],
   "spring_constants" : {
   }
 }

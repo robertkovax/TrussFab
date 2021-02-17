@@ -783,5 +783,9 @@
     3,
     2,
     1
+  ],
+  "mounted_users": [
+    {"id": 18, "weight": 60},
+    {"id": 20, "weight": 60}
   ]
 }

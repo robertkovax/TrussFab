@@ -4,15 +4,18 @@ module TrussFab
     using GraphPlot
     using MetaGraphs
     using LinearAlgebra
+    using Reexport
 
     export import_trussfab_file
     export import_trussfab_json
     export run_simulation
     export warm_up
 
-    const node_weight = 0.4  # kg
+    const base_node_weight = 0.4 # kg
 
-    include("./simulator.jl")
+    include("./Simulator.jl")
+    @reexport using .Simulator
+
     # Usage 
     # g = import_trussfab_file("./test_models/seesaw_3.json")
     # masses = map(a -> get_prop(g, a, :m), vertices(g))
@@ -38,14 +41,16 @@ module TrussFab
         clientNodeIds = fill(0, nodeCount)
         convertNodeId(nodeId) = findfirst(id -> id == nodeId, clientNodeIds)
 
-        for (nodeIndex, node) in enumerate(json["nodes"])
+        for (server_node_index, node) in enumerate(json["nodes"])
             fixed = !isempty(node["pods"]) && Bool(node["pods"][1]["is_fixed"])
+            added_mass = haskey(node, "added_mass") ? node["added_mass"] : 0 
 
-            clientNodeIds[nodeIndex] = node["id"]
-            set_prop!(g, nodeIndex, :id, node["id"])
-            set_prop!(g, nodeIndex, :m, node["added_mass"] + node_weight)
-            set_prop!(g, nodeIndex, :fixed, fixed)
-            set_prop!(g, nodeIndex, :init_pos, [node["x"], node["y"], node["z"]] / 1e3)
+            clientNodeIds[server_node_index] = node["id"]
+            set_prop!(g, server_node_index, :id, node["id"])
+            set_prop!(g, server_node_index, :m, added_mass + base_node_weight)
+            set_prop!(g, server_node_index, :fixed, fixed)
+            set_prop!(g, server_node_index, :active_user, false)
+            set_prop!(g, server_node_index, :init_pos, [node["x"], node["y"], node["z"]] / 1e3)
         end
 
         for edge in json["edges"]
@@ -55,12 +60,24 @@ module TrussFab
                 add_edge!(g, graph_edge)
                 set_prop!(g, graph_edge, :id, edge["id"])
                 set_prop!(g, graph_edge, :type, edge["type"])
-                l = norm(get_prop(g, convertNodeId(edge["n1"]), :init_pos) - get_prop(g, convertNodeId(edge["n2"]), :init_pos))
-                set_prop!(g, graph_edge, :length, l)
-                set_prop!(g, graph_edge, :wight, l)
+                set_prop!(g, graph_edge, :length, norm(get_prop(g, convertNodeId(edge["n1"]), :init_pos) - get_prop(g, convertNodeId(edge["n2"]), :init_pos)))
                 set_prop!(g, graph_edge, :spring_stiffness, edge["type"] == "spring" ? 1e4 : Inf)
             end
         end
+
+        # # assign user massses
+        # for (client_node_id, mass) in json["users"]
+        #     server_vertex_id = convertNodeId(parse(Int, client_node_id))
+        #     set_prop!(g, server_vertex_id, :m, mass + get_prop(g, server_vertex_id, :m))
+        # end
+        # assign user massses
+        for user_obj in json["mounted_users"]
+            mass = user_obj["weight"]
+            server_vertex_id = convertNodeId(user_obj["id"])
+            set_prop!(g, server_vertex_id, :m, mass + get_prop(g, server_vertex_id, :m))
+            set_prop!(g, server_vertex_id, :active_user, true)
+        end
+
         set_prop!(g, :original_index_keys, clientNodeIds)
         return g
     end
