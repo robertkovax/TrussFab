@@ -1,4 +1,21 @@
 # used for setting up layers, getting paths
+
+require 'socket'
+require 'timeout'
+
+def port_open?(port)
+  Timeout::timeout(0.1) do
+    begin
+      TCPSocket.new("localhost", port).close
+      true
+    rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
+      false
+    end
+  end
+rescue Timeout::Error
+  false
+end
+
 module ProjectHelper
   def self.plugin_directory
     File.expand_path('../..', File.dirname(__FILE__))
@@ -30,6 +47,7 @@ module ProjectHelper
   end
 
   def self.setup_sketchup
+    setup_simulation_server
     model = Sketchup.active_model
     model.start_operation('TrussFab Setup', true)
     # print and display lengths in mm
@@ -43,6 +61,26 @@ module ProjectHelper
   end
 
   private_class_method
+
+  def self.setup_simulation_server
+    port = Configuration::SIMULATION_SERVER_PORT
+    if not port_open?(port)
+      simulation_start_script = File.join(Dir.pwd, "src", "julia", "start.jl")
+      if ENV['OS'] == 'Windows_NT'
+        command = "start \"Trusscillator Simulation Server\" \"#{ENV['APPDATA']}\\..\\Local\\Programs\\Julia 1.5.3\\bin\\julia.exe\" #{simulation_start_script} #{port}"
+        # for pasting directly in a Windows Terminal use this command (work directory := project root):
+        # & "$env:APPDATA\..\Local\Programs\Julia 1.5.3\bin\julia.exe" src/julia/start.jl 8085"
+        p command
+      else
+        # we assume, we are on macOS
+        command = "osascript -e \'tell app \"Terminal\"
+            do script \"julia #{simulation_start_script} #{port}\"
+          end tell\'"
+      end
+      IO.popen command
+    end
+    # else we assume server is already running
+  end
 
   def self.setup_style
     styles = Sketchup.active_model.styles

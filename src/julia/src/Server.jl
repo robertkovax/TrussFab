@@ -165,5 +165,10 @@ import Base.Threads.@spawn
 @spawn TrussFab.warm_up() 
 
 function serve()
-    HTTP.serve(ROUTER, ip"0.0.0.0", 8080, verbose=true)
+    if isempty(ARGS)
+        port = 8080
+    else
+        port = parse(Int, ARGS[1])
+    end
+    HTTP.serve(ROUTER, ip"0.0.0.0", port, verbose=true)
 end
