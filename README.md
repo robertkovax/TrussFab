@@ -1,17 +1,18 @@
-# TrussMech
+# TrussFab
+*TrussFab - TrussFormer - Trusscillator*
 
 SketchUp plug-in to create large-scale 3D-printed truss structures by using ready-made objects (e.g. PET bottles) and linear actuators.
 
 ## Installation
-Prerequisits are 
+Prerequisits are:
 - SketchUp 2017 Make or Pro
 - [NodeJS v12](https://nodejs.org/en/)
+- [Julia 1.5.3](https://julialang.org/)
 
 ### UI components
 Run `npm install` in the project's root directory.
 
 ### SketchUp Plugin
-
 Find your [Sketchup Plugin directory](http://www.sketchup.com/intl/en/developer/docs/loading), it is usually located at:
 - Windows: `C:\Users\me\AppData\Roaming\SketchUp\SketchUp 2017\SketchUp\Plugins`
 - macOS: `/Users/me/Library/Application Support/SketchUp 2017/SketchUp/Plugins`.
@@ -28,29 +29,8 @@ TrussFab.start # starts the plugin
 
 Restart SketchUp for the changes to take effect. If it works will you see an extra window in SketchUp with the title 'TrussFab'.
 
-### Dynamics Simulation Server (Trusscilator)
-
-Install Docker and run `docker build -t trusscilator .` in `<project location>/src/system_simulation`. This process will take a while as it compiles the entire OpenModelica compiler.
-
-When finished, it can be run using `docker run -it -p 8080:8080 trusscilator`. When using a local server installation, make sure that you changed the path to the server in `<project location>/src/system_simulation/simulation_runner_client.rb` to `http://localhost:8080` before starting SketchUp.
-
-### Force analysis server
-
-* To run the force analysis server, you need Rhino, Grasshopper, Karamba, and Python 2 installed.
-
-* We set it up on the HPI machine fb07mpbpws2015 which can be accessed via Windows Remote Desktop.
-
-* In a run-as-administrator command line in `bottleProject/fea_server/`, run `python feaServerService.py install`, `python feaServerService.py start` and `python feaServerService.py stop` to change the state of the service.
-
-* It will also continue running after you log off.
-
-* Once installed, it can also be started/stopped from the Windows Services GUI under the name "Fea Server".
-
-* To kill it if unresponsive, run `sc queryex "Fea Server"` which will print the PID, say 3582, then run `taskkill /F /PID 3582`
 
 ## Usage
-
-[TBD: Add toolbar image]
 
 **DO NOT USE `CTRL + Z`**. This will ruin the internal data structure. Also, do not use the standard Sketchup tools for manipulating the model (move, rotate, ...).
 
@@ -140,21 +120,9 @@ After downloading the dll from the releases of https://github.com/SketchUp/sketc
 
 Also, use SketchUp’s Ruby Console to try for example `Graph.instance.empty?`.
 
-### Creating new Bottle Models
-
-[TBD]
-
 ### Dev Commands
 
 The ruby console in Sketchup can be used to interact with the TrussFab Plugin.
 Available commands are:
     TrussFab.reload - reloads ruby and js files for faster development (do this after you changed code you want to test)
     TrussFab.store_sensor_output - toggles writing the output of the sensors into a .csv-style file, which will be located in the home folder (called sensor_output.log)
-
-# Contact handles
-
-robert.kovacs@hpi.de
-
-anna.seufert@student.hpi.de
-
-ludwig.wall@student.hpi.de
