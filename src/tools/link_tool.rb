@@ -57,6 +57,7 @@ class LinkTool < Tool
     @edge = edge
     view.invalidate
     Sketchup.active_model.commit_operation
+    @ui.spring_pane.notify_model_changed
     @edge
   end
 
@@ -75,6 +76,7 @@ class LinkTool < Tool
       end
       create_link @first_position, second_position
       reset
+      @ui.spring_pane.notify_model_changed
       @edge
     end
   end
@@ -92,6 +94,8 @@ class LinkTool < Tool
       @edge.link.piston_group = IdManager.instance.maximum_piston_group + 1
     end
     Sketchup.active_model.commit_operation
+    @ui.spring_pane.notify_model_changed
+    nil
   end
 
   def reset

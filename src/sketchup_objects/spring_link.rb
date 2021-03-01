@@ -163,4 +163,9 @@ class SpringLink < ActuatorLink
     @id_label.layer = Sketchup.active_model.layers[Configuration::SPRING_INSIGHTS]
     @id_label.add_observer(SpringConstantObserver.new(@id))
   end
+
+  def upadate_spring_visualization
+    delete_children
+    create_children
+  end
 end

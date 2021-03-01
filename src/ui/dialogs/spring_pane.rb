@@ -50,12 +50,14 @@ class SpringPane
     @dialog = nil
     open_dialog
 
-    @pending_compilation = false
     @spring_hinges = {}
 
     @energy = 1000 # in Joule
 
     @initial_hub_positions = {}
+
+    # load attachable users such that they dont start loading during the user interaction
+    ModelStorage.instance.attachable_users
   end
 
   # spring / graph manipulation logic:
@@ -113,20 +115,23 @@ class SpringPane
 
   def update_springs
     @spring_edges = Graph.instance.edges.values.select { |edge| edge.link_type == 'spring' }
+
+    update_stats
     update_dialog if @dialog
   end
 
   def update_mounted_users
     SimulationRunnerClient.update_mounted_users(mounted_users)
 
-    update_stats unless @pending_compilation
+    update_stats
     update_dialog if @dialog
   end
 
   def update_mounted_users_excitement
+    optimize
     SimulationRunnerClient.update_mounted_users_excitement(mounted_users_excitement)
 
-    update_stats unless @pending_compilation
+    update_stats
     update_dialog if @dialog
   end
 
@@ -153,7 +158,7 @@ class SpringPane
     node_id = mounted_users.keys.first
     if @user_stats.nil? || @user_stats[node_id].nil?
       puts "No user stats for node #{node_id}"
-      return
+      # return
     end
     Sketchup.active_model.commit_operation
     @animation = PeriodAnimation.new(@simulation_data, @user_stats[node_id]['period'], node_id) do
@@ -287,18 +292,15 @@ class SpringPane
   end
 
   def notify_model_changed
+    p "Model was changed."
     # Reset what ever needs to be reset as soon as the model changed.
     if @animation && @animation.running
       @animation.stop
       @animation_running = false
     end
-    request_compilation
-    update_trace_visualization false
-  end
 
-  def request_compilation
-    @pending_compilation = true
-    update_dialog if @dialog
+    compile
+    update_trace_visualization true
   end
 
   def compile
@@ -310,7 +312,6 @@ class SpringPane
     end
     Sketchup.active_model.commit_operation
     puts "Compiled the modelica model in #{compile_time.round(2)} seconds."
-    @pending_compilation = false
     update_dialog if @dialog
   end
 
@@ -334,6 +335,16 @@ class SpringPane
       excitement[node_id] = hub.user_excitement
     end
     excitement
+  end
+
+  def get_extensions_from_equilibrium_positions
+    extensions = SimulationRunnerClient.get_spring_extensions
+
+    Graph.instance.edges.values.select { |edge| edge.link_type == 'spring' }.each do |edge|
+      edge.link.spring_parameters[:unstreched_length] = extensions[edge.id.to_s]
+      # edge.link.upadate_spring_visualization
+    end
+    update_dialog if @dialog
   end
 
   private
@@ -381,6 +392,7 @@ class SpringPane
   # compilation / simulation logic:
 
   def simulate
+    compile
     simulation_time = Benchmark.realtime do
       @simulation_data = SimulationRunnerClient.get_hub_time_series(@force_vectors)
     end
