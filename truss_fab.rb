@@ -5,6 +5,8 @@
 dir = File.dirname(__FILE__)
 dir.force_encoding("UTF-8")
 
+Dir.chdir dir
+
 bwin = (RUBY_PLATFORM =~ /mswin|mingw/i ? true : false)
 b64 = ((Sketchup.respond_to?('is_64bit?') && Sketchup.is_64bit?) ? true : false)
 
@@ -31,7 +33,10 @@ if ENV['OS'] == 'Windows_NT'
   # & "$env:APPDATA\..\Local\Programs\Julia 1.5.3\bin\julia.exe" src/julia/start.jl"
   p command
 else
-  command = "julia #{simulation_start_script}"
+  # we assume, we are on macOS
+  command = "osascript -e \'tell app \"Terminal\"
+      do script \"julia #{simulation_start_script}\"
+    end tell\'"
 end
 IO.popen command
 
