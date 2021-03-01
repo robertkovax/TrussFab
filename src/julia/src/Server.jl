@@ -159,7 +159,10 @@ function getUserStats(req::HTTP.Request)
 end
 HTTP.register!(ROUTER, "GET", "/get_user_stats/*", getUserStats)
 
-@async TrussFab.warm_up() 
+# run warm up in the background such that user can already interact 
+# task is compute-bound therefore @async/co-routines wont do
+import Base.Threads.@spawn
+@spawn TrussFab.warm_up() 
 
 function serve()
     HTTP.serve(ROUTER, ip"0.0.0.0", 8080, verbose=true)

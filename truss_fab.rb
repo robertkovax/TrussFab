@@ -23,6 +23,18 @@ if bwin
   Fiddle.dlopen(lib_fpath)
 end
 
+# start simulation server
+simulation_start_script = File.join(Dir.pwd, "src", "julia", "start.jl")
+if ENV['OS'] == 'Windows_NT'
+  command = "start \"Trusscillator Simulation Server\" \"#{ENV['APPDATA']}\\..\\Local\\Programs\\Julia 1.5.3\\bin\\julia.exe\" #{simulation_start_script}"
+  # for pasting directly in a Windows Terminal use this command (work directory := project root):
+  # & "$env:APPDATA\..\Local\Programs\Julia 1.5.3\bin\julia.exe" src/julia/start.jl"
+  p command
+else
+  command = "julia #{simulation_start_script}"
+end
+IO.popen command
+
 require ext_fpath
 
 # Require the main files
