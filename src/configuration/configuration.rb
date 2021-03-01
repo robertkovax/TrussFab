@@ -1,6 +1,9 @@
 require 'src/utility/project_helper.rb'
 
 module Configuration
+
+  SIMULATION_SERVER_PORT = "8085"
+
   # Sketchup Layers
   LINE_VIEW = 'Link lines'.freeze
   COMPONENT_VIEW = 'Bottles'.freeze
