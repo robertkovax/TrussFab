@@ -8,6 +8,7 @@ module Simulator
     using DiffEqCallbacks
 
     export run_simulation
+
     # using Revise
     # import TrussFab
 
@@ -36,11 +37,15 @@ module Simulator
 
 
     c_stiff = 1e6
-    d = 100.0
-    grav = [0, 0, -9.81]
-    # unstreched_length = 0.65
-    actuation_ratio = 0.
-    v_s = nothing
+    gravity = [0, 0, -9.81]
+
+    # The Dirac function is a 'infinitely' large and 'infinitely' short impulse at x=0 
+    # https://en.wikipedia.org/wiki/Dirac_delta_function
+    # as a approaches 0, the function will become more 'extreme'
+    dirac_delta = (x, a) -> 1 / (a * √π) * exp(1)^(-(x/a)^2)
+    dirac_impulse = (t) -> dirac_delta(t, 1/20)
+    # Test out how the function looks like in the first second
+    # (-0.5:0.01:0.5 .|> x -> dirac_delta(x, 1/20)) |> plot
 
     function spring_force_from_displacement_vector(r, c, unstreched_length)
         return @views r * (1 - (unstreched_length ./ norm(r))) * c
@@ -49,18 +54,22 @@ module Simulator
     function get_equations_of_motion(g)
         displacement = v -> @views [v[1],v[2],v[3]]
         velocity = v -> @views [v[4], v[5], v[6]]
+
         
         @inline Base.@propagate_inbounds function springedge!(e, vertex_src, vertex_dst, params, t)
-            v_source = velocity(vertex_src)
-            v_dest = velocity(vertex_dst)
+            d_spring = 10.0
+
+            v⃗_source = velocity(vertex_src)
+            v⃗_dest = velocity(vertex_dst)
             c, unstreched_length = params
-            r = displacement(vertex_src) - displacement(vertex_dst)
-            scalar_projection = v -> dot(v, (r ./ norm(r)))
+            r⃗ = displacement(vertex_src) - displacement(vertex_dst)
+
+            scalar_projection = v -> dot(v, (r⃗ ./ norm(r⃗)))
             
-            spring_force = spring_force_from_displacement_vector(r, c, unstreched_length)
-            damping_force = (scalar_projection(v_source) .- scalar_projection(v_dest)) * r ./ norm(r) * d
+            f⃗_spring = spring_force_from_displacement_vector(r⃗, c, unstreched_length)
+            f⃗_damping = (scalar_projection(v⃗_source) .- scalar_projection(v⃗_dest)) * r⃗ ./ norm(r⃗) * d_spring
             
-            e .= @views spring_force + damping_force
+            e .= @views f⃗_spring + f⃗_damping
             nothing
         end
 
@@ -69,10 +78,10 @@ module Simulator
             v_dest = velocity(vertex_dst)
             r = displacement(vertex_src) - displacement(vertex_dst)
 
-            d = 1e6
+            d_rod = 1e6
 
             scalar_projection = v -> dot(v, (r ./ norm(r)))
-            damping_force = (scalar_projection(v_source) .- scalar_projection(v_dest)) * r ./ norm(r) * d
+            damping_force = (scalar_projection(v_source) .- scalar_projection(v_dest)) * r ./ norm(r) * d_rod
             
             e .= @views damping_force
             nothing
@@ -83,13 +92,27 @@ module Simulator
             # accumulate(+, array, dims=n)
         end
         
-        @inline Base.@propagate_inbounds function massvertex!(dv, v, edges_src, edges_dst, p, t)
-            velocity(v) = @views [v[4], v[5], v[6]]
-            mass, actuation_ratio = p
+        @inline Base.@propagate_inbounds function massvertex!(dstate, state, edges_src, edges_dst, p, t)
+            m, actuation_power = p
+            v⃗ = velocity(state)
 
-            actuation_acceleration = velocity(v) * actuation_ratio
-            acceleration = (((vector_sum(edges_dst) - vector_sum(edges_src)) / mass) + grav) .+ actuation_acceleration
-            dv .= @views [velocity(v); acceleration]
+            intertia = (vector_sum(edges_dst) - vector_sum(edges_src)) ./ m
+            
+            a⃗ = intertia .+ gravity
+            
+            if actuation_power > 0.0
+                actuation = begin
+                    if norm(v⃗) > 0.01
+                        actuation_power .* v⃗ ./ norm(v⃗) ./ m 
+                    else
+                        v⃗  # which is [0, 0, 0] (avoiding to use more memory here)
+                    end
+                end
+                a⃗ = a⃗ .+ actuation
+                # a⃗ = a⃗ .+ dirac_impulse(t)
+            end
+
+            dstate .= @views [v⃗; a⃗]
             nothing
         end
             
@@ -108,8 +131,8 @@ module Simulator
             if  get_prop(g, edge_index, :type) == "spring"
                 return StaticEdge(f! = springedge!, dim = 3)
             else
-                return StaticEdge(f! = springedge!, dim = 3)
-                # return StaticEdge(f! = rodedge!, dim = 3)
+                # return StaticEdge(f! = springedge!, dim = 3)
+                return StaticEdge(f! = rodedge!, dim = 3)
             end
         end
 
@@ -149,8 +172,7 @@ module Simulator
         return map(v -> vcat(get_prop(g, v, :init_pos), zeros(3)), vertices(g)) |> Iterators.flatten |> collect
     end
 
-    function get_simulation_parameters(g)
-        
+    function get_simulation_parameters(g, actuation_power=0., c_stiff=c_stiff)
         param_vec_for_edge(e) = begin
             c = get_prop(g, e, :type) == "spring" ?  get_prop(g, e, :spring_stiffness) : c_stiff 
             l = get_prop(g, e, :length)
@@ -159,7 +181,7 @@ module Simulator
 
         param_vec_for_vertex(v) = begin 
             if (get_prop(g, v, :active_user))
-                return (get_prop(g, v, :m), actuation_ratio)
+                return (get_prop(g, v, :m), actuation_power)
             else
                 return (get_prop(g, v, :m), 0)
             end
@@ -169,15 +191,14 @@ module Simulator
     end
 
 
-    function run_simulation(g, fps=30, seconds=5.)
-        tspan = (0., seconds)
+    function run_simulation(g; fps=30, actuation_power=0., tspan=(0., 5.))
         u0 = get_inital_conditions(g)
 
         ode_problem = ODEProblem(
             get_equations_of_motion(g),
             u0,
             tspan,
-            get_simulation_parameters(g)
+            get_simulation_parameters(g, actuation_power)
         )
 
         time_intervals = range(tspan..., step=1/fps)
@@ -185,13 +206,14 @@ module Simulator
         check_interrupt_callback = PresetTimeCallback(time_intervals, _ -> yield())
         
         return @time solve(ode_problem,
-            Rodas3(),
+            TRBDF2(),
             abstol=1e-2,
             reltol=1e-2,
             saveat=time_intervals,
             callback=check_interrupt_callback
         );
     end
+
 
     function get_initial_parameters2(g, ks = [1,2,3])
         current_k_index = 1

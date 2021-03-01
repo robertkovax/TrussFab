@@ -893,6 +893,12 @@ git-tree-sha1 = "50c9a9ed8c714945e01cd53a21007ed3865ed714"
 uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
 version = "1.0.15"
 
+[[Peaks]]
+deps = ["Compat"]
+git-tree-sha1 = "ef559986786c8a7b5dcb50a5fd6872e2135906e8"
+uuid = "18e31ff7-3703-566c-8e60-38913d67486b"
+version = "0.3.0"
+
 [[Pixman_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "6a20a83c1ae86416f0a5de605eaea08a552844a3"

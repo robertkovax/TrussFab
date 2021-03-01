@@ -4,6 +4,7 @@ module TrussFab
     using GraphPlot
     using MetaGraphs
     using LinearAlgebra
+
     using Reexport
 
     export import_trussfab_file
@@ -15,7 +16,7 @@ module TrussFab
 
     include("./Simulator.jl")
     @reexport using .Simulator
-
+    
     # Usage 
     # g = import_trussfab_file("./test_models/seesaw_3.json")
     # masses = map(a -> get_prop(g, a, :m), vertices(g))
@@ -54,22 +55,18 @@ module TrussFab
         end
 
         for edge in json["edges"]
-            graph_edge = Edge(convertNodeId(edge["n1"]), convertNodeId(edge["n2"]))
+            src_node = convertNodeId(edge["n1"])
+            dst_node = convertNodeId(edge["n2"])
             # filter out edges that connect two fixed vertecies
-            if (!filter_trivially_fixed_edges || (! (get_prop(g, graph_edge.src, :fixed) && (get_prop(g, graph_edge.dst, :fixed)))))
-                add_edge!(g, graph_edge)
-                set_prop!(g, graph_edge, :id, edge["id"])
-                set_prop!(g, graph_edge, :type, edge["type"])
-                set_prop!(g, graph_edge, :length, norm(get_prop(g, convertNodeId(edge["n1"]), :init_pos) - get_prop(g, convertNodeId(edge["n2"]), :init_pos)))
-                set_prop!(g, graph_edge, :spring_stiffness, edge["type"] == "spring" ? 1e4 : Inf)
+            if (!filter_trivially_fixed_edges || (! (get_prop(g, src_node, :fixed) && (get_prop(g, dst_node, :fixed)))))
+                add_edge!(g, src_node, dst_node)
+                set_prop!(g, src_node, dst_node, :id, edge["id"])
+                set_prop!(g, src_node, dst_node, :type, edge["type"])
+                set_prop!(g, src_node, dst_node, :length, norm(get_prop(g, convertNodeId(edge["n1"]), :init_pos) - get_prop(g, convertNodeId(edge["n2"]), :init_pos)))
+                set_prop!(g, src_node, dst_node, :spring_stiffness, edge["type"] == "spring" ? 1e4 : Inf)
             end
         end
 
-        # # assign user massses
-        # for (client_node_id, mass) in json["users"]
-        #     server_vertex_id = convertNodeId(parse(Int, client_node_id))
-        #     set_prop!(g, server_vertex_id, :m, mass + get_prop(g, server_vertex_id, :m))
-        # end
         # assign user massses
         for user_obj in json["mounted_users"]
             mass = user_obj["weight"]

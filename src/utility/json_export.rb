@@ -50,7 +50,7 @@ class JsonExport
         piston_group: edge.link.piston_group,
         e1: edge.link.first_elongation_length.to_mm,
         e2: edge.link.second_elongation_length.to_mm,
-        uncompressed_length: edge.link_type == 'spring' ? edge.link.initial_edge_length.to_mm : edge.length.to_mm
+        uncompressed_length: edge.link_type == 'spring' ? edge.link.spring_parameters[:unstreched_length] * 1e3 : edge.length.to_mm
       }
       hash['spring_parameter_k'] = edge.link.spring_parameter_k if edge.link.is_a? SpringLink
       hash
