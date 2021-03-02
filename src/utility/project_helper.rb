@@ -4,7 +4,7 @@ require 'socket'
 require 'timeout'
 
 def port_open?(port)
-  Timeout::timeout(0.1) do
+  Timeout::timeout(5) do
     begin
       TCPSocket.new("localhost", port).close
       true
