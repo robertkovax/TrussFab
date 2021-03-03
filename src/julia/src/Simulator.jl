@@ -103,7 +103,7 @@ module Simulator
             if actuation_power > 0.0
                 actuation = begin
                     if norm(v⃗) > 0.01
-                        actuation_power .* v⃗ ./ norm(v⃗) ./ m 
+                        actuation_power .* v⃗ ./ norm(v⃗) ./  norm(v⃗) ./ m 
                     else
                         v⃗  # which is [0, 0, 0] (avoiding to use more memory here)
                     end
