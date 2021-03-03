@@ -57,7 +57,7 @@ module Simulator
 
         
         @inline Base.@propagate_inbounds function springedge!(e, vertex_src, vertex_dst, params, t)
-            d_spring = 10.0
+            d_spring =  50.0
 
             v⃗_source = velocity(vertex_src)
             v⃗_dest = velocity(vertex_dst)
