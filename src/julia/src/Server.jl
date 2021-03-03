@@ -128,9 +128,9 @@ function getSimulationResult(req::HTTP.Request)
     end
 
     return fetch(current_simulation_task) |>
-        simulationResultToCustomTableArray |> 
-        (data) -> JSON.json(Dict("data" => data)) |> 
-        (data) ->  HTTP.Response(200, data)    
+        simulationResultToCustomTableArray |>
+        (data) -> JSON.json(Dict("data" => data)) |>
+        (data) ->  HTTP.Response(200, data)
 end
 HTTP.register!(ROUTER, "GET", "/get_hub_time_series_with_force_vector", getSimulationResult)
 
@@ -159,16 +159,17 @@ function getUserStats(req::HTTP.Request)
 end
 HTTP.register!(ROUTER, "GET", "/get_user_stats/*", getUserStats)
 
-# run warm up in the background such that user can already interact 
+# run warm up in the background such that user can already interact
 # task is compute-bound therefore @async/co-routines wont do
 import Base.Threads.@spawn
-@spawn TrussFab.warm_up() 
-
+@spawn TrussFab.warm_up()
 function serve()
-    if isempty(ARGS)
-        port = 8080
-    else
+    if tryparse(Int, ARGS[1]) !== nothing
         port = parse(Int, ARGS[1])
+    else
+        port = 8085
     end
     HTTP.serve(ROUTER, ip"0.0.0.0", port, verbose=true)
 end
+
+serve()
