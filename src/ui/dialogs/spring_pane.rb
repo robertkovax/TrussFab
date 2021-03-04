@@ -68,17 +68,6 @@ class SpringPane
     p parameters
     edge.link.spring_parameters = parameters
     edge.link.actual_spring_length = parameters[:unstreched_length].m
-    # notify simulation runner about changed constants
-    SimulationRunnerClient.update_spring_constants(constants_for_springs)
-
-    update_stats
-    # TODO: fix and reenable
-    # put_geometry_into_equilibrium(spring_id)
-    update_trace_visualization true
-
-    # update_bode_diagram
-
-    update_dialog if @dialog
   end
 
   def enable_preloading_for_spring(spring_id)
@@ -104,7 +93,7 @@ class SpringPane
 
   def force_vectors=(vectors)
     @force_vectors = vectors
-    update_trace_visualization true
+    update_trace_visualization
     play_animation
   end
 
@@ -120,33 +109,8 @@ class SpringPane
     update_dialog if @dialog
   end
 
-  def update_mounted_users
-    SimulationRunnerClient.update_mounted_users(mounted_users)
-
-    update_stats
-    update_dialog if @dialog
-  end
-
-  def update_mounted_users_excitement
-    optimize
-    SimulationRunnerClient.update_mounted_users_excitement(mounted_users_excitement)
-
-    update_stats
-    update_dialog if @dialog
-  end
-
-  def update_stats
-    mounted_users.keys.each do |node_id|
-      stats = SimulationRunnerClient.get_user_stats(node_id)
-      stats = DEFAULT_STATS if stats == {}
-      @user_stats[node_id] = stats
-    end
-  end
-
-  def update_trace_visualization(force_simulation = true)
+  def update_trace_visualization
     Sketchup.active_model.start_operation("visualize trace", true)
-    # update simulation data and visualizations with adjusted results
-    simulate if force_simulation
 
     @trace_visualization ||= TraceVisualization.new
     @trace_visualization.reset_trace
@@ -299,21 +263,20 @@ class SpringPane
       @animation_running = false
     end
 
-    compile
-    update_trace_visualization true
+    simulate
   end
 
-  def compile
-    Sketchup.active_model.start_operation('compile simulation', true)
-    compile_time = Benchmark.realtime do
-      SimulationRunnerClient.update_model(
-        JsonExport.graph_to_json(nil, [], constants_for_springs, mounted_users)
-      )
-    end
-    Sketchup.active_model.commit_operation
-    puts "Compiled the modelica model in #{compile_time.round(2)} seconds."
-    update_dialog if @dialog
-  end
+  # def compile
+  #   Sketchup.active_model.start_operation('compile simulation', true)
+  #   compile_time = Benchmark.realtime do
+  #     SimulationRunnerClient.update_model(
+  #       JsonExport.graph_to_json(nil, [], constants_for_springs, mounted_users)
+  #     )
+  #   end
+  #   Sketchup.active_model.commit_operation
+  #   puts "Compiled the modelica model in #{compile_time.round(2)} seconds."
+  #   update_dialog if @dialog
+  # end
 
   def mounted_users
     mounted_users = {}
@@ -392,11 +355,31 @@ class SpringPane
   # compilation / simulation logic:
 
   def simulate
-    compile
-    simulation_time = Benchmark.realtime do
-      @simulation_data = SimulationRunnerClient.get_hub_time_series(@force_vectors)
+
+    # Sketchup.active_model.start_operation('compile simulation', true)
+    SimulationRunnerClient.update_model(
+        JsonExport.graph_to_json(nil, [], constants_for_springs, mounted_users)
+    ) do |result|
+      @simulation_data = result
+
+      mounted_users.keys.each do |node_id|
+        stats = result["user_stats"][node_id]
+        stats = DEFAULT_STATS if stats == {}
+        @user_stats[node_id] = stats
+      end
+
+      update_trace_visualization
+      update_dialog if @dialog
     end
-    puts "Simulated the compiled model in #{simulation_time.round(2)} seconds."
+    # Sketchup.active_model.commit_operation
+    # puts "Compiled the modelica model in #{compile_time.round(2)} seconds."
+    # update_dialog if @dialog
+
+
+    # simulation_time = Benchmark.realtime do
+    #   @simulation_data = SimulationRunnerClient.get_hub_time_series(@force_vectors)
+    # end
+    # puts "Simulated the compiled model in #{simulation_time.round(2)} seconds."
   end
 
   # animation logic:
@@ -451,6 +434,7 @@ class SpringPane
   def register_callbacks
     @dialog.add_action_callback('spring_constants_change') do |_, spring_id, value|
       update_constant_for_spring(spring_id, value.to_i)
+      simulate
     end
 
     @dialog.add_action_callback('spring_set_preloading') do |_, spring_id, value|
@@ -468,12 +452,7 @@ class SpringPane
     end
 
     @dialog.add_action_callback('spring_insights_compile') do
-      compile
-      # Also update trace visualization to provide visual feedback to user
-      update_stats
-      #update_bode_diagram
-      update_dialog if @dialog
-      update_trace_visualization true
+      simulate
     end
 
     @dialog.add_action_callback('spring_insights_simulate') do
@@ -495,21 +474,16 @@ class SpringPane
     @dialog.add_action_callback('user_weight_change') do |_, node_id, value|
       weight = value.to_i
       Graph.instance.nodes[node_id].hub.user_weight = weight
-      update_mounted_users
-      # update_bode_diagram
-      update_trace_visualization true
+      simulate
       puts "Update user weight: #{weight}"
-
       # TODO: probably this is a duplicate call, cleanup this updating the dialog logic
-      update_dialog if @dialog
     end
+
     @dialog.add_action_callback('user_excitement_change') do |_, node_id, value|
       excitement = value.to_i
       Graph.instance.nodes[node_id].hub.user_excitement = excitement
-      update_mounted_users_excitement
-      update_trace_visualization true
+      simulate
       puts "Update user excitement: #{excitement}"
-      update_dialog if @dialog
     end
   end
 

@@ -4,21 +4,22 @@ require 'net/http'
 require 'uri'
 require_relative 'animation_data_sample.rb'
 
-SIMULATION_RUNNER_HOST = "http://localhost:#{Configuration::SIMULATION_SERVER_PORT}".freeze
+# SIMULATION_RUNNER_HOST = "http://localhost:#{Configuration::SIMULATION_SERVER_PORT}".freeze
+SIMULATION_RUNNER_HOST = "http://192.168.150.1:8085".freeze
 
 class SimulationRunnerClient
-  def self.update_model(json_string)
+  def self.update_model(json_string, &block)
     p "server request: update_model"
     uri = URI.parse("#{SIMULATION_RUNNER_HOST}/update_model")
-    header = {'Content-Type' => 'text/json'}
 
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.read_timeout = 240
-
-    request = Net::HTTP::Post.new(uri.request_uri, header)
+    request = Sketchup::Http::Request.new(uri.to_s, Sketchup::Http::POST)
+    request.headers = {'Content-Type' => 'text/json'}
     request.body = json_string.to_s
 
-    response = http.request(request)
+    request.start do |request, response|
+      puts "/update_model successful"
+      yield JSON.parse(response.body)
+    end
   end
 
   def self.update_spring_constants(spring_constants)
