@@ -24,13 +24,13 @@ module Simulator
         return @views r * (1 - (unstreched_length ./ norm(r))) * c
     end
 
-    function get_equations_of_motion(g)
+    function get_equations_of_motion(g, with_dirac=false)
         displacement = v -> @views [v[1],v[2],v[3]]
         velocity = v -> @views [v[4], v[5], v[6]]
 
         
         @inline Base.@propagate_inbounds function springedge!(e, vertex_src, vertex_dst, params, t)
-            d_spring =  50.0
+            d_spring =  20.0
 
             v⃗_source = velocity(vertex_src)
             v⃗_dest = velocity(vertex_dst)
@@ -60,6 +60,7 @@ module Simulator
             nothing
         end
         
+        
         @inline Base.@propagate_inbounds function vector_sum(array, n=3)
             reduce((acc, elem) -> acc .+ elem, array, init=zeros(n))
             # accumulate(+, array, dims=n)
@@ -73,15 +74,9 @@ module Simulator
             
             a⃗ = intertia .+ gravity
             
-            if actuation_power > 0.0
-                actuation = begin
-                    if norm(v⃗) > 0.01
-                        actuation_power .* v⃗ ./ norm(v⃗) ./  norm(v⃗) ./ m 
-                    else
-                        v⃗  # which is [0, 0, 0] (avoiding to use more memory here)
-                    end
-                end
-                a⃗ = a⃗ .+ actuation
+            if actuation_power > 0.0 && norm(v⃗) > 0.01
+                actuaction_force = actuation_power .* v⃗ ./ norm(v⃗)
+                a⃗ = a⃗ .+ (actuaction_force ./ m)
                 # a⃗ = a⃗ .+ dirac_impulse(t)
             end
 
@@ -156,15 +151,15 @@ module Simulator
             get_simulation_parameters(g, actuation_power)
         )
 
-        time_intervals = range(tspan..., step=1/fps)
         # make sure that the simulation can be aborted using InterruptException
-        check_interrupt_callback = PresetTimeCallback(time_intervals, _ -> yield())
+        # TODO figure out why this triggers twice as much as it's suppoose to (mind the 2; should be 1) 
+        check_interrupt_callback = PeriodicCallback(_ -> yield(), 2/fps)
         
         return @time solve(ode_problem,
             TRBDF2(),
             abstol=1e-2,
             reltol=1e-2,
-            saveat=time_intervals,
+            save_everystep=false,  # the simulation result is implicitly saved whenever a callback is triggered
             callback=check_interrupt_callback
         );
     end

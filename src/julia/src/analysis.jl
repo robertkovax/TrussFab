@@ -1,54 +1,68 @@
 using FFTW
 
-function fft_on_vertex(sol, vertex_id, fps)
-    F1 = fft(sol[vertex_id*6 + 0, :]) |> fftshift
-    F2 = fft(sol[vertex_id*6 + 1, :]) |> fftshift
-    F3 = fft(sol[vertex_id*6 + 2, :]) |> fftshift
+function get_frequency_spectrum(sol, vertex_id)
+    fps = 1/ (sol.t[2] - sol.t[1])
+
+    F1 = fft(sol[vertex_id*6 - 5, :]) |> fftshift
+    F2 = fft(sol[vertex_id*6 - 4, :]) |> fftshift
+    F3 = fft(sol[vertex_id*6 - 3, :]) |> fftshift
     freqs = fftfreq(length(sol.t), fps) |> fftshift
 
     mag = log10.(abs.(F1) .+ abs.(F2) .+ abs.(F3))
     return freqs, mag
 end
 
-function get_amplitude(sol)
+function get_dominant_frequency(sol, vertex_id)
+    frequency, magnitude = get_frequency_spectrum(sol, vertex_id)
+    _, index = findmax(magnitude[0.2 .< frequency .< 1.0])
+    return frequency[0.2 .< frequency .< 1.0][index]
+end
+
+function get_amplitude(sol, vertex_id)
     # go through timeseries -> set start point 
     # -> advance as long as next vector is further away from start than previous one
     # -> when this is not the case anymore the path is considered one amplitude
     # -> check  whether this amplitued exceeds the currently longest amplitude
     # ↺ for entire time series
-    vertex_id = 18 +1
     largest_aplitude = 0
-    timeseries = sol[vertex_id*6:vertex_id*6+2, :]
+    largest_aplitude_start_index = nothing
+    largest_aplitude_end_index = nothing
+    timeseries = sol[vertex_id*6-5:vertex_id*6-3, :]
 
-    start_node = nothing
-    prev_node = nothing
+    start_pos = nothing
+    start_index = nothing
+    prev_pos = nothing
     current_amplitude_length = 0
 
-    for vector in eachcol(timeseries)
-        if start_node === nothing
-            start_node = vector
-        elseif prev_node === nothing
-            current_amplitude_length = norm(start_node - vector)
-            prev_node = vector
-        elseif norm(start_node - vector) < norm(start_node - prev_node)
+    for (index, pos) in enumerate(eachcol(timeseries))
+        if start_pos === nothing
+            start_pos = pos
+            start_index = index
+        elseif prev_pos === nothing
+            current_amplitude_length = norm(start_pos - pos)
+            prev_pos = pos
+        elseif norm(start_pos - pos) < norm(start_pos - prev_pos)
             # terminal condition
             if largest_aplitude < current_amplitude_length
                 largest_aplitude = current_amplitude_length
+                largest_aplitude_start_index = start_index
+                largest_aplitude_end_index = index
             end
-            start_node = nothing
-            prev_node = nothing
+            start_pos = nothing
+            prev_pos = nothing
         else
-            current_amplitude_length += norm(prev_node - vector)
-            prev_node = vector
+            current_amplitude_length += norm(prev_pos - pos)
+            prev_node = pos
         end
     end
-    return largest_aplitude
+    return largest_aplitude, (largest_aplitude_start_index, largest_aplitude_end_index)
 end
 
-function get_dominant_frequency(sol)
-    spectrum = get_frequency(sol, 30, 18+1)
-    get_frequency(sol, 30, 20)
-    trimmed_spectrum = spectrum[0.2 .< spectrum[:, 1] .< 1.0, :]
-    max_mag, index = findmax(trimmed_spectrum[:,2])
-    return trimmed_spectrum[index]
+function get_acceleration(velocities, fps)
+    result = similar(velocities)
+    for i in 2:length(velocities)
+        result[i] = velocities[i-1] - velocities[i]
+    end
+    result[1] = 0
+    return result ./ fps
 end
