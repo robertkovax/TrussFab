@@ -24,22 +24,20 @@ function set_weight(m)
     end
 end
 
-
-
-function get_frequency(sol, fps, vertex_id)
-    (freqs, mag) = fft_on_vertex(sol, vertex_id, fps)
+function plot_spectrum(sol, vertex_id)
+    (freqs, mag) = get_frequency_spectrum(sol, vertex_id)
     # plots 
-    time_domain = plot(transpose(sol[vertex_id*6:vertex_id*6+2, :]), title = "Signal")
+    time_domain = plot(transpose(sol[((vertex_id -1)*6 +1):((vertex_id -1)*6+3), :]), title = "Signal")
     freq_domain = plot(freqs, mag, title = "Spectrum", xlim=(0, +1), ylims=(-1, 5))
     p = plot(time_domain, freq_domain, layout = 2) 
     display(p)
     return [freqs mag]
 end
 
-
 function get_dominant_frequency(sol)
-    spectrum = get_frequency(sol, 30, 18+1)
-    get_frequency(sol, 30, 20)
+    node_of_interest = 18
+    spectrum = get_frequency_spectrum(sol, node_of_interest)
+    plot_spectrum(sol, node_of_interest)
     trimmed_spectrum = spectrum[0.2 .< spectrum[:, 1] .< 1.0, :]
     max_mag, index = findmax(trimmed_spectrum[:,2])
     return trimmed_spectrum[index]
@@ -48,15 +46,13 @@ end
 # If we add weight and stiffness (in a way the frequency remains the same)
 steps = 1:1:30
 
-sol = TrussFab.run_simulation(g, tspan=(0., 30.), fps=30, actuation_power=50.0)
-
 solution_cache = []
 
 for step in steps
     # set_stiffness(step*10 + 10000)
     set_weight(step*3 + 40)
     sol = TrussFab.run_simulation(g, tspan=(0., 30.), fps=30, actuation_power=10.0)
-    get_dominant_frequency(sol)
+    plot_spectrum(sol, 18)
     push!(solution_cache, sol)
 end
 
@@ -92,4 +88,3 @@ plot(steps.*100 .+ 3000, results2)
 
 # Simulate Energy Stealing on the Dinosaur
  
-

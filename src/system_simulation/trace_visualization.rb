@@ -98,7 +98,7 @@ class TraceVisualization
         add_label(position, position.offset(Geom::Vector3d.new(0, 10.cm, 0)),"#{max_acceleration.round(3)}m/s^2 ")
       end
 
-      racceleration = stats["time_acceleration"][0]
+      racceleration = stats["time_acceleration"][index]
       acceleration = Geom::Vector3d.new(racceleration["x"].mm, racceleration["y"].mm, racceleration["z"].mm)
       # puts "acceleration_length #{acceleration.length}"
 
