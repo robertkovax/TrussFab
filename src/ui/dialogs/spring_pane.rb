@@ -104,9 +104,6 @@ class SpringPane
 
   def update_springs
     @spring_edges = Graph.instance.edges.values.select { |edge| edge.link_type == 'spring' }
-
-    update_stats
-    update_dialog if @dialog
   end
 
   def update_trace_visualization
@@ -230,31 +227,6 @@ class SpringPane
     Sketchup.active_model.commit_operation
   end
 
-  # Calculates hinges / hinge edges for every spring
-  def calculate_hinge_edges
-    @spring_edges.each do |edge|
-      spring_triangles = edge.adjacent_triangles
-      next if spring_triangles.empty?
-      node_candidates = spring_triangles.map(&:nodes).flatten!.uniq!
-
-      node_candidates.reject! do |node|
-        # remove nodes where the spring is mounted
-        edge.nodes.include?(node)
-      end
-
-      hinge_point = Geom::Vector3d.new
-      hinge_id = -1
-      if node_candidates.length == 2 && node_candidates[0].edge_to?(node_candidates[1])
-        hinge_edge = node_candidates[0].edge_to node_candidates[1]
-        hinge_id = hinge_edge.id
-        hinge_point = hinge_edge.mid_point
-      end
-      @spring_hinges[edge.id] = {point: hinge_point, edge_id: hinge_id}
-      p @spring_hinges[edge.id]
-
-    end
-  end
-
   def notify_model_changed
     p "Model was changed."
     # Reset what ever needs to be reset as soon as the model changed.
@@ -298,6 +270,13 @@ class SpringPane
       excitement[node_id] = hub.user_excitement
     end
     excitement
+  end
+
+  def update_mounted_users
+    simulate
+  end
+
+  def update_mounted_users_excitement
   end
 
   def get_extensions_from_equilibrium_positions
@@ -355,15 +334,13 @@ class SpringPane
   # compilation / simulation logic:
 
   def simulate
-
-    # Sketchup.active_model.start_operation('compile simulation', true)
+    Sketchup.active_model.start_operation('compile simulation', true)
     SimulationRunnerClient.update_model(
-        JsonExport.graph_to_json(nil, [], constants_for_springs, mounted_users)
-    ) do |result|
-      @simulation_data = result
-
+        JsonExport.graph_to_json(nil, [], constants_for_springs)
+    ) do |timeseries_data, user_stats|
+      @simulation_data = timeseries_data
       mounted_users.keys.each do |node_id|
-        stats = result["user_stats"][node_id]
+        stats = user_stats[node_id.to_s]
         stats = DEFAULT_STATS if stats == {}
         @user_stats[node_id] = stats
       end
@@ -371,7 +348,7 @@ class SpringPane
       update_trace_visualization
       update_dialog if @dialog
     end
-    # Sketchup.active_model.commit_operation
+    Sketchup.active_model.commit_operation
     # puts "Compiled the modelica model in #{compile_time.round(2)} seconds."
     # update_dialog if @dialog
 

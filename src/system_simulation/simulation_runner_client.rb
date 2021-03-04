@@ -4,21 +4,22 @@ require 'net/http'
 require 'uri'
 require_relative 'animation_data_sample.rb'
 
-# SIMULATION_RUNNER_HOST = "http://localhost:#{Configuration::SIMULATION_SERVER_PORT}".freeze
-SIMULATION_RUNNER_HOST = "http://192.168.150.1:8085".freeze
+SIMULATION_RUNNER_HOST = "http://localhost:#{Configuration::SIMULATION_SERVER_PORT}".freeze
 
 class SimulationRunnerClient
-  def self.update_model(json_string, &block)
+  def self.update_model(json_string)
     p "server request: update_model"
-    uri = URI.parse("#{SIMULATION_RUNNER_HOST}/update_model")
 
-    request = Sketchup::Http::Request.new(uri.to_s, Sketchup::Http::POST)
+    request = Sketchup::Http::Request.new("#{SIMULATION_RUNNER_HOST}/update_model", Sketchup::Http::POST)
     request.headers = {'Content-Type' => 'text/json'}
     request.body = json_string.to_s
 
     request.start do |request, response|
       puts "/update_model successful"
-      yield JSON.parse(response.body)
+      json_response = JSON.parse(response.body)
+      timeseries_data = parse_data(json_response["data"])
+      user_stats = json_response["user_stats"]
+      yield timeseries_data, user_stats
     end
   end
 
