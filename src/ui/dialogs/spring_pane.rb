@@ -238,18 +238,6 @@ class SpringPane
     simulate
   end
 
-  # def compile
-  #   Sketchup.active_model.start_operation('compile simulation', true)
-  #   compile_time = Benchmark.realtime do
-  #     SimulationRunnerClient.update_model(
-  #       JsonExport.graph_to_json(nil, [], constants_for_springs, mounted_users)
-  #     )
-  #   end
-  #   Sketchup.active_model.commit_operation
-  #   puts "Compiled the modelica model in #{compile_time.round(2)} seconds."
-  #   update_dialog if @dialog
-  # end
-
   def mounted_users
     mounted_users = {}
     Graph.instance.nodes.each do |node_id, node|
@@ -349,14 +337,6 @@ class SpringPane
       update_dialog if @dialog
     end
     Sketchup.active_model.commit_operation
-    # puts "Compiled the modelica model in #{compile_time.round(2)} seconds."
-    # update_dialog if @dialog
-
-
-    # simulation_time = Benchmark.realtime do
-    #   @simulation_data = SimulationRunnerClient.get_hub_time_series(@force_vectors)
-    # end
-    # puts "Simulated the compiled model in #{simulation_time.round(2)} seconds."
   end
 
   # animation logic:
