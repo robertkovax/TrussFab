@@ -5,10 +5,11 @@ require 'src/system_simulation/spring_picker.rb'
 require 'src/system_simulation/simulation_runner_client.rb'
 require 'src/utility/json_export.rb'
 require 'src/system_simulation/period_animation.rb'
+require 'src/system_simulation/range_visualization.rb'
 
 # Ruby integration for spring insights dialog
 class SpringPane
-  attr_accessor :force_vectors, :trace_visualization, :spring_hinges, :spring_edges
+  attr_accessor :force_vectors, :path_visualization, :spring_hinges, :spring_edges
   INSIGHTS_HTML_FILE = '../spring-pane/index.erb'.freeze
   DEFAULT_STATS = { 'period' => Float::NAN,
                     'max_acceleration' => { 'value' => Float::NAN, 'index' => -1 },
@@ -29,7 +30,7 @@ class SpringPane
     # Sketchup animation object which animates the graph according to simulation data frames.
     @animation = nil
     # A simple visualization for simulation data, plotting circles into the scene.
-    @trace_visualization = nil
+    @path_visualization = nil
     @animation_running = false
     @period_animation_running = false
 
@@ -148,10 +149,10 @@ class SpringPane
     # update simulation data and visualizations with adjusted results
     simulate if force_simulation
 
-    @trace_visualization ||= TraceVisualization.new
-    @trace_visualization.reset_trace
+    @path_visualization ||= RangeVisualization.new
+    @path_visualization.reset_trace
     # visualize every node with a mounted user
-    @trace_visualization.add_trace(mounted_users.keys.map(&:to_s), 4, @simulation_data, @user_stats)
+    @path_visualization.add_trace(mounted_users.keys.map(&:to_s), 4, @simulation_data, @user_stats)
 
     # Visualized period
     #  TODO: make this work for multiple users and move into seperate method
@@ -442,7 +443,7 @@ class SpringPane
     end
     # "4"=>Point3d(201.359, -30.9042, 22.6955), "5"=>Point3d(201.359, -56.2592, 15.524)}
     preloading_enabled_spring_ids = @spring_edges.map(&:link).select { |link| link.spring_parameters[:enable_preloading]}.map(&:id)
-    @trace_visualization.reset_trace
+    @path_visualization.reset_trace
 
     position_data = SimulationRunnerClient.get_preload_positions(@energy, preloading_enabled_spring_ids).position_data
     preload_geometry_to position_data

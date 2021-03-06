@@ -66,14 +66,14 @@ module Geometry
     length_c = third_point.distance(first_point)
     total_length = length_a + length_b + length_c
     x = (length_a * first_point.x +
-         length_b * second_point.x +
-         length_c * third_point.x) / total_length
+      length_b * second_point.x +
+      length_c * third_point.x) / total_length
     y = (length_a * first_point.y +
-         length_b * second_point.y +
-         length_c * third_point.y) / total_length
+      length_b * second_point.y +
+      length_c * third_point.y) / total_length
     z = (length_a * first_point.z +
-         length_b * second_point.z +
-         length_c * third_point.z) / total_length
+      length_b * second_point.z +
+      length_c * third_point.z) / total_length
     Geom::Point3d.new(x, y, z)
   end
 
@@ -101,9 +101,9 @@ module Geometry
     # the intersection point (x,y,z) must satisfy all of these equations
 
     x = (first_radius * first_radius -
-         second_radius * second_radius + d * d) / (2 * d)
+      second_radius * second_radius + d * d) / (2 * d)
     y = (first_radius * first_radius -
-         third_radius * third_radius + i * i + j * j) / (2 * j) - x * i / j
+      third_radius * third_radius + i * i + j * j) / (2 * j) - x * i / j
     z_squared = first_radius * first_radius - x * x - y * y
     return nil if z_squared < 0 # no solution: three spheres don't intersect
     z = Math.sqrt(z_squared)
@@ -185,4 +185,20 @@ module Geometry
                       (point1.y + point2.y) / 2,
                       (point1.z + point2.z) / 2)
   end
+
+  # Given two non-collinear vectors, this creates the rotation matrix for these
+  # vectors.
+  def self.rotation_to_local_coordinate_system(first_vector, second_vector)
+    third_vector = first_vector.cross(second_vector).normalize!
+
+    # There seems to be a bug in Sketchup with using the .axes method
+    # see https://forums.sketchup.com/t/skew-transformation-inverse-issue-when-constructed-with-axes-method/49766/3
+    Geom::Transformation.new([
+                               first_vector.x, first_vector.y, first_vector.z, 0,
+                               second_vector.x, second_vector.y, second_vector.z, 0,
+                               third_vector.x, third_vector.y, third_vector.z, 0,
+                               0, 0, 0, 1
+                             ])
+  end
 end
+
