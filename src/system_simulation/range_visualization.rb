@@ -39,13 +39,13 @@ class RangeVisualization
   private
 
   def add_handles(curve, max_node_ids)
-    add_handle curve[0]
-    add_handle curve[-1]
+    add_handle curve[0], curve
+    add_handle curve[-1], curve
   end
 
-  def add_handle(position)
+  def add_handle(position, curve)
     puts "Add handle: #{position}"
-    handle = AmplitudeHandle.new position
+    handle = AmplitudeHandle.new position, movement_curve: curve
     @handles << handle
   end
 

@@ -165,19 +165,24 @@ module Geometry
 
   # http://geomalgorithms.com/a02-_lines.html
   def self.dist_point_to_segment(point, segment)
+    return point.distance(closest_point_on_segment(point, segment))
+  end
+
+  # http://geomalgorithms.com/a02-_lines.html
+  def self.closest_point_on_segment(point, segment)
     s0, s1 = segment
     v = s1 - s0
     w = point - s0
 
     c1 = w.dot(v)
-    return point.distance(s0) if c1 <= 0
+    return s0 if c1 <= 0
 
     c2 = v.dot(v)
-    return point.distance(s1) if c2 <= c1
+    return s1 if c2 <= c1
 
     b = c1 / c2
     pb = s0 + scale(v, b)
-    point.distance(pb)
+    return pb
   end
 
   def self.midpoint(point1, point2)

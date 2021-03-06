@@ -1,13 +1,16 @@
 require 'src/sketchup_objects/sketchup_object.rb'
 
 class AmplitudeHandle < SketchupObject
-  def initialize(position, material:Sketchup.active_model.materials['amplitude_handle_material'], id:nil)
+  attr_reader :movement_curve
+
+  def initialize(position, material:Sketchup.active_model.materials['amplitude_handle_material'], id:nil, movement_curve:nil)
     super(id, material:material)
     @position = position
     @definition = create_handle_definition
     @entity = create_entity
     # TODO: fix material
     @material = material
+    @movement_curve = movement_curve
   end
 
   def create_handle_definition
@@ -22,6 +25,11 @@ class AmplitudeHandle < SketchupObject
     arccurve = first_edge.curve
     entities.add_face(arccurve)
     handle_definition
+  end
+
+  def update_position(position)
+    @position = position
+    @entity.move!(Geom::Transformation::translation(@position))
   end
 
   def create_entity

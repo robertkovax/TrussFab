@@ -6,17 +6,16 @@ class AdjustAmplitudeTool < Tool
     super(ui)
     @mouse_input = MouseInput.new(snap_to_edges: false, snap_to_nodes: false)
 
-    @moving = false
+    @mouse_down = false
   end
 
   def onLButtonDown(_flags, x, y, view)
+    @mouse_down = true
     position = @mouse_input.update_positions(view, x, y)
 
-    # TODO: Don't talk to strangers coding style wise this is broken
     handles = @ui.spring_pane.path_visualization.handles
-
-    # find closes handle
-    # remember it
+    @selected_handle = handles.min_by { |handle| position.distance(handle.position)}
+    puts "Selected #{@selected_handle}"
   end
 
   def onMouseMove(_flags, x, y, view)
@@ -25,6 +24,7 @@ class AdjustAmplitudeTool < Tool
   end
 
   def onLButtonUp(_flags, x, y, view)
+    @mouse_down = false
     # forget handle
     update(view, x, y)
   end
@@ -32,10 +32,28 @@ class AdjustAmplitudeTool < Tool
   def update(view, x, y)
     @mouse_input.update_positions(view, x, y, point_on_plane_from_camera_normal: @start_position || nil)
 
-    return unless @moving && @mouse_input.position != @end_position
+    return unless @mouse_down
 
     @end_position = @mouse_input.position
+    handle_position =
+      find_closest_on_curve(@mouse_input.position, @selected_handle.movement_curve)
+    @selected_handle.update_position(handle_position)
     view.invalidate
+  end
+
+  # TODO: Might want to live inside the geometry module for later optimization
+  def find_closest_on_curve(point, curve)
+    closest_distance = Float::INFINITY
+    closest_point = nil
+    curve.each_cons(2) do |segment_start, segment_end|
+      dist = Geometry::dist_point_to_segment(point, [segment_start, segment_end])
+      if dist < closest_distance
+        closest_distance = dist
+        closest_point =
+          Geometry::closest_point_on_segment(point, [segment_start , segment_end])
+      end
+    end
+    closest_point
   end
 
   def reset
