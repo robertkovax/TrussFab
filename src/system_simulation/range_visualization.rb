@@ -23,7 +23,7 @@ class RangeVisualization
       stats = user_stats[node_id.to_i]
       max_node_indices = stats['max_node_indices']
       # TODO: Currently mocked
-      max_node_indices ||= [200, 250]
+      max_node_indices ||= [200, 230]
       curve = calculate_offsetted_curve(node_id, sampling_rate, max_node_indices)
 
       add_range_trace(curve)

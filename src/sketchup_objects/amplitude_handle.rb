@@ -8,8 +8,7 @@ class AmplitudeHandle < SketchupObject
     @position = position
     @definition = create_handle_definition
     @entity = create_entity
-    # TODO: fix material
-    @material = material
+    self.material = material
     @movement_curve = movement_curve
   end
 
