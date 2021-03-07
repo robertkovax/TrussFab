@@ -110,8 +110,8 @@ module TrussFab
       @animation_pane
     end
 
-    def compile
-      get_spring_pane.compile
+    def simulate
+      get_spring_pane.simulate
     end
 
   end

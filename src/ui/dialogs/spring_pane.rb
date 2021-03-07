@@ -68,17 +68,6 @@ class SpringPane
     p parameters
     edge.link.spring_parameters = parameters
     edge.link.actual_spring_length = parameters[:unstreched_length].m
-    # notify simulation runner about changed constants
-    SimulationRunnerClient.update_spring_constants(constants_for_springs)
-
-    update_stats
-    # TODO: fix and reenable
-    # put_geometry_into_equilibrium(spring_id)
-    update_trace_visualization true
-
-    # update_bode_diagram
-
-    update_dialog if @dialog
   end
 
   def enable_preloading_for_spring(spring_id)
@@ -104,7 +93,7 @@ class SpringPane
 
   def force_vectors=(vectors)
     @force_vectors = vectors
-    update_trace_visualization true
+    update_trace_visualization
     play_animation
   end
 
@@ -115,38 +104,10 @@ class SpringPane
 
   def update_springs
     @spring_edges = Graph.instance.edges.values.select { |edge| edge.link_type == 'spring' }
-
-    update_stats
-    update_dialog if @dialog
   end
 
-  def update_mounted_users
-    SimulationRunnerClient.update_mounted_users(mounted_users)
-
-    update_stats
-    update_dialog if @dialog
-  end
-
-  def update_mounted_users_excitement
-    optimize
-    SimulationRunnerClient.update_mounted_users_excitement(mounted_users_excitement)
-
-    update_stats
-    update_dialog if @dialog
-  end
-
-  def update_stats
-    mounted_users.keys.each do |node_id|
-      stats = SimulationRunnerClient.get_user_stats(node_id)
-      stats = DEFAULT_STATS if stats == {}
-      @user_stats[node_id] = stats
-    end
-  end
-
-  def update_trace_visualization(force_simulation = true)
+  def update_trace_visualization
     Sketchup.active_model.start_operation("visualize trace", true)
-    # update simulation data and visualizations with adjusted results
-    simulate if force_simulation
 
     @trace_visualization ||= TraceVisualization.new
     @trace_visualization.reset_trace
@@ -266,31 +227,6 @@ class SpringPane
     Sketchup.active_model.commit_operation
   end
 
-  # Calculates hinges / hinge edges for every spring
-  def calculate_hinge_edges
-    @spring_edges.each do |edge|
-      spring_triangles = edge.adjacent_triangles
-      next if spring_triangles.empty?
-      node_candidates = spring_triangles.map(&:nodes).flatten!.uniq!
-
-      node_candidates.reject! do |node|
-        # remove nodes where the spring is mounted
-        edge.nodes.include?(node)
-      end
-
-      hinge_point = Geom::Vector3d.new
-      hinge_id = -1
-      if node_candidates.length == 2 && node_candidates[0].edge_to?(node_candidates[1])
-        hinge_edge = node_candidates[0].edge_to node_candidates[1]
-        hinge_id = hinge_edge.id
-        hinge_point = hinge_edge.mid_point
-      end
-      @spring_hinges[edge.id] = {point: hinge_point, edge_id: hinge_id}
-      p @spring_hinges[edge.id]
-
-    end
-  end
-
   def notify_model_changed
     p "Model was changed."
     # Reset what ever needs to be reset as soon as the model changed.
@@ -299,20 +235,7 @@ class SpringPane
       @animation_running = false
     end
 
-    compile
-    update_trace_visualization true
-  end
-
-  def compile
-    Sketchup.active_model.start_operation('compile simulation', true)
-    compile_time = Benchmark.realtime do
-      SimulationRunnerClient.update_model(
-        JsonExport.graph_to_json(nil, [], constants_for_springs, mounted_users)
-      )
-    end
-    Sketchup.active_model.commit_operation
-    puts "Compiled the modelica model in #{compile_time.round(2)} seconds."
-    update_dialog if @dialog
+    simulate
   end
 
   def mounted_users
@@ -335,6 +258,14 @@ class SpringPane
       excitement[node_id] = hub.user_excitement
     end
     excitement
+  end
+
+  def update_mounted_users
+    simulate
+  end
+
+  def update_mounted_users_excitement
+    # TODO implement user actuation here
   end
 
   def get_extensions_from_equilibrium_positions
@@ -389,14 +320,43 @@ class SpringPane
   end
 
 
-  # compilation / simulation logic:
+  # Parses data retrieved from a csv, must contain header at the first index.
+  def self.parse_timeseries_data(data_array)
+    # parse in which columns the coordinates for each node are stored
+    indices_map = AnimationDataSample.indices_map_from_header(data_array[0])
 
-  def simulate
-    compile
-    simulation_time = Benchmark.realtime do
-      @simulation_data = SimulationRunnerClient.get_hub_time_series(@force_vectors)
+    # remove header of loaded data
+    data_array.shift
+
+    # parse csv
+    data_samples = []
+    data_array.each do |value|
+      data_samples << AnimationDataSample.from_raw_data(value, indices_map)
     end
-    puts "Simulated the compiled model in #{simulation_time.round(2)} seconds."
+    data_samples
+  end
+
+  # compilation / simulation logic
+  def simulate
+    Sketchup.active_model.start_operation('compile simulation', true)
+    SimulationRunnerClient.update_model(
+        JsonExport.graph_to_json(nil, [], constants_for_springs)
+    ) do |json_response|
+
+      timeseries_data = self.class.parse_timeseries_data(json_response["data"])
+      user_stats = json_response["user_stats"]
+
+      @simulation_data = timeseries_data
+      mounted_users.keys.each do |node_id|
+        stats = user_stats[node_id.to_s]
+        raise StandardError.new("user stats from the server were empty") if stats == {}
+        @user_stats[node_id] = stats
+      end
+
+      update_trace_visualization
+      update_dialog if @dialog
+    end
+    Sketchup.active_model.commit_operation
   end
 
   # animation logic:
@@ -451,6 +411,7 @@ class SpringPane
   def register_callbacks
     @dialog.add_action_callback('spring_constants_change') do |_, spring_id, value|
       update_constant_for_spring(spring_id, value.to_i)
+      simulate
     end
 
     @dialog.add_action_callback('spring_set_preloading') do |_, spring_id, value|
@@ -468,12 +429,7 @@ class SpringPane
     end
 
     @dialog.add_action_callback('spring_insights_compile') do
-      compile
-      # Also update trace visualization to provide visual feedback to user
-      update_stats
-      #update_bode_diagram
-      update_dialog if @dialog
-      update_trace_visualization true
+      simulate
     end
 
     @dialog.add_action_callback('spring_insights_simulate') do
@@ -495,21 +451,16 @@ class SpringPane
     @dialog.add_action_callback('user_weight_change') do |_, node_id, value|
       weight = value.to_i
       Graph.instance.nodes[node_id].hub.user_weight = weight
-      update_mounted_users
-      # update_bode_diagram
-      update_trace_visualization true
+      simulate
       puts "Update user weight: #{weight}"
-
       # TODO: probably this is a duplicate call, cleanup this updating the dialog logic
-      update_dialog if @dialog
     end
+
     @dialog.add_action_callback('user_excitement_change') do |_, node_id, value|
       excitement = value.to_i
       Graph.instance.nodes[node_id].hub.user_excitement = excitement
-      update_mounted_users_excitement
-      update_trace_visualization true
+      simulate
       puts "Update user excitement: #{excitement}"
-      update_dialog if @dialog
     end
   end
 
