@@ -265,6 +265,7 @@ class SpringPane
   end
 
   def update_mounted_users_excitement
+    # TODO implement user actuation here
   end
 
   def get_extensions_from_equilibrium_positions
@@ -319,17 +320,36 @@ class SpringPane
   end
 
 
-  # compilation / simulation logic:
+  # Parses data retrieved from a csv, must contain header at the first index.
+  def self.parse_timeseries_data(data_array)
+    # parse in which columns the coordinates for each node are stored
+    indices_map = AnimationDataSample.indices_map_from_header(data_array[0])
 
+    # remove header of loaded data
+    data_array.shift
+
+    # parse csv
+    data_samples = []
+    data_array.each do |value|
+      data_samples << AnimationDataSample.from_raw_data(value, indices_map)
+    end
+    data_samples
+  end
+
+  # compilation / simulation logic
   def simulate
     Sketchup.active_model.start_operation('compile simulation', true)
     SimulationRunnerClient.update_model(
         JsonExport.graph_to_json(nil, [], constants_for_springs)
-    ) do |timeseries_data, user_stats|
+    ) do |json_response|
+
+      timeseries_data = self.class.parse_timeseries_data(json_response["data"])
+      user_stats = json_response["user_stats"]
+
       @simulation_data = timeseries_data
       mounted_users.keys.each do |node_id|
         stats = user_stats[node_id.to_s]
-        stats = DEFAULT_STATS if stats == {}
+        raise StandardError.new("user stats from the server were empty") if stats == {}
         @user_stats[node_id] = stats
       end
 

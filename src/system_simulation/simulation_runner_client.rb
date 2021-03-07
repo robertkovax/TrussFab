@@ -17,9 +17,7 @@ class SimulationRunnerClient
     request.start do |request, response|
       puts "/update_model successful"
       json_response = JSON.parse(response.body)
-      timeseries_data = parse_data(json_response["data"])
-      user_stats = json_response["user_stats"]
-      yield timeseries_data, user_stats
+      yield json_response
     end
   end
 
@@ -115,34 +113,4 @@ class SimulationRunnerClient
     end
 
   end
-
-  # Parses data retrieved from a csv, must contain header at the first index.
-  def self.parse_data(data_array)
-    # parse in which columns the coordinates for each node are stored
-    indices_map = AnimationDataSample.indices_map_from_header(data_array[0])
-
-    # remove header of loaded data
-    data_array.shift
-
-    # parse csv
-    data_samples = []
-    data_array.each do |value|
-      data_samples << AnimationDataSample.from_raw_data(value, indices_map)
-    end
-
-    data_samples
-
-  end
-
-  def self.spring_data_from_graph
-    constants_for_springs = {}
-    spring_links = Graph.instance.edges.values
-                       .select { |edge| edge.link_type == 'spring' }
-                       .map(&:link)
-    spring_links.each do |link|
-      constants_for_springs[link.edge.id] = link.spring_parameters[:k]
-    end
-    constants_for_springs
-  end
-
 end
