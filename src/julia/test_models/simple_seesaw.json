@@ -208,6 +208,7 @@
       "n1": 2,
       "n2": 6,
       "type": "spring",
+      "spring_parameter_k": 10000,
       "bottle_type": "Pipe(60cm)",
       "piston_group": 0,
       "e1": 34.640751754777895,
