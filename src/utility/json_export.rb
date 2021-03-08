@@ -7,7 +7,7 @@ class JsonExport
   def self.export(path, triangle = nil, animation)
     file = File.open(path, 'w')
     # TODO: also export spring parameters
-    file.write(graph_to_json(triangle, animation, {}))
+    file.write(graph_to_json(triangle, animation))
     file.close
   end
 
