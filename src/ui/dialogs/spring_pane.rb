@@ -68,6 +68,7 @@ class SpringPane
     p parameters
     edge.link.spring_parameters = parameters
     edge.link.actual_spring_length = parameters[:unstreched_length].m
+    simulate
   end
 
   def enable_preloading_for_spring(spring_id)
@@ -339,10 +340,7 @@ class SpringPane
   # compilation / simulation logic
   def simulate
     Sketchup.active_model.start_operation('compile simulation', true)
-    SimulationRunnerClient.update_model(
-        JsonExport.graph_to_json(nil, [], constants_for_springs)
-    ) do |json_response|
-
+    SimulationRunnerClient.update_model(JsonExport.graph_to_json ) do |json_response|
       timeseries_data = self.class.parse_timeseries_data(json_response["data"])
       user_stats = json_response["user_stats"]
 
@@ -411,7 +409,6 @@ class SpringPane
   def register_callbacks
     @dialog.add_action_callback('spring_constants_change') do |_, spring_id, value|
       update_constant_for_spring(spring_id, value.to_i)
-      simulate
     end
 
     @dialog.add_action_callback('spring_set_preloading') do |_, spring_id, value|
