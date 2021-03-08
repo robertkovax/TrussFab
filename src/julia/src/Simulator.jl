@@ -153,13 +153,14 @@ module Simulator
 
         # make sure that the simulation can be aborted using InterruptException
         # TODO figure out why this triggers twice as much as it's suppoose to (mind the 2; should be 1) 
-        check_interrupt_callback = PeriodicCallback(_ -> yield(), 2/fps)
+        check_interrupt_callback = FunctionCallingCallback((_, _, _) -> yield())
         
         return @time solve(ode_problem,
             TRBDF2(),
             abstol=1e-2,
             reltol=1e-2,
-            save_everystep=false,  # the simulation result is implicitly saved whenever a callback is triggered
+            saveat=1/fps,
+            # save_everystep=false,  # the simulation result is implicitly saved whenever a callback is triggered
             callback=check_interrupt_callback
         );
     end
