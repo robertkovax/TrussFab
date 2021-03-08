@@ -63,12 +63,20 @@ module TrussFab
                 set_prop!(g, src_node, dst_node, :id, edge["id"])
                 set_prop!(g, src_node, dst_node, :type, edge["type"])
                 set_prop!(g, src_node, dst_node, :length, norm(get_prop(g, convertNodeId(edge["n1"]), :init_pos) - get_prop(g, convertNodeId(edge["n2"]), :init_pos)))
-                
+
                 if edge["type"] == "spring"
                     set_prop!(g, src_node, dst_node, :spring_stiffness,  edge["spring_parameter_k"])
                 end
             end
         end
+
+
+        for v in vertices(g)
+            # TODO actually discard them (had trouble befor with MetaGraphs)
+            if isempty(neighbors(g, v))
+                set_prop!(g, v, :fixed, true)
+            end
+        end 
 
         # assign user massses
         for user_obj in json["mounted_users"]
