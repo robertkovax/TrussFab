@@ -60,7 +60,7 @@ function get_amplitude(sol, vertex_id)
     return largest_aplitude, (largest_aplitude_start_index, largest_aplitude_end_index)
 end
 
-function get_peridoicity(sol, threshold=1e-4, min_timestep_distance=3)
+function get_peridoicity(sol, threshold=0.05, min_timestep_distance=3)
     recurring_time_steps = []
     for i in 1:length(sol.t)
         for j in (i + min_timestep_distance):length(sol.t)

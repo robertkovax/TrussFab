@@ -122,17 +122,6 @@ function update_model(req::HTTP.Request)
 end
 HTTP.register!(ROUTER, "POST", "/update_model", update_model)
 
-
-function update_spring_constants(req::HTTP.Request)
-    # set_spring(src_vertex, dst_vertex, k) = set_prop!(current_structure, src_vertex, dst_vertex, :spring_stiffness, k)
-    # TODO implement
-    global spring_constants_override
-    spring_constants_override = JSON.parse(String(req.body))
-    return HTTP.Response(200, "ok")
-end
-HTTP.register!(ROUTER, "POST", "/update_spring_constants", update_spring_constants)
-
-
 # --- http server ---
 
 # run warm up in the background such that user can already interact
@@ -151,3 +140,4 @@ end
 import TrussFab
 serve()
 nothing
+

@@ -157,8 +157,8 @@ module Simulator
         
         return @time solve(ode_problem,
             TRBDF2(),
-            abstol=1e-2,
-            reltol=1e-2,
+            abstol=5e-1,
+            reltol=1e-1,
             saveat=1/fps,
             # save_everystep=false,  # the simulation result is implicitly saved whenever a callback is triggered
             callback=check_interrupt_callback

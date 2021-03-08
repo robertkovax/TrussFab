@@ -37,7 +37,10 @@
       "y": 3456.380941948569,
       "z": 150.0,
       "pods": [
-
+        {
+          "direction": "(-0.0, -0.0, -1.772309527559055)",
+          "is_fixed": true
+        }
       ],
       "added_mass": 0
     },
@@ -180,26 +183,6 @@
         {
           "direction": "(-0.0, -0.0, -1.772309527559055)",
           "is_fixed": true
-        },
-        {
-          "direction": "(0.0, 0.0, -1.772309527559055)",
-          "is_fixed": true
-        },
-        {
-          "direction": "(0.0, 0.0, -1.772309527559055)",
-          "is_fixed": true
-        },
-        {
-          "direction": "(0.0, 0.0, -1.772309527559055)",
-          "is_fixed": true
-        },
-        {
-          "direction": "(0.0, 0.0, -1.772309527559055)",
-          "is_fixed": true
-        },
-        {
-          "direction": "(0.0, 0.0, -1.772309527559055)",
-          "is_fixed": true
         }
       ],
       "added_mass": 0
@@ -310,7 +293,10 @@
       "y": 4035.9957262708886,
       "z": 150.0,
       "pods": [
-
+        {
+          "direction": "(-0.0, -0.0, -1.772309527559055)",
+          "is_fixed": true
+        }
       ],
       "added_mass": 0
     },
@@ -1474,7 +1460,7 @@
       "n1": 32,
       "n2": 21,
       "type": "spring",
-      "spring_parameter_k": 10000,
+      "spring_parameter_k": 50000,
       "bottle_type": "Pipe(80cm)",
       "piston_group": 5,
       "e1": 20.0,
@@ -1556,7 +1542,7 @@
       "n1": 18,
       "n2": 7,
       "type": "spring",
-      "spring_parameter_k": 10000,
+      "spring_parameter_k": 50000,
       "bottle_type": "Pipe(60cm)",
       "piston_group": 8,
       "e1": 20.0,
