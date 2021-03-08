@@ -71,8 +71,8 @@ class ImportTool < Tool
     @ui.animation_pane.sync_hidden_status(Graph.instance.actuator_groups)
 
     if @update_springs
-      @ui.spring_pane.request_compilation
       @ui.spring_pane.update_springs
+      @ui.spring_pane.request_compilation
       @ui.spring_pane.color_static_groups
     end
 

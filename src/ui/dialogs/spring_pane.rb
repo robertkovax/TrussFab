@@ -279,6 +279,10 @@ class SpringPane
     update_dialog if @dialog
   end
 
+  def request_compilation
+    simulate
+  end
+
   private
 
   def constants_for_springs
