@@ -9,16 +9,16 @@ SIMULATION_RUNNER_HOST = "http://localhost:#{Configuration::SIMULATION_SERVER_PO
 class SimulationRunnerClient
   def self.update_model(json_string)
     p "server request: update_model"
-    uri = URI.parse("#{SIMULATION_RUNNER_HOST}/update_model")
-    header = {'Content-Type' => 'text/json'}
 
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.read_timeout = 240
-
-    request = Net::HTTP::Post.new(uri.request_uri, header)
+    request = Sketchup::Http::Request.new("#{SIMULATION_RUNNER_HOST}/update_model", Sketchup::Http::POST)
+    request.headers = {'Content-Type' => 'text/json'}
     request.body = json_string.to_s
 
-    response = http.request(request)
+    request.start do |request, response|
+      puts "/update_model successful"
+      json_response = JSON.parse(response.body)
+      yield json_response
+    end
   end
 
   def self.update_spring_constants(spring_constants)
@@ -113,34 +113,4 @@ class SimulationRunnerClient
     end
 
   end
-
-  # Parses data retrieved from a csv, must contain header at the first index.
-  def self.parse_data(data_array)
-    # parse in which columns the coordinates for each node are stored
-    indices_map = AnimationDataSample.indices_map_from_header(data_array[0])
-
-    # remove header of loaded data
-    data_array.shift
-
-    # parse csv
-    data_samples = []
-    data_array.each do |value|
-      data_samples << AnimationDataSample.from_raw_data(value, indices_map)
-    end
-
-    data_samples
-
-  end
-
-  def self.spring_data_from_graph
-    constants_for_springs = {}
-    spring_links = Graph.instance.edges.values
-                       .select { |edge| edge.link_type == 'spring' }
-                       .map(&:link)
-    spring_links.each do |link|
-      constants_for_springs[link.edge.id] = link.spring_parameters[:k]
-    end
-    constants_for_springs
-  end
-
 end

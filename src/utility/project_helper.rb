@@ -64,7 +64,7 @@ module ProjectHelper
 
   def self.setup_simulation_server
     port = Configuration::SIMULATION_SERVER_PORT
-    if not port_open?(port)
+    if Configuration::LAUNCH_SIMULATION_SERVER_WITH_SKETCHUP and not port_open?(port)
       simulation_start_script = File.join(Dir.pwd, "src", "julia", "start.jl")
       if ENV['OS'] == 'Windows_NT'
         command = "start \"Trusscillator Simulation Server\" \"#{ENV['APPDATA']}\\..\\Local\\Programs\\Julia 1.5.3\\bin\\julia.exe\" #{simulation_start_script} #{port}"

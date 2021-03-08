@@ -6,12 +6,12 @@ require 'src/utility/geometry.rb'
 class JsonExport
   def self.export(path, triangle = nil, animation)
     file = File.open(path, 'w')
-    # TODO: also export spring parameters and mounted users to json
-    file.write(graph_to_json(triangle, animation, {}, mounted_users_to_hash(Graph.instance.nodes)))
+    # TODO: also export spring parameters
+    file.write(graph_to_json(triangle, animation, {}))
     file.close
   end
 
-  def self.graph_to_json(triangle = nil, animation, spring_constants_for_ids, mounted_users)
+  def self.graph_to_json(triangle = nil, animation, spring_constants_for_ids)
     graph = Graph.instance
     json = {distance_unit: 'mm', force_unit: 'N'}
     json[:nodes] = nodes_to_hash(graph.nodes)
@@ -22,7 +22,7 @@ class JsonExport
     end
     json[:spring_constants] = spring_constants_for_ids if spring_constants_for_ids
     json[:standard_surface] = triangle.nodes_ids_towards_user
-    json[:mounted_users] = mounted_users if mounted_users
+    json[:mounted_users] = mounted_users_to_hash(Graph.instance.nodes)
     JSON.pretty_generate(json)
   end
 
