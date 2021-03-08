@@ -303,7 +303,8 @@
         0.0,
         1.0
       ],
-      "weight": 50
+      "weight": 50,
+      "excitement": 100
     }
   ]
 }

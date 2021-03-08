@@ -65,7 +65,8 @@ class JsonExport
         id: id,
         filename: node.hub.user_indicator_filename,
         transformation: node.hub.user_transformation.to_a,
-        weight: node.hub.user_weight
+        weight: node.hub.user_weight,
+        excitement: node.hub.user_excitement
       }
     end
     users

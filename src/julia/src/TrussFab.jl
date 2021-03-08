@@ -16,8 +16,8 @@ module TrussFab
 
     include("./Simulator.jl")
     @reexport using .Simulator
-    
-    # Usage 
+
+    # Usage
     # g = import_trussfab_file("./test_models/seesaw_3.json")
     # masses = map(a -> get_prop(g, a, :m), vertices(g))
     # gplot(g)
@@ -44,7 +44,7 @@ module TrussFab
 
         for (server_node_index, node) in enumerate(json["nodes"])
             fixed = !isempty(node["pods"]) && Bool(node["pods"][1]["is_fixed"])
-            added_mass = haskey(node, "added_mass") ? node["added_mass"] : 0 
+            added_mass = haskey(node, "added_mass") ? node["added_mass"] : 0
 
             clientNodeIds[server_node_index] = node["id"]
             set_prop!(g, server_node_index, :id, node["id"])
@@ -76,7 +76,7 @@ module TrussFab
             if isempty(neighbors(g, v))
                 set_prop!(g, v, :fixed, true)
             end
-        end 
+        end
 
         # assign user massses
         for user_obj in json["mounted_users"]
@@ -84,6 +84,7 @@ module TrussFab
             server_vertex_id = convertNodeId(user_obj["id"])
             set_prop!(g, server_vertex_id, :m, mass + get_prop(g, server_vertex_id, :m))
             set_prop!(g, server_vertex_id, :active_user, true)
+            set_prop!(g, server_vertex_id, :actuation_power, user_obj["excitement"])
         end
 
         set_prop!(g, :original_index_keys, clientNodeIds)

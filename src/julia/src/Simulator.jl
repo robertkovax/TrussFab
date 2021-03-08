@@ -67,6 +67,7 @@ module Simulator
         end
         
         @inline Base.@propagate_inbounds function massvertex!(dstate, state, edges_src, edges_dst, p, t)
+            areparallel(vec1, vec2) = norm(vec1 ./ norm(vec1) - vec2 ./ norm(vec2)) < 1.0
             m, actuation_power = p
             v⃗ = velocity(state)
 
@@ -74,9 +75,11 @@ module Simulator
             
             a⃗ = intertia .+ gravity
             
-            if actuation_power > 0.0 && norm(v⃗) > 0.01
-                actuaction_force = actuation_power .* v⃗ ./ norm(v⃗)
-                a⃗ = a⃗ .+ (actuaction_force ./ m)
+            if actuation_power > 0.0 && norm(v⃗) > 0.01 && areparallel(v⃗, a⃗)
+                max_applied_force = 1000 #N
+                actuaction_force = 2.0 * actuation_power ./ norm(v⃗)
+                capped_actuation_force = sign(actuaction_force) * min(abs(actuaction_force), max_applied_force)
+                a⃗ = a⃗ .+ (capped_actuation_force .* v⃗ ./ norm(v⃗) ./ m)
                 # a⃗ = a⃗ .+ dirac_impulse(t)
             end
 
@@ -122,7 +125,7 @@ module Simulator
         return map(v -> vcat(get_prop(g, v, :init_pos), zeros(3)), vertices(g)) |> Iterators.flatten |> collect
     end
 
-    function get_simulation_parameters(g, actuation_power=0., c_stiff=c_stiff)
+    function get_simulation_parameters(g, c_stiff=c_stiff)
         param_vec_for_edge(e) = begin
             c = get_prop(g, e, :type) == "spring" ?  get_prop(g, e, :spring_stiffness) : c_stiff 
             l = get_prop(g, e, :length)
@@ -131,7 +134,7 @@ module Simulator
 
         param_vec_for_vertex(v) = begin 
             if (get_prop(g, v, :active_user))
-                return (get_prop(g, v, :m), actuation_power)
+                return (get_prop(g, v, :m), get_prop(g, v, :actuation_power))
             else
                 return (get_prop(g, v, :m), 0)
             end
