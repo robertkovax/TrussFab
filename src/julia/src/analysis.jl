@@ -1,3 +1,4 @@
+using LinearAlgebra
 using FFTW
 
 function get_frequency_spectrum(sol, vertex_id)
@@ -49,10 +50,11 @@ function get_amplitude(sol, vertex_id)
                 largest_aplitude_end_index = index
             end
             start_pos = nothing
+            start_index = nothing
             prev_pos = nothing
         else
             current_amplitude_length += norm(prev_pos - pos)
-            prev_node = pos
+            prev_pos = pos
         end
     end
     return largest_aplitude, (largest_aplitude_start_index, largest_aplitude_end_index)
