@@ -39,7 +39,7 @@ module TrussFab
         nodeCount = length(json["nodes"])
         g = MetaGraphs.MetaGraph(nodeCount)
 
-        clientNodeIds = fill(0, nodeCount)
+        clientNodeIds = get.(json["nodes"], "id", nothing)
         convertNodeId(nodeId) = findfirst(id -> id == nodeId, clientNodeIds)
 
         for (server_node_index, node) in enumerate(json["nodes"])
