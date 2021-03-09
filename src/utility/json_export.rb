@@ -11,7 +11,7 @@ class JsonExport
     file.close
   end
 
-  def self.graph_to_json(triangle = nil, animation=[])
+  def self.graph_to_json(triangle = nil, animation=[], simulation_duration=5.0)
     graph = Graph.instance
     json = {distance_unit: 'mm', force_unit: 'N'}
     json[:nodes] = nodes_to_hash(graph.nodes)
@@ -22,6 +22,7 @@ class JsonExport
     end
     json[:standard_surface] = triangle.nodes_ids_towards_user
     json[:mounted_users] = mounted_users_to_hash(Graph.instance.nodes)
+    json[:simulation_duration] = simulation_duration
     JSON.pretty_generate(json)
   end
 

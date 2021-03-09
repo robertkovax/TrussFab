@@ -33,6 +33,8 @@ class SpringPane
     @animation_running = false
     @period_animation_running = false
 
+    @simulation_duration = 5.0
+
     # { node_id => {
     #               period: {value: float, index: int}, max_a: {value: float, index: int},
     #               max_v: {value: float, index: int}, time_velocity: [{time: float, velocity: float}],
@@ -90,6 +92,11 @@ class SpringPane
     edge.link.spring_parameters[:enable_preloading] = value
     p "set preloading to #{value} for #{edge.id}"
     update_dialog if @dialog
+  end
+
+  def set_simulation_duration(new_duration)
+    @simulation_duration = new_duration.to_f
+    simulate
   end
 
   def force_vectors=(vectors)
@@ -344,7 +351,7 @@ class SpringPane
   # compilation / simulation logic
   def simulate
     Sketchup.active_model.start_operation('compile simulation', true)
-    SimulationRunnerClient.update_model(JsonExport.graph_to_json ) do |json_response|
+    SimulationRunnerClient.update_model(JsonExport.graph_to_json(nil, [], @simulation_duration)) do |json_response|
       timeseries_data = self.class.parse_timeseries_data(json_response["data"])
       user_stats = json_response["user_stats"]
 
