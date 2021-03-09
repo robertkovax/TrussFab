@@ -48,7 +48,7 @@ function asyncSimulation()
 
     current_simulation_task = @async begin
         @info "start simulation"
-        TrussFab.run_simulation(parsed_structure, actuation_power=50.0, tspan=(0.01, 5), fps=simulation_fps)
+        TrussFab.run_simulation(parsed_structure, tspan=(0.01, 5), fps=simulation_fps)
     end
     nothing
 end
