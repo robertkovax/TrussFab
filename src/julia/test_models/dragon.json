@@ -1673,7 +1673,7 @@
         1.0
       ],
       "weight": 50,
-      "excitement": 100
+      "excitement": 0
     },
     {
       "id": 25,
@@ -1697,7 +1697,7 @@
         1.0
       ],
       "weight": 50,
-      "excitement": 100
+      "excitement": 0
     },
     {
       "id": 29,
@@ -1721,7 +1721,7 @@
         1.0
       ],
       "weight": 50,
-      "excitement": 100
+      "excitement": 0
     }
   ]
 }
