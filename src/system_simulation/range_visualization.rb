@@ -21,9 +21,9 @@ class RangeVisualization
     @simulation_data = data
     node_ids.each do |node_id|
       stats = user_stats[node_id.to_i]
-      max_node_indices = stats['max_node_indices']
-      # TODO: Currently mocked
-      max_node_indices ||= [200, 210]
+      amplitude_stats = stats['largest_amplitude']
+      max_node_indices = [amplitude_stats['start'], amplitude_stats['end']]
+      puts max_node_indices
       curve = calculate_offsetted_curve(node_id, sampling_rate, max_node_indices)
 
       add_range_trace(curve)
