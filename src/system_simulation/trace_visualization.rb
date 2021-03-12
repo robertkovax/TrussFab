@@ -55,6 +55,12 @@ class TraceVisualization
   def add_circle_trace(node_id, _sampling_rate, stats)
     period = stats['period']
     period ||= 3.0
+    start_index = stats['largest_amplitude']['start']
+    end_index = stats['largest_amplitude']['end']
+
+    puts 'Warn: largest amplitude in server respond was empty'  if start_index.nil? || end_index.nil?
+    start_index ||= 0
+    end_index ||= @simulation_data.length - 1
 
     max_acceleration = stats['max_acceleration']['value']
     max_acceleration_index = stats['max_acceleration']['index']
@@ -64,7 +70,7 @@ class TraceVisualization
     curve_points = []
     @visualizations = []
 
-    trace_analyzation = (analyze_trace node_id, period)
+    trace_analyzation = (analyze_trace node_id, start_index, end_index)
     max_distance = trace_analyzation[:max_distance]
     # Plot dots for either the period or a certain time span, if oscillation is not planar
     trace_time_limit = trace_analyzation[:is_planar] ? period.to_f : Configuration::NON_PLANAR_TRACE_DURATION
@@ -83,15 +89,18 @@ class TraceVisualization
 
       curve_points << position
 
-      # only plot dots for first period, after that only draw the curve line
-      break if current_data_sample.time_stamp.to_f >= trace_time_limit
+      # only plot dots within the largest amplitude, after that only draw the curve line
+      next unless index >= start_index && index <= end_index
 
       # distance to last point basically representing the speed (since time interval between data samples is fixed)
       distance_to_last = position.distance(last_position)
+      # max_distance can be zero for non moving nodes
       distance_ratio = (distance_to_last / max_distance)
+      distance_ratio = 0 if distance_ratio.nan? || distance_ratio.infinite?
 
       # invert distance ratio since high distance should plot a small and lightly colored dot
       ratio = 1 - distance_ratio
+      Geometry.clamp(ratio, 0.0, 1.0)
 
       if (current_acceleration_is_max = max_acceleration_index == index)
         puts "maximum acceleration index: #{index}"
@@ -132,19 +141,19 @@ class TraceVisualization
   end
 
   # analyzes the simulation data for certain criterions
-  def analyze_trace(node_id, period)
-    last_position = @simulation_data[0].position_data[node_id]
+  def analyze_trace(node_id, start_index, end_index)
+    last_position = @simulation_data[start_index].position_data[node_id]
     max_distance = 0
     is_planar = true
     plane = Geom.fit_plane_to_points([last_position, @simulation_data[1].position_data[node_id],
                                       @simulation_data[2].position_data[node_id]])
-    @simulation_data.each_with_index do |current_data_sample, index|
+    (start_index..end_index).each do | index |
+      current_data_sample = @simulation_data[index]
       position = current_data_sample.position_data[node_id]
       distance_to_last = position.distance(last_position)
       max_distance = distance_to_last if distance_to_last > max_distance
       is_planar = position.distance_to_plane(plane) < Configuration::DISTANCE_TO_PLANE_THRESHOLD
       last_position = position
-      return {max_distance: max_distance, is_planar: is_planar} if current_data_sample.time_stamp.to_f >= period.to_f
     end
     {max_distance: max_distance, is_planar: is_planar}
   end
