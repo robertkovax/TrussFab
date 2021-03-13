@@ -1,6 +1,7 @@
 using OrdinaryDiffEq
 using DiffEqBase
 
+
 using LinearAlgebra
 using LightGraphs
 using Plots
@@ -25,6 +26,11 @@ struct Line
     normal::Point
 end
 
+struct RigidGroup
+    rotation_axis::Line
+    point_masses::AbstractVector{PointMass}
+end
+
 g = TrussFab.import_trussfab_file("./test_models/seesaw_3.json")
 
 nodelabel = 1:nv(g)
@@ -38,10 +44,6 @@ rigid_groups_rotation_axes = [[(1,0,0)], [(0,1,0)]]
     return norm(cross(point .- line.offset, line.normal)) / norm(line.normal)
 end
 
-@inline function intertia(rotation_axis::Line, point_masses::AbstractArray{PointMass, 1})
-    return sum(point_masses .|> p::PointMass -> p.mass * distance(p.pos, rotation_axis)^2)
-end
-
 @inline Base.@propagate_inbounds function float_sum(array)
     if isempty(array)
         return zero(Float64)
@@ -50,70 +52,89 @@ end
     end
 end
 
-@inline Base.@propagate_inbounds function springedge!(e, vertex_src, vertex_dst, params, t)
-    d_spring =  20.0
+function get_rigid_group_ode(rotation_axis::Line, point_masses::AbstractVector{PointMass})
 
-    v⃗_source = velocity(vertex_src)
-    v⃗_dest = velocity(vertex_dst)
-    c, unstreched_length = @views params
-    r⃗ = displacement(vertex_src) .- displacement(vertex_dst)
-    
-    f⃗_spring = spring_force_from_displacement_vector(r⃗, c, unstreched_length)
-    f⃗_damping = (scalar_projection(v⃗_source, r⃗) .- scalar_projection(v⃗_dest, r⃗)) * r⃗ ./ norm(r⃗) * d_spring
-    
-    e .= f⃗_spring .+ f⃗_damping
-    nothing
-end
-
-function one_dof_rigid_group(dstate, state, e_src, e_dst, params, t)
-    θ, ω = state  # in radians
-    # rotation_axis::Line, point_masses::AbstractArray{PointMass, 1} = @views params
-    rotation_axis::Line, point_masses::AbstractArray{PointMass, 1} = get_parameters()
-    # TODO radius to line instead of point
-    get_src_anchor(e) = @views e[1:3]
-    get_dst_anchor(e) = @views e[4:6]
-    get_direction(e) = e[1:3] - e[4:6] ./ norm(e[1:3] .- e[4:6])
-    get_force(e) = @views e[7]
-    
-    gravity = [0.0, 0.0, -9.81]
-    damping_coefficent = 10.0
-    
-    function rotate(point::Point)
-        return UnitQuaternion(AngleAxis(θ, rotation_axis.normal...)) * point
+    function rotate(point, angle)
+        return UnitQuaternion(AngleAxis(angle, rotation_axis.normal...)) * point
     end
 
-    function get_torque(force_vec, pos) 
-        torque_vec = cross(force_vec, rotate(pos))
+    function get_torque(force_vec, pos, angle)
+        torque_vec = cross(force_vec, rotate(pos, angle))
         return sign(dot(torque_vec, rotation_axis.normal)) * norm(torque_vec)
     end
 
-    τ = float_sum([get_torque(get_force(e) .* get_direction(e), get_src_anchor(e)) for e in e_src]) +
-        float_sum([-get_torque(get_force(e) .* get_direction(e), get_dst_anchor(e)) for e in e_dst]) +
-        float_sum([get_torque(point_mass.mass * gravity, point_mass.pos) for point_mass in point_masses]) +
-        - damping_coefficent * ω
+    gravity = [0.0, 0.0, -9.81]
+    damping_coefficent = 10.0
+    intertia = sum(point_masses .|> p::PointMass -> p.mass * distance(p.pos, rotation_axis)^2)
 
-    α = τ ./ intertia(rotation_axis, point_masses)
-    dstate .= [ω, α]
-    nothing
+    # TODO figure out how undirected nodes are handled here
+    # TODO pull position handling also here
+
+    f! = (dstate, state, e_src, e_dst, params, t) -> begin
+        θ, ω = state  # in radians
+        get_src_anchor(e) = @views [e[1], e[2], e[3]]
+        get_dst_anchor(e) = @views [e[4], e[5], e[6]]
+        get_direction(e) = get_src_anchor(e) .- get_dst_anchor(e) ./ norm(get_src_anchor(e) .- get_dst_anchor(e))
+        get_force(e) = @views e[7]
+        
+        τ_src_spring = float_sum([get_torque(get_force(e) .* get_direction(e), get_src_anchor(e), θ) for e in e_src])
+        τ_dst_spring = float_sum([-get_torque(get_force(e) .* get_direction(e), get_dst_anchor(e), θ) for e in e_dst])
+        τ_gravity = float_sum([get_torque(point_mass.mass * gravity, point_mass.pos, θ) for point_mass in point_masses])
+        τ_friction = - damping_coefficent * ω
+
+        τ = τ_src_spring + τ_dst_spring + τ_gravity + τ_friction
+        α = τ ./ intertia
+        dstate .= [ω, α]
+        nothing
+    end
+    return ODEVertex(f! = f!, dim=2)
 end
 
-function get_parameters()
-    return ( Line([0.0,0.0,0.0],[1.0,0.0,0.0]), [PointMass([1.0,2.0,3.0] ,10),PointMass([1.0,2.0,30.0] ,1), PointMass([1.0,2.0,1.0], 5)])
+function get_spring_ode(src_point_mass::PointMass, src_rotation_axis::Line, dst_point_mass::PointMass, dst_rotation_axis::Line)
+    # TODO spring damping
+    src_angle_to_vector(angle) = UnitQuaternion(AngleAxis(angle, src_rotation_axis.normal...)) * src_point_mass.pos
+    dst_angle_to_vector(angle) = UnitQuaternion(AngleAxis(angle, dst_rotation_axis.normal...)) * dst_point_mass.pos
+
+    f! = (e, vertex_src, vertex_dst, params, t) -> begin
+        damping_coefficent =  10.0
+
+        c, unstreched_length = params
+        
+        src_pos = src_angle_to_vector(vertex_src[1])
+        dst_pos = dst_angle_to_vector(vertex_dst[1])
+        r⃗ = src_pos .- dst_pos
+        
+        f_spring =  (norm(r⃗) - unstreched_length) * c
+        
+        e .= [src_pos..., dst_pos..., f_spring]
+        nothing
+    end
+
+    return StaticEdge(f! = f!, dim=7)
+end
+rot_axis = Line([0.0,0.0,0.0],[1.0,0.0,0.0])
+rigid_group_ode1 = get_rigid_group_ode(rot_axis, [PointMass([1.0,2.0,3.0] ,10),PointMass([1.0,2.0,30.0] ,1), PointMass([1.0,2.0,1.0], 5)])
+rigid_group_ode2 = get_rigid_group_ode(rot_axis, [PointMass([1.0,2.0,-3.0] ,2),PointMass([-1.0,2.0,15.0] ,10), PointMass([1.0,2.0,1.0], 5)])
+spring_connector = get_spring_ode(PointMass([1.0,2.0,1.0], 5), rot_axis, PointMass([1.1,2.1,1.1], 5), rot_axis)
+
+function nd_wrapper!(dx, x, p, t)
+    nd(dx, x, (nothing, p), t)
 end
 
-u0 = zeros(3)
-
-g = LightGraphs.Graph(1)
-nd_vertecies = [ODEVertex(f! = one_dof_rigid_group, dim=2)]
-nd_edges = []
+N = 2
+u0 = zeros(N*2)
+g = LightGraphs.Graph(N)
+add_edge!(g, 1, 2)
+nd_vertecies = [rigid_group_ode1, rigid_group_ode2]
+nd_edges = [spring_connector]
 nd = network_dynamics(nd_vertecies, nd_edges, g, parallel=false)
 
-ode_problem = ODEProblem( nd, u0, (0.0, 100.))
+params = [(c, 0.1)]
+ode_problem = ODEProblem(nd_wrapper!, u0, (0.0, 10.), params)
 
-sol = @time solve(ode_problem, Rodas3(), [] );
+@time sol = solve(ode_problem, Rodas3(), [] );
 
-plot(sol')
-nothing
+display(plot(sol'))
 
 function run_benchmark()
     a = ones(2)
