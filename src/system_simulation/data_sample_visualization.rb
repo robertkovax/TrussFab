@@ -5,15 +5,14 @@ class DataSampleVisualization
 
   TRACE_DOT_ALPHA = 0.6
 
-  def initialize(data_sample, node_id, definition, ratio, is_max_acceleration , acceleration_length, circle_definition)
-    @data_sample = data_sample
+  def initialize(position, node_id, definition, ratio, is_max_acceleration , acceleration_length, circle_definition)
     @node_id = node_id
     @definition = definition
     @ratio = ratio
     @is_max_acceleration = is_max_acceleration
     @circle_definition = circle_definition
 
-    @position = @data_sample.position_data[@node_id]
+    @position = position
     @circle_layer = Sketchup.active_model.layers[Configuration::MOTION_TRACE_VIEW]
     @debugging_layer = Sketchup.active_model.layers.at(Configuration::SPRING_DEBUGGING)
     @circle_instance = nil
