@@ -272,13 +272,13 @@ class Hub < PhysicsSketchupObject
   #
   def add_weight(weight)
     @mass += weight
-    TrussFab.get_spring_pane.update_trace_visualization true
+    TrussFab.get_spring_pane.notify_model_changed
     update_weight_indicator
   end
 
   def weight=(weight)
     @mass = weight
-    TrussFab.get_spring_pane.update_trace_visualization true
+    TrussFab.get_spring_pane.notify_model_changed
     update_weight_indicator
   end
 

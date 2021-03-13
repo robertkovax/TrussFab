@@ -55,6 +55,12 @@ class TraceVisualization
   def add_circle_trace(node_id, _sampling_rate, stats)
     period = stats['period']
     period ||= 3.0
+    start_index = stats['largest_amplitude']['start']
+    end_index = stats['largest_amplitude']['end']
+
+    puts 'Warn: largest amplitude in server respond was empty'  if start_index.nil? || end_index.nil?
+    start_index ||= 0
+    end_index ||= @simulation_data.length - 1
 
     max_acceleration = stats['max_acceleration']['value']
     max_acceleration_index = stats['max_acceleration']['index']
@@ -63,8 +69,9 @@ class TraceVisualization
     last_position = @simulation_data[0].position_data[node_id]
     curve_points = []
     @visualizations = []
+    offsetted_curve_points = []
 
-    trace_analyzation = (analyze_trace node_id, period)
+    trace_analyzation = (analyze_trace node_id, start_index, end_index)
     max_distance = trace_analyzation[:max_distance]
     # Plot dots for either the period or a certain time span, if oscillation is not planar
     trace_time_limit = trace_analyzation[:is_planar] ? period.to_f : Configuration::NON_PLANAR_TRACE_DURATION
@@ -75,6 +82,12 @@ class TraceVisualization
     circle_trace_layer =
         Sketchup.active_model.layers[Configuration::MOTION_TRACE_VIEW]
 
+    # Calculate the static offset
+    visualization_offset = Geom::Vector3d.new(0, 0, 30)
+    node = Graph.instance.nodes[node_id.to_i]
+    adjacent_node_ids = node.adjacent_nodes[0..1].map(&:id)
+    inverse_starting_rotation = nil
+
     @simulation_data.each_with_index do |current_data_sample, index|
       # thin out points in trace
       # next unless index % _sampling_rate == 0
@@ -83,26 +96,42 @@ class TraceVisualization
 
       curve_points << position
 
-      # only plot dots for first period, after that only draw the curve line
-      break if current_data_sample.time_stamp.to_f >= trace_time_limit
+      first_adjacent_position = current_data_sample.position_data[adjacent_node_ids[0].to_s]
+      second_adjacent_position = current_data_sample.position_data[adjacent_node_ids[1].to_s]
+
+      vector_one = Geom::Vector3d.new(first_adjacent_position - position).normalize!
+      vector_two = Geom::Vector3d.new(second_adjacent_position - position).normalize!
+
+      rotation = Geometry.rotation_to_local_coordinate_system(vector_one, vector_two)
+      inverse_starting_rotation = rotation.inverse if inverse_starting_rotation.nil?
+      offset = rotation * inverse_starting_rotation * visualization_offset
+
+      offsetted_position = position + offset
+      offsetted_curve_points << offsetted_position
+
+      # only plot dots within the largest amplitude, after that only draw the curve line
+      next unless index >= start_index && index <= end_index
 
       # distance to last point basically representing the speed (since time interval between data samples is fixed)
       distance_to_last = position.distance(last_position)
+      # max_distance can be zero for non moving nodes
       distance_ratio = (distance_to_last / max_distance)
+      distance_ratio = 0 if distance_ratio.nan? || distance_ratio.infinite?
 
       # invert distance ratio since high distance should plot a small and lightly colored dot
       ratio = 1 - distance_ratio
+      ratio = Geometry.clamp(ratio, 0.0, 1.0)
 
       if (current_acceleration_is_max = max_acceleration_index == index)
         puts "maximum acceleration index: #{index}"
-        add_label(position, position.offset(Geom::Vector3d.new(0, 10.cm, 0)),"#{max_acceleration.round(3)}m/s^2 ")
+        add_label(offsetted_position, position.offset(Geom::Vector3d.new(0, 10.cm, 0)),"#{max_acceleration.round(3)}m/s^2 ")
       end
 
       racceleration = stats["time_acceleration"][index]
       acceleration = Geom::Vector3d.new(racceleration["x"].mm, racceleration["y"].mm, racceleration["z"].mm)
       # puts "acceleration_length #{acceleration.length}"
 
-      viz = DataSampleVisualization.new(current_data_sample, node_id, circle_definition, ratio,
+      viz = DataSampleVisualization.new(offsetted_position, node_id, circle_definition, ratio,
                                         current_acceleration_is_max, acceleration.length, circle_definition)
       @group = Sketchup.active_model.entities.add_group if @group.deleted?
       @annotations_group = Sketchup.active_model.entities.add_group if @annotations_group.deleted?
@@ -125,26 +154,26 @@ class TraceVisualization
     # plot curve connecting all data points
     @group = Sketchup.active_model.entities.add_group if @group.deleted?
     entities = @group.entities
-    entities.add_curve(curve_points)
+    entities.add_curve(offsetted_curve_points)
     entities.each do |entity|
       entity.layer = circle_trace_layer
     end
   end
 
   # analyzes the simulation data for certain criterions
-  def analyze_trace(node_id, period)
-    last_position = @simulation_data[0].position_data[node_id]
+  def analyze_trace(node_id, start_index, end_index)
+    last_position = @simulation_data[start_index].position_data[node_id]
     max_distance = 0
     is_planar = true
     plane = Geom.fit_plane_to_points([last_position, @simulation_data[1].position_data[node_id],
                                       @simulation_data[2].position_data[node_id]])
-    @simulation_data.each_with_index do |current_data_sample, index|
+    (start_index..end_index).each do | index |
+      current_data_sample = @simulation_data[index]
       position = current_data_sample.position_data[node_id]
       distance_to_last = position.distance(last_position)
       max_distance = distance_to_last if distance_to_last > max_distance
       is_planar = position.distance_to_plane(plane) < Configuration::DISTANCE_TO_PLANE_THRESHOLD
       last_position = position
-      return {max_distance: max_distance, is_planar: is_planar} if current_data_sample.time_stamp.to_f >= period.to_f
     end
     {max_distance: max_distance, is_planar: is_planar}
   end

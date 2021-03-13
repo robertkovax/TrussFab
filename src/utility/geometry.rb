@@ -185,4 +185,19 @@ module Geometry
                       (point1.y + point2.y) / 2,
                       (point1.z + point2.z) / 2)
   end
+
+  # Given two non-collinear vectors, this creates the rotation matrix for these
+  # vectors.
+  def self.rotation_to_local_coordinate_system(first_vector, second_vector)
+    third_vector = first_vector.cross(second_vector).normalize!
+
+    # There seems to be a bug in Sketchup with using the .axes method
+    # see https://forums.sketchup.com/t/skew-transformation-inverse-issue-when-constructed-with-axes-method/49766/3
+    Geom::Transformation.new([
+                               first_vector.x, first_vector.y, first_vector.z, 0,
+                               second_vector.x, second_vector.y, second_vector.z, 0,
+                               third_vector.x, third_vector.y, third_vector.z, 0,
+                               0, 0, 0, 1
+                             ])
+  end
 end
