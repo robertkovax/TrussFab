@@ -1,7 +1,5 @@
 using OrdinaryDiffEq
 using DiffEqBase
-
-
 using LinearAlgebra
 using LightGraphs
 using Plots
@@ -12,7 +10,7 @@ using MetaGraphs
 using StaticArrays
 using Rotations
 using NetworkDynamics
-
+include("./rigidGroupDetection.jl")
 
 Point = AbstractArray{Float64,1}
 
@@ -30,15 +28,6 @@ struct RigidGroup
     rotation_axis::Line
     point_masses::AbstractVector{PointMass}
 end
-
-g = TrussFab.import_trussfab_file("./test_models/seesaw_3.json")
-
-nodelabel = 1:nv(g)
-gplot(g, nodelabel=nodelabel)
-
-rigid_groups = [6:10, 11:20]
-rigid_groups_rotation_axes = [[(1,0,0)], [(0,1,0)]]
-
 
 @inline function distance(point::Point, line::Line)
     return norm(cross(point .- line.offset, line.normal)) / norm(line.normal)
@@ -90,10 +79,10 @@ function get_rigid_group_ode(rotation_axis::Line, point_masses::AbstractVector{P
     return ODEVertex(f! = f!, dim=2)
 end
 
-function get_spring_ode(src_point_mass::PointMass, src_rotation_axis::Line, dst_point_mass::PointMass, dst_rotation_axis::Line)
+function get_spring_ode(src_point::Point, src_rotation_axis::Line, dst_point::Point, dst_rotation_axis::Line)
     # TODO spring damping
-    src_angle_to_vector(angle) = UnitQuaternion(AngleAxis(angle, src_rotation_axis.normal...)) * src_point_mass.pos
-    dst_angle_to_vector(angle) = UnitQuaternion(AngleAxis(angle, dst_rotation_axis.normal...)) * dst_point_mass.pos
+    src_angle_to_vector(angle) = UnitQuaternion(AngleAxis(angle, src_rotation_axis.normal...)) * src_point
+    dst_angle_to_vector(angle) = UnitQuaternion(AngleAxis(angle, dst_rotation_axis.normal...)) * dst_point
 
     f! = (e, vertex_src, vertex_dst, params, t) -> begin
         damping_coefficent =  10.0
@@ -112,30 +101,87 @@ function get_spring_ode(src_point_mass::PointMass, src_rotation_axis::Line, dst_
 
     return StaticEdge(f! = f!, dim=7)
 end
-rot_axis = Line([0.0,0.0,0.0],[1.0,0.0,0.0])
-rigid_group_ode1 = get_rigid_group_ode(rot_axis, [PointMass([1.0,2.0,3.0] ,10),PointMass([1.0,2.0,30.0] ,1), PointMass([1.0,2.0,1.0], 5)])
-rigid_group_ode2 = get_rigid_group_ode(rot_axis, [PointMass([1.0,2.0,-3.0] ,2),PointMass([-1.0,2.0,15.0] ,10), PointMass([1.0,2.0,1.0], 5)])
-spring_connector = get_spring_ode(PointMass([1.0,2.0,1.0], 5), rot_axis, PointMass([1.1,2.1,1.1], 5), rot_axis)
 
-function nd_wrapper!(dx, x, p, t)
-    nd(dx, x, (nothing, p), t)
+
+
+
+
+function bitvector_to_poslist(bitvector::AbstractArray{Bool})
+    return [i for (i, bool) in enumerate(bitvector) if bool]
 end
 
-N = 2
-u0 = zeros(N*2)
-g = LightGraphs.Graph(N)
-add_edge!(g, 1, 2)
-nd_vertecies = [rigid_group_ode1, rigid_group_ode2]
-nd_edges = [spring_connector]
-nd = network_dynamics(nd_vertecies, nd_edges, g, parallel=false)
+function run_simulation(g::MetaGraph)
+    
+    rigid_groups = get_rigid_groups(g)
+    reduced_g = Graph(length(rigid_groups))
 
-params = [(c, 0.1)]
-ode_problem = ODEProblem(nd_wrapper!, u0, (0.0, 10.), params)
+    ode_vertices = []
+    for vertices_in_rigid_group in bitvector_to_poslist.(rigid_groups)
+        # TODO get rotation axis
+        rot_axis = Line([0.0,0.0,0.0],[1.0,0.0,0.0])
+        point_masses = [PointMass(get_prop(g, vertex, :init_pos), get_prop(g, vertex, :m)) for vertex in vertices_in_rigid_group]
+        push!(ode_vertices, get_rigid_group_ode(rot_axis, point_masses))
+    end
+    
+    ode_edges = []
+    for e in edges(g)
+        if get_prop(g, e, :type) == "spring"
+            # TODO get rotation axis
+            rot_axis = Line([0.0,0.0,0.0],[1.0,0.0,0.0])
+            src_point = Point(get_prop(g, e.src, :init_pos))
+            dst_point = Point(get_prop(g, e.dst, :init_pos))
+            push!(ode_edges, get_spring_ode(src_point, rot_axis, dst_point, rot_axis))
+            add_edge!(reduced_g, findfirst(bitvector -> bitvector[e.src], rigid_groups), findfirst(bitvector -> bitvector[e.dst], rigid_groups))
+        end
+    end
+    
+    # two angles for every group
+    u0 = zeros(nv(reduced_g)*2)
+    nd = network_dynamics(ode_vertices, ode_edges, reduced_g)
 
-@time sol = solve(ode_problem, Rodas3(), [] );
+    function nd_wrapper!(dx, x, p, t)
+        nd(dx, x, (nothing, p), t)
+    end
+    gplot(reduced_g)
+    params = [(1000, 0.6) for _ in ode_edges]
+    ode_problem = ODEProblem(nd_wrapper!, u0, (0.0, 10.), params)
+    
+    return @time solve(ode_problem, Rodas3(), [] );
+end
 
-display(plot(sol'))
 
+g = TrussFab.import_trussfab_file("./test_models/seesaw_3.json")
+
+@time sol = run_simulation(g)
+@time get_rigid_groups(g)
+
+nodelabel = 1:nv(g)
+gplot(g, nodelabel=nodelabel)
+
+function run_example_simulation()
+    rot_axis = Line([0.0,0.0,0.0],[1.0,0.0,0.0])
+    rigid_group_ode1 = get_rigid_group_ode(rot_axis, [PointMass([1.0,2.0,3.0] ,10),PointMass([1.0,2.0,30.0] ,1), PointMass([1.0,2.0,1.0], 5)])
+    rigid_group_ode2 = get_rigid_group_ode(rot_axis, [PointMass([1.0,2.0,-3.0] ,2),PointMass([-1.0,2.0,15.0] ,10), PointMass([1.0,2.0,1.0], 5)])
+    spring_connector = get_spring_ode(Point([1.0,2.0,1.0]), rot_axis, Point([1.1,2.1,1.1]), rot_axis)
+    
+    N = 2
+    u0 = zeros(N*2)
+    g = LightGraphs.Graph(N)
+    add_edge!(g, 1, 2)
+    nd_vertecies = [rigid_group_ode1, rigid_group_ode2]
+    nd_edges = [spring_connector]
+    nd = network_dynamics(nd_vertecies, nd_edges, g, parallel=false)
+        
+    function nd_wrapper!(dx, x, p, t)
+        nd(dx, x, (nothing, p), t)
+    end
+    params = [(100000, 0.1)]
+    ode_problem = ODEProblem(nd_wrapper!, u0, (0.0, 10.), params)
+    
+    return @time solve(ode_problem, Rodas3(), [] );
+end
+
+plot(run_example_simulation()')
 function run_benchmark()
     a = ones(2)
     b = ones(2)
