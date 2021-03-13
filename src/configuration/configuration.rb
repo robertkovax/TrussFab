@@ -176,5 +176,5 @@ module Configuration
   # Default spring k
   SPRING_DEFAULT_K = 3500
   # Color static groups after placing springs
-  COLOR_STATIC_GROUPS = true
+  COLOR_STATIC_GROUPS = false
 end
