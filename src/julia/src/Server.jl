@@ -19,7 +19,7 @@ include("./analysis.jl")
 
 ROUTER = HTTP.Router()
 
-simulation_fps = 25
+simulation_fps = 30
 current_simulation_task = nothing
 current_model = nothing
 get_client_ids = []
