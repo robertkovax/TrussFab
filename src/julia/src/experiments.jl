@@ -4,6 +4,9 @@ using LightGraphs
 using Plots
 import TrussFab
 using LinearAlgebra
+
+using MultivariateStats
+
 include("analysis.jl")
 
 g = TrussFab.import_trussfab_file("./test_models/seesaw_3.json")
@@ -12,6 +15,16 @@ function set_stiffness(k)
     for e in edges(g)
         if get_prop(g, e, :type) == "spring"
             set_prop!(g, e, :spring_stiffness, k)
+        end
+    end
+end
+
+
+function set_first_stiffness(k)
+    for e in edges(g)
+        if get_prop(g, e, :type) == "spring"
+            set_prop!(g, e, :spring_stiffness, k)
+            return
         end
     end
 end
@@ -43,18 +56,50 @@ function get_dominant_frequency(sol)
     return trimmed_spectrum[index]
 end
 
+function poincare_section_fit(sol)
+    return fit(PCA, sol; maxoutdim=10)
+    # reconstruct testing observations (approximately)
+    # Xr = reconstruct(M, Yte)
+    # plot(Xr')
+end
+
+function poincare_section(model, sol)
+    # suppose Xtr and Xte are training and testing data matrix,
+    # with each observation in a column
+
+    # train a PCA model
+
+    # apply PCA model to testing set
+    Yte = transform(model, sol)
+    p = plot(Yte[1, :], Yte[2, :])
+    display(p)
+end
+
 # If we add weight and stiffness (in a way the frequency remains the same)
-steps = 1:1:30
+steps = 1:1:50
+M
+Yte = transform(M, sol)
+Xr = reconstruct(M, Yte)
+plot(Xr')
+poincare_section(M, sol)
 
 solution_cache = []
+plot()
 
+set_stiffness(10000)
+import TrussFab
+sol = TrussFab.run_simulation(g, tspan=(0., 30.), fps=30)
+M = poincare_section_fit(sol)
+poincare_section(M, sol)
 for step in steps
-    # set_stiffness(step*10 + 10000)
-    set_weight(step*3 + 40)
-    sol = TrussFab.run_simulation(g, tspan=(0., 30.), fps=30, actuation_power=10.0)
+    set_first_stiffness(step*100 + 5000)
+    # set_weight(step*3 + 40)
+    sol = TrussFab.run_simulation(g, tspan=(0., 30.), fps=30)
     plot_spectrum(sol, 18)
-    push!(solution_cache, sol)
+    # poincare_section(M, sol)
+    # push!(solution_cache, sol)
 end
+plot(transpose(sol))1
 
 using Serialization
 serialize("sim_sweep.tfs", solution_cache)
