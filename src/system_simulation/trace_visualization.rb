@@ -3,7 +3,7 @@ require_relative './data_sample_visualization.rb'
 # Simulate data samples of a system simulation by plotting a trace consisting of transparent circles into the scene.
 class TraceVisualization
 
-  def initialize
+  def initialize(visualization_offset: Geom::Vector3d.new(0, 0, 30))
     # Simulation data to visualize
     @simulation_data = nil
 
@@ -20,6 +20,8 @@ class TraceVisualization
     # Visualization parameters
     #@color = Sketchup::Color.new(72,209,204)
     @colors = [Sketchup::Color.new(255, 0, 0), Sketchup::Color.new(255, 255, 0), Sketchup::Color.new(0, 255, 0)]
+
+    @visualization_offset = visualization_offset
   end
 
   def add_trace(node_ids, sampling_rate, data, user_stats)
@@ -83,7 +85,6 @@ class TraceVisualization
         Sketchup.active_model.layers[Configuration::MOTION_TRACE_VIEW]
 
     # Calculate the static offset
-    visualization_offset = Geom::Vector3d.new(0, 0, 30)
     node = Graph.instance.nodes[node_id.to_i]
     adjacent_node_ids = node.adjacent_nodes[0..1].map(&:id)
     inverse_starting_rotation = nil
@@ -104,7 +105,7 @@ class TraceVisualization
 
       rotation = Geometry.rotation_to_local_coordinate_system(vector_one, vector_two)
       inverse_starting_rotation = rotation.inverse if inverse_starting_rotation.nil?
-      offset = rotation * inverse_starting_rotation * visualization_offset
+      offset = rotation * inverse_starting_rotation * @visualization_offset
 
       offsetted_position = position + offset
       offsetted_curve_points << offsetted_position
