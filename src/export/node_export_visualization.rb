@@ -57,7 +57,8 @@ module NodeExportVisualization
         end
       end
 
-      # No, only the intersections are colored differently (black)
+      # Now only the intersections are colored differently (black)
+      # (these are the Rotation axis for planar motion path)
       edge_groups.combination(2) do |first_set, second_set|
         (first_set & second_set).each do |combined_edge|
           combined_edge.link.material = Configuration::DARK_COLOR

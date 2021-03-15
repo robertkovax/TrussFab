@@ -90,7 +90,7 @@ module Configuration
   # These are the same colors, but with saturation lower, and a little bit shuffled, to prevent collisions
   UNINTENSE_COLORS = %w[#dcdcdc #696969 #202020 #808080 #c0c0c0].freeze
 
-  DARK_COLOR = "#999999"
+  DARK_COLOR = '#999999'.freeze
 
   # Ground Stuff
   GROUND_COLOR          = Sketchup::Color.new(1.0, 1.0, 1.0)
