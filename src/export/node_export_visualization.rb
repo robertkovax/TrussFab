@@ -40,10 +40,29 @@ module NodeExportVisualization
     end
 
     def color_static_groups(static_groups)
-      group_nr = 0
-      static_groups.reverse.each do |group|
-        color_group(group, group_nr)
-        group_nr += 1
+      # Create a set for each group containing the edges of the group
+      edge_groups = static_groups.map do |group|
+        edges = Set.new
+        group.each do |triangle|
+          triangle.edges.each do |edge|
+            edges.add(edge)
+          end
+        end
+        edges
+      end
+
+      edge_groups.each do |group|
+        group.each do |edge|
+          edge.link.material = Sketchup.active_model.materials['standard_material']
+        end
+      end
+
+      # Now only the intersections are colored differently (black)
+      # (these are the Rotation axis for planar motion path)
+      edge_groups.combination(2) do |first_set, second_set|
+        (first_set & second_set).each do |combined_edge|
+          combined_edge.link.material = Configuration::DARK_COLOR
+        end
       end
     end
 
@@ -51,19 +70,6 @@ module NodeExportVisualization
 
     ELONGATION_PUSH_DISTANCE = 2.5
     LINE_VISUALIZATION_DISTANCE = 3
-
-    def color_group(group, group_nr)
-      group_color = if group_nr >= Configuration::INTENSE_COLORS.length
-        format('%06x', rand * 0xffffff)
-                    else
-        Configuration::INTENSE_COLORS[group_nr]
-                    end
-      group.each do |triangle|
-        triangle.edges.each do |edge|
-          edge.link.material = group_color
-        end
-      end
-    end
 
     def disconnect_edge_from_hub(rotating_edge, node)
       direction = rotating_edge.mid_point - node.position
