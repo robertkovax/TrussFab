@@ -62,14 +62,17 @@ class TraceVisualization
   private
 
   def add_handles(curve)
-    add_handle curve[0], curve
-    add_handle curve[-1], curve
+    one = add_handle curve[0], curve
+    two = add_handle curve[-1], curve
+    one.partner_handle = two
+    two.partner_handle = one
   end
 
   def add_handle(position, curve)
     puts "Add handle: #{position}"
     handle = AmplitudeHandle.new position, movement_curve: curve
     @handles << handle
+    handle
   end
 
   def add_circle_trace(node_id, _sampling_rate, stats)

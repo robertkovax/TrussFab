@@ -16,6 +16,7 @@ class AdjustAmplitudeTool < Tool
     handles = @ui.spring_pane.trace_visualization.handles
     @selected_handle = handles.min_by { |handle| position.distance(handle.position)}
     puts "Selected #{@selected_handle}"
+    @handle_start_position = position
   end
 
   def onMouseMove(_flags, x, y, view)
@@ -38,6 +39,8 @@ class AdjustAmplitudeTool < Tool
     handle_position =
       find_closest_on_curve(@mouse_input.position, @selected_handle.movement_curve)
     @selected_handle.update_position(handle_position)
+    @selected_handle.partner_handle.update_position(handle_position)
+    # TODO: Update partner handle
     view.invalidate
   end
 

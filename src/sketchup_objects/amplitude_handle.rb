@@ -2,8 +2,9 @@ require 'src/sketchup_objects/sketchup_object.rb'
 
 class AmplitudeHandle < SketchupObject
   attr_reader :movement_curve
+  attr_writer :partner_handle
 
-  def initialize(position, material:Sketchup.active_model.materials['amplitude_handle_material'], id:nil, movement_curve:nil)
+  def initialize(position, material:Sketchup.active_model.materials['amplitude_handle_material'], id:nil, movement_curve:nil, partner_handle: nil)
     super(id, material:material)
     @position = position
     @definition = create_handle_definition
