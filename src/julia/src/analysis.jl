@@ -1,3 +1,4 @@
+using LinearAlgebra
 using FFTW
 
 function get_frequency_spectrum(sol, vertex_id)
@@ -49,13 +50,27 @@ function get_amplitude(sol, vertex_id)
                 largest_aplitude_end_index = index
             end
             start_pos = nothing
+            start_index = nothing
             prev_pos = nothing
         else
             current_amplitude_length += norm(prev_pos - pos)
-            prev_node = pos
+            prev_pos = pos
         end
     end
     return largest_aplitude, (largest_aplitude_start_index, largest_aplitude_end_index)
+end
+
+function get_peridoicity(sol, threshold=0.05, min_timestep_distance=3)
+    recurring_time_steps = []
+    for i in 1:length(sol.t)
+        for j in (i + min_timestep_distance):length(sol.t)
+            if i !== j && norm(sol[:, i] - sol[:, j]) < threshold
+                push!(recurring_time_steps, (i,j))
+            end
+        end
+    end
+    # TODO filter multiple reoccurences
+    return recurring_time_steps
 end
 
 function get_acceleration(velocities, fps)

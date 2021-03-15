@@ -16,8 +16,8 @@ module TrussFab
 
     include("./Simulator.jl")
     @reexport using .Simulator
-    
-    # Usage 
+
+    # Usage
     # g = import_trussfab_file("./test_models/seesaw_3.json")
     # masses = map(a -> get_prop(g, a, :m), vertices(g))
     # gplot(g)
@@ -39,12 +39,12 @@ module TrussFab
         nodeCount = length(json["nodes"])
         g = MetaGraphs.MetaGraph(nodeCount)
 
-        clientNodeIds = fill(0, nodeCount)
+        clientNodeIds = get.(json["nodes"], "id", nothing)
         convertNodeId(nodeId) = findfirst(id -> id == nodeId, clientNodeIds)
 
         for (server_node_index, node) in enumerate(json["nodes"])
             fixed = !isempty(node["pods"]) && Bool(node["pods"][1]["is_fixed"])
-            added_mass = haskey(node, "added_mass") ? node["added_mass"] : 0 
+            added_mass = haskey(node, "added_mass") ? node["added_mass"] : 0
 
             clientNodeIds[server_node_index] = node["id"]
             set_prop!(g, server_node_index, :id, node["id"])
@@ -63,7 +63,18 @@ module TrussFab
                 set_prop!(g, src_node, dst_node, :id, edge["id"])
                 set_prop!(g, src_node, dst_node, :type, edge["type"])
                 set_prop!(g, src_node, dst_node, :length, norm(get_prop(g, convertNodeId(edge["n1"]), :init_pos) - get_prop(g, convertNodeId(edge["n2"]), :init_pos)))
-                set_prop!(g, src_node, dst_node, :spring_stiffness, edge["type"] == "spring" ? 1e4 : Inf)
+
+                if edge["type"] == "spring"
+                    set_prop!(g, src_node, dst_node, :spring_stiffness,  edge["spring_parameter_k"])
+                end
+            end
+        end
+
+
+        for v in vertices(g)
+            # TODO actually discard them (had trouble befor with MetaGraphs)
+            if isempty(neighbors(g, v))
+                set_prop!(g, v, :fixed, true)
             end
         end
 
@@ -73,6 +84,7 @@ module TrussFab
             server_vertex_id = convertNodeId(user_obj["id"])
             set_prop!(g, server_vertex_id, :m, mass + get_prop(g, server_vertex_id, :m))
             set_prop!(g, server_vertex_id, :active_user, true)
+            set_prop!(g, server_vertex_id, :actuation_power, user_obj["excitement"])
         end
 
         set_prop!(g, :original_index_keys, clientNodeIds)

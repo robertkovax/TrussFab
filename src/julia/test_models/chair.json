@@ -211,7 +211,8 @@
       "bottle_type": "Pipe(40cm)",
       "piston_group": 0,
       "e1": 20.0,
-      "e2": 20.0
+      "e2": 20.0,
+      "spring_parameter_k": 10000
     },
     {
       "id": 100,
@@ -280,8 +281,6 @@
     29,
     28
   ],
-  "spring_constants": {
-  },
   "mounted_users": [
     {
       "id": 41,
@@ -304,7 +303,8 @@
         0.0,
         1.0
       ],
-      "weight": 50
+      "weight": 50,
+      "excitement": 100
     }
   ]
 }

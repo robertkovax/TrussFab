@@ -23,7 +23,6 @@ simulation_fps = 25
 current_simulation_task = nothing
 current_model = nothing
 get_client_ids = []
-spring_constants_override = nothing
 
 # --- Actual Simulation ---
 
@@ -33,22 +32,23 @@ function asyncSimulation()
     global current_simulation_task
     global client_ids
 
-    if spring_constants_override !== nothing
-        # TODO implement spring constants override
-        @warn "WARNING: There are spring constants that the client set that are not part of the simulation. #NotYetImplemented $(spring_constants_override)"
-    end
-
     parsed_structure = TrussFab.import_trussfab_json(current_model)
     client_ids = get_prop(parsed_structure, :original_index_keys)
 
-    # (optimistically) abort current simulation to free system ressources and obtain lock
+    # abort current simulation to free system ressources and obtain lock
     if current_simulation_task !== nothing && !istaskdone(current_simulation_task)
         schedule(current_simulation_task, InterruptException(), error=true)
     end
 
+    simulation_duration = if haskey(current_model, "simulation_duration")
+        current_model["simulation_duration"]
+    else
+        5.0
+    end
+
     current_simulation_task = @async begin
         @info "start simulation"
-        TrussFab.run_simulation(parsed_structure, actuation_power=50.0, tspan=(0.01, 5), fps=simulation_fps)
+        TrussFab.run_simulation(parsed_structure, tspan=(0.01, simulation_duration), fps=simulation_fps)
     end
     nothing
 end
@@ -86,7 +86,7 @@ function get_user_stats_object(simulation_result, client_node_id)
     function row_to_response(row)
         return Dict("time" => row[1], "x" => row[2], "y" => row[3], "z" => row[3])
     end
-    
+
     server_node_id =  findfirst(e -> e == client_node_id, client_ids)
 
     velocities = [simulation_result.t simulation_result[server_node_id*6-2:server_node_id*6, :]']
@@ -108,6 +108,7 @@ end
 
 function update_model(req::HTTP.Request)
     global current_model
+
     current_model = JSON.parse(String(req.body))
 
     @info "updated model"
@@ -121,17 +122,6 @@ function update_model(req::HTTP.Request)
     )))
 end
 HTTP.register!(ROUTER, "POST", "/update_model", update_model)
-
-
-function update_spring_constants(req::HTTP.Request)
-    # set_spring(src_vertex, dst_vertex, k) = set_prop!(current_structure, src_vertex, dst_vertex, :spring_stiffness, k)
-    # TODO implement
-    global spring_constants_override
-    spring_constants_override = JSON.parse(String(req.body))
-    return HTTP.Response(200, "ok")
-end
-HTTP.register!(ROUTER, "POST", "/update_spring_constants", update_spring_constants)
-
 
 # --- http server ---
 
@@ -151,3 +141,4 @@ end
 import TrussFab
 serve()
 nothing
+

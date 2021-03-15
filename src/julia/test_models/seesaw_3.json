@@ -422,6 +422,7 @@
       "n1": 2,
       "n2": 9,
       "type": "spring",
+      "spring_parameter_k": 10000,
       "bottle_type": "Pipe(40cm)",
       "piston_group": 0,
       "e1": 20.0,
@@ -462,6 +463,7 @@
       "n1": 3,
       "n2": 10,
       "type": "spring",
+      "spring_parameter_k": 10000,
       "bottle_type": "Pipe(40cm)",
       "piston_group": 1,
       "e1": 20.0,
@@ -772,6 +774,7 @@
       "n1": 12,
       "n2": 16,
       "type": "spring",
+      "spring_parameter_k": 10000,
       "bottle_type": "Pipe(90cm)",
       "piston_group": 2,
       "e1": 20.0,
@@ -785,7 +788,15 @@
     1
   ],
   "mounted_users": [
-    {"id": 18, "weight": 60},
-    {"id": 20, "weight": 60}
+    {
+      "id": 18,
+      "weight": 60,
+      "excitement": 100
+    },
+    {
+      "id": 20,
+      "weight": 60,
+      "excitement": 100
+    }
   ]
 }

@@ -37,7 +37,10 @@
       "y": 3456.380941948569,
       "z": 150.0,
       "pods": [
-
+        {
+          "direction": "(-0.0, -0.0, -1.772309527559055)",
+          "is_fixed": true
+        }
       ],
       "added_mass": 0
     },
@@ -180,26 +183,6 @@
         {
           "direction": "(-0.0, -0.0, -1.772309527559055)",
           "is_fixed": true
-        },
-        {
-          "direction": "(0.0, 0.0, -1.772309527559055)",
-          "is_fixed": true
-        },
-        {
-          "direction": "(0.0, 0.0, -1.772309527559055)",
-          "is_fixed": true
-        },
-        {
-          "direction": "(0.0, 0.0, -1.772309527559055)",
-          "is_fixed": true
-        },
-        {
-          "direction": "(0.0, 0.0, -1.772309527559055)",
-          "is_fixed": true
-        },
-        {
-          "direction": "(0.0, 0.0, -1.772309527559055)",
-          "is_fixed": true
         }
       ],
       "added_mass": 0
@@ -310,7 +293,10 @@
       "y": 4035.9957262708886,
       "z": 150.0,
       "pods": [
-
+        {
+          "direction": "(-0.0, -0.0, -1.772309527559055)",
+          "is_fixed": true
+        }
       ],
       "added_mass": 0
     },
@@ -1332,6 +1318,7 @@
       "n1": 10,
       "n2": 30,
       "type": "spring",
+      "spring_parameter_k": 10000,
       "bottle_type": "Pipe(50cm)",
       "piston_group": 6,
       "e1": 20.0,
@@ -1372,6 +1359,7 @@
       "n1": 9,
       "n2": 31,
       "type": "spring",
+      "spring_parameter_k": 10000,
       "bottle_type": "Pipe(50cm)",
       "piston_group": 4,
       "e1": 20.0,
@@ -1472,6 +1460,7 @@
       "n1": 32,
       "n2": 21,
       "type": "spring",
+      "spring_parameter_k": 50000,
       "bottle_type": "Pipe(80cm)",
       "piston_group": 5,
       "e1": 20.0,
@@ -1542,6 +1531,7 @@
       "n1": 23,
       "n2": 22,
       "type": "spring",
+      "spring_parameter_k": 10000,
       "bottle_type": "Pipe(60cm)",
       "piston_group": 7,
       "e1": 20.0,
@@ -1552,6 +1542,7 @@
       "n1": 18,
       "n2": 7,
       "type": "spring",
+      "spring_parameter_k": 50000,
       "bottle_type": "Pipe(60cm)",
       "piston_group": 8,
       "e1": 20.0,
@@ -1622,6 +1613,7 @@
       "n1": 24,
       "n2": 38,
       "type": "spring",
+      "spring_parameter_k": 10000,
       "bottle_type": "Pipe(40cm)",
       "piston_group": 9,
       "e1": 20.0,
@@ -1680,7 +1672,8 @@
         0.0,
         1.0
       ],
-      "weight": 50
+      "weight": 50,
+      "excitement": 0
     },
     {
       "id": 25,
@@ -1703,7 +1696,8 @@
         0.0,
         1.0
       ],
-      "weight": 50
+      "weight": 50,
+      "excitement": 0
     },
     {
       "id": 29,
@@ -1726,7 +1720,8 @@
         0.0,
         1.0
       ],
-      "weight": 50
+      "weight": 50,
+      "excitement": 0
     }
   ]
 }

@@ -235,7 +235,7 @@ class Hub < PhysicsSketchupObject
     @is_sensor
   end
 
-  def attach_user(weight: nil, filename:)
+  def attach_user(weight: nil, filename:, excitement: 100)
     puts "attach user #{filename}"
     @is_user_attached = true
     user_indicator = ModelStorage.instance.attachable_users[filename]
@@ -245,6 +245,7 @@ class Hub < PhysicsSketchupObject
     # definition
     @user_weight = user_indicator.default_weight unless weight
     @user_weight = weight if weight
+    @user_excitement = excitement
 
     @user_indicator_filename = user_indicator.filename
     update_user_indicator
@@ -271,13 +272,13 @@ class Hub < PhysicsSketchupObject
   #
   def add_weight(weight)
     @mass += weight
-    TrussFab.get_spring_pane.update_trace_visualization true
+    TrussFab.get_spring_pane.notify_model_changed
     update_weight_indicator
   end
 
   def weight=(weight)
     @mass = weight
-    TrussFab.get_spring_pane.update_trace_visualization true
+    TrussFab.get_spring_pane.notify_model_changed
     update_weight_indicator
   end
 

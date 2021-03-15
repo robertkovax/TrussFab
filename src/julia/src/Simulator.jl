@@ -25,10 +25,14 @@ module Simulator
     end
 
     function get_equations_of_motion(g, with_dirac=false)
-        displacement = v -> @views [v[1],v[2],v[3]]
-        velocity = v -> @views [v[4], v[5], v[6]]
+        @inline Base.@propagate_inbounds function displacement(v)
+            @views [v[1],v[2],v[3]]
+        end
 
-        
+        @inline Base.@propagate_inbounds function velocity(v)
+           @views [v[4], v[5], v[6]]
+        end
+
         @inline Base.@propagate_inbounds function springedge!(e, vertex_src, vertex_dst, params, t)
             d_spring =  20.0
 
@@ -65,6 +69,10 @@ module Simulator
             reduce((acc, elem) -> acc .+ elem, array, init=zeros(n))
             # accumulate(+, array, dims=n)
         end
+
+        @inline Base.@propagate_inbounds  function areparallel(vec1, vec2)
+            norm(vec1 ./ norm(vec1) - vec2 ./ norm(vec2)) < 1.0
+        end
         
         @inline Base.@propagate_inbounds function massvertex!(dstate, state, edges_src, edges_dst, p, t)
             m, actuation_power = p
@@ -72,15 +80,19 @@ module Simulator
 
             intertia = (vector_sum(edges_dst) - vector_sum(edges_src)) ./ m
             
-            a⃗ = intertia .+ gravity
-            
-            if actuation_power > 0.0 && norm(v⃗) > 0.01
-                actuaction_force = actuation_power .* v⃗ ./ norm(v⃗)
-                a⃗ = a⃗ .+ (actuaction_force ./ m)
+            dstate[1:3] .= @views v⃗ 
+            dstate[4:6] .= @views if actuation_power > 0.0 && norm(v⃗) > 0.01 && areparallel(v⃗, intertia)
+                max_applied_force = 1000 #N
+                actuaction_force = 2.0 * actuation_power ./ norm(v⃗)
+                capped_actuation_force = sign(actuaction_force) * min(abs(actuaction_force), max_applied_force)
+                
+                intertia .+ gravity .+ (capped_actuation_force .* v⃗ ./ norm(v⃗) ./ m)
                 # a⃗ = a⃗ .+ dirac_impulse(t)
+            else
+                intertia .+ gravity
             end
 
-            dstate .= @views [v⃗; a⃗]
+            # dstate .= @views [v⃗; a⃗]
             nothing
         end
             
@@ -122,7 +134,7 @@ module Simulator
         return map(v -> vcat(get_prop(g, v, :init_pos), zeros(3)), vertices(g)) |> Iterators.flatten |> collect
     end
 
-    function get_simulation_parameters(g, actuation_power=0., c_stiff=c_stiff)
+    function get_simulation_parameters(g, c_stiff=c_stiff)
         param_vec_for_edge(e) = begin
             c = get_prop(g, e, :type) == "spring" ?  get_prop(g, e, :spring_stiffness) : c_stiff 
             l = get_prop(g, e, :length)
@@ -131,7 +143,7 @@ module Simulator
 
         param_vec_for_vertex(v) = begin 
             if (get_prop(g, v, :active_user))
-                return (get_prop(g, v, :m), actuation_power)
+                return (get_prop(g, v, :m), get_prop(g, v, :actuation_power))
             else
                 return (get_prop(g, v, :m), 0)
             end
@@ -141,25 +153,26 @@ module Simulator
     end
 
 
-    function run_simulation(g; fps=30, actuation_power=0., tspan=(0., 5.))
+    function run_simulation(g; fps=30,tspan=(0., 5.))
         u0 = get_inital_conditions(g)
 
         ode_problem = ODEProblem(
             get_equations_of_motion(g),
             u0,
             tspan,
-            get_simulation_parameters(g, actuation_power)
+            get_simulation_parameters(g)
         )
 
         # make sure that the simulation can be aborted using InterruptException
         # TODO figure out why this triggers twice as much as it's suppoose to (mind the 2; should be 1) 
-        check_interrupt_callback = PeriodicCallback(_ -> yield(), 2/fps)
+        check_interrupt_callback = FunctionCallingCallback((_, _, _) -> yield())
         
         return @time solve(ode_problem,
             TRBDF2(),
-            abstol=1e-2,
-            reltol=1e-2,
-            save_everystep=false,  # the simulation result is implicitly saved whenever a callback is triggered
+            abstol=5e-1,
+            reltol=1e-1,
+            saveat=1/fps,
+            # save_everystep=false,  # the simulation result is implicitly saved whenever a callback is triggered
             callback=check_interrupt_callback
         );
     end

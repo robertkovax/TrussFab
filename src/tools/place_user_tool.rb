@@ -22,16 +22,24 @@ class PlaceUserTool < Tool
       if current_index == possible_filenames.length - 1
         @hub.remove_user
       else
-        @hub.attach_user(filename: possible_filenames[current_index + 1])
+        attach_user(possible_filenames[current_index + 1])
       end
     else
-      @hub.attach_user(filename: possible_filenames[0])
+      attach_user(possible_filenames[0])
     end
     closest_spring = @ui.spring_pane.spring_edges.min_by { |edge| edge.distance @hub.position}
     @ui.spring_pane.enable_preloading_for_spring(closest_spring.id) unless closest_spring.nil?
     # TODO: at some point springe pane should compile automatically when geometry changes
     # @ui.spring_pane.request_compilation
     @ui.spring_pane.update_mounted_users
+  end
+
+  def attach_user(file_name)
+    if file_name.include?('sensor')
+      @hub.attach_user(filename: file_name, excitement: 0)
+    else
+      @hub.attach_user(filename: file_name)
+    end
   end
 
   def onMouseMove(_flags, x, y, view)
