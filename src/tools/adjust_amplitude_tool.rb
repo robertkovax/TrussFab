@@ -13,7 +13,7 @@ class AdjustAmplitudeTool < Tool
     @mouse_down = true
     position = @mouse_input.update_positions(view, x, y)
 
-    handles = @ui.spring_pane.path_visualization.handles
+    handles = @ui.spring_pane.trace_visualization.handles
     @selected_handle = handles.min_by { |handle| position.distance(handle.position)}
     puts "Selected #{@selected_handle}"
   end
