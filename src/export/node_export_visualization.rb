@@ -53,7 +53,7 @@ module NodeExportVisualization
 
       edge_groups.each do |group|
         group.each do |edge|
-          edge.link.material = Configuration::STANDARD_COLOR
+          edge.link.material = Sketchup.active_model.materials['standard_material']
         end
       end
 
