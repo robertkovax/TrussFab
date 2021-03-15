@@ -100,7 +100,7 @@ class TraceVisualization
 
       # invert distance ratio since high distance should plot a small and lightly colored dot
       ratio = 1 - distance_ratio
-      Geometry.clamp(ratio, 0.0, 1.0)
+      ratio = Geometry.clamp(ratio, 0.0, 1.0)
 
       if (current_acceleration_is_max = max_acceleration_index == index)
         puts "maximum acceleration index: #{index}"
