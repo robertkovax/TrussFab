@@ -10,6 +10,7 @@ using MetaGraphs
 using StaticArrays
 using Rotations
 using NetworkDynamics
+using DiffEqCallbacks
 include("./rigidGroupDetection.jl")
 
 Point = AbstractArray{Float64,1}
@@ -41,14 +42,15 @@ end
     end
 end
 
+function rotate_vec(axis, point, angle)
+    return UnitQuaternion(AngleAxis(angle, axis.normal...)) * point
+end
+
 function get_rigid_group_ode(rotation_axis::Line, point_masses::AbstractVector{PointMass})
 
-    function rotate(point, angle)
-        return UnitQuaternion(AngleAxis(angle, rotation_axis.normal...)) * point
-    end
 
     function get_torque(force_vec, pos, angle)
-        torque_vec = cross(force_vec, rotate(pos, angle))
+        torque_vec = cross(force_vec, rotate_vec(rotation_axis, pos, angle))
         return sign(dot(torque_vec, rotation_axis.normal)) * norm(torque_vec)
     end
 
@@ -103,23 +105,26 @@ function get_spring_ode(src_point::Point, src_rotation_axis::Line, dst_point::Po
 end
 
 
-
-
-
 function bitvector_to_poslist(bitvector::AbstractArray{Bool})
     return [i for (i, bool) in enumerate(bitvector) if bool]
 end
 
-function run_simulation(g::MetaGraph)
+function run_simulation(g::MetaGraph, fps=30)
     
+    # --- Build new reduced graph ---
     rigid_groups = get_rigid_groups(g)
+    rigid_group_point_masses = []
+    rigid_group_rotation_axes = []
     reduced_g = Graph(length(rigid_groups))
 
     ode_vertices = []
+
     for vertices_in_rigid_group in bitvector_to_poslist.(rigid_groups)
         # TODO get rotation axis
         rot_axis = Line([0.0,0.0,0.0],[1.0,0.0,0.0])
         point_masses = [PointMass(get_prop(g, vertex, :init_pos), get_prop(g, vertex, :m)) for vertex in vertices_in_rigid_group]
+        push!(rigid_group_point_masses, point_masses)
+        push!(rigid_group_rotation_axes, rot_axis)
         push!(ode_vertices, get_rigid_group_ode(rot_axis, point_masses))
     end
     
@@ -135,6 +140,7 @@ function run_simulation(g::MetaGraph)
         end
     end
     
+    # --- instantiate the ODE Problem ---
     # two angles for every group
     u0 = zeros(nv(reduced_g)*2)
     nd = network_dynamics(ode_vertices, ode_edges, reduced_g)
@@ -146,13 +152,29 @@ function run_simulation(g::MetaGraph)
     params = [(1000, 0.6) for _ in ode_edges]
     ode_problem = ODEProblem(nd_wrapper!, u0, (0.0, 10.), params)
     
-    return @time solve(ode_problem, Rodas3(), [] );
+    sol = @time solve(ode_problem, Rodas3(), saveat=1/fps);
+    # --- map simplified state back to vectors ---
+
+    result = zeros(length(sol.t), nv(g))
+    for (row_id, row) in enumerate(eachrow(sol'))
+        for (vertex_id, state) in enumerate(Iterators.partition(row, 2))
+            θ, ω = state
+            rot_axis = rigid_group_rotation_axes[vertex_id]
+            for point_mass in rigid_group_point_masses[vertex_id]
+                result[row_id, ] = rotate_vec(rot_axis, point_mass.pos, θ)
+                result[row_id, ] = rotate_vec(rot_axis, point_mass.pos, ω)
+            end
+        end
+    end
+    return result
 end
 
 
 g = TrussFab.import_trussfab_file("./test_models/seesaw_3.json")
 
-@time sol = run_simulation(g)
+sol = run_simulation(g)
+reshape(sol, (301, :))
+plot(transpose(sol)[20])
 @time get_rigid_groups(g)
 
 nodelabel = 1:nv(g)
