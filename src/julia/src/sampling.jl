@@ -1,3 +1,4 @@
+using Random
 using Revise
 using MetaGraphs
 using LightGraphs
@@ -7,14 +8,25 @@ using LinearAlgebra
 
 using MultivariateStats
 
+
 include("analysis.jl")
 
+seed = MersenneTwister(1234)
 g = TrussFab.import_trussfab_file("./test_models/seesaw_3.json")
 
-function set_stiffness(k)
+function set_stiffness(k::Float64)
     for e in edges(g)
         if get_prop(g, e, :type) == "spring"
             set_prop!(g, e, :spring_stiffness, k)
+        end
+    end
+end
+
+function set_stiffness(ks::AbstractArray{Float64, 1})
+    ks = deepcopy(ks)
+    for e in edges(g)
+        if get_prop(g, e, :type) == "spring"
+            set_prop!(g, e, :spring_stiffness, pop!(ks))
         end
     end
 end
@@ -56,6 +68,11 @@ function get_dominant_frequency(sol)
     return trimmed_spectrum[index]
 end
 
+function get_ramp_up_time(sol)
+    # TODO implement
+    return 10.0 
+end
+
 function poincare_section_fit(sol)
     return fit(PCA, sol; maxoutdim=10)
     # reconstruct testing observations (approximately)
@@ -75,35 +92,6 @@ function poincare_section(model, sol)
     display(p)
 end
 
-# If we add weight and stiffness (in a way the frequency remains the same)
-steps = 1:1:50
-M
-Yte = transform(M, sol)
-Xr = reconstruct(M, Yte)
-plot(Xr')
-poincare_section(M, sol)
-
-solution_cache = []
-plot()
-
-set_stiffness(10000)
-import TrussFab
-sol = TrussFab.run_simulation(g, tspan=(0., 30.), fps=30)
-M = poincare_section_fit(sol)
-poincare_section(M, sol)
-for step in steps
-    set_first_stiffness(step*100 + 5000)
-    # set_weight(step*3 + 40)
-    sol = TrussFab.run_simulation(g, tspan=(0., 30.), fps=30)
-    plot_spectrum(sol, 18)
-    # poincare_section(M, sol)
-    # push!(solution_cache, sol)
-end
-plot(transpose(sol))1
-
-using Serialization
-serialize("sim_sweep.tfs", solution_cache)
-solution_cache2 = deserialize("sim_sweep.tfs")
 
 function plot_solutions(solutions)
     frequencies = solutions .|> get_dominant_frequency
@@ -112,24 +100,46 @@ function plot_solutions(solutions)
 end
 plot_solutions(solution_cache2)
 
-set_weight(40)
-get_dominant_frequency(sol)
+users = filter(v -> get_prop(g, v, :active_user), vertices(g))
+springs = filter(e -> get_prop(g, e, :type) == "spring", collect(edges(g)))
+
+# parameter space
+spring_stiffnesses = 5e3:1e3:15e3
+additional_weights = [5, 10]
+
+# single sample
+age_groups = [5, 7, 12]
+types = [:ramp_up]
 
 
-results2 = []
-for step in steps
-    set_stiffness(step*100 + 3000)
-    # set_weight(step*3 + 40)
-    sol = TrussFab.run_simulation(g, tspan=(0., 30.), fps=30, actuation_power=10.0)
-    freq = get_dominat_frequency(sol)
-    println(freq)
-    push!(results2, freq)
+samples = Iterators.product([spring_stiffnesses for _ in springs]...) |> collect |> vec
+
+
+function simulate(spring_constants, age, type)
+    if type !== :ramp_up
+       throw(ErrorException("Not yet implemeted. Only ramp up simulations are supported rn."))
+    end
+
+    println((spring_constants, age, type))
+    set_stiffness([spring_constants...])
+    sol = TrussFab.run_simulation(g, tspan=(0., 10.), fps=3)
+    user_metrics = [[get_dominant_frequency(sol, v), get_amplitude(sol, v)[1]] for v in users]
+    return [get_ramp_up_time(sol); user_metrics...]
 end
-plot(steps.*100 .+ 3000, results2)
 
-# what is the effect on frequency and amplitude for a given user power?
+    
 
-# How frequency (adjusting stiffness) changes acceleration and amplitude? 
+results = []
+shuffled_samples = shuffle(seed, samples)
+for sample in shuffled_samples
+    result_vector = []
+    for age in age_groups
+        for type in types
+            result_vector = simulate(sample, age, type)
+        end
+    end
+    push!(results, result_vector)
+end
 
-# Simulate Energy Stealing on the Dinosaur
- 
+results
+nothing
