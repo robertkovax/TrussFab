@@ -39,7 +39,6 @@ module Simulator
         
         @inline Base.@propagate_inbounds function vector_sum(array, n=3)
             reduce((acc, elem) -> acc .+ elem, array, init=zeros(n))
-            # accumulate(+, array, dims=n)
         end
 
         @inline Base.@propagate_inbounds  function areparallel(vec1, vec2)
@@ -79,20 +78,19 @@ module Simulator
             m, actuation_power = @views p
             v⃗ = @views velocity(state)
 
-            intertia = (vector_sum(edges_dst) - vector_sum(edges_src)) ./ m
+            edge_acceleration = (vector_sum(edges_dst) - vector_sum(edges_src)) ./ m
             
             dstate[1:3] .= @views v⃗ 
-            dstate[4:6] .= @views if actuation_power > 0.0 && norm(v⃗) > 0.01 && areparallel(v⃗, intertia)
+            dstate[4:6] .= @views if actuation_power > 0.0 && norm(v⃗) > 0.01 && areparallel(v⃗, edge_acceleration)
                 max_applied_force = 1000 #N
                 actuaction_force = 2.0 * actuation_power ./ norm(v⃗)
                 capped_actuation_force = sign(actuaction_force) * min(abs(actuaction_force), max_applied_force)
                 
-                intertia .+ gravity .+ dirac_impulse(t)
+                # edge_acceleration .+ gravity .+ dirac_impulse(t)
+                edge_acceleration .+ gravity .+ (capped_actuation_force .* v⃗ ./ norm(v⃗) ./ m)
             else
-                intertia .+ gravity
+                edge_acceleration .+ gravity
             end
-
-            # dstate .= @views [v⃗; a⃗]
             nothing
         end
             
