@@ -1,0 +1,1014 @@
+{
+  "distance_unit": "mm",
+  "force_unit": "N",
+  "nodes": [
+    {
+      "id": 1,
+      "x": 2309.7783695721773,
+      "y": 1909.6398600700961,
+      "z": 75.47919989099896,
+      "pods": [
+        {
+          "direction": "(0.0, 0.0, -1.772309527559055)",
+          "is_fixed": true
+        }
+      ],
+      "added_mass": 0
+    },
+    {
+      "id": 2,
+      "x": 2979.0598730817323,
+      "y": 1909.6398600700961,
+      "z": 195.4791998909991,
+      "pods": [
+
+      ],
+      "added_mass": 0
+    },
+    {
+      "id": 3,
+      "x": 2644.4191213269555,
+      "y": 2489.2546443924152,
+      "z": 75.47919989099896,
+      "pods": [
+        {
+          "direction": "(0.0, 0.0, -1.772309527559055)",
+          "is_fixed": true
+        }
+      ],
+      "added_mass": 0
+    },
+    {
+      "id": 4,
+      "x": 2644.4191213269555,
+      "y": 1330.0250736112716,
+      "z": 75.47920593394802,
+      "pods": [
+        {
+          "direction": "(0.0, 0.0, -1.772309527559055)",
+          "is_fixed": true
+        }
+      ],
+      "added_mass": 0
+    },
+    {
+      "id": 5,
+      "x": 3313.70062483651,
+      "y": 2489.2546443924152,
+      "z": 75.47919989099896,
+      "pods": [
+        {
+          "direction": "(0.0, 0.0, -1.772309527559055)",
+          "is_fixed": true
+        }
+      ],
+      "added_mass": 0
+    },
+    {
+      "id": 6,
+      "x": 3313.700626121422,
+      "y": 1330.0250757181036,
+      "z": 75.47920274461592,
+      "pods": [
+        {
+          "direction": "(-0.0, -0.0, -1.772309527559055)",
+          "is_fixed": true
+        }
+      ],
+      "added_mass": 0
+    },
+    {
+      "id": 7,
+      "x": 3452.298823707413,
+      "y": 1651.8700589912853,
+      "z": 651.5782942966442,
+      "pods": [
+
+      ],
+      "added_mass": 0
+    },
+    {
+      "id": 8,
+      "x": 3648.341376591289,
+      "y": 1909.6398600700961,
+      "z": 75.47919989099988,
+      "pods": [
+        {
+          "direction": "(-0.0, -0.0, -1.772309527559055)",
+          "is_fixed": true
+        }
+      ],
+      "added_mass": 0
+    },
+    {
+      "id": 9,
+      "x": 4022.3512011105317,
+      "y": 1650.0170032300516,
+      "z": 630.2092966038855,
+      "pods": [
+
+      ],
+      "added_mass": 0
+    },
+    {
+      "id": 10,
+      "x": 3660.7246896028187,
+      "y": 1052.8734379047844,
+      "z": 625.9797007552123,
+      "pods": [
+
+      ],
+      "added_mass": 0
+    },
+    {
+      "id": 11,
+      "x": 3747.691131578091,
+      "y": 1844.6502206654297,
+      "z": 1364.6084397538334,
+      "pods": [
+
+      ],
+      "added_mass": 0
+    },
+    {
+      "id": 12,
+      "x": 3389.040589441431,
+      "y": 1280.011899936216,
+      "z": 1358.3437300871421,
+      "pods": [
+
+      ],
+      "added_mass": 0
+    },
+    {
+      "id": 13,
+      "x": 4045.1729844433776,
+      "y": 1248.369018395559,
+      "z": 1224.2782823653085,
+      "pods": [
+
+      ],
+      "added_mass": 0
+    },
+    {
+      "id": 14,
+      "x": 4177.167322620154,
+      "y": 1566.834524023782,
+      "z": 1799.9030544176596,
+      "pods": [
+
+      ],
+      "added_mass": 0
+    },
+    {
+      "id": 15,
+      "x": 3523.647796738252,
+      "y": 1582.0519549737742,
+      "z": 1932.3495793409043,
+      "pods": [
+
+      ],
+      "added_mass": 0
+    },
+    {
+      "id": 16,
+      "x": 3817.854280116174,
+      "y": 1003.4187643945119,
+      "z": 1797.8726362210284,
+      "pods": [
+
+      ],
+      "added_mass": 0
+    },
+    {
+      "id": 17,
+      "x": 4430.06020830244,
+      "y": 1009.2906464400519,
+      "z": 1523.0923219690128,
+      "pods": [
+
+      ],
+      "added_mass": 0
+    },
+    {
+      "id": 18,
+      "x": 3939.2447619756845,
+      "y": 1323.3532372901925,
+      "z": 2386.5853235172285,
+      "pods": [
+
+      ],
+      "added_mass": 0
+    },
+    {
+      "id": 19,
+      "x": 4434.75984791635,
+      "y": 1010.0432322951207,
+      "z": 2084.699429308357,
+      "pods": [
+
+      ],
+      "added_mass": 0
+    },
+    {
+      "id": 20,
+      "x": 3865.806621585568,
+      "y": 999.0116118806167,
+      "z": 75.47919989099896,
+      "pods": [
+        {
+          "direction": "(0.0, 0.0, -1.772309527559055)",
+          "is_fixed": true
+        }
+      ],
+      "added_mass": 0
+    },
+    {
+      "id": 21,
+      "x": 4207.543692945667,
+      "y": 1590.98292353941,
+      "z": 75.47919989099896,
+      "pods": [
+        {
+          "direction": "(0.0, 0.0, -1.772309527559055)",
+          "is_fixed": true
+        }
+      ],
+      "added_mass": 0
+    },
+    {
+      "id": 22,
+      "x": 3652.535910417272,
+      "y": 1514.9834739496946,
+      "z": 195.4791998909991,
+      "pods": [
+
+      ],
+      "added_mass": 0
+    },
+    {
+      "id": 23,
+      "x": 1975.5858774008095,
+      "y": 2493.806146668901,
+      "z": 29.999999999999996,
+      "pods": [
+        {
+          "direction": "(-0.0, -0.0, -1.772309527559055)",
+          "is_fixed": true
+        },
+        {
+          "direction": "(0.0, 0.0, -1.772309527559055)",
+          "is_fixed": true
+        },
+        {
+          "direction": "(0.0, 0.0, -1.772309527559055)",
+          "is_fixed": true
+        },
+        {
+          "direction": "(0.0, 0.0, -1.772309527559055)",
+          "is_fixed": true
+        },
+        {
+          "direction": "(0.0, 0.0, -1.772309527559055)",
+          "is_fixed": true
+        },
+        {
+          "direction": "(0.0, 0.0, -1.772309527559055)",
+          "is_fixed": true
+        }
+      ],
+      "added_mass": 0
+    },
+    {
+      "id": 30,
+      "x": 3158.9568730761166,
+      "y": 1807.406947516165,
+      "z": 514.3936625285188,
+      "pods": [
+
+      ],
+      "added_mass": 0
+    }
+  ],
+  "edges": [
+    {
+      "id": 1,
+      "n1": 1,
+      "n2": 2,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 39.9771061924648,
+      "e2": 39.9771061924648,
+      "uncompressed_length": 679.9542123849297
+    },
+    {
+      "id": 2,
+      "n1": 2,
+      "n2": 3,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 39.97710619246471,
+      "e2": 39.97710619246471,
+      "uncompressed_length": 679.9542123849303
+    },
+    {
+      "id": 3,
+      "n1": 3,
+      "n2": 1,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 34.64075175477771,
+      "e2": 34.64075175477771,
+      "uncompressed_length": 669.2815035095558
+    },
+    {
+      "id": 4,
+      "n1": 1,
+      "n2": 4,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 34.640752679911756,
+      "e2": 34.640752679911756,
+      "uncompressed_length": 669.2815053598235
+    },
+    {
+      "id": 5,
+      "n1": 2,
+      "n2": 4,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 39.977106569840345,
+      "e2": 39.977106569840345,
+      "uncompressed_length": 679.9542131396813
+    },
+    {
+      "id": 6,
+      "n1": 2,
+      "n2": 5,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 39.97710619246525,
+      "e2": 39.97710619246525,
+      "uncompressed_length": 679.9542123849309
+    },
+    {
+      "id": 7,
+      "n1": 3,
+      "n2": 5,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 34.640751754777305,
+      "e2": 34.640751754777305,
+      "uncompressed_length": 669.2815035095547
+    },
+    {
+      "id": 8,
+      "n1": 6,
+      "n2": 7,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 37.15123346922209,
+      "e2": 37.15123346922209,
+      "uncompressed_length": 674.3024669384446
+    },
+    {
+      "id": 9,
+      "n1": 6,
+      "n2": 4,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 34.64075239723299,
+      "e2": 34.64075239723299,
+      "uncompressed_length": 669.2815047944667
+    },
+    {
+      "id": 10,
+      "n1": 6,
+      "n2": 2,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 39.97710626949162,
+      "e2": 39.97710626949162,
+      "uncompressed_length": 679.9542125389837
+    },
+    {
+      "id": 11,
+      "n1": 7,
+      "n2": 8,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 30.442173255942073,
+      "e2": 30.442173255942073,
+      "uncompressed_length": 660.8843465118846
+    },
+    {
+      "id": 12,
+      "n1": 8,
+      "n2": 2,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 39.9771061924658,
+      "e2": 39.9771061924658,
+      "uncompressed_length": 679.954212384932
+    },
+    {
+      "id": 13,
+      "n1": 8,
+      "n2": 5,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 34.64075175477771,
+      "e2": 34.64075175477771,
+      "uncompressed_length": 669.2815035095566
+    },
+    {
+      "id": 14,
+      "n1": 8,
+      "n2": 6,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 34.64075144639886,
+      "e2": 34.64075144639886,
+      "uncompressed_length": 669.2815028927981
+    },
+    {
+      "id": 15,
+      "n1": 7,
+      "n2": 9,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(50cm)",
+      "piston_group": -1,
+      "e1": 35.22788295545173,
+      "e2": 35.22788295545173,
+      "uncompressed_length": 570.4557659109033
+    },
+    {
+      "id": 16,
+      "n1": 8,
+      "n2": 9,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 58.821981221115976,
+      "e2": 58.821981221115976,
+      "uncompressed_length": 717.6439624422322
+    },
+    {
+      "id": 17,
+      "n1": 6,
+      "n2": 10,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 53.65573984019407,
+      "e2": 53.65573984019407,
+      "uncompressed_length": 707.3114796803882
+    },
+    {
+      "id": 18,
+      "n1": 7,
+      "n2": 10,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(50cm)",
+      "piston_group": -1,
+      "e1": 67.3694935081958,
+      "e2": 67.3694935081958,
+      "uncompressed_length": 634.7389870163911
+    },
+    {
+      "id": 19,
+      "n1": 10,
+      "n2": 9,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 49.060188547638596,
+      "e2": 49.060188547638596,
+      "uncompressed_length": 698.120377095278
+    },
+    {
+      "id": 20,
+      "n1": 11,
+      "n2": 12,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 34.471931258077944,
+      "e2": 34.471931258077944,
+      "uncompressed_length": 668.9438625161563
+    },
+    {
+      "id": 21,
+      "n1": 12,
+      "n2": 13,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 35.21803948924097,
+      "e2": 35.21803948924097,
+      "uncompressed_length": 670.4360789784823
+    },
+    {
+      "id": 22,
+      "n1": 13,
+      "n2": 11,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 40.492025617801495,
+      "e2": 40.492025617801495,
+      "uncompressed_length": 680.9840512356035
+    },
+    {
+      "id": 23,
+      "n1": 12,
+      "n2": 10,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(70cm)",
+      "piston_group": -1,
+      "e1": 56.74353180899119,
+      "e2": 56.74353180899119,
+      "uncompressed_length": 813.4870636179818
+    },
+    {
+      "id": 24,
+      "n1": 13,
+      "n2": 10,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 68.77506903053053,
+      "e2": 68.77506903053053,
+      "uncompressed_length": 737.5501380610617
+    },
+    {
+      "id": 25,
+      "n1": 11,
+      "n2": 9,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(70cm)",
+      "piston_group": -1,
+      "e1": 53.937601797663476,
+      "e2": 53.937601797663476,
+      "uncompressed_length": 807.8752035953264
+    },
+    {
+      "id": 26,
+      "n1": 13,
+      "n2": 9,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 58.73384889068715,
+      "e2": 58.73384889068715,
+      "uncompressed_length": 717.4676977813748
+    },
+    {
+      "id": 27,
+      "n1": 12,
+      "n2": 7,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(70cm)",
+      "piston_group": -1,
+      "e1": 50.561317368018024,
+      "e2": 50.561317368018024,
+      "uncompressed_length": 801.1226347360357
+    },
+    {
+      "id": 28,
+      "n1": 11,
+      "n2": 7,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(70cm)",
+      "piston_group": -1,
+      "e1": 47.7539423484624,
+      "e2": 47.7539423484624,
+      "uncompressed_length": 795.5078846969242
+    },
+    {
+      "id": 29,
+      "n1": 14,
+      "n2": 15,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 33.48966358714452,
+      "e2": 33.48966358714452,
+      "uncompressed_length": 666.9793271742888
+    },
+    {
+      "id": 30,
+      "n1": 15,
+      "n2": 16,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 31.458094007525496,
+      "e2": 31.458094007525496,
+      "uncompressed_length": 662.9161880150511
+    },
+    {
+      "id": 31,
+      "n1": 16,
+      "n2": 14,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 34.120974839259326,
+      "e2": 34.120974839259326,
+      "uncompressed_length": 668.2419496785184
+    },
+    {
+      "id": 32,
+      "n1": 15,
+      "n2": 12,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 31.22122896972976,
+      "e2": 31.22122896972976,
+      "uncompressed_length": 662.4424579394599
+    },
+    {
+      "id": 33,
+      "n1": 16,
+      "n2": 12,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 36.738252677853396,
+      "e2": 36.738252677853396,
+      "uncompressed_length": 673.476505355707
+    },
+    {
+      "id": 34,
+      "n1": 14,
+      "n2": 13,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 35.47975415294639,
+      "e2": 35.47975415294639,
+      "uncompressed_length": 670.9595083058932
+    },
+    {
+      "id": 35,
+      "n1": 16,
+      "n2": 13,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 31.92051120988909,
+      "e2": 31.92051120988909,
+      "uncompressed_length": 663.8410224197786
+    },
+    {
+      "id": 36,
+      "n1": 15,
+      "n2": 11,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 32.221035836853105,
+      "e2": 32.221035836853105,
+      "uncompressed_length": 664.442071673707
+    },
+    {
+      "id": 37,
+      "n1": 14,
+      "n2": 11,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 35.82464230897763,
+      "e2": 35.82464230897763,
+      "uncompressed_length": 671.6492846179555
+    },
+    {
+      "id": 38,
+      "n1": 16,
+      "n2": 17,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 35.53494549957087,
+      "e2": 35.53494549957087,
+      "uncompressed_length": 671.0698909991422
+    },
+    {
+      "id": 39,
+      "n1": 13,
+      "n2": 17,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(50cm)",
+      "piston_group": -1,
+      "e1": 21.379104432856018,
+      "e2": 21.379104432856018,
+      "uncompressed_length": 542.7582088657118
+    },
+    {
+      "id": 40,
+      "n1": 14,
+      "n2": 17,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 35.94425454923717,
+      "e2": 35.94425454923717,
+      "uncompressed_length": 671.8885090984751
+    },
+    {
+      "id": 41,
+      "n1": 16,
+      "n2": 18,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 40.46892083442611,
+      "e2": 40.46892083442611,
+      "uncompressed_length": 680.9378416688519
+    },
+    {
+      "id": 42,
+      "n1": 14,
+      "n2": 18,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 39.14833286074256,
+      "e2": 39.14833286074256,
+      "uncompressed_length": 678.2966657214853
+    },
+    {
+      "id": 43,
+      "n1": 15,
+      "n2": 18,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 33.90716349500214,
+      "e2": 33.90716349500214,
+      "uncompressed_length": 667.8143269900041
+    },
+    {
+      "id": 44,
+      "n1": 18,
+      "n2": 19,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 29.709513339804978,
+      "e2": 29.709513339804978,
+      "uncompressed_length": 659.4190266796121
+    },
+    {
+      "id": 45,
+      "n1": 16,
+      "n2": 19,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 40.17861940111099,
+      "e2": 40.17861940111099,
+      "uncompressed_length": 680.3572388022235
+    },
+    {
+      "id": 46,
+      "n1": 14,
+      "n2": 19,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 38.18612729687203,
+      "e2": 38.18612729687203,
+      "uncompressed_length": 676.372254593745
+    },
+    {
+      "id": 47,
+      "n1": 6,
+      "n2": 9,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(90cm)",
+      "piston_group": -1,
+      "e1": 27.5735409699539,
+      "e2": 27.5735409699539,
+      "uncompressed_length": 955.1470819399079
+    },
+    {
+      "id": 48,
+      "n1": 10,
+      "n2": 20,
+      "type": "spring",
+      "bottle_type": "Pipe(50cm)",
+      "piston_group": 1,
+      "e1": 20.0,
+      "e2": 20.0,
+      "uncompressed_length": 428.0,
+      "spring_parameter_k": 1124.0
+    },
+    {
+      "id": 49,
+      "n1": 6,
+      "n2": 20,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 21.86602161036914,
+      "e2": 21.86602161036914,
+      "uncompressed_length": 643.7320432207385
+    },
+    {
+      "id": 50,
+      "n1": 8,
+      "n2": 21,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 21.811075716492166,
+      "e2": 21.811075716492166,
+      "uncompressed_length": 643.6221514329841
+    },
+    {
+      "id": 51,
+      "n1": 20,
+      "n2": 21,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 41.765365334468086,
+      "e2": 41.765365334468086,
+      "uncompressed_length": 683.5307306689359
+    },
+    {
+      "id": 52,
+      "n1": 9,
+      "n2": 21,
+      "type": "spring",
+      "bottle_type": "Pipe(50cm)",
+      "piston_group": 0,
+      "e1": 20.0,
+      "e2": 20.0,
+      "uncompressed_length": 425.0,
+      "spring_parameter_k": 3376.0
+    },
+    {
+      "id": 53,
+      "n1": 22,
+      "n2": 8,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(35cm)",
+      "piston_group": -1,
+      "e1": 31.25909508409113,
+      "e2": 31.25909508409113,
+      "uncompressed_length": 412.51819016818223
+    },
+    {
+      "id": 54,
+      "n1": 22,
+      "n2": 6,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(35cm)",
+      "piston_group": -1,
+      "e1": 27.125553972881722,
+      "e2": 27.125553972881722,
+      "uncompressed_length": 404.2511079457634
+    },
+    {
+      "id": 55,
+      "n1": 22,
+      "n2": 20,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(50cm)",
+      "piston_group": -1,
+      "e1": 35.53080336859582,
+      "e2": 35.53080336859582,
+      "uncompressed_length": 571.0616067371911
+    },
+    {
+      "id": 56,
+      "n1": 22,
+      "n2": 21,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(50cm)",
+      "piston_group": -1,
+      "e1": 36.44788138727206,
+      "e2": 36.44788138727206,
+      "uncompressed_length": 572.8957627745432
+    },
+    {
+      "id": 57,
+      "n1": 22,
+      "n2": 2,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(70cm)",
+      "piston_group": -1,
+      "e1": 40.29592489891486,
+      "e2": 40.29592489891486,
+      "uncompressed_length": 780.5918497978294
+    },
+    {
+      "id": 58,
+      "n1": 1,
+      "n2": 23,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 37.269636138902996,
+      "e2": 37.269636138902996,
+      "uncompressed_length": 674.5392722778059
+    },
+    {
+      "id": 59,
+      "n1": 3,
+      "n2": 23,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 35.196577390219446,
+      "e2": 35.196577390219446,
+      "uncompressed_length": 670.393154780439
+    },
+    {
+      "id": 78,
+      "n1": 6,
+      "n2": 30,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 33.348535183282955,
+      "e2": 33.348535183282955,
+      "uncompressed_length": 666.6970703665663
+    },
+    {
+      "id": 79,
+      "n1": 7,
+      "n2": 30,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(30cm)",
+      "piston_group": -1,
+      "e1": 29.625197902139384,
+      "e2": 29.625197902139384,
+      "uncompressed_length": 359.25039580427847
+    },
+    {
+      "id": 80,
+      "n1": 8,
+      "n2": 30,
+      "type": "bottle_link",
+      "bottle_type": "Pipe(60cm)",
+      "piston_group": -1,
+      "e1": 32.63894322614776,
+      "e2": 32.63894322614776,
+      "uncompressed_length": 665.2778864522957
+    }
+  ],
+  "animation": [
+
+  ],
+  "standard_surface": [
+    3,
+    1,
+    2
+  ],
+  "mounted_users": [
+    {
+      "id": 30,
+      "filename": "AB_puppet_sitting-50.skp",
+      "transformation": [
+        0.5000000000000002,
+        0.8660254037844388,
+        0.0,
+        0.0,
+        -0.8660254037844388,
+        0.5000000000000002,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "weight": 30,
+      "excitement": 50
+    }
+  ],
+  "simulation_duration": 5.0
+}

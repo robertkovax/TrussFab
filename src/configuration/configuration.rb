@@ -2,6 +2,7 @@ require 'src/utility/project_helper.rb'
 
 module Configuration
 
+  SIMULATION_SERVER_HOST = "localhost"
   SIMULATION_SERVER_PORT = "8085"
   LAUNCH_SIMULATION_SERVER_WITH_SKETCHUP = true
 

@@ -4,7 +4,7 @@ require 'net/http'
 require 'uri'
 require_relative 'animation_data_sample.rb'
 
-SIMULATION_RUNNER_HOST = "http://localhost:#{Configuration::SIMULATION_SERVER_PORT}".freeze
+SIMULATION_RUNNER_HOST = "http://#{Configuration::SIMULATION_SERVER_HOST}:#{Configuration::SIMULATION_SERVER_PORT}".freeze
 
 class SimulationRunnerClient
   def self.update_model(json_string)

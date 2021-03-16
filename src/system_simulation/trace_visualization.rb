@@ -69,6 +69,7 @@ class TraceVisualization
     last_position = @simulation_data[0].position_data[node_id]
     curve_points = []
     @visualizations = []
+    offsetted_curve_points = []
 
     trace_analyzation = (analyze_trace node_id, start_index, end_index)
     max_distance = trace_analyzation[:max_distance]
@@ -81,6 +82,12 @@ class TraceVisualization
     circle_trace_layer =
         Sketchup.active_model.layers[Configuration::MOTION_TRACE_VIEW]
 
+    # Calculate the static offset
+    visualization_offset = Geom::Vector3d.new(0, 0, 30)
+    node = Graph.instance.nodes[node_id.to_i]
+    adjacent_node_ids = node.adjacent_nodes[0..1].map(&:id)
+    inverse_starting_rotation = nil
+
     @simulation_data.each_with_index do |current_data_sample, index|
       # thin out points in trace
       # next unless index % _sampling_rate == 0
@@ -88,6 +95,19 @@ class TraceVisualization
       position = current_data_sample.position_data[node_id]
 
       curve_points << position
+
+      first_adjacent_position = current_data_sample.position_data[adjacent_node_ids[0].to_s]
+      second_adjacent_position = current_data_sample.position_data[adjacent_node_ids[1].to_s]
+
+      vector_one = Geom::Vector3d.new(first_adjacent_position - position).normalize!
+      vector_two = Geom::Vector3d.new(second_adjacent_position - position).normalize!
+
+      rotation = Geometry.rotation_to_local_coordinate_system(vector_one, vector_two)
+      inverse_starting_rotation = rotation.inverse if inverse_starting_rotation.nil?
+      offset = rotation * inverse_starting_rotation * visualization_offset
+
+      offsetted_position = position + offset
+      offsetted_curve_points << offsetted_position
 
       # only plot dots within the largest amplitude, after that only draw the curve line
       next unless index >= start_index && index <= end_index
@@ -104,14 +124,14 @@ class TraceVisualization
 
       if (current_acceleration_is_max = max_acceleration_index == index)
         puts "maximum acceleration index: #{index}"
-        add_label(position, position.offset(Geom::Vector3d.new(0, 10.cm, 0)),"#{max_acceleration.round(3)}m/s^2 ")
+        add_label(offsetted_position, position.offset(Geom::Vector3d.new(0, 10.cm, 0)),"#{max_acceleration.round(3)}m/s^2 ")
       end
 
       racceleration = stats["time_acceleration"][index]
       acceleration = Geom::Vector3d.new(racceleration["x"].mm, racceleration["y"].mm, racceleration["z"].mm)
       # puts "acceleration_length #{acceleration.length}"
 
-      viz = DataSampleVisualization.new(current_data_sample, node_id, circle_definition, ratio,
+      viz = DataSampleVisualization.new(offsetted_position, node_id, circle_definition, ratio,
                                         current_acceleration_is_max, acceleration.length, circle_definition)
       @group = Sketchup.active_model.entities.add_group if @group.deleted?
       @annotations_group = Sketchup.active_model.entities.add_group if @annotations_group.deleted?
@@ -134,7 +154,7 @@ class TraceVisualization
     # plot curve connecting all data points
     @group = Sketchup.active_model.entities.add_group if @group.deleted?
     entities = @group.entities
-    entities.add_curve(curve_points)
+    entities.add_curve(offsetted_curve_points)
     entities.each do |entity|
       entity.layer = circle_trace_layer
     end
