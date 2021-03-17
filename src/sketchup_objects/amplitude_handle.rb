@@ -27,9 +27,16 @@ class AmplitudeHandle < SketchupObject
     handle_definition
   end
 
-  def update_position(position)
+  def update_position(position, move_partner: false)
+    previous_position = @position
     @position = position
     @entity.move!(Geom::Transformation::translation(@position))
+
+    if move_partner
+      distance = Geometry.distance_on_curve(previous_position, position, @movement_curve)
+      partner_position = Geometry.move_point_along_curve(@partner_handle.position, distance, @movement_curve)
+      @partner_handle.update_position(partner_position)
+    end
   end
 
   def create_entity

@@ -38,8 +38,7 @@ class AdjustAmplitudeTool < Tool
     @end_position = @mouse_input.position
     handle_position =
       find_closest_on_curve(@mouse_input.position, @selected_handle.movement_curve)
-    @selected_handle.update_position(handle_position)
-    @selected_handle.partner_handle.update_position(handle_position)
+    @selected_handle.update_position(handle_position, move_partner: true)
     # TODO: Update partner handle
     view.invalidate
   end
