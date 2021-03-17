@@ -1,6 +1,7 @@
 using OrdinaryDiffEq
 using DiffEqBase
 using LinearAlgebra
+
 using LightGraphs
 using Plots
 using Revise
@@ -43,6 +44,7 @@ end
 end
 
 function rotate_vec(axis, point, angle)
+    # TODO change the rotate function to sth that does not use StaticArrays / that can do stuff in-place
     return UnitQuaternion(AngleAxis(angle, axis.normal...)) * point
 end
 
@@ -152,27 +154,43 @@ function run_simulation(g::MetaGraph, fps=30)
     params = [(1000, 0.6) for _ in ode_edges]
     ode_problem = ODEProblem(nd_wrapper!, u0, (0.0, 10.), params)
     
-    sol = @time solve(ode_problem, Rodas3(), saveat=1/fps);
+    sol = @time solve(ode_problem, TRBDF2(), abstol=5e-1, reltol=1e-1, saveat=1/fps );
     # --- map simplified state back to vectors ---
 
-    result = zeros(length(sol.t), nv(g))
-    for (row_id, row) in enumerate(eachrow(sol'))
-        for (vertex_id, state) in enumerate(Iterators.partition(row, 2))
-            θ, ω = state
-            rot_axis = rigid_group_rotation_axes[vertex_id]
-            for point_mass in rigid_group_point_masses[vertex_id]
-                result[row_id, ] = rotate_vec(rot_axis, point_mass.pos, θ)
-                result[row_id, ] = rotate_vec(rot_axis, point_mass.pos, ω)
-            end
+    result = zeros(nv(g), length(sol.t))
+    # for (row_id, row) in enumerate(eachrow(sol'))
+    #     for (vertex_id, state) in enumerate(Iterators.partition(row, 2))
+    #         θ, ω = state
+    #         rot_axis = rigid_group_rotation_axes[vertex_id]
+    #         for point_mass in rigid_group_point_masses[vertex_id]
+    #             result[row_id, ] = rotate_vec(rot_axis, point_mass.pos, θ)
+    #             result[row_id, ] = rotate_vec(rot_axis, point_mass.pos, ω)
+    #         end
+    #     end
+    # end
+    for (vertex_id, state) in enumerate(Iterators.partition(eachcol(sol'), 2))
+        θ, ω = state
+        rot_axis = rigid_group_rotation_axes[vertex_id]
+        # return
+        for point_mass in rigid_group_point_masses[vertex_id]
+            positions::AbstractArray{Float64, 2} = cat([Array(row...) for row in eachrow(map(angle -> rotate_vec(rot_axis, point_mass.pos, angle), θ))]..., dims=2)
+            velocities::AbstractArray{Float64, 2} = cat([Array(row...) for row in eachrow(map(angle -> rotate_vec(rot_axis, point_mass.pos, angle), ω))]..., dims=2)
+            # return positions
+            result[vertex_id*6 - 5:vertex_id*6 - 3, :] = positions
+            result[vertex_id*6 - 2:vertex_id*6 - 0, :] = velocities
         end
     end
     return result
 end
 
+Array([1,2])
 
 g = TrussFab.import_trussfab_file("./test_models/seesaw_3.json")
 
 sol = run_simulation(g)
+point_mass = PointMass([1.0,2.0,3.0] ,10)
+rot_axis = Line([0.0,0.0,0.0],[1.0,0.0,0.0])
+
 reshape(sol, (301, :))
 plot(transpose(sol)[20])
 @time get_rigid_groups(g)
@@ -200,7 +218,7 @@ function run_example_simulation()
     params = [(100000, 0.1)]
     ode_problem = ODEProblem(nd_wrapper!, u0, (0.0, 10.), params)
     
-    return @time solve(ode_problem, Rodas3(), [] );
+    return @time solve(ode_problem, TRBDF2(), abstol=5e-1, reltol=1e-1 );
 end
 
 plot(run_example_simulation()')
