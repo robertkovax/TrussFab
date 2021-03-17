@@ -9,6 +9,7 @@ require 'src/models/weight_indicator_model.rb'
 require 'src/models/user_indicator_model.rb'
 require 'src/models/sensor_model.rb'
 require 'src/models/pid_model.rb'
+require 'src/models/amplitude_handle_model'
 
 # Model Storage
 class ModelStorage
@@ -59,6 +60,10 @@ class ModelStorage
 
     if @models['sensor'].nil? || !@models['sensor'].valid?
       @models['sensor'] = SensorModel.new
+    end
+
+    if @models['amplitude_handle'].nil? || !@models['amplitude_handle'].valid?
+      @models['amplitude_handle'] = AmplitudeHandleModel.new
     end
   end
 

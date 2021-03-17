@@ -237,7 +237,7 @@ module ProjectHelper
 
     unless materials['amplitude_handle_material']
       material = materials.add('amplitude_handle_material')
-      material.color = Sketchup::Color.new(1.0, 0, 0)
+      material.color = Sketchup::Color.new(0.2, 0.2, 0.2)
       material.alpha = 1
     end
   end
