@@ -1,5 +1,5 @@
 # TrussFab
-*TrussFab - TrussFormer - Trusscillator*
+*TrussFab - TrussFormer*
 
 SketchUp plug-in to create large-scale 3D-printed truss structures by using ready-made objects (e.g. PET bottles) and linear actuators.
 

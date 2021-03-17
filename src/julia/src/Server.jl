@@ -1,8 +1,5 @@
-# TODO REFACTOR
-# TODO get snake case and camel case straight
 # TODO fix mapping for server and client ids
 # TODO make handling of global variables nicer somehow
-
 # TODO reduce JSON number precision to have smaller json responses and faster parsing time
 # TODO send 500 errors when there is an exception
 
@@ -19,14 +16,14 @@ include("./analysis.jl")
 
 ROUTER = HTTP.Router()
 
-simulation_fps = 25
+simulation_fps = 30
 current_simulation_task = nothing
 current_model = nothing
 get_client_ids = []
 
 # --- Actual Simulation ---
 
-function asyncSimulation()
+function async_simulation()
     global current_model
     global simulated_model_hash
     global current_simulation_task
@@ -113,8 +110,19 @@ function update_model(req::HTTP.Request)
 
     @info "updated model"
 
-    asyncSimulation()
-    simulation_result = fetch(current_simulation_task)
+    async_simulation()
+    
+    simulation_result = try
+        fetch(current_simulation_task)
+    catch e
+        if e isa TaskFailedException && e.task.exception isa InterruptException
+            @warn "simulation aborted"
+            return HTTP.Response(500)
+        else
+            rethrow()
+        end 
+    end
+
     return HTTP.Response(200, JSON.json(Dict(
         "data" => simulationResultToCustomTableArray(simulation_result),
          # c_id := client_node_id
