@@ -13,6 +13,11 @@ class AmplitudeHandle < SketchupObject
     @movement_curve = movement_curve
   end
 
+  def movement_plane
+    [Geometry.midpoint(@movement_curve[0], @movement_curve[-1]),
+     (@movement_curve[0] - @movement_curve[-1]).normalize]
+  end
+
   def create_handle_definition
     # TODO: this could probably be cached
     handle_definition = Sketchup.active_model.definitions.add "Amplitude Handle Definition"
@@ -33,9 +38,10 @@ class AmplitudeHandle < SketchupObject
     @entity.move!(Geom::Transformation::translation(@position))
 
     if move_partner
-      distance = Geometry.distance_on_curve(previous_position, position, @movement_curve)
-      partner_position = Geometry.move_point_along_curve(@partner_handle.position, distance, @movement_curve)
-      @partner_handle.update_position(partner_position)
+      position_on_plane = position.project_to_plane(movement_plane)
+      vector = position_on_plane - position
+
+      @partner_handle.update_position(position_on_plane + vector)
     end
   end
 
