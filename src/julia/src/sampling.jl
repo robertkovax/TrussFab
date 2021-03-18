@@ -41,12 +41,24 @@ function set_first_stiffness(k)
     end
 end
 
-function set_weight(m)
-    for v in vertices(g)
-        if get_prop(g, v, :active_user)
-            set_prop!(g, v, :m, m)
-        end
+function set_weight!(g, m)
+    for v in TrussFab.users(g)
+        set_prop!(g, v, :m, m)
     end
+end
+
+function set_actuation!(g, watts)
+    for v in TrussFab.users(g)
+        set_prop!(g, v, :actuation_power, watts)
+    end
+end
+
+function weight(age)
+    2.75 * (age-3) + 15
+end
+
+function power(age)
+    7 * (age-3) + 30
 end
 
 function plot_spectrum(sol, vertex_id)
@@ -59,18 +71,9 @@ function plot_spectrum(sol, vertex_id)
     return [freqs mag]
 end
 
-function get_dominant_frequency(sol)
-    node_of_interest = 18
-    spectrum = get_frequency_spectrum(sol, node_of_interest)
-    plot_spectrum(sol, node_of_interest)
-    trimmed_spectrum = spectrum[0.2 .< spectrum[:, 1] .< 1.0, :]
-    max_mag, index = findmax(trimmed_spectrum[:,2])
-    return trimmed_spectrum[index]
-end
-
 function get_ramp_up_time(sol)
     # TODO implement
-    return 10.0 
+    return 1.0
 end
 
 function poincare_section_fit(sol)
