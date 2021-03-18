@@ -37,7 +37,7 @@ class TraceVisualization
   end
 
   def reset_trace
-    Sketchup.active_model.active_entities.erase_entities(@group.entities.to_a) if @group && !@group.deleted?djust
+    Sketchup.active_model.active_entities.erase_entities(@group.entities.to_a) if @group && !@group.deleted?
     Sketchup.active_model.active_entities.erase_entities(@trace_points) if @trace_points.count > 0
 
     @handles.each { |_, handles| handles.each(&:delete)}
