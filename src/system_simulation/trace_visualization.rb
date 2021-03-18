@@ -37,13 +37,13 @@ class TraceVisualization
   end
 
   def reset_trace
-    Sketchup.active_model.active_entities.erase_entities(@group.entities.to_a) if @group && !@group.deleted?
+    Sketchup.active_model.active_entities.erase_entities(@group.entities.to_a) if @group && !@group.deleted?djust
     Sketchup.active_model.active_entities.erase_entities(@trace_points) if @trace_points.count > 0
 
-    @handles.each(&:delete)
+    @handles.each { |_, handles| handles.each(&:delete)}
     @trace_points = []
     @visualizations = []
-    @handles = []
+    @handles = {} #node_id to handles [handle_one, handle_two]
 
     @max_acceleration_label.erase! if @max_acceleration_label && @max_acceleration_label.valid?
   end
@@ -59,19 +59,30 @@ class TraceVisualization
     @visualizations.include? visualization
   end
 
-  private
-
-  def add_handles(curve)
-    one = add_handle curve[0], curve
-    two = add_handle curve[-1], curve
-    one.partner_handle = two
-    two.partner_handle = one
+  def handles_position_array
+    @handles.map{ |_, handles| handles.map do |handle|
+      {
+        x: handle.position.x.to_mm,
+        y: handle.position.y.to_mm,
+        z: handle.position.z.to_mm,
+      }
+    end
+    }
   end
 
-  def add_handle(position, curve)
+  private
+
+  def add_handles(curve, user_id)
+    one = add_handle curve[0], curve, user_id
+    two = add_handle curve[-1], curve, user_id
+    one.partner_handle = two
+    two.partner_handle = one
+    @handles[user_id] = [one, two]
+  end
+
+  def add_handle(position, curve, user_id)
     puts "Add handle: #{position}"
     handle = AmplitudeHandle.new position, movement_curve: curve
-    @handles << handle
     handle
   end
 
@@ -182,7 +193,7 @@ class TraceVisualization
       entity.layer = circle_trace_layer
     end
 
-    add_handles(offsetted_curve_points[start_index, end_index])
+    add_handles(offsetted_curve_points[start_index, end_index], node_id.to_i)
   end
 
   # analyzes the simulation data for certain criterions
