@@ -73,6 +73,8 @@ class TraceVisualization
   private
 
   def add_handles(curve, user_id)
+    puts "curve0 #{curve[0]}"
+    puts "curve1 #{curve[-1]}"
     one = add_handle curve[0], curve, user_id
     two = add_handle curve[-1], curve, user_id
     one.partner_handle = two
@@ -193,7 +195,7 @@ class TraceVisualization
       entity.layer = circle_trace_layer
     end
 
-    add_handles(offsetted_curve_points[start_index, end_index], node_id.to_i)
+    add_handles(offsetted_curve_points[start_index..end_index], node_id.to_i)
   end
 
   # analyzes the simulation data for certain criterions
