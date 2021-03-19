@@ -4,92 +4,112 @@
   "title": "The response object provided by the julia server containging simulation data",
   "default": {},
   "required": [
-    "user_stats",
-    "data"
+    "optimized_spring_constants",
+    "simulation_results"
   ],
   "properties": {
-    "user_stats": {
+    "optimized_spring_constants": {
       "type": "object",
-      "description": "key of objects is user_id",
+      "description": "key is spring id",
       "patternProperties": {
         "^[0-9]*$": {
-          "$ref": "#/definitions/user_stats"
+          "type": "number",
+          "title": "spring constant in N/m"
         }
       }
     },
-    "data": {
-      "$id": "#/properties/data",
-      "type": "array",
-      "title": "time series data: coordinates per node per time",
-      "default": [],
-      "examples": [
-        [
-          [
-            "time",
-            "node_1.r_0[1]",
-            "node_1.r_0[2]",
-            "node_1.r_0[3]"
-          ],
-          [
-            0.01,
-            2.3354379627784345,
-            2.711884822799886,
-            0.029999999999999995
-          ]
-        ]
-      ],
-      "additionalItems": true,
-      "items": {
-        "anyOf": [
-          {
-            "type": "array",
-            "title": "header",
-            "default": [],
-            "examples": [
-              [
-                "time",
-                "node_1.r_0[1]"
-              ]
-            ],
-            "additionalItems": true,
-            "items": {
-              "anyOf": [
-                {
-                  "$id": "#/properties/data/items/anyOf/0/items/anyOf/0",
-                  "type": "string",
-                  "title": "node ids",
-                  "default": ""
+    "simulation_results": {
+      "type": "object",
+      "description": "key is age",
+      "patternProperties": {
+        "^[0-9]*$": {
+          "type": "object",
+          "properties": {
+            "user_stats": {
+              "type": "object",
+              "description": "key of objects is user_id",
+              "patternProperties": {
+                "^[0-9]*$": {
+                  "$ref": "#/definitions/user_stats"
                 }
-              ]
-            }
-          },
-          {
-            "type": "array",
-            "title": "data sample",
-            "description": "first value is always time stamp by convention",
-            "default": [],
-            "examples": [
-              [
-                0.01,
-                2.3354379627784345
-              ]
-            ],
-            "additionalItems": true,
-            "items": {
-              "anyOf": [
-                {
-                  "type": "number",
-                  "title": "The first anyOf schema",
-                  "default": 0.0
-                }
-              ]
+              }
+            },
+            "data": {
+              "$id": "#/properties/data",
+              "type": "array",
+              "title": "time series data: coordinates per node per time",
+              "default": [],
+              "examples": [
+                [
+                  [
+                    "time",
+                    "node_1.r_0[1]",
+                    "node_1.r_0[2]",
+                    "node_1.r_0[3]"
+                  ],
+                  [
+                    0.01,
+                    2.3354379627784345,
+                    2.711884822799886,
+                    0.029999999999999995
+                  ]
+                ]
+              ],
+              "additionalItems": true,
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "array",
+                    "title": "header",
+                    "default": [],
+                    "examples": [
+                      [
+                        "time",
+                        "node_1.r_0[1]"
+                      ]
+                    ],
+                    "additionalItems": true,
+                    "items": {
+                      "anyOf": [
+                        {
+                          "$id": "#/properties/data/items/anyOf/0/items/anyOf/0",
+                          "type": "string",
+                          "title": "node ids",
+                          "default": ""
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "array",
+                    "title": "data sample",
+                    "description": "first value is always time stamp by convention",
+                    "default": [],
+                    "examples": [
+                      [
+                        0.01,
+                        2.3354379627784345
+                      ]
+                    ],
+                    "additionalItems": true,
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "number",
+                          "title": "The first anyOf schema",
+                          "default": 0.0
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
             }
           }
-        ]
+        }
       }
     }
   },
-  "additionalProperties": true,
   "definitions": {
     "user_stats": {
       "type": "object",
@@ -227,5 +247,5 @@
       },
       "additionalProperties": true
     }
-    }
+  }
 }
