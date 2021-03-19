@@ -14,6 +14,8 @@ using LinearAlgebra
 
 include("./analysis.jl")
 
+number_preprocessing(val::Float64) = round(val, digits=5)
+
 ROUTER = HTTP.Router()
 
 simulation_fps = 30
@@ -45,7 +47,7 @@ function async_simulation()
 
     current_simulation_task = @async begin
         @info "start simulation"
-        TrussFab.run_simulation(parsed_structure, tspan=(0.01, simulation_duration), fps=simulation_fps)
+        TrussFab.run_simulation(parsed_structure)
     end
     nothing
 end
@@ -54,7 +56,7 @@ end
 # --- converting simulation data to json objects ---
 
 function simulationResultToCustomTableArray(simulation_result)
-    # TODO make interface nicer with custom type or MetaGraph indexing
+    # TODO get rid of this mapping array by using the :id field in the vertices directly
     symbols_generation_for_vertex(vertex_name, variable_name) = ("node_" * vertex_name * "." * variable_name * "[") .* string.(1:3) .* "]"
     get_symbols(client_ids2) = map(id -> symbols_generation_for_vertex(string(id), "r_0"), client_ids2) |> Iterators.flatten |> Iterators.collect
     get_header() = vcat("time", get_symbols(client_ids))
@@ -69,7 +71,7 @@ function simulationResultToCustomTableArray(simulation_result)
                 push!(time_sample, val)
             end
         end
-        push!(result, vcat(ts, time_sample))
+        push!(result, vcat(ts, time_sample) .|> number_preprocessing)
     end
     return result
 end
@@ -81,7 +83,7 @@ function get_user_stats_object(simulation_result, client_node_id)
     end
 
     function row_to_response(row)
-        return Dict("time" => row[1], "x" => row[2], "y" => row[3], "z" => row[3])
+        return (row .|> number_preprocessing) |> r -> Dict("time" => r[1], "x" => r[2], "y" => r[3], "z" => r[3])
     end
 
     server_node_id =  findfirst(e -> e == client_node_id, client_ids)
@@ -123,11 +125,27 @@ function update_model(req::HTTP.Request)
         end 
     end
 
-    return HTTP.Response(200, JSON.json(Dict(
+    # TODO calculate for all age groups
+    user_stats = Dict(
         "data" => simulationResultToCustomTableArray(simulation_result),
-         # c_id := client_node_id
+        # c_id := client_node_id
         "user_stats" => Dict(user["id"] => get_user_stats_object(simulation_result, user["id"]) for user in current_model["mounted_users"])
-    )))
+    )
+
+
+    # TODO Insert Optimization here
+    g = TrussFab.import_trussfab_json(current_model)
+    spring_constants = TrussFab.springs(g) .|> edge -> Dict(get_prop(g, edge, :id) => get_prop(g, edge, :spring_stiffness))
+    
+    response_data = Dict(
+        "optimized_spring_constants" => spring_constants,
+        "simulation_results" => Dict(
+            "3" => user_stats,
+            "6" => user_stats,
+            "12" => user_stats
+        )
+    )
+    return HTTP.Response(200, JSON.json(response_data))
 end
 HTTP.register!(ROUTER, "POST", "/update_model", update_model)
 
@@ -138,7 +156,7 @@ HTTP.register!(ROUTER, "POST", "/update_model", update_model)
 import Base.Threads.@spawn
 @spawn TrussFab.warm_up()
 function serve()
-    if tryparse(Int, ARGS[1]) !== nothing
+    if !isempty(ARGS) && tryparse(Int, ARGS[1]) !== nothing
         port = parse(Int, ARGS[1])
     else
         port = 8085
