@@ -16,51 +16,84 @@ module TrussFab
 
     using Reexport
 
-    export import_trussfab_file
-    export import_trussfab_json
-    export run_simulation
-    export warm_up
-
+    export import_trussfab_file, import_trussfab_json, run_simulation, warm_up, set_stiffness!
+    export set_weight!, set_actuation!, weight, power, set_age!
     export TrussGraph
-
-    const base_node_weight = 0.4 # kg
-
+    
+    include("./analysis.jl")
+    export get_frequency_spectrum, get_dominant_frequency, get_amplitude, get_peridoicity, get_acceleration
+    
     include("./Simulator.jl")
     @reexport using .Simulator
-
+    
     TrussGraph = MetaGraph
-
+    
     function springs(g::TrussGraph)
         [e for e in edges(g) if get_prop(g, e, :type) == "spring"]
     end
-
+    
     function users(g::TrussGraph)
         [v for v in vertices(g) if get_prop(g, v, :active_user)]
     end
-
+    
+    function set_stiffness!(g::TrussFab.TrussGraph, ks::AbstractArray{Float64, 1})
+        ks2 = [ks...]
+        for e in edges(g)
+            if get_prop(g, e, :type) == "spring"
+                set_prop!(g, e, :spring_stiffness, pop!(ks2))
+            end
+        end
+    end
+    
+    function set_weight!(g, m)
+        for v in TrussFab.users(g)
+            set_prop!(g, v, :m, m)
+        end
+    end
+    
+    function set_actuation!(g, watts)
+        for v in TrussFab.users(g)
+            set_prop!(g, v, :actuation_power, watts)
+        end
+    end
+    
+    function set_age(g::TrussGraph, age::Float64)
+        TrussFab.set_weight!(g, TrussFab.weight(age))
+        TrussFab.set_actuation!(g, TrussFab.power(age))
+    end
+    
+    function weight(age)
+        2.75 * (age-3) + 15
+    end
+    
+    function power(age)
+        7 * (age-3) + 30
+    end
+    
     function warm_up()
         g = import_trussfab_file("./test_models/seesaw_3.json")
         run_simulation(g)
     end
-
+    
     function import_trussfab_file(path, filter_trivially_fixed_edges=true)
         json = JSON.parsefile(path)
         return import_trussfab_json(json, filter_trivially_fixed_edges)
     end
-
+    
     # filter_trivially_fixed_edges removes edges that connect two fixed nodes
     # (are removed by default as they dont contribute to simulation results)
+    const base_node_weight = 0.4 # kg
     function import_trussfab_json(json::Dict{String, Any}, filter_trivially_fixed_edges=true)
         nodeCount = length(json["nodes"])
         g = MetaGraphs.MetaGraph(nodeCount)
-
+        
         clientNodeIds = get.(json["nodes"], "id", nothing)
         convertNodeId(nodeId) = findfirst(id -> id == nodeId, clientNodeIds)
-
+        
         for (server_node_index, node) in enumerate(json["nodes"])
             fixed = !isempty(node["pods"]) && Bool(node["pods"][1]["is_fixed"])
             added_mass = haskey(node, "added_mass") ? node["added_mass"] : 0
-
+            
             clientNodeIds[server_node_index] = node["id"]
             set_prop!(g, server_node_index, :id, node["id"])
             set_prop!(g, server_node_index, :m, added_mass + base_node_weight)
