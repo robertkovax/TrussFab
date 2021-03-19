@@ -1,3 +1,12 @@
+# TODO get termonology straight:
+# spring_stiffness == k == c == spring_stiffness_k
+# original_index_keys == clientNode ids
+# node == vertex (probably should be 'node' everywhere, sinc that what it's called on the client)
+# init_pos => initial_position
+# m => mass
+# type should be a :symbol, not a string
+# actuation_power == excitement
+
 module TrussFab
     using JSON
     using LightGraphs
@@ -12,16 +21,22 @@ module TrussFab
     export run_simulation
     export warm_up
 
+    export TrussGraph
+
     const base_node_weight = 0.4 # kg
 
     include("./Simulator.jl")
     @reexport using .Simulator
 
-    # Usage
-    # g = import_trussfab_file("./test_models/seesaw_3.json")
-    # masses = map(a -> get_prop(g, a, :m), vertices(g))
-    # gplot(g)
-    # get_prop(g, 2, :init_pos)
+    TrussGraph = MetaGraph
+
+    function springs(g::TrussGraph)
+        [e for e in edges(g) if get_prop(g, e, :type) == "spring"]
+    end
+
+    function users(g::TrussGraph)
+        [v for v in vertices(g) if get_prop(g, v, :active_user)]
+    end
 
     function warm_up()
         g = import_trussfab_file("./test_models/seesaw_3.json")
@@ -69,7 +84,6 @@ module TrussFab
                 end
             end
         end
-
 
         for v in vertices(g)
             # TODO actually discard them (had trouble befor with MetaGraphs)
