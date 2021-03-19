@@ -136,12 +136,7 @@
         "max_velocity": {
           "$ref": "#/definitions/parameter_max_value"
         }
-      },
-      "required": [
-        "street_address",
-        "city",
-        "state"
-      ]
+      }
     },
     "parameter_time_series": {
       "array": "object",
@@ -233,5 +228,4 @@
       "additionalProperties": true
     }
     }
-  }
 }
