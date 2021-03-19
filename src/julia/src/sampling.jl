@@ -22,55 +22,12 @@ addprocs(10, dir="./")
     println("checking dependecies... (this takes some time on the first run of the app)")
     import TrussFab
     TrussFab.warm_up()
-    include("src/analysis.jl")
+    # include("src/analysis.jl")
 end
 
 seed = MersenneTwister(1234)
 g = TrussFab.import_trussfab_file("./test_models/seesaw_3.json")
 
-function set_stiffness!(k::Float64)
-    for e in TrussFab.springs(g)
-        set_prop!(g, e, :spring_stiffness, k)
-    end
-end
-
-function set_stiffness!(g::TrussFab.TrussGraph, ks::AbstractArray{Float64, 1})
-    ks2 = [ks...]
-    for e in edges(g)
-        if get_prop(g, e, :type) == "spring"
-            set_prop!(g, e, :spring_stiffness, pop!(ks2))
-        end
-    end
-end
-
-function set_first_stiffness(k)
-    for e in edges(g)
-        if get_prop(g, e, :type) == "spring"
-            set_prop!(g, e, :spring_stiffness, k)
-            return
-        end
-    end
-end
-
-function set_weight!(g, m)
-    for v in TrussFab.users(g)
-        set_prop!(g, v, :m, m)
-    end
-end
-
-function set_actuation!(g, watts)
-    for v in TrussFab.users(g)
-        set_prop!(g, v, :actuation_power, watts)
-    end
-end
-
-function weight(age)
-    2.75 * (age-3) + 15
-end
-
-function power(age)
-    7 * (age-3) + 30
-end
 
 function plot_spectrum(sol, vertex_id)
     (freqs, mag) = get_frequency_spectrum(sol, vertex_id)
@@ -120,14 +77,13 @@ function simulate(g::TrussFab.TrussGraph, spring_constants, age, type)
     end
 
     # println((spring_constants, age, type))
-    set_stiffness!(g, spring_constants)
-    set_weight!(g, weight(age))
-    set_actuation!(g, power(age))
+    TrussFab.set_stiffness!(g, spring_constants)
+    TrussFab.set_age!(g, age)
 
     return @spawnat :any begin
         sol = TrussFab.run_simulation(g, tspan=(0., 10.), fps=3)
         # the calculation of the metrics should be also done on the worker to minimize serialization effort
-        [[get_dominant_frequency(sol, v), get_amplitude(sol, v)[1]] for v in TrussFab.users(g)]
+        [[TrussFab.get_dominant_frequency(sol, v), TrussFab.get_amplitude(sol, v)[1]] for v in TrussFab.users(g)]
     end
 end
 
@@ -149,7 +105,7 @@ function run_sample(sample)
 end
 
 using ProgressBars
-@time results = asyncmap(run_sample, ProgressBar(eachrow(shuffled_samples)), ntasks=15)
+@time results = asyncmap(run_sample, ProgressBar(eachrow(shuffled_samples)), ntasks=1)
 
 results2 = cat(vcat(results...)..., dims=2)
 reshape(results2, )
