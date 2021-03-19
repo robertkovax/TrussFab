@@ -124,7 +124,8 @@ class SpringPane
     @trace_visualization.reset_trace
     # TODO pass in multiple age groups for simulation data and user stats
     # visualize every node with a mounted user
-    @trace_visualization.add_trace(mounted_users.keys.map(&:to_s), 4, @simulation_data.values[0], @user_stats.values[0])
+    @trace_visualization.add_bars(mounted_users.keys.map(&:to_s), 4, @simulation_data, @user_stats)
+    # @trace_visualization.add_trace(mounted_users.keys.map(&:to_s), 4, @simulation_data.values[0], @user_stats.values[0])
 
     # Visualized period
     #  TODO: make this work for multiple users and move into seperate method

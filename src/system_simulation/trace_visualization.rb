@@ -5,11 +5,10 @@ require_relative '../sketchup_objects/amplitude_handle'
 # Simulate data samples of a system simulation by plotting a trace consisting of transparent circles into the scene.
 class TraceVisualization
   attr_reader :handles
+  BAR_HEIGHT = 5
+  BAR_COLORS = [Sketchup::Color.new(34, 116, 182, 150), Sketchup::Color.new(224, 200, 90, 150), Sketchup::Color.new(224, 113, 56, 150)].freeze
 
   def initialize(visualization_offset: Geom::Vector3d.new(0, 0, 30))
-    # Simulation data to visualize
-    @simulation_data = nil
-
     # Group containing trace circles.
     @group = Sketchup.active_model.active_entities.add_group
 
@@ -28,13 +27,25 @@ class TraceVisualization
     @handles = []
   end
 
-  def add_trace(node_ids, sampling_rate, data, user_stats)
+  def add_bars(node_ids, sampling_rate, data, user_stats)
     reset_trace
     @simulation_data = data
-    node_ids.each do |node_id|
-      add_circle_trace(node_id, sampling_rate, user_stats[node_id])
+    @simulation_data.each do |age, simulation_data|
+      index = @simulation_data.keys.index(age)
+      node_ids.each do |node_id|
+        add_bar(node_id, sampling_rate, user_stats[age][node_id], simulation_data, index, age)
+      end
     end
+
   end
+
+  # def add_trace(node_ids, sampling_rate, data, user_stats)
+  #   reset_trace
+  #   @simulation_data = data
+  #   node_ids.each do |node_id|
+  #     add_circle_trace(node_id, sampling_rate, user_stats[node_id])
+  #   end
+  # end
 
   def reset_trace
     Sketchup.active_model.active_entities.erase_entities(@group.entities.to_a) if @group && !@group.deleted?
@@ -88,7 +99,7 @@ class TraceVisualization
     handle
   end
 
-  def add_circle_trace(node_id, _sampling_rate, stats)
+  def add_bar(node_id, _sampling_rate, stats, simulation_data, bar_index, age_text)
     period = stats['period']
     period ||= 3.0
     start_index = stats['largest_amplitude']['start']
@@ -96,25 +107,20 @@ class TraceVisualization
 
     puts 'Warn: largest amplitude in server respond was empty'  if start_index.nil? || end_index.nil?
     start_index ||= 0
-    end_index ||= @simulation_data.length - 1
+    end_index ||= simulation_data.length - 1
 
-    max_acceleration = stats['max_acceleration']['value']
-    max_acceleration_index = stats['max_acceleration']['index']
-    current_acceleration_is_max = false
-
-    last_position = @simulation_data[0].position_data[node_id]
     curve_points = []
     @visualizations = []
     offsetted_curve_points = []
 
-    trace_analyzation = (analyze_trace node_id, start_index, end_index)
+    trace_analyzation = (analyze_trace node_id, start_index, end_index, simulation_data)
     max_distance = trace_analyzation[:max_distance]
+    # TODO renable planar check
     # Plot dots for either the period or a certain time span, if oscillation is not planar
     trace_time_limit = trace_analyzation[:is_planar] ? period.to_f : Configuration::NON_PLANAR_TRACE_DURATION
     puts "Trace maximum distance: #{max_distance}"
     puts "Trace is planar: #{trace_analyzation[:is_planar]}"
 
-    circle_definition = create_circle_definition
     circle_trace_layer =
         Sketchup.active_model.layers[Configuration::MOTION_TRACE_VIEW]
 
@@ -123,7 +129,7 @@ class TraceVisualization
     adjacent_node_ids = node.adjacent_nodes[0..1].map(&:id)
     inverse_starting_rotation = nil
 
-    @simulation_data.each_with_index do |current_data_sample, index|
+    simulation_data.each_with_index do |current_data_sample, index|
       # thin out points in trace
       # next unless index % _sampling_rate == 0
 
@@ -139,51 +145,66 @@ class TraceVisualization
 
       rotation = Geometry.rotation_to_local_coordinate_system(vector_one, vector_two)
       inverse_starting_rotation = rotation.inverse if inverse_starting_rotation.nil?
-      offset = rotation * inverse_starting_rotation * @visualization_offset
+      offset_vector = @visualization_offset.clone
+      offset_vector.length = @visualization_offset.length + bar_index * BAR_HEIGHT
+      offset = rotation * inverse_starting_rotation * offset_vector
+
+      # offset_vector2 = @visualization_offset.clone
+      # offset_vector2.length = @visualization_offset.length + BAR_HEIGHT
+      # offset2 = rotation * inverse_starting_rotation * offset_vector2
+      #
+      # offset_vector3 = @visualization_offset.clone
+      # offset_vector3.length = @visualization_offset.length + 2 * BAR_HEIGHT
+      # offset3 = rotation * inverse_starting_rotation * offset_vector3
 
       offsetted_position = position + offset
       offsetted_curve_points << offsetted_position
 
+      # offseted_position2 = position + offset2
+      # offsetted_curve_points2 << offseted_position2
+      #
+      # offseted_position3 = position + offset3
+      # offsetted_curve_points3 << offseted_position3
       # only plot dots within the largest amplitude, after that only draw the curve line
       next unless index >= start_index && index <= end_index
 
-      # distance to last point basically representing the speed (since time interval between data samples is fixed)
-      distance_to_last = position.distance(last_position)
-      # max_distance can be zero for non moving nodes
-      distance_ratio = (distance_to_last / max_distance)
-      distance_ratio = 0 if distance_ratio.nan? || distance_ratio.infinite?
-
-      # invert distance ratio since high distance should plot a small and lightly colored dot
-      ratio = 1 - distance_ratio
-      ratio = Geometry.clamp(ratio, 0.0, 1.0)
-
-      if (current_acceleration_is_max = max_acceleration_index == index)
-        puts "maximum acceleration index: #{index}"
-        add_label(offsetted_position, position.offset(Geom::Vector3d.new(0, 10.cm, 0)),"#{max_acceleration.round(3)}m/s^2 ")
-      end
-
-      racceleration = stats["time_acceleration"][index]
-      acceleration = Geom::Vector3d.new(racceleration["x"].mm, racceleration["y"].mm, racceleration["z"].mm)
-      # puts "acceleration_length #{acceleration.length}"
-
-      viz = DataSampleVisualization.new(offsetted_position, node_id, circle_definition, ratio,
-                                        current_acceleration_is_max, acceleration.length, circle_definition)
-      @group = Sketchup.active_model.entities.add_group if @group.deleted?
-      @annotations_group = Sketchup.active_model.entities.add_group if @annotations_group.deleted?
-      @annotations_group.layer = Configuration::MAXIMUM_ACCELERATION_VELOCITY_VIEW
-      viz.add_dot_to_group(@group)
-
-      raw_velocity = stats["time_velocity"][index]
-      velocity = Geom::Vector3d.new(raw_velocity["x"].mm, raw_velocity["y"].mm, raw_velocity["z"].mm)
-      viz.add_velocity_to_group(@annotations_group, velocity)
-
-      raw_acceleration = stats["time_acceleration"][index]
-      acceleration = Geom::Vector3d.new(raw_acceleration["x"].mm, raw_acceleration["y"].mm, raw_acceleration["z"].mm)
-      viz.add_acceleration_to_group(@annotations_group, acceleration) #if current_acceleration_is_max
-
-      @visualizations << viz
-
-      last_position = position
+      # # distance to last point basically representing the speed (since time interval between data samples is fixed)
+      # distance_to_last = position.distance(last_position)
+      # # max_distance can be zero for non moving nodes
+      # distance_ratio = (distance_to_last / max_distance)
+      # distance_ratio = 0 if distance_ratio.nan? || distance_ratio.infinite?
+      #
+      # # invert distance ratio since high distance should plot a small and lightly colored dot
+      # ratio = 1 - distance_ratio
+      # ratio = Geometry.clamp(ratio, 0.0, 1.0)
+      #
+      # if (current_acceleration_is_max = max_acceleration_index == index)
+      #   puts "maximum acceleration index: #{index}"
+      #   add_label(offsetted_position, position.offset(Geom::Vector3d.new(0, 10.cm, 0)),"#{max_acceleration.round(3)}m/s^2 ")
+      # end
+      #
+      # racceleration = stats["time_acceleration"][index]
+      # acceleration = Geom::Vector3d.new(racceleration["x"].mm, racceleration["y"].mm, racceleration["z"].mm)
+      # # puts "acceleration_length #{acceleration.length}"
+      #
+      # viz = DataSampleVisualization.new(offsetted_position, node_id, circle_definition, ratio,
+      #                                   current_acceleration_is_max, acceleration.length, circle_definition)
+      # @group = Sketchup.active_model.entities.add_group if @group.deleted?
+      # @annotations_group = Sketchup.active_model.entities.add_group if @annotations_group.deleted?
+      # @annotations_group.layer = Configuration::MAXIMUM_ACCELERATION_VELOCITY_VIEW
+      # viz.add_dot_to_group(@group)
+      #
+      # raw_velocity = stats["time_velocity"][index]
+      # velocity = Geom::Vector3d.new(raw_velocity["x"].mm, raw_velocity["y"].mm, raw_velocity["z"].mm)
+      # viz.add_velocity_to_group(@annotations_group, velocity)
+      #
+      # raw_acceleration = stats["time_acceleration"][index]
+      # acceleration = Geom::Vector3d.new(raw_acceleration["x"].mm, raw_acceleration["y"].mm, raw_acceleration["z"].mm)
+      # viz.add_acceleration_to_group(@annotations_group, acceleration) #if current_acceleration_is_max
+      #
+      # @visualizations << viz
+      #
+      # last_position = position
 
     end
 
@@ -194,19 +215,73 @@ class TraceVisualization
     entities.each do |entity|
       entity.layer = circle_trace_layer
     end
+    # TODO somehow the edges of the interval are off
+    draw_swipe entities, offsetted_curve_points[start_index + 2..end_index - 2].map(&:clone), BAR_COLORS[bar_index % BAR_COLORS.count] , age_text
 
     add_handles(offsetted_curve_points[start_index..end_index], node_id.to_i)
   end
 
+  def draw_swipe(group_entities, curve, color, text)
+    curve_plane =  Geom.fit_plane_to_points(curve)
+    curve_plane = Geometry.normalize_plane(curve_plane) if curve_plane.count == 4
+    curve_plane_normal = curve_plane[1].normalize
+
+    bar_definition = Sketchup.active_model.definitions.add "Circle Trace Visualization"
+    entities = bar_definition.entities
+    # TODO duplicate
+    depth = BAR_HEIGHT * 2
+    width = BAR_HEIGHT
+    pts = []
+    pts[0] = Geom::Point3d.new(0, 0, 0)
+    pts[1] = Geom::Point3d.new(0, 0, width)
+    pts[2] = Geom::Point3d.new(depth, 0, width)
+    pts[3] = Geom::Point3d.new(depth, 0, 0)
+    rect_center = Geom::Point3d.new(depth/2, 0, width/2)
+
+    profile_normal = (curve[1] - curve[0]).normalize
+    translation_vector = curve[0] - rect_center
+    # mapping x axis to the curve plane normal and y axis to profile normal
+    rotation = Geometry.rotation_to_local_coordinate_system(curve_plane_normal, profile_normal)
+    translation = Geom::Transformation.translation(translation_vector)
+    transform = translation * rotation
+
+    pts = pts.map{|pt|  pt.transform(transform)}
+
+    face = entities.add_face(pts)
+
+    edges = entities.add_curve(curve)
+    face.followme(edges)
+
+    bar_instance = group_entities.add_instance(bar_definition, Geom::Transformation.new)
+
+    material = Sketchup.active_model.materials.add("VisualizationColor ")
+    material.color = color
+    material.alpha = 0.8
+
+    bar_instance.material = material
+
+    letter_definition = Sketchup.active_model.definitions.add "Letter"
+    success = letter_definition.entities.add_3d_text(text, TextAlignLeft, "Arial",true, false, BAR_HEIGHT, 0.0, 1.5, true, 0.1)
+    end_normal_vector = curve[curve.count - 1] - curve[curve.count - 2]
+    rotationXZ = Geometry.rotation_transformation(Geom::Vector3d.new(1, 0, 0), Geom::Vector3d.new(0, 0, 1), Geom::Point3d.new(0, 0, 0))
+    rotation = Geometry.rotation_to_local_coordinate_system(curve_plane_normal, Geom::Vector3d.new(0, 0, 1))
+    translation = Geom::Transformation.translation(curve[curve.count - 1])
+    transform = translation * rotation * rotationXZ
+
+    letter_instance = group_entities.add_instance(letter_definition, transform)
+    letter_instance.material = material
+
+  end
+
   # analyzes the simulation data for certain criterions
-  def analyze_trace(node_id, start_index, end_index)
-    last_position = @simulation_data[start_index].position_data[node_id]
+  def analyze_trace(node_id, start_index, end_index, simulation_data)
+    last_position = simulation_data[start_index].position_data[node_id]
     max_distance = 0
     is_planar = true
-    plane = Geom.fit_plane_to_points([last_position, @simulation_data[1].position_data[node_id],
-                                      @simulation_data[2].position_data[node_id]])
+    plane = Geom.fit_plane_to_points([last_position, simulation_data[1].position_data[node_id],
+                                      simulation_data[2].position_data[node_id]])
     (start_index..end_index).each do | index |
-      current_data_sample = @simulation_data[index]
+      current_data_sample = simulation_data[index]
       position = current_data_sample.position_data[node_id]
       distance_to_last = position.distance(last_position)
       max_distance = distance_to_last if distance_to_last > max_distance
