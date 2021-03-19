@@ -25,6 +25,7 @@ class SpringPane
     # Instance of the simulation runner used as an interface to the system simulation.
     @simulation_runner = nil
     # Array of AnimationDataSamples, each containing geometry information for hubs for a certain point in time.
+    # { age => array<AnimationDataSamples> }
     @simulation_data = nil
     # Sketchup animation object which animates the graph according to simulation data frames.
     @animation = nil
@@ -121,24 +122,26 @@ class SpringPane
 
     @trace_visualization ||= TraceVisualization.new visualization_offset: @visualization_offset
     @trace_visualization.reset_trace
+    # TODO pass in multiple age groups for simulation data and user stats
     # visualize every node with a mounted user
-    @trace_visualization.add_trace(mounted_users.keys.map(&:to_s), 4, @simulation_data, @user_stats)
+    @trace_visualization.add_trace(mounted_users.keys.map(&:to_s), 4, @simulation_data.values[0], @user_stats.values[0])
 
     # Visualized period
     #  TODO: make this work for multiple users and move into seperate method
     node_id = mounted_users.keys.first
-    if @user_stats.nil? || @user_stats[node_id].nil?
+    if @user_stats.nil? || @user_stats.values[0][node_id].nil?
       puts "No user stats for node #{node_id}"
       # return
     end
     Sketchup.active_model.commit_operation
-    @animation = PeriodAnimation.new(@simulation_data, @user_stats[node_id]['period'], node_id) do
-      @period_animation_running = false
-      update_dialog
-      puts "stop"
-    end
-    Sketchup.active_model.active_view.animation = @animation
-    @period_animation_running = true
+    # TODO check if this still works with multiple age groups
+    # @animation = PeriodAnimation.new(@simulation_data, @user_stats.values[0][node_id.to_s]['period'], node_id) do
+    #   @period_animation_running = false
+    #   update_dialog
+    #   puts "stop"
+    # end
+    # Sketchup.active_model.active_view.animation = @animation
+    # @period_animation_running = true
   end
 
   def update_bode_diagram
@@ -151,7 +154,8 @@ class SpringPane
   end
 
   def set_graph_to_data_sample(index)
-    current_data_sample = @simulation_data[index]
+    # TODO how to choose the age here? / check if this is still needed
+    current_data_sample = @simulation_data.values[0][index]
 
     Graph.instance.nodes.each do | node_id, node|
       node.update_position(current_data_sample.position_data[node_id.to_s])
@@ -362,14 +366,17 @@ class SpringPane
   def simulate
     Sketchup.active_model.start_operation('compile simulation', true)
     SimulationRunnerClient.update_model(JsonExport.graph_to_json(nil, [], @simulation_duration)) do |json_response|
-      timeseries_data = self.class.parse_timeseries_data(json_response["data"])
-      user_stats = json_response["user_stats"]
+      simulation_results = json_response["simulation_results"]
+      @simulation_data = Hash.new
+      @user_stats = Hash.new
+      simulation_results.keys.each do |age|
+        result = simulation_results[age.to_s]
 
-      @simulation_data = timeseries_data
-      mounted_users.keys.each do |node_id|
-        stats = user_stats[node_id.to_s]
-        raise StandardError.new("user stats from the server were empty") if stats == {}
-        @user_stats[node_id] = stats
+        timeseries_data = self.class.parse_timeseries_data(result["data"])
+        user_stats = result["user_stats"]
+
+        @simulation_data[age.to_s] = timeseries_data
+        @user_stats[age.to_s] = user_stats
       end
 
       update_trace_visualization
@@ -408,7 +415,8 @@ class SpringPane
   end
 
   def create_animation
-    @animation = GeometryAnimation.new(@simulation_data) do
+    # TODO: adjust: we need the age id (retrieved by click on bar)
+    @animation = GeometryAnimation.new(@simulation_data.values[0]) do
       @animation_running = false
       update_dialog
     end

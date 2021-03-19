@@ -32,7 +32,7 @@ class TraceVisualization
     reset_trace
     @simulation_data = data
     node_ids.each do |node_id|
-      add_circle_trace(node_id, sampling_rate, user_stats[node_id.to_i])
+      add_circle_trace(node_id, sampling_rate, user_stats[node_id])
     end
   end
 

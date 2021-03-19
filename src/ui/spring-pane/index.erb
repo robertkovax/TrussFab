@@ -128,7 +128,8 @@ input[type=range]::-webkit-slider-runnable-track {
       mounted_users.each { |node_id, user_weight|
         next if user_weight < 1
         user_index += 1
-        stats = @user_stats[node_id]
+        # TODO: how to handle multiple ages here?
+        stats = @user_stats.values[0][node_id]
         digits_precision = 2
         if user_index != 1
     %>
