@@ -18,3 +18,5 @@ yarn-error.log*
 /src/system_simulation/*.json
 /src/system_simulation/*.xml
 /src/system_simulation/Makefile
+
+!/src/system_simulation/data_schema.json
