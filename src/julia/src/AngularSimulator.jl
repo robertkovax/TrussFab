@@ -111,7 +111,7 @@ function bitvector_to_poslist(bitvector::AbstractArray{Bool})
     return [i for (i, bool) in enumerate(bitvector) if bool]
 end
 
-function run_simulation(g::MetaGraph, fps=30)
+function run_simulation(g::MetaGraph, tspan=(0.0, 10.), fps=30)
     
     # --- Build new reduced graph ---
     rigid_groups = get_rigid_groups(g)
@@ -133,11 +133,9 @@ function run_simulation(g::MetaGraph, fps=30)
     ode_edges = []
     for e in edges(g)
         if get_prop(g, e, :type) == "spring"
-            # TODO get rotation axis
-            rot_axis = Line([0.0,0.0,0.0],[1.0,0.0,0.0])
             src_point = Point(get_prop(g, e.src, :init_pos))
             dst_point = Point(get_prop(g, e.dst, :init_pos))
-            push!(ode_edges, get_spring_ode(src_point, rot_axis, dst_point, rot_axis))
+            push!(ode_edges, get_spring_ode(src_point, rigid_group_rotation_axes[e.src], dst_point, rigid_group_rotation_axes[e.dst]))
             add_edge!(reduced_g, findfirst(bitvector -> bitvector[e.src], rigid_groups), findfirst(bitvector -> bitvector[e.dst], rigid_groups))
         end
     end
@@ -152,12 +150,14 @@ function run_simulation(g::MetaGraph, fps=30)
     end
     gplot(reduced_g)
     params = [(1000, 0.6) for _ in ode_edges]
-    ode_problem = ODEProblem(nd_wrapper!, u0, (0.0, 10.), params)
+    ode_problem = ODEProblem(nd_wrapper!, u0, tspan, params)
+
+    check_interrupt_callback = FunctionCallingCallback((_, _, _) -> yield())   
     
-    sol = @time solve(ode_problem, TRBDF2(), abstol=5e-1, reltol=1e-1, saveat=1/fps );
+    return sol = @time solve(ode_problem, TRBDF2(), abstol=5e-1, reltol=1e-1, saveat=1/fps, callback=check_interrupt_callback );
     # --- map simplified state back to vectors ---
 
-    result = zeros(nv(g), length(sol.t))
+    result = zeros(nv(g)*6, length(sol.t))
     # for (row_id, row) in enumerate(eachrow(sol'))
     #     for (vertex_id, state) in enumerate(Iterators.partition(row, 2))
     #         θ, ω = state
@@ -183,50 +183,85 @@ function run_simulation(g::MetaGraph, fps=30)
     return result
 end
 
-Array([1,2])
+# Array([1,2])
 
 g = TrussFab.import_trussfab_file("./test_models/seesaw_3.json")
 
-sol = run_simulation(g)
-point_mass = PointMass([1.0,2.0,3.0] ,10)
-rot_axis = Line([0.0,0.0,0.0],[1.0,0.0,0.0])
+a = get_rigid_groups(g) .|> bitvector_to_poslist
 
-reshape(sol, (301, :))
-plot(transpose(sol)[20])
-@time get_rigid_groups(g)
+isfixed(g, rigid_group) = length([v for v in vertices(g) if v in rigid_group && get_prop(g, v, :fixed)]) >= 3 
 
-nodelabel = 1:nv(g)
-gplot(g, nodelabel=nodelabel)
+isfixed(g, a[1])
 
-function run_example_simulation()
-    rot_axis = Line([0.0,0.0,0.0],[1.0,0.0,0.0])
-    rigid_group_ode1 = get_rigid_group_ode(rot_axis, [PointMass([1.0,2.0,3.0] ,10),PointMass([1.0,2.0,30.0] ,1), PointMass([1.0,2.0,1.0], 5)])
-    rigid_group_ode2 = get_rigid_group_ode(rot_axis, [PointMass([1.0,2.0,-3.0] ,2),PointMass([-1.0,2.0,15.0] ,10), PointMass([1.0,2.0,1.0], 5)])
-    spring_connector = get_spring_ode(Point([1.0,2.0,1.0]), rot_axis, Point([1.1,2.1,1.1]), rot_axis)
-    
-    N = 2
-    u0 = zeros(N*2)
-    g = LightGraphs.Graph(N)
-    add_edge!(g, 1, 2)
-    nd_vertecies = [rigid_group_ode1, rigid_group_ode2]
-    nd_edges = [spring_connector]
-    nd = network_dynamics(nd_vertecies, nd_edges, g, parallel=false)
-        
-    function nd_wrapper!(dx, x, p, t)
-        nd(dx, x, (nothing, p), t)
+
+rotation_axes = []
+# find connecting edges 
+for i in 1:length(a)
+    for j in i:length(a)
+        fixed, free = if isfixed(g, a[i])
+            a[i], a[j]
+        elseif isfixed(g, a[j])
+            a[j], a[i]
+        else
+            continue
+            # throw(ErrorException("unsupported rigid group configuration: currently only moving rigid groups that are mounted to a fixed base are supported"))
+        end
+
+        neighbourhood_of_free = reduce(∪, free .|> v -> neighbors(g, v))
+        push!(rotation_axes, neighbourhood_of_free ∩ fixed)
     end
-    params = [(100000, 0.1)]
-    ode_problem = ODEProblem(nd_wrapper!, u0, (0.0, 10.), params)
-    
-    return @time solve(ode_problem, TRBDF2(), abstol=5e-1, reltol=1e-1 );
 end
 
-plot(run_example_simulation()')
-function run_benchmark()
-    a = ones(2)
-    b = ones(2)
-    @time one_dof_rigid_group(a, b, [ones(7)], [ones(7).*10], (
-        Line([0.0,0.0,0.0],[1.0,0.0,0.0]),
-        [PointMass([1.0,2.0,3.0] ,10), PointMass([1.0,2.0,1.0], 5)])
-        )
-end
+rotation_axes
+
+
+a[1] .| a[2] .| a[3]
+a[1]
+nv(g)
+s = run_simulation(g)
+plot(s')
+nothing
+
+
+# point_mass = PointMass([1.0,2.0,3.0] ,10)
+# rot_axis = Line([0.0,0.0,0.0],[1.0,0.0,0.0])
+
+# reshape(sol, (301, :))
+# plot(transpose(sol)[20])
+# @time get_rigid_groups(g)
+
+# nodelabel = 1:nv(g)
+# gplot(g, nodelabel=nodelabel)
+
+# function run_example_simulation()
+#     rot_axis = Line([0.0,0.0,0.0],[1.0,0.0,0.0])
+#     rigid_group_ode1 = get_rigid_group_ode(rot_axis, [PointMass([1.0,2.0,3.0] ,10),PointMass([1.0,2.0,30.0] ,1), PointMass([1.0,2.0,1.0], 5)])
+#     rigid_group_ode2 = get_rigid_group_ode(rot_axis, [PointMass([1.0,2.0,-3.0] ,2),PointMass([-1.0,2.0,15.0] ,10), PointMass([1.0,2.0,1.0], 5)])
+#     spring_connector = get_spring_ode(Point([1.0,2.0,1.0]), rot_axis, Point([1.1,2.1,1.1]), rot_axis)
+    
+#     N = 2
+#     u0 = zeros(N*2)
+#     g = LightGraphs.Graph(N)
+#     add_edge!(g, 1, 2)
+#     nd_vertecies = [rigid_group_ode1, rigid_group_ode2]
+#     nd_edges = [spring_connector]
+#     nd = network_dynamics(nd_vertecies, nd_edges, g, parallel=false)
+        
+#     function nd_wrapper!(dx, x, p, t)
+#         nd(dx, x, (nothing, p), t)
+#     end
+#     params = [(100000, 0.1)]
+#     ode_problem = ODEProblem(nd_wrapper!, u0, (0.0, 10.), params)
+    
+#     return @time solve(ode_problem, TRBDF2(), abstol=5e-1, reltol=1e-1 );
+# end
+
+# plot(run_example_simulation()')
+# function run_benchmark()
+#     a = ones(2)
+#     b = ones(2)
+#     @time one_dof_rigid_group(a, b, [ones(7)], [ones(7).*10], (
+#         Line([0.0,0.0,0.0],[1.0,0.0,0.0]),
+#         [PointMass([1.0,2.0,3.0] ,10), PointMass([1.0,2.0,1.0], 5)])
+#         )
+# end
