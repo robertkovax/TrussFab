@@ -79,7 +79,7 @@ module ProjectHelper
               do script \"julia #{simulation_start_script} #{port}\"
             end tell\'"
         end
-        IO.popen command
+        IO.popen({'JULIA_NUM_THREADS' => '8'}, command)
       else
         p "The Simulation Server at #{host}:#{port} is not reachable. TrussFab did not try to spin up the server automatically as the host was sth other than localhost"
       end
