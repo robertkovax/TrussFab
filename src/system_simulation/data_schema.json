@@ -1,0 +1,251 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "type": "object",
+  "title": "The response object provided by the julia server containging simulation data",
+  "default": {},
+  "required": [
+    "optimized_spring_constants",
+    "simulation_results"
+  ],
+  "properties": {
+    "optimized_spring_constants": {
+      "type": "object",
+      "description": "key is spring id",
+      "patternProperties": {
+        "^[0-9]*$": {
+          "type": "number",
+          "title": "spring constant in N/m"
+        }
+      }
+    },
+    "simulation_results": {
+      "type": "object",
+      "description": "key is age",
+      "patternProperties": {
+        "^[0-9]*$": {
+          "type": "object",
+          "properties": {
+            "user_stats": {
+              "type": "object",
+              "description": "key of objects is user_id",
+              "patternProperties": {
+                "^[0-9]*$": {
+                  "$ref": "#/definitions/user_stats"
+                }
+              }
+            },
+            "data": {
+              "$id": "#/properties/data",
+              "type": "array",
+              "title": "time series data: coordinates per node per time",
+              "default": [],
+              "examples": [
+                [
+                  [
+                    "time",
+                    "node_1.r_0[1]",
+                    "node_1.r_0[2]",
+                    "node_1.r_0[3]"
+                  ],
+                  [
+                    0.01,
+                    2.3354379627784345,
+                    2.711884822799886,
+                    0.029999999999999995
+                  ]
+                ]
+              ],
+              "additionalItems": true,
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "array",
+                    "title": "header",
+                    "default": [],
+                    "examples": [
+                      [
+                        "time",
+                        "node_1.r_0[1]"
+                      ]
+                    ],
+                    "additionalItems": true,
+                    "items": {
+                      "anyOf": [
+                        {
+                          "$id": "#/properties/data/items/anyOf/0/items/anyOf/0",
+                          "type": "string",
+                          "title": "node ids",
+                          "default": ""
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "array",
+                    "title": "data sample",
+                    "description": "first value is always time stamp by convention",
+                    "default": [],
+                    "examples": [
+                      [
+                        0.01,
+                        2.3354379627784345
+                      ]
+                    ],
+                    "additionalItems": true,
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "number",
+                          "title": "The first anyOf schema",
+                          "default": 0.0
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "user_stats": {
+      "type": "object",
+      "properties": {
+        "period": {
+          "type": "number",
+          "title": "The period schema",
+          "description": "An explanation about the purpose of this instance.",
+          "default": 0.0,
+          "examples": [
+            1.008
+          ]
+        },
+        "time_acceleration": {
+          "$ref": "#/definitions/parameter_time_series"
+        },
+        "time_velocity": {
+          "$ref": "#/definitions/parameter_time_series"
+        },
+        "max_acceleration": {
+          "$ref": "#/definitions/parameter_max_value"
+        },
+        "largest_amplitude": {
+          "type": "object",
+          "examples": [
+            {
+              "start": 112,
+              "physical_length": 0.37383043347161005,
+              "end": 124
+            }
+          ],
+          "properties": {
+            "start": {
+              "type": "number"
+            },
+            "physical_length": {
+              "type": "number"
+            },
+            "end": {
+              "type": "number"
+            }
+          }
+        },
+        "max_velocity": {
+          "$ref": "#/definitions/parameter_max_value"
+        }
+      }
+    },
+    "parameter_time_series": {
+      "array": "object",
+      "type": "array",
+      "title": "a 3 component parameter over time",
+      "default": [],
+      "examples": [
+        [
+          {
+            "time": 0.05,
+            "x": -0.1053128877152164,
+            "z": -0.06080242407151691,
+            "y": -0.06080242407151691
+          }
+        ]
+      ],
+      "additionalItems": true,
+      "items": {
+        "$id": "#/properties/user_stats/properties/4/properties/time_velocity/items",
+        "anyOf": [
+          {
+            "$id": "#/properties/user_stats/properties/4/properties/time_velocity/items/anyOf/0",
+            "type": "object",
+            "title": "The first anyOf schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": {},
+            "required": [
+              "time",
+              "x",
+              "z",
+              "y"
+            ],
+            "properties": {
+              "time": {
+                "type": "number",
+                "title": "time stamp",
+                "default": 0.0
+              },
+              "x": {
+                "type": "number",
+                "default": 0.0
+              },
+              "z": {
+                "$id": "#/properties/user_stats/properties/4/properties/time_velocity/items/anyOf/0/properties/z",
+                "type": "number",
+                "title": "z value",
+                "default": 0.0,
+                "examples": [
+                  0.0
+                ]
+              },
+              "y": {
+                "type": "number",
+                "title": "y value",
+                "default": 0.0
+              }
+            },
+            "additionalProperties": true
+          }
+        ]
+      }
+    },
+    "parameter_max_value": {
+      "type": "object",
+      "title": "max value of a parameter with it's index",
+      "default": {},
+      "examples": [
+        {
+          "value": 0.20132577688781192,
+          "index": 1
+        }
+      ],
+      "required": [
+        "value",
+        "index"
+      ],
+      "properties": {
+        "value": {
+          "type": "number",
+          "title": "the max value of the parameter",
+          "default": 0.0
+        },
+        "index": {
+          "type": "integer",
+          "title": "the index where to find the max value within data",
+          "default": 0
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

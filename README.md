@@ -4,23 +4,19 @@
 SketchUp plug-in to create large-scale 3D-printed truss structures by using ready-made objects (e.g. PET bottles) and linear actuators.
 
 ## Installation
-Prerequisits are:
-- SketchUp 2017 Make or Pro
-- [NodeJS v12](https://nodejs.org/en/)
+### Step 1: Install Required Software
+- [SketchUp 2017 Make](https://www.sketchup.com/sketchup/2017/en/sketchupmake-2017-2-2555-90782-en-x64-exe) or Pro
 - [Julia 1.5.3](https://julialang.org/)
 
-### UI components
-Run `npm install` in the project's root directory.
-
-### SketchUp Plugin
+### Step 2: Install SketchUp Plugin
 Find your [Sketchup Plugin directory](http://www.sketchup.com/intl/en/developer/docs/loading), it is usually located at:
-- Windows: `C:\Users\me\AppData\Roaming\SketchUp\SketchUp 2017\SketchUp\Plugins`
-- macOS: `/Users/me/Library/Application Support/SketchUp 2017/SketchUp/Plugins`.
+- Windows: `C:\Users\<USERNAME>\AppData\Roaming\SketchUp\SketchUp 2017\SketchUp\Plugins`
+- macOS: `/Users/<USERNAME>/Library/Application Support/SketchUp 2017/SketchUp/Plugins`.
 
 In that plugin directory, create a Ruby file called `truss_fab_plugin.rb` with the content:
 
 ```ruby
-$LOAD_PATH << "PATH_TO_TRUSSFAB" # replace with directory of this repository
+$LOAD_PATH << "<PATH_TO_TRUSSFAB>" # replace with directory of this repository (backslashs need to be exited: so replace every \ with \\)
 require 'truss_fab.rb'
 
 SKETCHUP_CONSOLE.show # shows Ruby console in SketchUp
@@ -29,6 +25,8 @@ TrussFab.start # starts the plugin
 
 Restart SketchUp for the changes to take effect. If it works will you see an extra window in SketchUp with the title 'TrussFab'.
 
+# Step 3: Launch Sketchup 
+On the first launch all other project dependencies will be installed, make sure to bring some patience. You can start using the system after the server terminal prints "Listening on 0.0.0.0:8085". Have fun!
 
 ## Usage
 
@@ -91,6 +89,9 @@ Print Steps:
 
 
 ## Development
+* [NodeJS v12](https://nodejs.org/en/) is required for developing on the UI
+
+* Run `npm install` in the project's root directory to install the dependencies for the UI (beware of dependencies that are loaded via expernal sources and CDNs).
 
 * The source code is in the /src/ folder.
 

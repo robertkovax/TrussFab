@@ -69,7 +69,7 @@ class JsonExport
         transformation: node.hub.user_transformation.to_a,
         weight: node.hub.user_weight,
         excitement: node.hub.user_excitement,
-        handle_positions: TrussFab.get_spring_pane.trace_visualization.handles_position_array,
+        handle_positions: TrussFab.get_spring_pane.trace_visualization ? TrussFab.get_spring_pane.trace_visualization.handles_position_array : nil,
       }
     end
     users
