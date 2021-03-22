@@ -8,10 +8,11 @@ println("checking dependecies... (this takes some time on the first run of the a
 Pkg.instantiate()
 
 println("starting up simulation workers...")
-workers = addprocs(3, dir="./", exeflags="--project")
+addprocs(3, dir="./", exeflags="--project")
+# addprocs(3, dir="./", exeflags="-Jsysimage")
 
 @everywhere using TrussFab
-for worker in workers
+for worker in workers()
     @spawnat worker include("./warm_up.jl")
 end
 

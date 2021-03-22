@@ -1,5 +1,3 @@
-# TODO send 500 errors when there is an exception
-
 using HTTP
 using Sockets
 using JSON
@@ -20,14 +18,22 @@ age_groups = [3, 6, 12]
 
 
 # --- Task Management & Helpers ---
-
 function abort_all_running_tasks()
     global current_tasks
+
     # abort current simulation to free system ressources and obtain lock
     while !isempty(current_tasks)
-        task = pop!(current_tasks)
-        if !istaskdone(task)
-            schedule(task, InterruptException(), error=true)
+        future::Future = pop!(current_tasks)
+        if !isready(future)
+            @warn "interrupt worker $(future.where)"
+            interrupt(future.where)
+            try
+                fetch(future)
+            catch e
+                if !(e isa InterruptException)
+                    rethrow()
+                end
+            end
         end
     end
 end
@@ -41,18 +47,26 @@ function get_simulation_duration(client_request_obj)
 end
 
 function get_simulation_task(client_request_obj, age)
+    global current_tasks
     g = TrussFab.import_trussfab_json(client_request_obj)
     simulation_duration = get_simulation_duration(client_request_obj)
     TrussFab.set_age!(g, convert(Float64, age))
 
     simulation_task = @task begin
         @info "start simulation $(objectid(current_task()))"
-        solution = fetch(@spawnat :any TrussFab.run_simulation(g, tspan=(0.01, simulation_duration), fps=simulation_fps))
+        simulation_job_future = @spawnat :any try 
+                TrussFab.run_simulation(g, tspan=(0.01, simulation_duration), fps=simulation_fps)
+            catch e
+                if !(e isa InterruptException)
+                    rethrow()
+                end
+            end
+        push!(current_tasks, simulation_job_future)
+        solution = fetch(simulation_job_future)
         @info "finished simulation $(objectid(current_task()))"
         return solution
     end
 
-    push!(current_tasks, simulation_task)
     return simulation_task
 end
 
