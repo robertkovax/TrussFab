@@ -23,6 +23,7 @@ class JsonExport
     json[:standard_surface] = triangle.nodes_ids_towards_user
     json[:mounted_users] = mounted_users_to_hash(Graph.instance.nodes)
     json[:simulation_duration] = simulation_duration
+
     JSON.pretty_generate(json)
   end
 
@@ -67,7 +68,8 @@ class JsonExport
         filename: node.hub.user_indicator_filename,
         transformation: node.hub.user_transformation.to_a,
         weight: node.hub.user_weight,
-        excitement: node.hub.user_excitement
+        excitement: node.hub.user_excitement,
+        handle_positions: TrussFab.get_spring_pane.trace_visualization.handles_position_array,
       }
     end
     users

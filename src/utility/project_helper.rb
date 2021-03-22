@@ -234,5 +234,11 @@ module ProjectHelper
       material.texture = asset_directory + '/textures/plywood.jpg'
       material.alpha = 1
     end
+
+    unless materials['amplitude_handle_material']
+      material = materials.add('amplitude_handle_material')
+      material.color = Sketchup::Color.new(0.2, 0.2, 0.2)
+      material.alpha = 1
+    end
   end
 end

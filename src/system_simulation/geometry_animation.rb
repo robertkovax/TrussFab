@@ -25,16 +25,8 @@ class GeometryAnimation
 
         vector_one = Geom::Vector3d.new(first_node_position - position).normalize!
         vector_two = Geom::Vector3d.new(second_node_position - position).normalize!
-        vector_three = vector_one.cross(vector_two).normalize!
 
-        # There seems to be a bug in Sketchup with using the .axes method
-        # see https://forums.sketchup.com/t/skew-transformation-inverse-issue-when-constructed-with-axes-method/49766/3
-        rotation = Geom::Transformation.new([
-                                              vector_one.x, vector_one.y, vector_one.z, 0,
-                                              vector_two.x, vector_two.y, vector_two.z, 0,
-                                              vector_three.x, vector_three.y, vector_three.z, 0,
-                                              0, 0, 0, 1
-                                            ])
+        rotation = Geometry.rotation_to_local_coordinate_system(vector_one, vector_two)
         @starting_rotations[node.id] = rotation.inverse
       end
     end

@@ -1,9 +1,12 @@
 require_relative './data_sample_visualization.rb'
 
+require_relative '../sketchup_objects/amplitude_handle'
+
 # Simulate data samples of a system simulation by plotting a trace consisting of transparent circles into the scene.
 class TraceVisualization
+  attr_reader :handles
 
-  def initialize
+  def initialize(visualization_offset: Geom::Vector3d.new(0, 0, 30))
     # Simulation data to visualize
     @simulation_data = nil
 
@@ -20,6 +23,9 @@ class TraceVisualization
     # Visualization parameters
     #@color = Sketchup::Color.new(72,209,204)
     @colors = [Sketchup::Color.new(255, 0, 0), Sketchup::Color.new(255, 255, 0), Sketchup::Color.new(0, 255, 0)]
+
+    @visualization_offset = visualization_offset
+    @handles = []
   end
 
   def add_trace(node_ids, sampling_rate, data, user_stats)
@@ -33,8 +39,11 @@ class TraceVisualization
   def reset_trace
     Sketchup.active_model.active_entities.erase_entities(@group.entities.to_a) if @group && !@group.deleted?
     Sketchup.active_model.active_entities.erase_entities(@trace_points) if @trace_points.count > 0
+
+    @handles.each { |_, handles| handles.each(&:delete)}
     @trace_points = []
     @visualizations = []
+    @handles = {} #node_id to handles [handle_one, handle_two]
 
     @max_acceleration_label.erase! if @max_acceleration_label && @max_acceleration_label.valid?
   end
@@ -50,7 +59,34 @@ class TraceVisualization
     @visualizations.include? visualization
   end
 
+  def handles_position_array
+    @handles.map{ |_, handles| handles.map do |handle|
+      {
+        x: handle.position.x.to_mm,
+        y: handle.position.y.to_mm,
+        z: handle.position.z.to_mm,
+      }
+    end
+    }
+  end
+
   private
+
+  def add_handles(curve, user_id)
+    puts "curve0 #{curve[0]}"
+    puts "curve1 #{curve[-1]}"
+    one = add_handle curve[0], curve, user_id
+    two = add_handle curve[-1], curve, user_id
+    one.partner_handle = two
+    two.partner_handle = one
+    @handles[user_id] = [one, two]
+  end
+
+  def add_handle(position, curve, user_id)
+    puts "Add handle: #{position}"
+    handle = AmplitudeHandle.new position, movement_curve: curve
+    handle
+  end
 
   def add_circle_trace(node_id, _sampling_rate, stats)
     period = stats['period']
@@ -83,7 +119,6 @@ class TraceVisualization
         Sketchup.active_model.layers[Configuration::MOTION_TRACE_VIEW]
 
     # Calculate the static offset
-    visualization_offset = Geom::Vector3d.new(0, 0, 30)
     node = Graph.instance.nodes[node_id.to_i]
     adjacent_node_ids = node.adjacent_nodes[0..1].map(&:id)
     inverse_starting_rotation = nil
@@ -104,7 +139,7 @@ class TraceVisualization
 
       rotation = Geometry.rotation_to_local_coordinate_system(vector_one, vector_two)
       inverse_starting_rotation = rotation.inverse if inverse_starting_rotation.nil?
-      offset = rotation * inverse_starting_rotation * visualization_offset
+      offset = rotation * inverse_starting_rotation * @visualization_offset
 
       offsetted_position = position + offset
       offsetted_curve_points << offsetted_position
@@ -149,6 +184,7 @@ class TraceVisualization
       @visualizations << viz
 
       last_position = position
+
     end
 
     # plot curve connecting all data points
@@ -158,6 +194,8 @@ class TraceVisualization
     entities.each do |entity|
       entity.layer = circle_trace_layer
     end
+
+    add_handles(offsetted_curve_points[start_index..end_index], node_id.to_i)
   end
 
   # analyzes the simulation data for certain criterions

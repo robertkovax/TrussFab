@@ -66,14 +66,14 @@ module Geometry
     length_c = third_point.distance(first_point)
     total_length = length_a + length_b + length_c
     x = (length_a * first_point.x +
-         length_b * second_point.x +
-         length_c * third_point.x) / total_length
+      length_b * second_point.x +
+      length_c * third_point.x) / total_length
     y = (length_a * first_point.y +
-         length_b * second_point.y +
-         length_c * third_point.y) / total_length
+      length_b * second_point.y +
+      length_c * third_point.y) / total_length
     z = (length_a * first_point.z +
-         length_b * second_point.z +
-         length_c * third_point.z) / total_length
+      length_b * second_point.z +
+      length_c * third_point.z) / total_length
     Geom::Point3d.new(x, y, z)
   end
 
@@ -101,9 +101,9 @@ module Geometry
     # the intersection point (x,y,z) must satisfy all of these equations
 
     x = (first_radius * first_radius -
-         second_radius * second_radius + d * d) / (2 * d)
+      second_radius * second_radius + d * d) / (2 * d)
     y = (first_radius * first_radius -
-         third_radius * third_radius + i * i + j * j) / (2 * j) - x * i / j
+      third_radius * third_radius + i * i + j * j) / (2 * j) - x * i / j
     z_squared = first_radius * first_radius - x * x - y * y
     return nil if z_squared < 0 # no solution: three spheres don't intersect
     z = Math.sqrt(z_squared)
@@ -165,19 +165,24 @@ module Geometry
 
   # http://geomalgorithms.com/a02-_lines.html
   def self.dist_point_to_segment(point, segment)
+    return point.distance(closest_point_on_segment(point, segment))
+  end
+
+  # http://geomalgorithms.com/a02-_lines.html
+  def self.closest_point_on_segment(point, segment)
     s0, s1 = segment
     v = s1 - s0
     w = point - s0
 
     c1 = w.dot(v)
-    return point.distance(s0) if c1 <= 0
+    return s0 if c1 <= 0
 
     c2 = v.dot(v)
-    return point.distance(s1) if c2 <= c1
+    return s1 if c2 <= c1
 
     b = c1 / c2
     pb = s0 + scale(v, b)
-    point.distance(pb)
+    return pb
   end
 
   def self.midpoint(point1, point2)
@@ -201,3 +206,4 @@ module Geometry
                              ])
   end
 end
+
