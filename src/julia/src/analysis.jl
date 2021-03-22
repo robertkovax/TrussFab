@@ -15,8 +15,8 @@ end
 
 function get_dominant_frequency(sol, vertex_id)
     frequency, magnitude = get_frequency_spectrum(sol, vertex_id)
-    _, index = findmax(magnitude[0.2 .< frequency .< 1.0])
-    return frequency[0.2 .< frequency .< 1.0][index]
+    _, index = findmax(magnitude[0.5 .< frequency .< 3.0])
+    return frequency[0.5 .< frequency .< 3.0][index]
 end
 
 function get_amplitude(sol, vertex_id)
