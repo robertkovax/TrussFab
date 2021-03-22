@@ -25,7 +25,7 @@ function get_amplitude(sol, vertex_id)
     largest_aplitude = 0
     largest_aplitude_start_index = nothing
     largest_aplitude_end_index = nothing
-    timeseries = sol[vertex_id*6-5:vertex_id*6 - 4, :]
+    timeseries = sol[vertex_id*6-5:vertex_id*6-3, :]
 
     for (index1, pos1) in enumerate(eachcol(timeseries))
         for (index2, pos2) in enumerate(eachcol(timeseries))
