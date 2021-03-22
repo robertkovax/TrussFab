@@ -205,5 +205,15 @@ module Geometry
                                0, 0, 0, 1
                              ])
   end
+
+  # Return a plane in the format [ point3d, vector3d ]
+  def self.normalize_plane(plane)
+    return plane if plane.length == 2
+    a, b, c, d = plane
+    v = Geom::Vector3d.new(a,b,c)
+    p = ORIGIN.offset(v.reverse, d)
+    [p, v]
+  end
+
 end
 
