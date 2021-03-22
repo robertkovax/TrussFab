@@ -5,6 +5,7 @@ require 'src/system_simulation/spring_picker.rb'
 require 'src/system_simulation/simulation_runner_client.rb'
 require 'src/utility/json_export.rb'
 require 'src/system_simulation/period_animation.rb'
+require 'src/ui/widget/widget.rb'
 
 # Ruby integration for spring insights dialog
 class SpringPane
@@ -63,6 +64,8 @@ class SpringPane
     ModelStorage.instance.attachable_users
 
     @visualization_offset = Geom::Vector3d.new(0, 0, 30)
+
+    @widget = nil
   end
 
   # spring / graph manipulation logic:
@@ -394,6 +397,7 @@ class SpringPane
   end
 
   def toggle_animation
+    @widget = Widget.new(Geom::Point3d.new(50, 50, 50), ["easy", "medium", "hard"])
     start_animation = !@animation_running
 
     if start_animation
