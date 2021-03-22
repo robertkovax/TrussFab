@@ -13,6 +13,15 @@ function get_frequency_spectrum(sol, vertex_id)
     return freqs, mag
 end
 
+function get_frequency_spectrum2(sol, vertex_id)
+    fps = 1/ (sol.t[2] - sol.t[1])
+
+    mag = fft(sol[vertex_id*6-2:vertex_id*6-0, :]) |> fftshift
+    freqs = fftfreq(length(sol.t), fps) |> fftshift
+
+    return freqs, mag
+end
+
 function get_dominant_frequency(sol, vertex_id)
     frequency, magnitude = get_frequency_spectrum(sol, vertex_id)
     _, index = findmax(magnitude[0.5 .< frequency .< 3.0])

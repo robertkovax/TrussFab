@@ -20,7 +20,7 @@ module TrussFab
     export TrussGraph
     
     include("./analysis.jl")
-    export get_frequency_spectrum, get_dominant_frequency, get_amplitude, get_peridoicity, get_acceleration
+    export get_frequency_spectrum, get_frequency_spectrums, get_dominant_frequency, get_amplitude, get_peridoicity, get_acceleration, get_ramp_up_time
     
     include("./Simulator.jl")
     @reexport using .Simulator

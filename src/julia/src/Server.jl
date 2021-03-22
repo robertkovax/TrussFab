@@ -7,6 +7,7 @@ using CSV
 using MetaGraphs
 using LightGraphs
 using LinearAlgebra
+using Plots
 
 number_preprocessing(val::Float64) = round(val, digits=5)
 
@@ -15,6 +16,20 @@ ROUTER = HTTP.Router()
 simulation_fps = 30
 current_tasks = []
 age_groups = [3, 6, 12]
+
+function plot_spectrum(sol, vertex_id, display_node_id, age)
+    (freqs, mag_3d) = TrussFab.get_frequency_spectrum2(sol, vertex_id)
+    mag_scalar = abs.(sum.(eachcol(mag_3d)))
+    time_domain = plot(sol.t, sol[(vertex_id*6-2):(vertex_id*6-0), :]', ylabel="velocity [m/s]", xlabel="simulation time [s]")
+    freq_domain = plot(freqs, mag_scalar, xlim=(0, +5), ylabel="magnitude [log10]", xlabel="frequency [Hz]")
+    return plot(time_domain, freq_domain, layout=2, title="node $(display_node_id), age group $(age)")
+end
+
+function show_user_fft(g, sol, age)
+    users = TrussFab.users(g)
+    fft_plots = [plot_spectrum(sol, uid, get_prop(g, uid, :id), age) for uid in users]
+    display(plot(fft_plots..., layout=(length(users),1)))
+end
 
 
 # --- Task Management & Helpers ---
@@ -148,6 +163,7 @@ function update_model(req::HTTP.Request)
             task = get_simulation_task(client_request_obj, age)
             schedule(task)
             sim_result = fetch(task)
+            show_user_fft(g, sim_result, age)
             get_user_stats(sim_result)
         end, age_groups, ntasks=3)
     catch e
@@ -158,6 +174,7 @@ function update_model(req::HTTP.Request)
             rethrow()
         end 
     end
+
 
     # TODO Insert Optimization here
     spring_constants = TrussFab.springs(g) .|> edge -> Dict(get_prop(g, edge, :id) => get_prop(g, edge, :spring_stiffness))
