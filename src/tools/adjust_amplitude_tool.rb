@@ -26,8 +26,9 @@ class AdjustAmplitudeTool < Tool
 
   def onLButtonUp(_flags, x, y, view)
     @mouse_down = false
-    # forget handle
     update(view, x, y)
+
+    TrussFab.get_spring_pane.notify_model_changed
   end
 
   def update(view, x, y)

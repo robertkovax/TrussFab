@@ -34,7 +34,9 @@ class TraceVisualization
     @simulation_data.each do |age, simulation_data|
       index = @simulation_data.keys.index(age)
       node_ids.each do |node_id|
-        add_bar(node_id, sampling_rate, user_stats[age][node_id], simulation_data, index, age)
+        # TODO: Don't hardcode this
+        add_handles =  age == "12"
+        add_bar(node_id, sampling_rate, user_stats[age][node_id], simulation_data, index, age, add_handles: add_handles)
       end
     end
 
@@ -50,8 +52,10 @@ class TraceVisualization
 
   def reset_trace
     Sketchup.active_model.active_entities.erase_entities(@group.entities.to_a) if @group && !@group.deleted?
+    Sketchup.active_model.active_entities.erase_entities(@swipe_group.entities.to_a) if @swipe_group && !@swipe_group.deleted?
     Sketchup.active_model.active_entities.erase_entities(@trace_points) if @trace_points.count > 0
 
+    @swipe_group = nil
     @handles.each { |_, handles| handles.each(&:delete)}
     @trace_points = []
     @visualizations = []
@@ -84,23 +88,23 @@ class TraceVisualization
 
   private
 
-  def add_handles(curve, user_id)
+  def add_handles(curve, user_id, group)
     puts "curve0 #{curve[0]}"
     puts "curve1 #{curve[-1]}"
-    one = add_handle curve[0], curve, user_id
-    two = add_handle curve[-1], curve, user_id
+    one = add_handle curve[0], curve, group
+    two = add_handle curve[-1], curve, group
     one.partner_handle = two
     two.partner_handle = one
     @handles[user_id] = [one, two]
   end
 
-  def add_handle(position, curve, user_id)
+  def add_handle(position, curve, group)
     puts "Add handle: #{position}"
-    handle = AmplitudeHandle.new position, movement_curve: curve
+    handle = AmplitudeHandle.new position, movement_curve: curve, group: group
     handle
   end
 
-  def add_bar(node_id, _sampling_rate, stats, simulation_data, bar_index, age_text)
+  def add_bar(node_id, _sampling_rate, stats, simulation_data, bar_index, age_text, add_handles: false)
     period = stats['period']
     period ||= 3.0
     start_index = stats['largest_amplitude']['start']
@@ -217,9 +221,10 @@ class TraceVisualization
       entity.layer = circle_trace_layer
     end
     # TODO somehow the edges of the interval are off
-    draw_swipe entities, offsetted_curve_points[start_index + 2..end_index - 2], BAR_COLORS[bar_index % BAR_COLORS.count] , age_text
+    @swipe_group = Sketchup.active_model.entities.add_group if @swipe_group.nil? || @swipe_group.deleted?
+    draw_swipe @swipe_group.entities, offsetted_curve_points[start_index + 2..end_index - 2], BAR_COLORS[bar_index % BAR_COLORS.count] , age_text
 
-    add_handles(offsetted_curve_points[start_index..end_index], node_id.to_i)
+    add_handles(offsetted_curve_points[start_index..end_index], node_id.to_i, @swipe_group) if add_handles
   end
 
   def draw_swipe(group_entities, curve, color, text)
