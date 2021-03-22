@@ -61,11 +61,8 @@ function get_simulation_duration(client_request_obj)
     end
 end
 
-function get_simulation_task(client_request_obj, age)
+function get_simulation_task(g, simulation_duration=5.0)
     global current_tasks
-    g = TrussFab.import_trussfab_json(client_request_obj)
-    simulation_duration = get_simulation_duration(client_request_obj)
-    TrussFab.set_age!(g, convert(Float64, age))
 
     simulation_task = @task begin
         @info "start simulation $(objectid(current_task()))"
@@ -160,7 +157,12 @@ function update_model(req::HTTP.Request)
         
     user_stats_per_age_group = try 
         asyncmap(age -> begin
-            task = get_simulation_task(client_request_obj, age)
+            g = TrussFab.import_trussfab_json(client_request_obj)
+            simulation_duration = get_simulation_duration(client_request_obj)
+            if age != 3
+                TrussFab.set_age!(g, convert(Float64, age))
+            end
+            task = get_simulation_task(g, simulation_duration)
             schedule(task)
             sim_result = fetch(task)
             show_user_fft(g, sim_result, age)
