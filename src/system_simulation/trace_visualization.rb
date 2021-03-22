@@ -5,8 +5,9 @@ require_relative '../sketchup_objects/amplitude_handle'
 # Simulate data samples of a system simulation by plotting a trace consisting of transparent circles into the scene.
 class TraceVisualization
   attr_reader :handles
-  BAR_HEIGHT = 5
-  BAR_COLORS = [Sketchup::Color.new(34, 116, 182, 150), Sketchup::Color.new(224, 200, 90, 150), Sketchup::Color.new(224, 113, 56, 150)].freeze
+  BAR_HEIGHT = 1.5
+  LETTER_OFFSET = 1
+  BAR_COLORS = [Sketchup::Color.new(47, 72, 94, 150), Sketchup::Color.new(37, 113, 181, 150), Sketchup::Color.new(114, 174, 227, 150)].freeze
 
   def initialize(visualization_offset: Geom::Vector3d.new(0, 0, 30))
     # Group containing trace circles.
@@ -113,13 +114,13 @@ class TraceVisualization
     @visualizations = []
     offsetted_curve_points = []
 
-    trace_analyzation = (analyze_trace node_id, start_index, end_index, simulation_data)
-    max_distance = trace_analyzation[:max_distance]
+    # trace_analyzation = (analyze_trace node_id, start_index, end_index, simulation_data)
+    # max_distance = trace_analyzation[:max_distance]
     # TODO renable planar check
     # Plot dots for either the period or a certain time span, if oscillation is not planar
-    trace_time_limit = trace_analyzation[:is_planar] ? period.to_f : Configuration::NON_PLANAR_TRACE_DURATION
-    puts "Trace maximum distance: #{max_distance}"
-    puts "Trace is planar: #{trace_analyzation[:is_planar]}"
+    # trace_time_limit = trace_analyzation[:is_planar] ? period.to_f : Configuration::NON_PLANAR_TRACE_DURATION
+    # puts "Trace maximum distance: #{max_distance}"
+    # puts "Trace is planar: #{trace_analyzation[:is_planar]}"
 
     circle_trace_layer =
         Sketchup.active_model.layers[Configuration::MOTION_TRACE_VIEW]
@@ -216,7 +217,7 @@ class TraceVisualization
       entity.layer = circle_trace_layer
     end
     # TODO somehow the edges of the interval are off
-    draw_swipe entities, offsetted_curve_points[start_index + 2..end_index - 2].map(&:clone), BAR_COLORS[bar_index % BAR_COLORS.count] , age_text
+    draw_swipe entities, offsetted_curve_points[start_index + 2..end_index - 2], BAR_COLORS[bar_index % BAR_COLORS.count] , age_text
 
     add_handles(offsetted_curve_points[start_index..end_index], node_id.to_i)
   end
@@ -232,14 +233,13 @@ class TraceVisualization
     depth = BAR_HEIGHT * 2
     width = BAR_HEIGHT
     pts = []
-    pts[0] = Geom::Point3d.new(0, 0, 0)
-    pts[1] = Geom::Point3d.new(0, 0, width)
-    pts[2] = Geom::Point3d.new(depth, 0, width)
-    pts[3] = Geom::Point3d.new(depth, 0, 0)
-    rect_center = Geom::Point3d.new(depth/2, 0, width/2)
+    pts[0] = Geom::Point3d.new(-depth / 2, 0, -width / 2)
+    pts[1] = Geom::Point3d.new(-depth / 2, 0, width / 2)
+    pts[2] = Geom::Point3d.new(depth / 2, 0, width / 2)
+    pts[3] = Geom::Point3d.new(depth / 2, 0, -width / 2)
 
     profile_normal = (curve[1] - curve[0]).normalize
-    translation_vector = curve[0] - rect_center
+    translation_vector = curve[0]
     # mapping x axis to the curve plane normal and y axis to profile normal
     rotation = Geometry.rotation_to_local_coordinate_system(curve_plane_normal, profile_normal)
     translation = Geom::Transformation.translation(translation_vector)
@@ -261,12 +261,16 @@ class TraceVisualization
     bar_instance.material = material
 
     letter_definition = Sketchup.active_model.definitions.add "Letter"
-    success = letter_definition.entities.add_3d_text(text, TextAlignLeft, "Arial",true, false, BAR_HEIGHT, 0.0, 1.5, true, 0.1)
+    success = letter_definition.entities.add_3d_text(text, TextAlignLeft, "Arial",true, false, BAR_HEIGHT, 0.0, 0, true, 0.1)
     end_normal_vector = curve[curve.count - 1] - curve[curve.count - 2]
+    # positions the letter nicely centered along the curve
+    letter_spacing_translation = Geom::Transformation.translation(Geom::Vector3d.new(LETTER_OFFSET, -BAR_HEIGHT / 2, 0))
+    # rotates the letter correclty so we can map it using rotation_to_local_coordinate_system (must be in XY plane)
     rotationXZ = Geometry.rotation_transformation(Geom::Vector3d.new(1, 0, 0), Geom::Vector3d.new(0, 0, 1), Geom::Point3d.new(0, 0, 0))
+    # rotates the letter to point along the bar surface
     rotation = Geometry.rotation_to_local_coordinate_system(curve_plane_normal, Geom::Vector3d.new(0, 0, 1))
     translation = Geom::Transformation.translation(curve[curve.count - 1])
-    transform = translation * rotation * rotationXZ
+    transform = Geom::Transformation.new translation * rotation * rotationXZ * letter_spacing_translation
 
     letter_instance = group_entities.add_instance(letter_definition, transform)
     letter_instance.material = material
