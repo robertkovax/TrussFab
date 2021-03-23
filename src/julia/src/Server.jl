@@ -165,7 +165,9 @@ function update_model(req::HTTP.Request)
             task = get_simulation_task(g, simulation_duration)
             schedule(task)
             sim_result = fetch(task)
-            show_user_fft(g, sim_result, age)
+            if age == 3
+                show_user_fft(g, sim_result, age)
+            end
             get_user_stats(sim_result)
         end, age_groups, ntasks=3)
     catch e
