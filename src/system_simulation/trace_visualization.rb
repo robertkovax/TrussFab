@@ -25,7 +25,7 @@ class TraceVisualization
     @colors = [Sketchup::Color.new(255, 0, 0), Sketchup::Color.new(255, 255, 0), Sketchup::Color.new(0, 255, 0)]
 
     @visualization_offset = visualization_offset
-    @handles = []
+    @handles = {} #node_id to handles [handle_one, handle_two]
   end
 
   def add_bars(node_ids, sampling_rate, data, user_stats)
@@ -55,7 +55,6 @@ class TraceVisualization
     @handles.each { |_, handles| handles.each(&:delete)}
     @trace_points = []
     @visualizations = []
-    @handles = {} #node_id to handles [handle_one, handle_two]
 
     @max_acceleration_label.erase! if @max_acceleration_label && @max_acceleration_label.valid?
   end

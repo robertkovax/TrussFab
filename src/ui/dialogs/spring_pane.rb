@@ -146,6 +146,15 @@ class SpringPane
     # end
     # Sketchup.active_model.active_view.animation = @animation
     # @period_animation_running = true
+    #
+    add_widget(node_id)
+  end
+
+  def add_widget(node_id)
+    movement_curve = @trace_visualization.handles[node_id][0].movement_curve
+    puts movement_curve
+    midpoint = Geometry.midpoint(movement_curve[0], movement_curve[-1])
+    @widget = Widget.new(midpoint + Geom::Vector3d.new(0, 0, 50.mm), ["easy", "medium", "hard"])
   end
 
   def update_bode_diagram
@@ -397,7 +406,6 @@ class SpringPane
   end
 
   def toggle_animation
-    @widget = Widget.new(Geom::Point3d.new(50, 50, 50), ["easy", "medium", "hard"])
     start_animation = !@animation_running
 
     if start_animation
