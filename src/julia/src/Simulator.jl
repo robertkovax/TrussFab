@@ -81,7 +81,7 @@ module Simulator
             edge_acceleration = (vector_sum(edges_dst) - vector_sum(edges_src)) ./ m
             
             dstate[1:3] .= @views v⃗ 
-            dstate[4:6] .= @views if actuation_power > 0.0 && norm(v⃗) > 0.01 && areparallel(v⃗, edge_acceleration)
+            dstate[4:6] .= @views if actuation_power > 0.0 && norm(v⃗) > 0.01 && areparallel(dstate[1:3], dstate[4:6])
                 max_applied_force = 1000 #N
                 actuaction_force = 2.0 * actuation_power ./ norm(v⃗)
                 capped_actuation_force = sign(actuaction_force) * min(abs(actuaction_force), max_applied_force)
