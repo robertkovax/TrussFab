@@ -1,5 +1,5 @@
 class Widget
-  LABEL_HEIGHT = 3
+  LABEL_HEIGHT = 2
 
 
   def initialize(position, valid_states)
@@ -10,11 +10,26 @@ class Widget
     @instances = []
     @group = Sketchup.active_model.active_entities.add_group
     create_geometry
+    create_image
     update
   end
 
   def update
 
+  end
+
+  def create_image
+    # TODO: Make sure that we can use @group here
+    #
+    image_position = Geom::Point3d.new(0,0,20.cm)
+    image = @group.entities.add_image(
+      Configuration::WIDGET_TEMPO_PATH,
+      image_position,
+      7,
+    )
+    rotation = Geometry.rotation_transformation(Geom::Vector3d.new(0, 0, 1), Geom::Vector3d.new(0, -1, 0), image_position)
+    image.transform! rotation
+    image.parent.behavior.always_face_camera = true
   end
 
   def create_geometry

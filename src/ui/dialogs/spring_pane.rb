@@ -154,7 +154,7 @@ class SpringPane
     movement_curve = @trace_visualization.handles[node_id][0].movement_curve
     puts movement_curve
     midpoint = Geometry.midpoint(movement_curve[0], movement_curve[-1])
-    @widget = Widget.new(midpoint + Geom::Vector3d.new(0, 0, 50.mm), ["easy", "medium", "hard"])
+    @widget = Widget.new(midpoint + Geom::Vector3d.new(0, 0, 150.mm), ["easy", "medium", "hard"])
   end
 
   def update_bode_diagram
