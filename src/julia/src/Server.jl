@@ -1,5 +1,3 @@
-# TODO send 500 errors when there is an exception
-
 using HTTP
 using Sockets
 using JSON
@@ -9,6 +7,7 @@ using CSV
 using MetaGraphs
 using LightGraphs
 using LinearAlgebra
+using Plots
 
 number_preprocessing(val::Float64) = round(val, digits=5)
 
@@ -18,16 +17,38 @@ simulation_fps = 30
 current_tasks = []
 age_groups = [3, 6, 12]
 
+function plot_spectrum(sol, vertex_id, display_node_id, age)
+    (freqs, mag_3d) = TrussFab.get_frequency_spectrum2(sol, vertex_id)
+    mag_scalar = abs.(sum.(eachcol(mag_3d)))
+    time_domain = plot(sol.t, sol[(vertex_id*6-2):(vertex_id*6-0), :]', ylabel="velocity [m/s]", xlabel="simulation time [s]")
+    freq_domain = plot(freqs, mag_scalar, xlim=(0, +5), ylabel="magnitude [log10]", xlabel="frequency [Hz]")
+    return plot(time_domain, freq_domain, layout=2, title="node $(display_node_id), age group $(age)")
+end
+
+function show_user_fft(g, sol, age)
+    users = TrussFab.users(g)
+    fft_plots = [plot_spectrum(sol, uid, get_prop(g, uid, :id), age) for uid in users]
+    display(plot(fft_plots..., layout=(length(users),1)))
+end
+
 
 # --- Task Management & Helpers ---
-
 function abort_all_running_tasks()
     global current_tasks
+
     # abort current simulation to free system ressources and obtain lock
     while !isempty(current_tasks)
-        task = pop!(current_tasks)
-        if !istaskdone(task)
-            schedule(task, InterruptException(), error=true)
+        future::Future = pop!(current_tasks)
+        if !isready(future)
+            @warn "interrupt worker $(future.where)"
+            interrupt(future.where)
+            try
+                fetch(future)
+            catch e
+                if !(e isa InterruptException)
+                    rethrow()
+                end
+            end
         end
     end
 end
@@ -40,19 +61,24 @@ function get_simulation_duration(client_request_obj)
     end
 end
 
-function get_simulation_task(client_request_obj, age)
-    g = TrussFab.import_trussfab_json(client_request_obj)
-    simulation_duration = get_simulation_duration(client_request_obj)
-    TrussFab.set_age!(g, convert(Float64, age))
+function get_simulation_task(g, simulation_duration=5.0)
+    global current_tasks
 
     simulation_task = @task begin
         @info "start simulation $(objectid(current_task()))"
-        solution = fetch(@spawnat :any TrussFab.run_simulation(g, tspan=(0.01, simulation_duration), fps=simulation_fps))
+        simulation_job_future = @spawnat :any try 
+                TrussFab.run_simulation(g, tspan=(0.01, simulation_duration), fps=simulation_fps)
+            catch e
+                if !(e isa InterruptException)
+                    rethrow()
+                end
+            end
+        push!(current_tasks, simulation_job_future)
+        solution = fetch(simulation_job_future)
         @info "finished simulation $(objectid(current_task()))"
         return solution
     end
 
-    push!(current_tasks, simulation_task)
     return simulation_task
 end
 
@@ -131,9 +157,17 @@ function update_model(req::HTTP.Request)
         
     user_stats_per_age_group = try 
         asyncmap(age -> begin
-            task = get_simulation_task(client_request_obj, age)
+            g = TrussFab.import_trussfab_json(client_request_obj)
+            simulation_duration = get_simulation_duration(client_request_obj)
+            if age != 3
+                TrussFab.set_age!(g, convert(Float64, age))
+            end
+            task = get_simulation_task(g, simulation_duration)
             schedule(task)
             sim_result = fetch(task)
+            if age == 3
+                show_user_fft(g, sim_result, age)
+            end
             get_user_stats(sim_result)
         end, age_groups, ntasks=3)
     catch e
@@ -144,6 +178,7 @@ function update_model(req::HTTP.Request)
             rethrow()
         end 
     end
+
 
     # TODO Insert Optimization here
     spring_constants = TrussFab.springs(g) .|> edge -> Dict(get_prop(g, edge, :id) => get_prop(g, edge, :spring_stiffness))

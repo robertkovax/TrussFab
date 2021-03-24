@@ -13,10 +13,19 @@ function get_frequency_spectrum(sol, vertex_id)
     return freqs, mag
 end
 
+function get_frequency_spectrum2(sol, vertex_id)
+    fps = 1/ (sol.t[2] - sol.t[1])
+
+    mag = fft(sol[vertex_id*6-2:vertex_id*6-0, :]) |> fftshift
+    freqs = fftfreq(length(sol.t), fps) |> fftshift
+
+    return freqs, mag
+end
+
 function get_dominant_frequency(sol, vertex_id)
     frequency, magnitude = get_frequency_spectrum(sol, vertex_id)
-    _, index = findmax(magnitude[0.2 .< frequency .< 1.0])
-    return frequency[0.2 .< frequency .< 1.0][index]
+    _, index = findmax(magnitude[0.5 .< frequency .< 3.0])
+    return frequency[0.5 .< frequency .< 3.0][index]
 end
 
 function get_amplitude(sol, vertex_id)
@@ -25,7 +34,7 @@ function get_amplitude(sol, vertex_id)
     largest_aplitude = 0
     largest_aplitude_start_index = nothing
     largest_aplitude_end_index = nothing
-    timeseries = sol[vertex_id*6-5:vertex_id*6 - 4, :]
+    timeseries = sol[vertex_id*6-5:vertex_id*6-3, :]
 
     for (index1, pos1) in enumerate(eachcol(timeseries))
         for (index2, pos2) in enumerate(eachcol(timeseries))

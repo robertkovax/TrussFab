@@ -16,7 +16,7 @@ module Simulator
     # https://en.wikipedia.org/wiki/Dirac_delta_function
     # as a approaches 0, the function will become more 'extreme'
     dirac_delta = (x, a) -> 1 / (a * √π) * exp(1)^(-(x/a)^2)
-    dirac_impulse = (t) -> dirac_delta(t, 1/20)
+    dirac_impulse = (t) -> dirac_delta(t, 1/50)
     # Test out how the function looks like in the first second
     # (-0.5:0.01:0.5 .|> x -> dirac_delta(x, 1/20)) |> plot
 
@@ -81,13 +81,13 @@ module Simulator
             edge_acceleration = (vector_sum(edges_dst) - vector_sum(edges_src)) ./ m
             
             dstate[1:3] .= @views v⃗ 
-            dstate[4:6] .= @views if actuation_power > 0.0 && norm(v⃗) > 0.01 && areparallel(v⃗, edge_acceleration)
+            dstate[4:6] .= @views if actuation_power > 0.0 && norm(v⃗) > 0.01 && areparallel(dstate[1:3], dstate[4:6])
                 max_applied_force = 1000 #N
                 actuaction_force = 2.0 * actuation_power ./ norm(v⃗)
                 capped_actuation_force = sign(actuaction_force) * min(abs(actuaction_force), max_applied_force)
                 
                 # edge_acceleration .+ gravity .+ dirac_impulse(t)
-                edge_acceleration .+ gravity .+ (capped_actuation_force .* v⃗ ./ norm(v⃗) ./ m)
+                edge_acceleration .+ gravity .+ (capped_actuation_force .* v⃗ ./ norm(v⃗) ./ m) .+ dirac_impulse(t)
             else
                 edge_acceleration .+ gravity
             end
@@ -117,7 +117,7 @@ module Simulator
         nd_vertecies = vertices(g) .|> get_vetex_function
         nd_edges =  edges(g) .|> get_edge_function
         nd = network_dynamics(nd_vertecies, nd_edges, g.graph, parallel=false)
-        
+
         ### Simulation
         function nd_wrapper!(dx, x, p, t)
             # converting the parameter vector to a vector of tuples is nessecary, because we are required to have one 
@@ -133,32 +133,30 @@ module Simulator
     end
 
     function get_simulation_parameters(g)
+        to_float(x) = convert(Float64, x)
+        
         param_vec_for_edge(e) = begin
-            c = get_prop(g, e, :type) == "spring" ?  get_prop(g, e, :spring_stiffness) : c_stiff 
-            l = get_prop(g, e, :length)
+            c = get_prop(g, e, :type) == "spring" ?  get_prop(g, e, :spring_stiffness) |> to_float : c_stiff |> to_float
+            l = get_prop(g, e, :length) |> to_float
             return (c,l)
         end
 
         param_vec_for_vertex(v) = begin 
             if (get_prop(g, v, :active_user))
-                return (get_prop(g, v, :m), get_prop(g, v, :actuation_power))
+                return (get_prop(g, v, :m) |> to_float, get_prop(g, v, :actuation_power) |> to_float)
             else
-                return (get_prop(g, v, :m), 0)
+                return (get_prop(g, v, :m)|> to_float, 0.0)
             end
         end
     
         return (vertices(g) .|> param_vec_for_vertex, edges(g) .|> param_vec_for_edge)
     end
 
-    function run_simulation(g; fps=30,tspan=(0., 5.))
+    function run_simulation(g; fps=30, tspan=(0., 5.))
         u0 = get_inital_conditions(g)
+        params = get_simulation_parameters(g)
 
-        ode_problem = ODEProblem(
-            get_equations_of_motion(g),
-            u0,
-            tspan,
-            get_simulation_parameters(g)
-        )
+        ode_problem = ODEProblem( get_equations_of_motion(g), u0, tspan, params )
 
         # make sure that the simulation can be aborted using InterruptException
         # TODO figure out why this triggers twice as much as it's suppoose to (mind the 2; should be 1) 
