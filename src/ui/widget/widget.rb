@@ -2,9 +2,10 @@ class Widget
   LABEL_HEIGHT = 2
 
 
-  def initialize(position, valid_states)
+  def initialize(position, valid_states, image_path)
     @position = position
     @states = valid_states
+    @image_path = image_path
     @current_state = 0
 
     @instances = []
@@ -23,7 +24,7 @@ class Widget
     #
     image_position = Geom::Point3d.new(0,0,20.cm)
     image = @group.entities.add_image(
-      Configuration::WIDGET_TEMPO_PATH,
+    @image_path,
       image_position,
       7,
     )
