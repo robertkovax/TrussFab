@@ -1,5 +1,5 @@
 class Widget
-  LABEL_HEIGHT = 2
+  LABEL_HEIGHT = 1
 
 
   def initialize(position, valid_states, image_path)
@@ -45,7 +45,8 @@ class Widget
       label_definition = Sketchup.active_model.definitions.add "Widget Label #{state}"
       # label_definition.behavior.always_face_camera = true
       entities = label_definition.entities
-      success = entities.add_3d_text(state, TextAlignCenter, "Arial", index == @current_state, false, LABEL_HEIGHT, 0.0, 0, true, 0.1)
+      bold = index == @current_state
+      success = entities.add_3d_text(state, TextAlignCenter, "Arial", bold, false, LABEL_HEIGHT, 0.0, 0, true, 0.1)
 
       rotation = Geometry.rotation_transformation(Geom::Vector3d.new(0, 0, 1), Geom::Vector3d.new(0, -1, 0), Geom::Point3d.new(0, 0, 0))
       internal_translation = Geom::Transformation.translation(Geom::Vector3d.new(0,  0, index * LABEL_HEIGHT * 1.2))
@@ -54,7 +55,7 @@ class Widget
       transform = internal_translation * rotation
 
       instance = parent.entities.add_instance(label_definition, transform)
-      instance.material = index == @current_state ? Sketchup::Color.new(100, 100, 100) : Sketchup::Color.new(230, 230, 230)
+      instance.material = index == @current_state ? Sketchup::Color.new(100, 100, 100) : Sketchup::Color.new(150, 150, 150)
 
       @group.transformation = translation
       group_entities.add_instance(parent, Geom::Transformation.new)
@@ -73,9 +74,8 @@ class Widget
   end
 
   def update_states
-    @instances.each_with_index do |instance, index|
-      instance.material = index == @current_state ? Sketchup::Color.new(100, 100, 100) : Sketchup::Color.new(230, 230, 230)
-    end
+    Sketchup.active_model.active_entities.erase_entities(@group.entities.to_a) if @group && !@group.deleted?
+    create_geometry
   end
 end
 
