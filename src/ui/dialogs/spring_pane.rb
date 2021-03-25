@@ -5,6 +5,7 @@ require 'src/system_simulation/spring_picker.rb'
 require 'src/system_simulation/simulation_runner_client.rb'
 require 'src/utility/json_export.rb'
 require 'src/system_simulation/period_animation.rb'
+require 'src/ui/widget/widget.rb'
 
 # Ruby integration for spring insights dialog
 class SpringPane
@@ -63,6 +64,8 @@ class SpringPane
     ModelStorage.instance.attachable_users
 
     @visualization_offset = Geom::Vector3d.new(0, 0, 30)
+
+    @widget = nil
   end
 
   # spring / graph manipulation logic:
@@ -143,6 +146,20 @@ class SpringPane
     # end
     # Sketchup.active_model.active_view.animation = @animation
     # @period_animation_running = true
+    #
+    add_widget(node_id)
+  end
+
+  def add_widget(node_id)
+    movement_curve = @trace_visualization.handles[node_id][0].movement_curve
+    puts movement_curve
+    midpoint = Geometry.midpoint(movement_curve[0], movement_curve[-1])
+    vector_along_curve = (midpoint - movement_curve[0]).normalize!
+
+    @widgets = [
+      Widget.new(midpoint + Geometry.scale(vector_along_curve, 7) + Geom::Vector3d.new(0, 0, 150.mm), ["easy", "medium", "hard"], Configuration::WIDGET_DIFFICULTY_PATH),
+      Widget.new(midpoint + Geometry.scale(vector_along_curve, -7) +Geom::Vector3d.new(0, 0, 150.mm), ["slow", "comfortable", "fast"], Configuration::WIDGET_TEMPO_PATH)
+    ]
   end
 
   def update_bode_diagram

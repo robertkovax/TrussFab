@@ -73,6 +73,10 @@ module Configuration
                       '/primitives/asset_hinge.json').freeze
   ASSETS_USER_PATH = (ProjectHelper.asset_directory +
                      '/primitives/asset_user.json').freeze
+  WIDGET_TEMPO_PATH = (ProjectHelper.asset_directory +
+    '/icons/tempo.png').freeze
+  WIDGET_DIFFICULTY_PATH = (ProjectHelper.asset_directory +
+    '/icons/difficulty.png').freeze
 
   # Colors
   STANDARD_COLOR            = Sketchup::Color.new(1.0, 1.0, 1.0)
