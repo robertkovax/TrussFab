@@ -322,6 +322,23 @@ class SpringPane
     update_trace_visualization
   end
 
+  def toggle_animation_for_face(face)
+    if @animation_running
+      @animation.stop
+      @animation_running = false
+      update_dialog
+      return
+    end
+
+    return unless @trace_visualization
+
+    age_id = @trace_visualization.get_age_for_face face
+    unless age_id.nil?
+      create_animation age_id
+      @animation_running = true
+    end
+  end
+
   private
 
   def constants_for_springs
@@ -432,9 +449,9 @@ class SpringPane
     end
   end
 
-  def create_animation
+  def create_animation age_id="3"
     # TODO: adjust: we need the age id (retrieved by click on bar)
-    @animation = GeometryAnimation.new(@simulation_data.values[0]) do
+    @animation = GeometryAnimation.new(@simulation_data[age_id]) do
       @animation_running = false
       update_dialog
     end
