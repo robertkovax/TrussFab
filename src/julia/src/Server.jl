@@ -10,6 +10,9 @@ using LinearAlgebra
 using Plots
 using Distributed
 
+using Distributed
+
+include("./parameter_optimization.jl")
 
 number_preprocessing(val::Float64) = round(val, digits=5)
 
@@ -167,13 +170,26 @@ function update_model(req::HTTP.Request)
         
         abort_all_running_tasks()
         yield()
-        
+	    
         @info "updated model"
         current_request_handler = current_task()
         
         g = TrussFab.import_trussfab_json(client_request_obj)
         client_ids = vertices(g) .|> v -> get_prop(g, v, :id)
         
+	    spring_constant = 7000.0
+	    try
+	        TrussFab.set_age!(g, 12.0)
+	        target_amplitude = parse_requested_amplitude(client_request_obj)
+	        @info "starting optimization for target amplitude $(target_amplitude)"
+	        spring_constant, error, solution = tweak_amplitude(g, target_amplitude)
+	    catch e
+	        @warn "amplitude optimization failed: $(sprint(showerror, e))"
+	    end
+
+	    @info "Spring Constant $(spring_constant)"
+
+        # TODO write here optimized constants
         spring_constants = TrussFab.springs(g) .|> edge -> Dict(get_prop(g, edge, :id) => get_prop(g, edge, :spring_stiffness))
         
         function get_user_stats(simulation_result)
@@ -185,6 +201,7 @@ function update_model(req::HTTP.Request)
 
         user_stats_per_age_group = asyncmap(age -> begin
             g = TrussFab.import_trussfab_json(client_request_obj)
+            TrussFab.set_stiffness!(g, [spring_constant for _ in TrussFab.springs(g)])
             simulation_duration = get_simulation_duration(client_request_obj)
             if age != 3
                 TrussFab.set_age!(g, convert(Float64, age))
