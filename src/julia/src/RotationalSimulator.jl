@@ -48,9 +48,34 @@ function rotate_vec(axis, point, angle)
     return UnitQuaternion(AngleAxis(angle, axis.normal...)) * point
 end
 
+# TODO move to rigid_group_detection
+function get_fixed_group(g)
+    rigid_groups = get_rigid_groups(g) .|> bitvector_to_poslist
+    isfixed(rigid_group) = length([v for v in vertices(g) if v in rigid_group && get_prop(g, v, :fixed)]) >= 3 
+    reduce(∪, filter(r -> isfixed(r), rigid_groups))
+end
+
+# TODO move to rigid_group_detection
+function get_moving_groups_with_rotation_axes(g)
+    isfixed(g, rigid_group) = length([v for v in vertices(g) if v in rigid_group && get_prop(g, v, :fixed)]) >= 3 
+    
+    g = deepcopy(g)
+    remove_spring_edges!(g )
+    rigid_groups = get_rigid_groups(g) .|> bitvector_to_poslist
+    
+    fixed_group = get_fixed_group(g)
+    free_groups = filter(r -> !isfixed(g, r), rigid_groups)
+
+    intersection_tuples = free_groups .|> r -> reduce(∪, r .|> v -> neighbors(g, v)) ∩ fixed_group
+    get_pos(vertex_id) = get_prop(g, vertex_id, :init_pos)
+    return zip(free_groups, intersection_tuples .|> ps -> Line(Point(get_pos(ps[1])), Point(normalize(get_pos(ps[1]) - get_pos(ps[2])))))
+end
+
+function get_fixed_group_ode()
+    return StaticVertex(f! = f! = (e, v_s, v_d, p, t) -> e .= zeros(2), dim = 2)
+end
+
 function get_rigid_group_ode(rotation_axis::Line, point_masses::AbstractVector{PointMass})
-
-
     function get_torque(force_vec, pos, angle)
         torque_vec = cross(force_vec, rotate_vec(rotation_axis, pos, angle))
         return sign(dot(torque_vec, rotation_axis.normal)) * norm(torque_vec)
@@ -84,11 +109,11 @@ function get_rigid_group_ode(rotation_axis::Line, point_masses::AbstractVector{P
 end
 
 function get_spring_ode(src_point::Point, src_rotation_axis::Line, dst_point::Point, dst_rotation_axis::Line)
-    # TODO spring damping
     src_angle_to_vector(angle) = UnitQuaternion(AngleAxis(angle, src_rotation_axis.normal...)) * src_point
     dst_angle_to_vector(angle) = UnitQuaternion(AngleAxis(angle, dst_rotation_axis.normal...)) * dst_point
-
+    
     f! = (e, vertex_src, vertex_dst, params, t) -> begin
+        # TODO spring damping
         damping_coefficent =  10.0
 
         c, unstreched_length = params
@@ -114,29 +139,35 @@ end
 function run_simulation(g::MetaGraph, tspan=(0.0, 10.), fps=30)
     
     # --- Build new reduced graph ---
-    rigid_groups = get_rigid_groups(g)
+    moving_groups_with_axes = [get_moving_groups_with_rotation_axes(g) |> collect; (get_fixed_group(g), Line(ones(3), ones(3)))]
     rigid_group_point_masses = []
-    rigid_group_rotation_axes = []
-    reduced_g = Graph(length(rigid_groups))
+    reduced_g = Graph(length(moving_groups_with_axes))
 
     ode_vertices = []
 
-    for vertices_in_rigid_group in bitvector_to_poslist.(rigid_groups)
-        # TODO get rotation axis
-        rot_axis = Line([0.0,0.0,0.0],[1.0,0.0,0.0])
-        point_masses = [PointMass(get_prop(g, vertex, :init_pos), get_prop(g, vertex, :m)) for vertex in vertices_in_rigid_group]
+    for (vertices_in_group, rotation_axis) in moving_groups_with_axes[1:end-1]
+        point_masses = [PointMass(get_prop(g, vertex, :init_pos), get_prop(g, vertex, :m)) for vertex in vertices_in_group]
         push!(rigid_group_point_masses, point_masses)
-        push!(rigid_group_rotation_axes, rot_axis)
-        push!(ode_vertices, get_rigid_group_ode(rot_axis, point_masses))
+        push!(ode_vertices, get_rigid_group_ode(rotation_axis, point_masses))
     end
+    
+    # fixed group
+    push!(rigid_group_point_masses, [])
+    push!(ode_vertices, get_fixed_group_ode())
     
     ode_edges = []
     for e in edges(g)
         if get_prop(g, e, :type) == "spring"
             src_point = Point(get_prop(g, e.src, :init_pos))
             dst_point = Point(get_prop(g, e.dst, :init_pos))
-            push!(ode_edges, get_spring_ode(src_point, rigid_group_rotation_axes[e.src], dst_point, rigid_group_rotation_axes[e.dst]))
-            add_edge!(reduced_g, findfirst(bitvector -> bitvector[e.src], rigid_groups), findfirst(bitvector -> bitvector[e.dst], rigid_groups))
+
+            moving_groups = moving_groups_with_axes .|> obj -> obj[1]
+
+            src_group = findfirst(group -> e.src in group, moving_groups)
+            dst_group = findfirst(group -> e.dst in group, moving_groups)
+
+            push!(ode_edges, get_spring_ode(src_point, moving_groups_with_axes[src_group][2], dst_point, moving_groups_with_axes[dst_group][2]))
+            add_edge!(reduced_g, src_group, dst_group)
         end
     end
     
@@ -148,29 +179,20 @@ function run_simulation(g::MetaGraph, tspan=(0.0, 10.), fps=30)
     function nd_wrapper!(dx, x, p, t)
         nd(dx, x, (nothing, p), t)
     end
-    gplot(reduced_g)
+    
     params = [(1000, 0.6) for _ in ode_edges]
     ode_problem = ODEProblem(nd_wrapper!, u0, tspan, params)
 
     check_interrupt_callback = FunctionCallingCallback((_, _, _) -> yield())   
     
-    return sol = @time solve(ode_problem, TRBDF2(), abstol=5e-1, reltol=1e-1, saveat=1/fps, callback=check_interrupt_callback );
-    # --- map simplified state back to vectors ---
+    sol = @time solve(ode_problem, TRBDF2(), abstol=5e-1, reltol=1e-1, saveat=1/fps, callback=check_interrupt_callback );
 
+    # --- map simplified state back to vectors ---
     result = zeros(nv(g)*6, length(sol.t))
-    # for (row_id, row) in enumerate(eachrow(sol'))
-    #     for (vertex_id, state) in enumerate(Iterators.partition(row, 2))
-    #         θ, ω = state
-    #         rot_axis = rigid_group_rotation_axes[vertex_id]
-    #         for point_mass in rigid_group_point_masses[vertex_id]
-    #             result[row_id, ] = rotate_vec(rot_axis, point_mass.pos, θ)
-    #             result[row_id, ] = rotate_vec(rot_axis, point_mass.pos, ω)
-    #         end
-    #     end
-    # end
+
     for (vertex_id, state) in enumerate(Iterators.partition(eachcol(sol'), 2))
         θ, ω = state
-        rot_axis = rigid_group_rotation_axes[vertex_id]
+        rot_axis = moving_groups_with_axes[vertex_id][2]
         # return
         for point_mass in rigid_group_point_masses[vertex_id]
             positions::AbstractArray{Float64, 2} = cat([Array(row...) for row in eachrow(map(angle -> rotate_vec(rot_axis, point_mass.pos, angle), θ))]..., dims=2)
@@ -184,58 +206,16 @@ function run_simulation(g::MetaGraph, tspan=(0.0, 10.), fps=30)
 end
 
 
-
 g = TrussFab.import_trussfab_file("./test_models/seesaw_3.json")
 
 
-function get_rotation_axes(g)
-    isfixed(g, rigid_group) = length([v for v in vertices(g) if v in rigid_group && get_prop(g, v, :fixed)]) >= 3 
-    
-    g = deepcopy(g)
-    remove_spring_edges!(g )
-    rigid_groups = get_rigid_groups(g) .|> bitvector_to_poslist
-    
-    fixed_group = reduce(∪, filter(r -> isfixed(g, r), rigid_groups))
-
-    free_groups = filter(r -> !isfixed(g, r), rigid_groups)
-
-    intersection_tuples = free_groups .|> r -> reduce(∪, r .|> v -> neighbors(g, v)) ∩ fixed_group
-    show(intersection_tuples[1][1])
-    get_pos(vertex_id) = get_prop(g, vertex_id, :init_pos)
-    return intersection_tuples .|> ps -> Line(Point(get_pos(ps[1])), Point(normalize(get_pos(ps[1]) - get_pos(ps[2]))))
-end
-
-get_rotation_axes(g)
-Point(ones(3))
-rotation_axes = []
-# find connecting edges 
-for i in 1:length(a)
-    for j in i:length(a)
-        fixed, free = if isfixed(g, a[i])
-            a[i], a[j]
-        elseif isfixed(g, a[j])
-            a[j], a[i]
-        else
-            continue
-            # throw(ErrorException("unsupported rigid group configuration: currently only moving rigid groups that are mounted to a fixed base are supported"))
-        end
-
-        neighbourhood_of_free = reduce(∪, free .|> v -> neighbors(g, v))
-        push!(rotation_axes, neighbourhood_of_free ∩ fixed)
-    end
-end
-
-rotation_axes
-
-
-a[1] .| a[2] .| a[3]
-a[1]
-nv(g)
 s = run_simulation(g)
 plot(s')
 nothing
 
-
+a = get_moving_groups_with_rotation_axes(g)
+findfirst((i, a) -> println(a), enumerate(a) |> collect)
+enumerate(a) .|> a -> println(b)
 # point_mass = PointMass([1.0,2.0,3.0] ,10)
 # rot_axis = Line([0.0,0.0,0.0],[1.0,0.0,0.0])
 
