@@ -1,5 +1,5 @@
 class Widget
-  LABEL_HEIGHT = 1
+  LABEL_HEIGHT = 1.5
 
 
   def initialize(position, valid_states, image_path)
@@ -22,7 +22,7 @@ class Widget
   def create_image
     # TODO: Make sure that we can use @group here
     #
-    image_position = Geom::Point3d.new(0,0,20.cm)
+    image_position = Geom::Point3d.new(0,0,10.cm)
     image = @group.entities.add_image(
     @image_path,
       image_position,
@@ -55,7 +55,7 @@ class Widget
       transform = internal_translation * rotation
 
       instance = parent.entities.add_instance(label_definition, transform)
-      instance.material = index == @current_state ? Sketchup::Color.new(100, 100, 100) : Sketchup::Color.new(150, 150, 150)
+      instance.material = index == @current_state ? Sketchup::Color.new(20, 20, 20) : Sketchup::Color.new(70, 70, 70)
 
       @group.transformation = translation
       group_entities.add_instance(parent, Geom::Transformation.new)
@@ -73,9 +73,14 @@ class Widget
     update_states
   end
 
-  def update_states
+  def remove
     Sketchup.active_model.active_entities.erase_entities(@group.entities.to_a) if @group && !@group.deleted?
+  end
+
+  def update_states
+    remove
     create_geometry
+    create_image
   end
 end
 
