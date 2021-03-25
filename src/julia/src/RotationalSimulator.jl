@@ -183,17 +183,30 @@ function run_simulation(g::MetaGraph, tspan=(0.0, 10.), fps=30)
     return result
 end
 
-# Array([1,2])
+
 
 g = TrussFab.import_trussfab_file("./test_models/seesaw_3.json")
 
-a = get_rigid_groups(g) .|> bitvector_to_poslist
 
-isfixed(g, rigid_group) = length([v for v in vertices(g) if v in rigid_group && get_prop(g, v, :fixed)]) >= 3 
+function get_rotation_axes(g)
+    isfixed(g, rigid_group) = length([v for v in vertices(g) if v in rigid_group && get_prop(g, v, :fixed)]) >= 3 
+    
+    g = deepcopy(g)
+    remove_spring_edges!(g )
+    rigid_groups = get_rigid_groups(g) .|> bitvector_to_poslist
+    
+    fixed_group = reduce(∪, filter(r -> isfixed(g, r), rigid_groups))
 
-isfixed(g, a[1])
+    free_groups = filter(r -> !isfixed(g, r), rigid_groups)
 
+    intersection_tuples = free_groups .|> r -> reduce(∪, r .|> v -> neighbors(g, v)) ∩ fixed_group
+    show(intersection_tuples[1][1])
+    get_pos(vertex_id) = get_prop(g, vertex_id, :init_pos)
+    return intersection_tuples .|> ps -> Line(Point(get_pos(ps[1])), Point(normalize(get_pos(ps[1]) - get_pos(ps[2]))))
+end
 
+get_rotation_axes(g)
+Point(ones(3))
 rotation_axes = []
 # find connecting edges 
 for i in 1:length(a)
@@ -230,8 +243,8 @@ nothing
 # plot(transpose(sol)[20])
 # @time get_rigid_groups(g)
 
-# nodelabel = 1:nv(g)
-# gplot(g, nodelabel=nodelabel)
+nodelabel = 1:nv(g)
+gplot(g, nodelabel=nodelabel)
 
 # function run_example_simulation()
 #     rot_axis = Line([0.0,0.0,0.0],[1.0,0.0,0.0])
