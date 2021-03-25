@@ -280,10 +280,10 @@ class TraceVisualization
     bar_instance.material = material
 
     letter_definition_a = Sketchup.active_model.definitions.add "Letter"
-    success = letter_definition_a.entities.add_3d_text(text, TextAlignLeft, "Arial",true, false, BAR_HEIGHT, 0.0, 0, true, 0.1)
+    success = letter_definition_a.entities.add_3d_text(text, TextAlignLeft, "Arial",true, false, BAR_HEIGHT * 3/4, 0.0, 0, true, 0.1)
     end_normal_vector = curve[curve.count - 1] - curve[curve.count - 2]
     # positions the letter nicely centered along the curve
-    letter_spacing_translation = Geom::Transformation.translation(Geom::Vector3d.new(0, (-BAR_HEIGHT / 3), 0))
+    letter_spacing_translation = Geom::Transformation.translation(Geom::Vector3d.new(-letter_definition_a.bounds.width/2, (-BAR_HEIGHT / 3), 0))
     # rotates the letter correctly so we can map it using rotation_to_local_coordinate_system (must be in XY plane)
     rotationXZ = Geometry.rotation_transformation(Geom::Vector3d.new(1, 0, 0), Geom::Vector3d.new(0, 0, 1), Geom::Point3d.new(0, 0, 0))
     # rotates the letter to point along the bar surface
@@ -301,7 +301,7 @@ class TraceVisualization
 
     # Add second letter, mirrored on the other side of the bar
     letter_definition_b = Sketchup.active_model.definitions.add "Letter"
-    success = letter_definition_b.entities.add_3d_text(text, TextAlignLeft, "Arial",true, false, BAR_HEIGHT, 0.0, 0, true, 0.1)
+    success = letter_definition_b.entities.add_3d_text(text, TextAlignLeft, "Arial",true, false, BAR_HEIGHT * 3/4, 0.0, 0, true, 0.1)
     # mirror text
     rotationXZ = Geometry.rotation_transformation(Geom::Vector3d.new(-1, 0, 0), Geom::Vector3d.new(0, 0, 1), Geom::Point3d.new(0, 0, 0))
     # move text to the other side
