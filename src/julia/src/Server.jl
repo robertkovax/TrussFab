@@ -8,6 +8,9 @@ using MetaGraphs
 using LightGraphs
 using LinearAlgebra
 using Plots
+using Distributed
+
+include("./parameter_optimization.jl")
 
 number_preprocessing(val::Float64) = round(val, digits=5)
 
@@ -66,13 +69,7 @@ function get_simulation_task(g, simulation_duration=5.0)
 
     simulation_task = @task begin
         @info "start simulation $(objectid(current_task()))"
-        simulation_job_future = @spawnat :any try 
-                TrussFab.run_simulation(g, tspan=(0.01, simulation_duration), fps=simulation_fps)
-            catch e
-                if !(e isa InterruptException)
-                    rethrow()
-                end
-            end
+        simulation_job_future = @spawnat :any TrussFab.run_simulation(g, tspan=(0.01, simulation_duration), fps=simulation_fps)
         push!(current_tasks, simulation_job_future)
         solution = fetch(simulation_job_future)
         @info "finished simulation $(objectid(current_task()))"
@@ -133,18 +130,38 @@ function get_user_stats_object(simulation_result, client_ids, client_node_id)
 end
 
 
+function parse_requested_amplitude(client_request_obj)
+    xyz_to_vec(xyz_obj) = [xyz_obj["x"], xyz_obj["y"], xyz_obj["z"]]
+    handle_positions = client_request_obj["mounted_users"][1]["handle_positions"][1]
+    start_pos = xyz_to_vec(handle_positions[1])
+    end_pos = xyz_to_vec(handle_positions[2])
+    return norm(start_pos .- end_pos) / 1000
+end
+
 # --- endpoints ---
 
 function update_model(req::HTTP.Request)
     client_request_obj = JSON.parse(String(req.body))
-
-    @info "updated model"
-
-    abort_all_running_tasks()
     
+    @info "updated model"
+    
+    abort_all_running_tasks()
+
     
     g = TrussFab.import_trussfab_json(client_request_obj)
     client_ids = vertices(g) .|> v -> get_prop(g, v, :id)
+    
+    spring_constant = 7000.0
+    try
+        TrussFab.set_age!(g, 12.0)
+        target_amplitude = parse_requested_amplitude(client_request_obj)
+        @info "starting optimization for target amplitude $(target_amplitude)"
+        spring_constant, error, solution = tweak_amplitude(g, target_amplitude)
+    catch e
+        @warn "amplitude optimization failed: $(sprint(showerror, e))"
+    end
+
+    @info "Spring Constant $(spring_constant)"
     
     # TODO calculate for all age groups
     function get_user_stats(simulation_result)
@@ -158,6 +175,7 @@ function update_model(req::HTTP.Request)
     user_stats_per_age_group = try 
         asyncmap(age -> begin
             g = TrussFab.import_trussfab_json(client_request_obj)
+            TrussFab.set_stiffness!(g, [spring_constant for _ in TrussFab.springs(g)])
             simulation_duration = get_simulation_duration(client_request_obj)
             if age != 3
                 TrussFab.set_age!(g, convert(Float64, age))
@@ -179,9 +197,8 @@ function update_model(req::HTTP.Request)
         end 
     end
 
-
     # TODO Insert Optimization here
-    spring_constants = TrussFab.springs(g) .|> edge -> Dict(get_prop(g, edge, :id) => get_prop(g, edge, :spring_stiffness))
+    spring_constants = [spring_constant for _ in TrussFab.springs(g)]
     
     response_data = Dict(
         "optimized_spring_constants" => spring_constants,
