@@ -22,7 +22,7 @@ class Widget
   def create_image
     # TODO: Make sure that we can use @group here
     #
-    image_position = Geom::Point3d.new(0,0,10.cm)
+    image_position = Geom::Point3d.new(0,0,15.cm)
     image = @group.entities.add_image(
     @image_path,
       image_position,
