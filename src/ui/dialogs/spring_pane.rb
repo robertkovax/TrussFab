@@ -65,7 +65,7 @@ class SpringPane
 
     @visualization_offset = Geom::Vector3d.new(0, 0, 30)
 
-    @widget = nil
+    @widgets = []
   end
 
   # spring / graph manipulation logic:
@@ -147,7 +147,12 @@ class SpringPane
     # Sketchup.active_model.active_view.animation = @animation
     # @period_animation_running = true
     #
-    add_widget(node_id)
+    @widgets.each do |widget|
+      widget.remove
+    end
+    mounted_users.keys.each do |user_node_id|
+      add_widget(user_node_id)
+    end
   end
 
   def add_widget(node_id)
