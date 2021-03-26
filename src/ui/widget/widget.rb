@@ -1,5 +1,6 @@
 class Widget
-  LABEL_HEIGHT = 2
+  attr_reader :position, :current_state
+  LABEL_HEIGHT = 1.5
 
 
   def initialize(position, valid_states, image_path)
@@ -22,7 +23,7 @@ class Widget
   def create_image
     # TODO: Make sure that we can use @group here
     #
-    image_position = Geom::Point3d.new(0,0,20.cm)
+    image_position = Geom::Point3d.new(0,0,15.cm)
     image = @group.entities.add_image(
     @image_path,
       image_position,
@@ -45,7 +46,8 @@ class Widget
       label_definition = Sketchup.active_model.definitions.add "Widget Label #{state}"
       # label_definition.behavior.always_face_camera = true
       entities = label_definition.entities
-      success = entities.add_3d_text(state, TextAlignCenter, "Arial", index == @current_state, false, LABEL_HEIGHT, 0.0, 0, true, 0.1)
+      bold = index == @current_state
+      success = entities.add_3d_text(state, TextAlignCenter, "Arial", bold, false, LABEL_HEIGHT, 0.0, 0, true, 0.1)
 
       rotation = Geometry.rotation_transformation(Geom::Vector3d.new(0, 0, 1), Geom::Vector3d.new(0, -1, 0), Geom::Point3d.new(0, 0, 0))
       internal_translation = Geom::Transformation.translation(Geom::Vector3d.new(0,  0, index * LABEL_HEIGHT * 1.2))
@@ -54,17 +56,13 @@ class Widget
       transform = internal_translation * rotation
 
       instance = parent.entities.add_instance(label_definition, transform)
-      instance.material = index == @current_state ? Sketchup::Color.new(100, 100, 100) : Sketchup::Color.new(230, 230, 230)
+      instance.material = index == @current_state ? Sketchup::Color.new(20, 20, 20) : Sketchup::Color.new(70, 70, 70)
 
       @group.transformation = translation
       group_entities.add_instance(parent, Geom::Transformation.new)
       @instances << instance
 
     end
-    # group_entities.add_observer(MySelectionObserver.new)
-    Sketchup.active_model.selection.add_observer(MySelectionObserver.new do
-      cycle!
-    end)
   end
 
   def cycle!
@@ -72,24 +70,13 @@ class Widget
     update_states
   end
 
+  def remove
+    Sketchup.active_model.active_entities.erase_entities(@group.entities.to_a) if @group && !@group.deleted?
+  end
+
   def update_states
-    @instances.each_with_index do |instance, index|
-      instance.material = index == @current_state ? Sketchup::Color.new(100, 100, 100) : Sketchup::Color.new(230, 230, 230)
-    end
-  end
-end
-
-class MySelectionObserver < Sketchup::SelectionObserver
-  def initialize(&block)
-    @onSelection = block
-  end
-
-  def onSelectionBulkChange(selection)
-    # TODO that's a bit hacky, identifying the group via label but I didn't find another way
-    locked = selection.grep(Sketchup::Group).find_all{|g| g.name == "Widget" }
-    if locked[0]
-      @onSelection.call
-      Sketchup.active_model.selection.clear
-    end
+    remove
+    create_geometry
+    create_image
   end
 end
