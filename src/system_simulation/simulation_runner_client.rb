@@ -7,6 +7,8 @@ require_relative 'animation_data_sample.rb'
 SIMULATION_RUNNER_HOST = "http://#{Configuration::SIMULATION_SERVER_HOST}:#{Configuration::SIMULATION_SERVER_PORT}".freeze
 
 class SimulationRunnerClient
+  @@pending_requests = []
+
   def self.update_model(json_string)
     p "server request: update_model"
 
@@ -14,10 +16,17 @@ class SimulationRunnerClient
     request.headers = {'Content-Type' => 'text/json'}
     request.body = json_string.to_s
 
+    @@pending_requests.map{|req| req.cancel}
+    @@pending_requests = [request]
+
     request.start do |request, response|
-      puts "/update_model successful"
-      json_response = JSON.parse(response.body)
-      yield json_response
+      if response.status_code == 500
+        puts "server error 500, pls check the julia console"
+      else
+        puts "/update_model successful"
+        json_response = JSON.parse(response.body)
+        yield json_response
+      end
     end
   end
 
