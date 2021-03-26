@@ -1,4 +1,5 @@
 class Widget
+  attr_reader :position
   LABEL_HEIGHT = 1.5
 
 
@@ -62,10 +63,6 @@ class Widget
       @instances << instance
 
     end
-    # group_entities.add_observer(MySelectionObserver.new)
-    Sketchup.active_model.selection.add_observer(MySelectionObserver.new do
-      cycle!
-    end)
   end
 
   def cycle!
@@ -81,20 +78,5 @@ class Widget
     remove
     create_geometry
     create_image
-  end
-end
-
-class MySelectionObserver < Sketchup::SelectionObserver
-  def initialize(&block)
-    @onSelection = block
-  end
-
-  def onSelectionBulkChange(selection)
-    # TODO that's a bit hacky, identifying the group via label but I didn't find another way
-    locked = selection.grep(Sketchup::Group).find_all{|g| g.name == "Widget" }
-    if locked[0]
-      @onSelection.call
-      Sketchup.active_model.selection.clear
-    end
   end
 end

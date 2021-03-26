@@ -9,7 +9,7 @@ require 'src/ui/widget/widget.rb'
 
 # Ruby integration for spring insights dialog
 class SpringPane
-  attr_accessor :force_vectors, :trace_visualization, :spring_hinges, :spring_edges
+  attr_accessor :force_vectors, :trace_visualization, :spring_hinges, :spring_edges, :widgets
   INSIGHTS_HTML_FILE = '../spring-pane/index.erb'.freeze
   DEFAULT_STATS = { 'period' => Float::NAN,
                     'max_acceleration' => { 'value' => Float::NAN, 'index' => -1 },
@@ -161,10 +161,8 @@ class SpringPane
     midpoint = Geometry.midpoint(movement_curve[0], movement_curve[-1])
     vector_along_curve = (midpoint - movement_curve[0]).normalize!
 
-    @widgets = [
-      Widget.new(midpoint + Geometry.scale(vector_along_curve, 7) + Geom::Vector3d.new(0, 0, 150.mm), ["easy", "medium", "hard"], Configuration::WIDGET_DIFFICULTY_PATH),
-      Widget.new(midpoint + Geometry.scale(vector_along_curve, -7) +Geom::Vector3d.new(0, 0, 150.mm), ["slow", "comfortable", "fast"], Configuration::WIDGET_TEMPO_PATH)
-    ]
+    @widgets << Widget.new(midpoint + Geometry.scale(vector_along_curve, 7) + Geom::Vector3d.new(0, 0, 150.mm), ["easy", "medium", "hard"], Configuration::WIDGET_DIFFICULTY_PATH)
+    @widgets << Widget.new(midpoint + Geometry.scale(vector_along_curve, -7) +Geom::Vector3d.new(0, 0, 150.mm), ["slow", "comfortable", "fast"], Configuration::WIDGET_TEMPO_PATH)
   end
 
   def update_bode_diagram
