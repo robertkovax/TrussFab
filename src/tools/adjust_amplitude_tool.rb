@@ -13,7 +13,7 @@ class AdjustAmplitudeTool < Tool
 
     # Detect widgets
     position = @mouse_input.update_positions(view, x, y)
-    closest_widget = @ui.spring_pane.widgets.min_by { |widget| position.distance(widget.position)}
+    closest_widget = @ui.spring_pane.widgets.values.flatten.min_by { |widget| position.distance(widget.position)}
     puts closest_widget.position.distance(position)
     if closest_widget.position.distance(position) < 10.cm
       closest_widget.cycle!
@@ -43,7 +43,7 @@ class AdjustAmplitudeTool < Tool
     @mouse_down = false
     update(view, x, y)
 
-    TrussFab.get_spring_pane.notify_model_changed
+    TrussFab.get_spring_pane.notify_model_changed amplitude_tweak: true
   end
 
   def update(view, x, y)

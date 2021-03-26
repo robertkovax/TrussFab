@@ -65,7 +65,7 @@ class SpringPane
 
     @visualization_offset = Geom::Vector3d.new(0, 0, 30)
 
-    @widgets = []
+    @widgets = {}
   end
 
   # spring / graph manipulation logic:
@@ -137,7 +137,6 @@ class SpringPane
       puts "No user stats for node #{node_id}"
       # return
     end
-    Sketchup.active_model.commit_operation
     # TODO check if this still works with multiple age groups
     # @animation = PeriodAnimation.new(@simulation_data, @user_stats.values[0][node_id.to_s]['period'], node_id) do
     #   @period_animation_running = false
@@ -147,22 +146,24 @@ class SpringPane
     # Sketchup.active_model.active_view.animation = @animation
     # @period_animation_running = true
     #
-    @widgets.each do |widget|
-      widget.remove
+    @widgets.values.each do |widgets|
+      widgets.each(&:remove)
     end
     mounted_users.keys.each do |user_node_id|
       add_widget(user_node_id)
     end
+    Sketchup.active_model.commit_operation
   end
 
   def add_widget(node_id)
     movement_curve = @trace_visualization.handles[node_id][0].movement_curve
-    puts movement_curve
     midpoint = Geometry.midpoint(movement_curve[0], movement_curve[-1])
     vector_along_curve = (midpoint - movement_curve[0]).normalize!
 
-    @widgets << Widget.new(midpoint + Geometry.scale(vector_along_curve, 7) + Geom::Vector3d.new(0, 0, 150.mm), ["easy", "medium", "hard"], Configuration::WIDGET_DIFFICULTY_PATH)
-    @widgets << Widget.new(midpoint + Geometry.scale(vector_along_curve, -7) +Geom::Vector3d.new(0, 0, 150.mm), ["slow", "comfortable", "fast"], Configuration::WIDGET_TEMPO_PATH)
+    @widgets[node_id] = [
+      Widget.new(midpoint + Geometry.scale(vector_along_curve, 7) + Geom::Vector3d.new(0, 0, 150.mm), ["easy", "medium", "hard"], Configuration::WIDGET_DIFFICULTY_PATH),
+      Widget.new(midpoint + Geometry.scale(vector_along_curve, -7) +Geom::Vector3d.new(0, 0, 150.mm), ["slow", "comfortable", "fast"], Configuration::WIDGET_TEMPO_PATH)
+    ]
   end
 
   def update_bode_diagram
@@ -262,7 +263,7 @@ class SpringPane
     Sketchup.active_model.commit_operation
   end
 
-  def notify_model_changed
+  def notify_model_changed(amplitude_tweak: false)
     p "Model was changed."
     # Reset what ever needs to be reset as soon as the model changed.
     if @animation && @animation.running
@@ -270,7 +271,7 @@ class SpringPane
       @animation_running = false
     end
 
-    simulate
+    simulate amplitude_tweak: amplitude_tweak
   end
 
   def mounted_users
@@ -384,9 +385,9 @@ class SpringPane
   end
 
   # compilation / simulation logic
-  def simulate
+  def simulate(amplitude_tweak: false)
     Sketchup.active_model.start_operation('compile simulation', true)
-    SimulationRunnerClient.update_model(JsonExport.graph_to_json(nil, [], @simulation_duration)) do |json_response|
+    SimulationRunnerClient.update_model(JsonExport.graph_to_json(nil, [], @simulation_duration, amplitude_tweak: amplitude_tweak)) do |json_response|
       simulation_results = json_response["simulation_results"]
       @simulation_data = Hash.new
       @user_stats = Hash.new

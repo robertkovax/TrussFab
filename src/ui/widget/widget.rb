@@ -1,5 +1,5 @@
 class Widget
-  attr_reader :position
+  attr_reader :position, :current_state
   LABEL_HEIGHT = 1.5
 
 
