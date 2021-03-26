@@ -69,17 +69,17 @@ module ProjectHelper
       if Configuration::SIMULATION_SERVER_HOST == "localhost"
         simulation_start_script = File.join(Dir.pwd, "src", "julia", "start.jl")
         if ENV['OS'] == 'Windows_NT'
-          command = "start \"Trusscillator Simulation Server\" \"#{ENV['APPDATA']}\\..\\Local\\Programs\\Julia 1.5.3\\bin\\julia.exe\" #{simulation_start_script} #{port}"
+          command = "start \"Trusscillator Simulation Server\" \"#{ENV['APPDATA']}\\..\\Local\\Programs\\Julia 1.5.3\\bin\\julia.exe\" --threads 10 #{simulation_start_script} #{port}"
           # for pasting directly in a Windows Terminal use this command (work directory := project root):
           # & "$env:APPDATA\..\Local\Programs\Julia 1.5.3\bin\julia.exe" src/julia/start.jl 8085"
           p command
         else
           # we assume, we are on macOS
           command = "osascript -e \'tell app \"Terminal\"
-              do script \"julia #{simulation_start_script} #{port}\"
+              do script \"julia --threads 10 #{simulation_start_script} #{port}\"
             end tell\'"
         end
-        IO.popen({'JULIA_NUM_THREADS' => '8'}, command)
+        IO.popen(command)
       else
         p "The Simulation Server at #{host}:#{port} is not reachable. TrussFab did not try to spin up the server automatically as the host was sth other than localhost"
       end

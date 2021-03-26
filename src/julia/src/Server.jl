@@ -17,7 +17,9 @@ number_preprocessing(val::Float64) = round(val, digits=5)
 ROUTER = HTTP.Router()
 
 simulation_fps = 30
+current_futures = []
 current_tasks = []
+current_request_handler = @async ""
 age_groups = [3, 6, 12]
 
 function plot_spectrum(sol, vertex_id, display_node_id, age)
@@ -34,23 +36,35 @@ function show_user_fft(g, sol, age)
     display(plot(fft_plots..., layout=(length(users),1)))
 end
 
-
 # --- Task Management & Helpers ---
 function abort_all_running_tasks()
+    global current_futures
     global current_tasks
+    global current_request_handler
+
+    if !istaskdone(current_request_handler)
+        schedule(current_request_handler, InterruptException(), error=true)
+        fetch(current_request_handler)
+    end
+    
+    while !isempty(current_tasks)
+        task::Task = pop!(current_tasks)
+        if !istaskdone(task)
+            schedule(task, InterruptException(), error=true)
+            fetch(task)
+        end
+    end
 
     # abort current simulation to free system ressources and obtain lock
-    while !isempty(current_tasks)
-        future::Future = pop!(current_tasks)
-        if !isready(future)
-            @warn "interrupt worker $(future.where)"
-            interrupt(future.where)
-            try
-                fetch(future)
-            catch e
-                if !(e isa InterruptException)
-                    rethrow()
-                end
+    while !isempty(current_futures)
+        future::Future = pop!(current_futures)
+        @warn "interrupt worker $(future.where)"
+        try
+            @spawnat future.where throw(InterruptException())
+            fetch(future)
+        catch e
+            if !(e isa InterruptException)
+                rethrow()
             end
         end
     end
@@ -65,16 +79,19 @@ function get_simulation_duration(client_request_obj)
 end
 
 function get_simulation_task(g, simulation_duration=5.0)
+    global current_futures
     global current_tasks
 
     simulation_task = @task begin
         @info "start simulation $(objectid(current_task()))"
         simulation_job_future = @spawnat :any TrussFab.run_simulation(g, tspan=(0.01, simulation_duration), fps=simulation_fps)
-        push!(current_tasks, simulation_job_future)
+        push!(current_futures, simulation_job_future)
         solution = fetch(simulation_job_future)
         @info "finished simulation $(objectid(current_task()))"
         return solution
     end
+
+    push!(current_tasks, simulation_task)
 
     return simulation_task
 end
@@ -141,70 +158,68 @@ end
 # --- endpoints ---
 
 function update_model(req::HTTP.Request)
-    client_request_obj = JSON.parse(String(req.body))
-    
-    @info "updated model"
-    
-    abort_all_running_tasks()
-
-    
-    g = TrussFab.import_trussfab_json(client_request_obj)
-    client_ids = vertices(g) .|> v -> get_prop(g, v, :id)
-    
-    spring_constant = 7000.0
     try
-        TrussFab.set_age!(g, 12.0)
-        target_amplitude = parse_requested_amplitude(client_request_obj)
-        @info "starting optimization for target amplitude $(target_amplitude)"
-        spring_constant, error, solution = tweak_amplitude(g, target_amplitude)
-    catch e
-        @warn "amplitude optimization failed: $(sprint(showerror, e))"
-    end
-
-    @info "Spring Constant $(spring_constant)"
-    
-    # TODO calculate for all age groups
-    function get_user_stats(simulation_result)
-        return Dict(
-            "data" => simulation_result_to_custom_table_array(simulation_result, client_ids),
-            # c_id := client_node_id
-            "user_stats" => Dict(user["id"] => get_user_stats_object(simulation_result, client_ids, user["id"]) for user in client_request_obj["mounted_users"])
-            )
-        end
+        global current_request_handler
+        client_request_obj = JSON.parse(String(req.body))
         
-    user_stats_per_age_group = try 
-        asyncmap(age -> begin
+        abort_all_running_tasks()
+        yield()
+        
+        @info "updated model"
+        current_request_handler = current_task()
+	    
+	    g = TrussFab.import_trussfab_json(client_request_obj)
+	    client_ids = vertices(g) .|> v -> get_prop(g, v, :id)
+	    
+	    spring_constant = 7000.0
+	    try
+	        TrussFab.set_age!(g, 12.0)
+	        target_amplitude = parse_requested_amplitude(client_request_obj)
+	        @info "starting optimization for target amplitude $(target_amplitude)"
+	        spring_constant, error, solution = tweak_amplitude(g, target_amplitude)
+	    catch e
+	        @warn "amplitude optimization failed: $(sprint(showerror, e))"
+	    end
+
+	    @info "Spring Constant $(spring_constant)"
+	            
+        g = TrussFab.import_trussfab_json(client_request_obj)
+        client_ids = vertices(g) .|> v -> get_prop(g, v, :id)
+        
+        spring_constants = TrussFab.springs(g) .|> edge -> Dict(get_prop(g, edge, :id) => get_prop(g, edge, :spring_stiffness))
+        
+        function get_user_stats(simulation_result)
+            return Dict(
+                "data" => simulation_result_to_custom_table_array(simulation_result, client_ids),
+                "user_stats" => Dict(user["id"] => get_user_stats_object(simulation_result, client_ids, user["id"]) for user in client_request_obj["mounted_users"])
+                )
+        end
+
+        user_stats_per_age_group = asyncmap(age -> begin
             g = TrussFab.import_trussfab_json(client_request_obj)
-            TrussFab.set_stiffness!(g, [spring_constant for _ in TrussFab.springs(g)])
+            TrussFab.set_stiffness!(g, convert(Array{Float64}, [spring_constant for _ in TrussFab.springs(g)]))
             simulation_duration = get_simulation_duration(client_request_obj)
             if age != 3
                 TrussFab.set_age!(g, convert(Float64, age))
             end
             task = get_simulation_task(g, simulation_duration)
-            schedule(task)
+            schedule(task, nothing, error=true)
             sim_result = fetch(task)
-            if age == 3
-                show_user_fft(g, sim_result, age)
-            end
             get_user_stats(sim_result)
         end, age_groups, ntasks=3)
-    catch e
-        if e isa TaskFailedException && e.task.exception isa InterruptException
-            @warn "simulation aborted $(objectid(e.task))"
-            return HTTP.Response(500)
-        else
-            rethrow()
-        end 
-    end
 
-    # TODO Insert Optimization here
-    spring_constants = [spring_constant for _ in TrussFab.springs(g)]
-    
-    response_data = Dict(
-        "optimized_spring_constants" => spring_constants,
-        "simulation_results" => Dict(zip(age_groups, user_stats_per_age_group))
-    )
-    return HTTP.Response(200, JSON.json(response_data))
+	    spring_constants = [spring_constant for _ in TrussFab.springs(g)]
+
+        response_data = Dict(
+            "optimized_spring_constants" => spring_constants,
+            "simulation_results" => Dict(zip(age_groups, user_stats_per_age_group))
+        )
+
+        return HTTP.Response(200, JSON.json(response_data))
+    catch e
+        @warn sprint(showerror, e)
+        return HTTP.Response(500)
+    end
 end
 HTTP.register!(ROUTER, "POST", "/update_model", update_model)
 
