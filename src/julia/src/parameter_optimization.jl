@@ -21,7 +21,7 @@ function tweak_amplitude(g, target_length)
     println(amplitudes)
     # discarding lengths that are outside the sampled space
     if target_length < minimum(amplitudes) || target_length > maximum(amplitudes)
-        @warn "requested amplitude is outside the achivable lengths"
+        throw(ErrorException("requested amplitude is outside the achievable range"))
     end
     
     
