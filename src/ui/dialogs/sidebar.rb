@@ -130,6 +130,7 @@ class Sidebar
     build_tool(PIDControllerTool, 'pid_controller_tool')
     build_tool(AssetsUserTool, 'assets_user_tool')
     build_tool(AdjustAmplitudeTool, 'adjust_amplitude_tool')
+    build_tool(AnimationTool, 'animation_tool')
   end
 
   def build_tool(tool_class, tool_id)

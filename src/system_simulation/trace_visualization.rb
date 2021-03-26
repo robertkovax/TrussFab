@@ -5,9 +5,9 @@ require_relative '../sketchup_objects/amplitude_handle'
 # Simulate data samples of a system simulation by plotting a trace consisting of transparent circles into the scene.
 class TraceVisualization
   attr_reader :handles
-  BAR_HEIGHT = 1.5
-  LETTER_OFFSET = 1
-  BAR_COLORS = [Sketchup::Color.new(47, 72, 94, 150), Sketchup::Color.new(37, 113, 181, 150), Sketchup::Color.new(114, 174, 227, 150)].freeze
+  BAR_HEIGHT = 5.0
+  Z_FIGHTING_OFFSET = 0.5
+  BAR_COLORS = [Sketchup::Color.new(47, 72, 94, 150), Sketchup::Color.new(37, 113, 181, 150), Sketchup::Color.new(114, 174, 227, 150)].reverse.freeze
 
   def initialize(visualization_offset: Geom::Vector3d.new(0, 0, 30))
     # Group containing trace circles.
@@ -26,6 +26,7 @@ class TraceVisualization
 
     @visualization_offset = visualization_offset
     @handles = {} #node_id to handles [handle_one, handle_two]
+    @bars = {} #age_id to ComponentInstance
   end
 
   def add_bars(node_ids, sampling_rate, data, user_stats)
@@ -59,6 +60,7 @@ class TraceVisualization
     @handles.each { |_, handles| handles.each(&:delete)}
     @trace_points = []
     @visualizations = []
+    @bars = {}
 
     @max_acceleration_label.erase! if @max_acceleration_label && @max_acceleration_label.valid?
   end
@@ -83,6 +85,15 @@ class TraceVisualization
       }
     end
     }
+  end
+
+  # returns age or nil if face was not found
+  def get_age_for_face(face)
+    matched_age = nil
+    @bars.each do |age, instance|
+      matched_age = age if instance.definition.entities.grep(Sketchup::Face).include?(face)
+    end
+    matched_age
   end
 
   private
@@ -215,18 +226,20 @@ class TraceVisualization
     # plot curve connecting all data points
     @group = Sketchup.active_model.entities.add_group if @group.deleted?
     entities = @group.entities
-    entities.add_curve(offsetted_curve_points)
-    entities.each do |entity|
-      entity.layer = circle_trace_layer
-    end
+    # entities.add_curve(offsetted_curve_points)
+    # entities.each do |entity|
+    #   entity.layer = circle_trace_layer
+    # end
     # TODO somehow the edges of the interval are off
     @swipe_group = Sketchup.active_model.entities.add_group if @swipe_group.nil? || @swipe_group.deleted?
-    draw_swipe @swipe_group.entities, offsetted_curve_points[start_index + 2..end_index - 2], BAR_COLORS[bar_index % BAR_COLORS.count] , age_text
+    instance = draw_bar @swipe_group.entities, offsetted_curve_points[start_index..end_index], BAR_COLORS[bar_index % BAR_COLORS.count] , age_text
+    @bars[age_text] = instance
 
     add_handles(offsetted_curve_points[start_index..end_index], node_id.to_i, @swipe_group) if add_handles
   end
 
-  def draw_swipe(group_entities, curve, color, text)
+  # draws a swipe, adds text and returns the component instance of the swipe
+  def draw_bar(group_entities, curve, color, text)
     curve_plane =  Geom.fit_plane_to_points(curve)
     curve_plane = Geometry.normalize_plane(curve_plane) if curve_plane.count == 4
     curve_plane_normal = curve_plane[1].normalize
@@ -234,7 +247,7 @@ class TraceVisualization
     bar_definition = Sketchup.active_model.definitions.add "Circle Trace Visualization"
     entities = bar_definition.entities
     # TODO duplicate
-    depth = BAR_HEIGHT * 2
+    depth = BAR_HEIGHT * 3
     width = BAR_HEIGHT
     pts = []
     pts[0] = Geom::Point3d.new(-depth / 2, 0, -width / 2)
@@ -253,7 +266,9 @@ class TraceVisualization
 
     face = entities.add_face(pts)
 
-    edges = entities.add_curve(curve)
+    edges = entities.add_curve(curve[0..-2])
+    # hide curve, only use it as followme
+    edges.each { |e| e.hidden = true }
     face.followme(edges)
 
     bar_instance = group_entities.add_instance(bar_definition, Geom::Transformation.new)
@@ -264,21 +279,38 @@ class TraceVisualization
 
     bar_instance.material = material
 
-    letter_definition = Sketchup.active_model.definitions.add "Letter"
-    success = letter_definition.entities.add_3d_text(text, TextAlignLeft, "Arial",true, false, BAR_HEIGHT, 0.0, 0, true, 0.1)
+    letter_definition_a = Sketchup.active_model.definitions.add "Letter"
+    success = letter_definition_a.entities.add_3d_text(text, TextAlignLeft, "Arial",true, false, BAR_HEIGHT * 3/4, 0.0, 0, true, 0.1)
     end_normal_vector = curve[curve.count - 1] - curve[curve.count - 2]
     # positions the letter nicely centered along the curve
-    letter_spacing_translation = Geom::Transformation.translation(Geom::Vector3d.new(LETTER_OFFSET, -BAR_HEIGHT / 2, 0))
-    # rotates the letter correclty so we can map it using rotation_to_local_coordinate_system (must be in XY plane)
+    letter_spacing_translation = Geom::Transformation.translation(Geom::Vector3d.new(-letter_definition_a.bounds.width/2, (-BAR_HEIGHT / 3), 0))
+    # rotates the letter correctly so we can map it using rotation_to_local_coordinate_system (must be in XY plane)
     rotationXZ = Geometry.rotation_transformation(Geom::Vector3d.new(1, 0, 0), Geom::Vector3d.new(0, 0, 1), Geom::Point3d.new(0, 0, 0))
     # rotates the letter to point along the bar surface
-    rotation = Geometry.rotation_to_local_coordinate_system(curve_plane_normal, Geom::Vector3d.new(0, 0, 1))
-    translation = Geom::Transformation.translation(curve[curve.count - 1])
+    rotation = Geometry.rotation_to_local_coordinate_system(curve_plane_normal.reverse, Geom::Vector3d.new(0, 0, 1))
+
+    start_to_end = curve[-1] - curve[0]
+    start_to_end.length = start_to_end.length / 2
+    center = curve[0] + start_to_end
+    closest = curve.min_by {|point| point.distance(center)}
+
+    translation = Geom::Transformation.translation(closest.offset(curve_plane_normal, (BAR_HEIGHT * 3)/2 + Z_FIGHTING_OFFSET))
     transform = Geom::Transformation.new translation * rotation * rotationXZ * letter_spacing_translation
+    letter_instance = group_entities.add_instance(letter_definition_a, transform)
+    letter_instance.material = Sketchup::Color.new(0,0,0)
 
-    letter_instance = group_entities.add_instance(letter_definition, transform)
-    letter_instance.material = material
+    # Add second letter, mirrored on the other side of the bar
+    letter_definition_b = Sketchup.active_model.definitions.add "Letter"
+    success = letter_definition_b.entities.add_3d_text(text, TextAlignLeft, "Arial",true, false, BAR_HEIGHT * 3/4, 0.0, 0, true, 0.1)
+    # mirror text
+    rotationXZ = Geometry.rotation_transformation(Geom::Vector3d.new(-1, 0, 0), Geom::Vector3d.new(0, 0, 1), Geom::Point3d.new(0, 0, 0))
+    # move text to the other side
+    translation = Geom::Transformation.translation(closest.offset(curve_plane_normal, -(BAR_HEIGHT * 3)/2 - Z_FIGHTING_OFFSET))
+    transform = Geom::Transformation.new translation * rotation * rotationXZ * letter_spacing_translation
+    letter_instance = group_entities.add_instance(letter_definition_b, transform)
+    letter_instance.material = Sketchup::Color.new(0,0,0)
 
+    bar_instance
   end
 
   # analyzes the simulation data for certain criterions
