@@ -28,6 +28,7 @@ class TraceVisualization
     @handles = {} #node_id to handles [handle_one, handle_two]
     @bars = {} #age_id to ComponentInstance
     @swipe_groups = {}
+    @letter_groups = {}
   end
 
   def add_bars(node_ids, sampling_rate, data, user_stats)
@@ -62,9 +63,13 @@ class TraceVisualization
     @swipe_groups.values.each do |group|
       Sketchup.active_model.active_entities.erase_entities(group.entities.to_a) if group && !group.deleted?
     end
+    @letter_groups.values.each do |group|
+      Sketchup.active_model.active_entities.erase_entities(group.entities.to_a) if group && !group.deleted?
+    end
     Sketchup.active_model.active_entities.erase_entities(@trace_points) if @trace_points.count > 0
 
     @swipe_groups = {}
+    @letter_groups = {}
     @handles.each { |_, handles| handles.each(&:delete)}
     @trace_points = []
     @visualizations = []
@@ -241,9 +246,10 @@ class TraceVisualization
     # end
     # TODO somehow the edges of the interval are off
     @swipe_groups[node_id] = Sketchup.active_model.entities.add_group if !@swipe_groups[node_id] || @swipe_groups[node_id].deleted?
+    @letter_groups[node_id] = Sketchup.active_model.entities.add_group if !@letter_groups[node_id] || @letter_groups[node_id].deleted?
     instance = nil
     if trace_analyzation[:is_planar]
-      instance = draw_bar @swipe_groups[node_id].entities, offsetted_curve_points[start_index..end_index], BAR_COLORS[bar_index % BAR_COLORS.count] , age_text
+      instance = draw_bar @swipe_groups[node_id].entities, @letter_groups[node_id].entities, offsetted_curve_points[start_index..end_index], BAR_COLORS[bar_index % BAR_COLORS.count] , age_text
     else
       instance = draw_swipe @swipe_groups[node_id].entities, offsetted_curve_points, BAR_COLORS[bar_index % BAR_COLORS.count] , age_text
     end
@@ -253,7 +259,7 @@ class TraceVisualization
   end
 
   # draws a bar, adds text and returns the component instance of the swipe
-  def draw_bar(group_entities, curve, color, text)
+  def draw_bar(bar_entities, letter_entities, curve, color, text)
     curve_plane =  Geom.fit_plane_to_points(curve)
     curve_plane = Geometry.normalize_plane(curve_plane) if curve_plane.count == 4
     curve_plane_normal = curve_plane[1].normalize
@@ -284,7 +290,7 @@ class TraceVisualization
     edges.each { |e| e.hidden = true }
     face.followme(edges)
 
-    bar_instance = group_entities.add_instance(bar_definition, Geom::Transformation.new)
+    bar_instance = bar_entities.add_instance(bar_definition, Geom::Transformation.new)
 
     material = Sketchup.active_model.materials.add("VisualizationColor ")
     material.color = color
@@ -309,7 +315,7 @@ class TraceVisualization
 
     translation = Geom::Transformation.translation(closest.offset(curve_plane_normal, (BAR_HEIGHT * 3)/2 + Z_FIGHTING_OFFSET))
     transform = Geom::Transformation.new translation * rotation * rotationXZ * letter_spacing_translation
-    letter_instance = group_entities.add_instance(letter_definition_a, transform)
+    letter_instance = letter_entities.add_instance(letter_definition_a, transform)
     letter_instance.material = Sketchup::Color.new(0,0,0)
 
     # Add second letter, mirrored on the other side of the bar
@@ -320,7 +326,7 @@ class TraceVisualization
     # move text to the other side
     translation = Geom::Transformation.translation(closest.offset(curve_plane_normal, -(BAR_HEIGHT * 3)/2 - Z_FIGHTING_OFFSET))
     transform = Geom::Transformation.new translation * rotation * rotationXZ * letter_spacing_translation
-    letter_instance = group_entities.add_instance(letter_definition_b, transform)
+    letter_instance = letter_entities.add_instance(letter_definition_b, transform)
     letter_instance.material = Sketchup::Color.new(0,0,0)
 
     bar_instance
