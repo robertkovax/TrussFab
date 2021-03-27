@@ -33,12 +33,17 @@ class TraceVisualization
   def add_bars(node_ids, sampling_rate, data, user_stats)
     reset_trace
     @simulation_data = data
-    @simulation_data.each do |age, simulation_data|
+
+    node_ids.each do |node_id|
+
+      # Analyze only trace of 12 years old
+      trace_analyzation = analyze_trace(node_id, @simulation_data["12"])
+      p "Planarity check: #{trace_analyzation[:is_planar]}"
+      @simulation_data.each do |age, simulation_data|
       index = @simulation_data.keys.index(age)
-      node_ids.each do |node_id|
-        # TODO: Don't hardcode this
+        # TODO: Don't hardcode the age of the handles to be 12
         add_handles =  age == "12"
-        add_bar(node_id, sampling_rate, user_stats[age][node_id], simulation_data, index, age, add_handles: add_handles)
+        add_bar(node_id, sampling_rate, user_stats[age][node_id], simulation_data, index, age, add_handles: add_handles, trace_analyzation: trace_analyzation)
       end
     end
 
@@ -117,7 +122,7 @@ class TraceVisualization
     handle
   end
 
-  def add_bar(node_id, _sampling_rate, stats, simulation_data, bar_index, age_text, add_handles: false)
+  def add_bar(node_id, _sampling_rate, stats, simulation_data, bar_index, age_text, add_handles: false, trace_analyzation: trace_analyzation)
     period = stats['period']
     period ||= 3.0
     start_index = stats['largest_amplitude']['start']
@@ -131,7 +136,6 @@ class TraceVisualization
     @visualizations = []
     offsetted_curve_points = []
 
-    trace_analyzation = (analyze_trace node_id, start_index, end_index, simulation_data)
     # max_distance = trace_analyzation[:max_distance]
     # TODO renable planar check
     # Plot dots for either the period or a certain time span, if oscillation is not planar
@@ -236,13 +240,11 @@ class TraceVisualization
     # TODO somehow the edges of the interval are off
     @swipe_groups[node_id] = Sketchup.active_model.entities.add_group if !@swipe_groups[node_id] || @swipe_groups[node_id].deleted?
     instance = nil
-    p trace_analyzation[:is_planar]
     if trace_analyzation[:is_planar]
       instance = draw_bar @swipe_groups[node_id].entities, offsetted_curve_points[start_index..end_index], BAR_COLORS[bar_index % BAR_COLORS.count] , age_text
     else
       instance = draw_swipe @swipe_groups[node_id].entities, offsetted_curve_points, BAR_COLORS[bar_index % BAR_COLORS.count] , age_text
     end
-    instance = draw_bar @swipe_groups[node_id].entities, offsetted_curve_points[start_index..end_index], BAR_COLORS[bar_index % BAR_COLORS.count] , age_text
     @bars[age_text] = instance
 
     add_handles(offsetted_curve_points[start_index..end_index], node_id.to_i, @swipe_groups[node_id]) if add_handles
@@ -347,18 +349,18 @@ class TraceVisualization
   end
 
   # analyzes the simulation data for certain criterions
-  def analyze_trace(node_id, start_index, end_index, simulation_data)
-    last_position = simulation_data[start_index].position_data[node_id]
+  def analyze_trace(node_id, simulation_data)
+    last_position = simulation_data[0].position_data[node_id]
     max_distance = 0
     is_planar = true
-    plane = Geom.fit_plane_to_points([last_position, simulation_data[1].position_data[node_id],
+    plane = Geom.fit_plane_to_points([simulation_data[-1].position_data[node_id], simulation_data[1].position_data[node_id],
                                       simulation_data[2].position_data[node_id]])
-    (start_index..end_index).each do | index |
+    (0...simulation_data.length).each do | index |
       current_data_sample = simulation_data[index]
       position = current_data_sample.position_data[node_id]
       distance_to_last = position.distance(last_position)
       max_distance = distance_to_last if distance_to_last > max_distance
-      is_planar = position.distance_to_plane(plane) < Configuration::DISTANCE_TO_PLANE_THRESHOLD
+      is_planar &= position.distance_to_plane(plane) < Configuration::DISTANCE_TO_PLANE_THRESHOLD
       last_position = position
     end
     {max_distance: max_distance, is_planar: is_planar}

@@ -172,7 +172,7 @@ module Configuration
   DISTANCE_TO_INSET_ROTARY_HUBS = 65.mm
   # Trace visualization constants:
   # Delta of oscillation positions to plane that still counts as planar.
-  DISTANCE_TO_PLANE_THRESHOLD = 3.0
+  DISTANCE_TO_PLANE_THRESHOLD = 30.mm
   # What duration the trace visualization should span if the oscillation is not planar, in seconds.
   NON_PLANAR_TRACE_DURATION = 10
   # Show fancy oscillation animation when placing springs, will lead to crashes though.
