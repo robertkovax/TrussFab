@@ -332,13 +332,14 @@ class TraceVisualization
     edges.each { |e| e.hidden = true }
     face.followme(edges)
 
-    bar_instance = group_entities.add_instance(bar_definition, Geom::Transformation.new)
+    swipe_instance = group_entities.add_instance(bar_definition, Geom::Transformation.new)
 
     material = Sketchup.active_model.materials.add("VisualizationColor ")
     material.color = color
     material.alpha = 0.8
 
-    bar_instance.material = material
+    swipe_instance.material = material
+    swipe_instance
   end
 
   # analyzes the simulation data for certain criterions
