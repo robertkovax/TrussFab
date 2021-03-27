@@ -131,7 +131,7 @@ class TraceVisualization
     @visualizations = []
     offsetted_curve_points = []
 
-    # trace_analyzation = (analyze_trace node_id, start_index, end_index, simulation_data)
+    trace_analyzation = (analyze_trace node_id, start_index, end_index, simulation_data)
     # max_distance = trace_analyzation[:max_distance]
     # TODO renable planar check
     # Plot dots for either the period or a certain time span, if oscillation is not planar
@@ -235,13 +235,20 @@ class TraceVisualization
     # end
     # TODO somehow the edges of the interval are off
     @swipe_groups[node_id] = Sketchup.active_model.entities.add_group if !@swipe_groups[node_id] || @swipe_groups[node_id].deleted?
+    instance = nil
+    p trace_analyzation[:is_planar]
+    if trace_analyzation[:is_planar]
+      instance = draw_bar @swipe_groups[node_id].entities, offsetted_curve_points[start_index..end_index], BAR_COLORS[bar_index % BAR_COLORS.count] , age_text
+    else
+      instance = draw_swipe @swipe_groups[node_id].entities, offsetted_curve_points, BAR_COLORS[bar_index % BAR_COLORS.count] , age_text
+    end
     instance = draw_bar @swipe_groups[node_id].entities, offsetted_curve_points[start_index..end_index], BAR_COLORS[bar_index % BAR_COLORS.count] , age_text
     @bars[age_text] = instance
 
     add_handles(offsetted_curve_points[start_index..end_index], node_id.to_i, @swipe_groups[node_id]) if add_handles
   end
 
-  # draws a swipe, adds text and returns the component instance of the swipe
+  # draws a bar, adds text and returns the component instance of the swipe
   def draw_bar(group_entities, curve, color, text)
     curve_plane =  Geom.fit_plane_to_points(curve)
     curve_plane = Geometry.normalize_plane(curve_plane) if curve_plane.count == 4
@@ -313,6 +320,30 @@ class TraceVisualization
     letter_instance.material = Sketchup::Color.new(0,0,0)
 
     bar_instance
+  end
+
+  # TODO factor out logic shared with draw_plot
+  def draw_swipe(group_entities, curve, color, text)
+    bar_definition = Sketchup.active_model.definitions.add "Circle Trace Visualization"
+    entities = bar_definition.entities
+    profile_normal = (curve[1] - curve[0]).normalize
+
+    edgearray = entities.add_circle curve[0], profile_normal, 1, 10
+    face = entities.add_face(edgearray)
+
+    edges = entities.add_curve(curve[0..-2])
+    # hide curve, only use it as followme
+    edges.each { |e| e.hidden = true }
+    face.followme(edges)
+
+    swipe_instance = group_entities.add_instance(bar_definition, Geom::Transformation.new)
+
+    material = Sketchup.active_model.materials.add("VisualizationColor ")
+    material.color = color
+    material.alpha = 0.8
+
+    swipe_instance.material = material
+    swipe_instance
   end
 
   # analyzes the simulation data for certain criterions
