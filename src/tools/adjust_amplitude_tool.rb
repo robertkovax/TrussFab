@@ -26,7 +26,7 @@ class AdjustAmplitudeTool < Tool
     puts "Selected #{@selected_handle}"
     distance_to_handle = @selected_handle.position.distance(position)
     puts "Distance to selected handle: #{distance_to_handle}"
-    return if distance_to_handle > 10.cm
+    return if distance_to_handle > 20.cm
 
     @mouse_down = true
 
@@ -54,24 +54,9 @@ class AdjustAmplitudeTool < Tool
 
     @end_position = @mouse_input.position
     handle_position =
-      find_closest_on_curve(@mouse_input.position, @selected_handle.movement_curve)
+      Geometry::find_closest_point_on_curve(@mouse_input.position, @selected_handle.movement_curve)
     @selected_handle.update_position(handle_position, move_partner: true)
     view.invalidate
-  end
-
-  # TODO: Might want to live inside the geometry module for later optimization
-  def find_closest_on_curve(point, curve)
-    closest_distance = Float::INFINITY
-    closest_point = nil
-    curve.each_cons(2) do |segment_start, segment_end|
-      dist = Geometry::dist_point_to_segment(point, [segment_start, segment_end])
-      if dist < closest_distance
-        closest_distance = dist
-        closest_point =
-          Geometry::closest_point_on_segment(point, [segment_start , segment_end])
-      end
-    end
-    closest_point
   end
 
   def reset

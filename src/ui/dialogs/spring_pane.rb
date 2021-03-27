@@ -160,9 +160,17 @@ class SpringPane
     midpoint = Geometry.midpoint(movement_curve[0], movement_curve[-1])
     vector_along_curve = (midpoint - movement_curve[0]).normalize!
 
+    # Find a point that is left/right from the movement curve, and offset it above
+    # to create the handle position
     @widgets[node_id] = [
-      Widget.new(midpoint + Geometry.scale(vector_along_curve, 7) + Geom::Vector3d.new(0, 0, 150.mm), ["easy", "medium", "hard"], Configuration::WIDGET_DIFFICULTY_PATH),
-      Widget.new(midpoint + Geometry.scale(vector_along_curve, -7) +Geom::Vector3d.new(0, 0, 150.mm), ["slow", "comfortable", "fast"], Configuration::WIDGET_TEMPO_PATH)
+      Widget.new(
+        Geometry::find_closest_point_on_curve(midpoint + Geometry.scale(vector_along_curve, 7), movement_curve) + Geom::Vector3d.new(0, 0, 150.mm),
+        ["easy", "medium", "hard"],
+        Configuration::WIDGET_DIFFICULTY_PATH),
+      Widget.new(
+        Geometry::find_closest_point_on_curve(midpoint + Geometry.scale(vector_along_curve, -7), movement_curve) +Geom::Vector3d.new(0, 0, 150.mm),
+        ["slow", "comfortable", "fast"],
+        Configuration::WIDGET_TEMPO_PATH)
     ]
   end
 
