@@ -27,6 +27,7 @@ class TraceVisualization
     @visualization_offset = visualization_offset
     @handles = {} #node_id to handles [handle_one, handle_two]
     @bars = {} #age_id to ComponentInstance
+    @swipe_groups = {}
   end
 
   def add_bars(node_ids, sampling_rate, data, user_stats)
@@ -53,7 +54,9 @@ class TraceVisualization
 
   def reset_trace
     Sketchup.active_model.active_entities.erase_entities(@group.entities.to_a) if @group && !@group.deleted?
-    Sketchup.active_model.active_entities.erase_entities(@swipe_group.entities.to_a) if @swipe_group && !@swipe_group.deleted?
+    @swipe_groups.values.each do |group|
+      Sketchup.active_model.active_entities.erase_entities(group.entities.to_a) if group && !group.deleted?
+    end
     Sketchup.active_model.active_entities.erase_entities(@trace_points) if @trace_points.count > 0
 
     @swipe_group = nil
@@ -231,11 +234,11 @@ class TraceVisualization
     #   entity.layer = circle_trace_layer
     # end
     # TODO somehow the edges of the interval are off
-    @swipe_group = Sketchup.active_model.entities.add_group if @swipe_group.nil? || @swipe_group.deleted?
-    instance = draw_bar @swipe_group.entities, offsetted_curve_points[start_index..end_index], BAR_COLORS[bar_index % BAR_COLORS.count] , age_text
+    @swipe_groups[node_id] = Sketchup.active_model.entities.add_group if !@swipe_groups[node_id] || @swipe_groups[node_id].deleted?
+    instance = draw_bar @swipe_groups[node_id].entities, offsetted_curve_points[start_index..end_index], BAR_COLORS[bar_index % BAR_COLORS.count] , age_text
     @bars[age_text] = instance
 
-    add_handles(offsetted_curve_points[start_index..end_index], node_id.to_i, @swipe_group) if add_handles
+    add_handles(offsetted_curve_points[start_index..end_index], node_id.to_i, @swipe_groups[node_id]) if add_handles
   end
 
   # draws a swipe, adds text and returns the component instance of the swipe
