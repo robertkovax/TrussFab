@@ -5,6 +5,7 @@ module Configuration
   SIMULATION_SERVER_HOST = "localhost"
   SIMULATION_SERVER_PORT = "8085"
   LAUNCH_SIMULATION_SERVER_WITH_SKETCHUP = true
+  SIMULATION_DEBUG_PLOTS = true
 
   # Sketchup Layers
   LINE_VIEW = 'Link lines'.freeze
