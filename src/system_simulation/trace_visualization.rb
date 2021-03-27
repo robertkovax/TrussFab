@@ -64,7 +64,7 @@ class TraceVisualization
     end
     Sketchup.active_model.active_entities.erase_entities(@trace_points) if @trace_points.count > 0
 
-    @swipe_group = nil
+    @swipe_groups = {}
     @handles.each { |_, handles| handles.each(&:delete)}
     @trace_points = []
     @visualizations = []
