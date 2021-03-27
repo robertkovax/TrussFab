@@ -47,9 +47,10 @@ class AdjustAmplitudeTool < Tool
   end
 
   def update(view, x, y)
-    @mouse_input.update_positions(view, x, y, point_on_plane_from_camera_normal: @start_position || nil)
-
     return unless @mouse_down
+
+    @mouse_input.update_positions(view, x, y, point_on_plane_from_camera_normal: @selected_handle.position)
+
 
     @end_position = @mouse_input.position
     handle_position =

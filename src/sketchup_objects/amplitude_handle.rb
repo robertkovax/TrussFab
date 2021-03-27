@@ -10,8 +10,26 @@ class AmplitudeHandle < SketchupObject
     @definition = ModelStorage.instance.models['amplitude_handle'].definition
     @entity = create_entity
     self.material = material
-    @movement_curve = movement_curve
+    @movement_curve = extend_motion_curve(movement_curve.clone)
     @external_group = group
+  end
+
+  def extend_motion_curve(curve)
+    # We don't use the last segment for the vector, but the before ones, as
+    # these tend to be more stable. Probably because the last segment can have
+    # problems due to the sampling of the motion
+    vec = curve[1] - curve[2]
+    vec.normalize!
+    10.times do
+      curve.unshift(curve[0] + vec)
+    end
+
+    vec = curve[-2] - curve[-3]
+    vec.normalize!
+    10.times do
+      curve.push(curve[-1] + vec)
+    end
+    curve
   end
 
   def midpoint
