@@ -232,7 +232,7 @@ function update_model(req::HTTP.Request)
         end, age_groups, ntasks=3)
 
         response_data = Dict(
-            "optimized_spring_constants" => spring_constants,
+            "optimized_spring_constants" => Dict(zip(TrussFab.springs(g) .|> edge -> get_prop(g, edge, :id), spring_constants)),
             "simulation_results" => Dict(zip(age_groups, user_stats_per_age_group))
         )
 
