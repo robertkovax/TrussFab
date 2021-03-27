@@ -215,5 +215,22 @@ module Geometry
     [p, v]
   end
 
+  # Find the point that is closest to the given curve
+  # (Curve is an array of positions, denoting the segments)
+  def self.find_closest_point_on_curve(point, curve)
+    closest_distance = Float::INFINITY
+    closest_point = nil
+    curve.each_cons(2) do |segment_start, segment_end|
+      dist = Geometry::dist_point_to_segment(point, [segment_start, segment_end])
+      if dist < closest_distance
+        closest_distance = dist
+        closest_point =
+          Geometry::closest_point_on_segment(point, [segment_start , segment_end])
+      end
+    end
+    closest_point
+  end
+
+
 end
 
