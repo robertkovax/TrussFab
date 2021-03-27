@@ -70,13 +70,14 @@ class SpringPane
 
   # spring / graph manipulation logic:
 
-  def update_constant_for_spring(spring_id, new_constant)
+  def update_constant_for_spring(spring_id, new_constant, should_simulate = true)
     edge = @spring_edges.find { |edge| edge.id == spring_id }
+    return if edge.nil?
     parameters = get_spring(edge, new_constant)
     p parameters
     edge.link.spring_parameters = parameters
     edge.link.actual_spring_length = parameters[:unstreched_length].m
-    simulate
+    simulate if should_simulate
   end
 
   def enable_preloading_for_spring(spring_id)
@@ -405,6 +406,11 @@ class SpringPane
   def simulate(amplitude_tweak: false)
     Sketchup.active_model.start_operation('compile simulation', true)
     SimulationRunnerClient.update_model(JsonExport.graph_to_json(nil, [], @simulation_duration, amplitude_tweak: amplitude_tweak)) do |json_response|
+      spring_constants_for_ids = json_response["optimized_spring_constants"]
+      spring_constants_for_ids.each do |id, constant|
+        update_constant_for_spring id.to_i, constant, false
+      end
+
       simulation_results = json_response["simulation_results"]
       @simulation_data = Hash.new
       @user_stats = Hash.new
