@@ -10,12 +10,26 @@ class AdjustAmplitudeTool < Tool
   end
 
   def onLButtonDown(_flags, x, y, view)
-    @mouse_down = true
+
+    # Detect widgets
     position = @mouse_input.update_positions(view, x, y)
+    closest_widget = @ui.spring_pane.widgets.values.flatten.min_by { |widget| position.distance(widget.position)}
+    puts closest_widget.position.distance(position)
+    if closest_widget.position.distance(position) < 10.cm
+      closest_widget.cycle!
+      return
+    end
+
 
     handles = @ui.spring_pane.trace_visualization.handles.values.flatten
     @selected_handle = handles.min_by { |handle| position.distance(handle.position)}
     puts "Selected #{@selected_handle}"
+    distance_to_handle = @selected_handle.position.distance(position)
+    puts "Distance to selected handle: #{distance_to_handle}"
+    return if distance_to_handle > 10.cm
+
+    @mouse_down = true
+
     @handle_start_position = position
   end
 
@@ -25,10 +39,11 @@ class AdjustAmplitudeTool < Tool
   end
 
   def onLButtonUp(_flags, x, y, view)
+    return unless @mouse_down
     @mouse_down = false
     update(view, x, y)
 
-    TrussFab.get_spring_pane.notify_model_changed
+    TrussFab.get_spring_pane.notify_model_changed amplitude_tweak: true
   end
 
   def update(view, x, y)

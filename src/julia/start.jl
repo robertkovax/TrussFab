@@ -1,6 +1,7 @@
 using Distributed
 using Pkg
 
+println(ARGS)
 
 cd(@__DIR__)
 Pkg.activate(".")

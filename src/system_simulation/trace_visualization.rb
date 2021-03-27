@@ -240,10 +240,14 @@ class TraceVisualization
 
   # draws a swipe, adds text and returns the component instance of the swipe
   def draw_bar(group_entities, curve, color, text)
-    curve_plane =  Geom.fit_plane_to_points(curve)
-    curve_plane = Geometry.normalize_plane(curve_plane) if curve_plane.count == 4
+    begin
+      curve_plane =  Geom.fit_plane_to_points(curve)
+      curve_plane = Geometry.normalize_plane(curve_plane) if curve_plane.count == 4
+    rescue
+      # curve = [Geom::Point3d.new(0, 0 ,0), Geom::Vector3d.new(1, 0, 0)]
+      curve_plane = [Geom::Point3d.new(0, 0 ,0), Geom::Vector3d.new(1, 0, 0)]
+    end
     curve_plane_normal = curve_plane[1].normalize
-
     bar_definition = Sketchup.active_model.definitions.add "Circle Trace Visualization"
     entities = bar_definition.entities
     # TODO duplicate

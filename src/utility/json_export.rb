@@ -11,7 +11,7 @@ class JsonExport
     file.close
   end
 
-  def self.graph_to_json(triangle = nil, animation=[], simulation_duration=5.0)
+  def self.graph_to_json(triangle = nil, animation=[], simulation_duration=5.0, amplitude_tweak: false)
     graph = Graph.instance
     json = {distance_unit: 'mm', force_unit: 'N'}
     json[:nodes] = nodes_to_hash(graph.nodes)
@@ -23,6 +23,7 @@ class JsonExport
     json[:standard_surface] = triangle.nodes_ids_towards_user
     json[:mounted_users] = mounted_users_to_hash(Graph.instance.nodes)
     json[:simulation_duration] = simulation_duration
+    json[:amplitude_tweak] = amplitude_tweak
 
     JSON.pretty_generate(json)
   end
@@ -70,6 +71,7 @@ class JsonExport
         weight: node.hub.user_weight,
         excitement: node.hub.user_excitement,
         handle_positions: TrussFab.get_spring_pane.trace_visualization ? TrussFab.get_spring_pane.trace_visualization.handles_position_array : nil,
+        widgets: TrussFab.get_spring_pane.widgets[id] ? TrussFab.get_spring_pane.widgets[id].map(&:current_state) : nil,
       }
     end
     users

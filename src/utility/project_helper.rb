@@ -65,21 +65,22 @@ module ProjectHelper
   def self.setup_simulation_server
     host = Configuration::SIMULATION_SERVER_HOST
     port = Configuration::SIMULATION_SERVER_PORT
+    debug_plots_enabled = Configuration::SIMULATION_DEBUG_PLOTS
     if Configuration::LAUNCH_SIMULATION_SERVER_WITH_SKETCHUP and not port_open?(host, port)
       if Configuration::SIMULATION_SERVER_HOST == "localhost"
         simulation_start_script = File.join(Dir.pwd, "src", "julia", "start.jl")
         if ENV['OS'] == 'Windows_NT'
-          command = "start \"Trusscillator Simulation Server\" \"#{ENV['APPDATA']}\\..\\Local\\Programs\\Julia 1.5.3\\bin\\julia.exe\" #{simulation_start_script} #{port}"
+          command = "start \"Trusscillator Simulation Server\" \"#{ENV['APPDATA']}\\..\\Local\\Programs\\Julia 1.5.3\\bin\\julia.exe\" --threads 10 #{simulation_start_script} #{port} #{'with_debug_plots' if debug_plots_enabled}"
           # for pasting directly in a Windows Terminal use this command (work directory := project root):
           # & "$env:APPDATA\..\Local\Programs\Julia 1.5.3\bin\julia.exe" src/julia/start.jl 8085"
           p command
         else
           # we assume, we are on macOS
           command = "osascript -e \'tell app \"Terminal\"
-              do script \"julia #{simulation_start_script} #{port}\"
+              do script \"julia --threads 10 #{simulation_start_script} #{port} #{'with_debug_plots' if debug_plots_enabled}\"
             end tell\'"
         end
-        IO.popen({'JULIA_NUM_THREADS' => '8'}, command)
+        IO.popen(command)
       else
         p "The Simulation Server at #{host}:#{port} is not reachable. TrussFab did not try to spin up the server automatically as the host was sth other than localhost"
       end
