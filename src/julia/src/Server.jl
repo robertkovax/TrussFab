@@ -205,6 +205,9 @@ function update_model(req::HTTP.Request)
             task = get_simulation_task(g, simulation_duration)
             schedule(task, nothing, error=true)
             sim_result = fetch(task)
+            if age == 3 && isassigned(ARGS, 2) && ARGS[2] == "with_debug_plots"
+                show_user_fft(g, sim_result, age)
+            end
             get_user_stats(sim_result)
         end, age_groups, ntasks=3)
 
