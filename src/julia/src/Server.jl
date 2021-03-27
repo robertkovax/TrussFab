@@ -152,6 +152,16 @@ function get_user_stats_object(simulation_result, client_ids, client_node_id)
     )
 end
 
+function simulation_result_to_json_response(simulation_result, user_ids, client_ids)
+    return Dict(
+        "data" => simulation_result_to_custom_table_array(simulation_result, client_ids),
+        "user_stats" => Dict(user_id => get_user_stats_object(simulation_result, client_ids, user_id) for user_id in user_ids)
+        )
+end
+
+
+
+# --- request parsing ---
 
 function parse_requested_amplitude(client_request_obj)
     xyz_to_vec(xyz_obj) = [xyz_obj["x"], xyz_obj["y"], xyz_obj["z"]]
@@ -159,6 +169,15 @@ function parse_requested_amplitude(client_request_obj)
     start_pos = xyz_to_vec(handle_positions[1])
     end_pos = xyz_to_vec(handle_positions[2])
     return norm(start_pos .- end_pos) / 1000
+end
+
+function parse_optimization_flag(client_request_obj)::Bool
+    return client_request_obj["amplitude_tweak"] == true
+end
+
+function parse_widget_states(client_request_obj)
+    user_id = 1
+    return client_request_obj["mounted_users"][user_id]["widgets"][1], client_request_obj["mounted_users"][user_id]["widgets"][2]
 end
 
 # --- endpoints ---
@@ -172,36 +191,33 @@ function update_model(req::HTTP.Request)
         yield()
 	    
         @info "updated model"
+
         current_request_handler = current_task()
         
         g = TrussFab.import_trussfab_json(client_request_obj)
         client_ids = vertices(g) .|> v -> get_prop(g, v, :id)
+        user_ids = client_request_obj["mounted_users"] .|> user -> user["id"]
         
-	    spring_constant = 7000.0
-	    try
-	        TrussFab.set_age!(g, 12.0)
-	        target_amplitude = parse_requested_amplitude(client_request_obj)
-	        @info "starting optimization for target amplitude $(target_amplitude)"
-	        spring_constant, error, solution = tweak_amplitude(g, target_amplitude)
-	    catch e
-	        @warn "amplitude optimization failed: $(sprint(showerror, e))"
-	    end
-
-	    @info "Spring Constant $(spring_constant)"
-
-        # TODO write here optimized constants
-        spring_constants = TrussFab.springs(g) .|> edge -> Dict(get_prop(g, edge, :id) => get_prop(g, edge, :spring_stiffness))
-        
-        function get_user_stats(simulation_result)
-            return Dict(
-                "data" => simulation_result_to_custom_table_array(simulation_result, client_ids),
-                "user_stats" => Dict(user["id"] => get_user_stats_object(simulation_result, client_ids, user["id"]) for user in client_request_obj["mounted_users"])
-                )
+        spring_constants = if parse_optimization_flag(client_request_obj)
+            spring_constant = 7000.0
+            try
+                TrussFab.set_age!(g, 12.0)
+                target_amplitude = parse_requested_amplitude(client_request_obj)
+                @info "starting optimization for target amplitude $(target_amplitude)"
+                spring_constant, error, solution = tweak_amplitude(g, target_amplitude)
+            catch e
+                @warn "amplitude optimization failed: $(sprint(showerror, e))"
+            end
+	        @info "Spring Constant $(spring_constant)"
+            
+            [spring_constant for _ in TrussFab.springs(g)]
+        else
+            TrussFab.springs(g) .|> edge -> get_prop(g, edge, :spring_stiffness)
         end
-
+        
         user_stats_per_age_group = asyncmap(age -> begin
             g = TrussFab.import_trussfab_json(client_request_obj)
-            TrussFab.set_stiffness!(g, [spring_constant for _ in TrussFab.springs(g)])
+            TrussFab.set_stiffness!(g, spring_constants)
             simulation_duration = get_simulation_duration(client_request_obj)
             if age != 3
                 TrussFab.set_age!(g, convert(Float64, age))
@@ -212,9 +228,8 @@ function update_model(req::HTTP.Request)
             if age == 3 && isassigned(ARGS, 2) && ARGS[2] == "with_debug_plots"
                 show_user_fft(g, sim_result, age)
             end
-            get_user_stats(sim_result)
+            simulation_result_to_json_response(sim_result, user_ids, client_ids)
         end, age_groups, ntasks=3)
-
 
         response_data = Dict(
             "optimized_spring_constants" => spring_constants,
