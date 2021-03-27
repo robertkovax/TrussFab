@@ -9,7 +9,7 @@ class TraceVisualization
   Z_FIGHTING_OFFSET = 0.5
   BAR_COLORS = [Sketchup::Color.new(47, 72, 94, 150), Sketchup::Color.new(37, 113, 181, 150), Sketchup::Color.new(114, 174, 227, 150)].reverse.freeze
 
-  def initialize(visualization_offset: Geom::Vector3d.new(0, 0, 30))
+  def initialize(visualization_offsets: {})
     # Group containing trace circles.
     @group = Sketchup.active_model.active_entities.add_group
 
@@ -24,7 +24,7 @@ class TraceVisualization
     #@color = Sketchup::Color.new(72,209,204)
     @colors = [Sketchup::Color.new(255, 0, 0), Sketchup::Color.new(255, 255, 0), Sketchup::Color.new(0, 255, 0)]
 
-    @visualization_offset = visualization_offset
+    @visualization_offsets = visualization_offsets
     @handles = {} #node_id to handles [handle_one, handle_two]
     @bars = {} #age_id to ComponentInstance
     @swipe_groups = {}
@@ -167,8 +167,10 @@ class TraceVisualization
 
       rotation = Geometry.rotation_to_local_coordinate_system(vector_one, vector_two)
       inverse_starting_rotation = rotation.inverse if inverse_starting_rotation.nil?
-      offset_vector = @visualization_offset.clone
-      offset_vector.length = @visualization_offset.length + bar_index * BAR_HEIGHT
+
+      visualization_offset = @visualization_offsets[node_id] || Geom::Vector3d.new(0, 0, 30)
+      offset_vector = visualization_offset.clone
+      offset_vector.length = visualization_offset.length + bar_index * BAR_HEIGHT
       offset = rotation * inverse_starting_rotation * offset_vector
 
       # offset_vector2 = @visualization_offset.clone

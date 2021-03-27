@@ -63,7 +63,7 @@ class SpringPane
     # load attachable users such that they dont start loading during the user interaction
     ModelStorage.instance.attachable_users
 
-    @visualization_offset = Geom::Vector3d.new(0, 0, 30)
+    @visualization_offsets = {}
 
     @widgets = {}
   end
@@ -123,7 +123,7 @@ class SpringPane
   def update_trace_visualization
     Sketchup.active_model.start_operation("visualize trace", true)
 
-    @trace_visualization ||= TraceVisualization.new visualization_offset: @visualization_offset
+    @trace_visualization ||= TraceVisualization.new visualization_offsets: @visualization_offsets
     @trace_visualization.reset_trace
     # TODO pass in multiple age groups for simulation data and user stats
     # visualize every node with a mounted user
@@ -326,11 +326,17 @@ class SpringPane
     simulate
   end
 
-  def set_visualization_offset(x, y, z)
-    @visualization_offset = Geom::Vector3d.new(x, y, z)
+  def set_visualization_offset(node_id, x, y, z)
+    vector = Geom::Vector3d.new(x, y, z)
+    if vector.length == 0
+      puts "Make sure to don't use only 0, as vector needs to have a length"
+      puts "Aborting..."
+      return
+    end
+    @visualization_offsets[node_id.to_s] = vector
     @trace_visualization.reset_trace if @trace_visualization
     @trace_visualization = nil
-    puts "New visualization offset: #{@visualization_offset}"
+    puts "New visualization offset: #{@visualization_offsets}"
     update_trace_visualization
   end
 
