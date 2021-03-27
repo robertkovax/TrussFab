@@ -120,6 +120,10 @@ function simulation_result_to_custom_table_array(simulation_result, client_ids)
 end
 
 function get_user_stats_object(simulation_result, client_ids, client_node_id)
+    function julia_to_normal_array_index(index)
+        return index - 1
+    end
+
     function get_max(array)
         max_value, max_index = findmax(array)
         return Dict("value" => max_value, "index" => max_index)
@@ -141,7 +145,7 @@ function get_user_stats_object(simulation_result, client_ids, client_node_id)
         "time_velocity" => eachrow(velocities) .|> row_to_response,
         "max_acceleration" => (acceleration |> eachrow .|> norm) |> get_max,
         "time_acceleration" => eachrow(acceleration) .|> row_to_response,
-        "largest_amplitude" => Dict( "start" => amplitude_start, "end" => amplitude_end, "physical_length" => amplitude_length)
+        "largest_amplitude" => Dict( "start" => julia_to_normal_array_index(amplitude_start), "end" => julia_to_normal_array_index(amplitude_end), "physical_length" => amplitude_length)
     )
 end
 
