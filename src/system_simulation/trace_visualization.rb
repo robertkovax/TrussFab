@@ -291,7 +291,17 @@ class TraceVisualization
 
     face = entities.add_face(pts)
 
-    edges = entities.add_curve(curve[0..-2])
+    # We only want to have vectors/segments pointing into one direction
+    max_distance = 0
+    cleaned_curve = curve.select do |point|
+      if point.distance(curve[0]) > max_distance
+        max_distance = point.distance(curve[0])
+        next true
+      end
+      next false
+    end
+
+    edges = entities.add_curve(cleaned_curve)
     # hide curve, only use it as followme
     edges.each { |e| e.hidden = true }
     face.followme(edges)
