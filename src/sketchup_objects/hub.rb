@@ -235,7 +235,7 @@ class Hub < PhysicsSketchupObject
     @is_sensor
   end
 
-  def attach_user(weight: nil, filename:, excitement: 100)
+  def attach_user(weight: nil, filename:, excitement: 30)
     puts "attach user #{filename}"
     @is_user_attached = true
     user_indicator = ModelStorage.instance.attachable_users[filename]
