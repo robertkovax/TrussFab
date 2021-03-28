@@ -119,6 +119,7 @@ class TraceVisualization
     one.partner_handle = two
     two.partner_handle = one
     @handles[user_id] = [one, two]
+    puts "Created handles, distance is #{(one.position - two.position).length.to_mm}mm"
   end
 
   def add_handle(position, curve, group)

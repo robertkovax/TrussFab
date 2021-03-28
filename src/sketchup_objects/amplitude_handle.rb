@@ -70,6 +70,7 @@ class AmplitudeHandle < SketchupObject
 
     if move_partner
 
+      puts "New distance between handles: #{(position_on_plane + vector - position).length.to_mm}.mm"
       @partner_handle.update_position(position_on_plane + vector)
       @external_group.transform! fake_scale_transform
     end
