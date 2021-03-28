@@ -12,9 +12,11 @@ class SpringCylinder < SketchupObject
   def initialize(parent, edge_length, spring_length, spring_diameter, id: nil)
     super(id)
     # Creates a cylinder positioned in the origin
+    Sketchup.active_model.start_operation('create cylinder', true)
     @definition = create_cylinder(Geom::Point3d.new, Geom::Vector3d.new(0, 0, 1), edge_length,
                                   spring_length / 2, spring_diameter)
     @entity = create_entity
+    Sketchup.active_model.commit_operation
     @parent = parent
     persist_entity(type: parent.class.to_s, id: parent.id)
   end
@@ -67,7 +69,7 @@ class SpringCylinder < SketchupObject
                                                             SEGMENT_NUMBER)
     face = definition.entities.add_face(start_circle_edgearray)
     face.pushpull(PLATE_HEIGHT, false)
-    end_circle_edgearray = definition.entities.add_circle(spring_end, up_vector, spring_diameter, SEGMENT_NUMBER)
+    end_circle_edgearray = definition.entities.add_circle(spring_end, up_vector, spring_diameter + 10.mm, SEGMENT_NUMBER)
     face = definition.entities.add_face(end_circle_edgearray)
     face.pushpull(PLATE_HEIGHT, false)
 
