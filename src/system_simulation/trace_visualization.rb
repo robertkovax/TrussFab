@@ -71,6 +71,7 @@ class TraceVisualization
     @swipe_groups = {}
     @letter_groups = {}
     @handles.each { |_, handles| handles.each(&:delete)}
+    @handles = {}
     @trace_points = []
     @visualizations = []
     @bars = {}
