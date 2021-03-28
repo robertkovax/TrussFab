@@ -66,7 +66,7 @@ module TrussFab
     end
     
     function power(age)
-        7 * (age-3) + 30
+        5 * (age-3) + 30
     end
     
     function warm_up()
