@@ -162,13 +162,16 @@ class SpringPane
 
     # Find a point that is left/right from the movement curve, and offset it above
     # to create the handle position
+    offset = @visualization_offsets[node_id.to_s] || Geom::Vector3d.new(0, 0, 150.mm)
+    offset = offset.clone
+    offset.length = 150.mm
     @widgets[node_id] = [
       Widget.new(
-        Geometry::find_closest_point_on_curve(midpoint + Geometry.scale(vector_along_curve, 7), movement_curve) + Geom::Vector3d.new(0, 0, 150.mm),
+        Geometry::find_closest_point_on_curve(midpoint + Geometry.scale(vector_along_curve, 7), movement_curve) + offset,
         ["easy", "medium", "hard"],
         Configuration::WIDGET_DIFFICULTY_PATH),
       Widget.new(
-        Geometry::find_closest_point_on_curve(midpoint + Geometry.scale(vector_along_curve, -7), movement_curve) +Geom::Vector3d.new(0, 0, 150.mm),
+        Geometry::find_closest_point_on_curve(midpoint + Geometry.scale(vector_along_curve, -7), movement_curve) + offset,
         ["slow", "comfortable", "fast"],
         Configuration::WIDGET_TEMPO_PATH)
     ]
