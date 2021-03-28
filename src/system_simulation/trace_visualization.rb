@@ -261,7 +261,7 @@ class TraceVisualization
   # draws a bar, adds text and returns the component instance of the swipe
   def draw_bar(bar_entities, letter_entities, curve, color, text)
     #clean curve from points that are really close to each other
-    curve = curve.select.with_index {|point, idx| idx == 0 || idx == curve.length-1 || curve[idx-1].distance(curve[idx]) > 1.5 }
+    curve = curve.select.with_index {|point, idx| idx == 0 || idx == curve.length-1 || curve[idx-1].distance(curve[idx]) > 3.mm }
 
 
     curve_plane =  Geom.fit_plane_to_points(curve)
