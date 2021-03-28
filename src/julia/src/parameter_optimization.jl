@@ -1,6 +1,6 @@
 
 
-function tweak_amplitude(g, target_length)
+function tweak_amplitude(g, target_length, simulation_duration=5.0)
     user_vertex_id = TrussFab.users(g)[1]
 
     # sample spring parameter space 
@@ -10,7 +10,7 @@ function tweak_amplitude(g, target_length)
 
     function simulate_with_stiffness(k)
         TrussFab.set_stiffness!(g, fill(k, length(TrussFab.springs(g))))
-        return fetch(@spawnat :any TrussFab.run_simulation(g, tspan=(0., 10.), fps=30))
+        return fetch(@spawnat :any TrussFab.run_simulation(g, tspan=(0., simulation_duration), fps=30))
     end
 
     # sols = SharedArray{Float64,2}((length(times),length(params)))
@@ -21,7 +21,7 @@ function tweak_amplitude(g, target_length)
     println(amplitudes)
     # discarding lengths that are outside the sampled space
     if target_length < minimum(amplitudes) || target_length > maximum(amplitudes)
-        throw(ErrorException("requested amplitude is outside the achievable range"))
+        @warn "requested amplitude is outside the achievable range"
     end
     
     
@@ -50,7 +50,7 @@ function tweak_amplitude(g, target_length)
     # if error > 0.2
     #     throw(ErrorException("No spring configuration within a 15% error was found."))
     # end
-    @info "Error for optimization was $(error)"
+    @info "Error for optimization was $(error), achieved length was $(achieved_length)"
 
     return (samples[match_index], error, solutions[match_index])
 end

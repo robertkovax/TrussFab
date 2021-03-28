@@ -9,10 +9,7 @@ using LightGraphs
 using LinearAlgebra
 using Plots
 using Distributed
-
-using Distributed
-
-include("./parameter_optimization.jl")
+includet("./parameter_optimization.jl")
 
 number_preprocessing(val::Float64) = round(val, digits=5)
 
@@ -69,14 +66,6 @@ function abort_all_running_tasks()
                 rethrow()
             end
         end
-    end
-end
-
-function get_simulation_duration(client_request_obj)
-    return if haskey(client_request_obj, "simulation_duration")
-        client_request_obj["simulation_duration"]
-    else
-        5.0
     end
 end
 
@@ -163,12 +152,20 @@ end
 
 # --- request parsing ---
 
+function parse_simulation_duration(client_request_obj)
+    return if haskey(client_request_obj, "simulation_duration")
+        client_request_obj["simulation_duration"]
+    else
+        5.0
+    end
+end
+
 function parse_requested_amplitude(client_request_obj)
-    xyz_to_vec(xyz_obj) = [xyz_obj["x"], xyz_obj["y"], xyz_obj["z"]]
+    xyz_to_vec(xyz_obj) = [xyz_obj["x"], xyz_obj["y"], xyz_obj["z"]] ./ 1000
     handle_positions = client_request_obj["mounted_users"][1]["handle_positions"][1]
     start_pos = xyz_to_vec(handle_positions[1])
     end_pos = xyz_to_vec(handle_positions[2])
-    return norm(start_pos .- end_pos) / 1000
+    return norm(start_pos .- end_pos)
 end
 
 function parse_optimization_flag(client_request_obj)::Bool
@@ -195,16 +192,19 @@ function update_model(req::HTTP.Request)
         current_request_handler = current_task()
         
         g = TrussFab.import_trussfab_json(client_request_obj)
+        simulation_duration = parse_simulation_duration(client_request_obj)
+
         client_ids = vertices(g) .|> v -> get_prop(g, v, :id)
         user_ids = client_request_obj["mounted_users"] .|> user -> user["id"]
         
         spring_constants = if parse_optimization_flag(client_request_obj)
             spring_constant = 7000.0
             try
-                TrussFab.set_age!(g, 12.0)
-                target_amplitude = parse_requested_amplitude(client_request_obj)
+                g2 = deepcopy(g)
+                TrussFab.set_age!(g2, 12.0)
+                target_amplitude = parse_requested_amplitude(client_request_obj) /2
                 @info "starting optimization for target amplitude $(target_amplitude)"
-                spring_constant, error, solution = tweak_amplitude(g, target_amplitude)
+                spring_constant, error, solution = tweak_amplitude(g2, target_amplitude, simulation_duration)
             catch e
                 @warn "amplitude optimization failed: $(sprint(showerror, e))"
             end
@@ -218,13 +218,13 @@ function update_model(req::HTTP.Request)
         user_stats_per_age_group = asyncmap(age -> begin
             g = TrussFab.import_trussfab_json(client_request_obj)
             TrussFab.set_stiffness!(g, spring_constants)
-            simulation_duration = get_simulation_duration(client_request_obj)
             if age != 3
                 TrussFab.set_age!(g, convert(Float64, age))
             end
             task = get_simulation_task(g, simulation_duration)
             schedule(task, nothing, error=true)
             sim_result = fetch(task)
+            @info TrussFab.get_amplitude(sim_result, TrussFab.users(g)[1])
             if age == 3 && isassigned(ARGS, 2) && ARGS[2] == "with_debug_plots"
                 show_user_fft(g, sim_result, age)
             end
@@ -258,3 +258,4 @@ function serve()
 end
 serve()
 nothing
+
