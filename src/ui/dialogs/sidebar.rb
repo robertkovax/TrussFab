@@ -7,6 +7,10 @@ class Sidebar
   attr_accessor :animation_pane
   attr_accessor :spring_pane
 
+  # TODO: Please remove this, it was hacked in to have the possibility to move
+  # tools to the spring pane (probably remove together with get_sidebar_menu)
+  attr_accessor :tools
+
   HTML_FILE = '../sidebar/index.html'.freeze
 
   def initialize

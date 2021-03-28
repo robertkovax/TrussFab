@@ -542,6 +542,21 @@ class SpringPane
       simulate
       puts "Update user excitement: #{excitement}"
     end
+    @dialog.add_action_callback('buttonClicked') do |_, button_id|
+      model = Sketchup.active_model
+      # Deactivate Current tool
+      model.select_tool nil
+      # Ensure there is no missing definitions, layers, and materials
+      model.start_operation('TrussFab Setup', true)
+      ProjectHelper.setup_layers
+      ProjectHelper.setup_surface_materials
+      ModelStorage.instance.setup_models
+      model.commit_operation
+      # This removes all deleted nodes and edges from storage
+      Graph.instance.cleanup
+      # Now, select the new tool
+      model.select_tool(TrussFab.get_sidebar_menu.tools[button_id])
+    end
   end
 
 end

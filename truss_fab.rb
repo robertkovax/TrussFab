@@ -105,6 +105,10 @@ module TrussFab
       @spring_pane
     end
 
+    def get_sidebar_menu
+      @sidebar_menu
+    end
+
     # Just use this for debugging in the console
     def get_animation_pane
       @animation_pane

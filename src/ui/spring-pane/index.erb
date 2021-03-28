@@ -81,6 +81,10 @@ input[type=range]::-webkit-slider-runnable-track {
     document.getElementById('spring_constant_' + id).placeholder = value;
     document.getElementById('spring_constant_range_' + id).value = value;
   }
+  function buttonClicked(id) {
+    sketchup.buttonClicked(id);
+  }
+
 </script>
 
 </head>
@@ -267,6 +271,12 @@ input[type=range]::-webkit-slider-runnable-track {
     </div>
   </div>
 </div>
+<button type="button" class="tool btn btn-light" id="adjust_amplitude_tool" onclick="buttonClicked('adjust_amplitude_tool')">
+  <div>adjust amplitude</div>
+</button>
+<button type="button" class="tool btn btn-light" id="animation_tool" onclick="buttonClicked('animation_tool')">
+  <div>play animation</div>
+</button>
 <!-- <canvas id="bodePlotMagnitude" width="400" height="400"></canvas>
 <canvas id="bodePlotPhase" width="400" height="400"></canvas> -->
 
