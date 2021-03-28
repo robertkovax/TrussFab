@@ -16,7 +16,7 @@ module Simulator
     # https://en.wikipedia.org/wiki/Dirac_delta_function
     # as a approaches 0, the function will become more 'extreme'
     dirac_delta = (x, a) -> 1 / (a * √π) * exp(1)^(-(x/a)^2)
-    dirac_impulse = (t) -> dirac_delta(t, 1/50)
+    dirac_impulse = (t) -> dirac_delta(t, 1/50) * 10
     # Test out how the function looks like in the first second
     # (-0.5:0.01:0.5 .|> x -> dirac_delta(x, 1/20)) |> plot
 
