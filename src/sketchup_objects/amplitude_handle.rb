@@ -44,31 +44,34 @@ class AmplitudeHandle < SketchupObject
   def update_position(position, move_partner: false)
     previous_position = @position
     @position = position
-    @entity.move!(Geom::Transformation::translation(@position))
+
+    position_on_plane = position.project_to_plane(movement_plane)
+    vector = position_on_plane - position
+
+    previous_distance =
+      (previous_position.project_to_plane(movement_plane) - previous_position).length
+
+    amplitude_vec = (@movement_curve[0] - @movement_curve[-1]).normalize
+    to_middle_vec = (@movement_curve[@movement_curve.length / 2] - @movement_curve[0])
+
+    perpendicular_to_plane_vec = amplitude_vec.cross(to_middle_vec)
+
+    move_to_center = Geom::Transformation.translation(midpoint)
+    rotate_to_x_axis = Geometry.rotation_to_local_coordinate_system(amplitude_vec, perpendicular_to_plane_vec)
+
+    scale_transform = Geom::Transformation.scaling(
+      vector.length / previous_distance,
+      1,
+      (1 - vector.length / previous_distance) / 7 + 1,
+      )
+    fake_scale_transform = move_to_center* rotate_to_x_axis* scale_transform * rotate_to_x_axis.inverse * move_to_center.inverse
+
+    @entity.transform!(fake_scale_transform)
 
     if move_partner
-      position_on_plane = position.project_to_plane(movement_plane)
-      vector = position_on_plane - position
-
-      previous_distance =
-        (previous_position.project_to_plane(movement_plane) - previous_position).length
-
-      amplitude_vec = (@movement_curve[0] - @movement_curve[-1]).normalize
-      to_middle_vec = (@movement_curve[@movement_curve.length / 2] - @movement_curve[0])
-
-      perpendicular_to_plane_vec = amplitude_vec.cross(to_middle_vec)
-
-      move_to_center = Geom::Transformation.translation(midpoint)
-      rotate_to_x_axis = Geometry.rotation_to_local_coordinate_system(amplitude_vec, perpendicular_to_plane_vec)
-
-      scale_transform = Geom::Transformation.scaling(
-        vector.length / previous_distance,
-        1,
-        (1 - vector.length / previous_distance) / 7 + 1,
-      )
 
       @partner_handle.update_position(position_on_plane + vector)
-      @external_group.transform! move_to_center* rotate_to_x_axis* scale_transform * rotate_to_x_axis.inverse * move_to_center.inverse
+      @external_group.transform! fake_scale_transform
     end
   end
 
