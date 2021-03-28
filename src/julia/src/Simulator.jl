@@ -152,7 +152,7 @@ module Simulator
         return (vertices(g) .|> param_vec_for_vertex, edges(g) .|> param_vec_for_edge)
     end
 
-    function run_simulation(g; fps=30, tspan=(0., 5.))
+    function run_simulation(g; fps=30, tspan=(0., 10.))
         u0 = get_inital_conditions(g)
         params = get_simulation_parameters(g)
 
