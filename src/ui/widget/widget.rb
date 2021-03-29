@@ -5,9 +5,11 @@ class Widget
 
   def initialize(position, valid_states, image_path)
     @position = position
-    @states = valid_states
+
+    # Reverse valid_states so that the easiest is the upper most
+    @states = valid_states.reverse
     @image_path = image_path
-    @current_state = 0
+    @current_state = valid_states.length - 1
 
     @instances = []
     @group = Sketchup.active_model.active_entities.add_group
@@ -69,7 +71,7 @@ class Widget
   end
 
   def cycle!
-    @current_state = (@current_state + 1) % @states.length
+    @current_state = (@current_state - 1) % @states.length
     update_states
   end
 
