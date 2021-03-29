@@ -16,7 +16,8 @@ module Simulator
     # https://en.wikipedia.org/wiki/Dirac_delta_function
     # as a approaches 0, the function will become more 'extreme'
     dirac_delta = (x, a) -> 1 / (a * √π) * exp(1)^(-(x/a)^2)
-    dirac_impulse = (t) -> dirac_delta(t, 1/50) * 10
+    dirac_impule_magnitude = 1000 #N
+    dirac_impulse = (t) -> dirac_delta(t, 1/50) * dirac_impule_magnitude/10
     # Test out how the function looks like in the first second
     # (-0.5:0.01:0.5 .|> x -> dirac_delta(x, 1/20)) |> plot
 
@@ -56,7 +57,7 @@ module Simulator
             f⃗_spring = spring_force_from_displacement_vector(r⃗, c, unstreched_length)
             f⃗_damping = (scalar_projection(v⃗_source, r⃗) .- scalar_projection(v⃗_dest, r⃗)) * r⃗ ./ norm(r⃗) * d_spring
             
-            e .= f⃗_spring .+ f⃗_damping
+            e .= f⃗_spring .+ f⃗_damping .+ dirac_impulse(t)
             nothing
         end
 
@@ -87,7 +88,7 @@ module Simulator
                 capped_actuation_force = sign(actuaction_force) * min(abs(actuaction_force), max_applied_force)
                 
                 # edge_acceleration .+ gravity .+ dirac_impulse(t)
-                edge_acceleration .+ gravity .+ (capped_actuation_force .* v⃗ ./ norm(v⃗) ./ m) .+ dirac_impulse(t)
+                edge_acceleration .+ gravity .+ (capped_actuation_force .* v⃗ ./ norm(v⃗) ./ m)
             else
                 edge_acceleration .+ gravity
             end
