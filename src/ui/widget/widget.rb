@@ -34,7 +34,7 @@ class Widget
     rotation = Geometry.rotation_transformation(Geom::Vector3d.new(0, 0, 1), Geom::Vector3d.new(0, -1, 0), Geom::Point3d.new)
     image.transform! rotation
 
-    translation = Geom::Transformation.translation(Geom::Vector3d.new(-(image.bounds.width/2),  0, 15.cm))
+    translation = Geom::Transformation.translation(Geom::Vector3d.new(-(image.bounds.width/2),  0, 16.cm))
     image.transform! translation
     image.parent.behavior.always_face_camera = true
   end
