@@ -3,13 +3,15 @@ class Widget
   LABEL_HEIGHT = 2.0
 
 
-  def initialize(position, valid_states, image_path)
+  def initialize(position, valid_states, image_path, state: nil)
     @position = position
 
     # Reverse valid_states so that the easiest is the upper most
     @states = valid_states.reverse
     @image_path = image_path
-    @current_state = valid_states.length - 1
+
+    state = valid_states.length - 1 unless state
+    @current_state = state
 
     @instances = []
     @group = Sketchup.active_model.active_entities.add_group

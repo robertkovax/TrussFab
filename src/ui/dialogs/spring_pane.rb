@@ -68,6 +68,7 @@ class SpringPane
     @visualization_offsets = {}
 
     @widgets = {}
+    @widget_states = {}
   end
 
   # spring / graph manipulation logic:
@@ -153,6 +154,9 @@ class SpringPane
     # Sketchup.active_model.active_view.animation = @animation
     # @period_animation_running = true
     #
+    @widgets.each do | node_id, widgets |
+      @widget_states[node_id] = widgets.map(&:current_state)
+    end
     @widgets.values.each do |widgets|
       widgets.each(&:remove)
     end
@@ -179,15 +183,20 @@ class SpringPane
       Geometry::find_closest_point_on_curve(midpoint + Geometry.scale(vector_along_curve, 7), movement_curve) + offset,
       Geometry::find_closest_point_on_curve(midpoint + Geometry.scale(vector_along_curve, -7), movement_curve) + offset
     ].sort_by { |a| Geom::Vector3d.new(a.to_a).length}
+
+    # TODO: Change hardcoded stuff to proper first settings
+    @widget_states[node_id] = [2, 2] unless @widget_states[node_id]
     @widgets[node_id] = [
       Widget.new(
         widget_positions[0],
         ["easy", "medium", "hard"],
-        Configuration::WIDGET_DIFFICULTY_PATH),
+        Configuration::WIDGET_DIFFICULTY_PATH,
+        state: @widget_states[node_id][0]),
       Widget.new(
         widget_positions[1],
         ["slow", "comfortable", "fast"],
-        Configuration::WIDGET_TEMPO_PATH)
+        Configuration::WIDGET_TEMPO_PATH,
+        state: @widget_states[node_id][1]),
     ]
   end
 
