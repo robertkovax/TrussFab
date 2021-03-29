@@ -37,6 +37,8 @@ class SpringPane
 
     @simulation_duration = 5.0
 
+    @trigger_server_update_on_change = true
+
     # { node_id => {
     #               period: {value: float, index: int}, max_a: {value: float, index: int},
     #               max_v: {value: float, index: int}, time_velocity: [{time: float, velocity: float}],
@@ -78,6 +80,10 @@ class SpringPane
     edge.link.spring_parameters = parameters
     edge.link.actual_spring_length = parameters[:unstreched_length].m
     simulate if should_simulate
+  end
+
+  def set_trigger_server_update_on_change(val)
+    @trigger_server_update_on_change = val
   end
 
   def enable_preloading_for_spring(spring_id)
@@ -421,6 +427,11 @@ class SpringPane
 
   # compilation / simulation logic
   def simulate(amplitude_tweak: false)
+
+    if not @trigger_server_update_on_change
+      return
+    end
+
     Sketchup.active_model.start_operation('compile simulation', true)
     SimulationRunnerClient.update_model(JsonExport.graph_to_json(nil, [], @simulation_duration, amplitude_tweak: amplitude_tweak)) do |json_response|
       spring_constants_for_ids = json_response["optimized_spring_constants"]
