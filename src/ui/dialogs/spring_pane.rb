@@ -172,13 +172,20 @@ class SpringPane
     offset = @visualization_offsets[node_id.to_s] || Geom::Vector3d.new(0, 0, 150.mm)
     offset = offset.clone
     offset.length = 150.mm
+
+    # Sort positions by distance to origin, to always have predictable position
+    # of widgests relative to origin
+    widget_positions = [
+      Geometry::find_closest_point_on_curve(midpoint + Geometry.scale(vector_along_curve, 7), movement_curve) + offset,
+      Geometry::find_closest_point_on_curve(midpoint + Geometry.scale(vector_along_curve, -7), movement_curve) + offset
+    ].sort_by { |a| Geom::Vector3d.new(a.to_a).length}
     @widgets[node_id] = [
       Widget.new(
-        Geometry::find_closest_point_on_curve(midpoint + Geometry.scale(vector_along_curve, 7), movement_curve) + offset,
+        widget_positions[0],
         ["easy", "medium", "hard"],
         Configuration::WIDGET_DIFFICULTY_PATH),
       Widget.new(
-        Geometry::find_closest_point_on_curve(midpoint + Geometry.scale(vector_along_curve, -7), movement_curve) + offset,
+        widget_positions[1],
         ["slow", "comfortable", "fast"],
         Configuration::WIDGET_TEMPO_PATH)
     ]
