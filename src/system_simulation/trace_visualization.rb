@@ -26,7 +26,7 @@ class TraceVisualization
 
     @visualization_offsets = visualization_offsets
     @handles = {} #node_id to handles [handle_one, handle_two]
-    @bars = {} #age_id to ComponentInstance
+    @bars = {} #node_id to age_id to ComponentInstance
     @swipe_groups = {}
     @letter_groups = {}
   end
@@ -104,8 +104,10 @@ class TraceVisualization
   # returns age or nil if face was not found
   def get_age_for_face(face)
     matched_age = nil
-    @bars.each do |age, instance|
-      matched_age = age if instance.definition.entities.grep(Sketchup::Face).include?(face)
+    @bars.each do |node_id, age_to_instance|
+      age_to_instance.each do |age, instance|
+        matched_age = age if instance.definition.entities.grep(Sketchup::Face).include?(face)
+      end
     end
     matched_age
   end
@@ -255,7 +257,9 @@ class TraceVisualization
     else
       instance = draw_swipe @swipe_groups[node_id].entities, offsetted_curve_points, BAR_COLORS[bar_index % BAR_COLORS.count] , age_text
     end
-    @bars[age_text] = instance
+
+    @bars[node_id] = {} unless @bars[node_id]
+    @bars[node_id][age_text] = instance
 
     add_handles(offsetted_curve_points[start_index..end_index], node_id.to_i, @swipe_groups[node_id]) if add_handles
   end
