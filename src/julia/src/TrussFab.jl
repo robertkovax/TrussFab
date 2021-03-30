@@ -106,7 +106,11 @@ module TrussFab
                 add_edge!(g, src_node, dst_node)
                 set_prop!(g, src_node, dst_node, :id, edge["id"])
                 set_prop!(g, src_node, dst_node, :type, edge["type"])
-                set_prop!(g, src_node, dst_node, :length, norm(get_prop(g, convert_node_id(edge["n1"]), :init_pos) - get_prop(g, convert_node_id(edge["n2"]), :init_pos)))
+
+                manual_precompression = haskey(edge, "manual_precompression") ? convert(Float64, edge["manual_precompression"]) / 1000 : 0.0
+
+                edge_length = norm(get_prop(g, convert_node_id(edge["n1"]), :init_pos) - get_prop(g, convert_node_id(edge["n2"]), :init_pos)) + manual_precompression
+                set_prop!(g, src_node, dst_node, :length, edge_length)
 
                 if edge["type"] == "spring"
                     set_prop!(g, src_node, dst_node, :spring_stiffness,  edge["spring_parameter_k"])
