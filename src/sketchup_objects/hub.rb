@@ -256,6 +256,7 @@ class Hub < PhysicsSketchupObject
     @user_weight = 0
     @user_rotation = 0
     update_user_indicator
+    TrussFab.get_spring_pane.update_mounted_users
   end
 
   def rotate_user(angle)

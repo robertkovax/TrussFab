@@ -331,6 +331,11 @@ class SpringPane
   end
 
   def update_mounted_users
+    if mounted_users.values.length == 0
+      # No need to simulate here, just clean the visualization up
+      update_trace_visualization
+      return
+    end
     simulate
   end
 
