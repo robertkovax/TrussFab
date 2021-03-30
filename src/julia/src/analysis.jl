@@ -70,5 +70,5 @@ function get_acceleration(velocities, fps)
         result[i] = velocities[i-1] - velocities[i]
     end
     result[1] = 0
-    return result ./ fps
+    return result .* fps
 end
