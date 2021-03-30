@@ -125,7 +125,7 @@ module TrussFab
         resizable: false,
         left: 10,
         top: 100,
-        height: 150,
+        height: 180,
         style: UI::HtmlDialog::STYLE_DIALOG
       }.freeze
 
@@ -136,9 +136,7 @@ module TrussFab
       <meta charset="utf-8"></head>
       <link rel="stylesheet" href="../css/ui.css" type="text/css">
       <body>
-      <h5>#{message}</h5>
-      <br>
-      <button type="button" style="float: right;" onclick="window.close()">Ok</button>
+      #{message}
       </body>
       </html>
 )
