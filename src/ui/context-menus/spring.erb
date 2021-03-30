@@ -12,10 +12,17 @@ K:
 <br>
 <input type="number" min="0.0" value="<%= @spring.spring_parameter_k %>" step="0.1" onchange="set_k(this.value)">
 <br><br>
+Manual Precompression:
+<br>
+<input type="number"  value="<%= @spring.manual_precompression %>" step="1" onchange="set_manual_precompression(this.value)">
+<br><br>
 
 <script type="text/javascript">
     function set_k(newValue) {
         sketchup.set_k(newValue);
+    }
+    function set_manual_precompression(newValue) {
+      sketchup.set_manual_precompression(newValue);
     }
 </script>
 </body>

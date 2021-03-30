@@ -6,7 +6,7 @@ require 'src/sketchup_objects/spring_constant_observer.rb'
 
 # PhysicsLink that behaves like a gas spring
 class SpringLink < ActuatorLink
-  attr_accessor :actual_spring_length, :initial_edge_length
+  attr_accessor :actual_spring_length, :initial_edge_length, :manual_precompression
   attr_reader :edge, :initial_spring_length, :spring_parameters
 
   COLORS = Configuration::INTENSE_COLORS
@@ -21,6 +21,8 @@ class SpringLink < ActuatorLink
     @first_elongation_length =
       @second_elongation_length = Configuration::MINIMUM_ELONGATION
     @id_label = nil
+
+    @manual_precompression = 0
 
     persist_entity
     update_id_label

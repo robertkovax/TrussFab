@@ -54,7 +54,10 @@ class JsonExport
         e2: edge.link.second_elongation_length.to_mm,
         uncompressed_length: edge.link_type == 'spring' ? edge.link.spring_parameters[:unstreched_length] * 1e3 : edge.length.to_mm
       }
-      hash['spring_parameter_k'] = edge.link.spring_parameter_k if edge.link.is_a? SpringLink
+      if edge.link.is_a? SpringLink
+        hash['spring_parameter_k'] = edge.link.spring_parameter_k
+        hash['manual_precompression'] = edge.link.manual_precompression
+      end
       hash
     end
   end

@@ -247,6 +247,10 @@ class ComponentProperties
       # Seperation of concerns wise, this is really bad:
       TrussFab.get_spring_pane.update_constant_for_spring(spring.edge.id, new_k)
     end
+    dialog.add_action_callback('set_manual_precompression') do |_dialog, param|
+      new_manual_precompression = param.to_f
+      spring.manual_precompression = new_manual_precompression
+    end
     dialog.add_action_callback('resonant_frequency') do |_dialog, param|
       spring.resonant_frequency = param.to_f
       spring.update_link_properties
