@@ -22,6 +22,7 @@ module Configuration
   ACTUATOR_VIEW = 'Actuators'.freeze
   MOTION_TRACE_VIEW = 'Motion Trace'.freeze
   MAXIMUM_ACCELERATION_VELOCITY_VIEW = 'Maximum Acceleration'.freeze
+  WIDGET_VIEW = 'Widgets'.freeze
 
   # UI Dialog Properties
   HTML_DIALOG = {

@@ -258,6 +258,8 @@ class TraceVisualization
       instance = draw_swipe @swipe_groups[node_id].entities, offsetted_curve_points, BAR_COLORS[bar_index % BAR_COLORS.count] , age_text
     end
 
+    instance.layer = Configuration::MOTION_TRACE_VIEW
+
     @bars[node_id] = {} unless @bars[node_id]
     @bars[node_id][age_text] = instance
 
@@ -337,6 +339,7 @@ class TraceVisualization
     transform = Geom::Transformation.new translation * rotation * rotationXZ * letter_spacing_translation
     letter_instance = letter_entities.add_instance(letter_definition_a, transform)
     letter_instance.material = Sketchup::Color.new(0,0,0)
+    letter_instance.layer = Configuration::MOTION_TRACE_VIEW
 
     # Add second letter, mirrored on the other side of the bar
     letter_definition_b = Sketchup.active_model.definitions.add "Letter"
@@ -348,6 +351,7 @@ class TraceVisualization
     transform = Geom::Transformation.new translation * rotation * rotationXZ * letter_spacing_translation
     letter_instance = letter_entities.add_instance(letter_definition_b, transform)
     letter_instance.material = Sketchup::Color.new(0,0,0)
+    letter_instance.layer = Configuration::MOTION_TRACE_VIEW
 
     bar_instance
   end

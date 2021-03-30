@@ -80,6 +80,8 @@ class AmplitudeHandle < SketchupObject
     group = Sketchup.active_model.entities.add_group
     entities = group.entities
     puts @definition
-    entities.add_instance(@definition, Geom::Transformation::translation(@position))
+    instance = entities.add_instance(@definition, Geom::Transformation::translation(@position))
+    instance.layer = Configuration::MOTION_TRACE_VIEW
+    instance
   end
 end

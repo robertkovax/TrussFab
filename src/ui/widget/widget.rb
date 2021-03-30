@@ -15,6 +15,7 @@ class Widget
 
     @instances = []
     @group = Sketchup.active_model.active_entities.add_group
+    @group.layer = Configuration::WIDGET_VIEW
     create_geometry
     create_image
     update
