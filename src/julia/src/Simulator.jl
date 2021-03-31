@@ -43,7 +43,7 @@ module Simulator
         end
 
         @inline Base.@propagate_inbounds  function areparallel(vec1, vec2)
-            norm(vec1 ./ norm(vec1) .- vec2 ./ norm(vec2)) < 1.0
+            acos(dot(vec1, vec2)  / (norm(vec1)*norm(vec2))) < π/2
         end
 
         @inline Base.@propagate_inbounds function springedge!(e, vertex_src, vertex_dst, params, t)
