@@ -15,7 +15,7 @@ number_preprocessing(val::Float64) = round(val, digits=5)
 
 ROUTER = HTTP.Router()
 
-simulation_fps = 30
+simulation_fps = 35
 current_futures = []
 current_tasks = []
 current_request_handler = @async ""
