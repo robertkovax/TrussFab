@@ -43,11 +43,11 @@ module Simulator
         end
 
         @inline Base.@propagate_inbounds  function are_pointing_in_same_direction(vec1, vec2)
-            acos(dot(vec1, vec2)  / (norm(vec1)*norm(vec2))) < π/2
+            norm(vec1 ./ norm(vec1) .- vec2 ./ norm(vec2)) < sqrt(2)
         end
 
         @inline Base.@propagate_inbounds function springedge!(e, vertex_src, vertex_dst, params, t)
-            d_spring = 40.0
+            d_spring = 75.0
 
             v⃗_source = velocity(vertex_src)
             v⃗_dest = velocity(vertex_dst)
@@ -79,18 +79,18 @@ module Simulator
             m, actuation_power = @views p
             v⃗ = @views velocity(state)
 
-            edge_acceleration = (vector_sum(edges_dst) - vector_sum(edges_src)) ./ m .+ gravity
+            edge_acceleration = (vector_sum(edges_dst) - vector_sum(edges_src)) ./ m
             
             dstate[1:3] .= @views v⃗ 
-            dstate[4:6] .= @views if actuation_power > 0.0 && norm(v⃗) > 0.01 && are_pointing_in_same_direction(v⃗, edge_acceleration)
+            dstate[4:6] .= @views if actuation_power > 0.0 && norm(v⃗) > 0.01 && are_pointing_in_same_direction(dstate[1:3], dstate[4:6])
                 max_applied_force = 500 #N
                 actuaction_force = 2.0 * actuation_power ./ norm(v⃗)
                 capped_actuation_force = sign(actuaction_force) * min(abs(actuaction_force), max_applied_force)
                 
                 # edge_acceleration .+ gravity .+ dirac_impulse(t)
-                edge_acceleration .+ (capped_actuation_force .* v⃗ ./ norm(v⃗) ./ m)
+                edge_acceleration .+ gravity .+ (capped_actuation_force .* v⃗ ./ norm(v⃗) ./ m)
             else
-                edge_acceleration 
+                edge_acceleration .+ gravity
             end
             nothing
         end
