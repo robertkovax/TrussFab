@@ -141,7 +141,7 @@ class SpringPane
     # Visualized period
     #  TODO: make this work for multiple users and move into seperate method
     node_id = mounted_users.keys.first
-    if @user_stats.nil? || @user_stats.values[0][node_id].nil?
+    if @user_stats.nil? || @user_stats.values.length == 0 || @user_stats.values[0][node_id].nil?
       puts "No user stats for node #{node_id}"
       # return
     end
