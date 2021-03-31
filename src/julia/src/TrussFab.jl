@@ -81,8 +81,8 @@ module TrussFab
     
     # filter_trivially_fixed_edges removes edges that connect two fixed nodes
     # (are removed by default as they dont contribute to simulation results)
-    const base_node_weight = 0.4 # kg
     function import_trussfab_json(json::Dict{String, Any}, filter_trivially_fixed_edges=true)
+        base_node_weight = 0.6 # kg
         nodeCount = length(json["nodes"])
         g = MetaGraphs.MetaGraph(nodeCount)
                
