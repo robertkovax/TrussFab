@@ -1,4 +1,6 @@
-
+using Distributed
+using DiffEqBase
+using OrdinaryDiffEq
 
 function tweak_amplitude(g, target_length, simulation_duration=5.0)
     user_vertex_id = TrussFab.users(g)[1]
@@ -53,4 +55,54 @@ function tweak_amplitude(g, target_length, simulation_duration=5.0)
     @info "Error for optimization was $(error), achieved length was $(achieved_length)"
 
     return (samples[match_index], error, solutions[match_index])
+end
+
+
+function find_equilibrium_spring_elongations(g)
+    g = deepcopy(g)
+    vertices(g) .|> v -> set_prop!(g, v, :active_user, false)   
+    length_corrections = zeros(ne(g))
+
+    for _ in 1:100
+        eom = Simulator.get_equations_of_motion(g) 
+        u0 = Simulator.get_inital_conditions(g)
+        params = Simulator.get_simulation_parameters(g)
+        
+        ode_problem = ODEProblem( eom, u0, (0.0, 0.2), params)
+        sol = solve(ode_problem, TRBDF2(), save_everystep=false)
+        
+        for (i, e) in enumerate(edges(g))
+            if get_prop(g, e, :type) != "spring"
+                continue
+            end
+            
+            displacement(v_id) = sol[v_id*6-5:v_id*6-3, end]
+            velocity(v_id) = sol[v_id*6-2:v_id*6, end]
+            scalar_projection(v, r) = dot(v, (r ./ norm(r)))
+            
+            v⃗_source = velocity(e.src)
+            v⃗_dest = velocity(e.dst)
+            r⃗ = displacement(e.src) .- displacement(e.dst)
+            v⃗ = (scalar_projection(v⃗_source, r⃗) .- scalar_projection(v⃗_dest, r⃗))
+
+            # TODO consider other alternatives
+            # - steady state solve the system and then measure the forces and calculate the spring length analytically assuming linarity
+            # - AD solve the system and GradientDescent to the right spring length
+
+            length_correction = - v⃗ /10
+            length_corrections[i] = length_correction
+            
+            set_prop!(g, e, :length, get_prop(g, e, :length) + length_correction)
+
+            display(plot(sol'))
+        end
+        error = sum(abs.(length_corrections))
+        @info error, length_corrections
+        if error < 0.01
+            break
+        end
+        yield()
+    end
+
+    return TrussFab.springs(g) .|> e -> get_prop(g, e, :length)
 end
