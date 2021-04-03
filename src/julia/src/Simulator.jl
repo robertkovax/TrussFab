@@ -43,7 +43,7 @@ module Simulator
         end
 
         @inline Base.@propagate_inbounds  function are_pointing_in_same_direction(vec1, vec2)
-            norm(vec1 ./ norm(vec1) .- vec2 ./ norm(vec2)) < sqrt(2)
+            norm(vec1 ./ norm(vec1) .- vec2 ./ norm(vec2)) < 0.1
         end
 
         @inline Base.@propagate_inbounds function springedge!(e, vertex_src, vertex_dst, params, t)
