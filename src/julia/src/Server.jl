@@ -2,16 +2,19 @@ using HTTP
 using Sockets
 using JSON
 using Revise
-import TrussFab
 using CSV
 using MetaGraphs
 using LightGraphs
 using LinearAlgebra
 using Plots
 using Distributed
+
+using TrussFab
+
+
 includet("./parameter_optimization.jl")
 
-number_preprocessing(val::Float64) = round(val, digits=5)
+number_preprocessing(val::Number) = convert(Float32, round(val, digits=5))
 
 ROUTER = HTTP.Router()
 
@@ -43,14 +46,14 @@ function abort_all_running_tasks()
 
     if !istaskdone(current_request_handler)
         schedule(current_request_handler, InterruptException(), error=true)
-        fetch(current_request_handler)
+        # fetch(current_request_handler)
     end
     
     while !isempty(current_tasks)
         task::Task = pop!(current_tasks)
         if !istaskdone(task)
             schedule(task, InterruptException(), error=true)
-            fetch(task)
+            # fetch(task)
         end
     end
 
@@ -198,19 +201,19 @@ function update_model(req::HTTP.Request)
         user_ids = client_request_obj["mounted_users"] .|> user -> user["id"]
         
         spring_constants = if parse_optimization_flag(client_request_obj)
-            spring_constant = 7000.0
             try
                 g2 = deepcopy(g)
                 TrussFab.set_age!(g2, 12.0)
                 target_amplitude = parse_requested_amplitude(client_request_obj) /2
                 @info "starting optimization for target amplitude $(target_amplitude)"
-                spring_constant, error, solution = tweak_amplitude(g2, target_amplitude, simulation_duration)
+                guessed_spring_constants, error, solution = tweak_amplitude(g2, target_amplitude, simulation_duration)
+                @info "Spring Constant $(guessed_spring_constants)"
+                guessed_spring_constants
             catch e
                 @warn "amplitude optimization failed: $(sprint(showerror, e))"
+                fallback_spring_constant = 7000.0
+                TrussFab.springs(g) .|> edge -> fallback_spring_constant
             end
-	        @info "Spring Constant $(spring_constant)"
-            
-            [spring_constant for _ in TrussFab.springs(g)]
         else
             TrussFab.springs(g) .|> edge -> get_prop(g, edge, :spring_stiffness)
         end
@@ -256,6 +259,6 @@ function serve()
     end
     HTTP.serve(ROUTER, ip"0.0.0.0", port, verbose=true)
 end
+
 serve()
 nothing
-

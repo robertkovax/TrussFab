@@ -6,7 +6,6 @@ module Simulator
     using MetaGraphs
     using DiffEqBase
     using DiffEqCallbacks
-
     export run_simulation
 
     const c_stiff = 1e6
@@ -57,7 +56,7 @@ module Simulator
             f⃗_spring = spring_force_from_displacement_vector(r⃗, c, unstreched_length)
             f⃗_damping = (scalar_projection(v⃗_source, r⃗) .- scalar_projection(v⃗_dest, r⃗)) * r⃗ ./ norm(r⃗) * d_spring
             
-            e .= f⃗_spring .+ f⃗_damping .+ dirac_impulse(t)
+            e .= f⃗_spring .+ f⃗_damping #.+ dirac_impulse(t)
             nothing
         end
 
@@ -124,17 +123,18 @@ module Simulator
             # converting the parameter vector to a vector of tuples is nessecary, because we are required to have one 
             # vector in optimization but actually want to map 2 parameters to any edge
             nd(dx, x, (p[1], p[2]), t)
+            return nothing
         end
 
         return nd_wrapper!
     end
 
     function get_inital_conditions(g)
-        return map(v -> vcat(get_prop(g, v, :init_pos), zeros(3)), vertices(g)) |> Iterators.flatten |> collect
+        return map(v -> vcat(get_prop(g, v, :init_pos), zeros(3)), vertices(g)) |> Iterators.flatten |> arr -> convert.(Float32, arr)
     end
 
     function get_simulation_parameters(g)
-        to_float(x) = convert(Float64, x)
+        to_float(x) = convert(Float32, x)
         
         param_vec_for_edge(e) = begin
             c = get_prop(g, e, :type) == "spring" ?  get_prop(g, e, :spring_stiffness) |> to_float : c_stiff |> to_float
@@ -154,10 +154,11 @@ module Simulator
     end
 
     function run_simulation(g; fps=30, tspan=(0., 10.))
+
         u0 = get_inital_conditions(g)
         params = get_simulation_parameters(g)
 
-        ode_problem = ODEProblem( get_equations_of_motion(g), u0, tspan, params )
+        ode_problem = ODEProblem( get_equations_of_motion(g), u0,  convert.(Float32, tspan), params )
 
         # make sure that the simulation can be aborted using InterruptException
         # TODO figure out why this triggers twice as much as it's suppoose to (mind the 2; should be 1) 

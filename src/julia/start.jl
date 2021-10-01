@@ -13,6 +13,9 @@ addprocs(3, dir="./", exeflags="--project")
 # addprocs(3, dir="./", exeflags="-Jsysimage")
 
 @everywhere using TrussFab
+@everywhere using Revise
+@everywhere includet("./src/Simulator.jl")
+
 for worker in workers()
     @spawnat worker include("./warm_up.jl")
 end
