@@ -204,7 +204,7 @@ function update_model(req::HTTP.Request)
             try
                 g2 = deepcopy(g)
                 TrussFab.set_age!(g2, 12.0)
-                target_amplitude = parse_requested_amplitude(client_request_obj) /2
+                target_amplitude = parse_requested_amplitude(client_request_obj)
                 @info "starting optimization for target amplitude $(target_amplitude)"
                 guessed_spring_constants, error, solution = tweak_amplitude(g2, target_amplitude, simulation_duration)
                 @info "Spring Constant $(guessed_spring_constants)"
