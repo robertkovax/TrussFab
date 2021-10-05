@@ -13,7 +13,7 @@ class ImportTool < Tool
     @path = nil
     @angle = 0
     @scale = 1
-    @update_springs = false
+    @update_springs = true
   end
 
   def onKeyDown(key, _repeat, _flags, _view)
