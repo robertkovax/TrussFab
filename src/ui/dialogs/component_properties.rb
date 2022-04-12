@@ -14,6 +14,12 @@ class ComponentProperties
       type = entity.get_attribute('attributes', :type)
       id = entity.get_attribute('attributes', :id)
 
+
+      if type.include? "Link" or type.include? "PidController"
+        @edge = Graph.instance.edges[id]
+        add_edge_menu(context_menu, '../context-menus/edge.erb', 'TrussFab Edge Properties') if @edge
+      end
+
       case type
       when 'ActuatorLink'
         actuator = Graph.instance.edges[id].link
@@ -91,6 +97,12 @@ class ComponentProperties
     end
   end
 
+  def add_edge_menu(context_menu, erb_file, title)
+    context_menu.add_item(title) do
+      show_edge_dialog(erb_file, title, Configuration::UI_WIDTH, 400)
+    end
+  end
+
   def add_spring_menu(context_menu, erb_file, title)
     context_menu.add_item(title) do
       show_spring_dialog(erb_file, title, Configuration::UI_WIDTH, 400)
@@ -148,6 +160,14 @@ class ComponentProperties
 
     dialog.show
     dialog
+  end
+
+  def show_edge_dialog(file,
+                       name,
+                       width = Configuration::UI_WIDTH,
+                       height = Configuration::UI_HEIGHT)
+    dialog = show_dialog(file, name, width, height)
+    register_edge_callbacks(@edge, dialog)
   end
 
   def show_actuator_dialog(file,
@@ -210,6 +230,16 @@ class ComponentProperties
     content = File.read(File.join(@location, path))
     t = ERB.new(content)
     t.result(binding)
+  end
+
+  def register_edge_callbacks(edge, dialog)
+    dialog.add_action_callback('set_length') do |_dialog, param|
+      Sketchup.active_model.start_operation('Set Edge Length', true)
+      relaxation = Relaxation.new
+      relaxation.stretch_to(edge, param.to_f.mm)
+      relaxation.relax
+      Sketchup.active_model.commit_operation
+    end
   end
 
   def register_actuator_callbacks(actuator, dialog)

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="de">
+<link rel="stylesheet" href="../css/ui.css" type="text/css">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edge Menu</title>
+</head>
+<body onload="init()">
+Link length:
+<input type="text" id="bottle-link-length">
+<button type="button" onclick="set_length()">set</button>
+
+<script type="text/javascript">
+    function init() {
+        var length = document.getElementById("bottle-link-length");
+        length.value = <%= @edge.length.to_mm.round(1) %>
+    }
+
+    function set_length() {
+        var value = document.getElementById("bottle-link-length").value;
+        sketchup.set_length(value);
+        window.close();
+    }
+</script>
+</body>
+</html>
