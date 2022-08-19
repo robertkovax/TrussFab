@@ -55,7 +55,7 @@ class ImportTool < Tool
   def activate
     Sketchup.status_text = 'Draw Tool: Use right/left key to rotate, and '\
                            'up/down key to scale the last imported model'
-    @scale = 1
+    @scale = 5
     @angle = 0
   end
 
@@ -70,11 +70,11 @@ class ImportTool < Tool
     import_from_json(@path, snapped_object, @mouse_input.position)
     @ui.animation_pane.sync_hidden_status(Graph.instance.actuator_groups)
 
-    if @update_springs
-      @ui.spring_pane.update_springs
-      @ui.spring_pane.request_compilation
-      @ui.spring_pane.color_static_groups
-    end
+    #if @update_springs
+    #  @ui.spring_pane.update_springs
+    #  @ui.spring_pane.request_compilation
+    #  @ui.spring_pane.color_static_groups
+    #end
 
     @mouse_input.update_positions(view, x, y)
     view.invalidate

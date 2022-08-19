@@ -21,7 +21,7 @@ class FabricateTool < Tool
     filename = ProjectHelper.library_directory + '/openscad/executeSCAD_Windows.cmd'
     FileUtils.cp(filename, @path)
     # Lassercutted welding jigs script
-    filename = ProjectHelper.library_directory + '/openscad/executeSCADForLaserCuttedJig.sh'
-    FileUtils.cp(filename, @path)
+    # filename = ProjectHelper.library_directory + '/openscad/executeSCADForLaserCuttedJig.sh'
+    # FileUtils.cp(filename, @path)
   end
 end

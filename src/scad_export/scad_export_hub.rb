@@ -122,6 +122,9 @@ class ExportMainHub < ScadExportHub
     end
 
     export_string =
+        "// adjust filepath to LibSTLExport if neccessary\n" \
+        "include <#{ProjectHelper.library_directory}/openscad/LibSTLExport.scad>\n" \
+        "\n" \
         "hubID = \"#{@id}\";\n" \
         "mode = \"#{mode}\";\n" \
         "safetyFlag = false;\n" \
@@ -133,20 +136,13 @@ class ExportMainHub < ScadExportHub
         "dataFileVectorArray = [\n" \
         "#{vector_array.join(",\n")}\n" \
         "];\n" \
-        "connectionLengthArray = [\n" \
-        "#{@pipe_lengths.join(",\n")}\n" \
-        "];\n" \
         "dataFileAddonParameterArray = [\n" \
         "#{addon_array.join(",\n")}\n" \
         "];\n" \
         "connectorTypeArray = [\n" \
         "#{type_array.join(",\n")}\n" \
         "];\n" \
-        "\n" \
-        "// adjust filepath to LibSTLExport if neccessary\n" \
-        "include <#{ProjectHelper.library_directory}/openscad/Util/welding_jig.scad>\n" \
-        "\n" \
-        "drawWeldingJig();;\n"
+        "drawHub(dataFileVectorArray, dataFileAddonParameterArray, connectorTypeArray);\n"
 
     file.write(export_string)
     file.close

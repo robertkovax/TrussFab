@@ -46,7 +46,7 @@ module Configuration
   MAXIMUM_ELONGATION    = 100.mm.freeze
   BALL_HUB_RADIUS       = 30.mm.freeze
   STANDARD_BOTTLES      = 'hard'.freeze
-  COVER_THICKNESS       = 20.mm.freeze
+  COVER_THICKNESS       = 5.mm.freeze
   # Size of the rendered elongation
   ELONGATION_RADIUS     = 11.mm.freeze
   # This value is used for finding out the minimum angle of elongations to
@@ -85,7 +85,7 @@ module Configuration
   BOTTLE_COLOR              = Sketchup::Color.new(1.0, 1.0, 1.0)
   ACTUATOR_COLOR            = Sketchup::Color.new(1.0, 1.0, 1.0)
   SPRING_COLOR              = Sketchup::Color.new(1.0, 0.64, 0.0)
-  GENERIC_LINK_COLOR        = Sketchup::Color.new(0.72, 1.0, 0.0)
+  GENERIC_LINK_COLOR        = Sketchup::Color.new(0.69, 0.75, 0.81)
   HIGHLIGHT_COLOR           = Sketchup::Color.new(0.5, 0.5, 0.5)
   SURFACE_COLOR             = Sketchup::Color.new(1.0, 1.0, 1.0)
   SURFACE_HIGHLIGHT_COLOR   = Sketchup::Color.new(0.5, 0.5, 0.5)

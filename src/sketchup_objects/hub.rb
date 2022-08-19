@@ -192,7 +192,7 @@ class Hub < PhysicsSketchupObject
     @sensor_symbol = nil
     @weight_indicator.erase! unless @weight_indicator.nil?
     @weight_indicator = nil
-    remove_user
+    #remove_user
   end
 
   def delete

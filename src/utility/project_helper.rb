@@ -47,7 +47,7 @@ module ProjectHelper
   end
 
   def self.setup_sketchup
-    setup_simulation_server
+    # setup_simulation_server
     model = Sketchup.active_model
     model.start_operation('TrussFab Setup', true)
     # print and display lengths in mm

@@ -74,9 +74,9 @@ class DeleteTool < Tool
     Sketchup.active_model.commit_operation
     @ui.animation_pane.sync_hidden_status(Graph.instance.actuator_groups)
     # Update springs and mounted users to changed geometry (e.g. a spring is deleted)
-    @ui.spring_pane.update_springs
-    @ui.spring_pane.update_mounted_users if update_users
-    @ui.spring_pane.notify_model_changed
+    #@ui.spring_pane.update_springs
+    #@ui.spring_pane.update_mounted_users if update_users
+    #@ui.spring_pane.notify_model_changed
     view.invalidate
   end
 end
