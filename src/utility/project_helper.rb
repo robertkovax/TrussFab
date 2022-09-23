@@ -236,7 +236,7 @@ module ProjectHelper
 
     unless materials['wooden_cover']
       material = materials.add('wooden_cover')
-      material.texture = asset_directory + '/textures/plywood.jpg'
+      material.texture = asset_directory + '/textures/canvas.jpg'
       material.alpha = 1
     end
 
