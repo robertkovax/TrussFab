@@ -127,3 +127,16 @@ The ruby console in Sketchup can be used to interact with the TrussFab Plugin.
 Available commands are:
     TrussFab.reload - reloads ruby and js files for faster development (do this after you changed code you want to test)
     TrussFab.store_sensor_output - toggles writing the output of the sensors into a .csv-style file, which will be located in the home folder (called sensor_output.log)
+    
+### Create Sketchup Extension Package (.rbz file)
+An easy way of sharing sketchup extensions is by creating a .rbz package file containing the plug-in. Other users can easily install the plug-in in SketchUp via Window > Extension Manager > Install... 
+
+Follow these steps to create such a package file:
+* make a copy of this repository, go into the copied directory
+* Optional: delete the `.git` as well as `.githooks` and `.github` directories so repository information is not distributed     
+* copy the `truss_fab_extension.rb` file from the current directory one level up (so into the root directory of where the repo copy lives)
+* rename both the `truss_fab_extension.rb` file as well as the copied repo folder (=the code) to `TrussFab`
+* you should now have a file called `TrussFab.rb` and a folder called `TrussFab`
+* zip both
+* rename the .zip file to .rbz
+* that's it, this .rbz file can be loaded into sketchup
