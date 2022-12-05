@@ -7,7 +7,7 @@ require 'src/configuration/configuration'
 
 # Link
 class Link < PhysicsSketchupObject
-  attr_accessor :joint, :model, :first_node, :second_node
+  attr_accessor :joint, :model, :first_node, :second_node, :double_counter, :marked_as_double
   attr_reader :first_elongation_length, :second_elongation_length, :position,
               :second_position, :loc_up_vec, :sensor_symbol, :piston_group
 
@@ -47,6 +47,10 @@ class Link < PhysicsSketchupObject
     @sensor_symbol = nil
 
     @elongation_ratio = 0.5
+
+    @double_counter = 0
+
+    @marked_as_double = false
 
     create_children
   end
@@ -263,9 +267,28 @@ class Link < PhysicsSketchupObject
 
   def create_children
     create_elongations
+    # material = @material
+    # if @marked_as_double
+    #   material = Sketchup.active_model.materials.add("marked_as_double")
+    #   material.color = Sketchup::Color.new(1.0, 0.0, 1.0)
+    #   material.alpha = 1.0
+    # end
+    #
+    material = @material
+    if @double_counter == 1
+      material = Sketchup.active_model.materials.add("double")
+      material.color = Sketchup::Color.new(1.0, 0.75, 0.05)
+      material.alpha = 0.2
+    end
+
+    if @double_counter == 2
+      material = Sketchup.active_model.materials.add("double")
+      material.color = Sketchup::Color.new(1.0, 0.75, 0.05)
+      material.alpha = 1.0
+    end
 
     add(@first_elongation,
-        BottleLink.new(@position, direction, @model, id: @id, material: @material),
+        BottleLink.new(@position, direction, @model, id: @id, material: material),
         Line.new(@position, @second_position, LINK_LINE),
         @second_elongation)
   end

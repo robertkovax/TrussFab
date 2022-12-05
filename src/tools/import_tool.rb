@@ -4,6 +4,7 @@ require 'src/utility/json_import.rb'
 require 'src/database/graph.rb'
 require 'src/configuration/configuration.rb'
 require 'src/sketchup_objects/actuator_link.rb'
+require 'src/tubes_and_ties/tube_graph.rb'
 
 # Imports an object from a JSON file
 class ImportTool < Tool
@@ -76,8 +77,19 @@ class ImportTool < Tool
       @ui.spring_pane.color_static_groups
     end
 
+    find_soft_euler_path
     @mouse_input.update_positions(view, x, y)
     view.invalidate
+  end
+
+  def find_soft_euler_path
+    graph = TubeGraph.from_graph(Graph.instance)
+    graph.find_soft_euler_path.each_cons(2) do |node_a, node_b|
+      edge = Graph.instance.edges[node_a.edge_to(node_b).id]
+
+      edge.link.double_counter = edge.link.double_counter + 1
+      edge.link.recreate_children
+    end
   end
 
   def setup_new_edges(new_edges, animation)
