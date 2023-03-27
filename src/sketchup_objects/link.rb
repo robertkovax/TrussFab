@@ -274,21 +274,21 @@ class Link < PhysicsSketchupObject
     #   material.alpha = 1.0
     # end
     #
-    material = @material
-    if @double_counter == 1
-      material = Sketchup.active_model.materials.add("double")
-      material.color = Sketchup::Color.new(1.0, 0.75, 0.05)
-      material.alpha = 0.2
-    end
-
+    # material = @material
+    # if @double_counter == 1
+    #   material = Sketchup.active_model.materials.add("double")
+    #   material.color = Sketchup::Color.new(1.0, 0.75, 0.05)
+    #   material.alpha = 0.2
+    # end
+    #
+    model = @model
     if @double_counter == 2
-      material = Sketchup.active_model.materials.add("double")
-      material.color = Sketchup::Color.new(1.0, 0.75, 0.05)
-      material.alpha = 1.0
+      model = ModelStorage.instance.models["hard"].models["DoublePipe(60cm)"]
     end
+    #
 
     add(@first_elongation,
-        BottleLink.new(@position, direction, @model, id: @id, material: material),
+        BottleLink.new(@position, direction, model, id: @id, material: @material),
         Line.new(@position, @second_position, LINK_LINE),
         @second_elongation)
   end

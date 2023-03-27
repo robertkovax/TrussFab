@@ -13,64 +13,64 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
-  <title>Trusscillator</title>
+  <title>AirTied</title>
 </head>
 
 <body>
-    <div class="card m-2 p-2">
-      <h5 class="card-title">Dynamics</h5>
-      <div class="card-body m-1 p-1">
-        <button type="button" class="tool btn btn-light" id="place_user_tool">
-          <img src="../trussfab-globals/assets/icons/user-icon.svg" width="54px" alt="spring">
-          <div>user</div>
-        </button>
-        <button type="button" class="tool btn btn-light" id="spring_tool">
-          <img src="../trussfab-globals/assets/icons/spring.png" width="54px" alt="spring">
-          <div>spring</div>
-        </button>
-        <button type="button" class="tool btn btn-light" id="dynamic_tetrahedron_tool">
-          <img src="../trussfab-globals/assets/icons/tetrahedron_spring1-01.png" alt="spring tetrahedron">
-          <div>hinge</div>
-        </button>
-        <button type="button" class="tool btn btn-light" id="add_weight_tool">
-          <img src="../trussfab-globals/assets/icons/force.png" alt="add test load">
-          <div>weight</div>
-        </button>
-<!--        <button type="button" class="tool btn btn-light" id="demonstrate_amplitude_tool">-->
+<!--    <div class="card m-2 p-2">-->
+<!--      <h5 class="card-title">Dynamics</h5>-->
+<!--      <div class="card-body m-1 p-1">-->
+<!--        <button type="button" class="tool btn btn-light" id="place_user_tool">-->
+<!--          <img src="../trussfab-globals/assets/icons/user-icon.svg" width="54px" alt="spring">-->
+<!--          <div>user</div>-->
+<!--        </button>-->
+<!--        <button type="button" class="tool btn btn-light" id="spring_tool">-->
+<!--          <img src="../trussfab-globals/assets/icons/spring.png" width="54px" alt="spring">-->
+<!--          <div>spring</div>-->
+<!--        </button>-->
+<!--        <button type="button" class="tool btn btn-light" id="dynamic_tetrahedron_tool">-->
+<!--          <img src="../trussfab-globals/assets/icons/tetrahedron_spring1-01.png" alt="spring tetrahedron">-->
+<!--          <div>hinge</div>-->
+<!--        </button>-->
+<!--        <button type="button" class="tool btn btn-light" id="add_weight_tool">-->
+<!--          <img src="../trussfab-globals/assets/icons/force.png" alt="add test load">-->
+<!--          <div>weight</div>-->
+<!--        </button>-->
+<!--&lt;!&ndash;        <button type="button" class="tool btn btn-light" id="demonstrate_amplitude_tool">&ndash;&gt;-->
+<!--&lt;!&ndash;          <img src="../trussfab-globals/assets/icons/apply_force_vector.png" width="54px" alt="spring">&ndash;&gt;-->
+<!--&lt;!&ndash;          <div>show amplitude</div>&ndash;&gt;-->
+<!--&lt;!&ndash;        </button>&ndash;&gt;-->
+<!--&lt;!&ndash;        <button type="button" class="tool btn btn-light" id="inspect_tool">&ndash;&gt;-->
+<!--&lt;!&ndash;          <img src="../trussfab-globals/assets/icons/magnifier.png" width="54px" alt="spring">&ndash;&gt;-->
+<!--&lt;!&ndash;          <div>inspect</div>&ndash;&gt;-->
+<!--&lt;!&ndash;        </button>&ndash;&gt;-->
+<!--        &lt;!&ndash; <button type="button" class="tool btn btn-light" id="apply_force_vector_tool">-->
 <!--          <img src="../trussfab-globals/assets/icons/apply_force_vector.png" width="54px" alt="spring">-->
-<!--          <div>show amplitude</div>-->
-<!--        </button>-->
-<!--        <button type="button" class="tool btn btn-light" id="inspect_tool">-->
-<!--          <img src="../trussfab-globals/assets/icons/magnifier.png" width="54px" alt="spring">-->
-<!--          <div>inspect</div>-->
-<!--        </button>-->
-        <!-- <button type="button" class="tool btn btn-light" id="apply_force_vector_tool">
-          <img src="../trussfab-globals/assets/icons/apply_force_vector.png" width="54px" alt="spring">
-          <div>apply force vector</div>
-        </button> -->
-        <!--<button type="button" class="tool" id="assets_user_tool">
-          <img src="../trussfab-globals/assets/icons/wheel.png" width="54px" alt="spring">
-          <div>place user asset</div>
-        </button>-->
-<!--        <button type="button" class="tool btn btn-light" id="scale_oscillation_tool">-->
-<!--          <img src="../trussfab-globals/assets/icons/scale_oscillation.png" width="54px" alt="spring">-->
-<!--          <div>amplify motion</div>-->
-<!--        </button>-->
-        <!-- <button type="button" class="tool" id="pose_check_tool">
-                <img src="../trussfab-globals/assets/icons/act_dashed.png" alt="pose check">
-                <div>chk. pos.</div>
-              </button> -->
-        <!-- <button type="button" class="tool" id="spring_tool">
-                <img src="../trussfab-globals/assets/icons/actuator.png" width="54px" alt="actuator">
-                <div>spring</div>
-              </button>
-              <button type="button" class="tool" id="damp_tool">
-                <img src="../trussfab-globals/assets/icons/actuator.png" width="54px" alt="actuator">
-                <div>damp</div>
-              </button> -->
-        <!--<h6>Assets</h6>-->
-      </div>
-    </div>
+<!--          <div>apply force vector</div>-->
+<!--        </button> &ndash;&gt;-->
+<!--        &lt;!&ndash;<button type="button" class="tool" id="assets_user_tool">-->
+<!--          <img src="../trussfab-globals/assets/icons/wheel.png" width="54px" alt="spring">-->
+<!--          <div>place user asset</div>-->
+<!--        </button>&ndash;&gt;-->
+<!--&lt;!&ndash;        <button type="button" class="tool btn btn-light" id="scale_oscillation_tool">&ndash;&gt;-->
+<!--&lt;!&ndash;          <img src="../trussfab-globals/assets/icons/scale_oscillation.png" width="54px" alt="spring">&ndash;&gt;-->
+<!--&lt;!&ndash;          <div>amplify motion</div>&ndash;&gt;-->
+<!--&lt;!&ndash;        </button>&ndash;&gt;-->
+<!--        &lt;!&ndash; <button type="button" class="tool" id="pose_check_tool">-->
+<!--                <img src="../trussfab-globals/assets/icons/act_dashed.png" alt="pose check">-->
+<!--                <div>chk. pos.</div>-->
+<!--              </button> &ndash;&gt;-->
+<!--        &lt;!&ndash; <button type="button" class="tool" id="spring_tool">-->
+<!--                <img src="../trussfab-globals/assets/icons/actuator.png" width="54px" alt="actuator">-->
+<!--                <div>spring</div>-->
+<!--              </button>-->
+<!--              <button type="button" class="tool" id="damp_tool">-->
+<!--                <img src="../trussfab-globals/assets/icons/actuator.png" width="54px" alt="actuator">-->
+<!--                <div>damp</div>-->
+<!--              </button> &ndash;&gt;-->
+<!--        &lt;!&ndash;<h6>Assets</h6>&ndash;&gt;-->
+<!--      </div>-->
+<!--    </div>-->
   <div id="accordion">
     <div class="card m-2 p-2">
     <h5 class="card-title">Shape</h5>
@@ -123,8 +123,8 @@
     <h5 class="card-title">Edit</h5>
       <div class="m-1 p-1 card-body">
     <button type="button" class="tool btn btn-light" id="double_edge">
-      <img src="../trussfab-globals/assets/icons/single.png" width="54px" alt="spring">
-      <div>double edge</div>
+      <img src="../trussfab-globals/assets/icons/double.png" width="54px" alt="spring">
+      <div>double</div>
     </button>
     <button type="button" class="tool btn btn-light" id="grow_tool">
       <img src="../trussfab-globals/assets/icons/grow.png" alt="grow">
@@ -150,22 +150,26 @@
       <img src="../trussfab-globals/assets/icons/delete.png" alt="delete">
       <div>delete</div>
     </button>
+        <div class="row no-gutters">
+          <button class="btn btn-secondary col mb-3 mr-1" id="export_file_tool">Save</button>
+          <button type="button" class="btn btn-secondary col mb-3 ml-1" id="import_file_tool">Load</button>
+        </div>
       </div>
     </div>
 
-    <div class="card m-2 p-2">
-    <h5 class="card-title">Fixtures</h5>
-      <div class="m-1 p-1 card-body">
-    <button type="button" class="tool btn btn-light" id="pod_tool">
-      <img src="../trussfab-globals/assets/icons/pod.png" alt="pod">
-      <div>pod</div>
-    </button>
-    <button type="button" class="tool btn btn-light" id="cover_tool">
-      <img src="../trussfab-globals/assets/icons/cover.png" alt="cover">
-      <div>cover</div>
-    </button>
-      </div>
-    </div>
+<!--    <div class="card m-2 p-2">-->
+<!--    <h5 class="card-title">Fixtures</h5>-->
+<!--      <div class="m-1 p-1 card-body">-->
+<!--    <button type="button" class="tool btn btn-light" id="pod_tool">-->
+<!--      <img src="../trussfab-globals/assets/icons/pod.png" alt="pod">-->
+<!--      <div>pod</div>-->
+<!--    </button>-->
+<!--    <button type="button" class="tool btn btn-light" id="cover_tool">-->
+<!--      <img src="../trussfab-globals/assets/icons/cover.png" alt="cover">-->
+<!--      <div>cover</div>-->
+<!--    </button>-->
+<!--      </div>-->
+<!--    </div>-->
     <!-- <h6 hidden="true">Conversion</h6> -->
     <!-- <button type="button" hidden="true" class="tool">
             <img src="../trussfab-globals/assets/icons/surface.png" alt="surface">
@@ -258,14 +262,12 @@
           </button> -->
   <!-- Accordion End -->
     <div class="card m-2 p-2">
+      <h5 class="card-title">Fabricate</h5>
       <div class="card-body pb-0">
-        <div class="row">
-    <button class="btn btn-secondary col mb-3 mr-1" id="export_file_tool">Save</button>
-    <button type="button" class="btn btn-secondary col mb-3 ml-1" id="import_file_tool">Load</button></div>
         <div class="row">
     <button class="btn btn-primary fabricate mb-3" id="fabricate_tool">
       <img src="../trussfab-globals/assets/icons/fabricate.png" alt="fabricate it">
-      <div>Fabricate!</div>
+      <div>Export</div>
     </button></div>
       </div></div>
   <script src="node_modules/jquery/dist/jquery.slim.min.js"></script>

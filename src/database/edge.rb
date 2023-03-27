@@ -231,7 +231,7 @@ class Edge < GraphObject
   end
 
   def inspect
-    "Edge #{@id} (#{@first_node.id}, #{@second_node.id})"
+    "Edge #{@id} (#{@first_node.id}, #{@second_node.id}) (doublecount: #{@sketchup_object.double_counter})"
   end
 
   def reset

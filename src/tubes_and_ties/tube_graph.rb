@@ -21,6 +21,7 @@ class TubeGraph
         tube_edge = TubeEdge.new(first_node, second_node, edge_id)
         first_node.edges.push(tube_edge)
         second_node.edges.push(tube_edge)
+        tube_edge.marked_as_double = edge.link.marked_as_double
         tube_graph.edges[edge_id] = tube_edge
       end
       tube_graph
@@ -37,7 +38,7 @@ class TubeGraph
   def find_soft_euler_path
     @euler_path = []
     id, node = @nodes.first
-    euler_iteratively(node)
+    euler_for_real(node)
     # tube_depth_first_search(node)
     puts @euler_path.map { |node| node.id }
     puts "-------"
@@ -85,6 +86,73 @@ class TubeGraph
     #     find any edge coming out of V;
     #     remove it from the graph;
     #     put the second end of this edge in St;
+  end
+
+  def euler_for_real(start)
+    @euler_path = [start]
+    # until every edge has been visited once...
+    until @edges.keys.all? {|edge_id| @edges[edge_id].first_mark  }
+      v = @euler_path[-1]
+
+      if (v.edges_with_user_mark - v.edges_with_second_mark).length > 0
+        edge = (v.edges_with_user_mark - v.edges_with_second_mark)[0]
+        if  !edge.first_mark
+          edge.first_mark = true
+        else
+          edge.second_mark = true
+        end
+      else
+        if v.edges_without_first_mark.length > 0
+          u = double_dfs(v)
+          edge = u.edge_to(v)
+          edge.first_mark = true
+        elsif v.edges_without_second_mark.length > 0
+          u = double_dfs_second(v)
+          edge = u.edge_to(v)
+          edge.second_mark = true
+        else
+          puts "error..."
+        end
+      end
+      @euler_path.push(edge.opposite(v))
+    end
+  end
+
+  # should we do bfs?!
+  def double_dfs(node)
+    visited = [node]
+    path = node.adjacent_nodes_without_first_mark
+    q = node.adjacent_nodes_without_first_mark
+    visited.concat(node.adjacent_nodes_without_first_mark)
+    until q.empty?
+      v = q.shift
+      pre = path.shift
+      if v.open
+        return pre
+      end
+      nodes = v.adjacent_nodes_without_first_mark.reject { |node| visited.include?(node) }
+      q.concat(nodes)
+      path.concat(Array.new(nodes.length, pre))
+      visited.concat(nodes)
+    end
+  end
+
+  def double_dfs_second(node)
+    visited = [node]
+    path = node.adjacent_nodes_without_second_mark
+    q = node.adjacent_nodes_without_second_mark
+    visited.concat(node.adjacent_nodes_without_second_mark)
+    until q.empty?
+      v = q.shift
+      pre = path.shift
+      if v.open
+        return pre
+      end
+      nodes = v.adjacent_nodes_without_second_mark.reject { |node| visited.include?(node) }
+      q.concat(nodes)
+      path.concat(Array.new(nodes.length, pre))
+      visited.concat(nodes)
+    end
   end
 
 end

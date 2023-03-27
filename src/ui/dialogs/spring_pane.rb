@@ -448,7 +448,7 @@ class SpringPane
 
   # compilation / simulation logic
   def simulate(amplitude_tweak: false)
-
+    return
     if not @trigger_server_update_on_change
       return
     end

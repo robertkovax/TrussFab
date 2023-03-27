@@ -84,10 +84,30 @@ class ImportTool < Tool
 
   def find_soft_euler_path
     graph = TubeGraph.from_graph(Graph.instance)
+    Graph.instance.edges.each { |id, edge| edge.link.double_counter = 0}
     graph.find_soft_euler_path.each_cons(2) do |node_a, node_b|
       edge = Graph.instance.edges[node_a.edge_to(node_b).id]
 
       edge.link.double_counter = edge.link.double_counter + 1
+      if edge.link.double_counter == 0
+        edge.link.material = Sketchup.active_model.materials['standard_material']
+      elsif edge.link.marked_as_double
+        material = Sketchup.active_model.materials.add("double")
+        material.color = Sketchup::Color.new(1.0, 0.75, 0.05)
+        material.alpha = 1.0
+        edge.link.material = material
+      elsif edge.link.double_counter == 1
+        material = Sketchup.active_model.materials.add("double")
+        material.color = Sketchup::Color.new(1.0, 0.75, 0.05)
+        material.alpha = 1.0
+        edge.link.material = material
+      elsif edge.link.double_counter == 2
+        material = Sketchup.active_model.materials.add("double")
+        material.color = Sketchup::Color.new(1.0, 0.75, 0.05)
+        material.alpha = 1.0
+        edge.link.material = material
+      end
+
       edge.link.recreate_children
     end
   end

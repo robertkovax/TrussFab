@@ -20,3 +20,8 @@ button[disabled] {
   color: grey;
   cursor: default;
 }
+
+.btn-primary, .btn-primary:hover, .btn-primary:active, .btn-primary:visited {
+  background-color: #fed600 !important;
+  border-color: #fed600 !important;
+}
