@@ -2,6 +2,8 @@ require 'src/tubes_and_ties/tube_edge.rb'
 require 'src/tubes_and_ties/tube_node.rb'
 
 class TubeGraph
+  Interval = Struct.new(:first_occurence, :last_occurence)
+
   attr_accessor :edges, :nodes
 
   class << self
@@ -42,10 +44,13 @@ class TubeGraph
     # tube_depth_first_search(node)
     puts @euler_path.map { |node| node.id }
     puts "-------"
-    @euler_path.each_cons(2) do |node_a, node_b|
-      puts node_a.edge_to(node_b).id
-    end
-    puts "-------"
+    # @euler_path.each_cons(2) do |node_a, node_b|
+    #   puts node_a.edge_to(node_b).id
+    # end
+    # puts "-------"
+
+    # Calculate slot useage
+    slot_usage
     @euler_path
   end
 
@@ -153,6 +158,43 @@ class TubeGraph
       path.concat(Array.new(nodes.length, pre))
       visited.concat(nodes)
     end
+  end
+
+  def slot_usage
+    intervals = {}
+    @euler_path.each { |node| intervals[node.id] = Interval.new(first_occurence_in_path(node), last_occurence_in_path(node)) }
+    @euler_path.each { |node| puts("node #{node.id}: (#{intervals[node.id].first_occurence}, #{intervals[node.id].last_occurence})")  }
+
+
+    # capacity = Array.new(@euler_path.length, 0)
+    slot_count = 0
+    max_slot_count = 0
+    # ... calculate max slot capacity
+    node_ids = @euler_path.map { |node| node.id }
+    node_ids.each_with_index do |node_id, index|
+      # intervals.each do |node, value|
+      #
+      # end
+      occurences = intervals[node_id]
+      if (index == occurences.first_occurence)
+        slot_count += 1
+      elsif (index == occurences.last_occurence)
+        slot_count -= 1
+      end
+      if (slot_count > max_slot_count)
+        max_slot_count = slot_count
+      end
+    end
+    puts "max slots: #{max_slot_count}"
+
+  end
+
+  def first_occurence_in_path(node)
+    @euler_path.find_index(node)
+  end
+
+  def last_occurence_in_path(node)
+    @euler_path.rindex(node)
   end
 
 end
