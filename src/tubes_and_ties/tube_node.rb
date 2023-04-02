@@ -48,7 +48,7 @@ class TubeNode < GraphObject
     @edges.select(&:marked_as_double)
   end
 
-
+  # a node is open if it has been partially visited but not fully.
   def open
     adjacent_nodes_without_first_mark.length > 0
   end

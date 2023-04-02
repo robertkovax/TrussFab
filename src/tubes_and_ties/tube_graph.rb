@@ -39,15 +39,19 @@ class TubeGraph
 
   def find_soft_euler_path
     @euler_path = []
-    id, node = @nodes.first
+    id, node = @nodes.to_a.last
     euler_for_real(node)
-    # tube_depth_first_search(node)
-    puts @euler_path.map { |node| node.id }
+
+    @euler_path.each_cons(2) do |node_a, node_b|
+      puts "#{node_a.edge_to(node_b).id}, (#{node_a.id}, #{node_b.id})"
+    end
     puts "-------"
-    # @euler_path.each_cons(2) do |node_a, node_b|
-    #   puts node_a.edge_to(node_b).id
-    # end
-    # puts "-------"
+
+    #
+    # tube_depth_first_search(node)
+    puts @euler_path.map(&:id)
+    puts "-------"
+
 
     # Calculate slot useage
     slot_usage
@@ -126,37 +130,55 @@ class TubeGraph
   # should we do bfs?!
   def double_dfs(node)
     visited = [node]
-    path = node.adjacent_nodes_without_first_mark
-    q = node.adjacent_nodes_without_first_mark
-    visited.concat(node.adjacent_nodes_without_first_mark)
+    n = node.adjacent_nodes_without_first_mark
+    n.sort_by! { |node| node.edges_without_first_mark.length}
+    neighbours = n.map(&:id)
+    path = neighbours.compact
+    q = neighbours.compact
+    visited.concat(neighbours.compact)
+    puts("dfs for node #{node.id}: neighbours: #{q}")
     until q.empty?
-      v = q.shift
-      pre = path.shift
-      if v.open
+      v = @nodes[q.shift]
+      puts("    current node #{v.id}")
+      puts("            path #{path}")
+      pre = @nodes[path.shift]
+      if (@euler_path.include?(v) && v.open) || @euler_path.length == 1
         return pre
       end
-      nodes = v.adjacent_nodes_without_first_mark.reject { |node| visited.include?(node) }
-      q.concat(nodes)
-      path.concat(Array.new(nodes.length, pre))
-      visited.concat(nodes)
+      nodes = v.adjacent_nodes_without_first_mark.reject { |node| visited.include?(node.id) }
+      nodes.sort_by! { |node| node.edges_without_first_mark.length}
+      node_ids = nodes.map(&:id)
+      q.concat(node_ids.compact)
+      path.concat(Array.new(node_ids.length, pre.id))
+      visited.concat(node_ids.compact)
+      puts("    current node #{v.id}: q: #{q}")
     end
   end
 
   def double_dfs_second(node)
     visited = [node]
-    path = node.adjacent_nodes_without_second_mark
-    q = node.adjacent_nodes_without_second_mark
-    visited.concat(node.adjacent_nodes_without_second_mark)
+    n = node.adjacent_nodes_without_second_mark
+    n.sort_by! { |node| node.edges_without_second_mark.length}
+    neighbours = n.map(&:id)
+    path = neighbours.compact
+    q = neighbours.compact
+    visited.concat(neighbours.compact)
+    puts("double dfs for node #{node.id}: neighbours: #{q}")
     until q.empty?
-      v = q.shift
-      pre = path.shift
-      if v.open
+      v = @nodes[q.shift]
+      puts("    current node #{v.id}")
+      puts("            path #{path}")
+      pre = @nodes[path.shift]
+      if @euler_path.include?(v) && v.open
         return pre
       end
-      nodes = v.adjacent_nodes_without_second_mark.reject { |node| visited.include?(node) }
-      q.concat(nodes)
-      path.concat(Array.new(nodes.length, pre))
-      visited.concat(nodes)
+      nodes = v.adjacent_nodes_without_second_mark.reject { |node| visited.include?(node.id) }
+      nodes.sort_by! { |node| node.edges_without_second_mark.length}
+      node_ids = nodes.map(&:id)
+      q.concat(node_ids.compact)
+      path.concat(Array.new(node_ids.length, pre.id))
+      visited.concat(node_ids.compact)
+      puts("    current node #{v.id}: q: #{q}")
     end
   end
 
@@ -170,7 +192,7 @@ class TubeGraph
     slot_count = 0
     max_slot_count = 0
     # ... calculate max slot capacity
-    node_ids = @euler_path.map { |node| node.id }
+    node_ids = @euler_path.map(&:id)
     node_ids.each_with_index do |node_id, index|
       # intervals.each do |node, value|
       #
