@@ -3,7 +3,7 @@ require 'src/database/graph_object.rb'
 class TubeNode < GraphObject
   attr_accessor :edges, :dfs_mark
 
-  def initialize(id)
+  def initialize(id=nil)
     super(id)
     @edges = []
   end

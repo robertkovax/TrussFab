@@ -15,6 +15,8 @@ class ImportTool < Tool
     @angle = 0
     @scale = 1
     @update_springs = true
+    @last_snapped_object = nil
+    @last_snapped_object_invalid = false
   end
 
   def onKeyDown(key, _repeat, _flags, _view)
@@ -62,6 +64,9 @@ class ImportTool < Tool
 
   def onMouseMove(_flags, x, y, view)
     @mouse_input.update_positions(view, x, y)
+
+    # Check whether adding geometry to the snapped object would succeed the available slot limit
+    validate_slot_sage
   end
 
   def onLButtonDown(_flags, x, y, view)
@@ -77,7 +82,14 @@ class ImportTool < Tool
       @ui.spring_pane.color_static_groups
     end
 
-    find_soft_euler_path
+    slots_used = find_soft_euler_path
+    # Calculate needed material, lengths are in cm
+    material_used = Graph.instance.edges.values.map(&:length).inject(0, :+) / 100
+    slots_used = [[0, Configuration::AVAILABLE_SLOT_COUNT - slots_used].max, Configuration::AVAILABLE_SLOT_COUNT].min
+    fabrication_data = {remaining_slots: slots_used, material_length: material_used.round(2), material_cost: (material_used * Configuration::MATERIAL_PRICE_PER_METER).round(2)}
+    TrussFab.get_sidebar_menu.update_fabrication_data(fabrication_data)
+
+
     @mouse_input.update_positions(view, x, y)
     view.invalidate
   end
@@ -110,6 +122,88 @@ class ImportTool < Tool
 
       edge.link.recreate_children
     end
+
+    slots_used = graph.slot_usage
+    puts "max slots: #{slots_used}"
+    slots_used
+  end
+
+  def validate_slot_sage
+    snapped_object = @mouse_input.snapped_object
+    if snapped_object.is_a?(Triangle)
+      if snapped_object == @last_snapped_object
+        snapped_object.highlight_invalid if @last_snapped_object_invalid
+        return
+      end
+      @last_snapped_object_invalid = false
+      tube_graph = TubeGraph.from_graph(Graph.instance)
+      # Graph.instance.edges.each { |id, edge| edge.link.double_counter = 0}
+      # TODO add snapped triangles nodes to tube graph only
+
+      # TODO adjust to octa logic
+      if is_a?(TetrahedronTool)
+        add_tetra_to_tube_graph(tube_graph, snapped_object)
+      elsif is_a?(OctahedronTool)
+        add_octa_to_tube_graph(tube_graph, snapped_object)
+      else
+        puts "Warning: Slot usage validation is not supported for this workflow."
+        return
+      end
+
+      tube_graph.find_soft_euler_path
+      slots_used = tube_graph.slot_usage
+      puts "New slot usage: #{slots_used} slots"
+
+      if slots_used > Configuration::AVAILABLE_SLOT_COUNT
+        @last_snapped_object_invalid = true
+      end
+
+      @last_snapped_object = snapped_object
+    end
+
+  end
+
+  def add_tetra_to_tube_graph(tube_graph, insertion_triangle)
+    new_node = TubeNode.new
+    tube_graph.nodes[new_node.id] = new_node
+
+    first_edge = tube_graph.create_edge_between_nodes(tube_graph.nodes[insertion_triangle.first_node.id], new_node)
+    tube_graph.edges[first_edge.id] = first_edge
+    second_edge = tube_graph.create_edge_between_nodes(tube_graph.nodes[insertion_triangle.second_node.id], new_node)
+    tube_graph.edges[second_edge.id] = second_edge
+    third_edge = tube_graph.create_edge_between_nodes(tube_graph.nodes[insertion_triangle.third_node.id], new_node)
+    tube_graph.edges[third_edge.id] = third_edge
+  end
+
+  def add_octa_to_tube_graph(tube_graph, insertion_triangle)
+    new_node_a = TubeNode.new
+    tube_graph.nodes[new_node_a.id] = new_node_a
+    new_node_b = TubeNode.new
+    tube_graph.nodes[new_node_b.id] = new_node_b
+    new_node_c = TubeNode.new
+    tube_graph.nodes[new_node_c.id] = new_node_c
+
+    edge_a = tube_graph.create_edge_between_nodes(tube_graph.nodes[insertion_triangle.first_node.id], new_node_a)
+    tube_graph.edges[edge_a.id] = edge_a
+    edge_b = tube_graph.create_edge_between_nodes(tube_graph.nodes[insertion_triangle.first_node.id], new_node_c)
+    tube_graph.edges[edge_b.id] = edge_b
+
+    edge_c = tube_graph.create_edge_between_nodes(tube_graph.nodes[insertion_triangle.second_node.id], new_node_a)
+    tube_graph.edges[edge_c.id] = edge_c
+    edge_d = tube_graph.create_edge_between_nodes(tube_graph.nodes[insertion_triangle.second_node.id], new_node_b)
+    tube_graph.edges[edge_d.id] = edge_d
+
+    edge_e = tube_graph.create_edge_between_nodes(tube_graph.nodes[insertion_triangle.third_node.id], new_node_b)
+    tube_graph.edges[edge_e.id] = edge_e
+    edge_f = tube_graph.create_edge_between_nodes(tube_graph.nodes[insertion_triangle.third_node.id], new_node_c)
+    tube_graph.edges[edge_f.id] = edge_f
+
+    edge_g = tube_graph.create_edge_between_nodes(new_node_a, new_node_b)
+    tube_graph.edges[edge_g.id] = edge_g
+    edge_h = tube_graph.create_edge_between_nodes(new_node_b, new_node_c)
+    tube_graph.edges[edge_h.id] = edge_h
+    edge_i = tube_graph.create_edge_between_nodes(new_node_c, new_node_a)
+    tube_graph.edges[edge_i.id] = edge_i
   end
 
   def setup_new_edges(new_edges, animation)

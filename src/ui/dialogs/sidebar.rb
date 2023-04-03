@@ -2,7 +2,7 @@ ProjectHelper.require_multiple('src/tools/*.rb')
 
 # ruby integration for the tool sidebar
 class Sidebar
-  attr_reader :width, :height, :top, :left
+  attr_reader :width, :height, :top, :left, :fabrication_data
 
   attr_accessor :animation_pane
   attr_accessor :spring_pane
@@ -15,6 +15,7 @@ class Sidebar
 
   def initialize
     @tools = {}
+    @fabrication_data = {remaining_slots: Configuration::AVAILABLE_SLOT_COUNT, material_length: 0, material_cost: 0}
   end
 
   def deselect_tool
@@ -84,6 +85,11 @@ class Sidebar
 
   def toggle_dev_mode
     @dialog.execute_script('toggleDevMode();')
+  end
+
+  def update_fabrication_data(new_data)
+    @fabrication_data = new_data
+    @dialog.execute_script("updateFabricationData('#{@fabrication_data.to_json}')")
   end
 
   private

@@ -1,5 +1,6 @@
 require 'src/tubes_and_ties/tube_edge.rb'
 require 'src/tubes_and_ties/tube_node.rb'
+require 'benchmark'
 
 class TubeGraph
   Interval = Struct.new(:first_occurence, :last_occurence)
@@ -40,21 +41,23 @@ class TubeGraph
   def find_soft_euler_path
     @euler_path = []
     id, node = @nodes.to_a.last
-    euler_for_real(node)
 
-    @euler_path.each_cons(2) do |node_a, node_b|
-      puts "#{node_a.edge_to(node_b).id}, (#{node_a.id}, #{node_b.id})"
-    end
-    puts "-------"
+    time = Benchmark.realtime {euler_for_real(node)}
+    time_per_node = time / @nodes.length
+    puts "Found path in #{time} seconds. (#{time_per_node} per node, #{@nodes.length} nodes)"
 
+
+
+    # @euler_path.each_cons(2) do |node_a, node_b|
+    #   puts "#{node_a.edge_to(node_b).id}, (#{node_a.id}, #{node_b.id})"
+    # end
+    # puts "-------"
     #
-    # tube_depth_first_search(node)
-    puts @euler_path.map(&:id)
-    puts "-------"
+    # #
+    # # tube_depth_first_search(node)
+    # puts @euler_path.map(&:id)
+    # puts "-------"
 
-
-    # Calculate slot useage
-    slot_usage
     @euler_path
   end
 
@@ -136,11 +139,11 @@ class TubeGraph
     path = neighbours.compact
     q = neighbours.compact
     visited.concat(neighbours.compact)
-    puts("dfs for node #{node.id}: neighbours: #{q}")
+    # puts("dfs for node #{node.id}: neighbours: #{q}")
     until q.empty?
       v = @nodes[q.shift]
-      puts("    current node #{v.id}")
-      puts("            path #{path}")
+      # puts("    current node #{v.id}")
+      # puts("            path #{path}")
       pre = @nodes[path.shift]
       if (@euler_path.include?(v) && v.open) || @euler_path.length == 1
         return pre
@@ -151,7 +154,7 @@ class TubeGraph
       q.concat(node_ids.compact)
       path.concat(Array.new(node_ids.length, pre.id))
       visited.concat(node_ids.compact)
-      puts("    current node #{v.id}: q: #{q}")
+      # puts("    current node #{v.id}: q: #{q}")
     end
   end
 
@@ -163,11 +166,11 @@ class TubeGraph
     path = neighbours.compact
     q = neighbours.compact
     visited.concat(neighbours.compact)
-    puts("double dfs for node #{node.id}: neighbours: #{q}")
+    # puts("double dfs for node #{node.id}: neighbours: #{q}")
     until q.empty?
       v = @nodes[q.shift]
-      puts("    current node #{v.id}")
-      puts("            path #{path}")
+      # puts("    current node #{v.id}")
+      # puts("            path #{path}")
       pre = @nodes[path.shift]
       if @euler_path.include?(v) && v.open
         return pre
@@ -178,14 +181,17 @@ class TubeGraph
       q.concat(node_ids.compact)
       path.concat(Array.new(node_ids.length, pre.id))
       visited.concat(node_ids.compact)
-      puts("    current node #{v.id}: q: #{q}")
+      # puts("    current node #{v.id}: q: #{q}")
     end
   end
 
+  # Determines the slots necessary to fabricate this tube graph, will calculate a euler path first if it has not been calculated before
   def slot_usage
+    find_soft_euler_path if @euler_path.empty?
+
     intervals = {}
     @euler_path.each { |node| intervals[node.id] = Interval.new(first_occurence_in_path(node), last_occurence_in_path(node)) }
-    @euler_path.each { |node| puts("node #{node.id}: (#{intervals[node.id].first_occurence}, #{intervals[node.id].last_occurence})")  }
+    # @euler_path.each { |node| puts("node #{node.id}: (#{intervals[node.id].first_occurence}, #{intervals[node.id].last_occurence})")  }
 
 
     # capacity = Array.new(@euler_path.length, 0)
@@ -207,8 +213,8 @@ class TubeGraph
         max_slot_count = slot_count
       end
     end
-    puts "max slots: #{max_slot_count}"
-
+    # puts "max slots: #{max_slot_count}"
+    max_slot_count
   end
 
   def first_occurence_in_path(node)
@@ -217,6 +223,14 @@ class TubeGraph
 
   def last_occurence_in_path(node)
     @euler_path.rindex(node)
+  end
+
+  def create_edge_between_nodes(first_node, second_node, edge_id=nil)
+    tube_edge = TubeEdge.new(first_node, second_node, edge_id)
+    first_node.edges.push(tube_edge)
+    second_node.edges.push(tube_edge)
+    @edges[tube_edge.id] = tube_edge
+    tube_edge
   end
 
 end

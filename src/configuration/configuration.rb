@@ -89,6 +89,7 @@ module Configuration
   HIGHLIGHT_COLOR           = Sketchup::Color.new(0.5, 0.5, 0.5)
   SURFACE_COLOR             = Sketchup::Color.new(1.0, 1.0, 1.0)
   SURFACE_HIGHLIGHT_COLOR   = Sketchup::Color.new(0.5, 0.5, 0.5)
+  SURFACE_INVALID_COLOR     = Sketchup::Color.new(1.0, 0.0, 0.0)
   HUB_COLOR                 = Sketchup::Color.new(0.69, 0.75, 0.81)
   ELONGATION_COLOR          = Sketchup::Color.new(0.69, 0.75, 0.81)
   PID_COLOR                 = Sketchup::Color.new(1.0, 0.45, 0.0)
@@ -97,7 +98,7 @@ module Configuration
   # These are the same colors, but with saturation lower, and a little bit shuffled, to prevent collisions
   UNINTENSE_COLORS = %w[#dcdcdc #696969 #202020 #808080 #c0c0c0].freeze
 
-  # coloring the hinge edge (#999999 dark gray)	
+  # coloring the hinge edge (#999999 dark gray)
   DARK_COLOR = '#999999'.freeze
 
   # Ground Stuff
@@ -187,4 +188,8 @@ module Configuration
   SPRING_DEFAULT_K = 3500
   # Color static groups after placing springs
   COLOR_STATIC_GROUPS = false
+
+  # AirTied Settings
+  AVAILABLE_SLOT_COUNT = 5
+  MATERIAL_PRICE_PER_METER = 2
 end

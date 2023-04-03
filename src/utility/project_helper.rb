@@ -216,6 +216,12 @@ module ProjectHelper
       material.alpha = 1
     end
 
+    unless materials['surface_invalid_material']
+      material = materials.add('surface_invalid_material')
+      material.color = Configuration::SURFACE_INVALID_COLOR
+      material.alpha = 0.6
+    end
+
     unless materials['highlight_material']
       material = materials.add('highlight_material')
       material.color = Configuration::HIGHLIGHT_COLOR

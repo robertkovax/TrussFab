@@ -168,6 +168,10 @@ class Triangle < GraphObject
     'Triangle ' + @id.to_s
   end
 
+  def highlight_invalid
+    @sketchup_object.highlight(Sketchup.active_model.materials['surface_invalid_material']) unless @sketchup_object.nil?
+  end
+
   private
 
   def create_sketchup_object(id)

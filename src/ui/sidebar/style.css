@@ -103,3 +103,37 @@ footer button {
   flex-grow: 1;
   margin: 2px !important;
 }
+
+.st0 {
+  fill: #6E777E;
+}
+
+.st1 {
+  fill: #231F20;
+}
+
+.st2 {
+  font-family: 'HelveticaNeue-Bold';
+}
+
+.st3 {
+  font-size: 8.5339px;
+}
+
+.st4 {
+  font-family: 'HelveticaNeue';
+}
+
+.st5 {
+  font-size: 3.1291px;
+}
+
+.st6 {
+  fill: none;
+  stroke: #ED3925;
+  stroke-miterlimit: 10;
+}
+
+.colorInvalid {
+  fill: #ED3925;
+}
